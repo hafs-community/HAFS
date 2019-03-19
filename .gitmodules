@@ -1,0 +1,16 @@
+[submodule "NEMSfv3gfs"]
+	path = sorc/hafs_forecast.fd
+	url = gerrit:NEMSfv3gfs
+	branch = HAFS
+[submodule "EMC_post"]
+	path = sorc/hafs_post.fd
+	url = gerrit:EMC_post
+	branch = HAFS
+[submodule "ProdGSI"]
+	path = sorc/hafs_gsi.fd
+	url = gerrit:ProdGSI
+	branch = HAFS
+[submodule "Global Workflow"]
+	path = fv3gfs
+	url = gerrit:global-workflow
+	branch = regional
