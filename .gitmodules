@@ -13,4 +13,4 @@
 [submodule "Global Workflow"]
 	path = fv3gfs
 	url = gerrit:global-workflow
-	branch = regional
+	branch = HAFS
