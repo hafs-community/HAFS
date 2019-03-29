@@ -67,7 +67,7 @@ else
 fi
 
 export NETCDF_INCLUDE=${NETCDF_INCLUDE:-"-I${NETCDF}/include"}
-export NETCDF_LDFLAGS=${NETCDF_LDFLAGS:-"-L${NETCDF}/lib -netcdf -lnetcdff"}
+export NETCDF_LDFLAGS=${NETCDF_LDFLAGS:-"-L${NETCDF}/lib -lnetcdf -lnetcdff"}
 
 export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5}/include"}
 export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
