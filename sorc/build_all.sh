@@ -50,19 +50,19 @@ echo " .... Building forecast .... "
 }
 
 #------------------------------------
-# build gsi
-#------------------------------------
-$Build_gsi && {
-echo " .... Building gsi .... "
-./build_gsi.sh > $logs_dir/build_gsi.log 2>&1
-}
-
-#------------------------------------
 # build post
 #------------------------------------
 $Build_post && {
 echo " .... Building post .... "
 ./build_post.sh > $logs_dir/build_post.log 2>&1
+}
+
+#------------------------------------
+# build vortextracker
+#------------------------------------
+$Build_vortextracker && {
+echo " .... Building vortextracker .... "
+./build_vortextracker.sh > $logs_dir/build_vortextracker.log 2>&1
 }
 
 cd ../fv3gfs/sorc
@@ -92,6 +92,14 @@ echo " .... Building fre-nctools .... "
 }
 
 cd $build_dir
+
+#------------------------------------
+# build gsi
+#------------------------------------
+$Build_gsi && {
+echo " .... Building gsi .... "
+./build_gsi.sh > $logs_dir/build_gsi.log 2>&1
+}
 
 echo;echo " .... Build system finished .... "
 

@@ -3,11 +3,12 @@
 #
  declare -a Build_prg=("Build_libs" 
                        "Build_forecast" \
-                       "Build_gsi" \
                        "Build_post" \
+                       "Build_vortextracker" \
                        "Build_chgres" \
                        "Build_orog" \
                        "Build_nctools" \
+                       "Build_gsi" \
                       )
 
 #

@@ -17,15 +17,17 @@ fi
 ${CP} hafs_forecast.fd/NEMS/exe/NEMS.x ../exec/hafs_forecast.x
 
 #------------------------------------
-# install gsi
-#------------------------------------
-${CP} hafs_gsi.fd/exec/global_gsi.x ../exec/hafs_gsi.x
-${CP} hafs_gsi.fd/exec/global_enkf.x ../exec/hafs_gsi.x
-
-#------------------------------------
 # install post
 #------------------------------------
 ${CP} hafs_post.fd/exec/ncep_post ../exec/hafs_post.x
+
+#------------------------------------
+# install vortextracker
+#------------------------------------
+${CP} hafs_vortextracker.fd/exec/gettrk.x ../exec/hafs_gettrk.x
+${CP} hafs_vortextracker.fd/exec/tave.x   ../exec/hafs_tave.x
+${CP} hafs_vortextracker.fd/exec/vint.x   ../exec/hafs_vint.x
+${CP} hafs_vortextracker.fd/exec/supvit.x ../exec/hafs_supvit.x
 
 #------------------------------------
 # install chgres
@@ -47,6 +49,12 @@ ${CP} ../fv3gfs/exec/fregrid                     ../exec/hafs_fregrid.x
 ${CP} ../fv3gfs/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
 ${CP} ../fv3gfs/exec/filter_topo                 ../exec/hafs_filter_topo.x
 ${CP} ../fv3gfs/exec/shave.x                     ../exec/hafs_shave.x
+
+#------------------------------------
+# install gsi
+#------------------------------------
+${CP} hafs_gsi.fd/exec/global_gsi.x  ../exec/hafs_gsi.x
+${CP} hafs_gsi.fd/exec/global_enkf.x ../exec/hafs_enkf.x
 
 echo;echo " .... Install system finished .... "
 
