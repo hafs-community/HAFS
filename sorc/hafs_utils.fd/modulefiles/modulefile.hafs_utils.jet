@@ -1,5 +1,9 @@
 . /apps/lmod/lmod/init/sh
 
+export COREPATH=/mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
+export NCEPLIBS=$COREPATH
+module use $NCEPLIBS/modulefiles
+
 module load intel/15.0.3.187 
 module load impi
 module load szip   
@@ -18,4 +22,3 @@ module load sfcio-intel-sandybridge/1.0.0
 module use /home/George.Vandenberghe/t1/l1025/lib/modulefiles
 
 export NETCDF=${NETCDF4}
-export NETCDF_DIR=${NETCDF4}
