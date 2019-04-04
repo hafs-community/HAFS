@@ -562,8 +562,8 @@ else:
 #   '--login', '-c', '. %s/machine-setup.sh ; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
 #   %( shbackslash(USHhafs), shbackslash(outdb), 
 cmd = exe('sh') [
-    '--login', '-c', 'which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
-    %( shbackslash(outdb), 
+    '--login', '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
+    %( shbackslash(USHhafs), shbackslash(outdb), 
        shbackslash(outxml) ) ] .env(QUIET_PRE_JOB='YES',
                                     HOMEhafs=HOMEhafs,
                                     WHERE_AM_I=WHERE_AM_I) \
