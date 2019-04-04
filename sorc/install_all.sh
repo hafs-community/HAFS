@@ -12,6 +12,12 @@ if [ ! -d "../exec" ]; then
 fi
 
 #------------------------------------
+# install utilities
+#------------------------------------
+${CP} hafs_utils.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
+${CP} hafs_utils.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
+
+#------------------------------------
 # install forecast
 #------------------------------------
 ${CP} hafs_forecast.fd/NEMS/exe/NEMS.x ../exec/hafs_forecast.x
