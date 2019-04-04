@@ -12,12 +12,6 @@ if [ ! -d "../exec" ]; then
 fi
 
 #------------------------------------
-# install utilities
-#------------------------------------
-${CP} hafs_utils.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
-${CP} hafs_utils.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
-
-#------------------------------------
 # install forecast
 #------------------------------------
 ${CP} hafs_forecast.fd/NEMS/exe/NEMS.x ../exec/hafs_forecast.x
@@ -55,6 +49,12 @@ ${CP} ../fv3gfs/exec/fregrid                     ../exec/hafs_fregrid.x
 ${CP} ../fv3gfs/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
 ${CP} ../fv3gfs/exec/filter_topo                 ../exec/hafs_filter_topo.x
 ${CP} ../fv3gfs/exec/shave.x                     ../exec/hafs_shave.x
+
+#------------------------------------
+# install utils
+#------------------------------------
+${CP} hafs_utils.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
+${CP} hafs_utils.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
 
 #------------------------------------
 # install gsi
