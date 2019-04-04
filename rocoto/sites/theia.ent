@@ -1,0 +1,19 @@
+  <!-- theia -->
+  <!ENTITY SCHEDULER       "moabtorque">
+<!--  <!ENTITY SCHEDULER       "slurm"> -->
+  <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
+  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY PE_EXTRA        "">
+  <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
+  <!ENTITY SERIAL_EXTRA    "">
+  <!ENTITY QUEUE_SHARED    "batch">
+  <!ENTITY SHARED_EXTRA    "">
+  <!ENTITY QUEUE_SERVICE   "service">
+  <!ENTITY SERVICE_EXTRA   "">
+  <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
+  <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
+  <!ENTITY PURE_OPENMP     "<nodes>1:ppn=1:tpp=24</nodes>">
+  <!ENTITY RESERVATION     "">
+  <!ENTITY MEMORY          "<memory>1G</memory>">
+  <!ENTITY THREADS         "24">
+  <!ENTITY REQUEST_THREADS "<envar><name>PURE_OPENMP_THREADS</name><value>&THREADS;</value></envar><envar><name>OMP_NUM_THREADS</name><value>&THREADS;</value></envar><envar><name>KMP_NUM_THREADS</name><value>&THREADS;</value></envar>">

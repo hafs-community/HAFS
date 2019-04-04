@@ -1,0 +1,18 @@
+  <!-- wcoss_cray -->
+  <!ENTITY SCHEDULER       "lsfcray">
+  <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
+  <!ENTITY QUEUE_PE        "dev"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY PE_EXTRA        "">
+  <!ENTITY QUEUE_SERIAL    "dev"> <!-- queue for serial jobs -->
+  <!ENTITY SERIAL_EXTRA    "">
+  <!ENTITY QUEUE_SHARED    "dev_shared">
+  <!ENTITY SHARED_EXTRA    "<shared/>">
+  <!ENTITY QUEUE_SERVICE   "dev_transfer">
+  <!ENTITY SERVICE_EXTRA   "<shared/>">
+  <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
+  <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
+  <!ENTITY PURE_OPENMP     "<nodes>1:ppn=1:tpp=24</nodes>">
+  <!ENTITY RESERVATION     "">
+  <!ENTITY MEMORY          "<memory>1G</memory>">
+  <!ENTITY THREADS         "24">
+  <!ENTITY REQUEST_THREADS "<envar><name>PURE_OPENMP_THREADS</name><value>&THREADS;</value></envar><envar><name>OMP_NUM_THREADS</name><value>&THREADS;</value></envar><envar><name>KMP_NUM_THREADS</name><value>&THREADS;</value></envar>">
