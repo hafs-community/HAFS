@@ -35,7 +35,7 @@ dev="-s sites/wcoss_cray.ent -f"
 
  ./run_hafs.py ${dev} 2018 06L HISTORY # Florence
 #./run_hafs.py ${dev} 2018083018-2018083100 06L HISTORY # Florence
-#./run_hafs.py -t 2018100100-2018100206 00L HISTORY # nostorm
+#./run_hafs.py -t ${dev} 2018100100-2018100206 00L HISTORY # nostorm
 
 date
 echo 'cronjob done'
