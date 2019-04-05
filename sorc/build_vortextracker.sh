@@ -25,7 +25,9 @@ if [ $target = wcoss ]; then
 elif [ $target = theia ]; then
 
     targetx=theia
-    source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
+    #source ../modulefiles/modulefile.utils.$target > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.utils.$target
     module list
 
     export FC=ifort
@@ -35,9 +37,9 @@ elif [ $target = theia ]; then
 elif [ $target = jet ]; then
 
     targetx=jet
-    #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
-    source ../modulefiles/modulefile.vortextracker.$target
-
+    #source ../modulefiles/modulefile.utils.$target > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.utils.$target
     module list
 
     export FC=ifort
@@ -48,9 +50,13 @@ elif [ $target = wcoss_cray ]; then
 
     targetx=cray
     if [ $USE_PREINST_LIBS = true ]; then
-      source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
+      #source ../modulefiles/modulefile.utils.$target           > /dev/null 2>&1
+      module use ../modulefiles
+      module load modulefile.utils.$target
     else
-      source ../modulefiles/modulefile.vortextracker.${target}_userlib > /dev/null 2>&1
+      #source ../modulefiles/modulefile.utils.${target}_userlib > /dev/null 2>&1
+      module use ../modulefiles
+      module load modulefile.utils.${target}_userlib
     fi
     module list
 
@@ -62,9 +68,13 @@ elif [ $target = wcoss_dell_p3 ]; then
 
     targetx=wcoss_dell_p3
     if [ $USE_PREINST_LIBS = true ]; then
-      source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
+      #source ../modulefiles/modulefile.utils.$target           > /dev/null 2>&1
+      module use ../modulefiles
+      module load modulefile.utils.$target
     else
-      source ../modulefiles/modulefile.vortextracker.${target}_userlib > /dev/null 2>&1
+      #source ../modulefiles/modulefile.utils.${target}_userlib > /dev/null 2>&1
+      module use ../modulefiles
+      module load modulefile.utils.${target}_userlib
     fi
     module list
 
