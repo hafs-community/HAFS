@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
-set -eux
+#set -eux
+set -x
 
 source ./machine-setup.sh > /dev/null 2>&1
 cwd=`pwd`
@@ -59,11 +60,12 @@ elif [ $target = wcoss_cray ]; then
       module use ../modulefiles
       module load modulefile.utils.${target}_userlib
     fi
+    module load cmake/3.3.2
     module list
 
     export FC="ftn -static"
     export F90="ftn -free -static"
-    export CC=cc
+    export CC=icc
 
 elif [ $target = wcoss_dell_p3 ]; then
 
@@ -77,6 +79,7 @@ elif [ $target = wcoss_dell_p3 ]; then
       module use ../modulefiles
       module load modulefile.utils.${target}_userlib
     fi
+    module load cmake/3.10.0
     module list
 
     export FC=ifort
@@ -91,9 +94,9 @@ fi
 
 export NETCDF_INCLUDE=${NETCDF_INCLUDE:-"-I${NETCDF}/include"}
 export NETCDF_LDFLAGS=${NETCDF_LDFLAGS:-"-L${NETCDF}/lib -lnetcdf -lnetcdff"}
-#export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5}/include"}
-#export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
-export BUFR_LDFLAGS="${BUFR_LIB8}"
+export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5}/include"}
+export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
+export BUFR_LDFLAGS="${BUFR_LIBd}"
 
 UTILS_PATH=${cwd}/hafs_utils.fd
 
@@ -106,7 +109,7 @@ export UTILS_INC=${UTILS_PATH}/include
 export UTILS_INCLUDE="-I${UTILS_PATH}/include"
 export UTILS_LIBDIR=${UTILS_PATH}/lib
 cd ${UTILS_PATH}/sorc
-#make clean
+make clean
 make
 
 exit

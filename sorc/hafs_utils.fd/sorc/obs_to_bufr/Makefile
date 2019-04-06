@@ -20,8 +20,9 @@ SUBS =
 
 OBJS = $(MODS) $(SUBS) main.o
 
-INC = -I${UTILS_INC} ${NETCDF_INCLUDE}
-LIBS = -L${UTILS_LIBDIR} -lfson -lslatec -lslint -lspline ${NETCDF_LDFLAGS} ${BUFR_LDFLAGS}
+INC = -I${UTILS_INC} ${NETCDF_INCLUDE} ${HDF5_INCLUDE}
+LIBS = -L${UTILS_LIBDIR} -lfson -lslatec -lslint -lspline ${BUFR_LDFLAGS} \
+       ${NETCDF_LDFLAGS} ${HDF5_LDFLAGS} ${Z_LIB}
 FFLAGS += $(INC)
 
 $(EXEC): main.F90 $(MODS) $(SUBS)

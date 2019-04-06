@@ -62,7 +62,7 @@ elif [ $target = wcoss_cray ]; then
 
     export FC="ftn -static"
     export F90="ftn -free -static"
-    export CC=cc
+    export CC=icc
 
 elif [ $target = wcoss_dell_p3 ]; then
 

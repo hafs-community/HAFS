@@ -34,7 +34,7 @@ set (TARGET "diagsread")
 
 # CMake compiler flags
 
-set (CMAKE_Fortran_FLAGS "-O3 -g -convert big_endian -mcmodel=large")
+set (CMAKE_Fortran_FLAGS "-O3 -g -convert big_endian")
 
 # CMake source codes declarations
 
