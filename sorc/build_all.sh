@@ -94,6 +94,14 @@ echo " .... Building fre-nctools .... "
 cd $build_dir
 
 #------------------------------------
+# build utils 
+#------------------------------------
+$Build_utils && {
+echo " .... Building utils .... "
+./build_utils.sh > $logs_dir/build_utils.log 2>&1
+}
+
+#------------------------------------
 # build gsi
 #------------------------------------
 $Build_gsi && {
