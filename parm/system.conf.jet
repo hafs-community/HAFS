@@ -1,0 +1,32 @@
+## This is the system-specific configuration file for jet
+[config]
+## Project disk area
+disk_project=hwrfv3
+## Project hpss tape area
+tape_project=emc-hwrf
+## Theia CPU account name for submitting jobs to the batch system.
+cpu_account=hwrfv3
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+## Specify input sources for HISTORY mode.
+input_sources=jet_sources_{GFSVER}
+## Specify the DataCatalog for FORECAST mode runs.
+fcst_catalog=jet_fcst_{GFSVER}
+
+[hafsdata]
+inputroot=/lfs3/projects/{disk_project}/{ENV[USER]}/hafsdata_{GFSVER}
+
+[dir]
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/hafstmp
+## Save directory.  Make sure you edit this.
+CDSAVE=/lfs3/projects/{disk_project}/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat=/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+[holdvars]
+WHERE_AM_I=jet    ;; Which cluster? (For setting up environment.)
+WHICH_JET=x       ;; Which part of Jet?

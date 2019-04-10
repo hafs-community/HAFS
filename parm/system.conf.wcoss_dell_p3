@@ -1,0 +1,33 @@
+## This is the system-specific configuration file for the WCOSS Dell Phase 3
+[config]
+## Project disk area
+disk_project=modeling
+## Project hpss tape area
+tape_project=emc-hwrf
+## Theia CPU account name for submitting jobs to the batch system.
+cpu_account=HWRF-T2O
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+## Specify input sources for HISTORY mode.
+input_sources=wcoss_sources_{GFSVER}
+## Specify the DataCatalog for FORECAST mode runs.
+fcst_catalog=wcoss_fcst_{GFSVER}
+
+[hafsdata]
+inputroot=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/hafsdata_{GFSVER}
+
+[dir]
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/gpfs/dell2/ptmp/{ENV[USER]}
+## Save directory.  Make sure you edit this.
+CDSAVE=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+#syndat=/gpfs/tp1/nco/ops/com/arch/prod/syndat
+syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+[holdvars]
+WHERE_AM_I=wcoss_dell_p3 ;; Which cluster? (For setting up environment.)
+WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.

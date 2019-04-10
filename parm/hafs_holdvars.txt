@@ -1,0 +1,57 @@
+# This file is parsed through the hafs.conf [holdvars] configuration
+# section.  It is used to control the workflow for the NCO J-Jobs, and
+# can also be used for debugging: simply source the
+# storm*.holdvars.txt in a ksh/sh/bash shell, set PYTHONPATH and then
+# start python - it will be able to access the hafs_expt and other
+# Python libraries as any scripts/*py would be able to.
+
+export envir={ENV[envir|-prod]}
+
+export storm_num={storm_num}
+export RUN_VORTEXINIT={RUN_VORTEXINIT}
+export RUN_GSI={RUN_GSI}
+export GSID01={GSID01}
+export GSID02={GSID02}
+export GSID03={GSID03}
+export FGATSTR={FGATSTR}
+export FGATINV={FGATINV}
+export FGATEND={FGATEND}
+
+export utilexec={utilexec}
+
+export HOMEhafs={HOMEhafs}
+export EXEChafs={EXEChafs}
+export PARMhafs={PARMhafs}
+export EXhafs={EXhafs}
+export JOBhafs={JOBhafs}
+export USHhafs={USHhafs}
+export FIXhafs={FIXhafs}
+export WORKhafs={WORKhafs}
+export DATA={WORKhafs}
+export COMIN={COMIN}
+export COMOUT={COMOUT}
+
+export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
+
+export stormlabel={stormlabel}
+export STORM={vit[stormname]}
+export STORMID={vit[stormid3]}
+
+export RUN_ENVIR={RUN_ENVIR}
+export PATH=:.:$PATH:$utilexec
+
+export CONFhafs={CONFhafs}
+
+export CENLO={domlon}
+export CENLA={domlat}
+
+if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
+    export NWPROD={HOMEhafs}/nwport
+    export EXPT={EXPT}
+    export SUBEXPT={SUBEXPT}
+    export WHERE_AM_I={ENVEQUIV}
+    export CDSAVE={CDSAVE}
+    export CDNOSCRUB={CDNOSCRUB}
+    export CDSCRUB={CDSCRUB}
+    export RUNhafs={RUNhafs}
+fi
