@@ -8,6 +8,7 @@
                        "Build_chgres" \
                        "Build_orog" \
                        "Build_nctools" \
+                       "Build_utils" \
                        "Build_gsi" \
                       )
 
