@@ -1,0 +1,148 @@
+#!/bin/ksh -l
+set -xa
+
+export COMIN=${COMIN:-/gpfs/hps3/ptmp/Bin.Liu/HAFS/com/2019041000/00L}
+export stormlabel=${stormlable:-storm1}
+HOLDVARS=${COMIN}/${stormlabel}.holdvars.txt
+source ${HOLDVARS}
+
+export EXPT=${EXPT:-HAFS}
+export SUBEXPT=${SUBEXPT:-${EXPT}}
+
+export cyc=${cyc:-00}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+
+export NHRS=126
+export CASE=C768
+export CRES=`echo $CASE | cut -c 2-`
+export gtype=regional           # grid type = uniform, stretch, nest, or stand alone regional
+export NTRAC=7			# output all gfdl mp tracers
+
+export machine=WCOSS_C
+#export RUN_ENVIR=${RUN_ENVIR:-prod}
+export RUN_ENVIR=${envir:-prod}
+
+if [ "$RUN_ENVIR" = prod ]; then
+# load modules
+  if [ "$machine" = WCOSS_C ]; then
+    . $MODULESHOME/init/sh 2>>/dev/null
+    module load PrgEnv-intel prod_envir cfp-intel-sandybridge/1.1.0 2>>/dev/null
+    module list
+  elif [ "$machine" = DELL ]; then
+    set +x
+    . /usrx/local/prod/lmod/lmod/init/sh
+    module load EnvVars/1.0.2 lmod/7.7 settarg/7.7 lsf/10.1 prod_envir/1.0.2
+    module load ips/18.0.1.163
+    module load impi/18.0.1
+    module load NetCDF/4.5.0
+    module load HDF5-serial/1.10.1
+    module load CFP/2.0.1
+    module list
+    set -x
+  elif [ "$machine" = THEIA ]; then
+    module use -a /scratch3/NCEPDEV/nwprod/lib/modulefiles
+    module load netcdf/4.3.0 hdf5/1.8.14 2>>/dev/null
+    module list
+  fi
+fi
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export FIXhafs=${EXEChafs:-${HOMEhafs}/fix}
+
+export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
+export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
+export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
+export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+
+export FIXfv3=${FIXhafs}/fix_fv3
+export FIXam=${FIXhafs}/fix_am
+export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
+export CHGRESSH=${USHhafs}/hafs_chgres.sh
+
+####################################
+# Run setpdy and initialize PDY variables
+####################################
+#setpdy.sh
+#. ./PDY
+
+PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
+export PDY=${PDY:-${PDYtmp}}
+
+#####################################
+# Working directories
+#####################################
+
+export INPdir=${INPdir:-${WORKhafs}/INPUT_${CASE}}
+export OUTDIR=${OUTDIR:-${WORKhafs}/chgres.ic.out}
+export DATA=${WORKhafs}/chgres.ic.work
+
+rm -rf $DATA
+mkdir -p $INPdir $OUTDIR $DATA
+cd $DATA
+
+#####################################
+# Define COM directories
+#####################################
+#export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
+#export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
+#export COMgfs=${COMgfs:-/gpfs/dell3/ptmp/emc.glopara/ROTDIRS/prfv3rt1/vrfyarch}
+#if [ ! -r ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.atmanl.nemsio ]; then
+#  export COMgfs=${COMgfs:-/gpfs/gp2/ptmp/Eric.Rogers/prfv3rt1}
+#fi
+export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+
+export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+
+#####################################
+# WCOSS environment settings
+#####################################
+if [ "$machine" = WCOSS_C ]; then
+  export OMP_NUM_THREADS_CH=24
+  export KMP_AFFINITY=disabled
+  export APRUNC="aprun -n 1 -N 1 -j 1 -d $OMP_NUM_THREADS_CH -cc depth"
+elif [ "$machine" = WCOSS_PHASE2 ]; then
+  export OMP_NUM_THREADS=24
+  export KMP_AFFINITY=disabled
+elif [ "$machine" = DELL ]; then
+#  export OMP_NUM_THREADS=24
+  export KMP_AFFINITY=disabled
+fi
+
+env
+
+#####################################
+# Generate the ICs and BC hour 0
+#####################################
+if [ $gtype = regional ] ; then
+  export REGIONAL=1
+  export HALO=4
+#
+# set the links to use the 4 halo grid and orog files
+# these are necessary for creating the boundary data
+#
+  ln -sf $FIXfv3/$CASE/${CASE}_grid.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_grid.tile7.nc
+  ln -sf $FIXfv3/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_oro_data.tile7.nc
+else
+#
+# for gtype = uniform, stretch, or nest
+#
+  export REGIONAL=0
+fi
+
+#####################################
+# Execute the script.
+${HOMEhafs}/scripts/exhafs_chgres.sh
+export err=$?
+#####################################
+
+mv $OUTDIR/gfs*nc $INPdir/.
+mv $OUTDIR/sfc*nc $INPdir/.
+
+exit $err
