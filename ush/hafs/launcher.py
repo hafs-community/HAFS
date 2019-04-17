@@ -584,10 +584,10 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
 
     produtil.fileop.makedirs(conf.getdir('com'),logger=logger)
     produtil.fileop.makedirs(conf.getdir('WORKhafs'),logger=logger)
-    produtil.fileop.makedirs(conf.getdir('lockdir'),logger=logger)
-    griblockdir=conf.getstr('regribber','griblockdir','')
-    if griblockdir:
-        produtil.fileop.makedirs(griblockdir,logger=logger)
+    #produtil.fileop.makedirs(conf.getdir('lockdir'),logger=logger)
+    #griblockdir=conf.getstr('regribber','griblockdir','')
+    #if griblockdir:
+    #    produtil.fileop.makedirs(griblockdir,logger=logger)
 
     logger.info('Expand certain [dir] values to ensure availability '
                 'before vitals parsing.')
