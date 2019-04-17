@@ -172,6 +172,7 @@ sys.path.append(USHhafs)
 
 ########################################################################
 # Load and set up the produtil package.
+import hafs.launcher, hafs.prelaunch
 import tcutil.revital, tcutil.numerics, tcutil.rocoto
 from tcutil.numerics import to_datetime, to_timedelta
 from tcutil.rocoto import entity_quote
@@ -374,7 +375,64 @@ else:
     more_launch_vars=''
 logger.info('MORE_LAUNCH_VARS='+repr(more_launch_vars))
 
-# Currently does not accept additional commandline config options.
+# Tell the hafs.launcher to parse the remaining arguments so we can
+# make the conf information:
+
+# Generate the conf file and run the hafs.launcher's sanity checks
+# that do not require a cycle:
+# mslist does not contain the fakestorm id
+logger.info('MSLIST: ' +repr(mslist))
+if multistorm:
+    (case_root,parm,infiles,stids,stid,pstid,moreopts)=hafs.launcher.multistorm_parse_args(
+            mslist,args[firstarg:],logger,usage,PARMhafs=PARMhafs)
+    fakestid = stid
+    logger=logging.getLogger('run_hafs_'+str(fakestid))
+    # stids list includes all storm ids AND the fake storm id.
+    conf = hafs.launcher.launch(infiles,None,fakestid,moreopts[stids.index(pstid)],
+                                          case_root,init_dirs=False,
+                                          prelaunch=hafs.launcher.prelaunch,
+                                          fakestorm=True)
+else:
+    (case_root,parm,infiles,stid,moreopt)=hafs.launcher.parse_launch_args(
+            args[firstarg:],logger,usage,PARMhafs=PARMhafs)
+
+    logger=logging.getLogger('run_hafs_'+str(stid))
+
+    if(weak_invest is None):
+        if(str(stid)[0]=='9'):
+            logger.info('Invest requested, and no -w given.  Not discarding '
+                        'weak Invests.')
+            weak_invest=0
+        else:
+            logger.info('Non-Invest requested, and no -w given.  Will start '
+                        'cycling off of last Invest <14m/s.')
+            weak_invest=14
+            # Note: this weak_invest default must match the value in
+            # relocate's Stage1.run function.
+
+    conf=hafs.launcher.launch(infiles,None,stid,moreopt,case_root,
+                              init_dirs=False,prelaunch=hafs.launcher.prelaunch)
+
+logger.info('Run sanity checks.')
+try:
+    conf.timeless_sanity_check(enset,logger)
+except Exception as e:
+    hwrf.rocoto.sanity_check_failed(logger,e)
+    sys.exit(1)
+logger.info("I think I'm sane.")
+
+# Try to connect to the jlogfile:
+loghere=conf.getloc('jlogfile','')
+if not loghere:
+    try:
+        loghere=os.path.join(
+            conf.getloc('CDSCRUB'),conf.getstr('config','SUBEXPT'),
+            'log','jlogfile')
+    except KeyError as ke:
+        loghere=None
+if loghere:
+    print 'Sending jlogfile messages to %s'%(loghere,)
+    produtil.log.set_jlogfile(loghere)
 
 ########################################################################
 # Parse the tcvitals
@@ -391,8 +449,8 @@ def check_test_vitals(vl):
 
 if parse_tcvitals:
     logger.info('Getting list of tcvitals files.')
-    syndatdir=os.environ.get('COMINarch','/gpfs/tp1/nco/ops/com/arch/prod/syndat')
-    vitpattern='syndat_tcvitals.%Y'
+    syndatdir=conf.getdir('syndat')
+    vitpattern=conf.getstr('config','vitpattern','syndat_tcvitals.%Y')
     fileset=set()
     for cycle in cycleset:
         when=to_datetime(cycle)
@@ -440,7 +498,6 @@ if parse_tcvitals:
     else:
         logger.info('I will ONLY run these cycles, since they have vitals:'
                     +(','.join(listed)))
-    
 
 ########################################################################
 # Create the list of variables to send to the ATParser
@@ -473,19 +530,27 @@ if multistorm:
 else:
     VARS.update(MULTISTORM='NO')
 
-stormlabel=os.environ.get('STORMLABEL','storm1')
+try:
+    stormlabel=conf.get('config','stormlabel','storm1')
+except KeyError:
+    stormlabel='storm1'
 
 def yesno(b):
     return 'YES' if(b) else 'NO'
 
 VARS.update(SID=stid.upper(),  stormlabel=str(stormlabel),
-            WHERE_AM_I=os.environ.get('WHERE_AM_I','wcoss_cray'),
-            WHICH_JET=os.environ.get('WHICH_JET','none'),
+            WHERE_AM_I=conf.get('holdvars','WHERE_AM_I'),
+            WHICH_JET=conf.get('holdvars','WHICH_JET','none'),
             MORE_LAUNCH_VARS=more_launch_vars,
             CASE_ROOT=case_root,
             SITE_FILE=site_file,
-            FETCH_INPUT=os.environ.get('FETCH_INPUT','YES'),
+            FETCH_INPUT=yesno(conf.get('config','input_catalog')=='hafsdata'),
             )
+
+for (key,val) in conf.items('rocotostr'):
+    VARS[key]=str(val)
+for (key,val) in conf.items('rocotobool'):
+    VARS[key]=yesno(conf.getbool('rocotobool',key))
 
 bad=False
 for k,v in VARS.iteritems():
@@ -508,7 +573,7 @@ else:
 
 
 outbase='hafs-%s-%s-%s'%(
-    os.environ.get('SUBEXPT','HAFS'),
+    conf.get('config','SUBEXPT'),
     stid.upper(),
     cycledesc)
 

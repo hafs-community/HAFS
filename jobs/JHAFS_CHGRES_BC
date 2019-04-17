@@ -1,36 +1,67 @@
-#!/bin/ksh -l
+#!/bin/sh
 set -xa
 
-export COMIN=${COMIN:-/gpfs/hps3/ptmp/Bin.Liu/HAFS/com/2019041000/00L}
-export stormlabel=${stormlable:-storm1}
-HOLDVARS=${COMIN}/${stormlabel}.holdvars.txt
+HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
 
 export EXPT=${EXPT:-HAFS}
 export SUBEXPT=${SUBEXPT:-${EXPT}}
 
+export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:-00}
-export stormlabel=${stormlabel:-storm1}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
-export NHRS=126
-export CASE=C768
+export NHRS=${NHRS:-126}
+export NBDYHRS=${NBDYHRS:-3}
+export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
-export gtype=regional           # grid type = uniform, stretch, nest, or stand alone regional
+export gtype=${GTYPE:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+export ictype=${ICTYPE:-pfv3gfs}
+export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
-export machine=WCOSS_C
+####################################
+# Specify Execution Areas
+####################################
+export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
+export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
+export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
+export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+
+export FIXam=${FIXhafs}/fix_am
+
+export FIXfv3=${FIXhafs}/fix_fv3
+#If static domain
+#export FIXfv3=${FIXhafs}/fix_fv3_regional_static
+#export FIXfv3=${FIXhafs}/fix_fv3_globnest_static
+#else relocatable domain
+#export FIXfv3=${WORKhafs}/grid
+
+export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
+export CHGRESSH=${USHhafs}/hafs_chgres.sh
+
+####################################
+# Load Modules if Needed
+####################################
+export machine=${WHERE_AM_I:-wcoss_cray}
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 
 if [ "$RUN_ENVIR" = prod ]; then
 # load modules
-  if [ "$machine" = WCOSS_C ]; then
+  if [ "$machine" = wcoss_cray ]; then
     . $MODULESHOME/init/sh 2>>/dev/null
     module load PrgEnv-intel prod_envir cfp-intel-sandybridge/1.1.0 2>>/dev/null
     module list
-  elif [ "$machine" = DELL ]; then
+  elif [ "$machine" = wcoss_dell_p3 ]; then
     set +x
     . /usrx/local/prod/lmod/lmod/init/sh
     module load EnvVars/1.0.2 lmod/7.7 settarg/7.7 lsf/10.1 prod_envir/1.0.2
@@ -41,31 +72,29 @@ if [ "$RUN_ENVIR" = prod ]; then
     module load CFP/2.0.1
     module list
     set -x
-  elif [ "$machine" = THEIA ]; then
+  elif [ "$machine" = theia ]; then
     module use -a /scratch3/NCEPDEV/nwprod/lib/modulefiles
     module load netcdf/4.3.0 hdf5/1.8.14 2>>/dev/null
     module list
   fi
 fi
 
-####################################
-# Specify Execution Areas
-####################################
-export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+#####################################
+# WCOSS environment settings
+#####################################
+if [ "$machine" = wcoss_cray ]; then
+  export OMP_NUM_THREADS_CH=24
+  export KMP_AFFINITY=disabled
+  export APRUNC="aprun -n 1 -N 1 -j 1 -d $OMP_NUM_THREADS_CH -cc depth"
+elif [ "$machine" = wcoss ]; then
+  export OMP_NUM_THREADS=24
+  export KMP_AFFINITY=disabled
+elif [ "$machine" = wcoss_dell_p3 ]; then
+#  export OMP_NUM_THREADS=24
+  export KMP_AFFINITY=disabled
+fi
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
-
-export FIXfv3=${FIXhafs}/fix_fv3
-export FIXam=${FIXhafs}/fix_am
-export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
-export CHGRESSH=${USHhafs}/hafs_chgres.sh
+env
 
 ####################################
 # Run setpdy and initialize PDY variables
@@ -92,40 +121,16 @@ cd $DATA
 #####################################
 #export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
-
-#if [ ! -e /gpfs/dell3/ptmp/emc.glopara/ROTDIRS/prfv3rt1/vrfyarch/gfs.$PDY/$cyc/gfs.t${cyc}z.atmf057.nemsio ]; then
-#  export COMgfs=${COMgfs:-/gpfs/gp2/ptmp/Eric.Rogers/prfv3rt1}
-#else
-#  export COMgfs=${COMgfs:-/gpfs/dell3/ptmp/emc.glopara/ROTDIRS/prfv3rt1/vrfyarch}
-#fi
-
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-
 export INIDIR=${COMgfs}/gfs.$PDY/$cyc
-
-#####################################
-# WCOSS environment settings
-#####################################
-if [ "$machine" = WCOSS_C ]; then
-  export OMP_NUM_THREADS_CH=24
-  export KMP_AFFINITY=disabled
-  export APRUNC="aprun -n 1 -N 1 -j 1 -d $OMP_NUM_THREADS_CH -cc depth"
-elif [ "$machine" = WCOSS_PHASE2 ]; then
-  export OMP_NUM_THREADS=24
-  export KMP_AFFINITY=disabled
-elif [ "$machine" = DELL ]; then
-#  export OMP_NUM_THREADS=24
-  export KMP_AFFINITY=disabled
-fi
-
-env
 
 #####################################
 # Generate the BCs
 #####################################
 export REGIONAL=2
 
-hour=3
+NBDYHRS=${NBDYHRS:-3}
+hour=${NBDYHRS:-3}
 end_hour=$NHRS
 while (test "$hour" -le "$end_hour")
   do
@@ -147,26 +152,29 @@ while (test "$hour" -le "$end_hour")
   mkdir -p $BC_DATA
   echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA $HOMEhafs/scripts/exhafs_chgres.sh >&out.chgres.$hour_name" >> bcfile.input
 
-  hour=`expr $hour + 3`
+  #hour=`expr $hour + 3`
+  hour=`expr $hour + ${NBDYHRS}`
 done
 
 ################################
 # Execute the script.
 ################################
 # for WCOSS we now run BC creation for all hours simultaneously
-if [ $machine = WCOSS_C ]; then
+if [ $machine = wcoss_cray ]; then
   export APRUNC="time"
-  export OMP_NUM_THREADS_CH=24
-  aprun -j 1 -n ${NODES} -N 1 -d ${OMP_NUM_THREADS_CH} -cc depth cfp bcfile.input
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  aprun -j 1 -n ${TOTAL_TASKS} -N 1 -d ${OMP_NUM_THREADS_CH} -cc depth cfp bcfile.input
   rm -f bcfile.input
-elif [ $machine = WCOSS_PHASE2 ]; then
+elif [ $machine = wcoss ]; then
   export MP_PGMMODEL=mpmd
   export MP_CMDFILE=bcfile.input
   chmod 775 bcfile.input
   mpirun.lsf
   rm -f bcfile.input
-elif [ $machine = DELL ]; then
-#  export OMP_NUM_THREADS=24
+elif [ $machine = wcoss_dell_p3 ]; then
+  #export OMP_NUM_THREADS=24
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
   mpirun cfp bcfile.input
   rm -f bcfile.input
 fi

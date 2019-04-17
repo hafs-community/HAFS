@@ -37,6 +37,10 @@
   <value><cyclestr>&CONFhafs;</cyclestr></value>
 </envar>
 <envar>
+  <name>HOLDVARS</name>
+  <value><cyclestr>&HOLDVARS;</cyclestr></value>
+</envar>
+<envar>
   <name>WORKhafs</name>
   <value><cyclestr>&WORKhafs;</cyclestr></value>
 </envar>

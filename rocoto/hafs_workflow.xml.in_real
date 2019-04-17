@@ -14,14 +14,23 @@
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
   <!ENTITY MAX_TRIES "1"> <!-- everything else -->
 
+ <!-- Extra variables to send to the exhwrf_launch.py -->
+  <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
+
+  <!-- Multistorm IDs -->
+  <!ENTITY MULTISTORM "@[MULTISTORM==YES?YES:NO]">
+  <!ENTITY BASINS "@[BASINS:-]">
+  <!ENTITY MULTISTORM_SIDS "@[MULTISTORM_SIDS:-]">
+  <!ENTITY RENUM "@[RENUM:-]">
+  <!ENTITY FAKE_STORM "storm1">
+  <!ENTITY STORMS "storm1 storm2 storm3 storm4 storm5 storm6">
+  <!ENTITY REAL_STORMS "storm2 storm3 storm4 storm5 storm6">
+
   <!-- Storm we are going to run -->
   <!ENTITY SID "@[SID.uc]">
   <!ENTITY sidlc "@[SID.lc]">
   <!ENTITY STORMLABEL "@[stormlabel]">
   <!ENTITY CASE_ROOT "@[CASE_ROOT]">
-
-  <!-- CPU account name -->
-  <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
 
   <!-- scrub config -->
   <!ENTITY SCRUB_WORK "@[SCRUB_WORK]">
@@ -29,13 +38,14 @@
 
   <!-- Directory paths and experiment names. -->
   <!ENTITY WHERE_AM_I "@[WHERE_AM_I]">
-  <!ENTITY PRE      "@[USHhafs]/hafs_pre_job.sh.inc">
+  <!ENTITY PRE      "@[USHhafs]/rocoto_pre_job.sh">
   <!ENTITY EXPT     "@[EXPT]">
   <!ENTITY SUBEXPT  "@[SUBEXPT:-EXPT]">
-  <!ENTITY HOMEhafs "@[HOMEhafs:-CDSAVE/&EXPT;]">
-  <!ENTITY PARMhafs "@[PARMhafs:-HOMEhafs/parm]">
-  <!ENTITY EXhafs   "@[EXhafs:-HOMEhafs/scripts]">
-  <!ENTITY USHhafs  "@[USHhafs:-HOMEhafs/ush]">
+  <!ENTITY HOMEhafs "@[CDSAVE]/&EXPT;">
+  <!ENTITY PARMhafs "@[PARMhafs:-&HOMEhafs;/parm]">
+  <!ENTITY JOBhafs  "@[JOBhafs:-&HOMEhafs;/jobs]">
+  <!ENTITY EXhafs   "@[EXhafs:-&HOMEhafs;/scripts]">
+  <!ENTITY USHhafs  "@[USHhafs:-&HOMEhafs;/ush]">
   <!ENTITY FIXhafs  "&HOMEhafs;/fix">
   <!ENTITY EXEChafs "&HOMEhafs;/exec">
   <!ENTITY WORKhafs "@[CDSCRUB]/&SUBEXPT;/@Y@m@d@H/&SID;">
@@ -43,7 +53,8 @@
   <!ENTITY LOGhafs  "@[CDSCRUB]/&SUBEXPT;/log">
 
   <!-- The output conf file for each cycle: -->
-  <!ENTITY CONFhafs "&COMhafs;/&STORMLABEL;.conf">
+  <!ENTITY CONFhafs "@[CONFhafs:-&COMhafs;/&STORMLABEL;.conf]">
+  <!ENTITY HOLDVARS "@[HOLDVARS:-&COMhafs;/&STORMLABEL;.holdvars.txt]">
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
@@ -51,6 +62,9 @@
   <!ENTITY RUN_GSI "@[RUN_GSI]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+
+  <!-- CPU account name -->
+  <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
 
   <!-- Load the env_vars.ent into ENV_VARS so we can set variables
   common to all jobs. -->
@@ -100,7 +114,8 @@
   <log><cyclestr>&LOGhafs;/rocoto_@Y@m@d@H.log</cyclestr></log> 
 
   <task name="launch" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>
+    <!--<command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>-->
+    <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' config.HOMEhafs='&HOMEhafs;' dir.USHhhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -162,12 +177,14 @@
     <dependency>
       <and>
          <taskdep task="launch"/> 
+         <streq><left>&FETCH_INPUT;</left><right>YES</right></streq>
       </and>
     </dependency>
   </task>
 
   <task name="grid_driver" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_grid_driver.py</command>
+    <!--<command>&JOBhafs;/JHAFS_GRID_DRIVER</command>-->
+    <command>sleep 20</command>
     <jobname>hafs_grid_driver_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -191,13 +208,21 @@
   </task> 
 
   <task name="chgres_ic" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_chgres_ic.py</command>
+    <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
     <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     <nodes>1:ppn=1:tpp=24</nodes>
+    <envar>
+      <name>TOTAL_TASKS</name>
+      <value>1</value>
+    </envar>
+    <envar>
+      <name>OMP_NUM_THREADS</name>
+      <value>24</value>
+    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
     <walltime>01:00:00</walltime>
@@ -218,13 +243,21 @@
   </task> 
 
   <task name="chgres_bc" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_chgres_bc.py</command>
+    <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
     <jobname>hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     <nodes>21:ppn=1:tpp=24</nodes>
+    <envar>
+      <name>TOTAL_TASKS</name>
+      <value>21</value>
+    </envar>
+    <envar>
+      <name>OMP_NUM_THREADS</name>
+      <value>24</value>
+    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
     <walltime>01:00:00</walltime>
@@ -244,51 +277,24 @@
     </dependency>
   </task> 
 
-  <task name="vortexinit" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_vortexinit.py</command>
-    <jobname>hafs_vortexinit_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &PURE_OPENMP;
-    <!-- 
-    <nodes>1:ppn=1:tpp=24</nodes>
-    &NODES_EXTRA;
-    -->
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    &ENV_VARS;
-    <walltime>01:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_vortexinit.log</cyclestr></join>
-
-    <dependency>
-      <and> 
-        <taskdep task="chgres_ic"/>
-        <or>
-          <and>
-            <datadep age="30" minsize="10000"><cyclestr offset="-06:00:00">&WORKhafs;</cyclestr>/forecast/dynf006.nc</datadep>
-            <datadep age="30" minsize="0"><cyclestr offset="-06:00:00">&WORKhafs;/intercom/&SID;.@Y@m@d@H.trak.hafs.atcfunix</cyclestr></datadep> 
-          </and>
-          <not>
-            <cycleexistdep cycle_offset="-6:00:00"/>
-          </not>
-        </or>
-      </and>
-    </dependency>
-  </task>
-
   <task name="forecast" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_forecast.py</command>
+    <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-	<!-- <nodes>72:ppn=24</nodes> -->
-	<nodes>1:ppn=24</nodes>
+	<nodes>168:ppn=12:tpp=2</nodes>
+    <envar>
+      <name>NODES</name>
+      <value>168</value>
+    </envar>
+    <envar>
+      <name>OMP_NUM_THREADS</name><value>2</value>
+    </envar>
+    <envar>
+      <name>TOTAL_TASKS</name><value>2016</value>
+    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
     <walltime>06:00:00</walltime>
@@ -296,14 +302,14 @@
 
     <dependency>
       <and>
-        <taskdep task="vortexinit"/>
+        <taskdep task="chgres_ic"/>
         <taskdep task="chgres_bc"/>
       </and>
     </dependency>
   </task>
 
   <task name="post" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_post.py</command>
+    <command>&JOBhafs;/JHAFS_POST</command>
     <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -314,7 +320,7 @@
     &ENV_VARS;
     <envar>
       <name>TOTAL_TASKS</name>
-      <value></value>
+      <value>48</value>
     </envar>
     <walltime>06:00:00</walltime>
     <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
@@ -330,7 +336,7 @@
   </task>
 
   <task name="product" maxtries="&MAX_TRIES;">
-    <command>&PRE; &EXhafs;/exhafs_product.py</command>
+    <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -341,7 +347,7 @@
     &ENV_VARS;
     <envar>
       <name>TOTAL_TASKS</name>
-      <value></value>
+      <value>48</value>
     </envar>
     <walltime>06:00:00</walltime>
     <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>

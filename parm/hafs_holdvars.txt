@@ -37,10 +37,17 @@ export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 
+export CASE={CASE}
+export NHRS={NHRS}
+export NBDYHRS={NBDYHRS}
+export ICTYPE={ICTYPE}
+export LEVELS={LEVELS}
+
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec
 
 export CONFhafs={CONFhafs}
+export HOLDVARS={HOLDVARS}
 
 export CENLO={domlon}
 export CENLA={domlat}

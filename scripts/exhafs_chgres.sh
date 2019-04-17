@@ -28,12 +28,12 @@ set -x
 
 export CDUMP=gfs		# gfs or gdas
 export CDAS=gfs
-export LEVS=65
+export LEVS=${LEVS:-65}
 export LSOIL=4
 
-export ictype=pfv3gfs
+export ictype=${ictype:-pfv3gfs}
 export nst_anl=.false.          # false or true to include NST analysis
-export gtype=regional           # grid type = uniform, stretch, nest, or stand alone regional
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
 
 if [ $gtype = uniform ];  then
   echo "creating uniform ICs"
