@@ -37,6 +37,11 @@ export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 
+export out_prefix={out_prefix}
+export out_prefix_nodate={out_prefix_nodate}
+export synop_gridspecs={synop_gridspecs}
+export trker_gridspecs={trker_gridspecs}
+
 export CASE={CASE}
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}

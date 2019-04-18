@@ -1,0 +1,138 @@
+#!/bin/ksh
+set -xa
+
+HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
+source ${HOLDVARS}
+
+export EXPT=${EXPT:-HAFS}
+export SUBEXPT=${SUBEXPT:-${EXPT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:-00}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+
+export NHRS=${NHRS:-126}
+export NBDYHRS=${NBDYHRS:-3}
+export NOUTHRS=${NOUTHRS:-3}
+export CASE=${CASE:-C768}
+export CRES=`echo $CASE | cut -c 2-`
+export gtype=${GTYPE:-regional}           # grid type = uniform, stretch, nest, or regional
+export ictype=${ICTYPE:-pfv3gfs}
+export LEVS=${LEVELS:-65}
+export NTRAC=7			# output all gfdl mp tracers
+
+export synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+export trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+
+export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
+export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
+export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
+export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+
+export POSTEXEC=${EXEChafs}/hafs_post.x
+
+export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
+#export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
+export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
+export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
+
+####################################
+# Load Modules if Needed
+####################################
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+#export RUN_ENVIR=${RUN_ENVIR:-prod}
+export RUN_ENVIR=${envir:-prod}
+if [ "$RUN_ENVIR" = prod ]; then
+  module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
+  module load post/v8.0.0-${machine}
+  module list
+fi
+
+#####################################
+# Environment settings
+#####################################
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=6
+  export TOTAL_TASKS=${TOTAL_TASKS:-144}
+  export NCTSK=${NCTSK:-24}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+  export KMP_AFFINITY=disabled
+  export KMP_STACKSIZE=1024m
+elif [ "$machine" = wcoss_dell_p3 ]; then
+  export TOTAL_TASKS=${TOTAL_TASKS:-144}
+  export NCTSK=${NCTSK:-24}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNC=mpirun
+  export KMP_STACKSIZE=1024m
+elif [ "$machine" = theia ]; then
+  export TOTAL_TASKS=${TOTAL_TASKS:-144}
+  export NCTSK=${NCTSK:-24}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNC=mpirun
+  export KMP_STACKSIZE=1024m
+elif [ "$machine" = jet ]; then
+  export TOTAL_TASKS=${TOTAL_TASKS:-144}
+  export NCTSK=${NCTSK:-24}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNC=mpirun
+  export KMP_STACKSIZE=1024m
+fi
+
+env
+
+####################################
+# Run setpdy and initialize PDY variables
+####################################
+#setpdy.sh
+#. ./PDY
+
+PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
+export PDY=${PDY:-${PDYtmp}}
+
+#####################################
+# Working directories
+#####################################
+
+export INPdir=${INPdir:-${WORKhafs}/runhafs}
+export DATA=${WORKhafs}/runpost
+
+#rm -rf $DATA
+mkdir -p $DATA
+cd $DATA
+
+#####################################
+# Define COM directories
+#####################################
+export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export intercom=${WORKhafs}/intercom
+
+mkdir -p ${intercom}
+
+# SENDCOM - Copy files to /com directory
+export SENDCOM=${SENDCOM:-YES}
+
+#####################################
+# Execute the script.
+${HOMEhafs}/scripts/exhafs_post.sh
+export err=$?
+#####################################
+
+exit $err

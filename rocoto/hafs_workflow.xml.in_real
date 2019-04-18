@@ -315,12 +315,12 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <nodes>2:ppn=24</nodes>
+    <nodes>6:ppn=24</nodes>
     &NODES_EXTRA;
     &ENV_VARS;
     <envar>
       <name>TOTAL_TASKS</name>
-      <value>48</value>
+      <value>144</value>
     </envar>
     <walltime>06:00:00</walltime>
     <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
@@ -383,11 +383,11 @@
     <dependency>
      <!-- Start the tracker if the post is running or if it has
           already completed. -->
-      <or>
+      <and>
        <taskdep task="forecast"/>
        <taskdep task="post"/>
        <taskdep task="product"/>
-      </or>
+      </and>
     </dependency>
   </task>
 
