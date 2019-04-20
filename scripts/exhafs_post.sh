@@ -112,6 +112,9 @@ EOF
 rm -f fort.*
 # Copy flat files
 cp ${PARMhafs}/post/nam_micro_lookup.dat    ./eta_micro_lookup.dat
+# So far the postxconfig-NT.txt is a plain text file, it would be better
+# provide the actual xml file for easy configuration, while generating this
+# plain text file on the fly.
 cp ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
 cp ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
 
@@ -155,6 +158,9 @@ echo ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"'
 echo ${WGRIB2} ${synop_grb2post} -not '" mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 >> cmdfile
 
 chmod u+x ./cmdfile
+# So far this only works for wcoss_cray, shold also work for wcoss_dell_p3 as
+# long as ${APRUNF} is correctly set. Need to implement and test for theia and
+# jet with srun.
 ${APRUNF} ./cmdfile
 
 # Cat the temporary files together
@@ -166,9 +172,9 @@ rm -f ${synop_grb2post}.part??
 ${WGRIB2} -s ${synop_grb2file} > ${synop_grb2indx}
 
 # Extract hafstrk grib2 files for the tracker
-# *** Need add the related TMP variables for tracker
-#${APRUNS} ${WGRIB2} ${synop_grb2file} -s | egrep '(:UGRD:500 mb|:VGRD:500 mb|:HGT:700 mb:|:UGRD:700 mb:|:VGRD:700 mb:|:ABSV:700 mb:|:HGT:850 mb:|:UGRD:850 mb:|:VGRD:850 mb:|:ABSV:850 mb:|:MSLET:|:UGRD:10 m above|:VGRD:10 m above)' | ${WGRIB2} -i ${synop_grb2file} -grib ${hafstrk_grb2file}
-
+# Same as HMON
+#PARMlist=':UGRD:500 mb|:VGRD:500 mb|:HGT:700 mb:|:UGRD:700 mb:|:VGRD:700 mb:|:ABSV:700 mb:|:HGT:850 mb:|:UGRD:850 mb:|:VGRD:850 mb:|:ABSV:850 mb:|:MSLET:|:UGRD:10 m above|:VGRD:10 m above'
+# From ens_tracker for GFS
 PARMlist='UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD:10 m a|ABSV:850|ABSV:700|MSLET|HGT:900|HGT:850|HGT:800|HGT:750|HGT:700|HGT:650|HGT:600|HGT:550|HGT:500|HGT:450|HGT:400|HGT:350|HGT:300|TMP:500|TMP:450|TMP:400|TMP:350|TMP:300'
 
 ${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist}" -grib ${hafstrk_grb2file}

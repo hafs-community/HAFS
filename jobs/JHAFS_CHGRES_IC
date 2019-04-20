@@ -29,6 +29,7 @@ export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
@@ -38,7 +39,6 @@ export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export FIXam=${FIXhafs}/fix_am
-
 export FIXfv3=${FIXhafs}/fix_fv3
 #If static domain
 #export FIXfv3=${FIXhafs}/fix_fv3_regional_static
@@ -52,51 +52,46 @@ export CHGRESSH=${USHhafs}/hafs_chgres.sh
 ####################################
 # Load Modules if Needed
 ####################################
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
-
 if [ "$RUN_ENVIR" = prod ]; then
-# load modules
-  if [ "$machine" = wcoss_cray ]; then
-    . $MODULESHOME/init/sh 2>>/dev/null
-    module load PrgEnv-intel prod_envir cfp-intel-sandybridge/1.1.0 2>>/dev/null
-    module list
-  elif [ "$machine" = wcoss_dell_p3 ]; then
-    set +x
-    . /usrx/local/prod/lmod/lmod/init/sh
-    module load EnvVars/1.0.2 lmod/7.7 settarg/7.7 lsf/10.1 prod_envir/1.0.2
-    module load ips/18.0.1.163
-    module load impi/18.0.1
-    module load NetCDF/4.5.0
-    module load HDF5-serial/1.10.1
-    module load CFP/2.0.1
-    module list
-    set -x
-  elif [ "$machine" = theia ]; then
-    module use -a /scratch3/NCEPDEV/nwprod/lib/modulefiles
-    module load netcdf/4.3.0 hdf5/1.8.14 2>>/dev/null
-    module list
-  fi
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
+  module list
 fi
 
 #####################################
-# WCOSS environment settings
+# Environment settings
 #####################################
-if [ "$machine" = wcoss_cray ]; then
   export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  #export OMP_NUM_THREADS=24
+  export NCTSK=${NCTSK:-1}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-24}
   export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  export KMP_AFFINITY=disabled
-  export APRUNC="aprun -n ${TOTAL_TASKS} -N 1 -j 1 -d $OMP_NUM_THREADS_CH -cc depth"
-elif [ "$machine" = wcoss ]; then
-  #export OMP_NUM_THREADS=24
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  export KMP_STACKSIZE=1024m
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=1
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
+  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
 elif [ "$machine" = wcoss_dell_p3 ]; then
-  #export OMP_NUM_THREADS=24
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  export KMP_AFFINITY=disabled
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
+elif [ "$machine" = theia ]; then
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+elif [ "$machine" = jet ]; then
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
 fi
 
 env
@@ -113,12 +108,16 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
+export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+export OUTDIR=${OUTDIR:-${WORKhafs}/chgres_ic/out}
+export DATA=${WORKhafs}/chgres_ic/work
 
-export INPdir=${INPdir:-${WORKhafs}/INPUT_${CASE}}
-export OUTDIR=${OUTDIR:-${WORKhafs}/chgres.ic.out}
-export DATA=${WORKhafs}/chgres.ic.work
+export SCRUBDATA=${SCRUBDATA:-YES}
 
-rm -rf $DATA
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA $OUTDIR 
+fi
+
 mkdir -p $INPdir $OUTDIR $DATA
 cd $DATA
 
@@ -129,6 +128,7 @@ cd $DATA
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+
 #####################################
 # Generate the ICs and BC hour 0
 #####################################

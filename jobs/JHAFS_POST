@@ -34,9 +34,9 @@ export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 
 export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
 export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
@@ -48,7 +48,8 @@ export POSTEXEC=${EXEChafs}/hafs_post.x
 export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
 #export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
-export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
+export WGRIB2=${WGRIB2:-/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9}
+#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
 export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
 
 ####################################
@@ -69,38 +70,33 @@ fi
 #####################################
 # Environment settings
 #####################################
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=6
   export TOTAL_TASKS=${TOTAL_TASKS:-144}
   export NCTSK=${NCTSK:-24}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-24}
+  export KMP_STACKSIZE=1024m
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=6
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
-  export KMP_STACKSIZE=1024m
 elif [ "$machine" = wcoss_dell_p3 ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-144}
-  export NCTSK=${NCTSK:-24}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
 elif [ "$machine" = theia ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-144}
-  export NCTSK=${NCTSK:-24}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
 elif [ "$machine" = jet ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-144}
-  export NCTSK=${NCTSK:-24}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
 fi
 
 env
@@ -117,8 +113,7 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-
-export INPdir=${INPdir:-${WORKhafs}/runhafs}
+export INPdir=${INPdir:-${WORKhafs}/forecast}
 export DATA=${WORKhafs}/post
 export intercom=${WORKhafs}/intercom/post
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
@@ -129,7 +124,7 @@ export SCRUBDATA=${SCRUBDATA:-YES}
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
   rm -f $INPdir/postf???
-  rm -rf ${intercom}
+# rm -rf ${intercom}
 fi
 
 mkdir -p $DATA

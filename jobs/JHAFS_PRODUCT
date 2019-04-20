@@ -67,38 +67,33 @@ fi
 #####################################
 # Environment settings
 #####################################
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=1
   export TOTAL_TASKS=${TOTAL_TASKS:-1}
   export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
   export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export KMP_STACKSIZE=1024m
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=1
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
-  export KMP_STACKSIZE=1024m
 elif [ "$machine" = wcoss_dell_p3 ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
 elif [ "$machine" = theia ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
 elif [ "$machine" = jet ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
 fi
 
 env
@@ -115,7 +110,6 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-
 export INPdir=${INPdir:-${WORKhafs}/intercom/post}
 export DATA=${WORKhafs}/product
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}

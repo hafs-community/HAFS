@@ -29,9 +29,9 @@ export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 
 export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
 export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
@@ -39,11 +39,11 @@ export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export FIXam=${FIXhafs}/fix_am
-export FIXnew=${FIXhafs}/fix
-export CO2DIR=${FIXam}/fix_co2_proj
-
 export FIXfv3=${FIXhafs}/fix_fv3
 export FIXgrid=${FIXhafs}/fix_fv3
+
+export FIXnew=${FIXhafs}/fix
+export CO2DIR=${FIXam}/fix_co2_proj
 
 export FORECASTEXEC=${EXEChafs}/hafs_forecast.x
 
@@ -54,45 +54,44 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-   #module purge
-    module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
-    module load fv3
-    module list
+  #module use ${HOMEhafs}/modulefiles
+  #module load modulefile.hafs.run.${machine}
+  #module purge
+  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
+  module load fv3
+  module list
 fi
 
 #####################################
 # Environment settings
 #####################################
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=168
   export TOTAL_TASKS=${TOTAL_TASKS:-2016}
   export NCTSK=${NCTSK:-12}
   export NCNODE=${NCNODE:-24}
   export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export KMP_STACKSIZE=1024m
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=1
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
-  export KMP_STACKSIZE=1024m
 elif [ "$machine" = wcoss_dell_p3 ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
 elif [ "$machine" = theia ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
 elif [ "$machine" = jet ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-  export APRUNC=mpirun
-  export KMP_STACKSIZE=1024m
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
 fi
 
 env
@@ -109,17 +108,17 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/INPUT_${CASE}}
-export DATA=${WORKhafs}/runhafs
+export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+export DATA=${WORKhafs}/forecast
 
-#rm -rf $DATA
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
 mkdir -p $DATA
 cd $DATA
-
-#####################################
-# Define COM directories
-#####################################
-
 
 #####################################
 # Execute the script.

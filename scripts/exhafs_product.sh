@@ -35,6 +35,9 @@ old_vital=${WORKhafs}/oldvit
 
 #===============================================================================
 # Run GFDL vortextracker  
+# *** Currently, the tave step is skipped (same as HMON). Need add it and make it the same as HWRF.
+# *** Need add the capability of tracking multiple storms simultaneously.
+# *** Need add the capability of TC genesis tracking.
 
 DATA_tracker=${DATA}/tracker
 mkdir -p ${DATA_tracker}

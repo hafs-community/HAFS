@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -xe
 
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
@@ -51,47 +52,46 @@ export CHGRESSH=${USHhafs}/hafs_chgres.sh
 ####################################
 # Load Modules if Needed
 ####################################
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
-
 if [ "$RUN_ENVIR" = prod ]; then
-# load modules
-  if [ "$machine" = wcoss_cray ]; then
-    . $MODULESHOME/init/sh 2>>/dev/null
-    module load PrgEnv-intel prod_envir cfp-intel-sandybridge/1.1.0 2>>/dev/null
-    module list
-  elif [ "$machine" = wcoss_dell_p3 ]; then
-    set +x
-    . /usrx/local/prod/lmod/lmod/init/sh
-    module load EnvVars/1.0.2 lmod/7.7 settarg/7.7 lsf/10.1 prod_envir/1.0.2
-    module load ips/18.0.1.163
-    module load impi/18.0.1
-    module load NetCDF/4.5.0
-    module load HDF5-serial/1.10.1
-    module load CFP/2.0.1
-    module list
-    set -x
-  elif [ "$machine" = theia ]; then
-    module use -a /scratch3/NCEPDEV/nwprod/lib/modulefiles
-    module load netcdf/4.3.0 hdf5/1.8.14 2>>/dev/null
-    module list
-  fi
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
+  module list
 fi
 
 #####################################
-# WCOSS environment settings
+# Environment settings
 #####################################
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export NCTSK=${NCTSK:-1}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-24}
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  export KMP_STACKSIZE=1024m
 if [ "$machine" = wcoss_cray ]; then
-  export OMP_NUM_THREADS_CH=24
-  export KMP_AFFINITY=disabled
-  export APRUNC="aprun -n 1 -N 1 -j 1 -d $OMP_NUM_THREADS_CH -cc depth"
-elif [ "$machine" = wcoss ]; then
-  export OMP_NUM_THREADS=24
+  #export NODES=1
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
+  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
 elif [ "$machine" = wcoss_dell_p3 ]; then
-#  export OMP_NUM_THREADS=24
-  export KMP_AFFINITY=disabled
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
+elif [ "$machine" = theia ]; then
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+elif [ "$machine" = jet ]; then
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"srun --multi-prog"}
+  export APRUNC=${APRUNC:-"srun"}
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
 fi
 
 env
@@ -108,11 +108,16 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/INPUT_${CASE}}
-export OUTDIR=${OUTDIR:-${WORKhafs}/chgres.bc.out}
-export DATA=${WORKhafs}/chgres.bc.work
+export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+export OUTDIR=${OUTDIR:-${WORKhafs}/chgres_bc/out}
+export DATA=${WORKhafs}/chgres_bc/work
 
-rm -rf $DATA
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA $OUTDIR 
+fi
+
 mkdir -p $INPdir $OUTDIR $DATA
 cd $DATA
 
@@ -141,42 +146,51 @@ while (test "$hour" -le "$end_hour")
   else
     hour_name=$hour
   fi
-
 #
-# create input file for cfp in order to run multiple copies of exfv3sar_chgres.sh simultaneously
+# create input file for cfp in order to run multiple copies of chgres.sh simultaneously
 # since we are going to run simultaneously, we want different working directories for each hour
 #
   BC_DATA=${DATA}/bctmp_$hour_name
-
   rm -rf $BC_DATA
   mkdir -p $BC_DATA
-  echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA $HOMEhafs/scripts/exhafs_chgres.sh >&out.chgres.$hour_name" >> bcfile.input
-
-  #hour=`expr $hour + 3`
+  echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh >&out.chgres.$hour_name" >> bcfile.input
   hour=`expr $hour + ${NBDYHRS}`
 done
 
 ################################
 # Execute the script.
 ################################
-# for WCOSS we now run BC creation for all hours simultaneously
+  
 if [ $machine = wcoss_cray ]; then
   export APRUNC="time"
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
   export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
   aprun -j 1 -n ${TOTAL_TASKS} -N 1 -d ${OMP_NUM_THREADS_CH} -cc depth cfp bcfile.input
-  rm -f bcfile.input
-elif [ $machine = wcoss ]; then
-  export MP_PGMMODEL=mpmd
-  export MP_CMDFILE=bcfile.input
-  chmod 775 bcfile.input
-  mpirun.lsf
   rm -f bcfile.input
 elif [ $machine = wcoss_dell_p3 ]; then
   #export OMP_NUM_THREADS=24
   export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
   mpirun cfp bcfile.input
   rm -f bcfile.input
+elif [ "$machine" = theia ]; then
+  export APRUNC="time"
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  # to be implemented by srun --multi-prog
+  #srun --multi-prog 
+  echo "ERROR: To be implemented by using srun --multi-prog"
+  echo "ERROR: Exitting"
+  exit 1
+elif [ "$machine" = jet ]; then
+  export APRUNC="time"
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  # to be implemented by srun --multi-prog
+  #srun --multi-prog 
+  echo "ERROR: To be implemented by using srun --multi-prog"
+  echo "ERROR: Exitting"
+  exit 1
+else
+  echo "ERROR: Unknow machine, currently not supportted"
+  echo "ERROR: Exitting"
+  exit 1
 fi
 
 mv $OUTDIR/gfs_bndy*nc $INPdir/.
