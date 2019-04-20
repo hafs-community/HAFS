@@ -322,7 +322,7 @@
       <name>TOTAL_TASKS</name>
       <value>144</value>
     </envar>
-    <walltime>06:00:00</walltime>
+    <walltime>07:59:00</walltime>
     <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
 
     <dependency>
@@ -342,14 +342,14 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <nodes>2:ppn=24</nodes>
-    &NODES_EXTRA;
+    <cores>1</cores>
+    &CORES_EXTRA;
     &ENV_VARS;
     <envar>
       <name>TOTAL_TASKS</name>
-      <value>48</value>
+      <value>1</value>
     </envar>
-    <walltime>06:00:00</walltime>
+    <walltime>07:59:00</walltime>
     <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>
 
     <dependency>

@@ -24,7 +24,7 @@
 #   8) 2018-06-14       Jim Abeles
 #                       Add capability to use files from FV3GFS parallel
 ############################################################################
-set -x
+set -xe
 
 export CDUMP=gfs		# gfs or gdas
 export CDAS=gfs

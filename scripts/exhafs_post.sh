@@ -1,12 +1,15 @@
-#!/bin/sh
+#!/bin/ksh
 
-set -x
+set -xe
 
 TOTAL_TASKS=${TOTAL_TASKS:-144}
 NCTSK=${NCTSK:-24}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+
 export MP_LABELIO=yes
 
 CDATE=${CDATE:-${YMDH}}
@@ -14,23 +17,22 @@ NHRS=${NHRS:-126}
 NOUTHRS=${NOUTHRS:-3}
 
 POSTEXEC=${POSTEXEC:-${EXEChafs}/exec/hafs_post.x}
-GRB2INDEX=${GRB2INDEX:-grb2index}
-WGRIB2=${WGRIB2:-wgrib2}
+
+MPISERIAL=${MPISERIAL:-mpiserial}
 NDATE=${NDATE:-ndate}
+WGRIB2=${WGRIB2:-wgrib2}
+GRB2INDEX=${GRB2INDEX:-grb2index}
+
+WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+intercom=${intercom:-${WORKhafs}/intercom/post}
+SENDCOM=${SENDCOM:-YES}
 
 synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-intercom=${intercom:-${WORKhafs}/intercom}
-SENDCOM=${SENDCOM:-YES}
-
-DATA=${DATA:-${WORKhafs}/runpost}
-
-# Force to process from the very first output time level
-rm -f ${INPdir}/postdonef???
+DATA=${DATA:-${WORKhafs}/post}
 
 IFHR=0
 FHR=0
@@ -49,21 +51,24 @@ MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
 HH=`echo $NEWDATE | cut -c9-10`
 
-fmin=`echo ${FHR}*60 | bc `
-minstr=$( printf "%5.5d" "$fmin" )
+FMIN=$(( ${FHR}*60 )) 
+minstr=$( printf "%5.5d" "$FMIN" )
 
 synop_grb2post=hafsprs.${CDATE}.f${FHR3}.grb2
 synop_grb2file=${out_prefix}.hafsprs.synoptic.0p025.f${FHR3}.grb2
 synop_grb2indx=${out_prefix}.hafsprs.synoptic.0p025.f${FHR3}.grb2.idx
-hafstrk_grb2file=hafs.trak.storm.${CDATE}.f${minstr}
-hafstrk_grb2indx=hafs.trak.storm.${CDATE}.f${minstr}.ix
+gmodname=hafs
+rundescr=trak
+atcfdescr=storm
+hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
+hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
 
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/postdonef${FHR3} ] && [ -s ${COMhafs}/${synop_grb2file} ] && [ -s ${COMhafs}/${synop_grb2indx} ] ; then
+if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMhafs}/${synop_grb2file} ] && [ -s ${COMhafs}/${synop_grb2indx} ] ; then
 
-echo "postdone message ${INPdir}/postdonef${FHR3} exists"
-echo "product ${COMhafs}/${synop_grb2file} exists"
-echo "product ${COMhafs}/${synop_grb2indx} exists"
+echo "post message ${INPdir}/postf${FHR3} exist"
+echo "product ${COMhafs}/${synop_grb2file} exist"
+echo "product ${COMhafs}/${synop_grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
 
 # Otherwise run post for this forecast hour
@@ -90,17 +95,18 @@ rm -rf ${DATA_POST}
 mkdir -p ${DATA_POST}
 cd ${DATA_POST}
 
-cat > itag <<EOF
-$INPdir/dynf${FHR3}.nc
+# In /bin/sh this cat part does not work
+# Need to figure it out why. Use ksh for now.
+cat>itag<<EOF
+${INPdir}/dynf${FHR3}.nc
 netcdf
 grib2
 ${YYYY}-${MM}-${DD}_${HH}:00:00
 FV3R
-$INPdir/phyf${FHR3}.nc
-
- &NAMPGB
- KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
- /
+${INPdir}/phyf${FHR3}.nc
+&NAMPGB
+KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
+/
 EOF
 
 rm -f fort.*
@@ -117,9 +123,58 @@ ${APRUNC} ./post.x < itag > outpost_${NEWDATE}
 mv HURPRS.GrbF${FHR2} ${synop_grb2post} 
 
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
-${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
+
+# Will parallelize this section by using cfp or mpiserial to speed up wgrib2 
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part00
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":30 mb:|:50 mb:|:70 mb:|:100 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part01
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":125 mb:|:150 mb:|:175 mb:|:200 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part02
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":225 mb:|:250 mb:|:275 mb:|:300 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part03
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":325 mb:|:350 mb:|:375 mb:|:400 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part04
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":425 mb:|:450 mb:|:475 mb:|:500 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part05
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":525 mb:|:550 mb:|:575 mb:|:600 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part06
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":625 mb:|:650 mb:|:675 mb:|:700 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part07
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":725 mb:|:750 mb:|:775 mb:|:800 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part08
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":825 mb:|:850 mb:|:875 mb:|:900 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part09
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -match ":925 mb:|:950 mb:|:975 mb:|:1000 mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part10
+#${APRUNS} ${WGRIB2} ${synop_grb2post} -not " mb:" -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2post}.part11
+
+# Parallelize this section by using cfp or mpiserial to speed up wgrib2 
+opts='-set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
+echo ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part00 > cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part01 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part02 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part03 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part04 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part05 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part06 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part07 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part08 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -not '" mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 >> cmdfile
+
+chmod u+x ./cmdfile
+${APRUNF} ./cmdfile
+
+# Cat the temporary files together
+cat ${synop_grb2post}.part?? > ${synop_grb2file}
+# clean up the temporary files
+rm -f ${synop_grb2post}.part??
+
 # Generate the grib2 index file
 ${WGRIB2} -s ${synop_grb2file} > ${synop_grb2indx}
+
+# Extract hafstrk grib2 files for the tracker
+# *** Need add the related TMP variables for tracker
+#${APRUNS} ${WGRIB2} ${synop_grb2file} -s | egrep '(:UGRD:500 mb|:VGRD:500 mb|:HGT:700 mb:|:UGRD:700 mb:|:VGRD:700 mb:|:ABSV:700 mb:|:HGT:850 mb:|:UGRD:850 mb:|:VGRD:850 mb:|:ABSV:850 mb:|:MSLET:|:UGRD:10 m above|:VGRD:10 m above)' | ${WGRIB2} -i ${synop_grb2file} -grib ${hafstrk_grb2file}
+
+PARMlist='UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD:10 m a|ABSV:850|ABSV:700|MSLET|HGT:900|HGT:850|HGT:800|HGT:750|HGT:700|HGT:650|HGT:600|HGT:550|HGT:500|HGT:450|HGT:400|HGT:350|HGT:300|TMP:500|TMP:450|TMP:400|TMP:350|TMP:300'
+
+${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist}" -grib ${hafstrk_grb2file}
+
+# Generate the index file for the tracker
+${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
 
 # Deliver to COMhafs
 if [ $SENDCOM = YES ]; then
@@ -139,17 +194,25 @@ if [ ! -s ${COMhafs}/${synop_grb2indx} ] ; then
   exit 1
 fi
 
-# Extract hafstrk grib2 files for the tracker
-${WGRIB2} ${synop_grb2file} -s | egrep '(:UGRD:500 mb|:VGRD:500 mb|:HGT:700 mb:|:UGRD:700 mb:|:VGRD:700 mb:|:ABSV:700 mb:|:HGT:850 mb:|:UGRD:850 mb:|:VGRD:850 mb:|:ABSV:850 mb:|:MSLET:|:UGRD:10 m above|:VGRD:10 m above)' | ${WGRIB2} -i ${synop_grb2file} -grib ${hafstrk_grb2file}
-# Generate the grib2 index file
-${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
-
 # Deliver to intercom
+mkdir -p ${intercom}
 mv ${hafstrk_grb2file} ${intercom}/
 mv ${hafstrk_grb2indx} ${intercom}/
 
+# Check if the products are missing
+if [ ! -s ${intercom}/${hafstrk_grb2file} ]; then
+  echo "ERROR: intercom product ${intercom}/${hafstrk_grb2file} not exist"
+  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
+  exit 1
+fi
+if [ ! -s ${intercom}/${hafstrk_grb2indx} ] ; then
+  echo "ERROR: intercom product ${intercom}/${hafstrk_grb2indx} not exist"
+  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
+  exit 1
+fi
+
 # Write out the postdone message file
-echo 'done' > ${INPdir}/postdonef${FHR3}
+echo 'done' > ${INPdir}/postf${FHR3}
 
 cd ${DATA}
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -xa
+set -xe
 
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}

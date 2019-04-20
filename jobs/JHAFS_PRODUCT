@@ -22,6 +22,9 @@ export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+export NOUTHRS=${NOUTHRS:-3}
+export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+
 ####################################
 # Specify Execution Areas
 ####################################
@@ -29,23 +32,25 @@ export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 
 export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
 export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
 export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
-export FIXam=${FIXhafs}/fix_am
-export FIXnew=${FIXhafs}/fix
-export CO2DIR=${FIXam}/fix_co2_proj
+export GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
+export TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
+export VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
+export SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
 
-export FIXfv3=${FIXhafs}/fix_fv3
-export FIXgrid=${FIXhafs}/fix_fv3
-
-export FORECASTEXEC=${EXEChafs}/hafs_forecast.x
+export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
+export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
+#export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
+export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
+export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
 
 ####################################
 # Load Modules if Needed
@@ -54,43 +59,44 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-   #module purge
-    module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
-    module load fv3
-    module list
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
+  module list
 fi
 
 #####################################
 # Environment settings
 #####################################
 if [ "$machine" = wcoss_cray ]; then
-  #export NODES=168
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
+  #export NODES=1
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
   export KMP_STACKSIZE=1024m
 elif [ "$machine" = wcoss_dell_p3 ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
   export APRUNC=mpirun
   export KMP_STACKSIZE=1024m
 elif [ "$machine" = theia ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
   export APRUNC=mpirun
   export KMP_STACKSIZE=1024m
 elif [ "$machine" = jet ]; then
-  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
-  export NCTSK=${NCTSK:-12}
+  export TOTAL_TASKS=${TOTAL_TASKS:-1}
+  export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
   export APRUNC=mpirun
   export KMP_STACKSIZE=1024m
 fi
@@ -109,21 +115,24 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/INPUT_${CASE}}
-export DATA=${WORKhafs}/runhafs
 
-#rm -rf $DATA
+export INPdir=${INPdir:-${WORKhafs}/intercom/post}
+export DATA=${WORKhafs}/product
+export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+
+export SENDCOM=${SENDCOM:-YES}
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
 mkdir -p $DATA
 cd $DATA
 
 #####################################
-# Define COM directories
-#####################################
-
-
-#####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_forecast.sh
+${HOMEhafs}/scripts/exhafs_product.sh
 export err=$?
 #####################################
 

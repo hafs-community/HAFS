@@ -13,7 +13,7 @@
 #   4) 2018-06-19       Ben Blake
 #                       Adapted for stand-alone regional configuration
 ############################################################################
-set -eux
+set -xe
 
 ulimit -s unlimited
 ulimit -a

@@ -1,5 +1,6 @@
-#!/bin/ksh
-set -xa
+#!/bin/sh
+
+set -xe
 
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
@@ -44,6 +45,7 @@ export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export POSTEXEC=${EXEChafs}/hafs_post.x
 
+export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
 #export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
 export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
@@ -56,6 +58,9 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
+  #module purge
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.base.${machine}
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list
@@ -70,6 +75,8 @@ if [ "$machine" = wcoss_cray ]; then
   export NCTSK=${NCTSK:-24}
   export NCNODE=${NCNODE:-24}
   export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
   export KMP_STACKSIZE=1024m
@@ -112,22 +119,23 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 
 export INPdir=${INPdir:-${WORKhafs}/runhafs}
-export DATA=${WORKhafs}/runpost
+export DATA=${WORKhafs}/post
+export intercom=${WORKhafs}/intercom/post
+export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
-#rm -rf $DATA
+export SENDCOM=${SENDCOM:-YES}
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+  rm -f $INPdir/postf???
+  rm -rf ${intercom}
+fi
+
 mkdir -p $DATA
 cd $DATA
 
-#####################################
-# Define COM directories
-#####################################
-export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export intercom=${WORKhafs}/intercom
-
 mkdir -p ${intercom}
-
-# SENDCOM - Copy files to /com directory
-export SENDCOM=${SENDCOM:-YES}
 
 #####################################
 # Execute the script.

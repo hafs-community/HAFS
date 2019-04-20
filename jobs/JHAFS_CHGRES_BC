@@ -1,5 +1,5 @@
 #!/bin/sh
-set -xa
+set -xe
 
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
@@ -28,6 +28,7 @@ export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
@@ -37,7 +38,6 @@ export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export FIXam=${FIXhafs}/fix_am
-
 export FIXfv3=${FIXhafs}/fix_fv3
 #If static domain
 #export FIXfv3=${FIXhafs}/fix_fv3_regional_static
