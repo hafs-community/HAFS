@@ -88,9 +88,9 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     module purge > /dev/null 2>&1
 
     # Workaround until module issues are fixed:
-    unset _LMFILES_
-    unset LOADEDMODULES
-    echo y 2> /dev/null | module clear > /dev/null 2>&1
+	unset _LMFILES_
+	unset LOADEDMODULES
+	echo y 2> /dev/null | module clear > /dev/null 2>&1
 
     module use /usrx/local/prod/modulefiles
     module use /gpfs/hps/nco/ops/nwprod/lib/modulefiles
@@ -153,18 +153,18 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
-#moduleuse=$HOMEhafs/modulefiles
-#if [[ "$moduleuse" != no ]] ; then
-#  module use $moduleuse 
-#  module load modulefile.hafs.run.$WHERE_AM_I
-#fi
-#set +u
-#if [[ "Q${utilexec:-}" != Q ]] ; then
-#  export PATH=$utilexec:$PATH
-#fi
-#if [[ "Q${EXEChafs:-}" != Q ]] ; then
-#  export PATH=$EXEChafs:$PATH
-#elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
-#  export PATH=$HOMEhafs/exec:$PATH
-#fi
-#set -u
+moduleuse=$HOMEhafs/modulefiles
+if [[ "$moduleuse" != no ]] ; then
+  module use $moduleuse 
+  module load modulefile.hafs.run.$WHERE_AM_I
+fi
+set +u
+if [[ "Q${utilexec:-}" != Q ]] ; then
+  export PATH=$utilexec:$PATH
+fi
+if [[ "Q${EXEChafs:-}" != Q ]] ; then
+  export PATH=$EXEChafs:$PATH
+elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
+  export PATH=$HOMEhafs/exec:$PATH
+fi
+set -u
