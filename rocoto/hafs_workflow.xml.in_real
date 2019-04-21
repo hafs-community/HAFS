@@ -6,7 +6,7 @@
 
   <!ENTITY COM_SCRUB_TIME "1800">
   <!ENTITY WORK_SCRUB_TIME "1200">
-  <!ENTITY CYCLE_THROTTLE "4">
+  <!ENTITY CYCLE_THROTTLE "2">
   <!ENTITY TASK_THROTTLE "40">
 
   <!-- Maximum number of times to try various jobs -->
@@ -62,6 +62,7 @@
   <!ENTITY RUN_GSI "@[RUN_GSI]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+  <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -113,7 +114,7 @@
 
   <log><cyclestr>&LOGhafs;/rocoto_@Y@m@d@H.log</cyclestr></log> 
 
-  <task name="launch" maxtries="&MAX_TRIES;">
+  <task name="launch" maxtries="99">
     <!--<command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>-->
     <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' config.HOMEhafs='&HOMEhafs;' dir.USHhhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -156,7 +157,7 @@
     -->
   </task>
 
-  <task name="input" maxtries="&MAX_TRIES;">
+  <task name="input" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_input.py</command>
     <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
@@ -208,7 +209,7 @@
   </task> 
 
   <task name="chgres_ic" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
+    <command>&PRE; &JOBhafs;/JHAFS_CHGRES_IC</command>
     <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -243,7 +244,7 @@
   </task> 
 
   <task name="chgres_bc" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
+    <command>&PRE; &JOBhafs;/JHAFS_CHGRES_BC</command>
     <jobname>hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -362,9 +363,72 @@
     </dependency>
   </task>
 
-  <task name="archive" maxtries="&MAX_TRIES;">
+  <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
+    <command>&PRE; &EXhafs;/exhafs_archive.py</command>
+    <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_SERVICE;</queue>
+    &SERVICE_EXTRA;
+    <cores>1</cores>
+    &CORES_EXTRA;
+    <envar>
+      <name>TOTAL_TASKS</name>
+      <value>1</value>
+    </envar>
+    <envar>
+      <name>ARCHIVE_STEP</name>
+	  <value>DISK</value>
+    </envar>
+    &ENV_VARS;
+    <memory>1G</memory>
+    <walltime>06:00:00</walltime>
+    <join><cyclestr>&WORKhafs;/hafs_archive_disk.log</cyclestr></join>
+
+    <dependency>
+      <and>
+       <taskdep task="forecast"/>
+       <taskdep task="post"/>
+       <taskdep task="product"/>
+      </and>
+    </dependency>
+  </task>
+
+  <task name="archive_tape" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_SERVICE;</queue>
+    &SERVICE_EXTRA;
+    <cores>1</cores>
+    &CORES_EXTRA;
+    <envar>
+      <name>TOTAL_TASKS</name>
+      <value>1</value>
+    </envar>
+    <envar>
+      <name>ARCHIVE_STEP</name>
+      <value>TAPE</value>
+    </envar>
+    &ENV_VARS;
+    <memory>1G</memory>
+    <walltime>06:00:00</walltime>
+    <join><cyclestr>&WORKhafs;/hafs_archive.log</cyclestr></join>
+
+    <dependency>
+      <and>
+       <taskdep task="forecast"/>
+       <taskdep task="post"/>
+       <taskdep task="product"/>
+       <taskdep task="archive_disk"/>
+      </and>
+    </dependency>
+  </task>
+
+  <task name="archive_fv3out" maxtries="&MAX_TRIES_TRANSFER;">
+    <command>&PRE; &EXhafs;/exhafs_archive_fv3out.py</command>
+    <jobname>hafs_archive_fv3out_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
@@ -378,15 +442,18 @@
     &ENV_VARS;
     <memory>1G</memory>
     <walltime>06:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_archive.log</cyclestr></join>
+    <join><cyclestr>&WORKhafs;/hafs_archive_fv3out.log</cyclestr></join>
 
     <dependency>
-     <!-- Start the tracker if the post is running or if it has
-          already completed. -->
       <and>
-       <taskdep task="forecast"/>
-       <taskdep task="post"/>
-       <taskdep task="product"/>
+        <taskdep task="forecast"/>
+        <streq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></streq>
+        <not>
+          <taskdep task="scrub_work"/>
+        </not>
+        <not>
+          <taskdep task="scrub_com"/>
+        </not>
       </and>
     </dependency>
   </task>
@@ -417,13 +484,20 @@
 
     <dependency>
       <and>
-        <taskdep task="archive"/>
+        <taskdep task="archive_tape"/>
+        <taskdep task="archive_disk"/>
         <datadep age="&WORK_SCRUB_TIME;"><cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
         <or>
           <not><cycleexistdep cycle_offset="6:00:00"/></not>
+          <taskdep task="forecast" state="RUNNING" cycle_offset="6:00:00"/>
+          <taskdep task="forecast" cycle_offset="6:00:00"/>
           <taskdep task="scrub_work" cycle_offset="6:00:00"/>
         </or>
-        <taskdep task="scrub_com"/>
+        <or>
+          <strneq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></strneq>
+          <taskdep task="archive_fv3out"/>
+          <taskdep task="scrub_work"/>
+        </or>
       </and>
     </dependency>
   </task>
@@ -453,20 +527,25 @@
     <dependency>
       <!-- Next cycle has finished its initialization OR this cycle is
            the last cycle,
-   
                                    - AND -
-   
            this cycle's archive and output jobs are complete. -->
       <and>
         <or>
           <not><cycleexistdep cycle_offset="6:00:00"/></not>
           <and>
-            <taskdep task="archive" cycle_offset="6:00:00"/>
+            <taskdep task="archive_tape" cycle_offset="6:00:00"/>
+            <taskdep task="archive_disk" cycle_offset="6:00:00"/>
             <datadep age="&COM_SCRUB_TIME;"><cyclestr offset="6:00:00">&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
           </and>
           <taskdep task="scrub_com" cycle_offset="6:00:00"/>
         </or>
-        <taskdep task="archive"/>
+        <taskdep task="archive_tape"/>
+        <taskdep task="archive_disk"/>
+        <or>
+          <strneq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></strneq>
+          <taskdep task="archive_fv3out"/>
+          <taskdep task="scrub_work"/>
+        </or>
         <datadep age="&COM_SCRUB_TIME;"><cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
       </and>
     </dependency>
@@ -548,7 +627,8 @@
       <or>
         <and>
           <taskdep task="donefile"/>
-          <taskdep task="archive"/>
+          <taskdep task="archive_disk"/>
+          <taskdep task="archive_tape"/>
           <taskdep task="scrub_work"/>
           <taskdep task="scrub_com"/>
         </and>

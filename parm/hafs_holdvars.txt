@@ -28,6 +28,7 @@ export USHhafs={USHhafs}
 export FIXhafs={FIXhafs}
 export WORKhafs={WORKhafs}
 export DATA={WORKhafs}
+export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 
@@ -39,8 +40,8 @@ export STORMID={vit[stormid3]}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
-export synop_gridspecs={synop_gridspecs}
-export trker_gridspecs={trker_gridspecs}
+export synop_gridspecs={post/synop_gridspecs}
+export trker_gridspecs={post/trker_gridspecs}
 
 export CASE={CASE}
 export NHRS={NHRS}

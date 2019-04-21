@@ -74,6 +74,15 @@ done
 
 rm -f fort.*
 
+# Find and sort active storms for this cycle from known tcvitals file
+# This can potentially provide multiple tcvital messages to the tracker, 
+# so that it can track multiple storms simultaneously.
+# *** Currently, tcutil_multistorm_sort.py searches the tcvitals files
+# specified in the script. Need to modify it to be able to deal with storm
+# message files/dirs, as well as passing in tcvitals files.
+${USHhafs}/tcutil_multistorm_sort.py ${CDATE} | cut -c1-96 > allvit
+inp_vital=allvit
+
 # Prepare the input/output files
 cp ${inp_vital} input.vitals
 cp input.vitals tcvit_rsmc_storms.txt

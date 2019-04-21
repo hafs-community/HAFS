@@ -30,7 +30,9 @@ export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]'
 ####################################
 export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMhafs=${COMhafs:-${COMOUT}}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
 export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
@@ -112,7 +114,6 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 export INPdir=${INPdir:-${WORKhafs}/intercom/post}
 export DATA=${WORKhafs}/product
-export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}

@@ -176,5 +176,6 @@ FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 cp ${FORECASTEXEC} hafs_forecast.x
 
 ${APRUNC} ./hafs_forecast.x 1>out.$CRES 2>err.$CRES
+export err=$?
 
-exit
+exit $err
