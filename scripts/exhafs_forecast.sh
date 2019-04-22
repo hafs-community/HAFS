@@ -41,12 +41,13 @@ APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} 
 
 if [ ! -d $INPdir ]; then
    echo Cannot find $INPdir ... exit
-   exit
+   exit 1
 fi
 
 mkdir -p INPUT RESTART
-cp ${INPdir}/*.nc INPUT
-#rsync ${INPdir}/*.nc INPUT
+ln -sf ${INPdir}/*.nc INPUT/
+#cp ${INPdir}/*.nc INPUT/
+#rsync ${INPdir}/*.nc INPUT/
 
 #---------------------------------------------- 
 # Copy all the necessary fix files
@@ -88,9 +89,9 @@ if [ $gtype = nest ]; then
 #---------------------------------------------- 
 tile=1
 while [ $tile -le $ntiles ]; do
-   cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.nc INPUT/oro_data.tile${tile}.nc
-   cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.nc INPUT/${CASE}_grid.tile${tile}.nc
-   let tile=tile+1
+  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.nc INPUT/oro_data.tile${tile}.nc
+  cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.nc INPUT/${CASE}_grid.tile${tile}.nc
+  let tile=tile+1
 done
 cp $FIXgrid/${CASE}/${CASE}_mosaic.nc INPUT/grid_spec.nc
 
@@ -168,9 +169,9 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/NHRS/$NHRS/ | sed s/NTHRD/$OMP_NUM_THREADS/ | \
     sed s/NCNODE/$NCNODE/  >  model_configure
 
-#----------------------------------------- 
+#-------------------------------------------------------------------
 # Link the executable and run the forecast
-#-----------------------------------------
+#-------------------------------------------------------------------
 #cp ${EXEChafs}/hafs_forecast.x hafs_forecast.x
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 cp ${FORECASTEXEC} hafs_forecast.x
@@ -178,4 +179,9 @@ cp ${FORECASTEXEC} hafs_forecast.x
 ${APRUNC} ./hafs_forecast.x 1>out.$CRES 2>err.$CRES
 export err=$?
 
+#-------------------------------------------------------------------
+# Deliver files to COM
+#-------------------------------------------------------------------
+
 exit $err
+

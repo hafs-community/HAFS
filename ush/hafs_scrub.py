@@ -241,8 +241,7 @@ def main():
             #Create a conf object to determine WORKhafs and com location
             #for the real storms - this is required for multistorm.
             environ_CONFhafs= os.environ['CONFhafs']
-            #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
-            conf=hafs.launcher.load(environ_CONFhafs)
+            conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
 
             #These are needed to deal with the tmpdir that may be created
             #when the scrub_com task runs.
