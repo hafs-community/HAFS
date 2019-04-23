@@ -46,9 +46,9 @@ module bufrio_interface
   ! Define local variables
 
   logical                                                               :: bufr_exist = .false.
-  integer, parameter                                                    :: unit_in    = 10
-  integer, parameter                                                    :: unit_out   = 20
-  integer, parameter                                                    :: unit_tbl   = 30
+  integer                                                               :: unit_in    = 10
+  integer                                                               :: unit_out   = 20
+  integer                                                               :: unit_tbl   = 30
   integer                                                               :: bufr_iret
 
   !-----------------------------------------------------------------------
@@ -350,7 +350,7 @@ contains
     character(len=8)                                                    :: msgtype
     integer                                                             :: ireadmg
     integer                                                             :: nrecs
-    
+ 
     !=====================================================================
 
     ! Define local variables
@@ -474,7 +474,8 @@ contains
 
     ! Define local variables
 
-    call ufbint(unit_out,bufr%hdr,bufr%mxmn,1,bufr_iret,bufr%hdstr)
+    call ufbint(unit_out,bufr%hdr,bufr%mxmn,bufr%mxlv,bufr_iret,           &
+         & bufr%hdstr)
     call ufbint(unit_out,bufr%obs,bufr%mxmn,bufr%mxlv,bufr_iret,           &
          & bufr%obstr)
     call ufbint(unit_out,bufr%oer,bufr%mxmn,bufr%mxlv,bufr_iret,           &
