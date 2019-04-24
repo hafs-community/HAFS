@@ -40,14 +40,27 @@ export STORMID={vit[stormid3]}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
-export synop_gridspecs={post/synop_gridspecs}
-export trker_gridspecs={post/trker_gridspecs}
+export synop_gridspecs={synop_gridspecs}
+export trker_gridspecs={trker_gridspecs}
 
 export CASE={CASE}
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
 export ICTYPE={ICTYPE}
 export LEVELS={LEVELS}
+
+export gtype={gtype}
+export stetch_fac={stetch_fac}
+export target_lon={target_lon}
+export target_lat={target_lat}
+export refine_ratio={refine_ratio}
+export istart_nest={istart_nest}
+export jstart_nest={jstart_nest}
+export iend_nest={iend_nest}
+export jend_nest={jend_nest}
+export halo={halo}
+export halop1={halop1}
+export halo0={halo0}
 
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec

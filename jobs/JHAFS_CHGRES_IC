@@ -17,7 +17,7 @@ export NHRS=${NHRS:-126}
 export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
-export gtype=${GTYPE:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
 export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers

@@ -14,7 +14,11 @@ input_sources=jet_sources_{GFSVER}
 fcst_catalog=jet_fcst_{GFSVER}
 
 [hafsdata]
-inputroot=/lfs3/projects/{disk_project}/{ENV[USER]}/hafsdata_{GFSVER}
+#inputroot=/lfs1/projects/{disk_project}/{ENV[USER]}/hafsdata_{GFSVER}
+inputroot=/lfs1/projects/hwrf-data/hafs-input/hafsdata_{GFSVER}
+
+[jet_fcst_PROD2019]
+inputroot=/lfs1/projects/hwrf-data/hafs-input/COMGFS
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -25,6 +29,8 @@ CDSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/hafstmp
 CDSAVE=/lfs3/projects/{disk_project}/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS
+## Input GFS data directory
+COMgfs=/lfs1/projects/hwrf-data/hafs-input/COMGFS
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

@@ -14,7 +14,10 @@ input_sources=theia_sources_{GFSVER}
 fcst_catalog=theia_fcst_{GFSVER}
 
 [hafsdata]
-inputroot=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/hafsdata_{GFSVER}
+inputroot=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
+
+[theia_fcst_PROD2019]
+inputroot=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -25,6 +28,8 @@ CDSAVE=/scratch3/NCEPDEV/{disk_project}/save/{ENV[USER]}
 CDSCRUB=/scratch3/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
+## Input GFS data directory
+COMgfs=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
 
 [holdvars]
 WHERE_AM_I=theia   ;; Which cluster?  (For setting up environment.)

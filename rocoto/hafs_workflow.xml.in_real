@@ -183,10 +183,9 @@
     </dependency>
   </task>
 
-  <task name="grid_driver" maxtries="&MAX_TRIES;">
-    <!--<command>&JOBhafs;/JHAFS_GRID_DRIVER</command>-->
-    <command>sleep 20</command>
-    <jobname>hafs_grid_driver_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+  <task name="grid" maxtries="&MAX_TRIES;">
+    <command>&PRE; &JOBhafs;/JHAFS_GRID</command>
+    <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
@@ -195,11 +194,15 @@
     &CORES_EXTRA;
     <envar>
       <name>TOTAL_TASKS</name>
-      <value>24</value>
+      <value>4</value>
+    </envar>
+    <envar>
+      <name>OMP_NUM_THREADS</name>
+      <value>6</value>
     </envar>
     &ENV_VARS;
     <walltime>01:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_grid_driver.log</cyclestr></join>
+    <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
 
     <dependency>
       <and>
@@ -231,7 +234,7 @@
 
     <dependency>
       <and>
-        <taskdep task="grid_driver"/> 
+        <taskdep task="grid"/> 
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -266,7 +269,7 @@
 
     <dependency>
       <and>
-        <taskdep task="grid_driver"/> 
+        <taskdep task="grid"/> 
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
