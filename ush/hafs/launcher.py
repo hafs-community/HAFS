@@ -1332,6 +1332,42 @@ class HAFSLauncher(HAFSConfig):
         assert(isinstance(part1,basestring))
         out=list()
         logger=self.log()
+        synop_gridspecs=self.getstr('post','synop_gridspecs','auto') 
+        if synop_gridspecs=='auto':
+            # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
+            # lon0=output_grid_cen_lon+output_grid_lon1-10
+            # lat0=output_grid_cen_lat+output_grid_lat1-10
+            # dlon=output_grid_dlon
+            # dlat=output_grid_dlat
+            # nlon=(output_grid_lon2-output_grid_lon1+20.)/output_grid_dlon
+            # nlat=(output_grid_lat2-output_grid_lat2+20.)/output_grid_dlat
+            output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0) 
+            output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0) 
+            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',-35.0) 
+            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',-30.0) 
+            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',35.0) 
+            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',30.0) 
+            output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025) 
+            output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025) 
+            latlon_lon0=output_grid_cen_lon+output_grid_lon1-10.
+            latlon_lat0=output_grid_cen_lat+output_grid_lat1-10.
+            latlon_dlon=output_grid_dlon
+            latlon_dlat=output_grid_dlat
+            latlon_nlon=(output_grid_lon2-output_grid_lon1+20.)/output_grid_dlon
+            latlon_nlat=(output_grid_lat2-output_grid_lat1+20.)/output_grid_dlat
+            logger.info('since synop_gridspecs is %s' %(synop_gridspecs))
+            synop_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
+                latlon_lon0,latlon_nlon,latlon_dlon,
+                latlon_lat0,latlon_nlat,latlon_dlat)
+            logger.info('automatically generated synop_gridspecs: %s' %(synop_gridspecs))
+        self.set('holdvars','synop_gridspecs',synop_gridspecs)
+        trker_gridspecs=self.getstr('post','trker_gridspecs','auto') 
+        if trker_gridspecs=='auto':
+            logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
+            trker_gridspecs=synop_gridspecs
+            logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
+        self.set('holdvars','trker_gridspecs',trker_gridspecs)
+
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
 

@@ -30,15 +30,15 @@ output_file:             'netcdf'
 write_nemsioflip:        .false.
 write_fsyncflag:         .false.
 
-output_grid:             'rotated_latlon'
-cen_lon:                 -62.0   # central longitude
-cen_lat:                  25.0   # central latitude
-lon1:                    -40.5   # longitude of lower-left point in rotated coordinate system (in degrees)
-lat1:                    -22.0   # latitude of lower-left . . . .
-lon2:                     40.5   # longitude of upper-right . . . .
-lat2:                     22.0   # latitude of upper-right . . . .
-dlon:                     0.025
-dlat:                     0.025
+output_grid:             '_OUTPUT_GRID_'
+cen_lon:                 _CEN_LON_               # central longitude
+cen_lat:                 _CEN_LAT_               # central latitude
+lon1:                    _LON1_                  # longitude of lower-left point in rotated coordinate system (in degrees)
+lat1:                    _LAT1_                  # latitude of lower-left . . . .
+lon2:                    _LON2_                  # longitude of upper-right . . . .
+lat2:                    _LON2_                  # latitude of upper-right . . . .
+dlon:                    _DLON_
+dlat:                    _DLAT_
 
 #output_grid:             'rotated_latlon'
 #cen_lon:                 -58.0   # central longitude

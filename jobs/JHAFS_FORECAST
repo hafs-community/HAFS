@@ -22,6 +22,16 @@ export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+export output_grid=${output_grid:-rotated_latlon}
+export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
+export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
+export output_grid_lon1=${output_grid_lon1:--35.0}
+export output_grid_lat1=${output_grid_lat1:--30.0}
+export output_grid_lon2=${output_grid_lon2:-35.0}
+export output_grid_lat2=${output_grid_lat2:-30.0}
+export output_grid_dlon=${output_grid_dlon:-0.025}
+export output_grid_dlat=${output_grid_dlon:-0.025}
+
 ####################################
 # Specify Execution Areas
 ####################################

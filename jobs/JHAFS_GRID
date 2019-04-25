@@ -18,12 +18,14 @@ export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}             # grid type = uniform, stretch, nest, or stand alone regional
-# Need for grid types: stretch, nest and regional
-export stetch_fac=${stetch_fac:-1.0001}     # Stretching factor for the grid
+# If gridfixdir is specified and exists, use the grid fix files directly
+export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+# Otherwise, generate grid according to the following parameters
+export stetch_fac=${stetch_fac:-1.0001}     # stretching factor for the grid
 export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
 export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
 # Need for grid types: nest and regional
-export refine_ratio=${refine_ratio:-4}      # Specify the refinement ratio for nest grid
+export refine_ratio=${refine_ratio:-4}      # specify the refinement ratio for nest grid
 export istart_nest=${istart_nest:-46}
 export jstart_nest=${jstart_nest:-238}
 export iend_nest=${iend_nest:-1485}
@@ -58,11 +60,6 @@ export FIXam=${FIXhafs}/fix_am
 export FIXorog=${FIXhafs}/fix_orog
 
 export FIXfv3=${FIXhafs}/fix_fv3
-#If static domain
-#export FIXfv3=${FIXhafs}/fix_fv3_regional_static
-#export FIXfv3=${FIXhafs}/fix_fv3_globnest_static
-#else relocatable domain
-#export FIXfv3=${WORKhafs}/grid
 
 export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
 export MAKEMOSAICEXEC=${EXEChafs}/hafs_make_solo_mosaic.x
@@ -90,8 +87,8 @@ fi
 #####################################
 # Environment settings
 #####################################
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
+  export TOTAL_TASKS=${TOTAL_TASKS:-4}
+  export NCTSK=${NCTSK:-4}
   export NCNODE=${NCNODE:-24}
   export OMP_NUM_THREADS=${OMP_NUM_THREADS:-6}
   export KMP_STACKSIZE=1024m
@@ -99,6 +96,7 @@ if [ "$machine" = wcoss_cray ]; then
   #export NODES=1
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
+  #export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
   export KMP_AFFINITY=disabled
 elif [ "$machine" = wcoss_dell_p3 ]; then
@@ -133,7 +131,7 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid}
+export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
 export DATA=${WORKhafs}/grid
 
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -146,31 +144,9 @@ mkdir -p $OUTDIR $DATA
 cd $DATA
 
 #####################################
-# Generate the ICs and BC hour 0
-#####################################
-if [ $gtype = regional ] ; then
-  export REGIONAL=1
-  export HALO=4
-#
-# set the links to use the 4 halo grid and orog files
-# these are necessary for creating the boundary data
-#
-  ln -sf $FIXfv3/$CASE/${CASE}_grid.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_grid.tile7.nc
-  ln -sf $FIXfv3/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_oro_data.tile7.nc
-else
-#
-# for gtype = uniform, stretch, or nest
-#
-  export REGIONAL=0
-fi
-
-#####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_chgres.sh
+${HOMEhafs}/scripts/exhafs_grid.sh
 export err=$?
 #####################################
-
-mv $OUTDIR/gfs*nc $INPdir/.
-mv $OUTDIR/sfc*nc $INPdir/.
 
 exit $err

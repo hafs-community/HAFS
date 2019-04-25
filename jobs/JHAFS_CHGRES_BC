@@ -41,12 +41,8 @@ export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export FIXam=${FIXhafs}/fix_am
-export FIXfv3=${FIXhafs}/fix_fv3
-#If static domain
-#export FIXfv3=${FIXhafs}/fix_fv3_regional_static
-#export FIXfv3=${FIXhafs}/fix_fv3_globnest_static
-#else relocatable domain
-#export FIXfv3=${WORKhafs}/grid
+#export FIXfv3=${FIXhafs}/fix_fv3
+export FIXfv3=${WORKhafs}/intercom/grid
 
 export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
 export CHGRESSH=${USHhafs}/hafs_chgres.sh

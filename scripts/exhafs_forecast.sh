@@ -20,6 +20,16 @@ ulimit -a
 
 export gtype=${gtype:-regional}
 
+export output_grid=${output_grid:-rotated_latlon}
+export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
+export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
+export output_grid_lon1=${output_grid_lon1:--35.0}
+export output_grid_lat1=${output_grid_lat1:--30.0}
+export output_grid_lon2=${output_grid_lon2:-35.0}
+export output_grid_lat2=${output_grid_lat2:-30.0}
+export output_grid_dlon=${output_grid_dlon:-0.025}
+export output_grid_dlat=${output_grid_dlon:-0.025}
+
 if [ $gtype = uniform ];  then
   export ntiles=6
 elif [ $gtype = stretch ]; then
@@ -167,7 +177,17 @@ cat temp diag_table.tmp > diag_table
 cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/MN/$mn/ | sed s/DY/$dy/ | sed s/H_R/$cyc/ | \
     sed s/NHRS/$NHRS/ | sed s/NTHRD/$OMP_NUM_THREADS/ | \
-    sed s/NCNODE/$NCNODE/  >  model_configure
+    sed s/NCNODE/$NCNODE/ | \
+    sed s/_OUTPUT_GRID_/$output_grid/ | \
+    sed s/_CEN_LON_/$output_grid_cen_lon/ | \
+    sed s/_CEN_LAT_/$output_grid_cen_lat/ | \
+    sed s/_LON1_/$output_grid_lon1/ | \
+    sed s/_LAT1_/$output_grid_lat1/ | \
+    sed s/_LON2_/$output_grid_lon2/ | \
+    sed s/_LAT2_/$output_grid_lat2/ | \
+    sed s/_DLON_/$output_grid_dlon/ | \
+    sed s/_DLAT_/$output_grid_dlat/ | \
+>  model_configure
 
 #-------------------------------------------------------------------
 # Link the executable and run the forecast

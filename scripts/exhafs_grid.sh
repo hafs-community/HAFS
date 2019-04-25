@@ -10,7 +10,7 @@ OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
 KMP_STACKSIZE=${KMP_STACKSIZE:-1024m}
 APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
 APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
-APRUNC=${APRUNC:-"aprun -b -j1 -n1 -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 export APRUN=time
 
 CDATE=${CDATE:-${YMDH}}
@@ -50,6 +50,17 @@ machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia,
 
 date
 
+export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+# If gridfixdir is specified and exists, use the grid fix files directly
+if [ -d $gridfixdir ]; then
+  echo "$gridfixdir is specified and exists."
+  echo "Copy the grid fix files directly."
+  cp -rp $gridfixdir/* ${out_dir}/
+  ls ${out_dir}
+  exit 0
+fi
+
+# Otherwise, generate grid according to the following parameters
 #----------------------------------------------------------------
 if [ $gtype = uniform ];  then
   echo "creating uniform ICs"
@@ -134,6 +145,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   echo "$MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "$MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "$MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
   #rm $DATA/orog.file1
@@ -156,6 +168,7 @@ elif [ $gtype = nest ]; then
   echo "$MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "$MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
   #rm $DATA/orog.file1
@@ -204,9 +217,10 @@ elif [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  ${APRUNC} $DATA/orog.file1
-  rm $DATA/orog.file1
+  ${APRUNF} $DATA/orog.file1
+  #rm $DATA/orog.file1
 
   date
   echo "............ execute $FILTERTOPOSSH .............."
