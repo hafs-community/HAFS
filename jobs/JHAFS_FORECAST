@@ -80,14 +80,14 @@ fi
   export TOTAL_TASKS=${TOTAL_TASKS:-2016}
   export NCTSK=${NCTSK:-12}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-2}}
   export KMP_STACKSIZE=1024m
+  export KMP_AFFINITY=disabled
 if [ "$machine" = wcoss_cray ]; then
   #export NODES=1
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-  export KMP_AFFINITY=disabled
 elif [ "$machine" = wcoss_dell_p3 ]; then
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-"mpirun cfp"}

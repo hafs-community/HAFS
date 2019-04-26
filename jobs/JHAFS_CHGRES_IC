@@ -54,8 +54,8 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-  module use ${HOMEhafs}/modulefiles
-  module load modulefile.hafs.run.${machine}
+  #module use ${HOMEhafs}/modulefiles
+  #module load modulefile.hafs.run.${machine}
   module list
 fi
 
@@ -65,31 +65,32 @@ fi
   export TOTAL_TASKS=${TOTAL_TASKS:-1}
   export NCTSK=${NCTSK:-1}
   export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_NUM_THREADS:-24}
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+  #export OMP_NUM_THREADS_CH=${OMP_THREADS:-24}
+  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS_CH:-${OMP_THREADS:-${OMP_NUM_THREADS:-24}}}
+  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-24}}
   export KMP_STACKSIZE=1024m
+  export KMP_AFFINITY=disabled
 if [ "$machine" = wcoss_cray ]; then
   #export NODES=1
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-  export KMP_AFFINITY=disabled
 elif [ "$machine" = wcoss_dell_p3 ]; then
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-"mpirun cfp"}
-  export APRUNC=${APRUNC:-"mpirun"}
+  export APRUNC=${APRUNC:-"time"}
 elif [ "$machine" = theia ]; then
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-"srun --multi-prog"}
-  export APRUNC=${APRUNC:-"srun"}
+  export APRUNC=${APRUNC:-"time"}
 elif [ "$machine" = jet ]; then
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-"srun --multi-prog"}
-  export APRUNC=${APRUNC:-"srun"}
+  export APRUNC=${APRUNC:-"time"}
 else
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
-  export APRUNC=${APRUNC:-"mpirun"}
+  export APRUNC=${APRUNC:-"time"}
 fi
 
 env

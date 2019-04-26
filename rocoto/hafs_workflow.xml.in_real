@@ -190,18 +190,9 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <cores>24</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>4</value>
-    </envar>
-    <envar>
-      <name>OMP_NUM_THREADS</name>
-      <value>6</value>
-    </envar>
     &ENV_VARS;
-    <walltime>01:00:00</walltime>
+	&GRID_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
 
     <dependency>
@@ -218,18 +209,9 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <nodes>1:ppn=1:tpp=24</nodes>
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>OMP_NUM_THREADS</name>
-      <value>24</value>
-    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
-    <walltime>01:00:00</walltime>
+	&CHGRES_IC_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr></join>
 
     <dependency>
@@ -253,18 +235,9 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <nodes>21:ppn=1:tpp=24</nodes>
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>21</value>
-    </envar>
-    <envar>
-      <name>OMP_NUM_THREADS</name>
-      <value>24</value>
-    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
-    <walltime>01:00:00</walltime>
+	&CHGRES_BC_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_chgres_bc.log</cyclestr></join>
 
     <dependency>
@@ -282,26 +255,15 @@
   </task> 
 
   <task name="forecast" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_FORECAST</command>
+    <command>&PRE; &JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-	<nodes>168:ppn=12:tpp=2</nodes>
-    <envar>
-      <name>NODES</name>
-      <value>168</value>
-    </envar>
-    <envar>
-      <name>OMP_NUM_THREADS</name><value>2</value>
-    </envar>
-    <envar>
-      <name>TOTAL_TASKS</name><value>2016</value>
-    </envar>
     &NODES_EXTRA;
     &ENV_VARS;
-    <walltime>06:00:00</walltime>
+    &FORECAST_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
 
     <dependency>
@@ -313,20 +275,15 @@
   </task>
 
   <task name="post" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_POST</command>
+    <command>&PRE; &JOBhafs;/JHAFS_POST</command>
     <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <nodes>6:ppn=24</nodes>
     &NODES_EXTRA;
     &ENV_VARS;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>144</value>
-    </envar>
-    <walltime>07:59:00</walltime>
+    &POST_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
 
     <dependency>
@@ -340,20 +297,15 @@
   </task>
 
   <task name="product" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_PRODUCT</command>
+    <command>&PRE; &JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    <cores>1</cores>
     &CORES_EXTRA;
     &ENV_VARS;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <walltime>07:59:00</walltime>
+    &PRODUCT_RESOURCES;
     <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>
 
     <dependency>

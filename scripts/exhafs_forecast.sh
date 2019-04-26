@@ -186,8 +186,8 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_LON2_/$output_grid_lon2/ | \
     sed s/_LAT2_/$output_grid_lat2/ | \
     sed s/_DLON_/$output_grid_dlon/ | \
-    sed s/_DLAT_/$output_grid_dlat/ | \
->  model_configure
+    sed s/_DLAT_/$output_grid_dlat/ \
+    >  model_configure
 
 #-------------------------------------------------------------------
 # Link the executable and run the forecast
