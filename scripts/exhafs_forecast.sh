@@ -119,12 +119,12 @@ cd ..
 # Copy or set up files data_table, diag_table, field_table,
 #   input.nml, input_nest02.nml, model_configure, and nems.configure
 #-------------------------------------------------------------------
-cp ${PARMhafs}/globnest/data_table .
-cp ${PARMhafs}/globnest/diag_table.tmp .
-cp ${PARMhafs}/globnest/field_table .
-cp ${PARMhafs}/globnest/input*nml .
-cp ${PARMhafs}/globnest/model_configure.tmp .
-cp ${PARMhafs}/globnest/nems.configure .
+cp ${PARMforecast}/data_table .
+cp ${PARMforecast}/diag_table.tmp .
+cp ${PARMforecast}/field_table .
+cp ${PARMforecast}/input*nml .
+cp ${PARMforecast}/model_configure.tmp .
+cp ${PARMforecast}/nems.configure .
 
 elif [ $gtype = regional ]; then
 
@@ -152,15 +152,18 @@ cd ..
 # Copy or set up files data_table, diag_table, field_table,
 #   input.nml, input_nest02.nml, model_configure, and nems.configure
 #-------------------------------------------------------------------
-cp ${PARMhafs}/regional/data_table .
-cp ${PARMhafs}/regional/diag_table.tmp .
-cp ${PARMhafs}/regional/field_table .
-cp ${PARMhafs}/regional/input.nml .
-cp ${PARMhafs}/regional/model_configure.tmp .
-cp ${PARMhafs}/regional/nems.configure .
+cp ${PARMforecast}/data_table .
+cp ${PARMforecast}/diag_table.tmp .
+cp ${PARMforecast}/field_table .
+cp ${PARMforecast}/input.nml .
+cp ${PARMforecast}/model_configure.tmp .
+cp ${PARMforecast}/nems.configure .
 
 fi
   
+#-------------------------------------------------------------------
+# Generate diag_table, model_configure from their tempelates
+#-------------------------------------------------------------------
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`

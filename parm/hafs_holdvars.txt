@@ -33,6 +33,8 @@ export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
 
+export PARMforecast={PARMforecast}
+
 export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
 
 export stormlabel={stormlabel}

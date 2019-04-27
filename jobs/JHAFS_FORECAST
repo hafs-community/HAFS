@@ -45,6 +45,8 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
+export PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
+
 export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
 export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
 export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
@@ -52,7 +54,6 @@ export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export FIXam=${FIXhafs}/fix_am
 export FIXfv3=${FIXhafs}/fix_fv3
-export FIXgrid=${FIXhafs}/fix_fv3
 
 export FIXnew=${FIXhafs}/fix
 export CO2DIR=${FIXam}/fix_co2_proj
@@ -120,6 +121,8 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
+#export FIXgrid=${FIXhafs}/fix_fv3
+export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
 export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
 export DATA=${WORKhafs}/forecast
 
