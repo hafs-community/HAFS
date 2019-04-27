@@ -36,7 +36,7 @@ cen_lat:                 _CEN_LAT_               # central latitude
 lon1:                    _LON1_                  # longitude of lower-left point in rotated coordinate system (in degrees)
 lat1:                    _LAT1_                  # latitude of lower-left . . . .
 lon2:                    _LON2_                  # longitude of upper-right . . . .
-lat2:                    _LON2_                  # latitude of upper-right . . . .
+lat2:                    _LAT2_                  # latitude of upper-right . . . .
 dlon:                    _DLON_
 dlat:                    _DLAT_
 

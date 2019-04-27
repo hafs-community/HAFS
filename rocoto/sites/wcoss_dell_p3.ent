@@ -8,7 +8,7 @@
   <!ENTITY QUEUE_SHARED    "dev_shared">
   <!ENTITY SHARED_EXTRA    "<shared/>">
   <!ENTITY QUEUE_SERVICE   "dev_transfer">
-  <!ENTITY SERVICE_EXTRA   "<shared/>">
+  <!ENTITY SERVICE_EXTRA   "<shared/><native>-R affinity[core\(1\)]</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY PURE_OPENMP     "<nodes>1:ppn=1:tpp=24</nodes>">
@@ -23,3 +23,4 @@
   <!ENTITY FORECAST_RESOURCES "<nodes>168:ppn=12:tpp=1</nodes><envar><name>NODES</name><value>168</value></envar><envar><name>TOTAL_TASKS</name><value>2016</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><native>-R affinity[core\(2\):distribute=balance]</native><walltime>06:00:00</walltime>">
   <!ENTITY POST_RESOURCES "<nodes>6:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+

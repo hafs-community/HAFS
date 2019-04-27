@@ -59,6 +59,10 @@ module load nemsio-intel/2.2.2
 module load nemsiogfs-intel/2.0.1
 module load g2-intel/2.5.0
 
+module load grib_util/1.1.0
+#Use wgrib2 v2.0.8
+setenv WGRIB2 /u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
+
 # Load these last:
 #module load ncep/1.0 # Careful this will set OMP_NUM_THREADS=1
 # Modules loaded by ncep/1.0

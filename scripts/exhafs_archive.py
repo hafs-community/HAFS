@@ -22,6 +22,17 @@
 #   area.  The second step copies that archive to tape using "hsi put"
 
 import sys, os, glob
+
+if 'USHhafs' in os.environ:
+    sys.path.append(os.environ['USHhafs'])
+elif 'HOMEhafs' in os.environ:
+    sys.path.append(os.path.join(os.environ['HOMEhafs'],'ush'))
+else:
+    guess_HOMEhafs=os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__)))
+    guess_USHhafs=os.path.join(guess_HOMEhafs,'ush')
+    sys.path.append(guess_USHhafs)
+
 import produtil.setup, produtil.log, produtil.run, produtil.cd
 import hafs.launcher
 from produtil.log import postmsg, jlogger

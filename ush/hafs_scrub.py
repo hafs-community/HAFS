@@ -1,7 +1,18 @@
 #! /usr/bin/env python
 
-import hafs.launcher
 import logging, os, shutil, sys
+
+if 'USHhafs' in os.environ:
+    sys.path.append(os.environ['USHhafs'])
+elif 'HOMEhafs' in os.environ:
+    sys.path.append(os.path.join(os.environ['HOMEhafs'],'ush'))
+else:
+    guess_HOMEhafs=os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__)))
+    guess_USHhafs=os.path.join(guess_HOMEhafs,'ush')
+    sys.path.append(guess_USHhafs)
+
+import hafs.launcher
 import produtil.setup, produtil.fileop, produtil.log
 
 from produtil.log import jlogger

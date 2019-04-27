@@ -1,6 +1,6 @@
   <!-- theia -->
-  <!ENTITY SCHEDULER       "moabtorque">
-<!--  <!ENTITY SCHEDULER       "slurm"> -->
+  <!--<!ENTITY SCHEDULER       "moabtorque">-->
+  <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
   <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
   <!ENTITY PE_EXTRA        "">
@@ -17,3 +17,10 @@
   <!ENTITY MEMORY          "<memory>1G</memory>">
   <!ENTITY THREADS         "24">
   <!ENTITY REQUEST_THREADS "<envar><name>PURE_OPENMP_THREADS</name><value>&THREADS;</value></envar><envar><name>OMP_NUM_THREADS</name><value>&THREADS;</value></envar><envar><name>KMP_NUM_THREADS</name><value>&THREADS;</value></envar>">
+
+  <!ENTITY GRID_RESOURCES "<cores>24</cores><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY CHGRES_IC_RESOURCES "<cores>24</cores><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY CHGRES_BC_RESOURCES "<cores>504</cores><envar><name>TOTAL_TASKS</name><value>21</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY FORECAST_RESOURCES "<cores>4032</cores><envar><name>NODES</name><value>168</value></envar><envar><name>TOTAL_TASKS</name><value>2016</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>06:00:00</walltime>">
+  <!ENTITY POST_RESOURCES "<cores>144</cores><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY PRODUCT_RESOURCES "<cores>1</cores><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">

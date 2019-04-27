@@ -54,8 +54,8 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-  #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.run.${machine}
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
   module list
 fi
 
