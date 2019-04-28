@@ -2,6 +2,7 @@
 
 set -xe
 
+source ${USHhafs}/hafs_pre_job.sh.inc
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
 
@@ -63,9 +64,9 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   #module purge
-  module use ${HOMEhafs}/modulefiles
+  #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.base.${machine}
-  module load modulefile.hafs.run.${machine}
+  #module load modulefile.hafs.run.${machine}
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list

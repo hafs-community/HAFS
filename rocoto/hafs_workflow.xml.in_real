@@ -184,7 +184,7 @@
   </task>
 
   <task name="grid" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_GRID</command>
+    <command>&JOBhafs;/JHAFS_GRID</command>
     <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -203,7 +203,7 @@
   </task> 
 
   <task name="chgres_ic" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_CHGRES_IC</command>
+    <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
     <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -229,7 +229,7 @@
   </task> 
 
   <task name="chgres_bc" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_CHGRES_BC</command>
+    <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
     <jobname>hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -255,7 +255,7 @@
   </task> 
 
   <task name="forecast" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_FORECAST</command>
+    <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -275,7 +275,7 @@
   </task>
 
   <task name="post" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_POST</command>
+    <command>&JOBhafs;/JHAFS_POST</command>
     <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -297,7 +297,7 @@
   </task>
 
   <task name="product" maxtries="&MAX_TRIES;">
-    <command>&PRE; &JOBhafs;/JHAFS_PRODUCT</command>
+    <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <account>&ACCOUNT;</account>
     &RESERVATION;

@@ -2,6 +2,7 @@
 
 set -xe
 
+source ${USHhafs}/hafs_pre_job.sh.inc
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
 
