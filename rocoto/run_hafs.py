@@ -245,7 +245,7 @@ except getopt.GetoptError as err:
 
 for k, v in opts:
     if    k in ('-c', '--cycling'):
-        cycling_interval = to_datetime(int(v)*3600)
+        cycling_interval = to_timedelta(int(v)*3600)
     elif  k in ('-d', '--database'):
         outdb = v
     elif  k in ('-f', '--force'):
