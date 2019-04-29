@@ -139,15 +139,17 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "$MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+
+  echo "${APRUNO} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
+  wait
   #rm $DATA/orog.file1
   date
   echo "............ execute $FILTERTOPOSSH .............."
@@ -161,16 +163,17 @@ elif [ $gtype = nest ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "$MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
+  wait
   #rm $DATA/orog.file1
   date
   echo "Grid and orography files are now prepared"
@@ -216,10 +219,12 @@ elif [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGSSH ................."
-  echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
+  wait
   #rm $DATA/orog.file1
 
   date
