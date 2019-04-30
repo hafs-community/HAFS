@@ -76,22 +76,36 @@ if [ "$machine" = wcoss_cray ]; then
   export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
   export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
   export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+  export APRUNO="time"
+  export BACKGROUND=""
 elif [ "$machine" = wcoss_dell_p3 ]; then
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-"mpirun cfp"}
   export APRUNC=${APRUNC:-"time"}
+  export APRUNO="time"
+  export BACKGROUND=""
 elif [ "$machine" = theia ]; then
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-"srun --multi-prog"}
-  export APRUNC=${APRUNC:-"srun"}
+  export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
+  #export APRUNF=${APRUNF:-"source"}
+  export APRUNF=${APRUNF:-"time"}
+  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export APRUNO=${APRUNO:-"srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export BACKGROUND="&"
 elif [ "$machine" = jet ]; then
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-"srun --multi-prog"}
-  export APRUNC=${APRUNC:-"srun"}
+  export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
+  #export APRUNF=${APRUNF:-"source"}
+  export APRUNF=${APRUNF:-"time"}
+  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export APRUNO=${APRUNO:-"srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export BACKGROUND="&"
 else
   export APRUNS=${APRUNS:-"time"}
   export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
   export APRUNC=${APRUNC:-"mpirun"}
+  export APRUNO="time"
+  export BACKGROUND=""
 fi
 
 env
@@ -137,6 +151,7 @@ export REGIONAL=2
 NBDYHRS=${NBDYHRS:-3}
 hour=${NBDYHRS:-3}
 end_hour=$NHRS
+nhour=0
 while (test "$hour" -le "$end_hour")
   do
   if [ $hour -lt 10 ]; then
@@ -153,46 +168,44 @@ while (test "$hour" -le "$end_hour")
   BC_DATA=${DATA}/bctmp_$hour_name
   rm -rf $BC_DATA
   mkdir -p $BC_DATA
-  echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh >&out.chgres.$hour_name" >> bcfile.input
+  #echo "${APRUNO} env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh > out.chgres.$hour_name ${BACKGROUND}" >> bcfile.input
+  cat>chgres_bc_f${hour_name}.sh<<EOF
+#!/bin/sh
+env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh
+EOF
+  chmod u+x chgres_bc_f${hour_name}.sh
+  echo "${APRUNO} chgres_bc_f${hour_name}.sh > out.chgres.$hour_name 2>&1 ${BACKGROUND}" >> bcfile.input
   hour=`expr $hour + ${NBDYHRS}`
+  nhour=`expr $nhour + 1`
 done
 
+# echo "wait" >> bcfile.input
 ################################
 # Execute the script.
 ################################
   
-if [ $machine = wcoss_cray ]; then
-  export APRUNC="time"
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  aprun -j 1 -n ${TOTAL_TASKS} -N 1 -d ${OMP_NUM_THREADS_CH} -cc depth cfp bcfile.input
-  rm -f bcfile.input
-elif [ $machine = wcoss_dell_p3 ]; then
-  export APRUNC="time"
-  #export OMP_NUM_THREADS=24
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  mpirun cfp bcfile.input
-  rm -f bcfile.input
-elif [ "$machine" = theia ]; then
-  export APRUNC="time"
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  # to be implemented by srun --multi-prog
-  #srun --multi-prog 
-  echo "ERROR: To be implemented by using srun --multi-prog"
-  echo "ERROR: Exitting"
-  exit 1
-elif [ "$machine" = jet ]; then
-  export APRUNC="time"
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-  # to be implemented by srun --multi-prog
-  #srun --multi-prog 
-  echo "ERROR: To be implemented by using srun --multi-prog"
-  echo "ERROR: Exitting"
-  exit 1
-else
-  echo "ERROR: Unknow machine, currently not supportted"
-  echo "ERROR: Exitting"
-  exit 1
+export APRUNC="time"
+export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
+
+if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+  rm -f bcfile.input_new
+  nline=0
+  while [ "$nline" -lt "$nhour" ];
+  do
+    # Take the first $TOTAL_TASKS lines from bcfile.input
+    sed -n -e "1,${TOTAL_TASKS}p" bcfile.input >> bcfile.input_new
+    echo 'wait' >> bcfile.input_new
+    sed -i -e "1,${TOTAL_TASKS}d" bcfile.input
+    nline=`expr $nline + $TOTAL_TASKS`
+  done
+  cp bcfile.input_new bcfile.input
+  #rm -f bcfile.input_new
 fi
+
+chmod u+x bcfile.input
+${APRUNF} bcfile.input
+wait
+#rm -f bcfile.input
 
 mv $OUTDIR/gfs_bndy*nc $INPdir/.
 

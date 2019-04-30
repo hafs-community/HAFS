@@ -214,7 +214,7 @@ else # REGIONAL = 2, just generate boundary data
     mv ${DATA}/gfs_bndy.tile7.nc $OUTDIR/gfs_bndy.tile7.${bchour}.nc
   else
     echo "FATAL ERROR: Boundary file was not created successfully."
-    err_exit
+    exit 1
   fi
 
 fi
