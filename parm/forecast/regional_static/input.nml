@@ -40,7 +40,8 @@
 
  &fv_core_nml
        !layout   = 80,40
-       layout   = 60,30
+       !layout   = 60,30
+       layout   = 40,30
        io_layout = 1,1
        npx = 2881 
        npy = 1921
