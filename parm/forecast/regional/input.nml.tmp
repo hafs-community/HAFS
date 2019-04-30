@@ -41,7 +41,7 @@
  &fv_core_nml
        !layout   = 80,40
        !layout   = 60,30
-       layout   = _nprocx_,_nprocy_
+       layout   = _layoutx_,_layouty_
        io_layout = 1,1
        npx = _npx_ 
        npy = _npy_
@@ -113,7 +113,7 @@
        target_lat = _target_lat_
        target_lon = _target_lon_
        stretch_fac = _stretch_fac_
-       regional = _regional_
+       regional = .true.
        bc_update_interval = _bc_update_interval_
        !agrid_vel_rst = .true.
        agrid_vel_rst = .false.

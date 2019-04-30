@@ -61,6 +61,12 @@ export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
 
+export layoutx={layoutx}
+export layouty={layouty}
+export npx={npx}
+export npy={npy}
+export npz={npz}
+ 
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
 export output_grid_cen_lat={output_grid_cen_lat}
