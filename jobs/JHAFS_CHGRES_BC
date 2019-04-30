@@ -148,6 +148,7 @@ export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 #####################################
 export REGIONAL=2
 
+rm -f bcfile.input
 NBDYHRS=${NBDYHRS:-3}
 hour=${NBDYHRS:-3}
 end_hour=$NHRS
@@ -169,10 +170,9 @@ while (test "$hour" -le "$end_hour")
   rm -rf $BC_DATA
   mkdir -p $BC_DATA
   #echo "${APRUNO} env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh > out.chgres.$hour_name ${BACKGROUND}" >> bcfile.input
-  cat>chgres_bc_f${hour_name}.sh<<EOF
-#!/bin/sh
-env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh
-EOF
+  rm -f chgres_bc_f${hour_name}.sh
+  echo "#!/bin/sh" > chgres_bc_f${hour_name}.sh
+  echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh" >> chgres_bc_f${hour_name}.sh
   chmod u+x chgres_bc_f${hour_name}.sh
   echo "${APRUNO} chgres_bc_f${hour_name}.sh > out.chgres.$hour_name 2>&1 ${BACKGROUND}" >> bcfile.input
   hour=`expr $hour + ${NBDYHRS}`
