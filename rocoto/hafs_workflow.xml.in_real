@@ -461,7 +461,6 @@
         <or>
           <strneq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></strneq>
           <taskdep task="archive_fv3out"/>
-          <taskdep task="scrub_work"/>
         </or>
       </and>
     </dependency>
@@ -509,8 +508,8 @@
         <or>
           <strneq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></strneq>
           <taskdep task="archive_fv3out"/>
-          <taskdep task="scrub_work"/>
         </or>
+        <taskdep task="scrub_work"/>
         <datadep age="&COM_SCRUB_TIME;"><cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
       </and>
     </dependency>
