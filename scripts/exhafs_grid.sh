@@ -146,6 +146,9 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+  echo 'wait' >> orog.file1
+fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
@@ -170,6 +173,9 @@ elif [ $gtype = nest ]; then
   echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+  echo 'wait' >> orog.file1
+fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
@@ -221,6 +227,9 @@ elif [ $gtype = regional ]; then
   echo "............ execute $MAKEOROGSSH ................."
   #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+  echo 'wait' >> orog.file1
+fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
   ${APRUNF} $DATA/orog.file1
