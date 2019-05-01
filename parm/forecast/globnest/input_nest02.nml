@@ -39,6 +39,7 @@
 /
 
  &fv_core_nml
+       !layout   = 64,30
        layout   = 40,30
        io_layout = 1,1
        npx      = 2561
@@ -67,13 +68,13 @@
        beta = 0.
        a_imp = 1.
        p_fac = 0.1
-       k_split  = 6
-       n_split  = 6
+       k_split  = 4
+       n_split  = 5
        nwat = 6
        na_init = 1
        d_ext = 0.0
        dnats = 1
-       fv_sg_adj = 180
+       fv_sg_adj = 300
        d2_bg = 0.
        nord =  2
        dddmp = 0.1
@@ -88,7 +89,7 @@
        nggps_ic = .T.
        mountain = .F.
        ncep_ic = .F.
-       d_con = 1.
+       d_con = 1.0
        hord_mt = 5
        hord_vt = 5
        hord_tm = 5
@@ -112,8 +113,8 @@
        parent_grid_num = 1
        parent_tile = 6
        refinement = 4
-       ioffset = 65
-       joffset = 129
+       ioffset = 64
+       joffset = 114
        nestupdate = 7
        agrid_vel_rst = .false.
 
@@ -125,7 +126,7 @@
 
 &nest_nml
     ntiles = 2
-    nest_pes = 864,1440
+    nest_pes = 864,1200
     p_split = 1
 /
 
@@ -152,6 +153,7 @@
        fhzero         = 3.
        ldiag3d        = .false.
        lradar         = .true.
+       !avg_max_length = 3600.
        h2o_phys       = .true.
        fhcyc          = 24.
        use_ufo        = .true.
@@ -175,7 +177,7 @@
        cal_pre        = .false.
        redrag         = .true.
        dspheat        = .true.
-       hybedmf        = .false.
+       hybedmf        = .true.
        random_clds    = .false.
        trans_trac     = .true.
        cnvcld         = .false.
@@ -194,6 +196,8 @@
        iaufhrs        = 30
        iau_inc_files  = ''
        do_deep = .false.
+       !lgfdlmprad = .true.
+       !effr_in = .true.
 /
 
  &gfdl_cloud_microphysics_nml

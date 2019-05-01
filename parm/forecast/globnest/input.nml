@@ -44,7 +44,7 @@
        npx      = 769 
        npy      = 769 
        ntiles   = 6
-       npz    = 63
+       npz    = 64
        !grid_type = -1
        make_nh = .F.
        fv_debug = .F.
@@ -73,7 +73,7 @@
        na_init = 1
        d_ext = 0.0
        dnats = 1
-       fv_sg_adj = 450 
+       fv_sg_adj = 300
        d2_bg = 0.
        nord =  2
        dddmp = 0.1
@@ -111,28 +111,30 @@
        target_lat = 20.0
        target_lon = -85.0
        stretch_fac = 1.00001
-       agrid_vel_rst = .true.
+       !agrid_vel_rst = .true.
+       agrid_vel_rst = .false.
 
 !       write_3d_diags = .T.
 /
  &nest_nml
     ntiles = 2
-    nest_pes = 864,1440
+    nest_pes = 864,1200
     p_split = 1
 /
 
  &external_ic_nml
        filtered_terrain = .true.
-       levp = 64
+       levp = 65
        gfs_dwinds = .true.
        checker_tr = .F.
        nt_checker = 0
 /
 
  &gfs_physics_nml
-       fhzero         = 3.
+       fhzero z       = 3.
        ldiag3d        = .false.
-       lradar         = .false.
+       lradar         = .true.
+       !avg_max_length = 3600.
        h2o_phys       = .true.
        fhcyc          = 24.
        use_ufo        = .true.
@@ -174,6 +176,9 @@
        iau_delthrs    = 6
        iaufhrs        = 30
        iau_inc_files  = ''
+       !do_deep = .false.
+       !lgfdlmprad = .true.
+       !effr_in = .true.
 /
 
  &gfdl_cloud_microphysics_nml
