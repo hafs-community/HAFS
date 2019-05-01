@@ -9,7 +9,7 @@ fi
 APRUN=${APRUN:-time}
 
 if [ $gtype = stretch ] || [ $gtype = regional ]; then
-stretch=$stetch_fac
+stretch=$stretch_fac
 refine_ratio=$refine_ratio
 else
 stretch=1.0

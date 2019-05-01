@@ -20,7 +20,7 @@ ulimit -a
 
 export gtype=${gtype:-regional}
 
-export stetch_fac=${stetch_fac:-1.0001}
+export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
 export refine_ratio=${refine_ratio:-4}

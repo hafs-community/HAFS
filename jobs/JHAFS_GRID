@@ -22,7 +22,7 @@ export gtype=${gtype:-regional}             # grid type = uniform, stretch, nest
 # If gridfixdir is specified and exists, use the grid fix files directly
 export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
 # Otherwise, generate grid according to the following parameters
-export stetch_fac=${stetch_fac:-1.0001}     # stretching factor for the grid
+export stretch_fac=${stretch_fac:-1.0001}     # stretching factor for the grid
 export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
 export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
 # Need for grid types: nest and regional

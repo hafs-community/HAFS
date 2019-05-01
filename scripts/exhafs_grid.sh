@@ -65,12 +65,12 @@ fi
 if [ $gtype = uniform ];  then
   echo "creating uniform ICs"
 elif [ $gtype = stretch ]; then
-  export stetch_fac=${stetch_fac:-1.5}        # Stretching factor for the grid
+  export stretch_fac=${stretch_fac:-1.5}        # Stretching factor for the grid
   export target_lon=${target_lon:--97.5}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-35.5}       # center latitude of the highest resolution tile
   echo "creating stretched grid"
 elif [ $gtype = nest ] || [ $gtype = regional ]; then
-  export stetch_fac=${stetch_fac:-1.0001}     # Stretching factor for the grid
+  export stretch_fac=${stretch_fac:-1.0001}     # Stretching factor for the grid
   export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
   # Need for grid types: nest and regional
@@ -134,7 +134,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   if [ $gtype = uniform ];  then
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $script_dir
   elif [ $gtype = stretch ]; then
-    ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stetch_fac $target_lon $target_lat $script_dir
+    ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $script_dir
   fi
   date
   echo "............ execute $MAKEOROGSSH ................."
@@ -159,7 +159,7 @@ elif [ $gtype = nest ]; then
   export ntiles=7
   date
   echo "............ execute $MAKEGRIDSSH ................."
-  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stetch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
@@ -215,7 +215,7 @@ elif [ $gtype = regional ]; then
   echo "================================================================================== "
 
   echo "............ execute $MAKEGRIDSSH ................."
-  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stetch_fac $target_lon $target_lat $refine_ratio $istart_nest_halo $jstart_nest_halo $iend_nest_halo $jend_nest_halo $halo $script_dir
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest_halo $jstart_nest_halo $iend_nest_halo $jend_nest_halo $halo $script_dir
 
   date
   echo "............ execute $MAKEOROGSSH ................."
