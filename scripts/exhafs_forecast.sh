@@ -20,6 +20,17 @@ ulimit -a
 
 export gtype=${gtype:-regional}
 
+export stetch_fac=${stetch_fac:-1.0001}
+export target_lon=${target_lon:--62.0}
+export target_lat=${target_lat:-22.0}
+export refine_ratio=${refine_ratio:-4}
+
+export layoutx=${layoutx:-40}
+export layouty=${layouty:-30}
+export npx=${npx:-2881}
+export npy=${npy:-1921}
+export npz=${npz:-64}
+
 export output_grid=${output_grid:-rotated_latlon}
 export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
 export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
@@ -122,7 +133,7 @@ cd ..
 cp ${PARMforecast}/data_table .
 cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
-cp ${PARMforecast}/input*nml .
+cp ${PARMforecast}/input*nml* .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
 
@@ -155,9 +166,21 @@ cd ..
 cp ${PARMforecast}/data_table .
 cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
-cp ${PARMforecast}/input.nml .
+cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
+
+sed -e "s/_layoutx_/${layoutx}/g" \
+    -e "s/_layouty_/${layouty}/g" \
+    -e "s/_npx_/${npx}/g" \
+    -e "s/_npy_/${npy}/g" \
+    -e "s/_npz_/${npz}/g" \
+    -e "s/_target_lat_/${target_lat}/g" \
+    -e "s/_target_lon_/${target_lon}/g" \
+    -e "s/_stretch_fac_/${stretch_fac}/g" \
+    -e "s/_bc_update_interval_/${NBDYHRS}/g" \
+    -e "s/_levp_/${LEVS}/g" \
+	input.nml.tmp > input.nml
 
 fi
   

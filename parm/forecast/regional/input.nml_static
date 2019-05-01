@@ -11,11 +11,11 @@
      blocksize = 32
      chksum_debug = .false.
      dycore_only = .false.
-     fdiag = 1
+     fdiag = 3
      fhmax = 126
-     fhout = 1
+     fhout = 3
      fhmaxhf = 0
-     fhouthf = 1
+     fhouthf = 3
 /
 
 &diag_manager_nml
@@ -144,7 +144,7 @@
 /
 
  &gfs_physics_nml
-       fhzero         = 1.
+       fhzero         = 3.
        ldiag3d        = .false.
        lradar         = .true.
        !avg_max_length = 3600.
@@ -184,6 +184,8 @@
        debug          = .false.
        nstf_name      = 2,0,0,0,0
        nst_anl        = .true.
+       psautco        = 0.0008, 0.0005
+       prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
        iaufhrs        = 30
        iau_inc_files  = ''
