@@ -28,6 +28,11 @@ export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
 export refine_ratio=${refine_ratio:-4}
 
+export glob_layoutx=${glob_layoutx:-12}
+export glob_layouty=${glob_layouty:-12}
+export glob_npx=${glob_npx:-769}
+export glob_npy=${glob_npy:-769}
+
 export layoutx=${layoutx:-40}
 export layouty=${layouty:-30}
 export npx=${npx:-2881}

@@ -25,6 +25,11 @@ export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
 export refine_ratio=${refine_ratio:-4}
 
+export glob_layoutx=${glob_layoutx:-12}
+export glob_layouty=${glob_layouty:-12}
+export glob_npx=${glob_npx:-769}
+export glob_npy=${glob_npy:-769}
+
 export layoutx=${layoutx:-40}
 export layouty=${layouty:-30}
 export npx=${npx:-2881}
@@ -133,9 +138,45 @@ cd ..
 cp ${PARMforecast}/data_table .
 cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
-cp ${PARMforecast}/input*nml* .
+cp ${PARMforecast}/input.nml.tmp .
+cp ${PARMforecast}/input_nest02.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
+
+glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
+nest_pes=$(( ${layoutx} * ${layouty} ))
+
+sed -e "s/_layoutx_/${glob_layoutx}/g" \
+    -e "s/_layouty_/${glob_layouty}/g" \
+    -e "s/_npx_/${glob_npx}/g" \
+    -e "s/_npy_/${glob_npy}/g" \
+    -e "s/_npz_/${npz}/g" \
+    -e "s/_target_lat_/${target_lat}/g" \
+    -e "s/_target_lon_/${target_lon}/g" \
+    -e "s/_stretch_fac_/${stretch_fac}/g" \
+    -e "s/_glob_pes_/${glob_pes}/g" \
+    -e "s/_nest_pes_/${nest_pes}/g" \
+    -e "s/_levp_/${LEVS}/g" \
+	input.nml.tmp > input.nml
+
+ioffset=$(( (istart_nest-1)/2 + 1))
+joffset=$(( (jstart_nest-1)/2 + 1))
+
+sed -e "s/_layoutx_/${layoutx}/g" \
+    -e "s/_layouty_/${layouty}/g" \
+    -e "s/_npx_/${npx}/g" \
+    -e "s/_npy_/${npy}/g" \
+    -e "s/_npz_/${npz}/g" \
+    -e "s/_target_lat_/${target_lat}/g" \
+    -e "s/_target_lon_/${target_lon}/g" \
+    -e "s/_stretch_fac_/${stretch_fac}/g" \
+    -e "s/_refinement_/${refine_ratio}/g" \
+    -e "s/_ioffset_/${ioffset}/g" \
+    -e "s/_joffset_/${joffset}/g" \
+    -e "s/_glob_pes_/${glob_pes}/g" \
+    -e "s/_nest_pes_/${nest_pes}/g" \
+    -e "s/_levp_/${LEVS}/g" \
+	input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
 

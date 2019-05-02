@@ -1,9 +1,7 @@
 # This file is parsed through the hafs.conf [holdvars] configuration
 # section.  It is used to control the workflow for the NCO J-Jobs, and
 # can also be used for debugging: simply source the
-# storm*.holdvars.txt in a ksh/sh/bash shell, set PYTHONPATH and then
-# start python - it will be able to access the hafs_expt and other
-# Python libraries as any scripts/*py would be able to.
+# storm*.holdvars.txt in a ksh/sh/bash shell.
 
 export envir={ENV[envir|-prod]}
 
@@ -60,6 +58,11 @@ export jend_nest={jend_nest}
 export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
+
+export glob_layoutx={glob_layoutx}
+export glob_layouty={glob_layouty}
+export glob_npx={glob_npx}
+export glob_npy={glob_npy}
 
 export layoutx={layoutx}
 export layouty={layouty}

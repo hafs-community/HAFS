@@ -110,6 +110,14 @@ fi
 
 env
 
+if [ "${gtype}" != "regional" ]; then
+  echo "INFO: ${gtype} not a regional run."
+  echo "INFO: No need to run chgres_bc."
+  echo "INFO: Exitting."
+  exit
+fi
+
+
 ####################################
 # Run setpdy and initialize PDY variables
 ####################################

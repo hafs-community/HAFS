@@ -119,7 +119,7 @@
 /
  &nest_nml
     ntiles = 2
-    nest_pes = _nest_pes_d01_,_nest_pes_d02_
+    nest_pes = _glob_pes_, _nest_pes_
     p_split = 1
 /
 

@@ -16,7 +16,7 @@ export APRUN=time
 CDATE=${CDATE:-${YMDH}}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
-gtype=${GTYPE:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
 
 HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
