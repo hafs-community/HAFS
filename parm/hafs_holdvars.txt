@@ -1,0 +1,106 @@
+# This file is parsed through the hafs.conf [holdvars] configuration
+# section.  It is used to control the workflow for the NCO J-Jobs, and
+# can also be used for debugging: simply source the
+# storm*.holdvars.txt in a ksh/sh/bash shell.
+
+export envir={ENV[envir|-prod]}
+
+export storm_num={storm_num}
+export RUN_VORTEXINIT={RUN_VORTEXINIT}
+export RUN_GSI={RUN_GSI}
+export GSID01={GSID01}
+export GSID02={GSID02}
+export GSID03={GSID03}
+export FGATSTR={FGATSTR}
+export FGATINV={FGATINV}
+export FGATEND={FGATEND}
+
+export utilexec={utilexec}
+
+export HOMEhafs={HOMEhafs}
+export EXEChafs={EXEChafs}
+export PARMhafs={PARMhafs}
+export EXhafs={EXhafs}
+export JOBhafs={JOBhafs}
+export USHhafs={USHhafs}
+export FIXhafs={FIXhafs}
+export WORKhafs={WORKhafs}
+export DATA={WORKhafs}
+export COMhafs={COMhafs}
+export COMIN={COMIN}
+export COMOUT={COMOUT}
+export COMgfs={COMgfs}
+
+export PARMforecast={PARMforecast}
+
+export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
+
+export stormlabel={stormlabel}
+export STORM={vit[stormname]}
+export STORMID={vit[stormid3]}
+
+export NHRS={NHRS}
+export NBDYHRS={NBDYHRS}
+export ICTYPE={ICTYPE}
+
+export CASE={CASE}
+export LEVELS={LEVELS}
+export gtype={gtype}
+export gridfixdir={gridfixdir}
+export stretch_fac={stretch_fac}
+export target_lon={target_lon}
+export target_lat={target_lat}
+export refine_ratio={refine_ratio}
+export istart_nest={istart_nest}
+export jstart_nest={jstart_nest}
+export iend_nest={iend_nest}
+export jend_nest={jend_nest}
+export halo={halo}
+export halop1={halop1}
+export halo0={halo0}
+
+export glob_layoutx={glob_layoutx}
+export glob_layouty={glob_layouty}
+export glob_npx={glob_npx}
+export glob_npy={glob_npy}
+
+export layoutx={layoutx}
+export layouty={layouty}
+export npx={npx}
+export npy={npy}
+export npz={npz}
+ 
+export output_grid={output_grid}
+export output_grid_cen_lon={output_grid_cen_lon}
+export output_grid_cen_lat={output_grid_cen_lat}
+export output_grid_lon1={output_grid_lon1}
+export output_grid_lat1={output_grid_lat1}
+export output_grid_lon2={output_grid_lon2}
+export output_grid_lat2={output_grid_lat2}
+export output_grid_dlon={output_grid_dlon}
+export output_grid_dlat={output_grid_dlon}
+
+export out_prefix={out_prefix}
+export out_prefix_nodate={out_prefix_nodate}
+export synop_gridspecs={synop_gridspecs}
+export trker_gridspecs={trker_gridspecs}
+
+export RUN_ENVIR={RUN_ENVIR}
+export PATH=:.:$PATH:$utilexec
+
+export CONFhafs={CONFhafs}
+export HOLDVARS={HOLDVARS}
+
+export CENLO={domlon}
+export CENLA={domlat}
+
+if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
+    export NWPROD={HOMEhafs}/nwport
+    export EXPT={EXPT}
+    export SUBEXPT={SUBEXPT}
+    export WHERE_AM_I={ENVEQUIV}
+    export CDSAVE={CDSAVE}
+    export CDNOSCRUB={CDNOSCRUB}
+    export CDSCRUB={CDSCRUB}
+    export RUNhafs={RUNhafs}
+fi
