@@ -39,6 +39,8 @@ FHR=0
 FHR2=$( printf "%02d" "$FHR" )
 FHR3=$( printf "%03d" "$FHR" )
 
+# clean intercom for tracker
+rm -fr ${intercom}
 # Loop for forecast hours
 while [ $FHR -le $NHRS ];
 do

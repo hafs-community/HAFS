@@ -312,7 +312,7 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    &SHARED_EXTRA;
     &CORES_EXTRA;
     &ENV_VARS;
     &PRODUCT_RESOURCES;
