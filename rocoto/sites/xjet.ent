@@ -6,7 +6,7 @@
   <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=xjet</native>">
   <!ENTITY QUEUE_SHARED    "batch">
-  <!ENTITY SHARED_EXTRA    "<native>--partition=xjet</native>">
+  <!ENTITY SHARED_EXTRA    "<native>--partition=bigmem</native>">
   <!ENTITY QUEUE_SERVICE   "service">
   <!ENTITY SERVICE_EXTRA   "<native>--partition=service</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
