@@ -20,6 +20,12 @@ ulimit -a
 
 export gtype=${gtype:-regional}
 
+export dt_atmos=${dt_atmos:-90}
+export restart_interval=${restart_interval:-6}
+export quilting=${quilting:-.true.}
+export write_groups=${write_groups:-3}
+export write_tasks_per_group=${write_tasks_per_group:-72}
+
 export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
@@ -146,7 +152,8 @@ cp ${PARMforecast}/nems.configure .
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 nest_pes=$(( ${layoutx} * ${layouty} ))
 
-sed -e "s/_layoutx_/${glob_layoutx}/g" \
+sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_layoutx_/${glob_layoutx}/g" \
     -e "s/_layouty_/${glob_layouty}/g" \
     -e "s/_npx_/${glob_npx}/g" \
     -e "s/_npy_/${glob_npy}/g" \
@@ -162,7 +169,8 @@ sed -e "s/_layoutx_/${glob_layoutx}/g" \
 ioffset=$(( (istart_nest-1)/2 + 1))
 joffset=$(( (jstart_nest-1)/2 + 1))
 
-sed -e "s/_layoutx_/${layoutx}/g" \
+sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
@@ -211,7 +219,8 @@ cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
 
-sed -e "s/_layoutx_/${layoutx}/g" \
+sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
@@ -245,6 +254,11 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/MN/$mn/ | sed s/DY/$dy/ | sed s/H_R/$cyc/ | \
     sed s/NHRS/$NHRS/ | sed s/NTHRD/$OMP_NUM_THREADS/ | \
     sed s/NCNODE/$NCNODE/ | \
+    sed s/_dt_atmos_/${dt_atmos}/ | \
+    sed s/_restart_interval_/${restart_interval}/ | \
+    sed s/_quilting_/${quilting}/ | \
+    sed s/_write_groups_/${write_groups}/ | \
+    sed s/_write_tasks_per_group_/${write_tasks_per_group}/ | \
     sed s/_OUTPUT_GRID_/$output_grid/ | \
     sed s/_CEN_LON_/$output_grid_cen_lon/ | \
     sed s/_CEN_LAT_/$output_grid_cen_lat/ | \
