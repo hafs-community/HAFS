@@ -23,6 +23,12 @@ export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+export dt_atmos=${dt_atmos:-90}
+export restart_interval=${restart_interval:-6}
+export quilting=${quilting:-.true.}
+export write_groups=${write_groups:-3}
+export write_tasks_per_group=${write_tasks_per_group:-72}
+
 export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}

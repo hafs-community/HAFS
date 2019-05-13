@@ -12,7 +12,8 @@
      chksum_debug = .false.
      dycore_only = .false.
      fdiag = 3
-     fhmax = 126
+     avg_max_length = 3600.
+     fhmax = _fhmax_
      fhout = 3
      fhmaxhf = 0
      fhouthf = 3
@@ -30,7 +31,7 @@
 
  &fms_nml
        clock_grain = 'ROUTINE',
-       domains_stack_size = 10000000,
+       domains_stack_size = 12000000,
        print_memory_usage = .false.
 /
 
@@ -43,22 +44,22 @@
        !layout   = 40,30
        layout   = _layoutx_,_layouty_
        io_layout = 1,1
-       npx = _npx_ 
+       npx = _npx_
        npy = _npy_
        ntiles   = 1
        npz    = _npz_
        !grid_type = -1
-       make_nh = .T.
+       make_nh = .F.
        fv_debug = .F.
-       range_warn = .F.
+       range_warn = .T.
        reset_eta = .F.
        n_sponge = 24
        nudge_qv = .F.
        nudge_dz = .F.
        tau = 5.
-       rf_cutoff = 20.e2
+       rf_cutoff = 50.e2
        d2_bg_k1 = 0.20
-       d2_bg_k2 = 0.04
+       d2_bg_k2 = 0.15
        kord_tm = -11
        kord_mt =  11
        kord_wz =  11
@@ -79,11 +80,11 @@
        d2_bg = 0.
        nord =  2
        dddmp = 0.1
-       d4_bg = 0.12
-       vtdm4 = 0.02
+       d4_bg = 0.15
+       vtdm4 = 0.04
        delt_max = 0.008
        ke_bg = 0.
-       do_vort_damp = .true.
+       do_vort_damp = .T.
        external_ic = .T.
        external_eta = .T.
        gfs_phil = .false.
@@ -106,8 +107,10 @@
        warm_start = .F.
        no_dycore = .false.
        z_tracer = .T.
+       agrid_vel_rst = .true.
        read_increment = .F.
        res_latlon_dynamics = "fv3_increment.nc"
+       write_3d_diags = .true.
 
        do_schmidt = .true.
        target_lat = _target_lat_
@@ -115,24 +118,21 @@
        stretch_fac = _stretch_fac_
        regional = .true.
        bc_update_interval = _bc_update_interval_
-       !agrid_vel_rst = .true.
-       agrid_vel_rst = .false.
 
        full_zs_filter = .F. !unreleased feature
-
-       nord_zs_filter = 4
        n_zs_filter = 0 ! safety
+       nord_zs_filter = 4
 /
 
-&surf_map_nml
-    zero_ocean = .F.
-    cd4 = 0.12
-    cd2 = -1
-    n_del2_strong = 0
-    n_del2_weak = 2
-    n_del4 = 1
-    max_slope = 0.4
-    peak_fac = 1.
+ &surf_map_nml
+       zero_ocean = .F.
+       cd4 = 0.15
+       cd2 = -1
+       n_del2_strong = 0
+       n_del2_weak = 15
+       n_del4 = 2
+       max_slope = 0.4
+       peak_fac = 1.
 /
 
  &external_ic_nml
@@ -147,7 +147,7 @@
        fhzero         = 3.
        ldiag3d        = .false.
        lradar         = .true.
-       !avg_max_length = 3600.
+       avg_max_length = 3600.
        h2o_phys       = .true.
        fhcyc          = 24.
        use_ufo        = .true.
@@ -159,7 +159,7 @@
        fhlwr          = 3600.
        ialb           = 1
        iems           = 1
-       IAER           = 111
+       iaer           = 111
        ico2           = 2
        isubc_sw       = 2
        isubc_lw       = 2
@@ -172,26 +172,27 @@
        redrag         = .true.
        dspheat        = .true.
        hybedmf        = .true.
+       satmedmf       = .false.
        random_clds    = .false.
        trans_trac     = .true.
        cnvcld         = .false.
        imfshalcnv     = 2
        imfdeepcnv     = 2
-       cdmbgwd        = 3.5, 0.01       ! turn off GWD in nest
+       cdmbgwd        = 3.5, 0.25       ! NCEP default
        prslrd0        = 0.
        ivegsrc        = 1
        isot           = 1
        debug          = .false.
-       nstf_name      = 2,0,0,0,0
        nst_anl        = .true.
+       nstf_name      = 2,1,1,0,5
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
        iaufhrs        = 30
        iau_inc_files  = ''
-       do_deep = .false.
-       !lgfdlmprad = .true.
-       !effr_in = .true.
+       do_deep        = .false.
+       lgfdlmprad     = .true.
+       effr_in        = .true.
 /
 
  &gfdl_cloud_microphysics_nml
@@ -253,7 +254,7 @@
        FNTSFC   = "RTGSST.1982.2012.monthly.clim.grb",
        FNSNOC   = "global_snoclim.1.875.grb",
        FNZORC   = "igbp"
-!       FNZORC   = "global_zorclim.1x1.grb",
+       !FNZORC   = "global_zorclim.1x1.grb",
        FNALBC   = "global_snowfree_albedo.bosu.t1534.3072.1536.rg.grb",
        FNALBC2  = "global_albedo4.1x1.grb",
        FNAISC   = "CFSR.SEAICE.1982.2012.monthly.clim.grb",

@@ -59,6 +59,12 @@ export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
 
+export dt_atmos={dt_atmos}
+export restart_interval={restart_interval}
+export quilting={quilting}
+export write_groups={write_groups}
+export write_tasks_per_group={write_tasks_per_group}
+
 export glob_layoutx={glob_layoutx}
 export glob_layouty={glob_layouty}
 export glob_npx={glob_npx}
