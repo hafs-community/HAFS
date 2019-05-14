@@ -66,6 +66,9 @@
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
 
+  <!ENTITY gtype "@[gtype:-regional]">
+  <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
+
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
 
@@ -104,6 +107,7 @@
   <!ENTITY % CUSTOM_SITE SYSTEM "@[SITE_FILE]">
   %CUSTOM_SITE;
 @** endif
+
 
 ]>
 
@@ -234,6 +238,7 @@
     </dependency>
   </task> 
 
+@** if gtype==regional
   <task name="chgres_bc" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
     <jobname>hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -263,6 +268,7 @@
       </and>
     </dependency>
   </task> 
+@** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
@@ -279,7 +285,10 @@
     <dependency>
       <and>
         <taskdep task="chgres_ic"/>
-        <taskdep task="chgres_bc"/>
+        <or>
+          <taskdep task="chgres_bc"/>
+          <strneq><left>&gtype;</left><right>regional</right></strneq>
+        </or>
       </and>
     </dependency>
   </task>
@@ -312,7 +321,7 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    &SHARED_EXTRA;
     &CORES_EXTRA;
     &ENV_VARS;
     &PRODUCT_RESOURCES;

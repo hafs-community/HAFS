@@ -1,5 +1,4 @@
   <!-- theia -->
-  <!--<!ENTITY SCHEDULER       "moabtorque">-->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
   <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
@@ -19,11 +18,29 @@
   <!ENTITY REQUEST_THREADS "<envar><name>PURE_OPENMP_THREADS</name><value>&THREADS;</value></envar><envar><name>OMP_NUM_THREADS</name><value>&THREADS;</value></envar><envar><name>KMP_NUM_THREADS</name><value>&THREADS;</value></envar>">
 
   <!ENTITY GRID_RESOURCES "<cores>24</cores><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY CHGRES_IC_RESOURCES "<cores>24</cores><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY CHGRES_BC_RESOURCES "<cores>504</cores><envar><name>TOTAL_TASKS</name><value>21</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
-  <!--<!ENTITY CHGRES_BC_RESOURCES "<cores>168</cores><envar><name>TOTAL_TASKS</name><value>7</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">-->
-  <!--<!ENTITY FORECAST_RESOURCES "<cores>4032</cores><envar><name>NODES</name><value>168</value></envar><envar><name>TOTAL_TASKS</name><value>2016</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>06:00:00</walltime>">-->
-  <!ENTITY FORECAST_RESOURCES "<cores>2616</cores><envar><name>NODES</name><value>109</value></envar><envar><name>TOTAL_TASKS</name><value>1308</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY POST_RESOURCES "<cores>144</cores><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY PRODUCT_RESOURCES "<cores>1</cores><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY CHGRES_IC_RESOURCES "<nodes>1:ppn=1:tpp=24</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY CHGRES_BC_RESOURCES "<nodes>21:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>21</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>00:30:00</walltime>">
+
+  <!ENTITY FORECAST_WALLTIME "<walltime>06:00:00</walltime>">
+  <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
+  <!ENTITY FORECAST_EXTRA "&FORECAST_OMP;&FORECAST_WALLTIME;">
+
+  <!-- FORECAST_RESOURCES for regional HAFS -->
+  <!ENTITY FORECAST_RESOURCES_regional_12x12io3x36_omp2 "<nodes>21:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>252</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_12x12io3x72_omp2 "<nodes>30:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x36_omp2 "<nodes>109:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1308</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x72_omp2 "<nodes>118:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1416</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_64x30io3x36_omp2 "<nodes>168:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2016</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_64x30io3x72_omp2 "<nodes>177:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2124</value></envar>&FORECAST_EXTRA;">
+
+  <!-- FORECAST_RESOURCES for globnest HAFS -->
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2 "<nodes>53:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>636</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x72_omp2 "<nodes>62:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>744</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_40x30io3x36_omp2 "<nodes>141:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1692</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_40x30io3x72_omp2 "<nodes>150:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1800</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_64x30io3x36_omp2 "<nodes>208:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2496</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_64x30io3x72_omp2 "<nodes>230:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2760</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY POST_RESOURCES "<nodes>3:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
 

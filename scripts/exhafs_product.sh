@@ -29,14 +29,14 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 trk_atcfunix=${out_prefix}.trak.hafs.atcfunix
+all_atcfunix=${out_prefix}.trak.hafs.atcfunix.all
 
-inp_vital=${WORKhafs}/tmpvit
+tmp_vital=${WORKhafs}/tmpvit
 old_vital=${WORKhafs}/oldvit
 
 #===============================================================================
 # Run GFDL vortextracker  
 # *** Currently, the tave step is skipped (same as HMON). Need add it and make it the same as HWRF.
-# *** Need add the capability of tracking multiple storms simultaneously.
 # *** Need add the capability of TC genesis tracking.
 
 DATA_tracker=${DATA}/tracker
@@ -81,10 +81,11 @@ rm -f fort.*
 # specified in the script. Need to modify it to be able to deal with storm
 # message files/dirs, as well as passing in tcvitals files.
 ${USHhafs}/tcutil_multistorm_sort.py ${CDATE} | cut -c1-96 > allvit
-inp_vital=allvit
 
 # Prepare the input/output files
-cp ${inp_vital} input.vitals
+cat ${tmp_vital} allvit > input.vitals
+#cat ${tmp_vital} > input.vitals
+
 cp input.vitals tcvit_rsmc_storms.txt
 ln -sf input.vitals       fort.12
 touch fort.14
@@ -105,8 +106,8 @@ ln -sf output.ike         fort.74
 ln -sf output.pdfwind     fort.76
 
 # The product atcf track file
-touch ${COMhafs}/${trk_atcfunix}
-ln -sf ${COMhafs}/${trk_atcfunix} output.atcfunix
+touch ${COMhafs}/${all_atcfunix}
+ln -sf ${COMhafs}/${all_atcfunix} output.atcfunix
 
 # Prepare the input namelist
 CC=`echo $CDATE | cut -c 1-2`
@@ -127,6 +128,11 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
 #cp ${GETTRKEXEC} ./gettrk.x
 ln -sf ${GETTRKEXEC} ./gettrk.x
 ${APRUNC} ./gettrk.x < namelist.gettrk
+
+# Extract the tracking records for tmpvit
+STORMNUM=$(echo ${STORMID} | cut -c1-2)
+STORMBS1=$(echo ${STORMID} | cut -c3)
+grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
 
 #===============================================================================
 

@@ -10,7 +10,7 @@ start_second:            0
 nhours_fcst:             NHRS
 RUN_CONTINUE:            .false.
 ENS_SPS:                 .false.
-dt_atmos:                90
+dt_atmos:                _dt_atmos_
 cpl:                     .false.
 calendar:                'julian'
 memuse_verbose:          .false.
@@ -18,12 +18,12 @@ atmos_nthreads:          NTHRD
 use_hyper_thread:        .false.
 ncores_per_node:         NCNODE
 debug_affinity:          .true.
-restart_interval:        0
+restart_interval:        _restart_interval_
 output_1st_tstep_rst:    .false.
 
-quilting:                .true.
-write_groups:            3
-write_tasks_per_group:   36
+quilting:                _quilting_
+write_groups:            _write_groups_
+write_tasks_per_group:   _write_tasks_per_group_
 num_files:               2
 filename_base:           'dyn' 'phy'
 output_file:             'netcdf'
@@ -39,16 +39,6 @@ lon2:                    _LON2_                  # longitude of upper-right . . 
 lat2:                    _LAT2_                  # latitude of upper-right . . . .
 dlon:                    _DLON_
 dlat:                    _DLAT_
-
-#output_grid:             'rotated_latlon'
-#cen_lon:                 -58.0   # central longitude
-#cen_lat:                  21.0   # central latitude
-#lon1:                    -93.5   # longitude of lower-left point in rotated coordinate system (in degrees)
-#lat1:                    2.0   # latitude of lower-left . . . .
-#lon2:                     -18.0   # longitude of upper-right . . . .
-#lat2:                     40.0   # latitude of upper-right . . . .
-#dlon:                     0.025
-#dlat:                     0.025
 
 nfhout:                  3 
 nfhmax_hf:               12
