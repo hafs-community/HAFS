@@ -65,12 +65,12 @@ fi
 if [ $gtype = uniform ];  then
   echo "creating uniform ICs"
 elif [ $gtype = stretch ]; then
-  export stretch_fac=${stretch_fac:-1.5}        # Stretching factor for the grid
+  export stretch_fac=${stretch_fac:-1.5}      # Stretching factor for the grid
   export target_lon=${target_lon:--97.5}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-35.5}       # center latitude of the highest resolution tile
   echo "creating stretched grid"
 elif [ $gtype = nest ] || [ $gtype = regional ]; then
-  export stretch_fac=${stretch_fac:-1.0001}     # Stretching factor for the grid
+  export stretch_fac=${stretch_fac:-1.0001}   # Stretching factor for the grid
   export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
   # Need for grid types: nest and regional
@@ -98,6 +98,8 @@ if [ $CRES -eq 48 ]; then
  export cd4=0.12;  export max_slope=0.12; export n_del2_weak=4;   export peak_fac=1.1  
 elif [ $CRES -eq 96 ]; then 
  export cd4=0.12;  export max_slope=0.12; export n_del2_weak=8;   export peak_fac=1.1  
+elif [ $CRES -eq 128 ]; then
+ export cd4=0.13;  export max_slope=0.12; export n_del2_weak=8;   export peak_fac=1.1
 elif [ $CRES -eq 192 ]; then 
  export cd4=0.15;  export max_slope=0.12; export n_del2_weak=12;  export peak_fac=1.05  
 elif [ $CRES -eq 384 ]; then 
@@ -106,6 +108,8 @@ elif [ $CRES -eq 768 ]; then
  export cd4=0.15;  export max_slope=0.12; export n_del2_weak=16;   export peak_fac=1.0  
 elif [ $CRES -eq 1152 ]; then 
  export cd4=0.15;  export max_slope=0.16; export n_del2_weak=20;   export peak_fac=1.0  
+elif [ $CRES -eq 1536 ]; then 
+ export cd4=0.15;  export max_slope=0.24; export n_del2_weak=20;   export peak_fac=1.0  
 elif [ $CRES -eq 3072 ]; then 
  export cd4=0.15;  export max_slope=0.30; export n_del2_weak=24;   export peak_fac=1.0  
 else
@@ -253,25 +257,39 @@ fi
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid
 
+  # Copy the shaved files with the halo of 4
+  cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halop1}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halop1}.nc
+
+  # Now shave the orography file with no halo and then the grid file with a halo of 3. This is necessary for running the model.
+  echo $npts_cgx $npts_cgy $halo \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog.halo${halo}
+  echo $npts_cgx $npts_cgy $halo \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo}
+  ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo}
+  ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo}
+
+  # Copy the shaved files with the halo of 3
+  cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo}.nc
+
+  # Now shave the orography file and then the grid file with a halo of 0. This is handy for running chgres.
+  echo $npts_cgx $npts_cgy $halo0 \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog.halo${halo0}
+  echo $npts_cgx $npts_cgy $halo0 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo0}
+
+  ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo0}
+  ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo0}
+
+  # Copy the shaved files with the halo of 0
+  cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo0}.nc
+
   echo "Grid and orography files are now prepared"
 
 fi
 #----------------------------------------------------------------
 
-if [ $gtype = regional ]; then
-  cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halop1}.nc
-  cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halop1}.nc
-
-  # Now shave the orography file with no halo and then the grid file with a halo of 3. This is necessary for running the model.
-  echo $npts_cgx $npts_cgy $halo0 \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog.halo$halo0
-  echo $npts_cgx $npts_cgy $halo \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo$halo
-  ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo$halo0
-  ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo$halo
-
-  # Copy the shaved files with the halo of 3 required for the model run
-  cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
-  cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo}.nc
-else
+# For non-regional grids, copy grid and orography files to output directory.
+if [ $gtype != regional ]; then
+  echo "Copy grid and orography files to output directory"
   tile=1
   while [ $tile -le $ntiles ]; do
     cp $filter_dir/oro.${CASE}.tile${tile}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
@@ -280,8 +298,7 @@ else
   done
 fi
 
-#cp $filter_dir/${CASE}_mosaic.nc $out_dir/grid_spec.nc
-#cp $filter_dir/${CASE}_mosaic.nc $out_dir/${CASE}_mosaic.nc
-cp $grid_dir/${CASE}_mosaic.nc $out_dir/${CASE}_mosaic.nc
+# Copy mosaic file(s) to output directory.
+cp $grid_dir/${CASE}_*mosaic.nc $out_dir/
 
 exit
