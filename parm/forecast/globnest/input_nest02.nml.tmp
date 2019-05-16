@@ -192,7 +192,7 @@
        isot           = 1
        debug          = .false.
        nst_anl        = .true.
-       nstf_name      = 2,1,1,0,5
+       nstf_name      = 2,0,0,0,0
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
