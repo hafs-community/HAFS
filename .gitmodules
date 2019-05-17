@@ -1,7 +1,7 @@
 [submodule "NEMSfv3gfs"]
 	path = sorc/hafs_forecast.fd
 	url = gerrit:NEMSfv3gfs
-	branch = HAFS
+	branch = HAFS_writenativegrid
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
 	url = gerrit:EMC_post
