@@ -28,6 +28,7 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 intercom=${intercom:-${WORKhafs}/intercom/post}
 SENDCOM=${SENDCOM:-YES}
 
+output_grid=${output_grid:-rotated_latlon}
 synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
@@ -39,8 +40,6 @@ FHR=0
 FHR2=$( printf "%02d" "$FHR" )
 FHR3=$( printf "%03d" "$FHR" )
 
-# clean intercom for tracker
-rm -fr ${intercom}
 # Loop for forecast hours
 while [ $FHR -le $NHRS ];
 do
@@ -127,6 +126,9 @@ ${APRUNC} ./post.x < itag > outpost_${NEWDATE}
 
 mv HURPRS.GrbF${FHR2} ${synop_grb2post} 
 
+if [ "$output_grid" = rotated_latlon ]; then
+
+# For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
 #${APRUNS} ${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
 # Parallelize this section to speed up wgrib2 
@@ -154,6 +156,18 @@ wait
 cat ${synop_grb2post}.part?? > ${synop_grb2file}
 # clean up the temporary files
 rm -f ${synop_grb2post}.part??
+
+elif [ "$output_grid" = regional_latlon ]; then
+
+# For regional_latlon output grid, no need to convert
+mv ${synop_grb2post} ${synop_grb2file}
+
+else
+
+  echo "ERROR: output grid: ${output_grid} not supported exitting"
+  exit 1
+
+fi
 
 # Generate the grib2 index file
 ${WGRIB2} -s ${synop_grb2file} > ${synop_grb2indx}
