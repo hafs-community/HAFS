@@ -1,0 +1,1 @@
+../fv3gfs/ush/global_chgres.sh

@@ -1,0 +1,182 @@
+#!/bin/sh
+
+set -xe
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
+source ${HOLDVARS}
+
+export EXPT=${EXPT:-HAFS}
+export SUBEXPT=${SUBEXPT:-${EXPT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:-00}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+
+export NHRS=${NHRS:-126}
+export NBDYHRS=${NBDYHRS:-3}
+export CASE=${CASE:-C768}
+export CRES=`echo $CASE | cut -c 2-`
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
+export ictype=${ICTYPE:-pfv3gfs}
+export LEVS=${LEVELS:-65}
+export NTRAC=7			# output all gfdl mp tracers
+
+export dt_atmos=${dt_atmos:-90}
+export restart_interval=${restart_interval:-6}
+export quilting=${quilting:-.true.}
+export write_groups=${write_groups:-3}
+export write_tasks_per_group=${write_tasks_per_group:-72}
+
+export stretch_fac=${stretch_fac:-1.0001}
+export target_lon=${target_lon:--62.0}
+export target_lat=${target_lat:-22.0}
+export refine_ratio=${refine_ratio:-4}
+
+export glob_layoutx=${glob_layoutx:-12}
+export glob_layouty=${glob_layouty:-12}
+export glob_npx=${glob_npx:-769}
+export glob_npy=${glob_npy:-769}
+
+export layoutx=${layoutx:-40}
+export layouty=${layouty:-30}
+export npx=${npx:-2881}
+export npy=${npy:-1921}
+export npz=${npz:-64}
+ 
+export app_domain=${app_domain:-regional}
+export output_grid=${output_grid:-rotated_latlon}
+export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
+export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
+export output_grid_lon1=${output_grid_lon1:--35.0}
+export output_grid_lat1=${output_grid_lat1:--30.0}
+export output_grid_lon2=${output_grid_lon2:-35.0}
+export output_grid_lat2=${output_grid_lat2:-30.0}
+export output_grid_dlon=${output_grid_dlon:-0.025}
+export output_grid_dlat=${output_grid_dlon:-0.025}
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMhafs=${COMhafs:-${COMOUT}}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+export PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
+
+export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
+export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
+export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
+export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+
+export FIXam=${FIXhafs}/fix_am
+export FIXfv3=${FIXhafs}/fix_fv3
+
+export FIXnew=${FIXhafs}/fix
+export CO2DIR=${FIXam}/fix_co2_proj
+
+export FORECASTEXEC=${EXEChafs}/hafs_forecast.x
+
+####################################
+# Load Modules if Needed
+####################################
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+#export RUN_ENVIR=${RUN_ENVIR:-prod}
+export RUN_ENVIR=${envir:-prod}
+if [ "$RUN_ENVIR" = prod ]; then
+  #module use ${HOMEhafs}/modulefiles
+  #module load modulefile.hafs.run.${machine}
+  #module purge
+  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
+  module load fv3
+  module list
+fi
+
+#####################################
+# Environment settings
+#####################################
+  export TOTAL_TASKS=${TOTAL_TASKS:-2016}
+  export NCTSK=${NCTSK:-12}
+  export NCNODE=${NCNODE:-24}
+  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-2}}
+  export KMP_STACKSIZE=1024m
+  export KMP_AFFINITY=disabled
+if [ "$machine" = wcoss_cray ]; then
+  #export NODES=1
+  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
+  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
+  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+  export APRUNO="time"
+  export BACKGROUND=""
+elif [ "$machine" = wcoss_dell_p3 ]; then
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-"mpirun cfp"}
+  export APRUNC=${APRUNC:-"mpirun"}
+  export APRUNO="time"
+  export BACKGROUND=""
+elif [ "$machine" = theia ]; then
+  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
+  export APRUNF=${APRUNF:-"time"}
+  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  #export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  export BACKGROUND="&"
+elif [ "$machine" = jet ]; then
+  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
+  export APRUNF=${APRUNF:-"time"}
+  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  #export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
+  export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
+  export BACKGROUND="&"
+else
+  export APRUNS=${APRUNS:-"time"}
+  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
+  export APRUNC=${APRUNC:-"mpirun"}
+  export APRUNO="time"
+  export BACKGROUND=""
+fi
+
+env
+
+####################################
+# Run setpdy and initialize PDY variables
+####################################
+#setpdy.sh
+#. ./PDY
+
+PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
+export PDY=${PDY:-${PDYtmp}}
+
+#####################################
+# Working directories
+#####################################
+#export FIXgrid=${FIXhafs}/fix_fv3
+export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+export DATA=${WORKhafs}/forecast
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+#####################################
+# Execute the script.
+${HOMEhafs}/scripts/exhafs_forecast.sh
+export err=$?
+#####################################
+
+exit $err
