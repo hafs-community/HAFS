@@ -1,4 +1,30 @@
 #################################################################
+On May 29, 2019, we got a new version of the GFDL tracker (gettrk.fd) from Tim
+Marchok (NOAA/GFDL).
+
+Here are some information from Tim's email:
+
+There are a lot of changes with this version, and they will (slightly) affect
+the answers. It appears that there is only one change needed to the previous
+input namelist for the new version of the tracker. In the namelist group
+"&trackerinfo", there is a variable that is added, which is "max_mslp_850". In
+the previous version of the tracker, that variable was likely hard-wired into
+the source code. The variable sets the maximum allowable distance (in km)
+between a found mslp center and 850zeta center.  I changed this so that it can
+be set in the namelist, e.g.:
+
+&trackerinfo
+.  .  .
+trkrinfo%max_mslp_850=400.0
+.  .  .
+
+Meanwhile, in this latest version, Tim fixed the increasing memory usage issue
+when working with grib2 format files. Specifically, in the tracker, call the
+gf_free routine to free up memory that was allocated when pointers were
+declared for some of the required arrays for g2lib. This call to gf_free is an
+extra step that needs to be taken after the call to the g2lib routine getgb2.
+
+#################################################################
 This is a README file for the gettrk update given to Zhan on 
 March 16, 2017.
 
