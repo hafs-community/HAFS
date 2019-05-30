@@ -43,12 +43,18 @@ ${CP} ../fv3gfs/exec/orog.x ../exec/hafs_orog.x
 # install fre-nctools
 #------------------------------------
 ${CP} ../fv3gfs/exec/make_hgrid                  ../exec/hafs_make_hgrid.x
-${CP} ../fv3gfs/exec/make_hgrid_parallel         ../exec/hafs_make_hgrid_parallel.x
+#${CP} ../fv3gfs/exec/make_hgrid_parallel         ../exec/hafs_make_hgrid_parallel.x
 ${CP} ../fv3gfs/exec/make_solo_mosaic            ../exec/hafs_make_solo_mosaic.x
 ${CP} ../fv3gfs/exec/fregrid                     ../exec/hafs_fregrid.x
-${CP} ../fv3gfs/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
+#${CP} ../fv3gfs/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
 ${CP} ../fv3gfs/exec/filter_topo                 ../exec/hafs_filter_topo.x
 ${CP} ../fv3gfs/exec/shave.x                     ../exec/hafs_shave.x
+
+#------------------------------------
+# install utils
+#------------------------------------
+${CP} hafs_utils.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
+${CP} hafs_utils.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
 
 #------------------------------------
 # install gsi

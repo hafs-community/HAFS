@@ -1,6 +1,5 @@
       module def_vitals
         type tcvcard         ! Define a new type for a TC Vitals card
-!          sequence
           character*4   tcv_center      ! Hurricane Center Acronym
           character*4   tcv_storm_id    ! Storm Identifier (03L, etc)
           character*9   tcv_storm_name  ! Storm name
@@ -31,7 +30,6 @@
 c
       module gen_vitals
         type gencard     ! Define a new type for a genesis vitals card
-!          sequence
           integer       gv_gen_date    ! genesis date in yyyymmddhh
           integer       gv_gen_fhr     ! genesis fcst hour (usually 0)
           integer       gv_gen_lat     ! genesis lat (*10), always >0
@@ -63,7 +61,6 @@ c
 c
       module inparms
         type datecard  ! Define a new type for the input namelist parms
-!          sequence
           integer       bcc    ! First 2 chars of yy of date (century)
           integer       byy    ! Beginning yy of date to search for 
           integer       bmm    ! Beginning mm of date to search for 
@@ -82,7 +79,6 @@ c
 c
       module trkrparms
         type trackstuff  ! Define a new type for various tracker parms
-!          sequence
           real          westbd  ! Western boundary of search area
           real          eastbd  ! Eastern boundary of search area
           real          northbd ! Northern boundary of search area
@@ -96,6 +92,9 @@ c
                                  ! position (since we don't have an 
                                  ! mslp fix position to search around).
                                  ! Has a value of 'y' or 'n'.
+          real          max_mslp_850 ! Max allowable distance between 
+                                 ! the tracker-found center fixes for 
+                                 ! mslp and 850 zeta.
           real          v850thresh ! min avg 850 Vt to be maintained
           character*1   use_backup_850_vt_check ! If an 850 mb wcirc fix
                                  ! could not be made, do you still want
@@ -181,7 +180,6 @@ c
       module contours
         integer, parameter :: maxconts=100 ! max # of cont. intervals
         type cint_stuff  ! Define a new type for contour interval info
-!          sequence
           real    :: xmaxcont ! max contour level in a field
           real    :: xmincont ! min contour level in a field
           real    :: contvals(maxconts) ! contour values in the field
@@ -306,7 +304,7 @@ c        real, parameter :: rads_most=300.0, rads_vmag=120.0
         real, parameter :: retrk_coarse=150.0, retrk_hres=60.0
         real, parameter :: rads_fine=200.0, rads_hres=150.0
         real, parameter :: ritrk_coarse=300.0, rads_coarse=350.0
-        real, parameter :: rads_wind_circ=200.0
+        real, parameter :: rads_wind_circ=250.0
         real, parameter :: ri_wind_circ=150.0
 c        real, parameter :: redlm=500.0, ridlm=2000.0
 c        real, parameter :: redlm=500.0, ridlm=1700.0
@@ -409,7 +407,6 @@ c
 c
       module netcdf_parms
         type netcdfstuff  ! Define a new type for NetCDF information
-!          sequence
           ! All of these "name" variables are the names for the 
           ! different variables in the NetCDF file.
           integer ::   num_netcdf_vars ! Total *possible* 
