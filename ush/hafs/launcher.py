@@ -1332,35 +1332,60 @@ class HAFSLauncher(HAFSConfig):
         assert(isinstance(part1,basestring))
         out=list()
         logger=self.log()
+
+        # Generate the output grid for the write grid component of the forecast job
+        output_grid=self.getstr('forecast','output_grid','rotated_latlon') 
+        logger.info('output_grid is: %s'%(output_grid))
+        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0) 
+        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0) 
+        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0) 
+        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0) 
+        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025) 
+        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025) 
+        if output_grid=='rotated_latlon':
+            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0) 
+            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0) 
+            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0) 
+            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0) 
+        elif output_grid=='regional_latlon':
+            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0) 
+            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0) 
+            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0) 
+            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0) 
+        else:
+            logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
+            sys.exit(2)
+        self.set('holdvars','output_grid_lon1',output_grid_lon1)
+        self.set('holdvars','output_grid_lat1',output_grid_lat1)
+        self.set('holdvars','output_grid_lon2',output_grid_lon2)
+        self.set('holdvars','output_grid_lat2',output_grid_lat2)
+
+        # Generate synop_gridspecs if needed
         synop_gridspecs=self.getstr('post','synop_gridspecs','auto') 
+        # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
         if synop_gridspecs=='auto':
-            # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
-            # lon0=output_grid_cen_lon+output_grid_lon1-10
-            # lat0=output_grid_cen_lat+output_grid_lat1-10
-            # dlon=output_grid_dlon
-            # dlat=output_grid_dlat
-            # nlon=(output_grid_lon2-output_grid_lon1+20.)/output_grid_dlon
-            # nlat=(output_grid_lat2-output_grid_lat2+20.)/output_grid_dlat
-            output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0) 
-            output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0) 
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',-35.0) 
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',-30.0) 
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',35.0) 
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',30.0) 
-            output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025) 
-            output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025) 
-            latlon_lon0=output_grid_cen_lon+output_grid_lon1-10.
-            latlon_lat0=output_grid_cen_lat+output_grid_lat1-10.
-            latlon_dlon=output_grid_dlon
-            latlon_dlat=output_grid_dlat
-            latlon_nlon=(output_grid_lon2-output_grid_lon1+20.)/output_grid_dlon
-            latlon_nlat=(output_grid_lat2-output_grid_lat1+20.)/output_grid_dlat
+            if output_grid=='rotated_latlon':
+                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
+                latlon_lat0=output_grid_cen_lat+output_grid_lat1
+                latlon_dlon=output_grid_dlon
+                latlon_dlat=output_grid_dlat
+                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+            elif output_grid=='regional_latlon':
+                latlon_lon0=output_grid_lon1
+                latlon_lat0=output_grid_lat1
+                latlon_dlon=output_grid_dlon
+                latlon_dlat=output_grid_dlat
+                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
             logger.info('since synop_gridspecs is %s' %(synop_gridspecs))
             synop_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
                 latlon_lon0,latlon_nlon,latlon_dlon,
                 latlon_lat0,latlon_nlat,latlon_dlat)
             logger.info('automatically generated synop_gridspecs: %s' %(synop_gridspecs))
         self.set('holdvars','synop_gridspecs',synop_gridspecs)
+
+        # Set trker_gridspecs if needed
         trker_gridspecs=self.getstr('post','trker_gridspecs','auto') 
         if trker_gridspecs=='auto':
             logger.info('since trker_gridspecs is %s' %(trker_gridspecs))

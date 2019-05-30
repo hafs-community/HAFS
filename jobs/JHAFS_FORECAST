@@ -45,6 +45,7 @@ export npx=${npx:-2881}
 export npy=${npy:-1921}
 export npz=${npz:-64}
  
+export app_domain=${app_domain:-regional}
 export output_grid=${output_grid:-rotated_latlon}
 export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
 export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}

@@ -76,6 +76,7 @@ export npx={npx}
 export npy={npy}
 export npz={npz}
  
+export app_domain={app_domain}
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
 export output_grid_cen_lat={output_grid_cen_lat}
