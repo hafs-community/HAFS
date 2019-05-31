@@ -24,6 +24,67 @@ gf_free routine to free up memory that was allocated when pointers were
 declared for some of the required arrays for g2lib. This call to gf_free is an
 extra step that needs to be taken after the call to the g2lib routine getgb2.
 
+Here are some more details regarding the changes since the last version of the
+tracker used in operational HWRF.
+
++ 17-08-31  Marchok   Added a logical bitmap capability for NetCDF
+                      files to prevent the accessing of missing data.
+                      Also modified the code to permit more accurate
+                      reporting of the grid point value of the
+                      minimum SLP for reporting to the atcfunix file.
+                      Finally, fixed a bug (reported by JTWC) whereby
+                      radii were being reported for thresholds that
+                      were in exceedance of the tracker-diagnosed
+                      Vmax (e.g., 34-kt radii for a storm with
+                      Vmax = 25 kts).
+
++ Only do the check for 50- and 64-kt radii the first time through
+  the getradii routine.  The 34-kt radii may be adjusted on
+  subsequent calls.
+
++ Adjusted code to allow for forward tracking for NetCDF data files
+  that do not have hour0 data in them.
+
++ Code updated to include cyclone phase space analysis for 00h.
+  Previously this was not done since storm motion direction is
+  needed for Parameter B.  This is now included for forward
+  tracking cases (i.e., cases in which we have TC Vitals), and
+  we use the storm motion as reported from the TC Vitals.  Of
+  course, the observed motion from TC Vitals may not exactly
+  match the model forecast motion, but for 00h it will be close
+  enough that it will allow us to get the CPS diagnostics.  This
+  was a request from Chris Velden for use with the latest version
+  of AODT.  For genesis cases (trkrtype = midlat or tcgen), CPS
+  diagnostics are still not performed at the first detection lead time.
+
++ In subroutine get_sfc_center, replaced double-weighting for surface
+  wind circulation fix with single weighting, as results of testing
+  did not support the use of double weighting.
+
++ Modified code in subroutine getvrvt to properly handle the
+  computation of radial and tangential winds when a storm is near
+  the Greenwich meridian.
+
++ Made significant changes to subroutine get_next_ges to fix issues for
+  cases that are near or crossing the Greenwich meridian.
+
++ Made changes to subroutine get_max_wind to allow for checking of the
+  max wind at points closer to the border of a regional grid.
+  Previously, the last few points were not sampled in order to
+  avoid numerical issues with sampling points at the boundary.  This
+  change was added in response to a request from HRD for use with a
+  regional version of fv3 (hfvgfs).
+
++ Made a substantial change to the algorithm that returns the value of
+  the wind circulation in subroutine get_wind_circulation.  Previously,
+  a difference was computed between the radially-integrated wind
+  circulation and the wind magnitude at the center of the storm.  This
+  was flawed.  Now, just the value of the radially-integrated wind
+  circulation is used, and the results are robust and comparable to
+  those of using relative vorticity.
+
++ Bug fix in subroutine getcorr related to the correlation residuals.
+
 #################################################################
 This is a README file for the gettrk update given to Zhan on 
 March 16, 2017.
