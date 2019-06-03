@@ -37,6 +37,7 @@
   trkrinfo%g1_mslp_parm_id = 2,
   trkrinfo%g1_sfcwind_lev_typ = 105,
   trkrinfo%g1_sfcwind_lev_val = 10,
+  trkrinfo%max_mslp_850=400.0,
 /
 
 &phaseinfo

@@ -24,6 +24,7 @@ export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+export output_grid=${output_grid:-rotated_latlon}
 export synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 export trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
@@ -148,7 +149,7 @@ export SCRUBDATA=${SCRUBDATA:-YES}
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
   rm -f $INPdir/postf???
-# rm -rf ${intercom}
+  rm -rf ${intercom}
 fi
 
 mkdir -p $DATA

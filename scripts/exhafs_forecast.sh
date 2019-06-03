@@ -42,6 +42,7 @@ export npx=${npx:-2881}
 export npy=${npy:-1921}
 export npz=${npz:-64}
 
+export app_domain=${app_domain:-regional}
 export output_grid=${output_grid:-rotated_latlon}
 export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
 export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
@@ -192,14 +193,14 @@ elif [ $gtype = regional ]; then
 # Copy tile data and orography for regional
 #---------------------------------------------- 
 tile=7
-cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo3.nc INPUT/.
-cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo4.nc INPUT/.
-cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo0.nc INPUT/.
-cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo4.nc INPUT/.
+# Copy grid and orog files (halo[034])
+cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc INPUT/.
+cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc INPUT/.
 cp $FIXgrid/${CASE}/${CASE}_mosaic.nc INPUT/.
 
 cd INPUT
 ln -sf ${CASE}_mosaic.nc grid_spec.nc
+ln -sf ${CASE}_grid.tile7.halo0.nc grid.tile7.halo0.nc
 ln -sf ${CASE}_grid.tile7.halo3.nc ${CASE}_grid.tile7.nc
 ln -sf ${CASE}_grid.tile7.halo4.nc grid.tile7.halo4.nc
 ln -sf ${CASE}_oro_data.tile7.halo0.nc oro_data.nc
@@ -259,6 +260,7 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_quilting_/${quilting}/ | \
     sed s/_write_groups_/${write_groups}/ | \
     sed s/_write_tasks_per_group_/${write_tasks_per_group}/ | \
+    sed s/_app_domain_/${app_domain}/ | \
     sed s/_OUTPUT_GRID_/$output_grid/ | \
     sed s/_CEN_LON_/$output_grid_cen_lon/ | \
     sed s/_CEN_LAT_/$output_grid_cen_lat/ | \

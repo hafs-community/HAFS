@@ -134,6 +134,10 @@ STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
 grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
 
+# Deliver track file to NOSCRUB:
+mkdir -p ${CDNOSCRUB}/${SUBEXPT}
+cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
 #===============================================================================
 
 cd ${DATA}
