@@ -56,8 +56,8 @@ FMIN=$(( ${FHR}*60 ))
 minstr=$( printf "%5.5d" "$FMIN" )
 
 synop_grb2post=hafsprs.${CDATE}.f${FHR3}.grb2
-synop_grb2file=${out_prefix}.hafsprs.synoptic.0p025.f${FHR3}.grb2
-synop_grb2indx=${out_prefix}.hafsprs.synoptic.0p025.f${FHR3}.grb2.idx
+synop_grb2file=${out_prefix}.hafsprs.synoptic.0p03.f${FHR3}.grb2
+synop_grb2indx=${out_prefix}.hafsprs.synoptic.0p03.f${FHR3}.grb2.idx
 gmodname=hafs
 rundescr=trak
 atcfdescr=storm
