@@ -100,17 +100,17 @@ export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5}/include"}
 export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
 export BUFR_LDFLAGS="${BUFR_LIBd}"
 
-tools_PATH=${cwd}/hafs_tools.fd
+TOOLS_PATH=${cwd}/hafs_tools.fd
 
 # Build the libraries in the tools
-cd ${tools_PATH}/libsrc
+cd ${TOOLS_PATH}/libsrc
 ./build_libs_cmake.sh
 
-# Build the util programs
-export tools_INC=${tools_PATH}/include
-export tools_INCLUDE="-I${tools_PATH}/include"
-export tools_LIBDIR=${tools_PATH}/lib
-cd ${tools_PATH}/sorc
+# Build the tools programs
+export TOOLS_INC=${TOOLS_PATH}/include
+export TOOLS_INCLUDE="-I${TOOLS_PATH}/include"
+export TOOLS_LIBDIR=${TOOLS_PATH}/lib
+cd ${TOOLS_PATH}/sorc
 make clean
 make
 
