@@ -14,3 +14,7 @@
 	path = fv3gfs
 	url = gerrit:global-workflow
 	branch = HAFS
+[submodule "UFS_UTILS"]
+	path = sorc/hafs_utils.fd
+	url = gerrit:UFS_UTILS
+	branch = feature/HAFS

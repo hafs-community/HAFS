@@ -5,10 +5,12 @@
                        "Build_forecast" \
                        "Build_post" \
                        "Build_vortextracker" \
+                       "Build_utils" \
                        "Build_chgres" \
+                       "Build_chgres_cube" \
                        "Build_orog" \
                        "Build_nctools" \
-                       "Build_utils" \
+                       "Build_tools" \
                        "Build_gsi" \
                       )
 
