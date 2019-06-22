@@ -46,18 +46,6 @@ elif [ $target = jet ]; then
     export F90=ifort
     export CC=icc
 
-elif [ $target = jet ]; then
-
-    targetx=jet
-    #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
-    source ../modulefiles/modulefile.vortextracker.$target
-
-    module list
-
-    export FC=ifort
-    export F90=ifort
-    export CC=icc
-
 elif [ $target = wcoss_cray ]; then
 
     targetx=cray
