@@ -32,29 +32,34 @@ ${CP} hafs_vortextracker.fd/exec/supvit.x ../exec/hafs_supvit.x
 #------------------------------------
 # install chgres
 #------------------------------------
-${CP} ../fv3gfs/exec/global_chgres ../exec/hafs_chgres.x
+${CP} hafs_utils.fd/exec/global_chgres ../exec/hafs_chgres.x
+
+#------------------------------------
+# install chgres_cube
+#------------------------------------
+${CP} hafs_utils.fd/exec/chgres_cube.exe ../exec/hafs_chgres_cube.x
 
 #------------------------------------
 # install orog
 #------------------------------------
-${CP} ../fv3gfs/exec/orog.x ../exec/hafs_orog.x
+${CP} hafs_utils.fd/exec/orog.x ../exec/hafs_orog.x
 
 #------------------------------------
 # install fre-nctools
 #------------------------------------
-${CP} ../fv3gfs/exec/make_hgrid                  ../exec/hafs_make_hgrid.x
-#${CP} ../fv3gfs/exec/make_hgrid_parallel         ../exec/hafs_make_hgrid_parallel.x
-${CP} ../fv3gfs/exec/make_solo_mosaic            ../exec/hafs_make_solo_mosaic.x
-${CP} ../fv3gfs/exec/fregrid                     ../exec/hafs_fregrid.x
-#${CP} ../fv3gfs/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
-${CP} ../fv3gfs/exec/filter_topo                 ../exec/hafs_filter_topo.x
-${CP} ../fv3gfs/exec/shave.x                     ../exec/hafs_shave.x
+${CP} hafs_utils.fd/exec/make_hgrid                  ../exec/hafs_make_hgrid.x
+#${CP} hafs_utils.fd/exec/make_hgrid_parallel         ../exec/hafs_make_hgrid_parallel.x
+${CP} hafs_utils.fd/exec/make_solo_mosaic            ../exec/hafs_make_solo_mosaic.x
+${CP} hafs_utils.fd/exec/fregrid                     ../exec/hafs_fregrid.x
+#${CP} hafs_utils.fd/exec/fregrid_parallel            ../exec/hafs_fregrid_parallel.x
+${CP} hafs_utils.fd/exec/filter_topo                 ../exec/hafs_filter_topo.x
+${CP} hafs_utils.fd/exec/shave.x                     ../exec/hafs_shave.x
 
 #------------------------------------
-# install utils
+# install tools
 #------------------------------------
-${CP} hafs_utils.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
-${CP} hafs_utils.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
+${CP} hafs_tools.fd/exec/tempdrop_sonde.x ../exec/hafs_tempdrop_sonde.x
+${CP} hafs_tools.fd/exec/obs_to_bufr.x    ../exec/hafs_obs_to_bufr.x
 
 #------------------------------------
 # install gsi
