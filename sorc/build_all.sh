@@ -65,40 +65,20 @@ echo " .... Building vortextracker .... "
 ./build_vortextracker.sh > $logs_dir/build_vortextracker.log 2>&1
 }
 
-cd ../fv3gfs/sorc
-
 #------------------------------------
-# build chgres
-#------------------------------------
-$Build_chgres && {
-echo " .... Building chgres .... "
-./build_chgres.sh > $logs_dir/build_chgres.log 2>&1
-}
-
-#------------------------------------
-# build orog
-#------------------------------------
-$Build_orog && {
-echo " .... Building orog .... "
-./build_orog.sh > $logs_dir/build_orog.log 2>&1
-}
-
-#------------------------------------
-# build fre-nctools
-#------------------------------------
-$Build_nctools && {
-echo " .... Building fre-nctools .... "
-./build_fre-nctools.sh > $logs_dir/build_fre-nctools.log 2>&1
-}
-
-cd $build_dir
-
-#------------------------------------
-# build utils 
+# build utils
 #------------------------------------
 $Build_utils && {
 echo " .... Building utils .... "
 ./build_utils.sh > $logs_dir/build_utils.log 2>&1
+}
+
+#------------------------------------
+# build tools 
+#------------------------------------
+$Build_tools && {
+echo " .... Building tools .... "
+./build_tools.sh > $logs_dir/build_tools.log 2>&1
 }
 
 #------------------------------------
