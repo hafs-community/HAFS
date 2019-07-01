@@ -132,12 +132,27 @@ ${APRUNC} ./gettrk.x < namelist.gettrk
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
+cp ${COMhafs}/${all_atcfunix} ${COMhafs}/${all_atcfunix}.orig
+if [ $STORMNUM == "00" ] ; then
+norig=`cat ${COMhafs}/${all_atcfunix}.orig |wc -l `
+if [ $norig -eq 1 ] ; then
+> ${COMhafs}/${all_atcfunix}
+else
+grep -v "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix}.orig >  ${COMhafs}/${all_atcfunix}
+fi
+else
 grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
+fi
 
 # Deliver track file to NOSCRUB:
 mkdir -p ${CDNOSCRUB}/${SUBEXPT}
+cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
+if [ -s ${COMhafs}/${all_atcfunix} ] ; then 
 cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+fi
+if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ] ; then 
 cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+fi
 #===============================================================================
 
 cd ${DATA}
