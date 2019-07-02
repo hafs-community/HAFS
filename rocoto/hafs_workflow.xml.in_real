@@ -4,9 +4,9 @@
 
   <!-- Set some variables for use later: -->
 
-  <!ENTITY COM_SCRUB_TIME "1800">
+  <!ENTITY COM_SCRUB_TIME "21600">
   <!ENTITY WORK_SCRUB_TIME "1200">
-  <!ENTITY CYCLE_THROTTLE "4">
+  <!ENTITY CYCLE_THROTTLE "10">
   <!ENTITY TASK_THROTTLE "40">
 
   <!-- Maximum number of times to try various jobs -->
@@ -152,7 +152,7 @@
         <!-- AND... don't start until 3:20 past the synoptic time.  The
         GFS does not start until then, so there is little point to
         starting earlier. -->
-        <timedep><cyclestr offset="3:20:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
       </and>
     </dependency>
 
@@ -321,7 +321,7 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
-    &SHARED_EXTRA;
+    &PE_EXTRA;
     &CORES_EXTRA;
     &ENV_VARS;
     &PRODUCT_RESOURCES;
