@@ -48,6 +48,9 @@
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_45x32io3x36_omp2 "<nodes>161:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1932</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_45x32io3x72_omp2 "<nodes>170:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2040</value></envar>&FORECAST_EXTRA;">
 
+  <!-- FORECAST_RESOURCES for globnest HAFS for 2019 HFIP real-time parallel on xjet -->
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x12_40x33io3x48_omp2 "<nodes>170:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2040</value></envar>&FORECAST_EXTRA;">
+
   <!ENTITY POST_RESOURCES "<nodes>3:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
 

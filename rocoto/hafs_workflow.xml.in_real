@@ -5,7 +5,7 @@
   <!-- Set some variables for use later: -->
 
   <!ENTITY COM_SCRUB_TIME "21600">
-  <!ENTITY WORK_SCRUB_TIME "1200">
+  <!ENTITY WORK_SCRUB_TIME "10800">
   <!ENTITY CYCLE_THROTTLE "10">
   <!ENTITY TASK_THROTTLE "40">
 
