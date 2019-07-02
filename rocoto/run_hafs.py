@@ -417,7 +417,7 @@ logger.info('Run sanity checks.')
 try:
     conf.timeless_sanity_check(enset,logger)
 except Exception as e:
-    hwrf.rocoto.sanity_check_failed(logger,e)
+    tcutil.rocoto.sanity_check_failed(logger,e)
     sys.exit(1)
 logger.info("I think I'm sane.")
 
