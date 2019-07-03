@@ -6,7 +6,7 @@
 
   <!ENTITY COM_SCRUB_TIME "21600">
   <!ENTITY WORK_SCRUB_TIME "10800">
-  <!ENTITY CYCLE_THROTTLE "10">
+  <!ENTITY CYCLE_THROTTLE "4">
   <!ENTITY TASK_THROTTLE "40">
 
   <!-- Maximum number of times to try various jobs -->
@@ -152,7 +152,7 @@
         <!-- AND... don't start until 3:20 past the synoptic time.  The
         GFS does not start until then, so there is little point to
         starting earlier. -->
-        <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <timedep><cyclestr offset="3:20:00">@Y@m@d@H@M@S</cyclestr></timedep>
       </and>
     </dependency>
 

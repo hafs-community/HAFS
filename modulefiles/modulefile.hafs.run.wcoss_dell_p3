@@ -19,7 +19,8 @@ module load CFP/2.0.1
 module load prod_envir/1.0.2
 module load grib_util/1.1.0
 #Use wgrib2 v2.0.8
-setenv WGRIB2 /u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8
+#setenv WGRIB2 /u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8
+setenv WGRIB2 /gpfs/dell2/emc/modeling/noscrub/emc.hurpara/local/bin/wgrib2.v2.0.8
 module load HPSS/5.0.2.5
 
 module load jasper/1.900.1
