@@ -55,8 +55,8 @@
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
 
   <!-- The output conf file for each cycle: -->
-  <!ENTITY CONFhafs "@[CONFhafs:-&COMhafs;/&STORMLABEL;.conf]">
-  <!ENTITY HOLDVARS "@[HOLDVARS:-&COMhafs;/&STORMLABEL;.holdvars.txt]">
+  <!ENTITY CONFhafs "&COMhafs;/&STORMLABEL;.conf">
+  <!ENTITY HOLDVARS "&COMhafs;/&STORMLABEL;.holdvars.txt">
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
