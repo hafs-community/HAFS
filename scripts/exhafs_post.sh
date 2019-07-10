@@ -132,19 +132,20 @@ if [ "$output_grid" = rotated_latlon ]; then
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
 #${APRUNS} ${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
 # Parallelize this section to speed up wgrib2 
-opts='-set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part00 ${BACKGROUND} > cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part01 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part02 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part03 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part04 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part05 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part06 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part07 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part08 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
+#opts='-set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
+opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part00 ${BACKGROUND} >  cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"'     ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part01 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part02 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part03 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part04 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part05 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part06 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part07 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part08 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
 echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
+echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
 if [ "$machine" = theia ] || [ "$machine" = jet ]; then
   echo 'wait' >> cmdfile
 fi
@@ -161,6 +162,32 @@ elif [ "$output_grid" = regional_latlon ]; then
 
 # For regional_latlon output grid, no need to convert
 mv ${synop_grb2post} ${synop_grb2file}
+
+## Alternatively, can use wgrib2 to convert from c3 to c2 packing, which can reduce the filesize by ~30%.
+#opts='-set_grib_type c2 -grib_out'
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} ${synop_grb2post}.part00 ${BACKGROUND} >  cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"'     ${opts} ${synop_grb2post}.part01 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"'  ${opts} ${synop_grb2post}.part02 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"'  ${opts} ${synop_grb2post}.part03 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"'  ${opts} ${synop_grb2post}.part04 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"'  ${opts} ${synop_grb2post}.part05 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"'  ${opts} ${synop_grb2post}.part06 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"'  ${opts} ${synop_grb2post}.part07 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"'  ${opts} ${synop_grb2post}.part08 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
+#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
+#if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+#  echo 'wait' >> cmdfile
+#fi
+#chmod u+x ./cmdfile
+#${APRUNF} ./cmdfile
+#wait
+#
+## Cat the temporary files together
+#cat ${synop_grb2post}.part?? > ${synop_grb2file}
+## clean up the temporary files
+#rm -f ${synop_grb2post}.part??
 
 else
 
