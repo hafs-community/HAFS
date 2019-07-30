@@ -19,7 +19,7 @@ module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/modulefiles
 module load intel
 module load impi
 #module load nco
-module load slurm
+#module load slurm
 
 module load jasper-intel-sandybridge/1.900.1
 module load png-intel-sandybridge/1.2.44
@@ -46,4 +46,4 @@ setenv WGRIB2 /mnt/lfs3/projects/hwrfv3/Jili.Dong/hafs_tools/grib2/wgrib2/wgrib2
 setenv GRB2INDEX /lfs3/projects/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities/exec/grb2index.exe 
 setenv NDATE /mnt/lfs3/projects/hwrfv3/Jili.Dong/fv3gfs_hafs/ndate.exe
 
-module load rocoto/1.3.0-RC5
+module load rocoto/1.3.1
