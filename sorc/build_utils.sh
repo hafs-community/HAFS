@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -eux
 
 export USE_PREINST_LIBS="true"
 
@@ -54,6 +54,22 @@ echo " .... Building fre-nctools .... "
 ./build_fre-nctools.sh > $logs_dir/build_fre-nctools.log 2>&1
 }
 
+#------------------------------------
+# build sfc_climo_gen
+#------------------------------------
+$Build_sfc_climo_gen && {
+echo " .... Building sfc_climo_gen .... "
+./build_sfc_climo_gen.sh > $logs_dir/build_sfc_climo_gen.log 2>&1
+}
+
+#------------------------------------
+# build regional_grid
+#------------------------------------
+$Build_regional_grid && {
+echo " .... Building regional_grid .... "
+./build_regional_grid.sh > $logs_dir/build_regional_grid.log 2>&1
+}
+
 cd $build_dir
 
-echo 'building hafs_utils done'
+echo 'Building utils done'

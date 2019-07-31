@@ -8,6 +8,8 @@
                        "Build_utils" \
                        "Build_chgres" \
                        "Build_chgres_cube" \
+                       "Build_sfc_climo_gen" \
+                       "Build_regional_grid" \
                        "Build_orog" \
                        "Build_nctools" \
                        "Build_tools" \
