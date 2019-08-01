@@ -17,6 +17,7 @@ if [ ! -d "../exec" ]; then
 fi
 
 if [ $target = theia ]; then target=theia.intel ; fi
+if [ $target = jet ]; then target=jet.intel ; fi
 
 cd hafs_forecast.fd/
 FV3=$( pwd -P )/FV3
