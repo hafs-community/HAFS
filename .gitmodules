@@ -4,13 +4,13 @@
 	branch = HAFS
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
-	url = gerrit:EMC_post
-	branch = HAFS
+	url = https://github.com/hafs-community/EMC_post.git
+	branch = feature/HAFS
 [submodule "ProdGSI"]
 	path = sorc/hafs_gsi.fd
 	url = gerrit:ProdGSI
 	branch = HAFS
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
-	url = gerrit:UFS_UTILS
+	url = https://github.com/hafs-community/UFS_UTILS.git
 	branch = feature/HAFS
