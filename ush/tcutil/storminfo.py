@@ -280,7 +280,7 @@ def quadrantinfo(data,qset,irad,qcode,qdata,what='',conversion=1.0):
     irad=int(irad)
     fqdata=[None]*4
     maxdata=0.
-    for i in xrange(4):
+    for i in range(4):
         if qdata[i] is not None and qdata[i]!='':
             fqdata[i]=float(qdata[i])
             if fqdata[i]<0:
@@ -297,7 +297,7 @@ def quadrantinfo(data,qset,irad,qcode,qdata,what='',conversion=1.0):
         return
     else:
         iquad=quadrant.index(qcode)
-        for i in xrange(4):
+        for i in range(4):
             var='%s%s%d'%(what,quadrant[(iquad+2*i)%len(quadrant)][0:2],irad)
             data[var]=fqdata[i]
             qset.add(var)
@@ -345,8 +345,8 @@ def find_tcvitals_for(fd,logger=None,raise_all=False,when=None,
     @warning This function cannot handle errors in the formatting
      of the tcvitals lines.  It will only work if the data in fd
      strictly follows the tcvitals format."""
-    if(isinstance(stnum,basestring)): stnum=int(stnum)
-    assert(not isinstance(stnum,basestring))
+    if(isinstance(stnum,str)): stnum=int(stnum)
+    assert(not isinstance(stnum,str))
     if when is not None:
         strwhen=tcutil.numerics.to_datetime(when).strftime('%Y%m%d %H%M')
         abcd='abcd'
@@ -489,7 +489,7 @@ class StormInfo(object):
         elif linetype=='old' or linetype=='copy':
             old=linetype=='old'
             def checktype(var):
-                for t in ( basestring, int, float, datetime.datetime, 
+                for t in ( str, int, float, datetime.datetime, 
                            datetime.timedelta ):
                     if isinstance(var,t): return True
                 return False
@@ -498,13 +498,13 @@ class StormInfo(object):
                     'In StormInfo constructor, when linetype=="old", '
                     'inputs must be a StormInfo object, not a %s.'
                     %(type(inputs).__name__))
-            for k,v in inputs.__dict__.iteritems():
+            for k,v in inputs.__dict__.items():
                 if k[0]=='_': continue
                 if k[0:4]=='old_' and old: continue
                 if not checktype(v): continue
                 self.__dict__[k]=v
             if old:
-                for k,v in inputs.__dict__.iteritems():
+                for k,v in inputs.__dict__.items():
                     if not checktype(v): continue
                     if k[0:4]=='old_': self.__dict__[k[4:]]=v
         else:
@@ -696,7 +696,7 @@ class StormInfo(object):
         izeros=list()
         ibig=None
         fhrbig=None
-        for i in xrange(len(split)):
+        for i in range(len(split)):
             split[i]=[ x.strip() for x in split[i] ]
             if len(split[i])<8:
                 raise InvalidATCF(
@@ -987,7 +987,7 @@ class StormInfo(object):
             d['qset']=qset
         mdict=dict(m.groupdict()) # input dict
 
-        for k,v in mdict.iteritems():
+        for k,v in mdict.items():
             if v is None:
                 if k in noneok: continue
                 raise InvalidVitals(
@@ -1076,7 +1076,7 @@ class StormInfo(object):
         @param stormtype the storm type information"""
         if 'stormtype' in self.__dict__ and not discardold:
             self.__dict__['old_stormtype']=self.stormtype
-        if isinstance(stormtype,basestring):
+        if isinstance(stormtype,str):
             self.stormtype=str(stormtype)[0:2]
         else:
             self.stormtype=getattr(stormtype,'stormtype','XX')

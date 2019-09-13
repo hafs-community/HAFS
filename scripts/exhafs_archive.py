@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace scripts.exhafs_archive
 # Generates an archive file from HAFS COM directory outputs.  This

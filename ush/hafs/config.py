@@ -11,14 +11,14 @@ automatically accessing configuration options."""
 # decides what symbols are imported by "from hafs.config import *"
 __all__=['from_file','from-string','confwalker','HAFSConfig','fordriver','ENVIRONMENT']
 
-import ConfigParser,collections,re,string,os,logging,threading
-import os.path,sys,StringIO
+import configparser,collections,re,string,os,logging,threading
+import os.path,sys,io
 import datetime
 import produtil.fileop, produtil.datastore
 import tcutil.numerics, tcutil.storminfo, tcutil.revital
 import hafs.exceptions
 
-from ConfigParser import SafeConfigParser,NoOptionError,NoSectionError
+from configparser import SafeConfigParser,NoOptionError,NoSectionError
 from string import Formatter
 from produtil.datastore import Datastore
 from produtil.fileop import *
@@ -82,8 +82,8 @@ class ConfFormatter(Formatter):
         @param args the indexed arguments to str.format()
         @param kwargs the keyword arguments to str.format()"""
         kwargs['__depth']+=1
-        if kwargs['__depth']>=ConfigParser.MAX_INTERPOLATION_DEPTH:
-            raise ConfigParser.InterpolationDepthError(kwargs['__key'],
+        if kwargs['__depth']>=configparser.MAX_INTERPOLATION_DEPTH:
+            raise configparser.InterpolationDepthError(kwargs['__key'],
                 kwargs['__section'],key)
         try:
             if isinstance(key,int):
@@ -123,7 +123,7 @@ class ConfFormatter(Formatter):
                     if v is NOTFOUND:
                         raise KeyError(key)
         
-            if isinstance(v,basestring):
+            if isinstance(v,str):
                 if v.find('{')>=0 or v.find('%')>=0:
                     vnew=self.vformat(v,args,kwargs)
                     assert(vnew is not None)
@@ -245,8 +245,8 @@ class ConfTimeFormatter(ConfFormatter):
         @param kwargs the keyword arguments to str.format()"""
         v=NOTFOUND
         kwargs['__depth']+=1
-        if kwargs['__depth']>=ConfigParser.MAX_INTERPOLATION_DEPTH:
-            raise ConfigParser.InterpolationDepthError(
+        if kwargs['__depth']>=configparser.MAX_INTERPOLATION_DEPTH:
+            raise configparser.InterpolationDepthError(
                 kwargs['__key'],kwargs['__section'],v)
         try:
             if isinstance(key,int):
@@ -307,7 +307,7 @@ class ConfTimeFormatter(ConfFormatter):
                         raise KeyError('Cannot find key %s in section %s'
                                        %(repr(key),repr(section)))
         
-            if isinstance(v,basestring) and ( v.find('{')!=-1 or 
+            if isinstance(v,str) and ( v.find('{')!=-1 or 
                                               v.find('%')!=-1 ):
                 try:
                     vnew=self.vformat(v,args,kwargs)
@@ -316,7 +316,7 @@ class ConfTimeFormatter(ConfFormatter):
                 except KeyError as e:
                     # Seriously, does the exception's class name
                     # really need to be this long?
-                    raise ConfigParser.InterpolationMissingOptionError(
+                    raise configparser.InterpolationMissingOptionError(
                         kwargs['__key'],kwargs['__section'],v,str(e))
             return v
         finally:
@@ -372,7 +372,7 @@ def from_file(filename):
     Creates a new HAFSConfig object and instructs it to read the specified file.
     @param filename the path to the file that is to be read
     @return  a new HAFSConfig object"""
-    if not isinstance(filename,basestring):
+    if not isinstance(filename,str):
         raise TypeError('First input to hafs.config.from_file must be a string.')
     conf=HAFSConfig()
     conf.read(filename)
@@ -385,7 +385,7 @@ def from_string(confstr):
     as if it was a config file
     @param confstr the config data
     @return a new HAFSConfig object"""
-    if not isinstance(confstr,basestring):
+    if not isinstance(confstr,str):
         raise TypeError('First input to hafs.config.from_string must be a string.')
     conf=HAFSConfig()
     conf.readstr(confstr)
@@ -481,7 +481,7 @@ class HAFSConfig(object):
         Given a string with conf data in it, parses the data.
         @param source the data to parse
         @return self"""
-        fp=StringIO.StringIO(str(source))
+        fp=io.StringIO(str(source))
         self._conf.readfp(fp)
         fp.close()
         return self
@@ -516,7 +516,7 @@ class HAFSConfig(object):
         it again to read more config data into an existing HAFSConfig.
         @param string the string to parse
         @return self"""
-        sio=StringIO.StringIO(string)
+        sio=io.StringIO(string)
         self._conf.readfp(sio)
         return self
 
@@ -529,7 +529,7 @@ class HAFSConfig(object):
         @param section the section being modified
         @param kwargs additional keyword arguments are the option names
             and values"""
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             value=str(v)
             self._conf.set(section,k,value)
 
@@ -875,8 +875,8 @@ class HAFSConfig(object):
         @param sec the section name
         @param string the string to expand
         @param kwargs more variables for string substitution"""
-        assert(isinstance(sec,basestring))
-        assert(isinstance(string,basestring))
+        assert(isinstance(sec,str))
+        assert(isinstance(string,str))
         with self:
             if 'vit' not in kwargs and 'syndat' in self.__dict__:
                 kwargs['vit']=self.syndat.__dict__

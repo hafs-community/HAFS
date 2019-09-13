@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import logging, os, sys, re
 import produtil.setup
@@ -109,6 +109,6 @@ def main(args):
 
     rv.sort_by_function(hrd_multistorm_sorter)
     for v in rv:
-        print v.as_tcvitals()
+        print(v.as_tcvitals())
 
 if __name__=='__main__': main(sys.argv)

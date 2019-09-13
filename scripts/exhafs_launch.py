@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
@@ -90,7 +90,7 @@ longstormid="{vit[longstormid]}"
 
 def usage(logger):
     logger.critical('Invalid arguments to exhafs_launch.py.  Aborting.')
-    print '''
+    print('''
 Usage: exhafs_launch.py 2014062400 95E case_root /path/to/parm [options]
 
 Mandatory arguments:
@@ -104,7 +104,7 @@ Optional arguments:
 section.option=value -- override conf options on the command line
 /path/to/file.conf -- additional conf files to parse
 
-Aborting due to incorrect arguments.'''
+Aborting due to incorrect arguments.''')
     sys.exit(2)
 
 def main():
@@ -123,7 +123,7 @@ def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], short_opts, long_opts)
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         usage('SCRIPT IS ABORTING DUE TO UNRECOGNIZED ARGUMENT')
 
     # Check the initial arguments passed in.

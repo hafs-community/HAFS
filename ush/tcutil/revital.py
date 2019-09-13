@@ -65,9 +65,9 @@ class Revital:
             (  self.invest_number_name, self.adeckdir, self.is_cleaned ) = \
              ( copy.invest_number_name, copy.adeckdir, copy.is_cleaned )
             self.carqdat=dict()
-            for key,cdat in copy.carqdat.iteritems():
+            for key,cdat in copy.carqdat.items():
                 self.carqdat[key]=dict()
-                for ymdh,card in cdat.iteritems():
+                for ymdh,card in cdat.items():
                     self.carqdat[key][ymdh]=card.copy()
             self.carqfail=set(copy.carqfail)
             self.vitals=[ v.copy() for v in copy.vitals ]
@@ -169,7 +169,7 @@ class Revital:
         @param raise_all if True, all exceptions are raised.  If False,
            then exceptions are ignored, and the function will attempt to
            process all files, even if earlier ones failed."""
-        if isinstance(filelist,basestring):
+        if isinstance(filelist,str):
             filelist=[filelist]
         lines=list()
         opened=False 
@@ -297,7 +297,7 @@ class Revital:
         logger=self.logger
         debug=self.debug and logger is not None
         renumbered=False
-        for stormid in lastvit.keys():
+        for stormid in list(lastvit.keys()):
             othervit=lastvit[stormid]
             if threshold:
                 old_id=getattr(othervit,'old_stnum',0)
@@ -469,8 +469,8 @@ class Revital:
                     o[v.YMDH][k]=v
         # Final pass: create the new list:
         l=list()
-        for yv in o.itervalues():
-            for v in yv.itervalues():
+        for yv in o.values():
+            for v in yv.values():
                 l.append(v)
         self.vitals=l
 
@@ -643,16 +643,16 @@ class Revital:
                 renumberlog.write('%10s %3s %3s %-9s %-9s\n'%
                    (vit.YMDH,oldid,xstormid3,oldname[0:9],name[0:9]))
             if format=='tcvitals':
-                print>>stream, vit.as_tcvitals()
+                print(vit.as_tcvitals(), file=stream)
             elif format=='renumbering':
                 s=vit.as_tcvitals()
                 oldid=getattr(vit,'old_stormid3',vit.stormid3)
                 oldname=getattr(vit,'old_stormname',vit.stormname)
-                print>>stream,'%3s %9s => %s'%(oldid,oldname,s)
+                print('%3s %9s => %s'%(oldid,oldname,s), file=stream)
             elif format=='HHS':
-                print>>stream, '%s %s "TCVT"'%(vit.longstormid.lower(),vit.YMDH)
+                print('%s %s "TCVT"'%(vit.longstormid.lower(),vit.YMDH), file=stream)
             else:
-                print>>stream, vit.line
+                print(vit.line, file=stream)
 
     def hrd_multistorm_sorter(self,a,b):
         """!A drop-in replacement for "cmp" that can be used for sorting or
