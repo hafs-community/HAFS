@@ -8,6 +8,7 @@ change Invests to storms, and other such operations.  """
 __all__=['Revital','RevitalError','RevitalInitError']
 
 import logging, datetime, getopt, sys, os.path, re, math, errno, collections
+import functools
 import tcutil.storminfo, tcutil.numerics
 
 from tcutil.numerics import great_arc_dist, to_fraction, to_timedelta
@@ -237,7 +238,7 @@ class Revital:
         self.carqdat[longstormid]=cdat
 
     def clean_up_vitals(self,name_number_checker=None,
-                        basin_center_checker=None,vitals_cmp=None): 
+                        basin_center_checker=None,vitals_key=None): 
         """!Calls the tcutil.storminfo.clean_up_vitals on this object's
         vitals.  The optional arguments are passed to
         tcutil.storminfo.clean_up_vitals.
@@ -245,7 +246,7 @@ class Revital:
         @param name_number_checker a function like
           tcutil.storminfo.name_number_okay() for validating the storm
           name and number
-        @param vitals_cmp a cmp-like function for ordering tcutil.storminfo.StormInfo objects
+        @param vitals_key a key generator for ordering tcutil.storminfo.StormInfo objects
         @param basin_center_checker a function like
           tcutil.storminfo.basin_center_okay() for checking the storm
           basin and forecast center (RSMC)
@@ -254,7 +255,7 @@ class Revital:
         self.vitals=tcutil.storminfo.clean_up_vitals( 
             self.vitals,name_number_checker=name_number_checker,
             basin_center_checker=basin_center_checker,
-            vitals_cmp=vitals_cmp) 
+            vitals_key=vitals_key) 
         self.is_cleaned=True
 
     ##################################################################
@@ -561,15 +562,15 @@ class Revital:
                 continue
             vital.set_stormtype(carq[when])
 
-    def sort_by_function(self,cmpfun):
-        """!Resorts the vitals using the specified cmp-like function.
-        @param cmpfun a cmp-like function for comparing tcutil.storminfo.StormInfo objects"""
-        self.vitals=sorted(self.vitals,cmp=cmpfun)
+    def sort_by_function(self,keyfun):
+        """!Resorts the vitals using the specified key generator.
+        @param keyfun a key generator for comparing tcutil.storminfo.StormInfo objects"""
+        self.vitals=sorted(self.vitals,key=keyfun)
 
     def sort_by_storm(self):
         """!Resorts the vitals by storm instead of date.  See
-        tcutil.storminfo.vit_cmp_by_storm for details."""
-        self.vitals=sorted(self.vitals,cmp=tcutil.storminfo.vit_cmp_by_storm)
+        tcutil.storminfo.vit_key_by_storm for details."""
+        self.vitals=sorted(self.vitals,key=tcutil.storminfo.vit_key_by_storm)
     def __iter__(self):
         """!Iterates over all vitals, yielding StormInfo objects for
         each one."""
@@ -654,36 +655,51 @@ class Revital:
             else:
                 print(vit.line, file=stream)
 
-    def hrd_multistorm_sorter(self,a,b):
-        """!A drop-in replacement for "cmp" that can be used for sorting or
-        comparison.  Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is
-        made in this order:
+    def hrd_multistorm_cmp(self,a,b):
+        return hrd_multistorm_cmp(a,b)
 
-        1. User priority (a.userprio): lower (priority 1) is "more
-            important" than higher numbers (priority 9999 is fill value).
-
-        2.  Invest vs. non-invest: invest is less important
-
-        3.  wind: stronger wind is more important than weaker wind
-
-        4.  North Atlantic (L) storms: farther west is more important
-
-        5.  North East Pacific (E) storms: farther East is more important
-
-        If all of the above values are equal, 0 is returned.
-        @returns -1, 0 or 1
-        @param a,b the vitals to compare"""
-        a_userprio=getattr(a,'userprio',9999)
-        b_userprio=getattr(b,'userprio',9999)
-        a_invest=1 if (a.stormname=='INVEST') else 0
-        b_invest=1 if (b.stormname=='INVEST') else 0
-
-        c = cmp(a_userprio,b_userprio) or cmp(a_invest,b_invest) or\
-          -cmp(a.wmax,b.wmax) or\
-          (a.basin1=='L' and b.basin1=='L' and cmp(a.lon,b.lon)) or \
-          (a.basin1=='E' and b.basin1=='E' and -cmp(a.lon,b.lon))
-        return c
+    def hrd_multistorm_key(self,a):
+        return functools.cmp_to_key(hrd_multistorm_cmp)
 
     def multistorm_priority(self):
         """!Does nothing."""
         pass
+
+def oldcmp(a,b):
+    if a<b: return -1
+    if a>b: return 1
+    return 0
+
+def hrd_multistorm_cmp(a,b):
+    """!A compares two storminfo objects for use in sorting or comparison.
+    Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is made in this
+    order:
+    
+    1. User priority (a.userprio): lower (priority 1) is "more
+       important" than higher numbers (priority 9999 is fill value).
+    
+    2.  Invest vs. non-invest: invest is less important
+
+    3.  wind: stronger wind is more important than weaker wind
+
+    4.  North Atlantic (L) storms: farther west is more important
+
+    5.  North East Pacific (E) storms: farther East is more important
+
+    If all of the above values are equal, 0 is returned.
+    @returns -1, 0 or 1
+    @param a,b the vitals to compare
+
+    """
+    a_userprio=getattr(a,'userprio',9999)
+    b_userprio=getattr(b,'userprio',9999)
+    a_invest=1 if (a.stormname=='INVEST') else 0
+    b_invest=1 if (b.stormname=='INVEST') else 0
+    
+    if 
+    c = oldcmp(a_userprio,b_userprio) or \
+        oldcmp(a_invest,b_invest) or\
+        -oldcmp(a.wmax,b.wmax) or\
+        (a.basin1=='L' and b.basin1=='L' and oldcmp(a.lon,b.lon)) or \
+        (a.basin1=='E' and b.basin1=='E' and -oldcmp(a.lon,b.lon))
+    return c

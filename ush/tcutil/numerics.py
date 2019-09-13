@@ -18,84 +18,6 @@ import tcutil.exceptions
 
 ########################################################################
 
-class partial_ordering(object):
-    """!Sorts a pre-determined list of objects, placing unknown items
-    at a specified location.
-
-    This class is a drop-in replacement for cmp in sorting routines.
-    It represents a partial ordering of objects by specifying the
-    order of a known subset of those objects, and inserting all
-    unknown objects in a specified location in the that list (at the
-    end, by default) in an order determined by cmp(a,b).  Example:
-
-    @code{.py}
-    p=partial_ordering([3,2,1]) # list is ordered as [3,2,1] with
-                                #  everything else after that
-
-    sorted([0,1,2,3,6,4,5],p)  # = [3, 2, 1, 0, 4, 5, 6]
-    p(1,-99)  # = -1, so -99 goes after 1 since -99 is not
-              #   in the partial ordering
-    p(1,3)    # = 1, so 3 goes before 1 since 3 is before 1
-              #   in the partial ordering
-    p(5,10)   # = -1 since cmp(5,10)=-1
-    @endcode"""
-    def __init__(self,ordering,unordered=None,backupcmp=cmp):
-        """!partial_ordering constructor.
-
-        Creates a partial ordering.  The subset that is ordered is
-        specified by the ordered iterable "ordered" while the index at
-        which to place unordered values is optionally specified by
-        "unordered", which can be anything that can be cmp()'ed to an
-        int.  If "unordered" is missing, then all objects not in
-        "ordered" will be placed at the end of any list.  To place at
-        the beginning of the list, give unordered=0.  To insert
-        between the first and second elements, specify 1, between
-        second and third elements: specify unordered=2, and so on.
-        Specify another tiebreaker "cmp" function with "backupcmp"
-        (default: cmp).
-        @param ordering the ordering of known objects
-        @param unordered Optional: where to put other objects
-        @param backupcmp Tiebreaker comparison function."""
-        self.order=dict()
-        self.backupcmp=backupcmp
-        if unordered is None:
-            self.unordered=float('inf') # index of the location to
-                                        # store unordered elements
-        else:
-            self.unordered=unordered
-        #  self.unordered must NOT cmp() compare to 0 against any
-        #  possible index
-        i=0
-        for obj in ordering:
-            while cmp(i,self.unordered)==0:
-                i+=1
-            self.order[obj]=i
-            i+=1
-    ##@var order
-    # Internal ordering information
-    # @protected
-
-    ##@var backupcmp
-    # Backup comparison function for tiebreaking
-    # @protected
-
-    ##@var unordered 
-    # Unordered element index
-    # @protected
-
-    def __call__(self,a,b):
-        """!Determine the ordering of a and b
-        @param a,b the objects to order
-        @returns -1 if b>a, 1 if b<a, 0 if b and a belong in the same index."""
-        ia = self.order[a] if a in self.order else self.unordered
-        ib = self.order[b] if b in self.order else self.unordered
-        c=cmp(ia,ib)
-        if c==0:
-            c=self.backupcmp(a,b)
-        return c
-
-########################################################################
-
 def great_arc_dist(xlon1,ylat1, xlon2,ylat2):
     """!Great arc distance between two points on Earth.
 
@@ -424,7 +346,7 @@ def minutes_seconds_rest(fraction):
     @param fraction the fraction to convert, assumed to be in seconds
     @returns a tuple (minutes,seconds,rest) as integers"""
     fraction=to_fraction(fraction)
-    minutes=int(fraction/60)
+    minutes=int(fraction//60)
     seconds=int(fraction-minutes*60)
     rest=fraction-minutes*60-seconds
     return (minutes,seconds,rest)
@@ -481,8 +403,8 @@ def str_timedelta(dt):
     if neg: fdt=-fdt
     (i,n,d) = split_fraction(fdt)
     seconds=int(i)%60
-    minutes=(int(i)/60)%60
-    hours=int(i)/3600
+    minutes=(int(i)//60)%60
+    hours=int(i)//3600
     out='%02d:%02d:%02d'%(hours,minutes,seconds)
     if n!=0:
         out='%s+%d/%d'%(out,n,d)

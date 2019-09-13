@@ -134,8 +134,8 @@ def basin_center_okay(vl):
             if vital.lat<0: continue  # should be in N hemisphere but is not
         yield vital
 
-def vit_cmp_by_storm(a,b):
-    """!A cmp comparison for StormInfo objects intended to be used with
+def vit_key_by_storm(a,b):
+    """!A key comparison for StormInfo objects intended to be used with
     sorted().  This is intended to be used on cleaned vitals returned
     by clean_up_vitals.  For other purposes, use vitcmp.
 
@@ -146,13 +146,13 @@ def vit_cmp_by_storm(a,b):
       4. Break ties by retaining original order ("stable sort").
 
     @param a,b StormInfo objects to order"""
-    c=cmp(a.when.year,b.when.year)
-    if c==0: c=cmp(a.longstormid,b.longstormid)
-    if c==0: c=cmp(a.when,b.when)
-    return c
 
-def vitcmp(a,b):
-    """!A cmp comparison for StormInfo objects intended to be used with
+def vit_key_by_storm(storminfo):
+    key=(storminfo.when.year,storminfo.longstormid,storminfo.when)
+    return key
+
+def vitkey(a,b):
+    """!A key comparison for StormInfo objects intended to be used with
     sorted().  
 
     @param a,b StormInfo objects to order.
@@ -168,11 +168,8 @@ def vitcmp(a,b):
       5. Break ties by placing vitals with a full line (through 64kt 
          radii) last
       6. Break ties by retaining original order ("stable sort")."""
-    c=cmp(a.when,b.when)
-    if c==0: c=-cmp(a.stormid3,b.stormid3)
-    if c==0: c=cmp(a.center,b.center)
-    if c==0: c=cmp(a.have34kt,b.have34kt)
-    return c
+    key=(a.when,a.stormid3,a.center,a.have34kt)
+    return key
 
 def storm_key(vit):
     """!Generates a hashable key for hashing StormInfo objects
@@ -187,8 +184,8 @@ def storm_key(vit):
     @returns a tuple (center,stormid4,when) from the corresponding members of vit"""
     return (vit.center, vit.stormid4, vit.when)
                             
-def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vitals_cmp=None):
-    """!Given a list of StormInfo, sorts using the vitcmp comparison,
+def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vitals_key=None):
+    """!Given a list of StormInfo, sorts using the vitkey key function,
     discards suspect storm names and numbers as per name_number_okay,
     and discards invalid basin/center combinations as per
     basin_center_okay.  Lastly, loops over all lines keeping only the
@@ -202,17 +199,17 @@ def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vi
       for determining which storm names and numbers are acceptable
     @param basin_center_checker A function that looks like basin_center_okay()
       for determining which basins and RSMCs are okay.
-    @param vitals_cmp a cmp-like function for ordering two StormInfo objects"""
+    @param vitals_key a key generator for ordering two StormInfo objects"""
 
     if name_number_checker is None:  
         name_number_checker=name_number_okay 
     if basin_center_checker is None:
         basin_center_checker=basin_center_okay
-    if vitals_cmp is None:
-        vitals_cmp=vitcmp
+    if vitals_key is None:
+        vitals_key=vitkey
 
     # Sort vitals using above described method:
-    sortvitals=sorted(vitals,cmp=vitals_cmp)
+    sortvitals=sorted(vitals,key=vitals_key)
     vitals=sortvitals
 
     # Discard suspect storm names and numbers:
@@ -744,7 +741,7 @@ class StormInfo(object):
                 self.__dict__['technum']=int(data[3])
         iwhen=int(data[2])
         when=datetime.datetime(
-            year=iwhen/1000000,month=(iwhen/10000)%100,day=(iwhen/100)%100,
+            year=iwhen//1000000,month=(iwhen//10000)%100,day=(iwhen//100)%100,
             hour=iwhen%100,minute=imin,second=0,microsecond=0,tzinfo=None)
         self.__dict__['when']=when
         self.__dict__['YMDH']=when.strftime('%Y%m%d%H')
@@ -892,7 +889,7 @@ class StormInfo(object):
         that the century is omitted and the file is always exactly one
         line."""
         return self._parse_tcvitals_line(instr,century=
-            int(datetime.datetime.utcnow().year)/100)
+            int(datetime.datetime.utcnow().year)//100)
     def _parse_tcvitals_line(self,instr,century=None):
         """!Parses one line of tcvitals data
 
@@ -1046,7 +1043,7 @@ class StormInfo(object):
                         'Implausable tcvitals century %d.  Require '
                         '16 through 20.'%(icentury,))
             sdate='%02d%06d%02d'%(icentury,int(d['rawYYMMDD']), 
-                                  int(d['rawHHMM'])/100)
+                                  int(d['rawHHMM'])//100)
             d['YMDH']=sdate
             d['when']=tcutil.numerics.to_datetime(sdate)
         else:
