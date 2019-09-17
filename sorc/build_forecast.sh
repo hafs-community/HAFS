@@ -16,6 +16,7 @@ if [ ! -d "../exec" ]; then
   mkdir ../exec
 fi
 
+if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = theia ]; then target=theia.intel ; fi
 if [ $target = jet ]; then target=jet.intel ; fi
 
