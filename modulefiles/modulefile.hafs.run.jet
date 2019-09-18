@@ -47,3 +47,6 @@ setenv GRB2INDEX /lfs3/projects/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities
 setenv NDATE /mnt/lfs3/projects/hwrfv3/Jili.Dong/fv3gfs_hafs/ndate.exe
 
 module load rocoto/1.3.1
+
+module use /lfs3/projects/hwrf-vd/soft/modulefiles
+module load python/intel-3.6.2-emc
