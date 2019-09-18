@@ -298,7 +298,7 @@ class Revital:
         logger=self.logger
         debug=self.debug and logger is not None
         renumbered=False
-        for stormid in list(lastvit.keys()):
+        for stormid in lastvit.keys():
             othervit=lastvit[stormid]
             if threshold:
                 old_id=getattr(othervit,'old_stnum',0)
@@ -696,7 +696,6 @@ def hrd_multistorm_cmp(a,b):
     a_invest=1 if (a.stormname=='INVEST') else 0
     b_invest=1 if (b.stormname=='INVEST') else 0
     
-    if 
     c = oldcmp(a_userprio,b_userprio) or \
         oldcmp(a_invest,b_invest) or\
         -oldcmp(a.wmax,b.wmax) or\

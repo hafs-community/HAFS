@@ -151,8 +151,8 @@ def vit_key_by_storm(storminfo):
     key=(storminfo.when.year,storminfo.longstormid,storminfo.when)
     return key
 
-def vitkey(a,b):
-    """!A key comparison for StormInfo objects intended to be used with
+def vitkey(a):
+    """!A key generator for StormInfo objects intended to be used with
     sorted().  
 
     @param a,b StormInfo objects to order.
