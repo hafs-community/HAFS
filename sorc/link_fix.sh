@@ -13,6 +13,9 @@ if [ ${target} == "wcoss_cray" ]; then
 elif [[ ${target} == "wcoss_dell_p3" || ${target} == "wcoss" ]]; then
     ln -sf /gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_am ./
     ln -sf /gpfs/dell2/emc/modeling/noscrub/emc.glopara/git/fv3gfs/fix/fix_orog ./
+elif [ ${target} == "hera" ]; then
+    ln -sf /scratch1/NCEPDEV/global/glopara/fix/fix_am ./
+    ln -sf /scratch1/NCEPDEV/global/glopara/fix/fix_orog ./
 elif [ ${target} == "theia" ]; then
     ln -sf /scratch4/NCEPDEV/global/save/glopara/git/fv3gfs/fix/fix_am ./
     ln -sf /scratch4/NCEPDEV/global/save/glopara/git/fv3gfs/fix/fix_orog ./
