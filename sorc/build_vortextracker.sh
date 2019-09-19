@@ -34,6 +34,18 @@ elif [ $target = theia ]; then
     export F90=ifort
     export CC=icc
 
+elif [ $target = hera ]; then
+
+    targetx=hera
+    #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.vortextracker.$target
+    module list
+
+    export FC=ifort
+    export F90=ifort
+    export CC=icc
+
 elif [ $target = jet ]; then
 
     targetx=jet
