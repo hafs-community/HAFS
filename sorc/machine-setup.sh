@@ -38,6 +38,7 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
     fi
     target=hera
     module purge
+    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
     MOD_PATH=/scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
 elif [[ -d /scratch3 && -d /scratch ]] ; then
     # We are on NOAA Theia
