@@ -11,20 +11,29 @@ automatically accessing configuration options."""
 # decides what symbols are imported by "from hafs.config import *"
 __all__=['from_file','from-string','confwalker','HAFSConfig','fordriver','ENVIRONMENT']
 
-import ConfigParser,collections,re,string,os,logging,threading
-import os.path,sys,StringIO
+import collections,re,string,os,logging,threading
+import os.path,sys
 import datetime
 import produtil.fileop, produtil.datastore
 import tcutil.numerics, tcutil.storminfo, tcutil.revital
 import hafs.exceptions
 
-from ConfigParser import SafeConfigParser,NoOptionError,NoSectionError
-from string import Formatter
+import configparser
+from configparser import ConfigParser
+from io import StringIO
+
 from produtil.datastore import Datastore
 from produtil.fileop import *
+
+from tcutil.numerics import to_datetime
+from string import Formatter
+from configparser import NoOptionError,NoSectionError
+
 from tcutil.numerics import to_datetime
 from tcutil.storminfo import find_tcvitals_for
 from hafs.exceptions import HAFSError
+
+UNSPECIFIED=object()
 
 ########################################################################
 
@@ -56,7 +65,7 @@ class Environment(object):
         val=os.environ.get(var,'')
         if val!='': return val
         return sub
-
+    
 ## @var ENVIRONMENT
 #  an Environment object.  You should never need to instantiate another one.
 ENVIRONMENT=Environment()
@@ -69,9 +78,46 @@ class ConfFormatter(Formatter):
     string.format(), but it allows recursion in the config sections,
     and it also is able to use the [config] and [dir] sections as
     defaults for variables not found in the current section."""
-    def __init__(self):
+    def __init__(self,quoted_literals=False):
         """!Constructor for ConfFormatter"""
         super(ConfFormatter,self).__init__()
+        if quoted_literals:
+            self.format=self.slow_format
+            self.vformat=self.slow_vformat
+            self.parse=qparse
+
+    @property
+    def quoted_literals(self):
+        return self.parse==qparse
+
+    def slow_format(self,format_string,*args,**kwargs):
+        return self.vformat(format_string,args,kwargs)
+    def slow_vformat(self,format_string,args,kwargs):
+        out=StringIO()
+        for literal_text, field_name, format_spec, conversion in \
+                self.parse(format_string):
+            if literal_text:
+                out.write(literal_text)
+            if field_name:
+                (obj, used_key) = self.get_field(field_name,args,kwargs)
+                if obj is None and used_key:
+                    obj=self.get_value(used_key,args,kwargs)
+                value=obj
+                if conversion=='s':
+                    value=str(value)
+                elif conversion=='r':
+                    value=repr(value)
+                elif conversion:
+                    raise ValueError('Unknown conversion %s'%(repr(conversion),))
+                if format_spec:
+                    value=value.__format__(format_spec)
+                out.write(value)
+        ret=out.getvalue()
+        out.close()
+        assert(ret is not None)
+        assert(isinstance(ret,str))
+        return ret
+
     def get_value(self,key,args,kwargs):
         """!Return the value of variable, or a substitution.
 
@@ -82,8 +128,8 @@ class ConfFormatter(Formatter):
         @param args the indexed arguments to str.format()
         @param kwargs the keyword arguments to str.format()"""
         kwargs['__depth']+=1
-        if kwargs['__depth']>=ConfigParser.MAX_INTERPOLATION_DEPTH:
-            raise ConfigParser.InterpolationDepthError(kwargs['__key'],
+        if kwargs['__depth']>=configparser.MAX_INTERPOLATION_DEPTH:
+            raise configparser.InterpolationDepthError(kwargs['__key'],
                 kwargs['__section'],key)
         try:
             if isinstance(key,int):
@@ -110,20 +156,20 @@ class ConfFormatter(Formatter):
                 v=NOTFOUND
                 if section is not None and conf is not None:
                     if conf.has_option(section,key):
-                        v=conf.get(section,key)
+                        v=conf.get(section,key,raw=True)
                     elif conf.has_option(section,'@inc'):
                         for osec in conf.get(section,'@inc').split(','):
                             if conf.has_option(osec,key):
-                                v=conf.get(osec,key)
+                                v=conf.get(osec,key,raw=True)
                     if v is NOTFOUND:
                         if conf.has_option('config',key):
-                            v=conf.get('config',key)
+                            v=conf.get('config',key,raw=True)
                         elif conf.has_option('dir',key):
-                            v=conf.get('dir',key)
+                            v=conf.get('dir',key,raw=True)
                     if v is NOTFOUND:
                         raise KeyError(key)
-        
-            if isinstance(v,basestring):
+
+            if isinstance(v,str):
                 if v.find('{')>=0 or v.find('%')>=0:
                     vnew=self.vformat(v,args,kwargs)
                     assert(vnew is not None)
@@ -131,7 +177,70 @@ class ConfFormatter(Formatter):
             return v
         finally:
             kwargs['__depth']-=1
-    
+
+def qparse(format_string):
+    """!Replacement for Formatter.parse which can be added to Formatter objects
+    to turn {'...'} and {"..."} blocks into literal strings (the ... part).
+    Apply this by doing f=Formatter() ; f.parse=qparse.  """
+    if not format_string: return []
+    if not isinstance(format_string, str):
+        raise TypeError('iterparse expects a str, not a %s %s'%(
+                type(format_string).__name__,repr(format_string)))
+    result=list()
+    literal_text=''
+    field_name=None
+    format_spec=None
+    conversion=None
+    for m in re.finditer(r'''(?xs) (
+            \{ \' (?P<qescape>  (?: \' (?! \} ) | [^'] )* ) \' \}
+          | \{ \" (?P<dqescape> (?: \" (?! \} ) | [^"] )* ) \" \}
+          | (?P<replacement_field>
+               \{
+                  (?P<field_name>
+                     [^\}:!\['"\{] [^\}:!\[]*
+                     (?: \. [a-zA-Z_][a-zA-Z_0-9]+
+                       | \[ [^\]]+ \] )*
+                  )
+                  (?: ! (?P<conversion>[rs]) )?
+                  (?: :
+                     (?P<format_spec>
+                       (?: [^\{\}]+
+                         | \{[^\}]*\} )*
+                     )
+                  )?
+               \} )
+          | (?P<left_set> \{\{ )
+          | (?P<right_set> \}\} )
+          | (?P<literal_text> [^\{\}]+ )
+          | (?P<error> . ) ) ''',format_string):
+        if m.group('qescape'):
+            literal_text+=m.group('qescape')
+        elif m.group('dqescape'):
+            literal_text+=m.group('dqescape')
+        elif m.group('left_set'):
+            literal_text+='{'
+        elif m.group('right_set'):
+            literal_text+='}'
+        elif m.group('literal_text'):
+            literal_text+=m.group('literal_text')
+        elif m.group('replacement_field'):
+            result.append( ( literal_text, 
+                    m.group('field_name'),
+                    m.group('format_spec'),
+                    m.group('conversion') ) )
+            literal_text=''
+        elif m.group('error'):
+            if m.group('error')=='{':
+                raise ValueError("Single '{' encountered in format string")
+            elif m.group('error')=='}':
+                raise ValueError("Single '}' encountered in format string")
+            else:
+                raise ValueError("Unexpected %s in format string"%(
+                        repr(m.group('error')),))
+    if literal_text: 
+        result.append( ( literal_text, None, None, None ) )
+    return result
+
 ########################################################################
 
 ##@var FCST_KEYS
@@ -231,9 +340,10 @@ class ConfTimeFormatter(ConfFormatter):
         fahr - 23
         famin - 1399   ( = 23*60+19)
         fahrmin - 19  """
-    def __init__(self):
+    def __init__(self,quoted_literals=False):
         """!constructor for ConfTimeFormatter"""
-        super(ConfTimeFormatter,self).__init__()
+        super(ConfTimeFormatter,self).__init__(
+            quoted_literals=bool(quoted_literals))
     def get_value(self,key,args,kwargs):
         """!return the value of a variable, or a substitution
 
@@ -245,8 +355,8 @@ class ConfTimeFormatter(ConfFormatter):
         @param kwargs the keyword arguments to str.format()"""
         v=NOTFOUND
         kwargs['__depth']+=1
-        if kwargs['__depth']>=ConfigParser.MAX_INTERPOLATION_DEPTH:
-            raise ConfigParser.InterpolationDepthError(
+        if kwargs['__depth']>=configparser.MAX_INTERPOLATION_DEPTH:
+            raise configparser.InterpolationDepthError(
                 kwargs['__key'],kwargs['__section'],v)
         try:
             if isinstance(key,int):
@@ -307,7 +417,7 @@ class ConfTimeFormatter(ConfFormatter):
                         raise KeyError('Cannot find key %s in section %s'
                                        %(repr(key),repr(section)))
         
-            if isinstance(v,basestring) and ( v.find('{')!=-1 or 
+            if isinstance(v,str) and ( v.find('{')!=-1 or 
                                               v.find('%')!=-1 ):
                 try:
                     vnew=self.vformat(v,args,kwargs)
@@ -366,28 +476,28 @@ def confwalker(conf,start,selector,acceptor,recursevar):
 
 ########################################################################
 
-def from_file(filename):
+def from_file(filename,quoted_literals=False):
     """!Reads the specified conf file into an HAFSConfig object.
 
     Creates a new HAFSConfig object and instructs it to read the specified file.
     @param filename the path to the file that is to be read
     @return  a new HAFSConfig object"""
-    if not isinstance(filename,basestring):
+    if not isinstance(filename,str):
         raise TypeError('First input to hafs.config.from_file must be a string.')
-    conf=HAFSConfig()
+    conf=HAFSConfig(quoted_literals=bool(quoted_literals))
     conf.read(filename)
     return conf
 
-def from_string(confstr):
+def from_string(confstr,quoted_literals=False):
     """!Reads the given string as if it was a conf file into an HAFSConfig object
 
     Creates a new HAFSConfig object and reads the string data into it
     as if it was a config file
     @param confstr the config data
     @return a new HAFSConfig object"""
-    if not isinstance(confstr,basestring):
+    if not isinstance(confstr,str):
         raise TypeError('First input to hafs.config.from_string must be a string.')
-    conf=HAFSConfig()
+    conf=HAFSConfig(quoted_literals=bool(quoted_literals))
     conf.readstr(confstr)
     return conf
 
@@ -409,25 +519,51 @@ class HAFSConfig(object):
     config file for the first HAFS job in a workflow.  The
     hafs.launcher module does that for you."""
 
-    def __init__(self,conf=None):
+    def __init__(self,conf=None,quoted_literals=False,strict=False, inline_comment_prefixes=(';',)):
         """!HAFSConfig constructor
 
         Creates a new HAFSConfig object.
-        @param conf the underlying ConfigParser.SafeConfigParser object
-          that stores the actual config data"""
-        self._logger=logging.getLogger('hafs')
+        @param conf the underlying configparser.ConfigParser object
+        that stores the actual config data. This was a SafeConfigParser
+        in Python 2 but in Python 3 the SafeConfigParser is now ConfigParser.
+        @param quoted_literals if True, then {'...'} and {"..."} will 
+          be interpreted as quoting the contained ... text.  Otherwise,
+          those blocks will be considered errors.
+        @param strict set default to False so it will not raise 
+          DuplicateOptionError or DuplicateSectionError, This param was
+          added when ported to Python 3.6, to maintain the previous 
+          python 2 behavior.
+        @param inline_comment_prefixes, defaults set to ;. This param was
+          added when ported to Python 3.6, to maintain the previous
+          python 2 behavior.
+           
+        Note: In Python 2, conf was ConfigParser.SafeConfigParser. In 
+        Python 3.2, the old ConfigParser class was removed in favor of 
+        SafeConfigParser which has in turn been renamed to ConfigParser. 
+        Support for inline comments is now turned off by default and 
+        section or option duplicates are not allowed in a single 
+        configuration source."""
+        self._logger=logging.getLogger('prodconfig')
         logger=self._logger
         self._lock=threading.RLock()
-        self._formatter=ConfFormatter()
-        self._time_formatter=ConfTimeFormatter()
+        self._formatter=ConfFormatter(bool(quoted_literals))
+        self._time_formatter=ConfTimeFormatter(bool(quoted_literals))
         self._datastore=None
         self._tasknames=set()
-        self._conf=SafeConfigParser() if (conf is None) else conf
+        # Added strict=False and inline_comment_prefixes for Python 3, 
+        # so everything works as it did before in Python 2.
+        #self._conf=ConfigParser(strict=False, inline_comment_prefixes=(';',)) if (conf is None) else conf
+        self._conf=ConfigParser(strict=strict, inline_comment_prefixes=inline_comment_prefixes) if (conf is None) else conf
         self._conf.optionxform=str
 
         self._conf.add_section('config')
         self._conf.add_section('dir')
         self._fallback_callbacks=list()
+
+    @property
+    def quoted_literals(self):
+        return self._time_formatter.quoted_literals and \
+               self._formatter.quoted_literals
 
     def fallback(self,name,details):
         """!Asks whether the specified fallback is allowed.  May perform
@@ -481,7 +617,7 @@ class HAFSConfig(object):
         Given a string with conf data in it, parses the data.
         @param source the data to parse
         @return self"""
-        fp=StringIO.StringIO(str(source))
+        fp=StringIO(str(source))
         self._conf.readfp(fp)
         fp.close()
         return self
@@ -516,7 +652,7 @@ class HAFSConfig(object):
         it again to read more config data into an existing HAFSConfig.
         @param string the string to parse
         @return self"""
-        sio=StringIO.StringIO(string)
+        sio=StringIO(string)
         self._conf.readfp(sio)
         return self
 
@@ -529,7 +665,7 @@ class HAFSConfig(object):
         @param section the section being modified
         @param kwargs additional keyword arguments are the option names
             and values"""
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             value=str(v)
             self._conf.set(section,k,value)
 
@@ -803,6 +939,11 @@ class HAFSConfig(object):
         @param sec the string name of the section"""
         with self:
             return [ opt for opt in self._conf.options(sec) ]
+        
+    def sections(self):
+        """!gets the list of all sections from a configuration object"""
+        return self._conf.sections()
+    
     def items(self,sec,morevars=None,taskvars=None):
         """!get the list of (option,value) tuples for a section
 
@@ -830,6 +971,7 @@ class HAFSConfig(object):
         be suitable for reading in to a new HAFSConfig object in a
         later job.  This is used by the hafs.launcher module to create
         the initial config file.
+
         @param fileobject an opened file to write to"""
         with self:
             self._conf.write(fileobject)
@@ -875,8 +1017,8 @@ class HAFSConfig(object):
         @param sec the section name
         @param string the string to expand
         @param kwargs more variables for string substitution"""
-        assert(isinstance(sec,basestring))
-        assert(isinstance(string,basestring))
+        assert(isinstance(sec,str))
+        assert(isinstance(string,str))
         with self:
             if 'vit' not in kwargs and 'syndat' in self.__dict__:
                 kwargs['vit']=self.syndat.__dict__

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace ush.hafs_completion
 # A simple script that logs the completion of an HAFS forecast cycle.

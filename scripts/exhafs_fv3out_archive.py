@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace scripts.exhafs_fv3out_archive
 # Archives native fv3out files to tape via the "htar" command.

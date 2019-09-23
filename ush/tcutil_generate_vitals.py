@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace ush.tcutil_generate_vitals
 # A utility script for tcvitals manipulation, a wrapper around tcutil.revital
@@ -211,12 +211,12 @@ def main():
         for d in messagedir:
             if os.path.isdir(d):
                 inputs.extend([os.path.join(d,'message%d'%(1+x,)) \
-                                   for x in xrange(5)])
+                                   for x in range(5)])
                 break
 
     if len(args)<2:
-        print>>sys.stderr,'ERROR: Script requires at least two '\
-            'arguments: stormid and year'
+        print('ERROR: Script requires at least two '\
+            'arguments: stormid and year', file=sys.stderr)
         sys.exit(1)
 
     stormid=str(args[0]).upper()
@@ -305,15 +305,15 @@ def main():
         logger.info('Reformat vitals...')
         if format=='rocoto' and stormid=='00X':
             cycleset=set([ vit.YMDH for vit in revital ])
-            print tcutil.rocoto.cycles_as_entity(cycleset)
+            print(tcutil.rocoto.cycles_as_entity(cycleset))
         elif format=='cycles_needed':
             cycles=collections.defaultdict(set)
             for vit in revital:
                 if vit.basin1 in basins_needed:
                     if vit.stnum<50 and vit.stnum>0:
                         cycles[vit.when].add(vit.stormid3)
-            for cycle in sorted(cycles.iterkeys()):
-                print cycle.strftime('%Y%m%d%H')+': '+' '.join(cycles[cycle])
+            for cycle in sorted(cycles.keys()):
+                print(cycle.strftime('%Y%m%d%H')+': '+' '.join(cycles[cycle]))
         elif format=='rocoto':
             # An iterator that iterates over YMDH values for vitals
             # with the proper stormid:
@@ -322,7 +322,7 @@ def main():
                     if vit.stormid3==stormid:
                         yield vit.YMDH
             cycleset=set([ ymdh for ymdh in okcycles(revital) ])
-            print tcutil.rocoto.cycles_as_entity(cycleset)
+            print(tcutil.rocoto.cycles_as_entity(cycleset))
         elif stormid=='00X':
             revital.print_vitals(sys.stdout,renumberlog=renumberlog,
                                  format=format,old=True)

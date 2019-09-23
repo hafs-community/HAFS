@@ -14,3 +14,6 @@
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
 	branch = feature/HAFS
+[submodule "ush/produtil"]
+	path = ush/repo-produtil
+	url = https://github.com/hafs-community/NCEPLIBS-pyprodutil

@@ -172,7 +172,7 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     YMDH=cyc.strftime('%Y%m%d%H')
     (case_root,parm,infiles,stid,moreopt) = \
             parse_launch_args(args[1:],logger,usage,PARMhafs)
-    print 'INFILES: ', infiles
+    print('INFILES: ', infiles)
     conf = launch(infiles,cyc,stid,moreopt,case_root,
                   init_dirs=False,prelaunch=prelaunch,
                   fakestorm=True)
@@ -298,7 +298,7 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     # Now look for any option and conf file arguments:
     bad=False
     moreopt=collections.defaultdict(dict)
-    for iarg in xrange(len(args)):
+    for iarg in range(len(args)):
         logger.info(args[iarg])
         m=re.match('''(?x)
           (?P<section>[a-zA-Z][a-zA-Z0-9_]*)
@@ -506,7 +506,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
 
     # TODO: add fakestorm description and use <jtf>
     for filename in file_list:
-        if not isinstance(filename,basestring):
+        if not isinstance(filename,str):
             raise TypeError('First input to hafs.config.for_initial_job '
                             'must be a list of strings.')
     conf=HAFSLauncher()
@@ -550,10 +550,10 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
                          %(repr(fcst_catalog),))
 
     if moreopt is not None:
-        for section,options in moreopt.iteritems():
+        for section,options in moreopt.items():
             if not conf.has_section(section):
                 conf.add_section(section)
-            for option,value in options.iteritems():
+            for option,value in options.items():
                 logger.info('Override: %s.%s=%s'
                             %(section,option,repr(value)))
                 conf.set(section,option,value)
@@ -778,7 +778,7 @@ class HAFSLauncher(HAFSConfig):
             except (EnvironmentError,ValueError,TypeError) as e:
                 logger.error('%s: error reading: %s.  Will read all storms.'%(
                         nstorms_filename,str(e)),exc_info=True)
-            for imessage in xrange(nstorms):
+            for imessage in range(nstorms):
                 file=os.path.join(mdir,'message%d'%(imessage+1,))
                 if os.path.exists(file):
                     inputs.append(file)
@@ -1006,7 +1006,7 @@ class HAFSLauncher(HAFSConfig):
         vitbase=self.choose_vitbase(storm_num)
 
         vitbasedir=os.path.dirname(vitbase)
-        print "vitbasedir",vitbasedir
+        print("vitbasedir",vitbasedir)
         produtil.fileop.makedirs(vitbasedir,logger=logger)
 
         logger.info('Reformat vitals...')
@@ -1015,7 +1015,7 @@ class HAFSLauncher(HAFSConfig):
             filename+': write unrenumbered vitals with all storm IDs')
         with open(filename,'wt') as vitalsout:
             for vit in unrenumbered.each(stormid=STID,old=True):
-                print>>vitalsout, vit.as_tcvitals()
+                print(vit.as_tcvitals(), file=vitalsout)
         filename=vitbase+'.renumberlog'
         logger.info(filename+': write renumberlog with my storm ID')
         logger.info(vitbase+': write renumbered vitals')
@@ -1031,17 +1031,17 @@ class HAFSLauncher(HAFSConfig):
         logger.info(filename+': write vitals with original ID')
         with open(filename,'wt') as vitalsout:
             for vit in renumbered.each(stormid=STID):
-                print>>vitalsout, vit.old().as_tcvitals()
+                print(vit.old().as_tcvitals(), file=vitalsout)
 
         filename=os.path.join(self.getdir('WORKhafs'),'tmpvit')
         logger.info(filename+': write current cycle vitals here')
         with open(filename,'wt') as tmpvit:
-            print>>tmpvit, self.syndat.as_tcvitals()
+            print(self.syndat.as_tcvitals(), file=tmpvit)
 
         filename=os.path.join(self.getdir('WORKhafs'),'oldvit')
         logger.info(filename+': write prior cycle vitals here')
         with open(filename,'wt') as tmpvit:
-            print>>tmpvit, self.oldsyndat.as_tcvitals()
+            print(self.oldsyndat.as_tcvitals(), file=tmpvit)
 
     def sanity_check_archive(self,logger=None):
         """!Runs a sanity check on the archiving settings.
@@ -1329,7 +1329,7 @@ class HAFSLauncher(HAFSConfig):
             section run_vortexinit
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
-        assert(isinstance(part1,basestring))
+        assert(isinstance(part1,str))
         out=list()
         logger=self.log()
 
