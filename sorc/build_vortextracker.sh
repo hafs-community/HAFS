@@ -111,8 +111,8 @@ export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -l
 export INC="-I${W3EMC_INCd} -I${G2_INCd} -I${SIGIO_INC4}"
 export LIBS="${W3EMC_LIBd} ${W3NCO_LIBd} ${BACIO_LIB4} ${G2_LIBd} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB}"
 
-export INC_GETTRK="-I${W3EMC_INCd} -I${G2_INCd} -I${G2TMPL_INC} -I${SIGIO_INC4} ${NETCDF_INCLUDE} ${HDF5_INCLUDE}"
-export LIBS_GETTRK="${W3EMC_LIBd} ${W3NCO_LIBd} ${BACIO_LIB4} ${G2_LIBd} ${G2TMPL_LIB} ${NETCDF_LDFLAGS} ${HDF5_LDFLAGS} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB}"
+export INC_GETTRK="-I${W3EMC_INCd} -I${G2_INCd} -I${SIGIO_INC4} ${NETCDF_INCLUDE} ${HDF5_INCLUDE}"
+export LIBS_GETTRK="${W3EMC_LIBd} ${W3NCO_LIBd} ${BACIO_LIB4} ${G2_LIBd} ${NETCDF_LDFLAGS} ${HDF5_LDFLAGS} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB}"
 
 # The following is a temporary fix to enable running the tracker on Hera.
 if [ $target = hera ]; then
