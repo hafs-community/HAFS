@@ -29,8 +29,8 @@ module load nemsiogfs/2.2.1
 module load landsfcutil/2.1.1
 
 module load szip/2.1
-module load hdf5/1.10.5
-module load netcdf/4.7.0
+module load hdf5/1.10.4
+module load netcdf/4.6.1
 module load hpss
 
 module load prod_util/1.1.0

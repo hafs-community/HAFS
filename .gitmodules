@@ -5,7 +5,7 @@
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
 	url = https://github.com/hafs-community/EMC_post.git
-	branch = feature/HAFS
+	branch = support/HAFS
 [submodule "ProdGSI"]
 	path = sorc/hafs_gsi.fd
 	url = gerrit:ProdGSI
@@ -13,4 +13,4 @@
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
-	branch = feature/HAFS
+	branch = support/HAFS
