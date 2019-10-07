@@ -7,8 +7,8 @@
   <!ENTITY SERIAL_EXTRA    "">
   <!ENTITY QUEUE_SHARED    "batch">
   <!ENTITY SHARED_EXTRA    "">
-  <!ENTITY QUEUE_SERVICE   "service">
-  <!ENTITY SERVICE_EXTRA   "">
+  <!ENTITY QUEUE_SERVICE   "batch">
+  <!ENTITY SERVICE_EXTRA   "<native>--partition=service</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>40</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>40</nodesize>">
   <!ENTITY PURE_OPENMP     "<nodes>1:ppn=1:tpp=40</nodes>">
