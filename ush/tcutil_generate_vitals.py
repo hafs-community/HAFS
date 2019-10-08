@@ -94,7 +94,7 @@ def set_para_paths():
         ]
     messagedir=[
         "/scratch3/NCEPDEV/hwrf/noscrub/input/MESSAGES",
-        "/scratch1/portfolios/NCEPDEV/hwrf/noscrub/input/MESSAGES",
+        "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
         "/lfs1/projects/hwrf-vd/hwrf-input/MESSAGES",
         "/com/hur/prod/inpdata"
         ]
