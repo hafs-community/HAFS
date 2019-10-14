@@ -1,18 +1,5 @@
 #!/bin/ksh
-############################################################################
-# Script name:		run_regional_gfdlmp.sh
-# Script description:	Run the 3-km FV3 regional forecast over the CONUS
-#			using the GFDL microphysics scheme.
-# Script history log:
-#   1) 2018-03-14	Eric Rogers
-#			run_nest.tmp retrieved from Eric's run_it directory.	
-#   2) 2018-04-03	Ben Blake
-#                       Modified from Eric's run_nest.tmp script.
-#   3) 2018-04-13	Ben Blake
-#			Various settings moved to JFV3_FORECAST J-job
-#   4) 2018-06-19       Ben Blake
-#                       Adapted for stand-alone regional configuration
-############################################################################
+
 set -xe
 
 ulimit -s unlimited
