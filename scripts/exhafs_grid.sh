@@ -96,7 +96,8 @@ else
 fi
 
 #----------------------------------------------------------------
-#filter_topo parameters. C192->50km, C384->25km, C768->13km, C1152->8.5km, C3072->3.2km
+#filter_topo parameters. C48->200km, C96->100km, C192->50km, C384->25km, C768->13km, 
+# C1152->8.5km, C1536->6.5km, C2304->4.3km, C3072->3.2km, C4608->2.1km, C6144->1.6km
 if [ $CRES -eq 48 ]; then 
  export cd4=0.12;  export max_slope=0.12; export n_del2_weak=4;   export peak_fac=1.1  
 elif [ $CRES -eq 96 ]; then 
@@ -113,8 +114,14 @@ elif [ $CRES -eq 1152 ]; then
  export cd4=0.15;  export max_slope=0.16; export n_del2_weak=20;   export peak_fac=1.0  
 elif [ $CRES -eq 1536 ]; then 
  export cd4=0.15;  export max_slope=0.24; export n_del2_weak=20;   export peak_fac=1.0  
+elif [ $CRES -eq 2304 ]; then 
+ export cd4=0.15;  export max_slope=0.27; export n_del2_weak=22;   export peak_fac=1.0  
 elif [ $CRES -eq 3072 ]; then 
  export cd4=0.15;  export max_slope=0.30; export n_del2_weak=24;   export peak_fac=1.0  
+elif [ $CRES -eq 4608 ]; then 
+ export cd4=0.15;  export max_slope=0.33; export n_del2_weak=26;   export peak_fac=1.0  
+elif [ $CRES -eq 6144 ]; then 
+ export cd4=0.15;  export max_slope=0.36; export n_del2_weak=28;   export peak_fac=1.0  
 else
  echo "grid C$CRES not supported, exit"
  exit 1
@@ -421,7 +428,7 @@ the_orog_files='"'${CASE}'_oro_data.tile7.nc"'
 cat>./fort.41<<EOF
 &config
 input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
-input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.2.6x1.5.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.1.0.nc"
 input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
