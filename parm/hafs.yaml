@@ -1,0 +1,509 @@
+## This is a UNIX conf file that contains all information relating to
+# the HAFS configuration.
+# The syntax:
+#
+#      [section]
+#      var = value
+#
+## Sets basic configuration options used by all components.
+# This section sets basic configuration options used by all components.  
+## The main configuration file.
+config: # <------- section [config]
+
+  CONFhafs: !uexpand "{all.com}/{all.stormlabel}.conf"
+  # ^--- was CONFhafs={com}/{stormlabel}.conf
+
+## The holdvars file.
+  HOLDVARS: !uexpand "{all.com}/{all.stormlabel}.holdvars.txt"
+  # ^--- was HOLDVARS={com}/{stormlabel}.holdvars.txt
+
+# RUNhafs is a component of some other file paths
+  RUNhafs: !uexpand "{all.SUBEXPT}"
+  # ^--- was RUNhafs={SUBEXPT}
+
+
+# Prefix to prepend to most output files in the COM directory.
+  out_prefix: !uexpand "{vit.stormnamelc}{vit.stnum:02d}{vit.basin1lc}.{vit.YMDH}"
+  # ^--- was out_prefix={vit[stormnamelc]}{vit[stnum]:02d}{vit[basin1lc]}.{vit[YMDH]}
+
+  out_prefix_nodate: !uexpand "{vit.stormnamelc}{vit.stnum:02d}{vit.basin1lc}"
+  # ^--- was out_prefix_nodate={vit[stormnamelc]}{vit[stnum]:02d}{vit[basin1lc]}
+
+  old_out_prefix: !uexpand "{oldvit.stormnamelc}{oldvit.stnum:02d}{oldvit.basin1lc}.{oldvit.YMDH}"
+  # ^--- was old_out_prefix={oldvit[stormnamelc]}{oldvit[stnum]:02d}{oldvit[basin1lc]}.{oldvit[YMDH]}
+
+  old_out_prefix_nodate: !uexpand "{oldvit.stormnamelc}{oldvit.stnum:02d}{oldvit.basin1lc}"
+  # ^--- was old_out_prefix_nodate={oldvit[stormnamelc]}{oldvit[stnum]:02d}{oldvit[basin1lc]}
+
+
+  GFSVER: "PROD2019" ##  GFS version (placeholder)
+  # ^--- was GFSVER=PROD2019
+
+  ENS: 99 ##  The ensemble number (placeholder)
+  # ^--- was ENS=99
+
+
+# Pull data from external sources to a staging area.  
+# Specifies a section (default: [hafsdata]) to use: hafsdata, wcoss_fcst_nco
+  input_catalog: "hafsdatatmp" ##  (placeholder)
+  # ^--- was input_catalog=hafsdatatmp
+
+
+## Configure file and directory paths
+dir: # <------- section [dir]
+
+  HOMEhafs: !uexpand "{all.CDSAVE}/{all.EXPT}"
+  # ^--- was HOMEhafs={CDSAVE}/{EXPT}
+
+  WORKhafs: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/{vit.YMDH}/{vit.stormid3}"
+  # ^--- was WORKhafs={CDSCRUB}/{RUNhafs}/{vit[YMDH]}/{vit[stormid3]}
+
+  COMhafs: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{vit.YMDH}/{vit.stormid3}"
+  # ^--- was COMhafs={CDSCRUB}/{RUNhafs}/com/{vit[YMDH]}/{vit[stormid3]}
+
+  COMgfs: !uexpand "{doc.hafsdata.inputroot}"
+  # ^--- was COMgfs={hafsdata/inputroot}
+
+  com: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{vit.YMDH}/{vit.stormid3}"
+  # ^--- was com={CDSCRUB}/{RUNhafs}/com/{vit[YMDH]}/{vit[stormid3]}
+
+  realstormcom: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{cyc.YMDH}/{all.realstorm}"
+  # ^--- was realstormcom={CDSCRUB}/{RUNhafs}/com/{YMDH}/{realstorm}
+
+  realstormwork: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/{cyc.YMDH}/{all.realstorm}"
+  # ^--- was realstormwork={CDSCRUB}/{RUNhafs}/{YMDH}/{realstorm}
+
+  oldsid: !uexpand "{oldvit.stormid3}"
+  # ^--- was oldsid={oldvit[stormid3]}
+
+  oldcom: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{oldvit.YMDH}/{oldvit.stormid3}"
+  # ^--- was oldcom={CDSCRUB}/{RUNhafs}/com/{oldvit[YMDH]}/{oldvit[stormid3]}
+
+  intercom: !uexpand "{WORKhafs}/intercom" ##  dir for communicating data files between jobs
+  # ^--- was intercom={WORKhafs}/intercom
+
+  outatcf: !uexpand "{all.CDNOSCRUB}/{all.SUBEXPT}" ##  Delivery location for ATCF files
+  # ^--- was outatcf={CDNOSCRUB}/{SUBEXPT}
+
+  outdiag: !uexpand "{all.CDNOSCRUB}/diagtrak/{all.SUBEXPT}" ##  Delivery location for wrfdiag files
+  # ^--- was outdiag={CDNOSCRUB}/diagtrak/{SUBEXPT}
+
+  outstatus: !uexpand "{all.CDNOSCRUB}/cycstatus/{all.SUBEXPT}" ##  Delivery location for status files
+  # ^--- was outstatus={CDNOSCRUB}/cycstatus/{SUBEXPT}
+
+  outatcfcorrected: !uexpand "{all.CDNOSCRUB}/atcf/{all.SUBEXPT}" ##  delivery location for corrected ATCF files
+  # ^--- was outatcfcorrected={CDNOSCRUB}/atcf/{SUBEXPT}
+
+  outships: !uexpand "{all.CDNOSCRUB}/ships/{all.SUBEXPT}" ##  delivery location for SHIPS files
+  # ^--- was outships={CDNOSCRUB}/ships/{SUBEXPT}
+
+  statusfile: !uexpand "{WORKhafs}/{all.stormlabel}.{cyc.YMDH}" ##  cycle status file
+  # ^--- was statusfile={WORKhafs}/{stormlabel}.{YMDH}
+
+## Domain center location file in COM.
+  domlocfile: !uexpand "{com}/{vit.stnum:02d}{vit.basin1lc}.{vit.YMDH}.domain.center"
+  # ^--- was domlocfile={com}/{vit[stnum]:02d}{vit[basin1lc]}.{vit[YMDH]}.domain.center
+
+## File to check in a prior cycle's com, to see if the cycle exists.
+  HISTCHECK: !uexpand "{oldcom}/{oldvit.stnum:02d}{oldvit.basin1lc}.{oldvit.YMDH}.domain.center"
+  # ^--- was HISTCHECK={oldcom}/{oldvit[stnum]:02d}{oldvit[basin1lc]}.{oldvit[YMDH]}.domain.center
+
+## The name of the gsi status file in the com directory
+  gsistatus: !uexpand "{all.stormlabel}.gsi_status"
+  # ^--- was gsistatus={stormlabel}.gsi_status
+
+## Operational name of the gsi status file
+  gsistatus2: !uexpand "gsi_status.{vit.stormname}{vit.stnum:02d}{vit.basin1lc}.{all.cycle}"
+  # ^--- was gsistatus2=gsi_status.{vit[stormname]}{vit[stnum]:02d}{vit[basin1lc]}.{cycle}
+
+
+  PARMforecast: !uexpand "{all.PARMhafs}/forecast/regional" ##  The location where the forecast job will find its parm and namelist files
+  # ^--- was PARMforecast={PARMhafs}/forecast/regional
+
+  PARMgsi: !uexpand "{all.PARMhafs}/hafs-gsi/" ##  GSI input data for everything except CRTM
+  # ^--- was PARMgsi={PARMhafs}/hafs-gsi/
+
+  FIXcrtm: !uexpand "{all.FIXhafs}/hafs-crtm-2.2.3/" ##  GSI CRTM input data
+  # ^--- was FIXcrtm={FIXhafs}/hafs-crtm-2.2.3/
+
+
+  utilexec: !uexpand "{HOMEhafs}/exec" ##  utility exe location (placeholder)
+  # ^--- was utilexec={HOMEhafs}/exec
+
+
+## Executable program locations
+# Currently not used in the workflow script system
+## grib_utils util programs: need load the grib_util module
+# cnvgrib, copygb, copygb2, degrib2, grb2index, grbindex, grib2grib, wgrib, wgrib2
+
+# tar/htar/hsi: These three are not used in EMC-maintained production
+# jobs since NCO maintains ksh-based archiving jobs.  When EMC runs,
+# we get these from the $PATH:
+exe: # <------- section [exe]
+
+  tar: "tar" ##  GNU Tar
+  # ^--- was tar=tar
+
+  htar: "htar" ##  HTAR tape archiving program
+  # ^--- was htar=htar
+
+  hsi: "hsi" ##  hsi tape manipulation program
+  # ^--- was hsi=hsi
+
+  mpiserial: !uexpand "{all.EXEChafs}/mpiserial" ##  Executes serial programs via MPI (placeholder)
+  # ^--- was mpiserial={EXEChafs}/mpiserial
+
+
+# The rest of these are compiled by the HAFS sorc/ build system:
+  forecast: !uexpand "{all.EXEChafs}/hafs_forecast.x"
+  # ^--- was forecast={EXEChafs}/hafs_forecast.x
+
+
+  post: !uexpand "{all.EXEChafs}/hafs_post.x"
+  # ^--- was post={EXEChafs}/hafs_post.x
+
+
+  chgres: !uexpand "{all.EXEChafs}/hafs_chgres.x"
+  # ^--- was chgres={EXEChafs}/hafs_chgres.x
+
+  orog: !uexpand "{all.EXEChafs}/hafs_orog.x"
+  # ^--- was orog={EXEChafs}/hafs_orog.x
+
+  make_hgrid: !uexpand "{all.EXEChafs}/hafs_make_hgrid.x"
+  # ^--- was make_hgrid={EXEChafs}/hafs_make_hgrid.x
+
+  make_solo_mosaic: !uexpand "{all.EXEChafs}/hafs_make_solo_mosaic.x"
+  # ^--- was make_solo_mosaic={EXEChafs}/hafs_make_solo_mosaic.x
+
+  fregrid: !uexpand "{all.EXEChafs}/hafs_fregrid.x"
+  # ^--- was fregrid={EXEChafs}/hafs_fregrid.x
+
+  filter_topo: !uexpand "{all.EXEChafs}/hafs_filter_topo.x"
+  # ^--- was filter_topo={EXEChafs}/hafs_filter_topo.x
+
+  shave: !uexpand "{all.EXEChafs}/hafs_shave.x"
+  # ^--- was shave={EXEChafs}/hafs_shave.x
+
+
+  gettrk: !uexpand "{all.EXEChafs}/hafs_gettrk.x"
+  # ^--- was gettrk={EXEChafs}/hafs_gettrk.x
+
+  tave: !uexpand "{all.EXEChafs}/hafs_tave.x"
+  # ^--- was tave={EXEChafs}/hafs_tave.x
+
+  vint: !uexpand "{all.EXEChafs}/hafs_vint.x"
+  # ^--- was vint={EXEChafs}/hafs_vint.x
+
+  supvit: !uexpand "{all.EXEChafs}/hafs_supvit.x"
+  # ^--- was supvit={EXEChafs}/hafs_supvit.x
+
+
+  gsi: !uexpand "{all.EXEChafs}/hafs_gsi.x"
+  # ^--- was gsi={EXEChafs}/hafs_gsi.x
+
+  enkf: !uexpand "{all.EXEChafs}/hafs_enkf.x"
+  # ^--- was enkf={EXEChafs}/hafs_enkf.x
+
+
+## Configure the prelaunch configuration overrides, run in
+## hafs_expt, and implemented in hafs.prelaunch
+# Per-forecast-center configurations
+prelaunch: # <------- section [prelaunch]
+
+  rsmc_overrides: "no" ##  read parm/hafs_JTWC.conf and parm/hafs_NHC.conf
+  # ^--- was rsmc_overrides=no
+
+  rsmc_conf: !uexpand "{all.PARMhafs}/hafs_{all.RSMC}.conf" ##  File to read for rsmc_overrides
+  # ^--- was rsmc_conf={PARMhafs}/hafs_{RSMC}.conf
+
+# Per-basin configurations: read no_basin_conf if basin_conf is missing
+  basin_overrides: "yes" ##  read parm/hafs_(basin).conf
+  # ^--- was basin_overrides=yes
+
+# File to read for recognized basins when basin_overrides is enabled
+  basin_conf: !uexpand "{all.PARMhafs}/hafs_{all.vit.pubbasin2}.conf"
+  # ^--- was basin_conf={PARMhafs}/hafs_{vit.pubbasin2}.conf
+
+# File to read for unrecognized basins when basin_overrides is enabled
+  no_basin_conf: !uexpand "{all.PARMhafs}/hafs_other_basins.conf"
+  # ^--- was no_basin_conf={PARMhafs}/hafs_other_basins.conf
+
+
+
+# Sanity check options for the launch job
+
+grid: # <------- section [grid]
+
+  CASE: "C768" ##  FV3 resolution
+  # ^--- was CASE=C768
+
+  LEVELS: 65 ##  Model vertical levels: 65
+  # ^--- was LEVELS=65
+
+  gtype: "regional" ##  grid type: uniform, stretch, nest, or regional
+  # ^--- was gtype=regional
+
+# If gridfixdir is provided and the dir exists, then the hafs_grid job will
+# just copy over the pre-generated static grid fix files under the gridfixdir.
+#gridfixdir={FIXhafs}/fix_fv3/{CASE}
+  gridfixdir: "/let/hafs_grid/generate/grid"
+  # ^--- was gridfixdir=/let/hafs_grid/generate/grid
+
+# Otherwise, hafs_grid will generate the model grid according to the following grid parameters
+# Need for grid types: stretch, nest and regional
+  stretch_fac: 1.0001 ##  Stretching factor for the grid
+  # ^--- was stretch_fac=1.0001
+
+# Use domlon and domlat if they are specified in the config session, otherwise
+# domlon and domlat will be automatically generated according to the storm
+# information
+  target_lon: !uexpand "{all.domlon}" ##  center longitude of the highest resolution tile
+  # ^--- was target_lon={domlon}
+
+  target_lat: !uexpand "{all.domlat}" ##  center latitude of the highest resolution tile
+  # ^--- was target_lat={domlat}
+
+# Need for grid types: nest and regional
+# The following options set a 2560x2160 regional grid with a refinement ratio of 4, sitting at the center of the tile
+  refine_ratio: 4 ##  specify the refinement ratio for nest grid
+  # ^--- was refine_ratio=4
+
+  istart_nest: 128 ##  start index of the regional/nested domain on the tile's super grid 
+  # ^--- was istart_nest=128
+
+  jstart_nest: 228
+  # ^--- was jstart_nest=228
+
+  iend_nest: 1407 ##  end index of the regional/nested domain on the tile's super grid 
+  # ^--- was iend_nest=1407
+
+  jend_nest: 1307
+  # ^--- was jend_nest=1307
+
+  halo: 3 ##  halo size to be used in the atmosphere cubic sphere model for the grid tile.
+  # ^--- was halo=3
+
+  halop1: 4 ##  halo size that will be used for the orography and grid tile in chgres
+  # ^--- was halop1=4
+
+  halo0: 0 ##  no halo, used to shave the filtered orography for use in the model
+  # ^--- was halo0=0
+
+
+
+
+
+
+
+
+
+
+
+# Some options for FV3 model_configure
+forecast: # <------- section [forecast]
+
+  dt_atmos: 90 ##  FV3 time step
+  # ^--- was dt_atmos=90
+
+  restart_interval: 0 ##  FV3 restart interval in hours
+  # ^--- was restart_interval=0
+
+# For the global domain if it exists in the model configuration
+  glob_layoutx: 8
+  # ^--- was glob_layoutx=8
+
+  glob_layouty: 8
+  # ^--- was glob_layouty=8
+
+  glob_npx: 769
+  # ^--- was glob_npx=769
+
+  glob_npy: 769
+  # ^--- was glob_npy=769
+
+# For the nested or regional standalone domain
+  layoutx: 40
+  # ^--- was layoutx=40
+
+  layouty: 30
+  # ^--- was layouty=30
+
+  npx: 2561
+  # ^--- was npx=2561
+
+  npy: 2161
+  # ^--- was npy=2161
+
+  npz: 64
+  # ^--- was npz=64
+
+#levp={LEVELS}
+#regional=.true.
+#do_schmidt=.true.
+#target_lon={grid/target_lon}
+#target_lat={grid/target_lat}
+#stretch_fac={grid/stretch_fac}
+#bc_update_interval={NBDYHRS}
+
+# The write_grid_component related options
+  quilting: ".true."
+  # ^--- was quilting=.true.
+
+  write_groups: 3
+  # ^--- was write_groups=3
+
+  write_tasks_per_group: 48
+  # ^--- was write_tasks_per_group=48
+
+  app_domain: "regional" ##  write_grid_component output domain: regional, nest, or global
+  # ^--- was app_domain=regional
+
+
+# The option for output grid type: rotated_latlon, regional_latlon
+# Currently, the cubed_sphere_grid option is only supported by the forecast job, the post and product jobs cannot work for cubed_sphere_grid yet. 
+#output_grid='cubed_sphere_grid'
+#
+  output_grid: "rotated_latlon"
+  # ^--- was output_grid=rotated_latlon
+
+  output_grid_cen_lon: !uexpand "{all.domlon}" ##  central longitude
+  # ^--- was output_grid_cen_lon={domlon}
+
+  output_grid_cen_lat: !uexpand "{all.domlat}" ##  central latitude
+  # ^--- was output_grid_cen_lat={domlat}
+
+  output_grid_lon_span: 78.0 ##  output domain span for longitude in rotated coordinate system (in degrees) 
+  # ^--- was output_grid_lon_span=78.0
+
+  output_grid_lat_span: 69.0 ##  output domain span for latitude in rotated coordinate system (in degrees) 
+  # ^--- was output_grid_lat_span=69.0
+
+  output_grid_dlon: 0.03 ##  output grid spacing dlon . . . .
+  # ^--- was output_grid_dlon=0.03
+
+  output_grid_dlat: 0.03 ##  output grid spacing dlat . . . .
+  # ^--- was output_grid_dlat=0.03
+
+# If the following options are not set, their values will be calculated according to cen_lon(lat), lon(lat)_span
+#output_grid_lon1=-39.0            ;; longitude of lower-left . . . .
+#output_grid_lat1=-34.5            ;; latitude of lower-left . . . .
+#output_grid_lon2=39.0             ;; longitude of upper-right . . . .
+#output_grid_lat2=34.5             ;; latitude of upper-right . . . .
+
+#output_grid=regional_latlon
+#output_grid_cen_lon={domlon}      ;; central longitude
+#output_grid_cen_lat={domlat}      ;; central latitude
+#output_grid_lon_span=96.0         ;; output domain span for longitude in regular latlon coordinate system (in degrees) 
+#output_grid_lat_span=69.0         ;; output domain span for latitude in regular latlon coordinate system (in degrees) 
+#output_grid_dlon=0.03             ;; output grid spacing dlon . . . .
+#output_grid_dlat=0.03             ;; output grid spacing dlat . . . .
+
+# Grid definition for post and tracker, used by wgrib2
+# Example:
+#   synop_gridspecs="latlon 246.6:4112:0.025 -2.4:1976:0.025"
+# latlon lon0:nlon:dlon lat0:nlat:dlat
+# lat0, lon0 = degrees of lat/lon for 1st grid point 
+# nlon = number of longitudes
+# nlat = number of latitudes
+# dlon = grid cell size in degrees of longitude
+# dlat = grid cell size in degrees of latitude
+#
+# if synop_gridspecs=auto, which is the default, then synop_gridspecs will be automatically generated based on the output grid
+# if output_grid is rotated_latlon
+# lon0=output_grid_cen_lon+output_grid_lon1-9.
+# lat0=output_grid_cen_lat+output_grid_lat1
+# dlon=output_grid_dlon
+# dlat=output_grid_dlat
+# nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
+# nlat=(output_grid_lat2-output_grid_lat2)/output_grid_dlat
+# if output_grid is regional_latlon, synop_gridspecs will be the same as the ouput regular latlon grid
+#
+#synop_gridspecs="latlon 246.6:4112:0.025 -2.4:1976:0.025"
+post: # <------- section [post]
+
+  synop_gridspecs: "auto"
+  # ^--- was synop_gridspecs=auto
+
+  trker_gridspecs: !uexpand "{synop_gridspecs}" ##  Currently a placeholder, and the traker uses the same grid as the output grid
+  # ^--- was trker_gridspecs={synop_gridspecs}
+
+
+
+
+archive: # <------- section [archive]
+
+  mkdir: "yes" ##  make the archive directory? yes or no
+  # ^--- was mkdir=yes
+
+# To turn on archiving fv3 output netcdf files 
+#fv3out=hpss:/NCEPDEV/{tape_project}/2year/{ENV[USER]}/{SUBEXPT}/fv3out/{out_prefix}.tar
+
+## Variables to set as string values when parsing the hafs_workflow.xml.in.
+# This section is only used by the rocoto-based workflow
+rocotostr: # <------- section [rocotostr]
+
+  CDSAVE: !uexpand "{doc.dir.CDSAVE}" ##  save area for Rocoto to use
+  # ^--- was CDSAVE={dir/CDSAVE}
+
+  CDNOSCRUB: !uexpand "{doc.dir.CDNOSCRUB}" ##  non-scrubbed area for Rocoto to use
+  # ^--- was CDNOSCRUB={dir/CDNOSCRUB}
+
+  CDSCRUB: !uexpand "{doc.dir.CDSCRUB}" ##  scrubbed area for Rocoto to use
+  # ^--- was CDSCRUB={dir/CDSCRUB}
+
+  PARMhafs: !uexpand "{doc.dir.PARMhafs}" ##  parm/ directory location
+  # ^--- was PARMhafs={dir/PARMhafs}
+
+  USHhafs: !uexpand "{doc.dir.USHhafs}" ##  ush/ directory location
+  # ^--- was USHhafs={dir/USHhafs}
+
+  EXhafs: !uexpand "{doc.dir.EXhafs}" ##  scripts/ directory location
+  # ^--- was EXhafs={dir/EXhafs}
+
+  JOBhafs: !uexpand "{doc.dir.JOBhafs}" ##  scripts/ directory location
+  # ^--- was JOBhafs={dir/JOBhafs}
+
+  EXPT: !uexpand "{doc.config.EXPT}" ##  experiment name
+  # ^--- was EXPT={config/EXPT}
+
+  SUBEXPT: !uexpand "{doc.config.SUBEXPT}" ##  sub-experiment name
+  # ^--- was SUBEXPT={config/SUBEXPT}
+
+  CPU_ACCOUNT: !uexpand "{all.cpu_account}" ##  CPU account name
+  # ^--- was CPU_ACCOUNT={cpu_account}
+
+  COMgfs: !uexpand "{doc.dir.COMgfs}" ##  input GFS com directory
+  # ^--- was COMgfs={dir/COMgfs}
+
+  gtype: !uexpand "{doc.grid.gtype}" ##  grid type: uniform, stretch, nest, or regional (currently only nest and regional have been tested and supported) 
+  # ^--- was gtype={grid/gtype}
+
+# Specify the forecast job resources. Only a few combinations are provided. If
+# needed, you may add other options in the site entity files under rocoto/sites.
+  FORECAST_RESOURCES: !uexpand "FORECAST_RESOURCES_regional_{doc.forecast.layoutx}x{doc.forecast.layouty}io{doc.forecast.write_groups}x{doc.forecast.write_tasks_per_group}_omp2"
+  # ^--- was FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
+
+
+# Variables to set as boolean values when parsing the hafs_workflow.xml.in. 
+# They'll be changed to YES or NO.  This section is only used by the rocoto-based workflow.
+rocotobool: # <------- section [rocotobool]
+
+  RUN_GSI: !uexpand "{all.run_gsi}" ##  Do we run GSI?
+  # ^--- was RUN_GSI={run_gsi}
+
+  RUN_OCEAN: !uexpand "{all.run_ocean}" ##  Do we run with ocean coupling?
+  # ^--- was RUN_OCEAN={run_ocean}
+
+  RUN_WAVE: !uexpand "{all.run_wave}" ##  Do we run with wave coupling?
+  # ^--- was RUN_WAVE={run_wave}
+
+  RUN_VORTEXINIT: !uexpand "{all.run_vortexinit}" ##  Do we enable vortex initialization?
+  # ^--- was RUN_VORTEXINIT={run_vortexinit}
+
+  SCRUB_COM: !uexpand "{all.scrub_com}" ##  Should Rocoto scrub the COM directory?
+  # ^--- was SCRUB_COM={scrub_com}
+
+  SCRUB_WORK: !uexpand "{all.scrub_work}" ##  Should Rocoto scrub the WORK directory?
+  # ^--- was SCRUB_WORK={scrub_work}
+
+

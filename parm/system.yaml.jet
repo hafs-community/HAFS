@@ -1,0 +1,73 @@
+## This is the system-specific configuration file for jet
+## Project disk area
+config: # <------- section [config]
+
+  disk_project: "hwrfv3"
+  # ^--- was disk_project=hwrfv3
+
+## Project hpss tape area
+  tape_project: "emc-hwrf"
+  # ^--- was tape_project=emc-hwrf
+
+## Theia CPU account name for submitting jobs to the batch system.
+  cpu_account: "hwrfv3"
+  # ^--- was cpu_account=hwrfv3
+
+## Archive path
+  archive: !uexpand "hpss:/NCEPDEV/{tape_project}/5year/{tools.env('USER')}/{all.SUBEXPT}/{all.out_prefix}.tar"
+  # ^--- was archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+
+## Specify input sources for HISTORY mode.
+  input_sources: !uexpand "jet_sources_{all.GFSVER}"
+  # ^--- was input_sources=jet_sources_{GFSVER}
+
+## Specify the DataCatalog for FORECAST mode runs.
+  fcst_catalog: !uexpand "jet_fcst_{all.GFSVER}"
+  # ^--- was fcst_catalog=jet_fcst_{GFSVER}
+
+
+#inputroot=/lfs1/projects/{disk_project}/{ENV[USER]}/hafsdata_{GFSVER}
+hafsdata: # <------- section [hafsdata]
+
+  inputroot: !uexpand "/lfs1/projects/hwrf-data/hafs-input/hafsdata_{all.GFSVER}"
+  # ^--- was inputroot=/lfs1/projects/hwrf-data/hafs-input/hafsdata_{GFSVER}
+
+
+jet_fcst_PROD2019: # <------- section [jet_fcst_PROD2019]
+
+  inputroot: "/lfs1/projects/hwrf-data/hafs-input/COMGFS"
+  # ^--- was inputroot=/lfs1/projects/hwrf-data/hafs-input/COMGFS
+
+
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+dir: # <------- section [dir]
+
+  CDNOSCRUB: !uexpand "/lfs3/projects/{all.disk_project}/{tools.env('USER')}/noscrub/hafstrak"
+  # ^--- was CDNOSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+
+## Scrubbed directory for large work files.  Make sure you edit this.
+  CDSCRUB: !uexpand "/lfs3/projects/{all.disk_project}/{tools.env('USER')}/hafstmp"
+  # ^--- was CDSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/hafstmp
+
+## Save directory.  Make sure you edit this.
+  CDSAVE: !uexpand "/lfs3/projects/{all.disk_project}/{tools.env('USER')}"
+  # ^--- was CDSAVE=/lfs3/projects/{disk_project}/{ENV[USER]}
+
+## Syndat directory for finding which cycles to run
+  syndat: "/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS"
+  # ^--- was syndat=/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS
+
+## Input GFS data directory
+  COMgfs: "/lfs1/projects/hwrf-data/hafs-input/COMGFS"
+  # ^--- was COMgfs=/lfs1/projects/hwrf-data/hafs-input/COMGFS
+
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+holdvars: # <------- section [holdvars]
+
+  WHERE_AM_I: "jet" ##  Which cluster? (For setting up environment.)
+  # ^--- was WHERE_AM_I=jet
+
+  WHICH_JET: "x" ##  Which part of Jet?
+  # ^--- was WHICH_JET=x
+

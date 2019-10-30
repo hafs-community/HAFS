@@ -1,0 +1,64 @@
+## Experiment name, used for finding installation locations
+config: # <------- section [config]
+
+  EXPT: "HAFS"
+  # ^--- was EXPT=HAFS
+
+
+# SUBEXPT={EXPT}
+# storm={ENV[STORM]}
+# stnum={ENV[stormenv]}
+# basin1=l
+# stormlat=31.5
+# stormlon=-73.7
+# domlat=25.0
+# domlon=-75.3
+
+## The storm label: storm1, storm2, etc.
+  stormlabel: !uexpand "storm{all.storm_num}"
+  # ^--- was stormlabel=storm{storm_num}
+
+# Useful when running multiple storms in a workflow.
+  global_stormlabel: !uexpand "storm{all.global_storm_num}"
+  # ^--- was global_stormlabel=storm{global_storm_num}
+
+
+  cycling_interval: 6.0 ##  cycling interval in hours
+  # ^--- was cycling_interval=6.0
+
+  NHRS: 126 ##  Length of the forecast in hours
+  # ^--- was NHRS=126
+
+  NBDYHRS: 3 ##  Interval in hours of the input lateral boundary conditions
+  # ^--- was NBDYHRS=3
+
+
+  ICTYPE: "pfv3gfs" ##  Initial condition type: pfv3gfs or gsmgfs 
+  # ^--- was ICTYPE=pfv3gfs
+
+
+# Enable or disable parts of the workflow
+  run_vortexinit: "no" ##  vortex initialization
+  # ^--- was run_vortexinit=no
+
+  run_gsi: "no" ##  GSI and FGAT initialization
+  # ^--- was run_gsi=no
+
+  run_ocean: "no" ##  Ocean coupling (placeholder)
+  # ^--- was run_ocean=no
+
+  run_wave: "no" ##  Wave coupling (placeholder)
+  # ^--- was run_wave=no
+
+
+# Scrub options
+  scrub: "no" ##  do we delete temporary files? (placeholder)
+  # ^--- was scrub=no
+
+  scrub_com: "yes" ##  Do we scrub the com directory?
+  # ^--- was scrub_com=yes
+
+  scrub_work: "yes" ##  Do we scrub the work directory?
+  # ^--- was scrub_work=yes
+
+

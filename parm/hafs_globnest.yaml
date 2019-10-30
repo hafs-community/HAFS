@@ -1,0 +1,85 @@
+# This is a UNIX conf file that contains ALL information relating to
+# the HAFS storm-focused global-nesting configuration.  
+#
+dir: # <------- section [dir]
+
+  PARMforecast: !uexpand "{all.PARMhafs}/forecast/globnest"
+  # ^--- was PARMforecast={PARMhafs}/forecast/globnest
+
+
+grid: # <------- section [grid]
+
+  CASE: "C768" ##  FV3 resolution
+  # ^--- was CASE=C768
+
+  LEVELS: 65 ##  Model vertical levels: 65
+  # ^--- was LEVELS=65
+
+  gtype: "nest" ##  grid type: uniform, stretch, nest, or regional
+  # ^--- was gtype=nest
+
+# Need for grid types: stretch, nest and regional
+  stretch_fac: 1.0001 ##  Stretching factor for the grid
+  # ^--- was stretch_fac=1.0001
+
+  target_lon: !uexpand "{all.domlon}" ##  center longitude of the highest resolution tile
+  # ^--- was target_lon={domlon}
+
+  target_lat: !uexpand "{all.domlat}" ##  center latitude of the highest resolution tile
+  # ^--- was target_lat={domlat}
+
+# Need for grid types: nest and regional
+  refine_ratio: 4 ##  Specify the refinement ratio for nest grid
+  # ^--- was refine_ratio=4
+
+  istart_nest: 127
+  # ^--- was istart_nest=127
+
+  jstart_nest: 227
+  # ^--- was jstart_nest=227
+
+  iend_nest: 1406
+  # ^--- was iend_nest=1406
+
+  jend_nest: 1306
+  # ^--- was jend_nest=1306
+
+
+# For the global domain if it is a global or global-nesting experiment
+forecast: # <------- section [forecast]
+
+  glob_layoutx: 8
+  # ^--- was glob_layoutx=8
+
+  glob_layouty: 8
+  # ^--- was glob_layouty=8
+
+  glob_npx: 769
+  # ^--- was glob_npx=769
+
+  glob_npy: 769
+  # ^--- was glob_npy=769
+
+# For the nested or regional standalone domain
+  layoutx: 40
+  # ^--- was layoutx=40
+
+  layouty: 30
+  # ^--- was layouty=30
+
+  npx: 2561
+  # ^--- was npx=2561
+
+  npy: 2161
+  # ^--- was npy=2161
+
+  npz: 64
+  # ^--- was npz=64
+
+
+rocotostr: # <------- section [rocotostr]
+
+  FORECAST_RESOURCES: !uexpand "FORECAST_RESOURCES_globnest_6x{doc.forecast.glob_layoutx}x{doc.forecast.glob_layouty}_{doc.forecast.layoutx}x{doc.forecast.layouty}io{doc.forecast.write_groups}x{doc.forecast.write_tasks_per_group}_omp2"
+  # ^--- was FORECAST_RESOURCES=FORECAST_RESOURCES_globnest_6x{forecast/glob_layoutx}x{forecast/glob_layouty}_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
+
+

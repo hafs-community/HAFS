@@ -1,0 +1,73 @@
+## This is the system-specific configuration file for the WCOSS Dell Phase 3
+## Project disk area
+config: # <------- section [config]
+
+  disk_project: "modeling"
+  # ^--- was disk_project=modeling
+
+## Project hpss tape area
+  tape_project: "emc-hwrf"
+  # ^--- was tape_project=emc-hwrf
+
+## Theia CPU account name for submitting jobs to the batch system.
+  cpu_account: "HUR-T2O"
+  # ^--- was cpu_account=HUR-T2O
+
+## Archive path
+  archive: !uexpand "hpss:/NCEPDEV/{tape_project}/5year/{tools.env('USER')}/{all.SUBEXPT}/{all.out_prefix}.tar"
+  # ^--- was archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+
+## Specify input sources for HISTORY mode.
+  input_sources: !uexpand "wcoss_sources_{all.GFSVER}"
+  # ^--- was input_sources=wcoss_sources_{GFSVER}
+
+## Specify the DataCatalog for FORECAST mode runs.
+  fcst_catalog: !uexpand "wcoss_fcst_{all.GFSVER}"
+  # ^--- was fcst_catalog=wcoss_fcst_{GFSVER}
+
+
+hafsdata: # <------- section [hafsdata]
+
+  inputroot: !uexpand "/gpfs/hps3/emc/{all.disk_project}/noscrub/{tools.env('USER')}/hafsdata_{all.GFSVER}"
+  # ^--- was inputroot=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/hafsdata_{GFSVER}
+
+
+wcoss_fcst_PROD2019: # <------- section [wcoss_fcst_PROD2019]
+
+  inputroot: "/gpfs/dell1/nco/ops/com/gfs/prod"
+  # ^--- was inputroot=/gpfs/dell1/nco/ops/com/gfs/prod
+
+
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+dir: # <------- section [dir]
+
+  CDNOSCRUB: !uexpand "/gpfs/dell2/emc/{all.disk_project}/noscrub/{tools.env('USER')}/hafstrak"
+  # ^--- was CDNOSCRUB=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+
+## Scrubbed directory for large work files.  Make sure you edit this.
+  CDSCRUB: !uexpand "/gpfs/dell2/ptmp/{tools.env('USER')}"
+  # ^--- was CDSCRUB=/gpfs/dell2/ptmp/{ENV[USER]}
+
+## Save directory.  Make sure you edit this.
+  CDSAVE: !uexpand "/gpfs/dell2/emc/{all.disk_project}/noscrub/{tools.env('USER')}/save"
+  # ^--- was CDSAVE=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/save
+
+## Syndat directory for finding which cycles to run
+#syndat=/gpfs/tp1/nco/ops/com/arch/prod/syndat
+  syndat: "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS"
+  # ^--- was syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
+
+## Input GFS data directory
+  COMgfs: "/gpfs/dell1/nco/ops/com/gfs/prod"
+  # ^--- was COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
+
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+holdvars: # <------- section [holdvars]
+
+  WHERE_AM_I: "wcoss_dell_p3" ##  Which cluster? (For setting up environment.)
+  # ^--- was WHERE_AM_I=wcoss_dell_p3
+
+  WHICH_JET: "none" ##  Which part of Jet are we on?  None; we are not on Jet.
+  # ^--- was WHICH_JET=none
+

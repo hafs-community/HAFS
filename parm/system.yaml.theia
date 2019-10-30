@@ -1,0 +1,71 @@
+## This is the system-specific configuration file for the Theia
+## Project disk area
+config: # <------- section [config]
+
+  disk_project: "hwrf"
+  # ^--- was disk_project=hwrf
+
+## Project hpss tape area
+  tape_project: "emc-hwrf"
+  # ^--- was tape_project=emc-hwrf
+
+## Theia CPU account name for submitting jobs to the batch system.
+  cpu_account: "hurricane"
+  # ^--- was cpu_account=hurricane
+
+## Archive path
+  archive: !uexpand "hpss:/NCEPDEV/{tape_project}/5year/{tools.env('USER')}/{all.SUBEXPT}/{all.out_prefix}.tar"
+  # ^--- was archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+
+## Specify input sources for HISTORY mode.
+  input_sources: !uexpand "theia_sources_{all.GFSVER}"
+  # ^--- was input_sources=theia_sources_{GFSVER}
+
+## Specify the DataCatalog for FORECAST mode runs.
+  fcst_catalog: !uexpand "theia_fcst_{all.GFSVER}"
+  # ^--- was fcst_catalog=theia_fcst_{GFSVER}
+
+
+hafsdata: # <------- section [hafsdata]
+
+  inputroot: !uexpand "/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{all.GFSVER}"
+  # ^--- was inputroot=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
+
+
+theia_fcst_PROD2019: # <------- section [theia_fcst_PROD2019]
+
+  inputroot: "/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS"
+  # ^--- was inputroot=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+
+
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+dir: # <------- section [dir]
+
+  CDNOSCRUB: !uexpand "/scratch3/NCEPDEV/{all.disk_project}/noscrub/{tools.env('USER')}/hafstrak"
+  # ^--- was CDNOSCRUB=/scratch3/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+
+## Save directory.  Make sure you edit this.
+  CDSAVE: !uexpand "/scratch3/NCEPDEV/{all.disk_project}/save/{tools.env('USER')}"
+  # ^--- was CDSAVE=/scratch3/NCEPDEV/{disk_project}/save/{ENV[USER]}
+
+## Scrubbed directory for large work files.  Make sure you edit this.
+  CDSCRUB: !uexpand "/scratch3/NCEPDEV/{all.disk_project}/scrub/{tools.env('USER')}"
+  # ^--- was CDSCRUB=/scratch3/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
+
+## Syndat directory for finding which cycles to run
+  syndat: "/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS"
+  # ^--- was syndat=/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
+
+## Input GFS data directory
+  COMgfs: "/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS"
+  # ^--- was COMgfs=/scratch3/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+
+
+holdvars: # <------- section [holdvars]
+
+  WHERE_AM_I: "theia" ##  Which cluster?  (For setting up environment.)
+  # ^--- was WHERE_AM_I=theia
+
+  WHICH_JET: "none" ##  Which part of Jet are we on?  None; we are not on Jet.
+  # ^--- was WHICH_JET=none
+

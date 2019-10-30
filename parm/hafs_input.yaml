@@ -1,0 +1,102 @@
+## hafs_input.conf
+## Configures input sources for the HAFS system
+ 
+# *** Currently, this is just a placeholder
+
+# This file is read in after the hafs.conf file, and specifies where
+# to get input data.
+ 
+## WCOSS: Input locations for the production HAFS
+wcoss_fcst_nco: # <------- section [wcoss_fcst_nco]
+
+  gfs: !uexpand "{tools.env('COMINgfs')}/gfs.{cyc.aYMD}/" ##  GFS directory
+  # ^--- was gfs={ENV[COMINgfs]}/gfs.{aYMD}/
+
+  gdas1: !uexpand "{tools.env('COMINgdas')}/gdas.{cyc.aYMD}/" ##  GDAS directory
+  # ^--- was gdas1={ENV[COMINgdas]}/gdas.{aYMD}/
+
+  enkf: !uexpand "{tools.env('COMINgfs')}/enkf.{cyc.aYMD}/{cyc.aHH}/" ##  GFS ENKF directory
+  # ^--- was enkf={ENV[COMINgfs]}/enkf.{aYMD}/{aHH}/
+
+  messages: !uexpand "{tools.env('COMINmsg')}/" ##  Hurricane message file directory
+  # ^--- was messages={ENV[COMINmsg]}/
+
+  syndatdir: !uexpand "{tools.env('COMINarch')}" ##  TCVitals directory
+  # ^--- was syndatdir={ENV[COMINarch]}
+
+  hd_obs: "/deliberately/invalid/path" ##  hdobs directory
+  # ^--- was hd_obs=/deliberately/invalid/path
+
+  dcom: !uexpand "{tools.env('DCOMROOT')}/us007003/" ##  dcom "us007003" directory
+  # ^--- was dcom={ENV[DCOMROOT]}/us007003/
+
+  rtofs: !uexpand "{tools.env('COMINrtofs')}/rtofs.{cyc.aYMD}/" ##  RTOFS root directory for each cycle.
+  # ^--- was rtofs={ENV[COMINrtofs]}/rtofs.{aYMD}/
+
+  ww3: !uexpand "{tools.env('COMINwave')}/multi_1.{cyc.aYMD}/" ##  wave multi_1 root directory for wave boundary condition
+  # ^--- was ww3={ENV[COMINwave]}/multi_1.{aYMD}/
+
+
+#@inc=gfs2017_naming,prod_gefs_naming,rtofs_naming,ww3_naming ;; Include naming info from other sections
+
+## HAFS staging area paths.
+#
+# This section defines the locations to store parent model data and
+# obs within the HAFS run areas, and the local names of files:
+hafsdata: # <------- section [hafsdata]
+
+  inputroot: !uexpand "{all.WORKhafs}/hafsdata_{all.GFSVER}" ##  Staging area root directory
+  # ^--- was inputroot={WORKhafs}/hafsdata_{GFSVER}
+
+  gfs: !uexpand "{inputroot}/gfs.{cyc.aYMDH}/" ##  GFS directory
+  # ^--- was gfs={inputroot}/gfs.{aYMDH}/
+
+  gdas1: !uexpand "{inputroot}/gdas1.{cyc.aYMDH}/" ##  GDAS directory
+  # ^--- was gdas1={inputroot}/gdas1.{aYMDH}/
+
+  gdasr: !uexpand "{inputroot}/gdasr.{cyc.aYMDH}/" ##  Relocated GDAS directory
+  # ^--- was gdasr={inputroot}/gdasr.{aYMDH}/
+
+  gefs: !uexpand "{inputroot}/gefs.{cyc.aYMDH}/" ##  GEFS directory
+  # ^--- was gefs={inputroot}/gefs.{aYMDH}/
+
+  enkf: !uexpand "{inputroot}/enkf.{cyc.aYMDH}/" ##  GFS ENKF directory
+  # ^--- was enkf={inputroot}/enkf.{aYMDH}/
+
+  messages: !uexpand "{inputroot}/messages/" ##  hurricane message file directory
+  # ^--- was messages={inputroot}/messages/
+
+  syndatdir: !uexpand "{inputroot}/syndat/" ##  syndat tcvitals directory
+  # ^--- was syndatdir={inputroot}/syndat/
+
+  hd_obs: !uexpand "{inputroot}/recon.{cyc.aYMDH}/" ##  hdobs data directory
+  # ^--- was hd_obs={inputroot}/recon.{aYMDH}/
+
+  tdr: !uexpand "{inputroot}/tdr.{vit.stnum:02d}{vit.basin1lc}.{cyc.aYMDH}/" ##  TDR directory
+  # ^--- was tdr={inputroot}/tdr.{vit[stnum]:02d}{vit[basin1lc]}.{aYMDH}/
+
+  g4tdrso: !uexpand "{inputroot}/EXPERIMENTAL/G4TDRSO/{cyc.aYYYY}/{cyc.aYMDH}/{vit.stnum:02d}{vit.basin1lc}/" ##  G-IV TDR SO directory
+  # ^--- was g4tdrso={inputroot}/EXPERIMENTAL/G4TDRSO/{aYYYY}/{aYMDH}/{vit[stnum]:02d}{vit[basin1lc]}/
+
+  tdrso: !uexpand "{inputroot}/EXPERIMENTAL/TDRSO/{cyc.aYYYY}/{cyc.aYMDH}/{vit.stnum:02d}{vit.basin1lc}/" ##  TDR SO directory
+  # ^--- was tdrso={inputroot}/EXPERIMENTAL/TDRSO/{aYYYY}/{aYMDH}/{vit[stnum]:02d}{vit[basin1lc]}/
+
+  hiwrapso: !uexpand "{inputroot}/EXPERIMENTAL/HIWRAPSO/{cyc.aYYYY}/{cyc.aYMDH}/{vit.stnum:02d}{vit.basin1lc}/" ##  hiwrapso directory
+  # ^--- was hiwrapso={inputroot}/EXPERIMENTAL/HIWRAPSO/{aYYYY}/{aYMDH}/{vit[stnum]:02d}{vit[basin1lc]}/
+
+  rtofsroot: !uexpand "{inputroot}/rtofs" ##  Staging area for RTOFS
+  # ^--- was rtofsroot={inputroot}/rtofs
+
+  rtofs: !uexpand "{rtofsroot}/rtofs.{cyc.aYMD}/" ##  RTOFS root directory for each cycle.
+  # ^--- was rtofs={rtofsroot}/rtofs.{aYMD}/
+
+  rtofsstage: !uexpand "{all.WORKhwrf}/hycominit/RTOFSDIR"
+  # ^--- was rtofsstage={WORKhwrf}/hycominit/RTOFSDIR
+
+  ww3root: !uexpand "{inputroot}/ww3" ##  Staging area for WW3 boundary condition files from global wave multi_1
+  # ^--- was ww3root={inputroot}/ww3
+
+  ww3: !uexpand "{ww3root}/multi_1.{cyc.aYMD}/" ##  wave multi_1 root directory for wave boundary condition 
+  # ^--- was ww3={ww3root}/multi_1.{aYMD}/
+
+#@inc=gfs2012_naming,gfs2014_naming,gfs2012_grib2,gfs2012_grib1,para_loop_naming,prod_gefs_naming,gfs2014_grib,rtofs_naming,ww3_naming,gfs2017_grib2_highres

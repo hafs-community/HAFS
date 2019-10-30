@@ -1,0 +1,41 @@
+# This is a UNIX conf file that contains configuration options to specify a
+# prescribed domain center location and run HAFS for a fake storm.  This
+# basically enable HAFS conducting TC genensis simulations. And HAFS can also
+# run for other global, global-nesting, or regional applications.
+#
+# Specify the domain center Latitude and Longitude
+config: # <------- section [config]
+
+  domlat: 22.0
+  # ^--- was domlat=22.0
+
+  domlon: "-62.0"
+  # ^--- was domlon=-62.0
+
+# Same as domlat and domlon but vitals formatted 
+  vitalsdomlat: "220N"
+  # ^--- was vitalsdomlat=220N
+
+  vitalsdomlon: "620W"
+  # ^--- was vitalsdomlon=620W
+
+
+# HAFS launcher requires vitals and a storm.
+# This is a default minimum vitals file for a fake storm.
+# The format of the missing value fields was based on the log
+# output returned when running the launcher after the vitals have 
+# been "cleaned" up. That is, if  you enter the fields as all -999 values, 
+# the "cleaned" output is returned. In essence I'm treating the vitals 
+# module as a factory in the sense that it knows the correct format.
+# NHC 00L FAKE 20120710 0000 250N 0800W -99 -99 -999 -999 -099 -9 -99 -999 -999 -999 -999 M
+# fakestormid is a config option set in the launcher and is the 
+# last storm id in the list of storms.
+  fakestormid: "00L"
+  # ^--- was fakestormid=00L
+
+  fakestormname: "NATL"
+  # ^--- was fakestormname=NATL
+
+  fakestormorg: "NHC"
+  # ^--- was fakestormorg=NHC
+
