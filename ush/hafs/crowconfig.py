@@ -736,7 +736,7 @@ class HAFSConfig(object):
             if not hasattr(expr,'_raw_child'):
                 raise TypeError(f'{context}: {key}: all document-level types must have been read in by CROW.')
             if key not in my_child:
-                self.add_section(key)
+                self._doc[key]=copy.copy(expr)
             my_child[key]._raw_child().update(expr._raw_child())
         crow.config.update_globals(self._doc,self._globals)
 

@@ -1,0 +1,73 @@
+accounting: {} # to be filled in with platform-specific information
+resources: {} # to be filled in with platform-specific information
+
+task_cmd_name_log:
+  launch: !JobRequest
+    - command: "&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' config.HOMEhafs='&HOMEhafs;' dir.USHhhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr>"
+      jobname: "hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_launch.log</cyclestr>"
+
+  input: !JobRequest
+    - command: "&PRE; &EXhafs;/exhafs_input.py"
+      jobname: "hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_input.log</cyclestr>"
+
+  grid: !JobRequest
+    - command: "&JOBhafs;/JHAFS_GRID"
+      jobname: "hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_grid.log</cyclestr>"
+
+  chgres_ic: !JobRequest
+    - command: "&JOBhafs;/JHAFS_CHGRES_IC"
+      jobname: "hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr>"
+
+  chgres_bc: !JobRequest
+    - command: "&JOBhafs;/JHAFS_CHGRES_BC"
+      jobname: "hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_chgres_bc.log</cyclestr>"
+
+  forecast: !JobRequest
+    - command: "&JOBhafs;/JHAFS_FORECAST"
+      jobname: "hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr>"
+
+  post: !JobRequest
+    - command: "&JOBhafs;/JHAFS_POST"
+      jobname: "hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_post.log</cyclestr>"
+
+  product: !JobRequest
+    - command: "&JOBhafs;/JHAFS_PRODUCT"
+      jobname: "hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_product.log</cyclestr>"
+
+  archive_disk: !JobRequest
+    - command: "&PRE; &EXhafs;/exhafs_archive.py"
+      jobname: "hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_archive_disk.log</cyclestr>"
+
+  archive_tape: !JobRequest
+    - command: "&PRE; &EXhafs;/exhafs_archive.py"
+      jobname: "hafs_archive_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&WORKhafs;/hafs_archive.log</cyclestr>"
+
+  archive_fv3out: !JobRequest
+    - command: "&PRE; &EXhafs;/exhafs_archive_fv3out.py"
+      jobname: "hafs_archive_fv3out_&SID;_<cyclestr>@Y@m@d@H"
+      outerr: "<cyclestr>&WORKhafs;/hafs_archive_fv3out.log</cyclestr>"
+
+  scrub_work: !JobRequest
+    - command: "&PRE; &USHhafs;/hafs_scrub.py &SCRUB_WORK; WORK"
+      jobname: "hafs_scrub_work_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&LOGhafs;/hafs_scrub_work_&SID;_@Y@m@d@H.log</cyclestr>"
+
+  scrub_com: !JobRequest
+    - command: "&PRE; &USHhafs;/hafs_scrub.py &SCRUB_COM; COM"
+      jobname: "hafs_scrub_com_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&LOGhafs;/hafs_scrub_com_&SID;_@Y@m@d@H.log</cyclestr>"
+  
+  donefile: !JobRequest
+    - command: "&USHhafs;/hafs_donefile.py <cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr>"
+      jobname: "<cyclestr>hafs_donefile_&SID;_@Y@m@d@H</cyclestr>"
+      outerr: "<cyclestr>&LOGhafs;/hafs_donefile_&SID;_@Y@m@d@H.log</cyclestr>"

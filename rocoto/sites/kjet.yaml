@@ -1,0 +1,143 @@
+# from kjet.ent
+
+accounting:
+  scheduler: slurm
+  account: !calc cpu_account
+  pe:
+    queue: batch # queue for PE (parallel environment) jobs
+    partition: kjet
+    nodesize: 24
+    reservation: null
+    account: !ref doc.accounting.account
+  serial:
+    queue: batch # queue for serial jobs
+    partition: kjet
+    reservation: null
+    account: !ref doc.accounting.account
+  shared:
+    queue: batch
+    partition: kjet
+    reservation: null
+    account: !ref doc.accounting.account
+  service:
+    queue: service
+    partition: service
+    reservation: null
+    account: !ref doc.accounting.account
+
+resources:
+  pure_openmp: !JobRequest
+    - &resources_pure_openmp
+      ranks: 1
+      ppn: 1
+      exclusive: true
+      OMP_NUM_THREADS: !calc doc.accounting.threads
+  serial: !JobRequest
+    - &resources_small_serial
+      ranks: 1
+      ppn: 1
+      exclusive: false
+      memory: 1024
+      queue: batch
+  archive: !JobRequest
+    - &resources_archive
+      ranks: 1
+      ppn: 1
+      exclusive: false
+
+  small_serial: !JobRequest:
+    - <<: *resources_small_serial
+      walltime: !timedelta '00:15:00'
+
+  scrub_work: !JobRequest [ { <<: *resources_small_serial } ]
+  scrub_com: !JobRequest [ { <<: *resources_small_serial } ]
+  donefile: !JobRequest [ { <<: *resources_small_serial } ]
+
+  input: !JobRequest [ { <<: *resources_archive }]
+  archive_disk: !JobRequest [ { <<: *resources_archive }]
+  archive_tape: !JobRequest [ { <<: *resources_archive }]
+  archive_fv3pit: !JobRequest [ { <<: *resources_archive }]
+
+  grid: !JobRequest
+    - ranks: 4
+      OMP_NUM_THREADS: 6
+      walltime: !timedelta '00:30:00'
+      exclusive: true
+
+  chgres_ic: !JobRequest
+    - <<: *pure_openmp
+      OMP_NUM_THREADS: 24
+      exclusive: true
+
+  chgres_bc: !JobRequest
+    - OMP_NUM_THREADS: 24
+      ranks: 21
+      walltime: !timedelta '00:30:00'
+      exclusive: true
+
+  post: !JobRequest
+    - OMP_NUM_THREADS: 1
+      ranks: 72
+      ppn: 
+
+  <!ENTITY POST_RESOURCES "<nodes>3:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=24</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+
+  forecast_base: !JobRequest
+    - &forecast_base
+      walltime: !timedelta '06:00:00'
+      OMP_NUM_THREADS: 2
+      exclusive: true
+      ppn: 12
+
+  forecast: !FirstTrue
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 252
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x72_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 360
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 1308
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x72_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 1416
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_64x30io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 2016
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_64x30io3x72_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 2124
+
+    # FORECAST_RESOURCES for globnest HAFS
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 636
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_12x12io3x72_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 744
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_64x30io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 2496
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_64x30io3x72_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 2760
+    - when: all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_40x30io3x36_omp2'
+      take: !JobRequest
+        - <<: *forecast_base
+          ranks: 1692
+    - otherwise: !JobRequest # 'FORECAST_RESOURCES_globnest_6x8x8_40x30io3x72_omp2'
+        - <<: *forecast_base
+          ranks: 1800
+

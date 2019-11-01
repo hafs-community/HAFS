@@ -1,0 +1,144 @@
+xml_entities_constant:
+  SID: !calc all.SID.upper()
+  MULTISTORM_SIDS: !calc all.get('MULTISTORM_SIDS','')
+  SUBEXPT: !calc config.SUBEXPT
+  EXPT: !calc config.EXPT
+  CDSCRUB: !calc dir.CDSCRUB
+  EXhafs: !calc dir.EXhafs
+  HOMEhafs: !calc dir.HOMEhafs
+  USHhafs: !calc dir.USHhafs
+
+xml_entities_derived:
+  LOGhafs: '&CDSCRUB;/&SUBEXPT;/@Y@m@d@H/&SID;'
+  WORKhafs: '&CDSCRUB;/&SUBEXPT;/@Y@m@d@H/&SID;'
+  COMhafs: '&CDSCRUB;/&SUBEXPT;/com/@Y@m@d@H/&SID;'
+
+xml_env_vars:
+  envir: "prod"
+  PARAFLAG: "YES"
+  WHERE_AM_I: "&WHERE_AM_I;"
+  HOMEhafs: "&HOMEhafs;"
+  USHhafs: "&USHhafs;"
+  PYTHONPATH: "&USHhafs;"
+  WORKhafs: "<cyclestr>&WORKhafs;</cyclestr>"
+  COMhafs: "<cyclestr>&COMhafs;</cyclestr>"
+  CONFhafs: "<cyclestr>&CONFhafs;</cyclestr>"
+  HOLDVARS: "<cyclestr>&HOLDVARS;</cyclestr>"
+  HAFS_FORCE_TMPDIR: "<cyclestr>&WORKhafs;/tmpdir</cyclestr>"
+  jlogfile: "&LOGhafs;/jlogfile"
+
+task_defaults:
+  global_env_vars: !ref doc.xml_env_vars
+  local_env_vars: {}
+  accounting: !error "Task did not specify accounting"
+  resources: !error "Task did not specify resources"
+  cmd_name_log: !error "Task did not specify task_cmd_name_log"
+  more_xml: ''
+  task_xml: !uexpand |
+    {sched.rocoto_resources(resources,indent=2)}
+    {sched.rocoto_accounting(accounting,indent=2)}
+    {"\n".join([ metasched.defenvar(k,v) for k,v in global_env_vars.items() ])}
+    {"\n".join([ metasched.defenvar(k,v) for k,v in local_env_vars.items() ])}
+    {more_xml}
+
+launch_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.serial
+  resources: !ref doc.resources.small_serial
+  local_env_vars: { TOTAL_TASKS: 1 }
+  cmd_name_log: !ref doc.task_cmd_name_log.launch
+
+input_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.service
+  resources: !ref doc.resources.input
+  local_env_vars: { TOTAL_TASKS: 1 }
+  cmd_name_log: !ref doc.task_cmd_name_log.input
+
+grid_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.pe
+  resources: !ref doc.resources.grid
+  cmd_name_log: !ref doc.task_cmd_name_log.grid
+
+chres_ic_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.pe
+  resources: !ref doc.resources.chgres_ic
+  cmd_name_log: !ref doc.task_cmd_name_log.chres_ic
+
+chgres_bc_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  cmd_name_log: !ref doc.task_cmd_name_log.chgres_bc
+  accounting: !ref doc.accounting.pe
+  resources: !ref doc.resources.chgres_bc_task
+
+forecast_task:
+  Inherit: !Inherit [ [ doc.task_default, '.*' ] ]
+  accounting: !ref doc.accounting.pe
+  resources: !ref doc.resources.forecast FIXME
+  cmd_name_log: !ref doc.task_cmd_name_log.forecast
+
+post_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.post
+  resources: !ref doc.resources.post
+  cmd_name_log: !ref doc.task_cmd_name_log.post
+
+product_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.pe
+  resources: !ref doc.resources.product
+  cmd_name_log: !ref doc.task_cmd_name_log.product
+
+archive_disk_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.archive_disk
+  resources: !ref doc.resources.archive_disk
+  cmd_name_log: !ref doc.task_cmd_name_log.archive_disk
+  local_env_vars:
+    TOTAL_TASKS: 1
+    ARCHIVE_STEP: DISK
+
+archive_tape_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.service
+  resources: !ref doc.resources.archive_tape
+  cmd_name_log: !ref doc.task_cmd_name_log.archive_tape
+  local_env_vars:
+    TOTAL_TASKS: 1
+    ARCHIVE_STEP: TAPE
+
+archive_fv3out_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.service
+  resources: !ref doc.resources.archive_fv3out
+  cmd_name_log: !ref doc.task_cmd_name_log.archive_fv3out
+  local_env_vars: { TOTAL_TASKS: 1 }
+
+scrub_work_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.serial
+  resources: !ref doc.resources.scrub_work
+  cmd_name_log: !ref doc.task_cmd_name_log.scrub_work
+  local_env_vars:
+    TOTAL_TASKS: 1
+    HAFS_FORCE_ALT_TMPDIR: "&LOGhafs;"
+  
+scrub_com_task:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.serial
+  resources: !ref doc.resources.scrub_com
+  cmd_name_log: !ref doc.task_cmd_name_log.scrub_com
+  local_env_vars:
+    TOTAL_TASKS: 1
+    HAFS_FORCE_ALT_TMPDIR: "&LOGhafs;"
+
+donefile_com:
+  Inherit: !Inherit [ [ doc.task_defaults, '.*' ] ]
+  accounting: !ref doc.accounting.serial
+  resources: !ref doc.resources.small_serial
+  cmd_name_log: !ref doc.task_cmd_name_log.donefile
+  local_env_vars:
+    TOTAL_TASKS: 1
+    HAFS_FORCE_ALT_TMPDIR: "&LOGhafs;"
