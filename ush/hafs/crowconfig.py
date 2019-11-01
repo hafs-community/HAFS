@@ -25,7 +25,8 @@ from io import StringIO
 from produtil.datastore import Datastore
 from produtil.fileop import *
 
-import crow.config
+import crow
+from crow.config.eval_tools import expand as crow_expander
 
 from tcutil.numerics import to_datetime
 from string import Formatter
@@ -427,6 +428,7 @@ class StormInfoWrapper(object):
     def _set_child(self,child):
         self.__child=child
     def _clear_child(self):
+        raise BaseException('clear child')
         self.__child=None
     _child=property(_get_child,_set_child,_clear_child,
       """StormInfo object being viewed""")
@@ -633,8 +635,10 @@ class HAFSConfig(object):
 
         # Added strict=False and inline_comment_prefixes for Python 3, 
         # so everything works as it did before in Python 2.
-        #self._conf=ConfigParser(strict=False, inline_comment_prefixes=(';',)) if (conf is None) else conf
         self._fallback_callbacks=list()
+
+        self._prior_vit=None
+        self._prior_oldvit=None
 
     @property
     def quoted_literals(self):   return True
@@ -784,7 +788,7 @@ class HAFSConfig(object):
         True if unknown.  This is the same as doing
         getbool('config','realtime',True)."""
         return self.getbool('config','realtime',True)
-    def set(self,section,key,value):
+    def set(self,section,key,value,expand=UNSPECIFIED):
         """!set a config option
 
         Sets the specified config option (key) in the specified
@@ -793,7 +797,10 @@ class HAFSConfig(object):
         strsection=str(section)
         if strsection not in self._doc:
             self._doc[strsection]=copy.deepcopy(EMPTY_SECTION)
-        self._doc[strection][str(key)]=value
+        if isinstance(value,str) and ( expand is UNSPECIFIED or expand ):
+            self._doc[strsection][str(key)]=crow_expander(value)
+        else:
+            self._doc[strsection][str(key)]=value
     def __enter__(self):
         """!grab the thread lock
 
@@ -907,7 +914,7 @@ class HAFSConfig(object):
         False otherwise.
         @param   sec the section to check for"""
         with self:
-            return self._conf.has_section(sec)
+            return sec in self._doc
     def has_option(self,sec,opt):
         """! is this option set?
         
@@ -917,7 +924,7 @@ class HAFSConfig(object):
         @param sec the section
         @param opt the name of the option in that section"""
         with self:
-            return self._conf.has_option(sec,opt)
+            return sec in self._doc and opt in self._doc[sec]
     def getdir(self,name,default=UNSPECIFIED,morevars=None,taskvars=None):
         """! query the "dir" section
 
@@ -1033,7 +1040,7 @@ class HAFSConfig(object):
         out=[]
         with self:
             if sec not in self._doc: return []
-            return [ (k,v) for k,v in self._doc[sec] ]
+            return [ (k,v) for k,v in self._doc[sec].items() ]
     def write(self,fileobject):
         """!write the contents of this HAFSConfig to a file
 
@@ -1060,7 +1067,7 @@ class HAFSConfig(object):
         @param opt the option name
         @param default the value to return if the option is unset.
         """
-        if default is UNSPECIFIED:
+        if default is not UNSPECIFIED:
             if sec not in self._doc:
                 return default
             if opt not in self._doc[sec]:
@@ -1068,25 +1075,32 @@ class HAFSConfig(object):
         return self._doc[sec]._raw(opt)
 
     def clear_locals(self):
-        del self._globals['vit']._child
-        del self._globals['oldvit']._child
         del self._globals['task']._child
         del self._globals['more']._child
-        del self._globals['vit']._child
-        del self._globals['oldvit']._child
+        self._globals['vit']._child=self._prior_vit
+        self._globals['oldvit']._child=self._prior_oldvit
     def set_locals(self,vit=None,oldvit=None,taskvars=None,morevars=None,fcsttime=None,anltime=None):
-        if vit is not None:
-            self._globals['vit']._child=vit
-        if oldvit is not None:
-            self._globals['oldvit']._child=oldvit
+        if fcsttime is not None:
+            self._globals['cyc'].fcsttime=fcsttime
+        if anltime is not None:
+            self._globals['cyc'].anltime=anltime
         if taskvars:
             self._globals['task']._child=taskvars
         if morevars:
             self._globals['more']._child=morevars
+        self._prior_vit=self._globals['vit']._child
         if vit is not None:
             self._globals['vit']._child=vit
+        self._prior_oldvit=self._globals['oldvit']._child
         if oldvit is not None:
             self._globals['oldvit']._child=oldvit
+        if self._globals['vit']._child is None:
+            line='JTWC 91S INVEST    20190422 0000 094S 0522E 260 052 1004 1007 0315 13 074 -999 -999 -999 -999 S'
+            canned_vit=tcutil.storminfo.StormInfo('tcvitals',line.rstrip('\n'))
+            self.vitals=canned_vit
+            self._globals['oldvit']._child=canned_vit-6
+            self._prior_vit=self.vitals
+            self._prior_oldvit=self._globals['oldvit']._child
 
     def getvitals(self):
         if 'syndat' in self.__dict__:
@@ -1096,10 +1110,13 @@ class HAFSConfig(object):
     def setvitals(self,vit):
         assert(isinstance(vit,tcutil.storminfo.StormInfo))
         self.syndat=vit
+        self._globals['vit']._child=vit
 
     def delvitals(self):
         if 'syndat' in self.__dict__:
+            raise BaseException('delvitals')
             del self.syndat
+            del self._globals['vit']._child
 
     vitals=property(getvitals,setvitals,delvitals,
                     """The tcutil.storminfo.StormInfo describing the storm to be run, or a fake storm representing the basin in multi-storm mode.""")
@@ -1156,13 +1173,17 @@ class HAFSConfig(object):
             ftime=atime
         else:
             ftime=tcutil.numerics.to_datetime_rel(ftime,atime)
-        if 'vit' not in kwargs and 'syndat' in self.__dict__:
-            kwargs['vit']=self.syndat.__dict__
-        if 'oldvit' not in kwargs and 'oldsyndat' in self.__dict__:
-            kwargs['oldvit']=self.oldsyndat.__dict__
+        if 'vit' in morevars:
+            vit=morevars['vit']
+        else:
+            vit=self.syndat
+        if 'oldvit' in morevars:
+            oldvit=morevars['oldvit']
+        else:
+            oldvit=slef.oldsyndat
         with self:
             self.set_locals(morevars=kwargs,fcsttime=ftime,
-                            anltime=anltime)
+                            anltime=anltime,vit=vit,oldvit=oldvit)
             return crow.config.expand_text(string,self._doc[sec])
 
     def _get(self,sec,opt,typeobj=UNSPECIFIED,default=UNSPECIFIED,badtypeok=False,morevars=None,taskvars=None):
@@ -1313,7 +1334,7 @@ class HAFSConfig(object):
         """
         with self:
             try:
-                return self._interp(sec,opt,morevars,taskvars=taskvars)
+                return self._get(sec,opt,morevars=morevars,taskvars=taskvars)
             except NoOptionError:
                 if default is not None:
                     return default

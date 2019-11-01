@@ -47,6 +47,7 @@ def prelaunch_rsmc(conf,logger,cycle):
     if not produtil.fileop.isnonempty(rfile):
         logger.warning('%s: RSMC override file is empty or non-existent'
                        %(rfile,))
+        return
     conf.read(rfile)
 
 def prelaunch_basin(conf,logger,cycle):

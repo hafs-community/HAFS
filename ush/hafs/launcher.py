@@ -138,30 +138,30 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
         (case_root,parm,infiles,stid,moreopt) = \
                 parse_launch_args(storm_args,logger,usage,PARMhafs)
         for idx,str in enumerate(infiles):
-            if 'system.conf' in  str:
+            if 'system.yaml' in  str:
                 idx_system_conf=idx
         stids.append(stid)
         moreopts.append(moreopt)
-        for confbn in [ 'hafs_multistorm.conf' ]:
-            confy= os.path.join(parm, confbn)
-            if not os.path.exists(confy):
-                logger.error(confy+': conf file does not exist.')
+        for confbn in [ 'hafs_multistorm.yaml' ]:
+            yamly= os.path.join(parm, confbn)
+            if not os.path.exists(yamly):
+                logger.error(yamly+': yaml file does not exist.')
                 sys.exit(2)
-            elif not os.path.isfile(confy):
-                logger.error(confy+': conf file is not a regular file.')
+            elif not os.path.isfile(yamly):
+                logger.error(yamly+': yaml file is not a regular file.')
                 sys.exit(2)
-            elif not produtil.fileop.isnonempty(confy):
+            elif not produtil.fileop.isnonempty(yamly):
                 logger.warning(
-                    confy+': conf file is empty.  Will continue anyway.')
-            logger.info('Conf input: '+repr(confy))
+                    yamly+': yaml file is empty.  Will continue anyway.')
+            logger.info('Yaml input: '+repr(yamly))
             if idx_system_conf:
-                infiles.insert(idx_system_conf+1,confy)
+                infiles.insert(idx_system_conf+1,yamly)
                 idx_system_conf += 1
             else:
-                infiles.append(confy)
-        logger.info('MULTISTORM Conf input ORDER:')
+                infiles.append(yamly)
+        logger.info('MULTISTORM Yaml input ORDER:')
         for conffile in infiles:
-            logger.info('Conf input: '+repr(conffile))
+            logger.info('Yaml input: '+repr(conffile))
     return (case_root,parm,infiles,stids,fake_stid,multistorm_priority_sid,moreopts)
 
 def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=None,renumber=True):
@@ -288,11 +288,11 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     parm=os.path.realpath(parm)
 
     # Standard conf files:
-    infiles=[ os.path.join(parm,'hafs_input.conf'),
-              os.path.join(parm,'hafs.conf'),
-              os.path.join(parm,'hafs_holdvars.conf'),
-              os.path.join(parm,'hafs_basic.conf'),
-              os.path.join(parm,'system.conf')
+    infiles=[ os.path.join(parm,'hafs_input.yaml'),
+              os.path.join(parm,'hafs.yaml'),
+              os.path.join(parm,'hafs_holdvars.yaml'),
+              os.path.join(parm,'hafs_basic.yaml'),
+              os.path.join(parm,'system.yaml')
               ]
 
     # Now look for any option and conf file arguments:
@@ -310,26 +310,26 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
                     repr(m.group('value'))))
             moreopt[m.group('section')][m.group('option')]=m.group('value')
         elif os.path.exists(args[iarg]):
-            logger.info('%s: read this conf file'%(args[iarg],))
+            logger.info('%s: read this yaml file'%(args[iarg],))
             infiles.append(args[iarg])
         else:
             bad=True
             logger.error('%s: invalid argument.  Not an config option '
-                         '(a.b=c) nor a conf file.'%(args[iarg],))
+                         '(a.b=c) nor a yaml file.'%(args[iarg],))
     if bad:
         sys.exit(2)
 
     for file in infiles:
         if not os.path.exists(file):
-            logger.error(file+': conf file does not exist.')
+            logger.error(file+': yaml file does not exist.')
             sys.exit(2)
         elif not os.path.isfile(file):
-            logger.error(file+': conf file is not a regular file.')
+            logger.error(file+': yaml file is not a regular file.')
             sys.exit(2)
         elif not produtil.fileop.isnonempty(file):
             logger.warning(
-                    file+': conf file is empty.  Will continue anyway.')
-        logger.info('Conf input: '+repr(file))
+                    file+': yaml file is empty.  Will continue anyway.')
+        logger.info('Yaml input: '+repr(file))
     return (case_root,parm,infiles,stid,moreopt)
 
 def load(filename):
@@ -557,6 +557,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
                 logger.info('Override: %s.%s=%s'
                             %(section,option,repr(value)))
                 conf.set(section,option,value)
+                assert(conf.get(section,option) == value)
     conf.guess_default_values()
     cycling_interval=conf.getfloat('config','cycling_interval',6.0)
     cycling_interval=-abs(cycling_interval*3600.0)
@@ -608,17 +609,22 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     if prelaunch is not None:
         prelaunch(conf,logger,cycle)
 
-    confloc=conf.getloc('CONFhafs')
-    logger.info('%s: write hafs.conf here'%(confloc,))
+    confloc=conf.getloc('YAMLhafs')
+    logger.info('%s: write hafs.yaml here'%(confloc,))
     with open(confloc,'wt') as f:
         conf.write(f)
 
+    confloc=conf.getloc('CONFhafs')
+    logger.info('%s: write hafs.conf here'%(confloc,))
+    with open(confloc,'wt') as f:
+        f.write(conf.py_evaluate_to_conf())
+
     with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
         f.write(conf.strinterp(
-                'config','export cyc={HH}\nexport PDY={YMD}\nYMDH={YMDH}\n'))
+                'config','export cyc={cyc.HH}\nexport PDY={cyc.YMD}\nYMDH={cyc.YMDH}\n'))
 
     if fakestorm_conf:
-        sfile = os.path.join(fakestorm_conf.strinterp('dir','{com}'),
+        sfile = os.path.join(fakestorm_conf.strinterp('dir','{all.com}'),
                              'storm%d.conf' %storm_num)
         logger.info('%s: write STORM conf here'%(sfile,))
         with open(sfile,'wt') as f:
@@ -960,7 +966,7 @@ class HAFSLauncher(HAFSConfig):
                               str(oldsyndat.stormid3)))
             else:
                 checkfile=self.timestrinterp(
-                    'config','{HISTCHECK}',atime=prior,ftime=prior,
+                    'config','{all.HISTCHECK}',atime=prior,ftime=prior,
                     oldvit=vit.__dict__,vit=syndat.__dict__)
                 if os.path.exists(checkfile):
                     logger.info('%s: exists'%(checkfile,))
@@ -1173,9 +1179,9 @@ class HAFSLauncher(HAFSConfig):
 
         self.timeless_sanity_check(enset,logger)
 
-        CONFhafs=self.getdir('CONFhafs')
-        logger.info('Try to load configuration file %s'%(CONFhafs,))
-        redo=load(CONFhafs)
+        YAMLhafs=self.getdir('YAMLhafs')
+        logger.info('Try to load configuration file %s'%(YAMLhafs,))
+        redo=load(YAMLhafs)
 
         logger.info('Compare new and old vitals')
         if 'syndat' in self.__dict__ and self.syndat.stormid3 != \
@@ -1265,22 +1271,28 @@ class HAFSLauncher(HAFSConfig):
         def set_default(section,option,default,env1=None,env2=None):
             if not self.has_option(section,option):
                 if env1 is not None and env1 in ENV:
-                    self.set(section,option,ENV[env1])
+                    default=ENV[env1]
                 elif env2 is not None and env2 in ENV:
+                    default=ENV[env2]
                     self.set(section,option,ENV[env2])
                 elif default is not None:
+                    default=str(default)
                     self.set(section,option,str(default))
                 else:
                     logger.error(
                         'Cannot find suitable default for [%s] option %s'%(
                             section,option))
+                    return
+                logger.info(f'Cannot find {section}.{option} so will use {default!r}')
+                self.set(section,option,default)
+
 
         set_default('config','case_root','HISTORY','CASE_ROOT')
         set_default('config','EXPT','HAFS','EXPT')
-        set_default('config','SUBEXPT','{EXPT}','SUBEXPT')
+        set_default('config','SUBEXPT','{all.EXPT}','SUBEXPT')
         set_default('dir','HOMEhafs',None,'HOMEhafs')
         set_default('dir','WORKhafs',None,'WORKhafs','DATA')
-        set_default('config','datastore','{WORKhafs}/hafs_state.sqlite3')
+        set_default('config','datastore','{all.WORKhafs}/hafs_state.sqlite3')
         set_default('config','storm_num','1','storm_num')
         set_default('config','stormlabel','storm{storm_num}')
         set_default('config','input_catalog','hafsdata','INPUT_CATALOG')
@@ -1300,11 +1312,11 @@ class HAFSLauncher(HAFSConfig):
         #else:
         #    NWPROD='{HOMEhafs}/nwport'
 
-        def dirset(evar,deff,parent='{HOMEhafs}'):
+        def dirset(evar,deff,parent='{all.HOMEhafs}'):
             if evar in ENV:
-                self._conf.set('dir',evar,ENV[evar])
-            elif not self._conf.has_option('dir',evar):
-                self._conf.set('dir',evar,parent+'/'+deff.lower())
+                self.set('dir',evar,ENV[evar])
+            elif not evar in self._doc.dir:
+                self.set('dir',evar,parent+'/'+deff.lower())
 
         dirset('FIXhafs','fix')
         dirset('USHhafs','ush')
@@ -1314,7 +1326,7 @@ class HAFSLauncher(HAFSConfig):
         dirset('PARMhafs','parm')
         #dirset('utilexec','util/exec',NWPROD)
 
-    def make_holdvars(self,part1='{PARMhafs}/hafs_holdvars.txt',part2=None):
+    def make_holdvars(self,part1='{all.PARMhafs}/hafs_holdvars.txt',part2=None):
         """!Creates the com/storm*.holdvars.txt file
 
         Creates the storm*.holdvars.txt file needed by the old

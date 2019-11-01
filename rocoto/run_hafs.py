@@ -8,7 +8,7 @@
 # HAFS workflow
 #
 # @code{.sh}
-# run_hafs.py [options] [ensids and cycles] 95E case_root [conf]
+# run_hafs.py [options] [ensids and cycles] 95E case_root [yaml]
 # @endcode
 #
 # Arguments:
@@ -30,8 +30,8 @@
 # * -W N --- discard invests weaker than N m/s before renumbering
 #
 # Conf opitons:
-# * ../parm/hafs_more.conf --- read this configuration file
-# * config.run_gsi=yes --- specify the value of one configuration option
+# * ../parm/hafs_more.yaml --- read this yaml file
+# * config.run_gsi=yes --- specify the value of one yaml option
 
 ##@cond RUN_HAFS_PY
 
@@ -61,7 +61,7 @@ def usage(message=None,logger=None):
     @param message An extra message to send to stderr after the usage message
     @param logger Ignored."""
     print('''
-Usage: run_hafs.py [options] [cycles] 95E case_root [conf]
+Usage: run_hafs.py [options] [cycles] 95E case_root [yaml]
 
 Mandatory arguments: 
   95E -- the storm to run
@@ -112,9 +112,9 @@ SPECIFYING CYCLES:
         renumbering.  Default: -W 14 if a non-invest storm is 
         requested, and -W 0 (don't discard) if an invest is requested.
 
-Configuration ([conf]):
-section.option=value -- override conf options on the command line
-/path/to/file.conf -- additional conf files to parse''', file=sys.stderr)
+Configuration ([yaml]):
+section.option=value -- override yaml options on the command line
+/path/to/file.yaml -- additional yaml files to parse''', file=sys.stderr)
     if message is not None:
         print(str(message).rstrip()+'\n', file=sys.stderr)
     sys.exit(2)
@@ -362,7 +362,7 @@ def fullify(s):
     else:
         return s
 
-# Turn any conf files specified in arguments into fully-qualified
+# Turn any yaml files specified in arguments into fully-qualified
 # paths.  This is needed because run_hafs will generally be started
 # from a different directory than the exhafs_launch.py.
 if firstarg+2<len(args):
@@ -376,9 +376,9 @@ else:
 logger.info('MORE_LAUNCH_VARS='+repr(more_launch_vars))
 
 # Tell the hafs.launcher to parse the remaining arguments so we can
-# make the conf information:
+# make the yaml information:
 
-# Generate the conf file and run the hafs.launcher's sanity checks
+# Generate the yaml file and run the hafs.launcher's sanity checks
 # that do not require a cycle:
 # mslist does not contain the fakestorm id
 logger.info('MSLIST: ' +repr(mslist))
@@ -389,7 +389,7 @@ if multistorm:
     logger=logging.getLogger('run_hafs_'+str(fakestid))
     # stids list includes all storm ids AND the fake storm id.
     conf = hafs.launcher.launch(infiles,None,fakestid,moreopts[stids.index(pstid)],
-                                          case_root,init_dirs=False,
+                                          case_root,init_dirs=True,
                                           prelaunch=hafs.launcher.prelaunch,
                                           fakestorm=True)
 else:
@@ -624,6 +624,10 @@ elif clustername in ('mars','venus'):
     WHERE_AM_I='wcoss_dell_p3'
 else:
     WHERE_AM_I=clustername
+
+print("would run rocotorun now")
+
+exit( 0)
 
 #   '--login', '-c', '. %s/machine-setup.sh ; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
 #   %( shbackslash(USHhafs), shbackslash(outdb), 
