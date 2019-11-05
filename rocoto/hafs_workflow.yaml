@@ -1,28 +1,32 @@
 workflow:
+  CYCLE_THROTTLE: 7
+  COM_SCRUB_TIME: 21600
+  WORK_SCRUB_TIME: 21600
+  TASK_THROTTLE: 40
+
   # The run_hafs.py will set these:
-  first_cycle: !error "Specify first cycle."
-  last_cycle: !error "Specify last cycle."
-  cycledef_xml: !error "Provide <cycledef> tags."
+  first_cycle: !error "The run_hafs.py did not specify the first cycle."
+  last_cycle: !error "The run_hafs.py did not specify the last cycle."
+  cycledef_xml: !calc all.CYCLE_LIST
   cycle_step: !timedelta '6:00:00'
 
   # This describes the workflow:
   suite: !Cycle
     Rocoto:
+      varsep: !expand '\n  '
       # This is the text that generates the workflow XML file:
       workflow_xml: !expand |
         <?xml version="1.0"?>
         <!DOCTYPE workflow [
-          {"\n".join([ metasched.defvar(k,v) for k,v in doc.xml_entities_constant.items() ])}
-          {"\n".join([ metasched.defvar(k,v) for k,v in doc.xml_entities_derived.items() ])}
+          {varsep.join([ metasched.defvar(k,v,literal=True) for k,v in doc.xml_entities_constant.items() ])}
+          {varsep.join([ metasched.defvar(k,v,literal=True) for k,v in doc.xml_entities_derived.items() ])}
         ]>
-        <workflow
-            realtime="F" 
-            cyclethrottle="{doc.workflow.cyclethrottle}"
-            scheduler=""
-            taskthrottle="{doc.workflow.taskthrottle}">
-          {doc.workflow.cycledef_xml}
-          <log><cyclestr>{doc.workflow.rocoto_log}</cyclestr></log>
-          {metasched.make_task_xml()}
+        <workflow realtime="F" cyclethrottle="{doc.workflow.CYCLE_THROTTLE}"
+                  scheduler="slurm" taskthrottle="{doc.workflow.TASK_THROTTLE}">
+
+        {doc.workflow.cycledef_xml}
+          <log><cyclestr>&LOGhafs;/rocoto_@Y@m@d@H.log</cyclestr></log> 
+        {metasched.make_task_xml()}
         </workflow>
 
     # This Clock is only used internally.  CROW does not support
@@ -41,84 +45,94 @@ workflow:
 
       # External data for dependencies.  These have nothing to do with the
       # launch task per se, but they need to be put in some task.
-      gfs_atmanl: FIXME
-      gfs_sfcanl: FIXME
-      gfs_atmf126: FIXME
-      gfs_pgrb2_0p25_f126: FIXME
+      gfs_atmanl: !DataEvent
+        age: !timedelta '02:00:00'
+        minsize: 15000000000
+        file: "&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio"
+      gfs_sfcanl: !DataEvent
+        age: !timedelta '02:00:00'
+        minsize: 1000000000
+        file: "&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.sfcanl.nemsio"
+      gfs_atmf126: !DataEvent
+        age: !timedelta "02:00:00"
+        minsize: 15000000000
+        file: "&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio"
+      gfs_pgrb2_0p25_f126: !DataEvent
+        age: !timedelta "02:00:00"
+        minsize: 300000000
+        file: "&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126"
       
       # Internal dependencies.  
 
     input: !Task
       Inherit: !Inherit [ [ doc.input_task, '.*' ] ]
       Trigger: !Depend launch
-      Complete: !calc ( (not doc.config.FETCH_INPUT) | (scrub_work & scrub_com) )
+      Disable: !calc all.FETCH_INPUT
 
     grid: !Task
       Inherit: !Inherit [ [ doc.grid_task, '.*' ] ]
       Trigger: !Depend launch
-      Complete: !Depend (scrub_work & scrub_com)
 
     chgres_ic: !Task
       Inherit: !Inherit [ [ doc.chgres_ic_task, '.*' ] ]
       Time: !timedelta '+3:25:00'
       Trigger: !Depend ( launch & launch.gfs_atmanl & launch.gfs_sfcanl & input )
-      Complete: !Depend (scrub_work & scrub_com)
 
     chgres_bc: !Task
       Inherit: !Inherit [ [ doc.chgres_bc_task, '.*' ] ]
       Time: !timedelta '+4:10:00'
-      Complete: !calc ( (not doc.config.regional) | (scrub_work & scrub_com) )
+      Disable: !calc ( all.gtype!='regional' )
       Trigger: !Depend ( launch & launch.gfs_atmf126 & launch.gfs_pgrb2_0p25_f126 & input )
 
     forecast: !Task
       Inherit: !Inherit [ [ doc.forecast_task, '.*' ] ]
       Trigger: !Depend (chgres_ic & chgres_bc)
-      Complete: !Depend (scrub_work & scrub_com)
     
     post: !Task
       Inherit: !Inherit [ [ doc.post_task, '.*' ] ]
       Trigger: !Depend (forecast | forecast.is_running())
-      Complete: !Depend (scrub_work & scrub_com)
 
     product: !Task
       Inherit: !Inherit [ [ doc.product_task, '.*' ] ]
       Trigger: !Depend (post | post.is_running())
-      Complete: !Depend (scrub_work & scrub_com)
 
     archive_disk: !Task
       Inherit: !Inherit [ [ doc.archive_disk_task, '.*' ] ]
       Trigger: !Depend (forecast & post & product)
-      Complete: !Depend (scrub_work & scrub_com)
-
+      
     archive_tape: !Task
       Inherit: !Inherit [ [ doc.archive_tape_task, '.*' ] ]
       Trigger: !Depend (forecast & post & product & archive_disk)
-      Complete: !Depend (scrub_work & scrub_com)
 
     archive_fv3out: !Task
       Inherit: !Inherit [ [ doc.archive_fv3out_task, '.*' ] ]
       Trigger: !Depend (forecast & ~scrub_work & ~scrub_com )
-      Complete: !calc ( (not doc.config.ARCHIVE_FV3OUT) | (scrub_work & scrub_com) )
+      Disable: !calc ( not all.ARCHIVE_FV3OUT )
 
     scrub_work: !Task
       Inherit: !Inherit [ [ doc.scrub_work_task, '.*' ] ]
       Trigger: !Depend >-
-        (archive_tape & archive_disk & archive_fv3out & launch.donefile 
-        & ( ~ suite.has_cycle(-6*3600) | forecast.at(-6*3600).running() 
-        | forecast.at(-6*3600) | scrub_work.at(-6*3600) )
+        (archive_tape & archive_disk & archive_fv3out
+        & donefile.donefile_work_scrub_time
+        & ( ~ suite.has_cycle(-6*3600) | forecast.at(-6*3600).is_running() 
+        | forecast.at(-6*3600) | scrub_work.at(-6*3600) ) )
 
     donefile: !Task
       Inherit: !Inherit [ [ doc.donefile_task, '.*' ] ]
-      donefile_work_scrub_time: FIXME
-      donefile_com_scrub_time: FIXME
-        Trigger: !Depend ( (post&product) | (scrub_work&scrub_com) )
+      donefile_work_scrub_time: !DataEvent
+        age: !calc tools.to_timedelta(doc.workflow.COM_SCRUB_TIME)
+        file: "&COMhafs;/&STORMLABEL;.done"
+      donefile_com_scrub_time: !DataEvent
+        age: !calc tools.to_timedelta(doc.workflow.WORK_SCRUB_TIME)
+        file: "&COMhafs;/&STORMLABEL;.done"
+      Trigger: !Depend "( (post&product) | (scrub_work&scrub_com) )"
       
     scrub_com: !Task
       Inherit: !Inherit [ [ doc.scrub_com_task, '.*' ] ]
-      Trigger: !Depend >-
-        ( ~ suite.has_cycle(6*3600) | ( archive_tape.at(6*3600) 
-        & archive_disk.at(6*3600)
-        & donefile.at(6*3600).com_scrub_time )
-        & archive_tape & archive_disk & archive_fv3out & scrub_work
-        & donefile.com_scrub_time )
-           
+      Trigger: !Depend "archive_tape & archive_disk & archive_fv3out & scrub_work & donefile.donefile_com_scrub_time & ( ~ suite.has_cycle(6*3600) | ( archive_tape.at(6*3600) & archive_disk.at(6*3600) & donefile.at(6*3600).donefile_com_scrub_time ) )"
+      
+    completion: !Task
+      Inherit: !Inherit [ [ doc.completion_task, '.*' ] ]
+      Rocoto_attr: 'final="T"'
+      Trigger: !Depend "( (donefile & archive_disk & archive_tape & scrub_work & scrub_com ) | ( scrub_work & scrub_com ) )"
+      

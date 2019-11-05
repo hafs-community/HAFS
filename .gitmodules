@@ -14,3 +14,6 @@
 	path = sorc/hafs_utils.fd
 	url = gerrit:UFS_UTILS
 	branch = feature/HAFS
+[submodule "ush/CROW-repo"]
+	path = ush/CROW-repo
+	url = https://github.com/NOAA-EMC/CROW.git

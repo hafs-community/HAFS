@@ -35,7 +35,7 @@
 
 ##@cond RUN_HAFS_PY
 
-import os, sys, re, logging, collections, io, getopt, itertools
+import os, sys, re, logging, collections, io, getopt, itertools, datetime
 from os.path import realpath, normpath, dirname
 
 def ask(question):
@@ -188,7 +188,7 @@ from produtil.prog import shbackslash
 #######import hafs_expt
 
 produtil.batchsystem.set_jobname('run_hafs')
-produtil.setup.setup(send_dbn=False)
+produtil.setup.setup(send_dbn=False,level=logging.DEBUG)
 
 ########################################################################
 # Global variables and constants
@@ -218,6 +218,7 @@ storms_opt	 = ''
 basins_opt	 = ''
 renumber_opt	 = ''
 
+USE_ATPARSE      = False
 
 def okpath(path):
     return produtil.fileop.norm_expand_path(path,fullnorm=True)
@@ -528,15 +529,20 @@ if multistorm:
                 MULTISTORM_SIDS=storms_opt,
                 FAKE_SID=fakestid.upper())
 else:
-    VARS.update(MULTISTORM='NO')
+    VARS.update(MULTISTORM='NO',
+                RENUM='',BASINS='',MULTISTORM_SIDS='',FAKE_SID='')
 
 try:
     stormlabel=conf.get('config','stormlabel','storm1')
 except KeyError:
     stormlabel='storm1'
 
-def yesno(b):
-    return 'YES' if(b) else 'NO'
+if USE_ATPARSE:
+    def yesno(b):
+        return 'YES' if(b) else 'NO'
+else:
+    def yesno(b):
+        return True if(b) else False
 
 VARS.update(SID=stid.upper(),  stormlabel=str(stormlabel),
             WHERE_AM_I=conf.get('holdvars','WHERE_AM_I'),
@@ -554,24 +560,50 @@ for (key,val) in conf.items('rocotobool'):
     VARS[key]=yesno(conf.getbool('rocotobool',key))
 
 bad=False
-for k,v in VARS.items():
-    if not isinstance(v,str):
-        logger.error('%s: value is not a string.  '
-                     'It is type %s with value %s'%(
-                str(k),type(v).__name__,repr(v)))
-        bad=True
+if USE_ATPARSE:
+    for k,v in VARS.items():
+        if not isinstance(v,str):
+            logger.error('%s: value is not a string.  '
+                         'It is type %s with value %s'%(
+                             str(k),type(v).__name__,repr(v)))
+            bad=True
 if bad: sys.exit(1)
 
 ########################################################################
-# Order the ATParser to create the XML file.
+# Order the ATParser or CROW to create the XML file.
 
-rocotoxml=io.StringIO()
-parser=produtil.atparse.ATParser(rocotoxml,varhash=VARS,logger=logger)
-if multistorm:
-    parser.parse_file('hafs_multistorm_workflow.xml.in')
+if USE_ATPARSE:
+    rocotoxmlio=io.StringIO()
+    parser=produtil.atparse.ATParser(rocotoxmlio,varhash=VARS,logger=logger)
+    if multistorm:
+        parser.parse_file('hafs_multistorm_workflow.xml.in')
+    else:
+        parser.parse_file('hafs_workflow.xml.in')
+    rocotoxml=rocotoxmlio.getvalue()
+    rocotoxmlio.close()
+    del parser, rocotoxmlio
 else:
-    parser.parse_file('hafs_workflow.xml.in')
-
+    from crow.metascheduler import to_rocoto
+    from crow.config import Suite, validate
+    taskvars=conf.taskvars
+    assert(taskvars is not None)
+    assert(isinstance(taskvars,collections.abc.Mapping))
+    assert(taskvars.update is not None)
+    taskvars.update(VARS)
+    conf.read('hafs_tasks.yaml')
+    conf.read('sites/defaults.yaml')
+    if multistorm:
+        conf.read('hafs_multistorm_workflow.yaml')
+    else:
+        conf.read('hafs_workflow.yaml')
+    conf.doc.workflow.first_cycle=datetime.datetime.strptime(min(cycleset),'%Y%m%d%H')
+    conf.doc.workflow.last_cycle=datetime.datetime.strptime(max(cycleset),'%Y%m%d%H')
+    suite=Suite(conf.doc.workflow.suite)
+    for task in suite.walk_task_tree():
+        if task.is_task():
+            task.viewed._validate('suite')
+    rocotoxml=to_rocoto(suite)
+    del taskvars, suite, to_rocoto, Suite,validate
 
 outbase='hafs-%s-%s-%s'%(
     conf.get('config','SUBEXPT'),
@@ -609,7 +641,7 @@ if havedb:
         sys.exit(2)
 
 with open(outxml,'wt') as outf:
-    outf.write(rocotoxml.getvalue())
+    outf.write(rocotoxml)
 
 ########################################################################
 # Run rocotorun
@@ -626,8 +658,6 @@ else:
     WHERE_AM_I=clustername
 
 print("would run rocotorun now")
-
-exit( 0)
 
 #   '--login', '-c', '. %s/machine-setup.sh ; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
 #   %( shbackslash(USHhafs), shbackslash(outdb), 

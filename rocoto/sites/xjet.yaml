@@ -1,0 +1,218 @@
+# from kjet.ent
+
+accounting:
+  scheduler_settings:
+    name: Slurm
+    physical_cores_per_node: 32
+    logical_cpus_per_core: 2
+    hyperthreading_allowed: yes
+    memory_per_node: !calc "63.5*1024"
+  account: !calc all.CPU_ACCOUNT
+  pe:
+    queue: batch # queue for PE (parallel environment) jobs
+    partition: xjet
+    nodesize: 24
+    account: !ref doc.accounting.account
+  serial:
+    queue: batch # queue for serial jobs
+    partition: xjet
+    account: !ref doc.accounting.account
+  shared:
+    queue: batch
+    partition: xjet
+    account: !ref doc.accounting.account
+  service:
+    queue: service
+    partition: service
+    account: !ref doc.accounting.account
+
+resources:
+  pure_openmp: !JobRequest
+    - &resources_pure_openmp
+      mpi_ranks: 1
+      max_ppn: 1
+      exclusive: true
+      OMP_NUM_THREADS: !calc doc.accounting.threads
+  serial: !JobRequest
+    - &resources_small_serial
+      mpi_ranks: 1
+      max_ppn: 1
+      exclusive: false
+      memory: '1024M'
+      walltime: !timedelta '00:15:00'
+  archive: !JobRequest
+    - &resources_archive
+      mpi_ranks: 1
+      max_ppn: 1
+      exclusive: false
+      walltime: !timedelta '06:00:00'
+
+  small_serial: !JobRequest
+    - <<: *resources_small_serial
+      walltime: !timedelta '00:15:00'
+
+  scrub_work: !JobRequest [ { <<: *resources_small_serial } ]
+  scrub_com: !JobRequest [ { <<: *resources_small_serial } ]
+  donefile: !JobRequest [ { <<: *resources_small_serial } ]
+
+  input: !JobRequest [ { <<: *resources_archive }]
+  archive_disk: !JobRequest [ { <<: *resources_archive }]
+  archive_tape: !JobRequest [ { <<: *resources_archive }]
+  archive_fv3pit: !JobRequest [ { <<: *resources_archive }]
+
+  grid: !JobRequest
+    - mpi_ranks: 24
+      OMP_NUM_THREADS: 6
+      walltime: !timedelta '00:30:00'
+      exclusive: true
+
+  chgres_ic: !JobRequest
+    - <<: *resources_pure_openmp
+      OMP_NUM_THREADS: 24
+      exclusive: true
+      walltime: !timedelta '00:30:00'
+
+  chgres_bc: !JobRequest
+    - OMP_NUM_THREADS: 24
+      mpi_ranks: 504
+      walltime: !timedelta '00:30:00'
+      exclusive: true
+
+  post: !JobRequest
+    - OMP_NUM_THREADS: 1
+      mpi_ranks: 72
+      max_ppn: 24
+      walltime: !timedelta '07:59:00'
+
+  product: !JobRequest
+    - OMP_NUM_THREADS: 1
+      mpi_ranks: 2
+      max_ppn: 24
+      walltime: !timedelta '07:59:00'
+
+  forecast_base: &forecast_base
+    walltime: !timedelta '06:00:00'
+    OMP_NUM_THREADS: 2
+    exclusive: true
+    max_ppn: 12
+
+  forecast: !FirstTrue
+    - when: !calc all.FORECAST_RESOURCES=="regional_12x12io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 21*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_12x12io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 24*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_12x12io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 30*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_40x30io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 109*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_40x30io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 112*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_40x30io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 118*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_64x30io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 168*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_64x30io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 171*12
+    - when: !calc all.FORECAST_RESOURCES=="regional_64x30io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 177*12
+
+  # <!-- FORECAST_RESOURCES for globnest HAFS -->
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_12x12io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 53*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_12x12io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 56*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_12x12io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 62*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_40x30io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 141*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_40x30io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 144*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_64x30io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 208*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_64x30io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 211*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_64x30io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 230*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_48x32io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 169*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_48x32io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 172*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_48x32io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 178*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x12_45x32io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 177*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x12_45x32io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 180*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x12_45x32io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 186*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_45x32io3x36_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 161*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_45x32io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 164*12
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x8_45x32io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 170*12
+
+    # <!-- FORECAST_RESOURCES for globnest HAFS for 2019 HFIP real-time parallel on xjet -->
+    - when: !calc all.FORECAST_RESOURCES=="globnest_6x8x12_40x33io3x48_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 170*12
+
+    - when: all.FORECAST_RESOURCES=="globnest_6x8x8_40x30io3x72_omp2"
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: !calc 150*12
+
+    - otherwise: !error "Don't know FORECAST_RESOURCES for {all.FORECAST_RESOURCES} on xjet"

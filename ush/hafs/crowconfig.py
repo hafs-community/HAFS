@@ -18,7 +18,7 @@ import produtil.fileop, produtil.datastore
 import tcutil.numerics, tcutil.storminfo, tcutil.revital
 import hafs.exceptions
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence, MutableMapping
 
 from io import StringIO
 
@@ -174,8 +174,9 @@ class VitWrapper(object):
         return cls(self.__child)
     def __deepcopy__(self,memo):
         cls=type(self)
-        new=cls(copy.deepcopy(self.__child))
+        new=cls(None)
         memo[id(self)]=new
+        new.__child=copy.deepcopy(self.__child)
         return new
 
 TIMEINFO_KEYS=set(['fcsttime','anltime','dt'])
@@ -195,6 +196,31 @@ class TimeInfo(Mapping):
         self.cyctime=cyctime
         self.fcsttime=fcsttime
         self.anltime=anltime
+
+    def __copy__(self):
+        cls=type(self)
+        new=cls()
+        new.__anltime=self.__anltime
+        new.__cyctime=self.__cyctime
+        new.__anlp6=self.__anlp6
+        new.__anlm6=self.__anlm6
+        new.__dt=self.__dt
+        new.__ihours=self.__ihours
+        new.__iminutes=self.__iminutes
+        return new
+
+    def __deepcopy__(self,memo):
+        cls=type(self)
+        new=cls()
+        memo[id(self)]=new
+        new.__anltime=copy.deepcopy(self.__anltime,memo)
+        new.__cyctime=copy.deepcopy(self.__cyctime,memo)
+        new.__anlp6=copy.deepcopy(self.__anlp6,memo)
+        new.__anlm6=copy.deepcopy(self.__anlm6,memo)
+        new.__dt=copy.deepcopy(self.__dt,memo)
+        new.__ihours=copy.deepcopy(self.__ihours,memo)
+        new.__iminutes=copy.deepcopy(self.__iminutes,memo)
+        return new
 
     def getcyctime(self): return self.__cyctime
     def setcyctime(self,c): self.__cyctime=c
@@ -350,12 +376,15 @@ def confwalker(conf,start,selector,acceptor,recursevar):
 
 ########################################################################
 
-def from_file(filename,quoted_literals=False):
+def from_file(filename,quoted_literals=False,conf_filename_okay=False):
     """!Reads the specified conf file into an HAFSConfig object.
 
     Creates a new HAFSConfig object and instructs it to read the specified file.
     @param filename the path to the file that is to be read
+    @param quoted_literals ignored
     @return  a new HAFSConfig object"""
+    if not conf_filename_okay and '.conf' in filename:
+        raise ValueError(f'{filename}: appears to be a conf file.  Use conf_filename_okay=True to force me to read this.')
     if not isinstance(filename,str):
         raise TypeError('First input to hafs.config.from_file must be a string.')
     conf=HAFSConfig()
@@ -375,7 +404,7 @@ def from_string(confstr,quoted_literals=False):
     conf.readstr(confstr)
     return conf
 
-class DictWrapper(Mapping):
+class DictWrapper(MutableMapping):
     def __init__(self,child=None):
         self.__child=child
     def _get_child(self):
@@ -400,6 +429,11 @@ class DictWrapper(Mapping):
         if self.__child is None:
             raise KeyError(k)
         return self.__child[k]
+    def __delitem__(self,k):
+        if self.__child is not None:
+            del self.__child[k]
+    def __setitem__(self,k,v):
+        self.__child[k]=v
     def get(self,k,d):
         if self.__child is None:
             return d
@@ -409,14 +443,17 @@ class DictWrapper(Mapping):
         return cls(self.__child)
     def __deepcopy__(self,memo):
         cls=type(self)
-        new=cls(copy.deepcopy(self.__child))
+        new=cls()
         memo[id(self)]=new
+        new.__child=copy.deepcopy(self.__child,memo)
         return new
 
 class AttrDictWrapper(DictWrapper):
     def __getattr__(self,k):
-        if k in self:
+        try:
             return self[k]
+        except KeyError:
+            raise AttributeError(k)
     def __hasattr__(self,k):
         return k in self
 
@@ -428,7 +465,6 @@ class StormInfoWrapper(object):
     def _set_child(self,child):
         self.__child=child
     def _clear_child(self):
-        raise BaseException('clear child')
         self.__child=None
     _child=property(_get_child,_set_child,_clear_child,
       """StormInfo object being viewed""")
@@ -445,8 +481,9 @@ class StormInfoWrapper(object):
         return cls(self.__child)
     def __deepcopy__(self,memo):
         cls=type(self)
-        new=cls(copy.deepcopy(self.__child))
+        new=cls()
         memo[id(self)]=new
+        new.__child=copy.deepcopy(self.__child,memo)
         return new
 
 class MultiDictWrapper(Mapping):
@@ -463,10 +500,11 @@ class MultiDictWrapper(Mapping):
         return sum([ len(d) for d in self.__dicts ])
     def __copy__(self):
         return type(self)(*self.__dicts)
-    def __deepcopy__(self):
-        newdicts=[ copy.deepcopy(d,memo) for d in self.__dicts ]
-        new=cls(self)(*newdicts)
+    def __deepcopy__(self,memo):
+        cls=type(self)
+        new=cls()
         memo[id(self)]=new
+        new.__dicts=copy.deepcopy(self.__dicts,memo)
         return new
     def __hasattr__(self,key):
         return key in self
@@ -482,6 +520,13 @@ class MultiDictWrapper(Mapping):
                 if k in seen: continue
                 seen.add(k)
                 return k
+    def get(self,key,default=UNSPECIFIED):
+        if default is UNSPECIFIED:
+            return self[key]
+        try:
+            return self[key]
+        except KeyError:
+            return default
     def __getitem__(self,key):
         for d in self.__dicts:
             if key in d:
@@ -621,8 +666,8 @@ class HAFSConfig(object):
             'cyc':TimeInfo(),
             'vit':StormInfoWrapper(),
             'oldvit':StormInfoWrapper(),
-            'more':AttrDictWrapper(),
-            'task':AttrDictWrapper(),
+            'more':AttrDictWrapper(dict()),
+            'task':AttrDictWrapper(dict()),
         }
 
         self._globals['all']=MultiDictWrapper(
@@ -630,8 +675,17 @@ class HAFSConfig(object):
             self._globals['cyc'],self._globals['task'],
             self._globals['more'])
 
+        # Temporarily create an empty section that will be used to
+        # initialize new sections:
+        self._doc.empty__8__section=copy.deepcopy(EMPTY_SECTION)
 
+        # Update the globals for the entire document, including our
+        # temporary section, to match what globals we want:
         crow.config.update_globals(self._doc,self._globals)
+
+        # Store the temporary section and delete it from the document:
+        self._empty_section=self._doc.empty__8__section
+        del self._doc.empty__8__section
 
         # Added strict=False and inline_comment_prefixes for Python 3, 
         # so everything works as it did before in Python 2.
@@ -639,6 +693,17 @@ class HAFSConfig(object):
 
         self._prior_vit=None
         self._prior_oldvit=None
+
+        self._prior_morevars=self._globals['more']._child
+        self._prior_taskvars=self._globals['task']._child
+
+    @property
+    def taskvars(self):
+        assert('task' in self._globals)
+        t=self._globals['task']
+        assert(t is not None)
+        assert(isinstance(t,Mapping))
+        return t
 
     @property
     def quoted_literals(self):   return True
@@ -710,7 +775,7 @@ class HAFSConfig(object):
         for doc in crow.config.from_string(s,multi_document=True,evaluate_immediates=False):
             self.__merge_from_crow(doc,context)
 
-    def read(self,filename):
+    def read(self,filename,conf_filename_okay=False):
         """!reads and parses a config file
 
         Opens the specified config file and reads it, adding its
@@ -719,8 +784,16 @@ class HAFSConfig(object):
         HAFSConfig object to read additional files.
         @param source the file to read
         @return self"""
+        if not conf_filename_okay and '.conf' in filename:
+            raise ValueError(f'{filename}: appears to be a conf file.  Use conf_filename_okay=True to force me to read this.')
         for doc in crow.config.from_file(filename,multi_document=True):
             self.__merge_from_crow(doc,filename)
+
+    def validate(self,section=None,stage='',recurse=False):
+        if section:
+            crow.config.validate(self._doc[section],stage=stage,recurse=recurse)
+        else:
+            crow.config.validate(self._doc,stage=stage,recurse=recurse)
 
     def __merge_from_crow(self,doc,context):
         """!Internal function that merges all document-level values
@@ -751,7 +824,7 @@ class HAFSConfig(object):
             and values"""
         strsection=str(section)
         if strsection not in self._doc:
-            self._doc[strsection]=copy.deepcopy(EMPTY_SECTION)
+            self._doc[strsection]=copy.deepcopy(self._empty_section)
         for k,v in kwargs.items():
             value=str(v)
             self._doc[strsection][str(k)]=value
@@ -796,7 +869,7 @@ class HAFSConfig(object):
         strings via str() before setting the value."""
         strsection=str(section)
         if strsection not in self._doc:
-            self._doc[strsection]=copy.deepcopy(EMPTY_SECTION)
+            self._doc[strsection]=copy.deepcopy(self._empty_section)
         if isinstance(value,str) and ( expand is UNSPECIFIED or expand ):
             self._doc[strsection][str(key)]=crow_expander(value)
         else:
@@ -904,7 +977,7 @@ class HAFSConfig(object):
         strsection=str(sec)
         with self:
             if strsection not in self.doc:
-                self._doc[strsection]=copy.deepcopy(EMPTY_SECTION)
+                self._doc[strsection]=copy.deepcopy(self._empty_section)
         return self
     def has_section(self,sec): 
         """!does this section exist?
@@ -1075,8 +1148,8 @@ class HAFSConfig(object):
         return self._doc[sec]._raw(opt)
 
     def clear_locals(self):
-        del self._globals['task']._child
-        del self._globals['more']._child
+        self._globals['task']._child=self._prior_taskvars
+        self._globals['more']._child=self._prior_morevars
         self._globals['vit']._child=self._prior_vit
         self._globals['oldvit']._child=self._prior_oldvit
     def set_locals(self,vit=None,oldvit=None,taskvars=None,morevars=None,fcsttime=None,anltime=None):
@@ -1084,8 +1157,10 @@ class HAFSConfig(object):
             self._globals['cyc'].fcsttime=fcsttime
         if anltime is not None:
             self._globals['cyc'].anltime=anltime
+        self._prior_taskvars=self._globals['task']._child
         if taskvars:
             self._globals['task']._child=taskvars
+        self._prior_morevars=self._globals['more']._child
         if morevars:
             self._globals['more']._child=morevars
         self._prior_vit=self._globals['vit']._child
@@ -1114,7 +1189,6 @@ class HAFSConfig(object):
 
     def delvitals(self):
         if 'syndat' in self.__dict__:
-            raise BaseException('delvitals')
             del self.syndat
             del self._globals['vit']._child
 
