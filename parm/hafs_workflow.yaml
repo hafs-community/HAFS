@@ -1,3 +1,7 @@
+accounting:
+  sched: !calc tools.get_scheduler(scheduler_settings.name,scheduler_settings)
+  scheduler_settings: !error 'Site did not fill in accounting.scheduler_settings'
+
 workflow:
   CYCLE_THROTTLE: 7
   COM_SCRUB_TIME: 21600
@@ -22,7 +26,8 @@ workflow:
           {varsep.join([ metasched.defvar(k,v,literal=True) for k,v in doc.xml_entities_derived.items() ])}
         ]>
         <workflow realtime="F" cyclethrottle="{doc.workflow.CYCLE_THROTTLE}"
-                  scheduler="slurm" taskthrottle="{doc.workflow.TASK_THROTTLE}">
+                  scheduler="{doc.accounting.sched.rocoto_name.lower()}"
+                  taskthrottle="{doc.workflow.TASK_THROTTLE}">
 
         {doc.workflow.cycledef_xml}
           <log><cyclestr>&LOGhafs;/rocoto_@Y@m@d@H.log</cyclestr></log> 
