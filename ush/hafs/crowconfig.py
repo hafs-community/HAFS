@@ -817,7 +817,6 @@ class HAFSConfig(object):
             old_section=old_raw_doc[new_secname]
             old_raw_section=old_section._raw_child()
             for optname,new_raw_val in new_raw_section.items():
-                print(f'Override doc.{new_secname}.{optname}={new_raw_val!r}')
                 old_raw_section[optname]=new_raw_val
                 old_section._invalidate_cache(optname)
         crow.config.update_globals(self._doc,self._globals)
