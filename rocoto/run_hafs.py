@@ -188,7 +188,7 @@ from produtil.prog import shbackslash
 #######import hafs_expt
 
 produtil.batchsystem.set_jobname('run_hafs')
-produtil.setup.setup(send_dbn=False,level=logging.DEBUG)
+produtil.setup.setup(send_dbn=False,level=logging.INFO)
 
 ########################################################################
 # Global variables and constants
@@ -590,15 +590,10 @@ else:
     assert(isinstance(taskvars,collections.abc.Mapping))
     assert(taskvars.update is not None)
     taskvars.update(VARS)
-    conf.read('hafs_tasks.yaml')
-    conf.read('sites/defaults.yaml')
-    if multistorm:
-        conf.read('hafs_multistorm_workflow.yaml')
-    else:
-        conf.read('hafs_workflow.yaml')
     conf.doc.workflow.first_cycle=datetime.datetime.strptime(min(cycleset),'%Y%m%d%H')
     conf.doc.workflow.last_cycle=datetime.datetime.strptime(max(cycleset),'%Y%m%d%H')
     suite=Suite(conf.doc.workflow.suite)
+    # Expand the !Inherit tags in each task:
     for task in suite.walk_task_tree():
         if task.is_task():
             task.viewed._validate('suite')
