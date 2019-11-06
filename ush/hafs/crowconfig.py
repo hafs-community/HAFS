@@ -27,6 +27,7 @@ from produtil.fileop import *
 
 import crow
 from crow.config.eval_tools import expand as crow_expander
+from crow.config.eval_tools import dict_eval
 
 from tcutil.numerics import to_datetime
 from string import Formatter
@@ -41,10 +42,6 @@ config: {}
 dir: {}
 exe: {}
 '''
-
-##@var EMPTY_SECTION
-# An internal CROW representation of an empty section.
-EMPTY_SECTION=crow.config.from_string('---\n{}',multi_document=True)[0]
 
 SIX_HOURS=datetime.timedelta(seconds=3600*6)
 
@@ -675,17 +672,9 @@ class HAFSConfig(object):
             self._globals['cyc'],self._globals['task'],
             self._globals['more'])
 
-        # Temporarily create an empty section that will be used to
-        # initialize new sections:
-        self._doc.empty__8__section=copy.deepcopy(EMPTY_SECTION)
-
         # Update the globals for the entire document, including our
         # temporary section, to match what globals we want:
         crow.config.update_globals(self._doc,self._globals)
-
-        # Store the temporary section and delete it from the document:
-        self._empty_section=self._doc.empty__8__section
-        del self._doc.empty__8__section
 
         # Added strict=False and inline_comment_prefixes for Python 3, 
         # so everything works as it did before in Python 2.
@@ -809,6 +798,7 @@ class HAFSConfig(object):
             if not hasattr(new_section,'_raw_child'):
                 raise TypeError(f'{context}: {new_secname}: all document-level types must be CROW datatypes.')
             if new_secname not in self.doc:
+                print(f'Add section {new_secname} to document from {context}.')
                 self.add_section(new_secname)
                 self.doc[new_secname]._raw_child().update(new_section._raw_child())
                 self.doc[new_secname]._invalidate_cache()
@@ -817,6 +807,7 @@ class HAFSConfig(object):
             old_section=old_raw_doc[new_secname]
             old_raw_section=old_section._raw_child()
             for optname,new_raw_val in new_raw_section.items():
+                print(f'Override doc.{new_secname}.{optname} from {context}.')
                 old_raw_section[optname]=new_raw_val
                 old_section._invalidate_cache(optname)
         crow.config.update_globals(self._doc,self._globals)
@@ -832,7 +823,7 @@ class HAFSConfig(object):
             and values"""
         strsection=str(section)
         if strsection not in self._doc:
-            self._doc[strsection]=copy.deepcopy(self._empty_section)
+            self.add_section(strsection)
         for k,v in kwargs.items():
             value=str(v)
             self._doc[strsection][str(k)]=value
@@ -877,7 +868,7 @@ class HAFSConfig(object):
         strings via str() before setting the value."""
         strsection=str(section)
         if strsection not in self._doc:
-            self._doc[strsection]=copy.deepcopy(self._empty_section)
+            self.add_section(strsection)
         if isinstance(value,str) and ( expand is UNSPECIFIED or expand ):
             self._doc[strsection][str(key)]=crow_expander(value)
         else:
@@ -985,7 +976,8 @@ class HAFSConfig(object):
         strsection=str(sec)
         with self:
             if strsection not in self.doc:
-                self._doc[strsection]=copy.deepcopy(self._empty_section)
+                self._doc[strsection]=dict_eval(
+                    dict(),f'{self._doc._path}.{strsection}',self._globals)
         return self
     def has_section(self,sec): 
         """!does this section exist?
