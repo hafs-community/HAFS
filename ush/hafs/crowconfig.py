@@ -801,16 +801,25 @@ class HAFSConfig(object):
 
         @param doc The document to merge
         @param context Contextual information for error messages"""
-        child=doc._raw_child()
-        my_child=self._doc._raw_child()
-        for key,expr in child.items():
-            if not isinstance(expr,Mapping):
-                raise TypeError(f'{context}: {key}: all document-level types must be maps.')
-            if not hasattr(expr,'_raw_child'):
-                raise TypeError(f'{context}: {key}: all document-level types must have been read in by CROW.')
-            if key not in my_child:
-                self._doc[key]=copy.copy(expr)
-            my_child[key]._raw_child().update(expr._raw_child())
+        new_raw_doc=doc._raw_child()
+        old_raw_doc=self._doc._raw_child()
+        for new_secname,new_section in new_raw_doc.items():
+            if not isinstance(new_section,Mapping):
+                raise TypeError(f'{context}: {new_secname}: all document-level types must be maps.')
+            if not hasattr(new_section,'_raw_child'):
+                raise TypeError(f'{context}: {new_secname}: all document-level types must be CROW datatypes.')
+            if new_secname not in self.doc:
+                self.add_section(new_secname)
+                self.doc[new_secname]._raw_child().update(new_section._raw_child())
+                self.doc[new_secname]._invalidate_cache()
+                continue
+            new_raw_section=new_section._raw_child()
+            old_section=old_raw_doc[new_secname]
+            old_raw_section=old_section._raw_child()
+            for optname,new_raw_val in new_raw_section.items():
+                print(f'Override doc.{new_secname}.{optname}={new_raw_val!r}')
+                old_raw_section[optname]=new_raw_val
+                old_section._invalidate_cache(optname)
         crow.config.update_globals(self._doc,self._globals)
 
     def set_options(self,section,**kwargs):
