@@ -292,7 +292,9 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
               os.path.join(parm,'hafs.yaml'),
               os.path.join(parm,'hafs_holdvars.yaml'),
               os.path.join(parm,'hafs_basic.yaml'),
-              os.path.join(parm,'system.yaml')
+              os.path.join(parm,'system.yaml'),
+              os.path.join(parm,'hafs_workflow.yaml'),
+              os.path.join(parm,'hafs_tasks.yaml'),
               ]
 
     # Now look for any option and conf file arguments:
