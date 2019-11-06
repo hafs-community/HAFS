@@ -2,7 +2,7 @@
 set -x
 date
 
-cd /lfs3/projects/wrfruc/${USER}/hafs3/rocoto
+cd /lfs3/projects/wrfruc/${USER}/hafs/hafs3/rocoto
 
 dev="-s sites/xjet.ent -f"
 
