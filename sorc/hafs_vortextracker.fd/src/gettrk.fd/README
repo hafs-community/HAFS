@@ -1,4 +1,18 @@
 #################################################################
+On September 04, 2019, we got a new version of the GFDL tracker (gettrk.fd)
+from Tim Marchok (NOAA/GFDL).
+
++ 19-09-03  Marchok   Made a change to subroutine getgridinfo to
+                      allow a particular longitude specification to
+                      be okay.  Previously, if the grid max west lon
+                      was > 0 and the grid max east long was also > 0,
+                      but if glonmin > glonmax (for example, a grid
+                      that spans across the GM going from 265E to 5E),
+                      the code was written to assume the user had
+                      coded the grid specification incorrectly.  This
+                      condition is now allowed.
+
+#################################################################
 On May 29, 2019, we got a new version of the GFDL tracker (gettrk.fd) from Tim
 Marchok (NOAA/GFDL).
 

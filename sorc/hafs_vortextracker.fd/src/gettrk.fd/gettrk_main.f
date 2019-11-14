@@ -141,6 +141,77 @@ c                       were in exceedance of the tracker-diagnosed
 c                       Vmax (e.g., 34-kt radii for a storm with 
 c                       Vmax = 25 kts).
 c
+c   19-05-29  Marchok   Only do the check for 50- and 64-kt radii the
+c                       first time through the getradii routine.  The
+c                       34-kt radii may be adjusted on subsequent calls.
+c
+c                       Adjusted code to allow for forward tracking for
+c                       NetCDF data files that do not have hour0 data 
+c                       in them.
+c
+c                       Code updated to include cyclone phase space
+c                       analysis for 00h.  Previously this was not done
+c                       since storm motion direction is needed for 
+c                       Parameter B.  This is now included for forward
+c                       tracking cases (i.e., cases in which we have TC
+c                       Vitals), and we use the storm motion as reported
+c                       from the TC Vitals.  Of course, the observed 
+c                       motion from TC Vitals may not exactly match the
+c                       model forecast motion, but for 00h it will be
+c                       close enough that it will allow us to get the
+c                       CPS diagnostics.  This was a request from Chris
+c                       Velden for use with the latest version of AODT.
+c                       For genesis cases (trkrtype = midlat or tcgen),
+c                       CPS diagnostics are still not performed at the
+c                       first detection lead time.
+c
+c                       In subroutine get_sfc_center, replaced double-
+c                       weighting for surface wind circulation fix with
+c                       single weighting, as results of testing did not
+c                       support the use of double weighting.
+c
+c                       Modified code in subroutine getvrvt to properly
+c                       handle the computation of radial and tangential
+c                       winds when a storm is near the Greenwich
+c                       Meridian.
+c
+c                       Made significant changes to subroutine
+c                       get_next_ges to fix issues for cases that are
+c                       near or crossing the Greenwich meridian.
+c
+c                       Made changes to subroutine get_max_wind to allow
+c                       for checking of the max wind at points closer to
+c                       the border of a regional grid.  Previously, the
+c                       last few points were not sampled in order to
+c                       avoid numerical issues with sampling points at
+c                       the boundary.  This change was added in response
+c                       to a request from HRD for use with a regional
+c                       version of fv3 (hfvgfs).
+c
+c                       Made a substantial change to the algorithm that
+c                       returns the value of the wind circulation in
+c                       subroutine get_wind_circulation.  Previously,
+c                       a difference was computed between the radially-
+c                       integrated wind circulation and the wind
+c                       magnitude at the center of the storm.  This was
+c                       flawed.  Now, just the value of the radially-
+c                       integrated wind circulation is used, and the
+c                       results are robust and comparable to those of
+c                       using relative vorticity. 
+c
+c                       Bug fix in subroutine getcorr related to the
+c                       correlation residuals.
+c
+c   19-09-03  Marchok   Made a change to subroutine getgridinfo to 
+c                       allow a particular longitude specification to
+c                       be okay.  Previously, if the grid max west lon
+c                       was > 0 and the grid max east long was also > 0,
+c                       but if glonmin > glonmax (for example, a grid
+c                       that spans across the GM going from 265E to 5E),
+c                       the code was written to assume the user had 
+c                       coded the grid specification incorrectly.  This
+c                       condition is now allowed.
+c
 c Input files:
 c   unit   11    Unblocked GRIB1 file containing model data
 c   unit   12    Text file containing TC Vitals card for current time
@@ -7401,9 +7472,14 @@ c      xxxx
       xlondiff = abs(centlon - tmpxlon)
 
       if (centlon > 355.0) then
-        write (6,91) centlon,tmpxlon,hyp_dist,degrees,xlondiff
-   91   format (1x,'centlon= ',f8.3,' tmpxlon= ',f8.3,' hyp_dist= '
-     &            ,f10.2,' degrees= ',f10.2,' xlondiff= ',f12.2)
+        if (xlondiff > 40.0) then
+          if (verb .ge. 3) then
+            write (6,91) centlon,tmpxlon,hyp_dist,degrees,xlondiff
+   91       format (1x,'WARNING - XLONDIFF > 40 in getvrvt: centlon= '
+     &                ,f8.3,' tmpxlon= ',f8.3,' hyp_dist= '
+     &                ,f10.2,' degrees= ',f10.2,' xlondiff= ',f12.2)
+          endif
+        endif
       endif
 
       if (xlondiff == 0 .and. xlatdiff > 0) then
@@ -10696,8 +10772,8 @@ c       I had to modify this linear extrapolation.
                 print *,'    time is between 335 & 360, while lon'
                 print *,'    for current time is west of the GM and'
                 print *,'    is between 0 & -25.  Current tmp_lon'
-                print *,'    has been adjusted to be positive and '
-                print *,'    > 360 for the purpose of computation.'
+                print *,'    has been adjusted to be positive'
+                print *,'    for the purpose of computation.'
                 print *,'    tmp_fix_lon_prev= ',tmp_fix_lon_prev
                 print *,'    tmp_fix_lon_curr= ',tmp_fix_lon_curr
               endif
@@ -21032,15 +21108,26 @@ c17Jul2014      if (glonmax < 0.0) glonmax = 360. - abs(glonmax)
         if (glonmin > glonmax) then
           if (verb .ge. 3) then
             print *,' '
-            print *,'ERROR: Badly notated longitude boundaries in '
-            print *,'       GRIB PDS, because the min longitude '
-            print *,'       (glonmin) is greater than the max '
-            print *,'       longitude (glonmax) where both longitudes'
-            print *,'       are greater than 0.'
-            print *,'       glonmin= ',glonmin
-            print *,'       glonmax= ',glonmax
-            print *,'  !!! STOPPING....'
-            stop 98
+            print *,'NOTE:  For this file, the GRIB PDS indicates that'
+            print *,'       the min longitude (glonmin) is greater'
+            print *,'       than the max longitude (glonmax) where both'
+            print *,'       longitudes are greater than 0.'
+            print *,'       This means that the grid is spanning '
+            print *,'       across the GM.'
+            print *,'       We will adjust glonmax by adding 360 to it'
+            print *,'       so that, in the end, glonmax > glonmin.' 
+            print *,'       '
+            print *,'       GRID MIN & MAX LON (ORIGINAL):'
+            print *,'         original glonmin= ',glonmin
+            print *,'         original glonmax= ',glonmax
+            print *,'       '
+            glonmax = glonmax + 360. 
+            print *,'       '
+            print *,'       GRID MIN & MAX LON '
+            print *,'         (MODIFIED FOR GM WRAPPING):'
+            print *,'         glonmin (same as original)= ',glonmin
+            print *,'         glonmax (modified)=         ',glonmax
+            print *,'       '
           endif
         endif
       elseif (glonmin < 0.0 .and. glonmax >= 0.0) then

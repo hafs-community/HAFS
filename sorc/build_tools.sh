@@ -24,6 +24,18 @@ if [ $target = wcoss ]; then
     echo "Does not support wcoss phase 1/2."
     exit 1
 
+elif [ $target = hera ]; then
+
+    targetx=hera
+    #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.tools.$target
+    module list
+
+    export FC=ifort
+    export F90=ifort
+    export CC=icc
+
 elif [ $target = theia ]; then
 
     targetx=theia

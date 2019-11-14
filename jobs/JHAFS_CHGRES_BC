@@ -51,7 +51,7 @@ export CHGRESSH=${USHhafs}/hafs_chgres.sh
 ####################################
 # Load Modules if Needed
 ####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, theia, jet
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
@@ -84,7 +84,7 @@ elif [ "$machine" = wcoss_dell_p3 ]; then
   export APRUNC=${APRUNC:-"time"}
   export APRUNO="time"
   export BACKGROUND=""
-elif [ "$machine" = theia ]; then
+elif [ "$machine" = hera ] || [ "$machine" = theia ]; then
   export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
   #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
   #export APRUNF=${APRUNF:-"source"}
@@ -195,7 +195,7 @@ done
 export APRUNC="time"
 export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
 
-if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
   rm -f bcfile.input_new
   nline=0
   while [ "$nline" -lt "$nhour" ];
