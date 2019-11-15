@@ -1,19 +1,23 @@
-[submodule "NEMSfv3gfs"]
-	path = sorc/hafs_forecast.fd
-	url = gerrit:NEMSfv3gfs
-	branch = HAFS
+[submodule "ufs-weather-model"]
+        path = sorc/hafs_forecast.fd
+        url = https://github.com/hafs-community/ufs-weather-model.git
+        branch = support/HAFS
 [submodule "EMC_post"]
-	path = sorc/hafs_post.fd
-	url = https://github.com/hafs-community/EMC_post.git
-	branch = feature/HAFS
+        path = sorc/hafs_post.fd
+        url = https://github.com/hafs-community/EMC_post.git
+        branch = support/HAFS
 [submodule "ProdGSI"]
-	path = sorc/hafs_gsi.fd
-	url = gerrit:ProdGSI
-	branch = HAFS
+        path = sorc/hafs_gsi.fd
+        url = gerrit:ProdGSI
+        branch = HAFS
 [submodule "UFS_UTILS"]
-	path = sorc/hafs_utils.fd
-	url = https://github.com/hafs-community/UFS_UTILS.git
-	branch = feature/HAFS
+        path = sorc/hafs_utils.fd
+        url = https://github.com/hafs-community/UFS_UTILS.git
+        branch = support/HAFS
+[submodule "gfdl-tracker"]
+        path = sorc/hafs_vortextracker.fd
+        url = https://github.com/hafs-community/gfdl-tracker.git
+        branch = support/HAFS
 [submodule "ush/CROW-repo"]
 	path = ush/CROW-repo
 	url = https://github.com/NOAA-EMC/CROW.git
