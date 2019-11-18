@@ -19,7 +19,7 @@
 	url = https://github.com/NOAA-EMC/CROW.git
 [submodule "ush/produtil"]
 	path = ush/repo-produtil
-	url = https://github.com/hafs-community/NCEPLIBS-pyprodutil
+	url = gerrit:NCEPLIBS-pyprodutil
 [submodule "sorc/hafs_vortextracker.fd"]
 	path = sorc/hafs_vortextracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
