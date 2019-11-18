@@ -6,6 +6,7 @@
 <!ENTITY % vjet             SYSTEM      "svjet.ent">
 <!ENTITY % xjet             SYSTEM      "xjet.ent">
 <!ENTITY % kjet             SYSTEM      "kjet.ent">
+<!ENTITY % hera             SYSTEM      "hera.ent">
 <!ENTITY % theia            SYSTEM      "theia.ent">
 <!ENTITY % wcoss            SYSTEM      "wcoss.ent">
 <!ENTITY % wcosscray        SYSTEM      "wcoss_cray.ent">

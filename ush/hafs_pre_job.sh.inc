@@ -57,7 +57,17 @@ if [[ -d /lfs3 ]] ; then
      export NCEPLIBS=/mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
      echo NCEPLIBS HARD SET to  $NCEPLIBS in `pwd`/module_setup.sh.inc
      module use $NCEPLIBS/modulefiles
-elif [[ -d /scratch3 ]] ; then
+elif [[ -d /scratch1/NCEPDEV ]] ; then
+    # We are on NOAA Hera
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+	echo load the module command 1>&2
+        source /apps/lmod/lmod/init/$__ms_shell
+    fi
+    target=hera
+    module purge
+    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+    MOD_PATH=/scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+elif [[ -d /scratch3 && -d /scratch ]] ; then
     # We are on NOAA Theia
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2

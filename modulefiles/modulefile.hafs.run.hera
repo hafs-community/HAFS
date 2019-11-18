@@ -12,6 +12,7 @@ module load png/1.2.44
 module load z/1.2.11
 
 module load g2/3.1.1
+module load g2tmpl/1.5.1
 module load w3emc/2.3.1
 #module load w3emc/2.3.0
 module load w3nco/2.0.7
@@ -25,19 +26,20 @@ module load sfcio/1.1.1
 module load gfsio/1.1.0
 module load nemsio/2.2.4
 module load nemsiogfs/2.2.1
-module load landsfcutil/2.1.0
+module load landsfcutil/2.1.1
 
 module load szip/2.1
-module load hdf5/1.10.5
-module load netcdf/4.7.0
+module load hdf5/1.10.4
+module load netcdf/4.6.1
 module load hpss
 
 module load prod_util/1.1.0
 module load grib_util/1.1.1
 module load wgrib2/2.0.8
 #setenv WGRIB2 ${WGRIB2_ROOT}/bin/wgrib2
-setenv WGRIB2 /apps/wgrib2/2.0.8/intel/18.0.3.222/bin/wgrib2
-#setenv GRB2INDEX 
+#setenv WGRIB2 /apps/wgrib2/2.0.8/intel/18.0.3.222/bin/wgrib2
+ setenv WGRIB2 /home/Wesley.Ebisuzaki/bin/wgrib.v2.0.8b3
+#setenv GRB2INDEX /scratch1/NCEPDEV/hwrf/save/Bin.Liu/hwrftrunk2019/nwport/util/exec/grb2index
 
 module use -a /scratch1/NCEPDEV/nems/emc.nemspara/soft/modulefiles
 module load esmf/8.0.0bs48

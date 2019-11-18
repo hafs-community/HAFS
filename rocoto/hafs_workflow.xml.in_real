@@ -12,7 +12,7 @@
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "3"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -86,7 +86,7 @@
   <!-- No site file, so choose from defaults. -->
 @**   if WHERE_AM_I==jet
 @**     if WHICH_JET==t
-  %tjet;     
+  %tjet;
 @**     elseif WHICH_JET==u
   %ujet;
 @**     elseif WHICH_JET==s
@@ -108,7 +108,6 @@
   %CUSTOM_SITE;
 @** endif
 
-
 ]>
 
 <!-- Workflow below here -->
@@ -124,20 +123,17 @@
     <!--<command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>-->
     <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' config.HOMEhafs='&HOMEhafs;' dir.USHhhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    &ENV_VARS;
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
-    <memory>1G</memory>
-    <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
 
     <dependency>
       <and>
@@ -166,25 +162,22 @@
   <task name="input" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_input.py</command>
     <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_input.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_input.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
 
     <dependency>
       <and>
-         <taskdep task="launch"/> 
-         <streq><left>&FETCH_INPUT;</left><right>YES</right></streq>
+        <taskdep task="launch"/>
+        <streq><left>&FETCH_INPUT;</left><right>YES</right></streq>
       </and>
     </dependency>
   </task>
@@ -192,33 +185,31 @@
   <task name="grid" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_GRID</command>
     <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &CORES_EXTRA;
+    &GRID_RESOURCES;
     &ENV_VARS;
-	&GRID_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
 
     <dependency>
       <and>
-        <taskdep task="launch"/> 
+        <taskdep task="launch"/>
       </and>
     </dependency>
-  </task> 
+  </task>
 
   <task name="chgres_ic" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
     <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &NODES_EXTRA;
+    &CHGRES_IC_RESOURCES;
     &ENV_VARS;
-	&CHGRES_IC_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr></join>
 
     <dependency>
       <and>
@@ -236,59 +227,61 @@
         </and>
       </and>
     </dependency>
-  </task> 
+  </task>
 
 @** if gtype==regional
-  <task name="chgres_bc" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
-    <jobname>hafs_chgres_bc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &NODES_EXTRA;
-    &ENV_VARS;
-	&CHGRES_BC_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_chgres_bc.log</cyclestr></join>
+  <metatask name="chgres_bc">
+    <var name="group">001 002 003 004 005 006</var>
+    <task name="chgres_bc#group#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
+      <jobname>hafs_chgres_bc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_chgres_bc#group#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &CHGRES_BC_RESOURCES;
+      &ENV_VARS;
+      <envar><name>BC_GROUPN</name><value>6</value></envar>
+      <envar><name>BC_GROUPI</name><value>#group#</value></envar>
 
-    <dependency>
-      <and>
-        <taskdep task="grid"/> 
-        <or>
-          <taskdep task="input"/>
-          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
-        </or>
-        <!-- Second dependency: the GFS output must be available -->
-        <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
-        <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
-        <or>
-          <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
-          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-        </or>
-      </and>
-    </dependency>
-  </task> 
+      <dependency>
+        <and>
+          <taskdep task="grid"/>
+          <or>
+            <taskdep task="input"/>
+            <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+          </or>
+          <!-- Second dependency: the GFS output must be available -->
+          <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
+          <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
+          <or>
+            <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
+            <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
 @** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &NODES_EXTRA;
-    &ENV_VARS;
     &FORECAST_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
+    &ENV_VARS;
 
     <dependency>
       <and>
         <taskdep task="chgres_ic"/>
-        <or>
-          <taskdep task="chgres_bc"/>
-          <strneq><left>&gtype;</left><right>regional</right></strneq>
-        </or>
+@** if gtype==regional
+        <metataskdep metatask="chgres_bc"/>
+@** endif
       </and>
     </dependency>
   </task>
@@ -296,21 +289,20 @@
   <task name="post" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_POST</command>
     <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &NODES_EXTRA;
-    &ENV_VARS;
     &POST_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
+    &ENV_VARS;
 
     <dependency>
       <!-- Start the post if the forecast is running or if it has
            already completed. -->
       <or>
-       <taskdep task="forecast" state="RUNNING"/>
-       <taskdep task="forecast"/>
+        <taskdep task="forecast" state="RUNNING"/>
+        <taskdep task="forecast"/>
       </or>
     </dependency>
   </task>
@@ -318,21 +310,20 @@
   <task name="product" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &CORES_EXTRA;
-    &ENV_VARS;
     &PRODUCT_RESOURCES;
-    <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>
+    &ENV_VARS;
 
     <dependency>
      <!-- Start the tracker if the post is running or if it has
           already completed. -->
       <or>
-       <taskdep task="post" state="RUNNING"/>
-       <taskdep task="post"/>
+        <taskdep task="post" state="RUNNING"/>
+        <taskdep task="post"/>
       </or>
     </dependency>
   </task>
@@ -340,30 +331,24 @@
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_archive_disk.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>ARCHIVE_STEP</name>
-	  <value>DISK</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_archive_disk.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>ARCHIVE_STEP</name><value>DISK</value></envar>
 
     <dependency>
       <and>
-       <taskdep task="forecast"/>
-       <taskdep task="post"/>
-       <taskdep task="product"/>
+        <taskdep task="forecast"/>
+        <taskdep task="post"/>
+        <taskdep task="product"/>
       </and>
     </dependency>
   </task>
@@ -371,31 +356,25 @@
   <task name="archive_tape" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_archive.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>ARCHIVE_STEP</name>
-      <value>TAPE</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_archive.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>ARCHIVE_STEP</name><value>TAPE</value></envar>
 
     <dependency>
       <and>
-       <taskdep task="forecast"/>
-       <taskdep task="post"/>
-       <taskdep task="product"/>
-       <taskdep task="archive_disk"/>
+        <taskdep task="forecast"/>
+        <taskdep task="post"/>
+        <taskdep task="product"/>
+        <taskdep task="archive_disk"/>
       </and>
     </dependency>
   </task>
@@ -403,58 +382,43 @@
   <task name="archive_fv3out" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive_fv3out.py</command>
     <jobname>hafs_archive_fv3out_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_archive_fv3out.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    <join><cyclestr>&WORKhafs;/hafs_archive_fv3out.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
 
     <dependency>
       <and>
         <taskdep task="forecast"/>
         <streq><left>&ARCHIVE_FV3OUT;</left><right>YES</right></streq>
-        <not>
-          <taskdep task="scrub_work"/>
-        </not>
-        <not>
-          <taskdep task="scrub_com"/>
-        </not>
+        <not><taskdep task="scrub_work"/></not>
+        <not><taskdep task="scrub_com"/></not>
       </and>
     </dependency>
   </task>
 
-  <!-- Scrub disk areas -->
-
   <task name="scrub_work" maxtries="&MAX_TRIES;">
     <command>&PRE; &USHhafs;/hafs_scrub.py &SCRUB_WORK; WORK</command>
     <jobname>hafs_scrub_work_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&LOGhafs;/hafs_scrub_work_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>HAFS_FORCE_ALT_TMPDIR</name>
-      <value>&LOGhafs;/</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
-    <join><cyclestr>&LOGhafs;/hafs_scrub_work_&SID;_@Y@m@d@H.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>HAFS_FORCE_ALT_TMPDIR</name><value>&LOGhafs;/</value></envar>
 
     <dependency>
       <and>
@@ -478,30 +442,22 @@
   <task name="scrub_com" maxtries="&MAX_TRIES;">
     <command>&PRE; &USHhafs;/hafs_scrub.py &SCRUB_COM; COM</command>
     <jobname>hafs_scrub_com_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&LOGhafs;/hafs_scrub_com_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>HAFS_FORCE_ALT_TMPDIR</name>
-      <value>&LOGhafs;/</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
-    <join><cyclestr>&LOGhafs;/hafs_scrub_com_&SID;_@Y@m@d@H.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>HAFS_FORCE_ALT_TMPDIR</name><value>&LOGhafs;/</value></envar>
 
     <dependency>
-      <!-- Next cycle has finished its initialization OR this cycle is
-           the last cycle,
-                                   - AND -
-           this cycle's archive and output jobs are complete. -->
+      <!-- Next cycle has finished its initialization OR this cycle is the last cycle,
+           AND this cycle's archive and output jobs are complete. -->
       <and>
         <or>
           <not><cycleexistdep cycle_offset="6:00:00"/></not>
@@ -527,24 +483,18 @@
   <task name="donefile" maxtries="&MAX_TRIES;">
     <command>&USHhafs;/hafs_donefile.py <cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></command>
     <jobname><cyclestr>hafs_donefile_&SID;_@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&LOGhafs;/hafs_donefile_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>HAFS_FORCE_ALT_TMPDIR</name>
-      <value>&LOGhafs;/</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
-    <join><cyclestr>&LOGhafs;/hafs_donefile_&SID;_@Y@m@d@H.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>HAFS_FORCE_ALT_TMPDIR</name><value>&LOGhafs;/</value></envar>
 
     <dependency>
       <or>
@@ -565,7 +515,7 @@
       </or>
     </dependency>
   </task>
-  
+
   <!-- Final task.  This task exists mainly to set the "final" state
   for the cycle (final="true"), and it also sents a "cycle completed"
   message to the jlogfile.  It is here, instead of in an entity, so
@@ -577,24 +527,18 @@
   <task name="completion" maxtries="&MAX_TRIES;" final="true">
     <command>&USHhafs;/hafs_completion.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>
     <jobname><cyclestr>hafs_completion_&SID;_@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&LOGhafs;/hafs_completion_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    <envar>
-      <name>TOTAL_TASKS</name>
-      <value>1</value>
-    </envar>
-    <envar>
-      <name>HAFS_FORCE_ALT_TMPDIR</name>
-      <value>&LOGhafs;/</value>
-    </envar>
-    &ENV_VARS;
-    <memory>1G</memory>
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
-    <join><cyclestr>&LOGhafs;/hafs_completion_&SID;_@Y@m@d@H.log</cyclestr></join>
+    &MEMORY;
+    &ENV_VARS;
+    <envar><name>HAFS_FORCE_ALT_TMPDIR</name><value>&LOGhafs;/</value></envar>
 
     <dependency>
       <or>

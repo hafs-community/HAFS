@@ -2,6 +2,7 @@
 
 set -xe
 
+date
 source ${USHhafs}/hafs_pre_job.sh.inc
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
@@ -23,6 +24,13 @@ export ictype=${ICTYPE:-pfv3gfs}
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+if [ "${gtype}" != "regional" ]; then
+  echo "INFO: ${gtype} not a regional run."
+  echo "INFO: No need to run chgres_bc."
+  echo "INFO: Exitting."
+  exit
+fi
+
 ####################################
 # Specify Execution Areas
 ####################################
@@ -36,17 +44,7 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
-
-export FIXam=${FIXhafs}/fix_am
-#export FIXfv3=${FIXhafs}/fix_fv3
-export FIXfv3=${WORKhafs}/intercom/grid
-
-export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
-export CHGRESSH=${USHhafs}/hafs_chgres.sh
+export CHGRESCUBEEXEC=${EXEChafs}/hafs_chgres_cube.x
 
 ####################################
 # Load Modules if Needed
@@ -61,62 +59,9 @@ if [ "$RUN_ENVIR" = prod ]; then
 fi
 
 #####################################
-# Environment settings
+# Set up job node/core/run environment variables
 #####################################
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
-  export NCNODE=${NCNODE:-24}
-  #export OMP_NUM_THREADS_CH=${OMP_THREADS:-24}
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS_CH:-${OMP_THREADS:-${OMP_NUM_THREADS:-24}}}
-  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-24}}
-  export KMP_STACKSIZE=1024m
-  export KMP_AFFINITY=disabled
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=1
-  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
-  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
-  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = wcoss_dell_p3 ]; then
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-"mpirun cfp"}
-  export APRUNC=${APRUNC:-"time"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = hera ] || [ "$machine" = theia ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  #export APRUNF=${APRUNF:-"source"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export APRUNO=${APRUNO:-"srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export BACKGROUND="&"
-elif [ "$machine" = jet ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  #export APRUNF=${APRUNF:-"source"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export APRUNO=${APRUNO:-"srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export BACKGROUND="&"
-else
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
-  export APRUNC=${APRUNC:-"mpirun"}
-  export APRUNO="time"
-  export BACKGROUND=""
-fi
-
-env
-
-if [ "${gtype}" != "regional" ]; then
-  echo "INFO: ${gtype} not a regional run."
-  echo "INFO: No need to run chgres_bc."
-  echo "INFO: Exitting."
-  exit
-fi
-
+source ${USHhafs}/hafs_runcmd.sh.inc
 
 ####################################
 # Run setpdy and initialize PDY variables
@@ -130,17 +75,19 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-export OUTDIR=${OUTDIR:-${WORKhafs}/chgres_bc/out}
-export DATA=${WORKhafs}/chgres_bc/work
+export BC_GROUPN=${BC_GROUPN:-6}
+export BC_GROUPI=$( printf "%03d" "${BC_GROUPI:-001}" )
+
+export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+export DATA=${WORKhafs}/chgres_bc${BC_GROUPI}
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA $OUTDIR 
+  rm -rf $DATA
 fi
 
-mkdir -p $INPdir $OUTDIR $DATA
+mkdir -p $OUTDIR $DATA
 cd $DATA
 
 #####################################
@@ -156,65 +103,14 @@ export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 #####################################
 export REGIONAL=2
 
-rm -f bcfile.input
-NBDYHRS=${NBDYHRS:-3}
-hour=${NBDYHRS:-3}
-end_hour=$NHRS
-nhour=0
-while (test "$hour" -le "$end_hour")
-  do
-  if [ $hour -lt 10 ]; then
-    hour_name='00'$hour
-  elif [ $hour -lt 100 ]; then
-    hour_name='0'$hour
-  else
-    hour_name=$hour
-  fi
-#
-# create input file for cfp in order to run multiple copies of chgres.sh simultaneously
-# since we are going to run simultaneously, we want different working directories for each hour
-#
-  BC_DATA=${DATA}/bctmp_$hour_name
-  rm -rf $BC_DATA
-  mkdir -p $BC_DATA
-  #echo "${APRUNO} env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh > out.chgres.$hour_name ${BACKGROUND}" >> bcfile.input
-  rm -f chgres_bc_f${hour_name}.sh
-  echo "#!/bin/sh" > chgres_bc_f${hour_name}.sh
-  echo "env REGIONAL=2 HALO=4 bchour=$hour_name DATA=$BC_DATA ${HOMEhafs}/scripts/exhafs_chgres.sh" >> chgres_bc_f${hour_name}.sh
-  chmod u+x chgres_bc_f${hour_name}.sh
-  echo "${APRUNO} chgres_bc_f${hour_name}.sh > out.chgres.$hour_name 2>&1 ${BACKGROUND}" >> bcfile.input
-  hour=`expr $hour + ${NBDYHRS}`
-  nhour=`expr $nhour + 1`
-done
+export FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
+export FHRI=$(( ${BC_GROUPN} * ${NBDYHRS} ))
+export FHRE=${NHRS}
 
-# echo "wait" >> bcfile.input
-################################
+#####################################
 # Execute the script.
-################################
-  
-export APRUNC="time"
-export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS:-24}
-
-if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
-  rm -f bcfile.input_new
-  nline=0
-  while [ "$nline" -lt "$nhour" ];
-  do
-    # Take the first $TOTAL_TASKS lines from bcfile.input
-    sed -n -e "1,${TOTAL_TASKS}p" bcfile.input >> bcfile.input_new
-    echo 'wait' >> bcfile.input_new
-    sed -i -e "1,${TOTAL_TASKS}d" bcfile.input
-    nline=`expr $nline + $TOTAL_TASKS`
-  done
-  cp bcfile.input_new bcfile.input
-  #rm -f bcfile.input_new
-fi
-
-chmod u+x bcfile.input
-${APRUNF} bcfile.input
-wait
-#rm -f bcfile.input
-
-mv $OUTDIR/gfs_bndy*nc $INPdir/.
+${HOMEhafs}/scripts/exhafs_chgres_bc.sh
+export err=$?
+#####################################
 
 exit

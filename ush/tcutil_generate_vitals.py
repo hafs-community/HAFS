@@ -83,8 +83,8 @@ def set_para_paths():
     tcvlocs=[
         "/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
         "/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT",
-        "/scratch1/portfolios/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/scratch1/portfolios/NCEPDEV/hwrf/noscrub/input/SYNDAT",
+        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
+        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT",
         "/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS",
         "/lfs3/projects/hwrf-data/hwrf-input/SYNDAT",
         "/hwrf/noscrub/input/SYNDAT-PLUS",
@@ -94,7 +94,7 @@ def set_para_paths():
         ]
     messagedir=[
         "/scratch3/NCEPDEV/hwrf/noscrub/input/MESSAGES",
-        "/scratch1/portfolios/NCEPDEV/hwrf/noscrub/input/MESSAGES",
+        "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
         "/lfs1/projects/hwrf-vd/hwrf-input/MESSAGES",
         "/com/hur/prod/inpdata"
         ]

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ksh
 
 set -xe
 
@@ -16,7 +16,8 @@ export APRUN=time
 CDATE=${CDATE:-${YMDH}}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+export res=${res:-$CRES}
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
 
 HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
@@ -29,6 +30,7 @@ FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 FIXam=${FIXhafs}/fix_am
 FIXorog=${FIXhafs}/fix_orog
 FIXfv3=${FIXhafs}/fix_fv3
+FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
 export script_dir=${USHhafs}
 export exec_dir=${EXEChafs}
@@ -41,12 +43,13 @@ export FILTERTOPOEXEC=${EXEChafs}/hafs_filter_topo.x
 export FREGRIDEXEC=${EXEChafs}/hafs_fregrid.x
 export OROGEXEC=${EXEChafs}/hafs_orog.x
 export SHAVEEXEC=${EXEChafs}/hafs_shave.x
+export SFCCLIMOEXEC=${EXEChafs}/hafs_sfc_climo_gen.x
 
 export MAKEGRIDSSH=${USHhafs}/hafs_make_grid.sh
 export MAKEOROGSSH=${USHhafs}/hafs_make_orog.sh
 export FILTERTOPOSSH=${USHhafs}/hafs_filter_topo.sh
 
-machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, theia, jet
 
 date
 
@@ -93,7 +96,8 @@ else
 fi
 
 #----------------------------------------------------------------
-#filter_topo parameters. C192->50km, C384->25km, C768->13km, C1152->8.5km, C3072->3.2km
+#filter_topo parameters. C48->200km, C96->100km, C192->50km, C384->25km, C768->13km, 
+# C1152->8.5km, C1536->6.5km, C2304->4.3km, C3072->3.2km, C4608->2.1km, C6144->1.6km
 if [ $CRES -eq 48 ]; then 
  export cd4=0.12;  export max_slope=0.12; export n_del2_weak=4;   export peak_fac=1.1  
 elif [ $CRES -eq 96 ]; then 
@@ -110,8 +114,14 @@ elif [ $CRES -eq 1152 ]; then
  export cd4=0.15;  export max_slope=0.16; export n_del2_weak=20;   export peak_fac=1.0  
 elif [ $CRES -eq 1536 ]; then 
  export cd4=0.15;  export max_slope=0.24; export n_del2_weak=20;   export peak_fac=1.0  
+elif [ $CRES -eq 2304 ]; then 
+ export cd4=0.15;  export max_slope=0.27; export n_del2_weak=22;   export peak_fac=1.0  
 elif [ $CRES -eq 3072 ]; then 
  export cd4=0.15;  export max_slope=0.30; export n_del2_weak=24;   export peak_fac=1.0  
+elif [ $CRES -eq 4608 ]; then 
+ export cd4=0.15;  export max_slope=0.33; export n_del2_weak=26;   export peak_fac=1.0  
+elif [ $CRES -eq 6144 ]; then 
+ export cd4=0.15;  export max_slope=0.36; export n_del2_weak=28;   export peak_fac=1.0  
 else
  echo "grid C$CRES not supported, exit"
  exit 1
@@ -150,7 +160,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
   chmod u+x $DATA/orog.file1
@@ -177,7 +187,7 @@ elif [ $gtype = nest ]; then
   echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
   chmod u+x $DATA/orog.file1
@@ -231,7 +241,7 @@ elif [ $gtype = regional ]; then
   echo "............ execute $MAKEOROGSSH ................."
   #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-if [ "$machine" = theia ] || [ "$machine" = jet ]; then
+if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
   chmod u+x $DATA/orog.file1
@@ -300,5 +310,160 @@ fi
 
 # Copy mosaic file(s) to output directory.
 cp $grid_dir/${CASE}_*mosaic.nc $out_dir/
+
+#----------------------------------------------------------------
+# Make surface static fields - vegetation type, soil type, etc.
+#
+# For global grids with a nest, the program is run twice.  First
+# to create the fields for the six global tiles.  Then to create
+# the fields on the high-res nest.  This is done because the
+# ESMF libraries can not interpolate to seven tiles at once.
+# Note:
+# Stand-alone regional grids may be run with any number of
+# tasks.  All other configurations must be run with a
+# MULTIPLE OF SIX MPI TASKS.
+
+date
+input_sfc_climo_dir=${FIXhafs}/fix_sfc_climo
+sfc_climo_workdir=$DATA/sfc_climo
+sfc_climo_savedir=$out_dir/fix_sfc
+mkdir -p $sfc_climo_workdir $sfc_climo_savedir
+cd ${sfc_climo_workdir}
+
+if [ $gtype = uniform ] || [ $gtype = stretch ]; then
+  GRIDTYPE=NULL
+  HALO=${HALO:-0}
+  mosaic_file=${out_dir}/${CASE}_mosaic.nc
+  the_orog_files='"'${CASE}'_oro_data.tile1.nc","'${CASE}'_oro_data.tile2.nc","'${CASE}'_oro_data.tile3.nc","'${CASE}'_oro_data.tile4.nc","'${CASE}'_oro_data.tile5.nc","'${CASE}'_oro_data.tile6.nc"'
+elif [ $gtype = nest ]; then
+  # First pass for global-nesting configuration will run the 6 global tiles
+  GRIDTYPE=NULL
+  HALO=${HALO:-0}
+  mosaic_file=$out_dir/${CASE}_coarse_mosaic.nc
+  the_orog_files='"'${CASE}'_oro_data.tile1.nc","'${CASE}'_oro_data.tile2.nc","'${CASE}'_oro_data.tile3.nc","'${CASE}'_oro_data.tile4.nc","'${CASE}'_oro_data.tile5.nc","'${CASE}'_oro_data.tile6.nc"'
+elif [ $gtype = regional ]; then
+  GRIDTYPE=regional
+  tile=7
+  HALO=$halop1
+  ln -fs $out_dir/${CASE}_grid.tile${tile}.halo${HALO}.nc $out_dir/${CASE}_grid.tile${tile}.nc
+  ln -fs $out_dir/${CASE}_oro_data.tile${tile}.halo${HALO}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
+  mosaic_file=${out_dir}/${CASE}_mosaic.nc
+  the_orog_files='"'${CASE}'_oro_data.tile'${tile}'.nc"'
+else
+  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
+  exit 1
+fi
+
+cat>./fort.41<<EOF
+&config
+input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.2.6x1.5.nc"
+input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
+input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
+input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
+input_soil_type_file="${input_sfc_climo_dir}/soil_type.statsgo.0.05.nc"
+input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.igbp.0.05.nc"
+input_vegetation_greenness_file="${input_sfc_climo_dir}/vegetation_greenness.0.144.nc"
+mosaic_file_mdl="${mosaic_file}"
+orog_dir_mdl="${out_dir}"
+orog_files_mdl=${the_orog_files}
+halo=${HALO}
+maximum_snow_albedo_method="bilinear"
+snowfree_albedo_method="bilinear"
+vegetation_greenness_method="bilinear"
+/
+EOF
+more ./fort.41
+
+#APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
+$APRUNC $SFCCLIMOEXEC
+
+rc=$?
+
+if [[ $rc == 0 ]]; then
+  if [[ $GRIDTYPE != "regional" ]]; then
+    for files in *.nc
+    do
+      if [[ -f $files ]]; then
+        mv $files ${sfc_climo_savedir}/${CASE}.${files}
+      fi
+    done
+  else
+    for files in *.halo.nc
+    do
+      if [[ -f $files ]]; then
+        file2=${files%.halo.nc}
+        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
+      fi
+    done
+    for files in *.nc
+    do
+      if [[ -f $files ]]; then
+        file2=${files%.nc}
+        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
+      fi
+    done
+  fi  # is regional?
+else
+  exit $rc
+fi
+
+if [ $gtype = regional ]; then
+  rm -f $out_dir/${CASE}_grid.tile${tile}.nc
+  rm -f $out_dir/${CASE}_oro_data.tile${tile}.nc
+fi
+
+#----------------------------------------------------------------
+# Run for the global nest - tile 7.
+# Second pass for global-nesting configuration will run the 7th tile
+#----------------------------------------------------------------
+
+if [ $gtype = nest ]; then
+
+export GRIDTYPE=nest
+HALO=${HALO:-0}
+mosaic_file=$out_dir/${CASE}_nested_mosaic.nc
+the_orog_files='"'${CASE}'_oro_data.tile7.nc"'
+
+cat>./fort.41<<EOF
+&config
+input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.1.0.nc"
+input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
+input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
+input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
+input_soil_type_file="${input_sfc_climo_dir}/soil_type.statsgo.0.05.nc"
+input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.igbp.0.05.nc"
+input_vegetation_greenness_file="${input_sfc_climo_dir}/vegetation_greenness.0.144.nc"
+mosaic_file_mdl="${mosaic_file}"
+orog_dir_mdl="${out_dir}"
+orog_files_mdl=${the_orog_files}
+halo=${HALO}
+maximum_snow_albedo_method="bilinear"
+snowfree_albedo_method="bilinear"
+vegetation_greenness_method="bilinear"
+/
+EOF
+more ./fort.41
+
+#APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
+$APRUNC $SFCCLIMOEXEC
+
+rc=$?
+
+if [[ $rc == 0 ]]; then
+  for files in *.nc
+  do
+    if [[ -f $files ]]; then
+      mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    fi
+  done
+else
+  exit $rc
+fi
+
+fi
+# End of run for the global nest - tile 7.
+#----------------------------------------------------------------
 
 exit
