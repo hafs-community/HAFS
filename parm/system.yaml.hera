@@ -1,0 +1,71 @@
+## This is the system-specific configuration file for the Hera
+## Project disk area
+config: # <------- section [config]
+
+  disk_project: "hwrf"
+  # ^--- was disk_project=hwrf
+
+## Project hpss tape area
+  tape_project: "emc-hwrf"
+  # ^--- was tape_project=emc-hwrf
+
+## CPU account name for submitting jobs to the batch system.
+  cpu_account: "hurricane"
+  # ^--- was cpu_account=hurricane
+
+## Archive path
+  archive: !uexpand "hpss:/NCEPDEV/{tape_project}/5year/{tools.env('USER')}/{all.SUBEXPT}/{all.out_prefix}.tar"
+  # ^--- was archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+
+## Specify input sources for HISTORY mode.
+  input_sources: !uexpand "hera_sources_{all.GFSVER}"
+  # ^--- was input_sources=hera_sources_{GFSVER}
+
+## Specify the DataCatalog for FORECAST mode runs.
+  fcst_catalog: !uexpand "hera_fcst_{all.GFSVER}"
+  # ^--- was fcst_catalog=hera_fcst_{GFSVER}
+
+
+hafsdata: # <------- section [hafsdata]
+
+  inputroot: !uexpand "/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{all.GFSVER}"
+  # ^--- was inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
+
+
+hera_fcst_PROD2019: # <------- section [hera_fcst_PROD2019]
+
+  inputroot: "/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS"
+  # ^--- was inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+
+
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+dir: # <------- section [dir]
+
+  CDNOSCRUB: !uexpand "/scratch1/NCEPDEV/{all.disk_project}/noscrub/{tools.env('USER')}/hafstrak"
+  # ^--- was CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+
+## Save directory.  Make sure you edit this.
+  CDSAVE: !uexpand "/scratch1/NCEPDEV/{all.disk_project}/save/{tools.env('USER')}"
+  # ^--- was CDSAVE=/scratch1/NCEPDEV/{disk_project}/save/{ENV[USER]}
+
+## Scrubbed directory for large work files.  Make sure you edit this.
+  CDSCRUB: !uexpand "/scratch1/NCEPDEV/{all.disk_project}/scrub/{tools.env('USER')}"
+  # ^--- was CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
+
+## Syndat directory for finding which cycles to run
+  syndat: "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS"
+  # ^--- was syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
+
+## Input GFS data directory
+  COMgfs: "/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS"
+  # ^--- was COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+
+
+holdvars: # <------- section [holdvars]
+
+  WHERE_AM_I: "hera" ##  Which cluster?  (For setting up environment.)
+  # ^--- was WHERE_AM_I=hera
+
+  WHICH_JET: "none" ##  Which part of Jet are we on?  None; we are not on Jet.
+  # ^--- was WHICH_JET=none
+
