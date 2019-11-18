@@ -56,33 +56,33 @@ resources:
   archive_fv3pit: !JobRequest [ { <<: *resources_archive }]
 
   grid: !JobRequest
-    - mpi_ranks: 24
+    - mpi_ranks: 36
       OMP_NUM_THREADS: 6
       walltime: !timedelta '00:30:00'
       exclusive: true
 
   chgres_ic: !JobRequest
-    - <<: *resources_pure_openmp
-      OMP_NUM_THREADS: 24
+    - OMP_NUM_THREADS: 1
+      mpi_ranks: 120
+      max_ppn: 40
       exclusive: true
       walltime: !timedelta '00:30:00'
 
   chgres_bc: !JobRequest
-    - OMP_NUM_THREADS: 24
-      mpi_ranks: 504
+    - OMP_NUM_THREADS: 1
+      mpi_ranks: 80
       walltime: !timedelta '00:30:00'
       exclusive: true
 
   post: !JobRequest
     - OMP_NUM_THREADS: 1
-      mpi_ranks: 72
-      max_ppn: 24
+      mpi_ranks: 120
+      max_ppn: 40
       walltime: !timedelta '07:59:00'
 
   product: !JobRequest
     - OMP_NUM_THREADS: 1
-      mpi_ranks: 2
-      max_ppn: 24
+      mpi_ranks: 1
       walltime: !timedelta '07:59:00'
 
   forecast_base: &forecast_base
@@ -92,55 +92,130 @@ resources:
     max_ppn: 12
 
   forecast: !FirstTrue
-    - when: all.FORECAST_RESOURCES=='regional_12x12io3x36_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 252
-    - when: all.FORECAST_RESOURCES=='regional_12x12io3x72_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x36_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 252
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 288
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 360
-    - when: all.FORECAST_RESOURCES=='regional_40x30io3x36_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1308
-    - when: all.FORECAST_RESOURCES=='regional_40x30io3x72_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1344
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1416
-    - when: all.FORECAST_RESOURCES=='regional_64x30io3x36_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2016
-    - when: all.FORECAST_RESOURCES=='regional_64x30io3x72_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2052
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2124
-
-    # FORECAST_RESOURCES for globnest HAFS
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x36_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x40_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1320
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 636
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x72_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 672
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 744
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x36_omp2'
-      take: !JobRequest
-        - <<: *forecast_base
-          mpi_ranks: 2496
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x72_omp2'
-      take: !JobRequest
-        - <<: *forecast_base
-          mpi_ranks: 2760
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x36_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1692
-    - when: all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x72_omp2'
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1728
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1800
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x36_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2496
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2432
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x72_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2760
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x10_40x30io3x40_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1800
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x36_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2028
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2064
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x72_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2136
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x36_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2124
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2160
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x72_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2232
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x36_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1932
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 1968
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x72_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2040
+
+    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_40x33io3x48_omp2' )
+      take: !JobRequest
+        - <<: *forecast_base
+          mpi_ranks: 2040
     - otherwise: !error "Don't know FORECAST_RESOURCES for {all.FORECAST_RESOURCES} on kjet"
 
