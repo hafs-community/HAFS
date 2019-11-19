@@ -37,6 +37,8 @@ from tcutil.numerics import to_datetime
 from tcutil.storminfo import find_tcvitals_for
 from hafs.exceptions import HAFSError
 
+_logger=logging.getLogger('hafs.config')
+
 INITIAL_DOCUMENT='''
 config: {}
 dir: {}
@@ -182,15 +184,16 @@ TIMEINFO_KEYS.update(ANL_KEYS.keys())
 TIMEINFO_KEYS.update(ANL_M6_KEYS.keys())
 TIMEINFO_KEYS.update(ANL_P6_KEYS.keys())
 TIMEINFO_KEYS.update(TIME_DIFF_KEYS)
+TIMEINFO_KEYS.update(CYC_KEYS)
 
 class TimeInfo(Mapping):
-    def __init__(self,cyctime=None,anltime=None,fcsttime=None):
+    def __init__(self,cycle=None,anltime=None,fcsttime=None):
         self.__anltime=None
-        self.__cyctime=None
+        self.__cycle=None
         self.__anlp6=None
         self.__anlm6=None
         self.__dt=None
-        self.cyctime=cyctime
+        self.cycle=cycle
         self.fcsttime=fcsttime
         self.anltime=anltime
 
@@ -198,7 +201,7 @@ class TimeInfo(Mapping):
         cls=type(self)
         new=cls()
         new.__anltime=self.__anltime
-        new.__cyctime=self.__cyctime
+        new.__cycle=self.__cycle
         new.__anlp6=self.__anlp6
         new.__anlm6=self.__anlm6
         new.__dt=self.__dt
@@ -211,7 +214,7 @@ class TimeInfo(Mapping):
         new=cls()
         memo[id(self)]=new
         new.__anltime=copy.deepcopy(self.__anltime,memo)
-        new.__cyctime=copy.deepcopy(self.__cyctime,memo)
+        new.__cycle=copy.deepcopy(self.__cycle,memo)
         new.__anlp6=copy.deepcopy(self.__anlp6,memo)
         new.__anlm6=copy.deepcopy(self.__anlm6,memo)
         new.__dt=copy.deepcopy(self.__dt,memo)
@@ -219,8 +222,9 @@ class TimeInfo(Mapping):
         new.__iminutes=copy.deepcopy(self.__iminutes,memo)
         return new
 
-    def getcyctime(self): return self.__cyctime
-    def setcyctime(self,c): self.__cyctime=c
+    def getcycle(self): return self.__cycle
+    def setcycle(self,c): self.__cycle=c
+    cycle=property(getcycle,setcycle,None)
 
     def __len__(self): return len(TIMEINFO_KEYS)
 
@@ -305,9 +309,9 @@ class TimeInfo(Mapping):
         have_anl=self.__anltime is not None
 
         if key in CYC_KEYS:
-            if self.__cycle is not None:
+            if self.__cycle is None:
                 raise KeyError(f'{key}: cycle time is unknown')
-            return self.__cyctime.strftime(CYC_KEYS[key])
+            return self.__cycle.strftime(CYC_KEYS[key])
         if key in FCST_KEYS:
             if not have_fcst: raise KeyError(f'{key}: fcst time is unknown')
             return self.__fcsttime.strftime(FCST_KEYS[key])
@@ -465,13 +469,25 @@ class StormInfoWrapper(object):
         self.__child=None
     _child=property(_get_child,_set_child,_clear_child,
       """StormInfo object being viewed""")
+    def __getitem__(self,key):
+        assert(self.__child is not None)
+        if self.__child is None:
+            raise KeyError(key)
+        return getattr(self.__child,key)
+    def __contains__(self,key):
+        assert(self.__child is not None)
+        if self.__child is None:
+            return False
+        return hasattr(self.__child,key)
     def __getattr__(self,attr):
+        assert(self.__child is not None)
         if self.__child is None:
             raise AttributeError(attr)
         return getattr(self.__child,attr)
     def __hasattr__(self,attr):
+        assert(self.__child is not None)
         if self.__child is None:
-            raise AttributeError(attr)
+            return False
         return hasattr(self.__child,attr)
     def __copy__(self):
         cls=type(self)
@@ -811,6 +827,11 @@ class HAFSConfig(object):
                 old_raw_section[optname]=new_raw_val
                 old_section._invalidate_cache(optname)
         crow.config.update_globals(self._doc,self._globals)
+        if not self._globals['cyc'].cycle:
+            if not 'cycle' in self._doc.config:
+                _logger.warning('Cycle is unknown.')
+            else:
+                self.set_time_vars()
 
     def set_options(self,section,**kwargs):
         """!set values of several options in a section
@@ -963,9 +984,12 @@ class HAFSConfig(object):
 
         Updates internal variables so that cycle information will be
         correct        """
-        cycle=datetime.datetime.strptime(
-            '%Y%m%d%H',self._doc.config.cycle)
-        self._globals['cyc'].cycle=cycle
+        assert('cycle' in self._doc.config)
+        if 'cycle' in self._doc.config:
+            cycle=datetime.datetime.strptime(
+                self._doc.config.cycle,'%Y%m%d%H')
+            self._globals['cyc'].cycle=cycle
+            _=self._globals['cyc'].YMDH
     def add_section(self,sec):
         """!add a new config section
 

@@ -61,7 +61,7 @@ dir: # <------- section [dir]
   WORKhafs: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/{vit.YMDH}/{vit.stormid3}"
   # ^--- was WORKhafs={CDSCRUB}/{RUNhafs}/{vit[YMDH]}/{vit[stormid3]}
 
-  COMhafs: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{YMDH}/{vit.stormid3}"
+  COMhafs: !uexpand "{all.CDSCRUB}/{all.RUNhafs}/com/{vit.YMDH}/{vit.stormid3}"
   # ^--- was COMhafs={CDSCRUB}/{RUNhafs}/com/{vit[YMDH]}/{vit[stormid3]}
 
   COMgfs: !uexpand "{doc.hafsdata.inputroot}"

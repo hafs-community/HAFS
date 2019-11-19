@@ -17,7 +17,7 @@ tcvitals generation."""
 # All symbols exported by "from hafs.launcher import *"
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
-import os, re, sys, collections, random
+import os, re, sys, collections, random, datetime
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
@@ -467,7 +467,11 @@ def prelaunch(conf,logger,cycle):
     @param logger a logging.Logger for log messages
     @param cycle the cycle to run, or None if this is being
        run from run_hafs.py or the ush.psychoanalyst"""
-
+    if cycle is not None:
+        if isinstance(cycle,str):
+            conf.cycle=datetime.datetime.strptime(cycle,'%Y%m%d%H')
+        else:
+            conf.cycle=cycle
     hafs.prelaunch.prelaunch_rsmc(conf,logger,cycle)
     hafs.prelaunch.prelaunch_basin(conf,logger,cycle)
 
@@ -611,18 +615,24 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     if prelaunch is not None:
         prelaunch(conf,logger,cycle)
 
+    if cycle is not None:
+        conf.cycle=cycle
+        assert(conf.cycle is not None)
+        _=conf.strinterp('config','{cyc.YMDH}')
+
     confloc=conf.getloc('YAMLhafs')
     logger.info('%s: write hafs.yaml here'%(confloc,))
     with open(confloc,'wt') as f:
         conf.write(f)
 
-    confloc=conf.getloc('CONFhafs')
-    logger.info('%s: write hafs.conf here'%(confloc,))
-    with open(confloc,'wt') as f:
-        f.write(conf.py_evaluate_to_conf())
+    if cycle is not None:
+        confloc=conf.getloc('CONFhafs')
+        logger.info('%s: write hafs.conf here'%(confloc,))
+        with open(confloc,'wt') as f:
+            f.write(conf.py_evaluate_to_conf())
 
-    with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
-        f.write(conf.strinterp(
+        with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
+            f.write(conf.strinterp(
                 'config','export cyc={cyc.HH}\nexport PDY={cyc.YMD}\nYMDH={cyc.YMDH}\n'))
 
     if fakestorm_conf:
