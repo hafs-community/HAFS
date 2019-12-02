@@ -89,8 +89,8 @@ xml_entities_constant: # entities that contain no entity references
 
   # These are automatically generated in run_hafs.py:
   WHERE_AM_I: !calc all.WHERE_AM_I
-  HOLDVARS: !calc all.HOLDVARS
-  CONFhafs: !calc all.CONFhafs
+  HOLDVARS: '&COMhafs;/&STORMLABEL;.holdvars.txt'
+  CONFhafs: "&COMhafs;/&STORMLABEL;.conf"
   BASINS: !calc all.BASINS
   RENUM: !calc all.RENUM
   STORMLABEL: !calc all.stormlabel

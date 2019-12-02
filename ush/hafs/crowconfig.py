@@ -11,6 +11,8 @@ automatically accessing configuration options."""
 # decides what symbols are imported by "from hafs.config import *"
 __all__=['from_file','from-string','confwalker','HAFSConfig','fordriver','ENVIRONMENT']
 
+import traceback
+
 import collections,re,string,os,logging,threading,copy, io
 import os.path,sys
 import datetime
@@ -37,8 +39,6 @@ from configparser import NoOptionError,NoSectionError
 from tcutil.numerics import to_datetime
 from tcutil.storminfo import find_tcvitals_for, StormInfo
 from hafs.exceptions import HAFSError
-
-_logger=logging.getLogger('hafs.config')
 
 INITIAL_DOCUMENT='''
 config: {}
@@ -708,7 +708,7 @@ class HAFSConfig(object):
         @param quoted_literals ignored; present for backward compatibility
         @param strict ignored; present for backward compatibility
         @param inline_comment_prefixes ignored; present for backward compatibility"""
-        self._logger=logging.getLogger('prodconfig')
+        self._logger=logging.getLogger('hafs.config')
         logger=self._logger
         self._lock=threading.RLock()
         self._datastore=None
@@ -870,7 +870,7 @@ class HAFSConfig(object):
         crow.config.update_globals(self._doc,self._globals)
         if not self._globals['cyc'].cycle:
             if not 'cycle' in self._doc.config:
-                _logger.warning('Cycle is unknown.')
+                self._logger.warning('Cycle is unknown.')
             else:
                 self.set_time_vars()
 
@@ -1277,13 +1277,28 @@ class HAFSConfig(object):
         self._prior_oldvit=self._globals['oldvit']._child
         if oldvit is not None:
             self._globals['oldvit']._child=oldvit
-        if self._globals['vit']._child is None:
-            line='JTWC 91S INVEST    20190422 0000 094S 0522E 260 052 1004 1007 0315 13 074 -999 -999 -999 -999 S'
-            canned_vit=tcutil.storminfo.StormInfo('tcvitals',line.rstrip('\n'))
-            self.vitals=canned_vit
-            self._globals['oldvit']._child=canned_vit-6
-            self._prior_vit=self.vitals
-            self._prior_oldvit=self._globals['oldvit']._child
+
+    def getoldvitals(self):
+        if 'oldsyndat' in self.__dict__:
+            return self.oldsyndat
+        return None
+
+    def setoldvitals(self,oldvit):
+        print('setoldvitals')
+        assert(isinstance(oldvit,tcutil.storminfo.StormInfo))
+        self.__dict__['oldsyndat']=oldvit
+        self.__dict__['oldstorminfo']=oldvit
+        self._globals['oldvit']._child=oldvit
+
+    def deloldvitals(self):
+        print('deloldvitals')
+        if 'oldsyndat' in self.__dict__:
+            del self.__dict__['oldsyndat']
+            del self.__dict__['oldstorminfo']
+            del self._globals['oldvit']._child
+
+    oldvitals=property(getoldvitals,setoldvitals,deloldvitals,
+                       """The tcutil.storminfo.StormInfo describing the prior cycle vitals about the storm to be run.""")
 
     def getvitals(self):
         if 'syndat' in self.__dict__:
@@ -1291,13 +1306,17 @@ class HAFSConfig(object):
         return None
 
     def setvitals(self,vit):
+        traceback.print_stack()
         assert(isinstance(vit,tcutil.storminfo.StormInfo))
-        self.syndat=vit
+        self.__dict__['syndat']=vit
+        self.__dict__['storminfo']=vit
         self._globals['vit']._child=vit
 
     def delvitals(self):
+        print('delvitals')
         if 'syndat' in self.__dict__:
-            del self.syndat
+            del self.__dict__['syndat']
+            del self.__dict__['storminfo']
             del self._globals['vit']._child
 
     vitals=property(getvitals,setvitals,delvitals,

@@ -827,11 +827,13 @@ class HAFSLauncher(HAFSConfig):
             assert(isinstance(oldsyndat,tcutil.storminfo.StormInfo))
         self.set_options('config',STID=syndat.stormid3,stnum=syndat.stnum,
                          basin1=syndat.basin1,basin1lc=syndat.basin1lc)
-        self.__dict__['syndat']=syndat.copy()
-        self.__dict__['storminfo']=syndat.copy()
+        self.vitals=syndat.copy()
         if oldsyndat is not None:
-            self.__dict__['oldsyndat']=oldsyndat.copy()
-            self.__dict__['oldstorminfo']=oldsyndat.copy()
+            self._logger.info('set old vitals')
+            self.oldvitals=oldsyndat.copy()
+            _=self.oldsyndat
+        else:
+            self._logger.warning('no old vitals in set_storm')
 
     # Multitorm - jtf
     def set_storm_multistorm(self,multistorm_real_sids,syndat4multistorm,oldsyndat4multistorm):
@@ -872,6 +874,8 @@ class HAFSLauncher(HAFSConfig):
 
         self.__dict__['syndat_multistorm']=syndat_fromcopy
         self.__dict__['oldsyndat_multistorm']=oldsyndat_fromcopy
+        self.vitals=syndat_fromcopy
+        self.oldvitals=oldsyndat_fromcopy
 
     def tcautoseed(self,loud=True):
         """!Sets the random seed for ensemble perturbations.
@@ -1006,6 +1010,7 @@ class HAFSLauncher(HAFSConfig):
                         'on disk.'%(STID,strcycle))
             if nodatasyndat is not None:
                 oldsyndat=nodatasyndat
+                assert(oldsyndat is not None)
                 logger.info('%s %s: will use %s %s as prior cycle storm.'
                           %(STID,strcycle,oldsyndat.stormid3,strprior))
                 logger.info('prior vitals: '+oldsyndat.as_tcvitals())
@@ -1013,6 +1018,7 @@ class HAFSLauncher(HAFSConfig):
                 logger.warning('No prior syndat available.  This is a cold '
                                'start.  I will extrapolate vitals.')
                 oldsyndat=syndat-cycling_interval # extrapolate vitals
+                assert(oldsyndat is not None)
                 logger.warning('extrapolated vitals: %s'
                                %(oldsyndat.as_tcvitals()))
             self.set('config','expect_cold_start','yes')
@@ -1020,7 +1026,9 @@ class HAFSLauncher(HAFSConfig):
             logger.info('%s %s prior cycle on disk for %s %s'
                         %(STID,strcycle,oldsyndat.stormid3,strprior))
             logger.info('prior cycle on disk: '+oldsyndat.as_tcvitals())
+            assert(oldsyndat is not None)
 
+        assert(oldsyndat is not None)
         self.set_storm(syndat,oldsyndat)
         vitbase=self.choose_vitbase(storm_num)
 
