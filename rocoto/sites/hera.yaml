@@ -35,20 +35,21 @@ resources:
       max_ppn: 1
       exclusive: false
       memory: '1024M'
-      queue: batch
   archive: !JobRequest
     - &resources_archive
       mpi_ranks: 1
       max_ppn: 1
       exclusive: false
+      walltime: !timedelta '07:59:59'
 
   small_serial: !JobRequest
-    - <<: *resources_small_serial
+    - &small_serial
+      <<: *resources_small_serial
       walltime: !timedelta '00:15:00'
 
-  scrub_work: !JobRequest [ { <<: *resources_small_serial } ]
-  scrub_com: !JobRequest [ { <<: *resources_small_serial } ]
-  donefile: !JobRequest [ { <<: *resources_small_serial } ]
+  scrub_work: !JobRequest [ { <<: *small_serial } ]
+  scrub_com: !JobRequest [ { <<: *small_serial } ]
+  donefile: !JobRequest [ { <<: *small_serial } ]
 
   input: !JobRequest [ { <<: *resources_archive }]
   archive_disk: !JobRequest [ { <<: *resources_archive }]
@@ -92,128 +93,128 @@ resources:
     max_ppn: 12
 
   forecast: !FirstTrue
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 252
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 252
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 288
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_12x12io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_12x12io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 360
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1308
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1344
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1416
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_64x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2016
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_64x30io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2052
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_64x30io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_64x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2124
-    - when: !calc ( all.FORECAST_RESOURCES=='regional_40x30io3x40_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_regional_40x30io3x40_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1320
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 636
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_12x12io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 672
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_12x12io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_12x12io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 744
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_40x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1692
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_40x30io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1728
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_40x30io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_40x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1800
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_64x30io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2496
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_64x30io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2432
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_64x30io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_64x30io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2760
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x10_40x30io3x40_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x10_40x30io3x40_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1800
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_48x32io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2028
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_48x32io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2064
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_48x32io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_48x32io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2136
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x12_45x32io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2124
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x12_45x32io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2160
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_45x32io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x12_45x32io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2232
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x36_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_45x32io3x36_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1932
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_45x32io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 1968
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x8_45x32io3x72_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x8_45x32io3x72_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2040
 
-    - when: !calc ( all.FORECAST_RESOURCES=='globnest_6x8x12_40x33io3x48_omp2' )
+    - when: !calc ( all.FORECAST_RESOURCES=='FORECAST_RESOURCES_globnest_6x8x12_40x33io3x48_omp2' )
       take: !JobRequest
         - <<: *forecast_base
           mpi_ranks: 2040

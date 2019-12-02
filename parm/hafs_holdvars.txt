@@ -3,7 +3,7 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
-export envir={ENV[envir|-prod]}
+export envir={tools.env('envir','prod')}
 
 export storm_num={storm_num}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
@@ -36,8 +36,8 @@ export PARMforecast={PARMforecast}
 export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
 
 export stormlabel={stormlabel}
-export STORM={vit[stormname]}
-export STORMID={vit[stormid3]}
+export STORM={vit.stormname}
+export STORMID={vit.stormid3}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}

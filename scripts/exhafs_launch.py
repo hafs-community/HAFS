@@ -73,13 +73,13 @@ logger=None
 # hafs.launcher.HAFSLauncher before reading configuration files.
 startdata='''
 # Holdvars file with ksh variables:
-holdvars="{holdvars}"
+holdvars="{doc.dir.holdvars}"
 
 # Main conf file:
-CONFhafs="{CONFhafs}"
+CONFhafs="{doc.dir.CONFhafs}"
 
 # Cycle being run:
-cycle={YMDH}
+cycle={cyc.YMDH}
 
 # Three character storm ID -- just number and basin letter:
 stormid3="{vit[stormid3]}"
@@ -228,7 +228,7 @@ def main():
                                                   message])
                 alert()
 
-        holdvars=conf.strinterp('dir','{com}/{stormlabel}.holdvars.txt')
+        holdvars=conf.strinterp('dir','{all.com}/{all.stormlabel}.holdvars.txt')
         logger.info(holdvars+': write holdvars here')
         with open(holdvars,'wt') as f:
             f.write(conf.make_holdvars())

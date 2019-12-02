@@ -22,6 +22,7 @@ import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
 import hafs.prelaunch
+from crow.config.exceptions import ConfigError
 
 from random import Random
 from produtil.fileop import isnonempty
@@ -629,7 +630,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         confloc=conf.getloc('CONFhafs')
         logger.info('%s: write hafs.conf here'%(confloc,))
         with open(confloc,'wt') as f:
-            f.write(conf.py_evaluate_to_conf())
+            f.write(conf.py_evaluate_to_conf(False))
 
         with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
             f.write(conf.strinterp(
@@ -979,7 +980,7 @@ class HAFSLauncher(HAFSConfig):
             else:
                 checkfile=self.timestrinterp(
                     'config','{all.HISTCHECK}',atime=prior,ftime=prior,
-                    oldvit=vit.__dict__,vit=syndat.__dict__)
+                    oldvit=vit,vit=syndat)
                 if os.path.exists(checkfile):
                     logger.info('%s: exists'%(checkfile,))
                     logger.info('%s %s: prior is %s %s and has data on disk'%
@@ -1419,16 +1420,56 @@ class HAFSLauncher(HAFSConfig):
 
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+        assert('cap_run_gsi' in self._doc.holdvars)
 
         reloc_flag=self.getbool('config','run_vortexinit')
-        self.set('holdvars','cap_run_vortexinit',
-                 ('YES' if reloc_flag else 'NO'))
+        self.set('holdvars','cap_run_vortexinit',('YES' if reloc_flag else 'NO'))
+        assert('cap_run_vortexinit' in self._doc.holdvars)
 
+        try:
+            # Make a temporary section that merges doc.all with doc.holdvars
+            self.add_CROW_MergeMapping('holdvars_merged','holdvars')
+            assert('holdvars_merged' in self._doc)
+
+            if not self._write_holdvars_impl(out,logger,part1,part2):
+                sadness='Sadness: could not strinterp lines from holdvars.  See logs for details.'
+                logger.error(sadness)
+                raise Exception(sadness)
+            return '\n'.join(out) + '\n'
+
+        finally:
+            # Delete the temporary holdvars_merged section so it won't
+            # be evaluated by the family of py evaluate functions:
+            if 'holdvars_merged' in self._doc:
+                del self._doc['holdvars_merged']
+
+            # (This block is always executed, even on BaseException.)
+
+    def _write_holdvars_impl(self,out,logger,part1,part2):
+        """!Internal implementation function that generates holdvars.txt
+
+        Populates a list with the lines of the holdvars file
+
+        @param out  A list-like object to receive holdvars.txt contents.
+        @param logger  A logging.Logger object for messages
+        @param part1  The first file to read
+        @param part2  Either None, or the second file to read """
+
+        bad=False
         with open(self.strinterp('dir',part1),'rt') as f:
             for line in f:
-                out.append(self.strinterp('holdvars',line.rstrip()))
+                try:
+                    out.append(self.strinterp('holdvars_merged',line.rstrip()))
+                except(ConfigError,TypeError,ValueError,AttributeError,KeyError,IndexError) as e:
+                    bad=True
+                    logger.error(f'holdvars: {line.rstrip()!r}: {str(e)[0:80]}',exc_info=True)
+
         if part2 is not None:
-            with open(self.strinterp(part2),'rt') as f:
+            with open(self.strinterp('all',part2),'rt') as f:
                 for line in f:
-                    out.append(self.strinterp(line.rstrip()))
-        return '\n'.join(out) + '\n'
+                    try:
+                        out.append(self.strinterp('holdvars_merged',line.rstrip()))
+                    except(ConfigError,TypeError,ValueError,AttributeError,KeyError,IndexError) as e:
+                        bad=True
+                        logger.error(f'holdvars (part 2): {line.rstrip()!r}: {str(e)[0:80]}',exc_info=True)
+        return not bad

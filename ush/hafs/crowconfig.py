@@ -28,13 +28,14 @@ from produtil.fileop import *
 import crow
 from crow.config.eval_tools import expand as crow_expander
 from crow.config.eval_tools import dict_eval
+from crow.config.exceptions import ConfigError
 
 from tcutil.numerics import to_datetime
 from string import Formatter
 from configparser import NoOptionError,NoSectionError
 
 from tcutil.numerics import to_datetime
-from tcutil.storminfo import find_tcvitals_for
+from tcutil.storminfo import find_tcvitals_for, StormInfo
 from hafs.exceptions import HAFSError
 
 _logger=logging.getLogger('hafs.config')
@@ -250,7 +251,7 @@ class TimeInfo(Mapping):
         if t is None:
             self.delfcsttime()
         else:
-            self.__fcsttime=datetime.datetime(t)
+            self.__fcsttime=tcutil.numerics.to_datetime(t)
             self.__update_dt_info()
         return self.__fcsttime
     def delfcsttime(self):
@@ -267,9 +268,9 @@ class TimeInfo(Mapping):
         if t is None:
             self.delanltime()
         else:
-            self.__anltime=datetime.datetime(t)
-            self.__anlm6=anltime-SIX_HOURS
-            self.__anlp6=anltime+SIX_HOURS
+            self.__anltime=tcutil.numerics.to_datetime(t)
+            self.__anlm6=t-SIX_HOURS
+            self.__anlp6=t+SIX_HOURS
             self.__update_dt_info()
         return self.__anltime
     def delanltime(self):
@@ -284,12 +285,16 @@ class TimeInfo(Mapping):
     def __getattr__(self,key):
         try:
             return self[key]
-        except (ValueError,TypeError,IndexError) as e:
+        except (ValueError,KeyError,TypeError,IndexError) as e:
             raise AttributeError(str(e))
 
     def __iter__(self):
         for key in TIMEINFO_KEYS:
-            return key
+            yield key
+
+    def __hasattr__(self,key):
+        if key in TIMEINFO_KEYS: return True
+        return object.__hasattr__(self,key)
 
     def __contains__(self,key):
         return key in TIMEINFO_KEYS
@@ -320,7 +325,7 @@ class TimeInfo(Mapping):
             return self.__anltime.strftime(ANL_KEYS[key])
         if key in ANL_P6_KEYS:
             if not have_anl: raise KeyError(f'{key}: anl time is unknown')
-            return self.__anlp6.strftime(ANL_M6_KEYS[key])
+            return self.__anlp6.strftime(ANL_P6_KEYS[key])
         if key in ANL_M6_KEYS:
             if not have_anl: raise KeyError(f'{key}: anl time is unknown')
             return self.__anlm6.strftime(ANL_M6_KEYS[key])
@@ -464,6 +469,11 @@ class StormInfoWrapper(object):
     def _get_child(self):
         return self.__child
     def _set_child(self,child):
+        if child is not None:
+            if not isinstance(child,StormInfo):
+                raise TypeError(f'StormInfo._child must be a StormInfo, not a {type(child).__name__} {child!r}')
+            if not hasattr(child,'YMDH'):
+                raise ValueError('StormInfo._child has no date (YMDH).')
         self.__child=child
     def _clear_child(self):
         self.__child=None
@@ -471,21 +481,25 @@ class StormInfoWrapper(object):
       """StormInfo object being viewed""")
     def __getitem__(self,key):
         assert(self.__child is not None)
+        assert(hasattr(self.__child,'YMDH'))
         if self.__child is None:
             raise KeyError(key)
         return getattr(self.__child,key)
     def __contains__(self,key):
         assert(self.__child is not None)
+        assert(hasattr(self.__child,'YMDH'))
         if self.__child is None:
             return False
         return hasattr(self.__child,key)
     def __getattr__(self,attr):
         assert(self.__child is not None)
+        assert(hasattr(self.__child,'YMDH'))
         if self.__child is None:
             raise AttributeError(attr)
         return getattr(self.__child,attr)
     def __hasattr__(self,attr):
         assert(self.__child is not None)
+        assert(hasattr(self.__child,'YMDH'))
         if self.__child is None:
             return False
         return hasattr(self.__child,attr)
@@ -532,7 +546,7 @@ class MultiDictWrapper(Mapping):
             for k in d:
                 if k in seen: continue
                 seen.add(k)
-                return k
+                yield k
     def get(self,key,default=UNSPECIFIED):
         if default is UNSPECIFIED:
             return self[key]
@@ -557,7 +571,7 @@ class MultiDictWrapper(Mapping):
     def __str__(self):
         return '{'+', '.join([f'{k}:{v}' for k,v in self])+'}'
 
-def convert_to_py(crowobj,memo,retain_crow):
+def convert_to_py(crowobj,memo,retain_crow,raise_exceptions):
     i=id(crowobj)
     if i in memo: return memo[i]
     if isinstance(crowobj,str):        return crowobj
@@ -571,16 +585,30 @@ def convert_to_py(crowobj,memo,retain_crow):
     if isinstance(crowobj,Sequence):
         py=list()
         memo[i]=py
-        for s in crowobj:
-            py.append(convert_to_py(s,memo,retain_crow))
+        for j in len(crowobj):
+            try:
+                py.append(convert_to_py(crowobj[j],memo,retain_crow))
+            except(ConfigError,TypeError,ValueError,AttributeError,KeyError,IndexError) as e:
+                if raise_exceptions:
+                    raise
+                if retain_crow:
+                    py.append(crowobj._raw(j))
+                    continue
         return py
     if isinstance(crowobj,Mapping):
         py=dict()
         memo[i]=py
-        for k,v in crowobj.items():
+        for k in crowobj.keys():
             if k in SPECIAL_CROW_KEYS and not retain_crow:
                 continue
-            py[k]=convert_to_py(v,memo,retain_crow)
+            try:
+                py[k]=convert_to_py(crowobj[k],memo,retain_crow,raise_exceptions)
+            except (TypeError,ValueError,AttributeError,KeyError,IndexError,ConfigError) as e:
+                if raise_exceptions:
+                    raise
+                if retain_crow:
+                    py[k]=crowobj._raw(k)
+                    continue
         return py
     if retain_crow:
         return crowobj
@@ -603,12 +631,25 @@ def convert_to_conf_scalar(crowobj):
         return crowobj.total_seconds()
     return NotImplemented
 
-def convert_to_conf(section,fd):
+def convert_to_conf(section,fd,raise_exceptions):
     count_okay=0
-    for opt,val in section.items():
+    for opt in section.keys():
         if opt in SPECIAL_CROW_KEYS:
             fd.write(f'; {opt!r} omitted: key has special meaning in CROW\n')
             continue
+
+        try:
+            val=section[opt]
+        except(ConfigError,TypeError,ValueError,AttributeError,KeyError,IndexError) as e:
+            if raise_exceptions:
+                raise
+            raw=section._raw(opt)
+            if isinstance(raw,str):
+                val=raw
+            else:
+                fd.write(f': {opt!r} omitted: expression could not be evaluated: {e!s}')
+                continue
+
         if isinstance(val,str):
             result=convert_to_conf_scalar(val)
         elif isinstance(val,Sequence):
@@ -701,7 +742,7 @@ class HAFSConfig(object):
 
         self._prior_morevars=self._globals['more']._child
         self._prior_taskvars=self._globals['task']._child
-
+        
     @property
     def taskvars(self):
         assert('task' in self._globals)
@@ -765,7 +806,7 @@ class HAFSConfig(object):
         @param source the data to parse
         @return self"""
         context=f'"{repr(s[:13])[1:-1]}..."'
-        for doc in crow.config.from_string(s.read(),multi_document=True,evaluate_immediates=False):
+        for doc in crow.config.from_string(s,multi_document=True,evaluate_immediates=False):
             self.__merge_from_crow(doc,context)
 
     def readfp(self,fd):
@@ -814,7 +855,7 @@ class HAFSConfig(object):
             if not hasattr(new_section,'_raw_child'):
                 raise TypeError(f'{context}: {new_secname}: all document-level types must be CROW datatypes.')
             if new_secname not in self.doc:
-                print(f'Add section {new_secname} to document from {context}.')
+                #print(f'Add section {new_secname} to document from {context}.')
                 self.add_section(new_secname)
                 self.doc[new_secname]._raw_child().update(new_section._raw_child())
                 self.doc[new_secname]._invalidate_cache()
@@ -823,7 +864,7 @@ class HAFSConfig(object):
             old_section=old_raw_doc[new_secname]
             old_raw_section=old_section._raw_child()
             for optname,new_raw_val in new_raw_section.items():
-                print(f'Override doc.{new_secname}.{optname} from {context}.')
+                #print(f'Override doc.{new_secname}.{optname} from {context}.')
                 old_raw_section[optname]=new_raw_val
                 old_section._invalidate_cache(optname)
         crow.config.update_globals(self._doc,self._globals)
@@ -890,7 +931,9 @@ class HAFSConfig(object):
         strsection=str(section)
         if strsection not in self._doc:
             self.add_section(strsection)
-        if isinstance(value,str) and ( expand is UNSPECIFIED or expand ):
+        if isinstance(value,str) and expand is UNSPECIFIED:
+            expand='{' in value
+        if isinstance(value,str) and expand:
             self._doc[strsection][str(key)]=crow_expander(value)
         else:
             self._doc[strsection][str(key)]=value
@@ -990,6 +1033,47 @@ class HAFSConfig(object):
                 self._doc.config.cycle,'%Y%m%d%H')
             self._globals['cyc'].cycle=cycle
             _=self._globals['cyc'].YMDH
+
+    def add_CROW_MergeMapping(self,new_sec,*args):
+        """!Adds a new section that automatically merges the global "all"
+        symbol with contents of some other sections via the CROW
+        MergeMapping construct. This is merged with the YAML document as
+        the other read functions do."""
+
+        if not args:
+            raise ValueError('At least one source section is required')
+
+        if new_sec in self.doc:
+            raise ValueError(f'{new_sec}: already in document; add_CROW_MergeMapping can only add new sections')
+
+        yaml=f'''{new_sec}: !Immediate
+  - !MergeMapping
+    - !calc doc.config
+    - !calc doc.dir
+    - !calc doc.exe
+    - !calc cyc
+    - !calc "( {{}} if vit is None else vit )"
+    - !calc "( {{}} if oldvit is None else oldvit )"
+    - !calc "( {{}} if more is None else more )"
+    - !calc "( {{}} if task is None else task )"
+'''
+        for section in args:
+            yaml+=f'    - !calc ( doc["""{section}"""] )\n'
+        subdoc=crow.config.from_string(yaml,multi_document=False,
+                                       evaluate_immediates=False)
+
+        # Add the new section to the document and update its globals
+        # to match our document.
+        raw_new_sec=subdoc._raw_child()[new_sec]
+        assert(isinstance(raw_new_sec,Sequence))
+        self._doc._raw_child()[new_sec]=raw_new_sec
+        crow.config.update_globals(self._doc,self._globals)
+
+        # Evaluate the !MergeMapping:
+        _=self._doc[new_sec]
+
+        return self
+
     def add_section(self,sec):
         """!add a new config section
 
@@ -1233,7 +1317,11 @@ class HAFSConfig(object):
         with self:
             if kwargs:
                 self.set_locals(morevars=kwargs)
-            return crow.config.expand_text(string,self._doc[sec])
+            if sec=='all':
+                context=self._globals['all']
+            else:
+                context=self._doc[sec]
+            return crow.config.expand_text(string,context)
     def timestrinterp(self,sec,string,ftime=None,atime=None,**kwargs):
         """!performs string expansion, including time variables
 
@@ -1271,17 +1359,17 @@ class HAFSConfig(object):
             ftime=atime
         else:
             ftime=tcutil.numerics.to_datetime_rel(ftime,atime)
-        if 'vit' in morevars:
-            vit=morevars['vit']
+        if 'vit' in kwargs:
+            vit=kwargs['vit']
         else:
             vit=self.syndat
-        if 'oldvit' in morevars:
-            oldvit=morevars['oldvit']
+        if 'oldvit' in kwargs:
+            oldvit=kwargs['oldvit']
         else:
             oldvit=slef.oldsyndat
         with self:
             self.set_locals(morevars=kwargs,fcsttime=ftime,
-                            anltime=anltime,vit=vit,oldvit=oldvit)
+                            anltime=atime,vit=vit,oldvit=oldvit)
             return crow.config.expand_text(string,self._doc[sec])
 
     def _get(self,sec,opt,typeobj=UNSPECIFIED,default=UNSPECIFIED,badtypeok=False,morevars=None,taskvars=None):
@@ -1371,7 +1459,7 @@ class HAFSConfig(object):
         @param morevars,taskvars dicts of more variables for string expansion"""
         return self._get(sec,opt,str,default,badtypeok,morevars,taskvars=taskvars)
 
-    def py_evaluate(self,retain_crow=False,morevars=None,taskvars=None):
+    def py_evaluate(self,retain_crow,raise_exceptions,morevars=None,taskvars=None):
         """!Evaluates expressions and returns a dict of dicts
 
         Walks through all sections, evaluating any CROW calculations.
@@ -1383,19 +1471,19 @@ class HAFSConfig(object):
         memo=dict()
         with self:
             self.set_locals(morevars=morevars,taskvars=taskvars)
-            return convert_to_py(self._doc,memo,bool(retain_crow))
+            return convert_to_py(self._doc,memo,bool(retain_crow),bool(raise_exceptions))
 
-    def py_evaluate_to_yaml(self,retain_crow=False,morevars=None,taskvars=None):
+    def py_evaluate_to_yaml(self,retain_crow,raise_exceptions,morevars=None,taskvars=None):
         """!Evaluates expressions and generates resulting YAML
 
         Walks through all sections, evaluating any CROW calculations.
         All contents are converted to standard python types if
         possible.  (That is done by to_py().)  The result is convert
         to YAML and returned as a string."""
-        py=self.py_evaluate(retain_crow=retain_crow,morevars=morevars,taskvars=taskvars)
+        py=self.py_evaluate(retain_crow=retain_crow,raise_exceptions=raise_exceptions,morevars=morevars,taskvars=taskvars)
         return crow.config.to_yaml(py)
 
-    def py_evaluate_to_conf(self,morevars=None,taskvars=None):
+    def py_evaluate_to_conf(self,raise_exceptions,morevars=None,taskvars=None):
         """!Evaluates expressions and generates resulting INI-style files
 
         Walks through all sections, evaluating any CROW calculations.
@@ -1407,7 +1495,7 @@ class HAFSConfig(object):
             self.set_locals(morevars=morevars,taskvars=taskvars)
             for secname,sec in self._doc.items():
                 fd.write(f'[{secname}]\n')
-                count_okay=convert_to_conf(sec,fd)
+                count_okay=convert_to_conf(sec,fd,raise_exceptions)
                 if not count_okay:
                     fd.write('; (empty section)\n')
                 fd.write('\n')
@@ -1432,7 +1520,7 @@ class HAFSConfig(object):
         """
         with self:
             try:
-                return self._get(sec,opt,morevars=morevars,taskvars=taskvars)
+                return self._get(sec,opt,default=default,morevars=morevars,taskvars=taskvars)
             except NoOptionError:
                 if default is not None:
                     return default
@@ -1466,12 +1554,35 @@ class HAFSConfig(object):
         """!get a bool value
 
         Gets option opt from section sec and expands it; see "get" for
-        details.  Attempts to convert it to a bool
+        details.  Attempts to convert it to a bool.  String values are
+        searched for yes/no/true/false strings just like the prior
+        implementation of hafs.config.
 
         @param sec,opt the section and option
         @param default if specified and not None, then the default is
           returned if an option has no value or the section does not exist
         @param badtypeok is True, and the conversion fails, and a
           default is specified, the default will be returned.
-        @param morevars,taskvars dicts of more variables for string expansion"""
-        return bool(self.get(sec,opt,default=default,morevars=morevars,taskvars=taskvars))
+        @param morevars,taskvars dicts of more variables for string expansion
+
+        """
+
+        s=self.get(sec,opt,default=default,morevars=morevars,taskvars=taskvars)
+
+        if s is True or s is False:
+            return s
+
+        if isinstance(s,str):
+            if re.match('(?i)\A(?:T|\.true\.|true|yes|on|1)\Z',s):   return True
+            if re.match('(?i)\A(?:F|\.false\.|false|no|off|0)\Z',s): return False
+
+        try:
+            return int(s)==0
+        except ValueError as e:
+            pass
+
+        if badtypeok and default is not UNSPECIFIED and default is not None:
+            return bool(default)
+
+        raise ValueError('%s.%s: invalid value for HAFS conf file boolean: %s'
+                         %(sec,opt,repr(s)))

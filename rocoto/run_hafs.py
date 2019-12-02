@@ -40,6 +40,7 @@ from os.path import realpath, normpath, dirname
 
 def ask(question):
     sys.stdout.write(question)
+    sys.stdout.flush()
     itry=0
     itrytoohard=100
     go=True

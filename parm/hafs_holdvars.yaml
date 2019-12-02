@@ -11,25 +11,25 @@
 # They are set in the [holdvars] section.
 holdvars: # <------- section [holdvars]
 
-  COMIN: !uexpand "{all.com}" ##  Input com directory
+  COMIN: !calc com ##  Input com directory
   # ^--- was COMIN={com}
 
-  COMOUT: !uexpand "{all.com}" ##  output com directory
+  COMOUT: !calc com ##  output com directory
   # ^--- was COMOUT={com}
 
-  RUN_GSI: !uexpand "{all.cap_run_gsi}" ##  Do we run GSI?
+  RUN_GSI: !calc cap_run_gsi ##  Do we run GSI?
   # ^--- was RUN_GSI={cap_run_gsi}
 
-  RUN_VORTEXINIT: !uexpand "{all.cap_run_vortexinit}" ##  Do we run vortex initialization?
+  RUN_VORTEXINIT: !calc cap_run_vortexinit ##  Do we run vortex initialization?
   # ^--- was RUN_VORTEXINIT={cap_run_vortexinit}
 
-  GSID01: !uexpand "{all.cap_run_gsi}" ##  Do we run GSI for domain 1?
+  GSID01: !calc cap_run_gsi ##  Do we run GSI for domain 1?
   # ^--- was GSID01={cap_run_gsi}
 
-  GSID02: !uexpand "{all.cap_run_gsi}" ##  Do we run GSI for domain 2?
+  GSID02: !calc cap_run_gsi ##  Do we run GSI for domain 2?
   # ^--- was GSID02={cap_run_gsi}
 
-  GSID03: !uexpand "{all.cap_run_gsi}" ##  Do we run GSI for domain 3?
+  GSID03: !calc cap_run_gsi ##  Do we run GSI for domain 3?
   # ^--- was GSID03={cap_run_gsi}
 
   FGATSTR: "-3" ##  FGAT start hour relative to analysis time
@@ -41,7 +41,7 @@ holdvars: # <------- section [holdvars]
   FGATEND: 3 ##  FGAT end hour relative to analysis time
   # ^--- was FGATEND=3
 
-  ENVEQUIV: !uexpand "{all.WHERE_AM_I}" ##  Present cluster name
+  ENVEQUIV: !calc WHERE_AM_I ##  Present cluster name
   # ^--- was ENVEQUIV={WHERE_AM_I}
 
 # EXPT={ENV[EXPT]}
@@ -49,132 +49,132 @@ holdvars: # <------- section [holdvars]
 #JET_NAME={ENV[JET_NAME]}
 #WHERE_AM_I={ENV[ENVEQUIV]}
 
-  CASE: !uexpand "{doc.grid.CASE}"
+  CASE: !calc doc.grid.CASE
   # ^--- was CASE={grid/CASE}
 
-  LEVELS: !uexpand "{doc.grid.LEVELS}"
+  LEVELS: !calc doc.grid.LEVELS
   # ^--- was LEVELS={grid/LEVELS}
 
-  gtype: !uexpand "{doc.grid.gtype}"
+  gtype: !calc doc.grid.gtype
   # ^--- was gtype={grid/gtype}
 
-  gridfixdir: !uexpand "{doc.grid.gridfixdir}"
+  gridfixdir: !calc doc.grid.gridfixdir
   # ^--- was gridfixdir={grid/gridfixdir}
 
-  stretch_fac: !uexpand "{doc.grid.stretch_fac}"
+  stretch_fac: !calc doc.grid.stretch_fac
   # ^--- was stretch_fac={grid/stretch_fac}
 
-  target_lon: !uexpand "{doc.grid.target_lon}"
+  target_lon: !calc doc.grid.target_lon
   # ^--- was target_lon={grid/target_lon}
 
-  target_lat: !uexpand "{doc.grid.target_lat}"
+  target_lat: !calc doc.grid.target_lat
   # ^--- was target_lat={grid/target_lat}
 
-  refine_ratio: !uexpand "{doc.grid.refine_ratio}"
+  refine_ratio: !calc doc.grid.refine_ratio
   # ^--- was refine_ratio={grid/refine_ratio}
 
-  istart_nest: !uexpand "{doc.grid.istart_nest}"
+  istart_nest: !calc doc.grid.istart_nest
   # ^--- was istart_nest={grid/istart_nest}
 
-  jstart_nest: !uexpand "{doc.grid.jstart_nest}"
+  jstart_nest: !calc doc.grid.jstart_nest
   # ^--- was jstart_nest={grid/jstart_nest}
 
-  iend_nest: !uexpand "{doc.grid.iend_nest}"
+  iend_nest: !calc doc.grid.iend_nest
   # ^--- was iend_nest={grid/iend_nest}
 
-  jend_nest: !uexpand "{doc.grid.jend_nest}"
+  jend_nest: !calc doc.grid.jend_nest
   # ^--- was jend_nest={grid/jend_nest}
 
-  halo: !uexpand "{doc.grid.halo}"
+  halo: !calc doc.grid.halo
   # ^--- was halo={grid/halo}
 
-  halop1: !uexpand "{doc.grid.halop1}"
+  halop1: !calc doc.grid.halop1
   # ^--- was halop1={grid/halop1}
 
-  halo0: !uexpand "{doc.grid.halo0}"
+  halo0: !calc doc.grid.halo0
   # ^--- was halo0={grid/halo0}
 
  
-  dt_atmos: !uexpand "{doc.forecast.dt_atmos}"
+  dt_atmos: !calc doc.forecast.dt_atmos
   # ^--- was dt_atmos={forecast/dt_atmos}
 
-  restart_interval: !uexpand "{doc.forecast.restart_interval}"
+  restart_interval: !calc doc.forecast.restart_interval
   # ^--- was restart_interval={forecast/restart_interval}
 
-  quilting: !uexpand "{doc.forecast.quilting}"
+  quilting: !calc doc.forecast.quilting
   # ^--- was quilting={forecast/quilting}
 
-  write_groups: !uexpand "{doc.forecast.write_groups}"
+  write_groups: !calc doc.forecast.write_groups
   # ^--- was write_groups={forecast/write_groups}
 
-  write_tasks_per_group: !uexpand "{doc.forecast.write_tasks_per_group}"
+  write_tasks_per_group: !calc doc.forecast.write_tasks_per_group
   # ^--- was write_tasks_per_group={forecast/write_tasks_per_group}
 
 
-  glob_layoutx: !uexpand "{doc.forecast.glob_layoutx}"
+  glob_layoutx: !calc doc.forecast.glob_layoutx
   # ^--- was glob_layoutx={forecast/glob_layoutx}
 
-  glob_layouty: !uexpand "{doc.forecast.glob_layouty}"
+  glob_layouty: !calc doc.forecast.glob_layouty
   # ^--- was glob_layouty={forecast/glob_layouty}
 
-  glob_npx: !uexpand "{doc.forecast.glob_npx}"
+  glob_npx: !calc doc.forecast.glob_npx
   # ^--- was glob_npx={forecast/glob_npx}
 
-  glob_npy: !uexpand "{doc.forecast.glob_npy}"
+  glob_npy: !calc doc.forecast.glob_npy
   # ^--- was glob_npy={forecast/glob_npy}
 
 
-  layoutx: !uexpand "{doc.forecast.layoutx}"
+  layoutx: !calc doc.forecast.layoutx
   # ^--- was layoutx={forecast/layoutx}
 
-  layouty: !uexpand "{doc.forecast.layouty}"
+  layouty: !calc doc.forecast.layouty
   # ^--- was layouty={forecast/layouty}
 
-  npx: !uexpand "{doc.forecast.npx}"
+  npx: !calc doc.forecast.npx
   # ^--- was npx={forecast/npx}
 
-  npy: !uexpand "{doc.forecast.npy}"
+  npy: !calc doc.forecast.npy
   # ^--- was npy={forecast/npy}
 
-  npz: !uexpand "{doc.forecast.npz}"
+  npz: !calc doc.forecast.npz
   # ^--- was npz={forecast/npz}
 
  
-  app_domain: !uexpand "{doc.forecast.app_domain}"
+  app_domain: !calc doc.forecast.app_domain
   # ^--- was app_domain={forecast/app_domain}
 
-  output_grid: !uexpand "{doc.forecast.output_grid}"
+  output_grid: !calc doc.forecast.output_grid
   # ^--- was output_grid={forecast/output_grid}
 
-  output_grid_cen_lon: !uexpand "{doc.forecast.output_grid_cen_lon}"
+  output_grid_cen_lon: !calc doc.forecast.output_grid_cen_lon
   # ^--- was output_grid_cen_lon={forecast/output_grid_cen_lon}
 
-  output_grid_cen_lat: !uexpand "{doc.forecast.output_grid_cen_lat}"
+  output_grid_cen_lat: !calc doc.forecast.output_grid_cen_lat
   # ^--- was output_grid_cen_lat={forecast/output_grid_cen_lat}
 
-  output_grid_lon1: !uexpand "{doc.forecast.output_grid_lon1}"
+  output_grid_lon1: !calc doc.forecast.output_grid_lon1
   # ^--- was output_grid_lon1={forecast/output_grid_lon1}
 
-  output_grid_lat1: !uexpand "{doc.forecast.output_grid_lat1}"
+  output_grid_lat1: !calc doc.forecast.output_grid_lat1
   # ^--- was output_grid_lat1={forecast/output_grid_lat1}
 
-  output_grid_lon2: !uexpand "{doc.forecast.output_grid_lon2}"
+  output_grid_lon2: !calc doc.forecast.output_grid_lon2
   # ^--- was output_grid_lon2={forecast/output_grid_lon2}
 
-  output_grid_lat2: !uexpand "{doc.forecast.output_grid_lat2}"
+  output_grid_lat2: !calc doc.forecast.output_grid_lat2
   # ^--- was output_grid_lat2={forecast/output_grid_lat2}
 
-  output_grid_dlon: !uexpand "{doc.forecast.output_grid_dlon}"
+  output_grid_dlon: !calc doc.forecast.output_grid_dlon
   # ^--- was output_grid_dlon={forecast/output_grid_dlon}
 
-  output_grid_dlat: !uexpand "{doc.forecast.output_grid_dlon}"
+  output_grid_dlat: !calc doc.forecast.output_grid_dlon
   # ^--- was output_grid_dlat={forecast/output_grid_dlon}
 
  
-  synop_gridspecs: !uexpand "{synop_gridspecs}"
+  synop_gridspecs: !calc doc.post.synop_gridspecs
   # ^--- was synop_gridspecs={synop_gridspecs}
 
-  trker_gridspecs: !uexpand "{trker_gridspecs}"
+  trker_gridspecs: !calc doc.post.trker_gridspecs
   # ^--- was trker_gridspecs={trker_gridspecs}
 
 

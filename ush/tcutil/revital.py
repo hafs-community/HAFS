@@ -298,7 +298,7 @@ class Revital:
         logger=self.logger
         debug=self.debug and logger is not None
         renumbered=False
-        for stormid in lastvit.keys():
+        for stormid in list(lastvit.keys()): # must list() since keys change
             othervit=lastvit[stormid]
             if threshold:
                 old_id=getattr(othervit,'old_stnum',0)

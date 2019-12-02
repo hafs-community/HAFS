@@ -10,12 +10,6 @@
 ## The main configuration file.
 config: # <------- section [config]
 
-  YAMLhafs: !uexpand "{all.com}/{all.stormlabel}.yaml"
-  # ^--- New (added manually)
-
-  CONFhafs: !uexpand "{all.com}/{all.stormlabel}.conf"
-  # ^--- was CONFhafs={com}/{stormlabel}.conf
-
 ## The holdvars file.
   HOLDVARS: !uexpand "{all.com}/{all.stormlabel}.holdvars.txt"
   # ^--- was HOLDVARS={com}/{stormlabel}.holdvars.txt
@@ -54,6 +48,11 @@ config: # <------- section [config]
 
 ## Configure file and directory paths
 dir: # <------- section [dir]
+  YAMLhafs: !uexpand "{all.com}/{all.stormlabel}.yaml"
+  # ^--- New (added manually)
+
+  CONFhafs: !uexpand "{all.com}/{all.stormlabel}.conf"
+  # ^--- was CONFhafs={com}/{stormlabel}.conf
 
   HOMEhafs: !uexpand "{all.CDSAVE}/{all.EXPT}"
   # ^--- was HOMEhafs={CDSAVE}/{EXPT}
