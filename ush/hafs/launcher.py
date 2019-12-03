@@ -390,6 +390,8 @@ def load(filename):
 
     conf.set_storm(syndat,oldsyndat)
 
+    _=conf.strinterp('dir','{vit.YMDH}') # will fail if set_storm did not set storm
+
     if run_multistorm_00flag:
         _load_multistorm(fakestormid,conf,logger)
 
