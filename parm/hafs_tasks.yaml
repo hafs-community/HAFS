@@ -59,10 +59,14 @@ task_defaults:
   more_xml: ''
   varsep: !expand '\n'
 
-  # These three resource-related variables are expected by the HAFS scripts:
-  TOTAL_TASKS: !ucalc 'resources.total_ranks()'
-  NCTSK: !ucalc 'doc.accounting.nodes.max_ranks_per_node(resources[0])'
-  OMP_NUM_THREADS: !ucalc 'doc.accounting.nodes.omp_threads_for(resources[0])'
+  # Number of MPI ranks or 1 for no MPI
+  TOTAL_TASKS: !ucalc 'max(1,resources.total_ranks())'
+
+  # Requested number of OpenMP threads
+  OMP_THREADS: !ucalc 'doc.accounting.nodes.omp_threads_for(resources[0])'
+
+  # Nominally, the number of tasks per node.
+  NCTSK: !ucalc 'max(1,min(TOTAL_TASKS,doc.accounting.nodes.max_ranks_per_node(resources[0])))'
 
   Rocoto: !uexpand |
     <command>{exe}</command>
@@ -75,7 +79,7 @@ task_defaults:
 
     <!-- Resource-related vars generated for underlying scripts. -->
     <envar><name>TOTAL_TASKS</name><value>{TOTAL_TASKS}</value></envar>
-    <envar><name>OMP_THREADS</name><value>{OMP_NUM_THREADS}</value></envar>
+    <envar><name>OMP_THREADS</name><value>{OMP_THREADS}</value></envar>
     <envar><name>NCTSK</name><value>{NCTSK}</value></envar>
 
     <!-- from global_env_vars -->
