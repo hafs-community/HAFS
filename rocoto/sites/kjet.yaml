@@ -29,20 +29,20 @@ accounting:
 resources:
   pure_openmp: !JobRequest
     - &resources_pure_openmp
-      mpi_ranks: 1
+      mpi_ranks: 0
       max_ppn: 1
       exclusive: true
       OMP_NUM_THREADS: !calc doc.accounting.threads
   serial: !JobRequest
     - &resources_small_serial
-      mpi_ranks: 1
+      mpi_ranks: 0
       max_ppn: 1
       exclusive: false
       memory: '1024M'
       queue: batch
   archive: !JobRequest
     - &resources_archive
-      mpi_ranks: 1
+      mpi_ranks: 0
       max_ppn: 1
       exclusive: false
 
@@ -57,7 +57,7 @@ resources:
   input: !JobRequest [ { <<: *resources_archive }]
   archive_disk: !JobRequest [ { <<: *resources_archive }]
   archive_tape: !JobRequest [ { <<: *resources_archive }]
-  archive_fv3pit: !JobRequest [ { <<: *resources_archive }]
+  archive_fv3out: !JobRequest [ { <<: *resources_archive }]
 
   grid: !JobRequest
     - mpi_ranks: 24
