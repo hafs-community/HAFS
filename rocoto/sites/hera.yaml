@@ -19,7 +19,7 @@ accounting:
     queue: batch
     account: !ref doc.accounting.account
   service:
-    queue: service
+    partition: service
     account: !ref doc.accounting.account
 
 resources:
