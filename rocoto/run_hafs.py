@@ -594,10 +594,6 @@ else:
     conf.doc.workflow.first_cycle=datetime.datetime.strptime(min(cycleset),'%Y%m%d%H')
     conf.doc.workflow.last_cycle=datetime.datetime.strptime(max(cycleset),'%Y%m%d%H')
     suite=Suite(conf.doc.workflow.suite)
-    # Expand the !Inherit tags in each task:
-    for task in suite.walk_task_tree():
-        if task.is_task():
-            task.viewed._validate('suite')
     rocotoxml=to_rocoto(suite)
     del taskvars, suite, to_rocoto, Suite,validate
 
