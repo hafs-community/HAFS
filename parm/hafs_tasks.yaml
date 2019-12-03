@@ -41,7 +41,7 @@ xml_env_vars:
   CONFhafs: "<cyclestr>&CONFhafs;</cyclestr>"
   HOLDVARS: "<cyclestr>&HOLDVARS;</cyclestr>"
   HAFS_FORCE_TMPDIR: "<cyclestr>&WORKhafs;/tmpdir</cyclestr>"
-  jlogfile: "&LOGhafs;/jlogfile"
+  jlogfile: "<cyclestr>&LOGhafs;/jlogfile</cyclestr>"
 
 task_defaults:
   global_env_vars: !calc doc.xml_env_vars
