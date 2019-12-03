@@ -24,6 +24,10 @@ class InvalidConfigOptName(HAFSError):
     """!Raised when one tries to use an invalid string for an option
     name."""
 
+class ConfigNoVitals(HAFSError):
+    """!Raised when a config variable requests vitals but no vitals were
+    supplied to the HAFSConfig object."""
+
 ########################################################################
 # FAILURE TESTING
 
