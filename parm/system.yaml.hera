@@ -69,3 +69,24 @@ holdvars: # <------- section [holdvars]
   WHICH_JET: "none" ##  Which part of Jet are we on?  None; we are not on Jet.
   # ^--- was WHICH_JET=none
 
+
+forecast: # <------- section [forecast]
+
+  glob_layoutx: 8
+  # ^--- was glob_layoutx=8
+
+  glob_layouty: 10
+  # ^--- was glob_layouty=10
+
+  layoutx: 40
+  # ^--- was layoutx=40
+
+  layouty: 30
+  # ^--- was layouty=30
+
+  write_groups: 3
+  # ^--- was write_groups=3
+
+  write_tasks_per_group: 40
+  # ^--- was write_tasks_per_group=40
+
