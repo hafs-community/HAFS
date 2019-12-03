@@ -15,6 +15,7 @@ xml_entities_constant: # entities that contain no entity references
   WHERE_AM_I: !calc all.WHERE_AM_I
   HOLDVARS: '&COMhafs;/&STORMLABEL;.holdvars.txt'
   CONFhafs: "&COMhafs;/&STORMLABEL;.conf"
+  YAMLhafs: "&COMhafs;/&STORMLABEL;.yaml"
   BASINS: !calc all.BASINS
   RENUM: !calc all.RENUM
   STORMLABEL: !calc all.stormlabel
@@ -39,6 +40,7 @@ xml_env_vars:
   WORKhafs: "<cyclestr>&WORKhafs;</cyclestr>"
   COMhafs: "<cyclestr>&COMhafs;</cyclestr>"
   CONFhafs: "<cyclestr>&CONFhafs;</cyclestr>"
+  YAMLhafs: "<cyclestr>&YAMLhafs;</cyclestr>"
   HOLDVARS: "<cyclestr>&HOLDVARS;</cyclestr>"
   HAFS_FORCE_TMPDIR: "<cyclestr>&WORKhafs;/tmpdir</cyclestr>"
   jlogfile: "<cyclestr>&LOGhafs;/jlogfile</cyclestr>"
