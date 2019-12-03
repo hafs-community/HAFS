@@ -49,9 +49,9 @@ def main_disk():
       *.tar.gz archive in a temporary location so it can be copied to
       tape in a later step."""
     postmsg('hafs_archive disk step starting')
-    environ_CONFhafs=os.environ.get('CONFhafs','NO_CONFhafs')
-    #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
-    conf=hafs.launcher.load(environ_CONFhafs)
+    environ_YAMLhafs=os.environ.get('YAMLhafs','NO_YAMLhafs')
+    #conf=hafs.launcher.HAFSLauncher().read(environ_YAMLhafs)
+    conf=hafs.launcher.load(environ_YAMLhafs)
     logger=conf.log('archive.disk')
     if conf.has_section('archive'):
         makethedir=conf.getbool('archive','mkdir',False)
@@ -112,9 +112,9 @@ def main_tape():
       temporary area, made by the disk archiving step, to a tape
       destination using the "hsi put" command."""
     postmsg('hafs_archive tape step starting')
-    environ_CONFhafs=os.environ.get('CONFhafs','NO_CONFhafs')
-    #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
-    conf=hafs.launcher.load(environ_CONFhafs)
+    environ_YAMLhafs=os.environ.get('YAMLhafs','NO_YAMLhafs')
+    #conf=hafs.launcher.HAFSLauncher().read(environ_YAMLhafs)
+    conf=hafs.launcher.load(environ_YAMLhafs)
     logger=conf.log('archive.tape')
     archive=conf.getloc('archive','NONE')
     if conf.has_section('archive'):
