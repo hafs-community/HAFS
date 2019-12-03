@@ -1,5 +1,6 @@
 accounting:
   sched: !calc tools.get_scheduler(scheduler_settings.name,scheduler_settings)
+  nodes: !calc tools.node_tool_for('generic',scheduler_settings)
   scheduler_settings: !error 'Site did not fill in accounting.scheduler_settings'
 
 workflow:
@@ -16,6 +17,7 @@ workflow:
 
   # This describes the workflow:
   suite: !Cycle
+
     Rocoto:
       varsep: !expand '\n  '
       # This is the text that generates the workflow XML file:
@@ -44,7 +46,8 @@ workflow:
       step: !calc doc.workflow.cycle_step
 
     launch: !Task
-      Inherit: !Inherit [ [ doc.launch_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.launch_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend ( launch.at(-6*3600) | ~ suite.has_cycle(-6*3600) )
       Time: !timedelta '+3:20:00'
 
@@ -70,52 +73,68 @@ workflow:
       # Internal dependencies.  
 
     input: !Task
-      Inherit: !Inherit [ [ doc.input_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.input_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend launch
-      Disable: !calc all.FETCH_INPUT
+      Disable: !calc ( not all.FETCH_INPUT )
 
     grid: !Task
-      Inherit: !Inherit [ [ doc.grid_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.grid_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend launch
 
     chgres_ic: !Task
-      Inherit: !Inherit [ [ doc.chgres_ic_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.chgres_ic_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Time: !timedelta '+3:25:00'
-      Trigger: !Depend ( launch & launch.gfs_atmanl & launch.gfs_sfcanl & input )
-
-    chgres_bc: !Task
-      Inherit: !Inherit [ [ doc.chgres_bc_task, '.*' ] ]
+      Trigger: !Depend ( launch.gfs_atmanl & launch.gfs_sfcanl & input & grid )
+    
+    chgres_bc: !TaskArray
+      Trigger: !Depend ( grid & ( launch.gfs_atmf126 | launch.gfs_pgrb2_0p25_f126 ) & input )
       Time: !timedelta '+4:10:00'
       Disable: !calc ( all.gtype!='regional' )
-      Trigger: !Depend ( launch & launch.gfs_atmf126 & launch.gfs_pgrb2_0p25_f126 & input )
+      Dimensions:
+        tile: [ 1, 2, 3, 4, 5, 6 ]
+      chgres_bc_tile: !TaskElement
+        Inherit: !Inherit [ [ doc.chgres_bc_task, '.*', {recurse: inherit} ] ]
+        Validate: inherit
+        Foreach: [ tile ]
+        Name: !expand 'chgres_bc{dimval.tile:03d}'
 
     forecast: !Task
-      Inherit: !Inherit [ [ doc.forecast_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.forecast_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (chgres_ic & chgres_bc)
-    
+
     post: !Task
-      Inherit: !Inherit [ [ doc.post_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.post_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (forecast | forecast.is_running())
 
     product: !Task
-      Inherit: !Inherit [ [ doc.product_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.product_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (post | post.is_running())
 
     archive_disk: !Task
-      Inherit: !Inherit [ [ doc.archive_disk_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.archive_disk_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (forecast & post & product)
       
     archive_tape: !Task
-      Inherit: !Inherit [ [ doc.archive_tape_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.archive_tape_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (forecast & post & product & archive_disk)
 
     archive_fv3out: !Task
-      Inherit: !Inherit [ [ doc.archive_fv3out_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.archive_fv3out_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend (forecast & ~scrub_work & ~scrub_com )
       Disable: !calc ( not all.ARCHIVE_FV3OUT )
 
     scrub_work: !Task
-      Inherit: !Inherit [ [ doc.scrub_work_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.scrub_work_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend >-
         (archive_tape & archive_disk & archive_fv3out
         & donefile.donefile_work_scrub_time
@@ -123,7 +142,8 @@ workflow:
         | forecast.at(-6*3600) | scrub_work.at(-6*3600) ) )
 
     donefile: !Task
-      Inherit: !Inherit [ [ doc.donefile_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.donefile_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       donefile_work_scrub_time: !DataEvent
         age: !calc tools.to_timedelta(doc.workflow.COM_SCRUB_TIME)
         file: "&COMhafs;/&STORMLABEL;.done"
@@ -133,11 +153,13 @@ workflow:
       Trigger: !Depend "( (post&product) | (scrub_work&scrub_com) )"
       
     scrub_com: !Task
-      Inherit: !Inherit [ [ doc.scrub_com_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.scrub_com_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Trigger: !Depend "archive_tape & archive_disk & archive_fv3out & scrub_work & donefile.donefile_com_scrub_time & ( ~ suite.has_cycle(6*3600) | ( archive_tape.at(6*3600) & archive_disk.at(6*3600) & donefile.at(6*3600).donefile_com_scrub_time ) )"
       
     completion: !Task
-      Inherit: !Inherit [ [ doc.completion_task, '.*' ] ]
+      Inherit: !Inherit [ [ doc.completion_task, '.*', {recurse: inherit} ] ]
+      Validate: inherit
       Rocoto_attr: 'final="T"'
       Trigger: !Depend "( (donefile & archive_disk & archive_tape & scrub_work & scrub_com ) | ( scrub_work & scrub_com ) )"
       
