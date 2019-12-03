@@ -40,6 +40,10 @@ from tcutil.numerics import to_datetime
 from tcutil.storminfo import find_tcvitals_for, StormInfo
 from hafs.exceptions import HAFSError
 
+from contextlib import contextmanager
+
+_logger=logging.getLogger('hafs.config')
+
 INITIAL_DOCUMENT='''
 config: {}
 dir: {}
@@ -464,7 +468,8 @@ class AttrDictWrapper(DictWrapper):
         return k in self
 
 class StormInfoWrapper(object):
-    def __init__(self,child=None):
+    def __init__(self,name=None,child=None):
+        self.__name=name
         self.__child=child
     def _get_child(self):
         return self.__child
@@ -474,43 +479,50 @@ class StormInfoWrapper(object):
                 raise TypeError(f'StormInfo._child must be a StormInfo, not a {type(child).__name__} {child!r}')
             if not hasattr(child,'YMDH'):
                 raise ValueError('StormInfo._child has no date (YMDH).')
+            if child is not self.__child:
+                _logger.info(f'{self.__name}: set vitals to: {child.as_tcvitals()}')
+        elif self.__child is not None:
+            _logger.warning(f'{self.__name}: reset vitals to None')
         self.__child=child
     def _clear_child(self):
+        if self.__child is not None:
+            _logger.warning(f'{self.__name}: clear vitals')
         self.__child=None
     _child=property(_get_child,_set_child,_clear_child,
       """StormInfo object being viewed""")
     def __getitem__(self,key):
-        assert(self.__child is not None)
-        assert(hasattr(self.__child,'YMDH'))
+        if self.__child is None:
+            raise hafs.exceptions.ConfigNoVitals(f'StormInfoWrapper({self.__name!r}).__getitem__({key!r}): no vitals')
         if self.__child is None:
             raise KeyError(key)
         return getattr(self.__child,key)
     def __contains__(self,key):
-        assert(self.__child is not None)
-        assert(hasattr(self.__child,'YMDH'))
+        if self.__child is None:
+            raise hafs.exceptions.ConfigNoVitals(f'StormInfoWrapper({self.__name!r}).__contains__({key!r}): no vitals')
         if self.__child is None:
             return False
         return hasattr(self.__child,key)
     def __getattr__(self,attr):
-        assert(self.__child is not None)
-        assert(hasattr(self.__child,'YMDH'))
+        if self.__child is None:
+            raise hafs.exceptions.ConfigNoVitals(f'StormInfoWrapper({self.__name!r}).__getattr__({attr!r}): no vitals')
         if self.__child is None:
             raise AttributeError(attr)
         return getattr(self.__child,attr)
     def __hasattr__(self,attr):
-        assert(self.__child is not None)
-        assert(hasattr(self.__child,'YMDH'))
+        if self.__child is None:
+            raise hafs.exceptions.ConfigNoVitals(f'StormInfoWrapper({self.__name!r}).__hasattr__({attr!r}): no vitals')
         if self.__child is None:
             return False
         return hasattr(self.__child,attr)
     def __copy__(self):
         cls=type(self)
-        return cls(self.__child)
+        return cls(self.__name,self.__child)
     def __deepcopy__(self,memo):
         cls=type(self)
         new=cls()
         memo[id(self)]=new
         new.__child=copy.deepcopy(self.__child,memo)
+        new.__name=copy.deepcopy(self.__name,memo)
         return new
 
 class MultiDictWrapper(Mapping):
@@ -708,7 +720,7 @@ class HAFSConfig(object):
         @param quoted_literals ignored; present for backward compatibility
         @param strict ignored; present for backward compatibility
         @param inline_comment_prefixes ignored; present for backward compatibility"""
-        self._logger=logging.getLogger('hafs.config')
+        self._logger=_logger # from module scope
         logger=self._logger
         self._lock=threading.RLock()
         self._datastore=None
@@ -718,8 +730,8 @@ class HAFSConfig(object):
 
         self._globals={
             'cyc':TimeInfo(),
-            'vit':StormInfoWrapper(),
-            'oldvit':StormInfoWrapper(),
+            'vit':StormInfoWrapper('vit'),
+            'oldvit':StormInfoWrapper('oldvit'),
             'more':AttrDictWrapper(dict()),
             'task':AttrDictWrapper(dict()),
         }
@@ -737,11 +749,11 @@ class HAFSConfig(object):
         # so everything works as it did before in Python 2.
         self._fallback_callbacks=list()
 
-        self._prior_vit=None
-        self._prior_oldvit=None
+        self._prior_vit=list()
+        self._prior_oldvit=list()
 
-        self._prior_morevars=self._globals['more']._child
-        self._prior_taskvars=self._globals['task']._child
+        self._prior_morevars=[self._globals['more']._child]
+        self._prior_taskvars=[self._globals['task']._child]
         
     @property
     def taskvars(self):
@@ -949,7 +961,6 @@ class HAFSConfig(object):
         Releases this HAFSConfig's thread lock.  This is only for
         future compatibility and is never used.
         @param a,b,c unused"""
-        self.clear_locals()
         self._lock.release()
     def register_hafs_task(self,name):
         """!add an hafs.hafstask.HAFSTask to the database
@@ -1131,8 +1142,7 @@ class HAFSConfig(object):
         @param taskvars even more variables for string substitution
         @param name the option name to search for
         @returns the resulting value"""
-        with self:
-            self.set_locals(morevars=morevars,taskvars=taskvars)
+        with self.set_locals(morevars=morevars,taskvars=taskvars):
             for secname in [ 'config', 'exe', 'dir' ]:
                 section=self._doc[secname]
                 if name in section:
@@ -1255,26 +1265,38 @@ class HAFSConfig(object):
                 return default
         return self._doc[sec]._raw(opt)
 
-    def clear_locals(self):
-        self._globals['task']._child=self._prior_taskvars
-        self._globals['more']._child=self._prior_morevars
-        self._globals['vit']._child=self._prior_vit
-        self._globals['oldvit']._child=self._prior_oldvit
+    @contextmanager
     def set_locals(self,vit=None,oldvit=None,taskvars=None,morevars=None,fcsttime=None,anltime=None):
+        with self:
+            self.__push_locals(vit,oldvit,taskvars,morevars,fcsttime,anltime)
+            try:
+                yield
+            finally:
+                self.__pop_locals()
+    def __pop_locals(self):
+        self._globals['task']._child=self._prior_taskvars.pop()
+        self._globals['more']._child=self._prior_morevars.pop()
+        self._globals['vit']._child=self._prior_vit.pop()
+        self._globals['oldvit']._child=self._prior_oldvit.pop()
+    def __push_locals(self,vit=None,oldvit=None,taskvars=None,morevars=None,fcsttime=None,anltime=None):
         if fcsttime is not None:
             self._globals['cyc'].fcsttime=fcsttime
         if anltime is not None:
             self._globals['cyc'].anltime=anltime
-        self._prior_taskvars=self._globals['task']._child
+
+        self._prior_taskvars.append(self._globals['task']._child)
         if taskvars:
             self._globals['task']._child=taskvars
-        self._prior_morevars=self._globals['more']._child
+
+        self._prior_morevars.append(self._globals['more']._child)
         if morevars:
             self._globals['more']._child=morevars
-        self._prior_vit=self._globals['vit']._child
+
+        self._prior_vit.append(self._globals['vit']._child)
         if vit is not None:
             self._globals['vit']._child=vit
-        self._prior_oldvit=self._globals['oldvit']._child
+
+        self._prior_oldvit.append(self._globals['oldvit']._child)
         if oldvit is not None:
             self._globals['oldvit']._child=oldvit
 
@@ -1306,8 +1328,8 @@ class HAFSConfig(object):
         return None
 
     def setvitals(self,vit):
-        traceback.print_stack()
-        assert(isinstance(vit,tcutil.storminfo.StormInfo))
+        if not isinstance(vit,tcutil.storminfo.StormInfo):
+            raise TypeError(f'{type(self).__name__}.setvitals: vit should be a tcutil.storminfo.StormInfo, not a {type(vit).__name__}.')
         self.__dict__['syndat']=vit
         self.__dict__['storminfo']=vit
         self._globals['vit']._child=vit
@@ -1333,9 +1355,7 @@ class HAFSConfig(object):
         @param kwargs more variables for string substitution"""
         assert(isinstance(sec,str))
         assert(isinstance(string,str))
-        with self:
-            if kwargs:
-                self.set_locals(morevars=kwargs)
+        with self.set_locals(morevars=kwargs):
             if sec=='all':
                 context=self._globals['all']
             else:
@@ -1386,9 +1406,8 @@ class HAFSConfig(object):
             oldvit=kwargs['oldvit']
         else:
             oldvit=slef.oldsyndat
-        with self:
-            self.set_locals(morevars=kwargs,fcsttime=ftime,
-                            anltime=atime,vit=vit,oldvit=oldvit)
+        with self.set_locals(morevars=kwargs,fcsttime=ftime,
+                             anltime=atime,vit=vit,oldvit=oldvit):
             return crow.config.expand_text(string,self._doc[sec])
 
     def _get(self,sec,opt,typeobj=UNSPECIFIED,default=UNSPECIFIED,badtypeok=False,morevars=None,taskvars=None):
@@ -1415,13 +1434,12 @@ class HAFSConfig(object):
           interpolation.  
         @param taskvars  serves the same purpose as morevars, but
           provides a second scope.        """
-        with self:
-            section=self._doc.get(sec,NOTFOUND)
-            if section is NOTFOUND:
-                if default is not UNSPECIFIED:
-                    return default
-                raise KeyError(sec)
-            self.set_locals(morevars=morevars,taskvars=taskvars)
+        section=self._doc.get(sec,NOTFOUND)
+        if section is NOTFOUND:
+            if default is not UNSPECIFIED:
+                return default
+            raise KeyError(sec)
+        with self.set_locals(morevars=morevars,taskvars=taskvars):
             if default is not UNSPECIFIED:
                 result=section.get(opt,default)
             else:
@@ -1488,8 +1506,7 @@ class HAFSConfig(object):
 
         """
         memo=dict()
-        with self:
-            self.set_locals(morevars=morevars,taskvars=taskvars)
+        with self.set_locals(morevars=morevars,taskvars=taskvars):
             return convert_to_py(self._doc,memo,bool(retain_crow),bool(raise_exceptions))
 
     def py_evaluate_to_yaml(self,retain_crow,raise_exceptions,morevars=None,taskvars=None):
@@ -1510,8 +1527,7 @@ class HAFSConfig(object):
         possible.  (That is done by to_py().)  The result is convert
         to YAML and returned as a string.        """
         fd=io.StringIO()
-        with self:
-            self.set_locals(morevars=morevars,taskvars=taskvars)
+        with self.set_locals(morevars=morevars,taskvars=taskvars):
             for secname,sec in self._doc.items():
                 fd.write(f'[{secname}]\n')
                 count_okay=convert_to_conf(sec,fd,raise_exceptions)
