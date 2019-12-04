@@ -202,7 +202,7 @@ scrub_work_task:
   resources: !calc doc.resources.scrub_work
   TOTAL_TASKS: 1
   local_env_vars:
-    HAFS_FORCE_ALT_TMPDIR: "&LOGhafs;"
+    HAFS_FORCE_ALT_TMPDIR: "<cyclestr>&LOGhafs;</cyclestr>"
   exe: "&PRE; &USHhafs;/hafs_scrub.py &SCRUB_WORK; WORK"
   jobname: "hafs_scrub_work_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
   outerr: "<cyclestr>&LOGhafs;/hafs_scrub_work_&SID;_@Y@m@d@H.log</cyclestr>"
@@ -213,7 +213,7 @@ scrub_com_task:
   resources: !calc doc.resources.scrub_com
   TOTAL_TASKS: 1
   local_env_vars:
-    HAFS_FORCE_ALT_TMPDIR: "&LOGhafs;"
+    HAFS_FORCE_ALT_TMPDIR: "<cyclestr>&LOGhafs;</cyclestr>"
   exe: "&PRE; &USHhafs;/hafs_scrub.py &SCRUB_COM; COM"
   jobname: "hafs_scrub_com_&SID;_<cyclestr>@Y@m@d@H</cyclestr>"
   outerr: "<cyclestr>&LOGhafs;/hafs_scrub_com_&SID;_@Y@m@d@H.log</cyclestr>"

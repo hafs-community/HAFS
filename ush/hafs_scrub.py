@@ -27,9 +27,9 @@ from produtil.log import jlogger
 #  hafs_scrub.py YES|NO /directory/one [/directory/two [...]]
 # @endcode
 #
-# If WORK or COM is an argument then CONFhafs from the
-# environment is used to read in stormN.conf and delete either 
-# WORKhafs or com directory from the value in conf file.
+# If WORK or COM is an argument then YAMLhafs from the
+# environment is used to read in stormN.yaml and delete either 
+# WORKhafs or com directory from the value in yaml file.
 #
 # It will recursively delete up to thirty directories and will log
 # messages as it goes.  It will refuse to delete the following
@@ -215,11 +215,11 @@ def main():
     scrubber=Deleter(logger)
 
     # NOTE:
-    # Multistorm &WORKhafs;, &COMhafs; and &CONFhafs;  passed in from the entity 
+    # Multistorm &WORKhafs;, &COMhafs; and &YAMLhafs;  passed in from the entity 
     # file, are  always set to the fakestorm dir values since everything from
     # rocoto's perspective is running under the fakestorm.
-    # However, the CONFhafs environment variable is not. It refers to the
-    # correct stormN.conf file .../com/.../00L/stormN.conf
+    # However, the YAMLhafs environment variable is not. It refers to the
+    # correct stormN.yaml file .../com/.../00L/stormN.yaml
 
     # The HAFS_FORCE_TMPDIR is created (currently, WORKhafs/tmpdir) before 
     # this script is even launched. If WORKhafs dirs were deleted the 
@@ -251,8 +251,8 @@ def main():
         if scrub_job=='WORK' or scrub_job=='COM':
             #Create a conf object to determine WORKhafs and com location
             #for the real storms - this is required for multistorm.
-            environ_CONFhafs= os.environ['CONFhafs']
-            conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
+            environ_YAMLhafs= os.environ['YAMLhafs']
+            conf=hafs.launcher.HAFSLauncher().read(environ_YAMLhafs)
 
             #These are needed to deal with the tmpdir that may be created
             #when the scrub_com task runs.
@@ -269,7 +269,7 @@ def main():
                     if scrubber.add_tmpdir_check(environ_WORKhafs,tmpdir):
                         scrubber.add(tmpdir)
                         logger.info('Scrub job: %s , Removing %s since it was created by this task.'%(scrub_job,tmpdir))
-                logger.info('Used conf file to determine scrub dir: %s : %s'%(scrubdir,environ_CONFhafs))
+                logger.info('Used yaml file to determine scrub dir: %s : %s'%(scrubdir,environ_YAMLhafs))
                 scrubber.go()
             else: 
                 if scrub_job == 'COM':
