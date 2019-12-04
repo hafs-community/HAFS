@@ -9,7 +9,7 @@ EXPT=$(basename $(dirname ${ROCOTOhafs}))
 dev="sites/hera.yaml"
 scrubopt="config.scrub_work=no config.scrub_com=no"
 
-./run_hafs.py ${dev} -t 2019091600 09L HISTORY config.EXPT=${EXPT} config.SUBEXPT=${EXPT} $dev ${scrubopt}
+/apps/intel/intelpython3/bin/python3 ./run_hafs.py -f ${dev} -t 2019091600 09L HISTORY config.EXPT=${EXPT} config.SUBEXPT=${EXPT} $dev ${scrubopt}
 
 #./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
 #   config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional \
