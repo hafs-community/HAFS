@@ -23,6 +23,6 @@ if [ $target = jet ]; then target=jet.intel ; fi
 cd hafs_forecast.fd/
 FV3=$( pwd -P )/FV3
 cd tests/
-./compile.sh "$FV3" "$target" "32BIT=Y" 32bit YES NO
+./compile.sh "$FV3" "$target" "32BIT=Y,HYCOM=Y" 32bit YES NO
 #cp -p fv3_32bit.exe ../NEMS/exe/
 #cp -p fv3_32bit.exe ../../../exec/hafs_forecast.exe

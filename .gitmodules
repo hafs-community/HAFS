@@ -1,4 +1,4 @@
-[submodule "ufs-weather-model"]
+[submodule "ufs-hafs-model"]
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/hafs-community/ufs-hafs-model.git
 	branch = feature/hafs_couplehycom
