@@ -8,8 +8,9 @@ gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stan
 
 CDUMP=gfs		# gfs or gdas
 LEVS=${LEVS:-65}
-ictype=${ictype:-pfv3gfs}
 gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+ictype=${ictype:-gfsnemsio} # gfsnemsio
+bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
 
 CDATE=${CDATE:-${YMDH}}
@@ -27,6 +28,7 @@ PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
+WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
@@ -36,17 +38,75 @@ mkdir -p ${OUTDIR} ${DATA}
 GRID_intercom=${WORKhafs}/intercom/grid
 FIXDIR=${DATA}/grid
 FIXCASE=${DATA}/grid/${CASE}
-mkdir -p $DATA ${FIXDIR} ${FIXCASE} 
+mkdir -p $DATA ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
 ln -sf ${GRID_intercom}/${CASE}/* ./
 
 cd $DATA
 
-# input data is FV3GFS (ictype is 'pfv3gfs')
-if [ $ictype = pfv3gfs ]; then		# input is fv3gfs parallel
+FHR3="000"
+# Use gfs nemsio files from 2019 GFS (fv3gfs)
+# Note: currently, generating IC from grib2 file is not supported yet.
+if [ $ictype = "gfsnemsio" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
+  grib2_file_input_grid=""
+  input_type="gaussian"
+  varmap_file=""
+  fixed_files_dir_input_grid=""
+  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
+  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
+# Use gfs master grib2 files
+elif [ $ictype = "gfsgrib2_master" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gfs 0.25 degree grib2 files
+elif [ $ictype = "gfsgrib2_0p25" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gfs 0.25 degree grib2 a and b files
+elif [ $ictype = "gfsgrib2ab_0p25" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p25.f${FHR3}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gfs 0.50 degree grib2 files
+elif [ $ictype = "gfsgrib2_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gfs 1.00 degree grib2 files
+elif [ $ictype = "gfsgrib2_1p00" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
 else
   echo "ERROR: unsupportted input data type yet."
   exit 1
@@ -123,6 +183,8 @@ cat>./fort.41<<EOF
  data_dir_input_grid="${INIDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ varmap_file="${varmap_file}"
+ fixed_files_dir_input_grid="${fixed_files_dir_input_grid}"
  cycle_mon=$month
  cycle_day=$day
  cycle_hour=$hour

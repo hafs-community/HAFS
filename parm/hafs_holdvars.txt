@@ -41,7 +41,8 @@ export STORMID={vit[stormid3]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
-export ICTYPE={ICTYPE}
+export ictype={ictype}
+export bctype={bctype}
 
 export CASE={CASE}
 export LEVELS={LEVELS}
