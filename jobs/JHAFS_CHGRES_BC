@@ -20,7 +20,8 @@ export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
-export ictype=${ICTYPE:-pfv3gfs}
+export ictype=${ictype:-gfsnemsio} # gfsnemsio
+export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
@@ -44,6 +45,7 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
+export WGRIB2=${WGRIB2:-wgrib2}
 export CHGRESCUBEEXEC=${EXEChafs}/hafs_chgres_cube.x
 
 ####################################
