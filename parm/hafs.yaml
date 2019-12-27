@@ -39,6 +39,13 @@ config: # <------- section [config]
   ENS: 99 ##  The ensemble number (placeholder)
   # ^--- was ENS=99
 
+# These four were added manually to set default values so that
+# run_hafs.py won't break when multistorm capability is disabled:
+  BASINS: ''
+  MULTISTORM_SIDS: ''
+  FAKE_SID: ''
+  RENUM: ''
+
 
 # Pull data from external sources to a staging area.  
 # Specifies a section (default: [hafsdata]) to use: hafsdata, wcoss_fcst_nco
