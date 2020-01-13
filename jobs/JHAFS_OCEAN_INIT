@@ -19,42 +19,11 @@ export NHRS=${NHRS:-126}
 export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+export ictype=${ictype:-gfsnemsio} # gfsnemsio
+export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
-
-export dt_atmos=${dt_atmos:-90}
-export restart_interval=${restart_interval:-6}
-export quilting=${quilting:-.true.}
-export write_groups=${write_groups:-3}
-export write_tasks_per_group=${write_tasks_per_group:-72}
-
-export stretch_fac=${stretch_fac:-1.0001}
-export target_lon=${target_lon:--62.0}
-export target_lat=${target_lat:-22.0}
-export refine_ratio=${refine_ratio:-4}
-
-export glob_layoutx=${glob_layoutx:-12}
-export glob_layouty=${glob_layouty:-12}
-export glob_npx=${glob_npx:-769}
-export glob_npy=${glob_npy:-769}
-
-export layoutx=${layoutx:-40}
-export layouty=${layouty:-30}
-export npx=${npx:-2881}
-export npy=${npy:-1921}
-export npz=${npz:-64}
- 
-export app_domain=${app_domain:-regional}
-export output_grid=${output_grid:-rotated_latlon}
-export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
-export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
-export output_grid_lon1=${output_grid_lon1:--35.0}
-export output_grid_lat1=${output_grid_lat1:--30.0}
-export output_grid_lon2=${output_grid_lon2:-35.0}
-export output_grid_lat2=${output_grid_lat2:-30.0}
-export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
 
 ####################################
 # Specify Execution Areas
@@ -69,20 +38,8 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
-
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
-
-export FIXam=${FIXhafs}/fix_am
-export FIXfv3=${FIXhafs}/fix_fv3
-
-export FIXnew=${FIXhafs}/fix
-export CO2DIR=${FIXam}/fix_co2_proj
-
-export FORECASTEXEC=${EXEChafs}/hafs_forecast.x
+export WGRIB2=${WGRIB2:-wgrib2}
+export OCEAN_INIT_EXEC=${EXEChafs}/hafs_ocean_init.x
 
 ####################################
 # Load Modules if Needed
@@ -93,9 +50,6 @@ export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.run.${machine}
-  #module purge
-  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
-  module load fv3
   module list
 fi
 
@@ -116,24 +70,46 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-#export FIXgrid=${FIXhafs}/fix_fv3
-export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-export OCNdir=${OCNdir:-${WORKhafs}/ocean_init}
-export DATA=${WORKhafs}/forecast
+export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+##export OCEAN_INIT_DIR=${WORKhafs}/ocean_init
+export OCEAN_INIT_TEMP_DIR=/scratch1/NCEPDEV/stmp2/Jili.Dong/hycom_temp
+export OCEAN_INIT_DIR=${WORKhafs}/ocean_init
+
+
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA
+  rm -rf $OCEAN_INIT_DIR
 fi
 
-mkdir -p $DATA
-cd $DATA
+##mkdir -p $OUTDIR $DATA
+##cd $DATA
+
+#####################################
+# Define COM directories
+#####################################
+#export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
+#export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
+export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+
+#####################################
+# Generate the ICs and BC hour 0
+#####################################
+if [ $gtype = regional ] ; then
+  export REGIONAL=1
+  export HALO=4
+else
+#
+# for gtype = uniform, stretch, or nest
+#
+  export REGIONAL=0
+fi
 
 #####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_forecast.sh
+${HOMEhafs}/scripts/exhafs_ocean_init.py
 export err=$?
 #####################################
 

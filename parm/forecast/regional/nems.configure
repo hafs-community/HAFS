@@ -1,5 +1,40 @@
-EARTH_component_list: ATM
- ATM_model:            fv3
- runSeq::
-   ATM
- ::
+# component list
+EARTH_component_list: ATM OCN
+
+# component models
+ATM_model: fv3
+OCN_model: hycom
+
+# component petLists
+ATM_petlist_bounds: 0000 1319
+OCN_petlist_bounds: 1320 1439
+
+# run sequence
+runSeq::
+    @10800:453600
+      ATM   # Run Atmosphere Component
+      OCN   # Run Ocean Component
+    @
+::
+
+# component attributes
+OCN_attributes::
+  Verbosity = 65537
+  cdf_impexp_freq = 3
+  cpl_hour = 1
+  cpl_min = 0
+  cpl_sec = 0
+  base_dtg = 2019082900
+  hycom_arche_output = .true.
+  hyc_esmf_exp_output = .true.
+  hyc_esmf_imp_output = .true.
+  hyc_impexp_file = dummy_file
+  espc_show_impexp_minmax = .true.
+  ocean_start_dtg = 43340.00000
+  start_hour = 0
+  start_min = 0
+  start_sec = 0
+  end_hour = 126
+  end_min = 0
+  end_sec = 0
+::

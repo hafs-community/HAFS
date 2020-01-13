@@ -17,6 +17,8 @@
   <!ENTITY GRID_RESOURCES "<nodes>1:ppn=6:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_IC_RESOURCES "<nodes>3:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_BC_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
+  <!ENTITY OCEAN_INIT_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
+
 
   <!ENTITY FORECAST_WALLTIME "<walltime>06:00:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
@@ -33,7 +35,7 @@
   <!ENTITY FORECAST_RESOURCES_regional_64x30io3x48_omp2 "<nodes>171:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2052</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_64x30io3x72_omp2 "<nodes>177:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2124</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
-  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x40_omp2 "<nodes>66:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x40_omp2 "<nodes>72:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1440</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
   <!-- FORECAST_RESOURCES for globnest HAFS -->
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2 "<nodes>53:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>636</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
