@@ -259,6 +259,10 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_DLAT_/$output_grid_dlat/ \
     >  model_configure
 
+# JDong copy ocean files
+cp -fr $OCNdir/* .
+
+
 #-------------------------------------------------------------------
 # Link the executable and run the forecast
 #-------------------------------------------------------------------
