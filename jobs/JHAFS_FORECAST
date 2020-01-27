@@ -23,6 +23,10 @@ export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, 
 export LEVS=${LEVELS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
+export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
+export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
+export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
+
 export dt_atmos=${dt_atmos:-90}
 export restart_interval=${restart_interval:-6}
 export quilting=${quilting:-.true.}
@@ -97,6 +101,7 @@ if [ "$RUN_ENVIR" = prod ]; then
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
   module load fv3
   module list
+  export LD_LIBRARY_PATH="$HOMEhafs/sorc/hafs_forecast.fd/FV3/ccpp/lib::${LD_LIBRARY_PATH}"
 fi
 
 #####################################
