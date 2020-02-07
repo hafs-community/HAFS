@@ -65,10 +65,10 @@ echo " .... Building sfc_climo_gen .... "
 #------------------------------------
 # build regional_grid
 #------------------------------------
-#$Build_regional_grid && {
-#echo " .... Building regional_grid .... "
-#./build_regional_grid.sh > $logs_dir/build_regional_grid.log 2>&1
-#}
+$Build_regional_grid && {
+echo " .... Building regional_grid .... "
+./build_regional_grid.sh > $logs_dir/build_regional_grid.log 2>&1
+}
 
 cd $build_dir
 

@@ -53,11 +53,6 @@ if [ "$RUN_ENVIR" = prod ]; then
   module list
 fi
 
-# dong
-module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
-module load fv3gfs/fre-nctools.${machine}
-module list
-
 #####################################
 # Set up job node/core/run environment variables
 #####################################
