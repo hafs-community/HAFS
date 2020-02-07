@@ -55,9 +55,9 @@ $Build_sfc_climo_gen && {
 #------------------------------------
 # install regional_grid
 #------------------------------------
-#$Build_regional_grid && {
-#  ${CP} hafs_utils.fd/exec/regional_grid             ../exec/hafs_regional_grid.x
-#}
+$Build_regional_grid && {
+  ${CP} hafs_utils.fd/exec/regional_grid             ../exec/hafs_regional_grid.x
+}
 
 #------------------------------------
 # install fre-nctools
