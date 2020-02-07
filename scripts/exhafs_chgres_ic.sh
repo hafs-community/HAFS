@@ -184,7 +184,6 @@ cat>./fort.41<<EOF
  atm_files_input_grid="${atm_files_input_grid}"
  sfc_files_input_grid="${sfc_files_input_grid}"
  varmap_file="${varmap_file}"
- fixed_files_dir_input_grid="${fixed_files_dir_input_grid}"
  cycle_mon=$month
  cycle_day=$day
  cycle_hour=$hour
