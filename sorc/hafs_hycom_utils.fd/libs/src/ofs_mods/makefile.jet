@@ -1,0 +1,30 @@
+PATH_TO_NWJET=../..
+include ../config/configure.hycom
+
+LIB = $(LIB_OFSMODS_PATH)/libofs_mods.a
+
+OBJS = 	zh.o mod_xc.o mod_za.o mod_zb.o wtime.o
+MODS = 	mod_xc.mod mod_za.mod mod_zb.mod
+
+.SUFFIXES: .o .f .F .c
+
+$(MODS): $(LIB)
+	mkdir -p $(LIB_OFSMODS_PATH)/ofs_mods
+	cp -pf $(MODS) $(LIB_OFSMODS_PATH)/ofs_mods
+
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+
+clean:
+	$(RM) $(MODS) $(OBJS) $(LIB)
+
+mod_xc.o:   mod_xc.F
+
+mod_za.o:   mod_za.F mod_xc.o
+
+mod_zb.o:   mod_za.F mod_xc.o
+
+wtime.o:    wtime.F
+
+zh.o:       zh.F zh_sun.f zh_t3e.f zh_ymp.f
+

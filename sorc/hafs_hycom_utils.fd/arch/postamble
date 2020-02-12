@@ -1,0 +1,47 @@
+#
+#	Macros, these should be generic for all machines
+
+LN		=	ln -sf
+MAKE		=	make -i -r
+RM		=	/bin/rm -f
+CP		=	/bin/cp
+AR		=	ar 
+MKDIR		=	/bin/mkdir -p
+RANLIB		=	ranlib
+
+
+.IGNORE:
+.SUFFIXES: .c .f .F .F90 .f90 .o .fpp
+
+#	There is probably no reason to modify these rules
+
+.c.o:
+	$(RM) $@
+	$(CC) $(CFLAGS) -c $<	
+
+.f.o:
+	$(RM) $@ $*.mod
+	$(FC) $(FFLAGS) -c $<
+
+.fpp.o:
+	$(RM) $@ $*.mod $*.f
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f
+	$(FC) $(FFLAGS) -c $*.f
+	$(RM) $*.f
+
+.F.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.F.f
+	$(FC) $(FFLAGS) -c $*.F.f
+	$(CP) $<.o $*.o
+	$(RM) $*.F.f $<.o
+
+.F90.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90
+	$(F90) $(FFLAGS) -c $*.f90 
+	$(RM) $*.f90
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(F90) $(FFLAGS) -c $< 

@@ -1,0 +1,1462 @@
+ 
+**** Compiling HMON Hycom ****
+ 
+/bin/rm: No match.
+for dir in libs init post forecast; do \
+           ( cd $dir; echo "Making all in `pwd`" ; make ); \
+        done
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs
+make[1]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/ofs_mods
+make[3]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/ofs_mods'
+/bin/rm -f zh.o zh.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   zh.F > zh.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c zh.F.f
+/bin/cp zh.F.o zh.o
+/bin/rm -f zh.F.f zh.F.o
+/bin/rm -f mod_xc.o mod_xc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_xc.F > mod_xc.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_xc.F.f
+/bin/cp mod_xc.F.o mod_xc.o
+/bin/rm -f mod_xc.F.f mod_xc.F.o
+/bin/rm -f mod_za.o mod_za.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_za.F > mod_za.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_za.F.f
+/bin/cp mod_za.F.o mod_za.o
+/bin/rm -f mod_za.F.f mod_za.F.o
+/bin/rm -f mod_zb.o mod_zb.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_zb.F > mod_zb.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_zb.F.f
+/bin/cp mod_zb.F.o mod_zb.o
+/bin/rm -f mod_zb.F.f mod_zb.F.o
+/bin/rm -f wtime.o wtime.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   wtime.F > wtime.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c wtime.F.f
+/bin/cp wtime.F.o wtime.o
+/bin/rm -f wtime.F.f wtime.F.o
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 32 -c zh.F mod_xc.F mod_za.F mod_zb.F wtime.F
+ar  -ruv libofs_mods.a  zh.o mod_xc.o mod_za.o mod_zb.o wtime.o
+ar: creating libofs_mods.a
+a - zh.o
+a - mod_xc.o
+a - mod_za.o
+a - mod_zb.o
+a - wtime.o
+/bin/cp libofs_mods.a  ../..
+make[3]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/ofs_mods'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/libsia
+make[3]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/libsia'
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c -o sia_cmdarg.o sia_cmdarg.f90
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_const.f90 -o sia_const.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_dir.f90 -o sia_dir.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_fileop.f90 -o sia_fileop.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_glob.f90 -o sia_glob.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_stat.f90 -o sia_stat.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c -o sia_subprocess.o sia_subprocess.f90
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_time.f90 -o sia_time.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_usrgrp.f90 -o sia_usrgrp.o
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c sia_treewalk.f90 -o sia_treewalk.o
+mpiifort -f90=ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c -o sia_mpi_worklist.o sia_mpi_worklist.f90
+icc -c sia_c_dir.c -o sia_c_dir.o
+icc -c sia_c_fileop.c -o sia_c_fileop.o
+icc -c sia_c_glob.c -o sia_c_glob.o
+icc -c sia_c_stat.c -o sia_c_stat.o
+icc -c -o sia_c_subprocess.o sia_c_subprocess.c
+icc -c sia_c_time.c -o sia_c_time.o
+icc -c sia_c_usrgrp.c -o sia_c_usrgrp.o
+ar cr libsia.a sia_cmdarg.o sia_const.o sia_dir.o sia_fileop.o sia_glob.o sia_stat.o sia_subprocess.o sia_time.o sia_treewalk.o sia_mpi_worklist.o sia_usrgrp.o sia_c_dir.o sia_c_fileop.o sia_c_glob.o sia_c_stat.o sia_c_subprocess.o sia_c_time.o sia_c_usrgrp.o
+cp -p *.mod libsia.a ../../.
+make[3]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src/libsia'
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs/src'
+make[1]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/libs'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init
+make[1]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init'
+for dir in hafs_get_rtofs hafs_archv2restart hafs_gfs2ofs2 hafs_restart2restart hafs_subregion hafs_timeinterp_forcing  ; do \
+   ( cd $dir; echo "Making all in `pwd`" ; make ); \
+done
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_get_rtofs
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_get_rtofs'
+mpiifort -f90=ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/ -o module_get_rtofs.o -c module_get_rtofs.f90
+mpiifort -f90=ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/ -o ../../exec/hafs_get_rtofs get_rtofs.f90 module_get_rtofs.o -L../../libs/ -lsia -lrt
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_get_rtofs'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_archv2restart
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_archv2restart'
+\rm -f mod_plot.o mod_plot.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_plot.F > mod_plot.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_plot.F.f
+/bin/cp mod_plot.F.o mod_plot.o
+\rm -f mod_plot.F.f mod_plot.F.o
+\rm -f mod_xc.o mod_xc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_xc.F > mod_xc.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_xc.F.f
+/bin/cp mod_xc.F.o mod_xc.o
+\rm -f mod_xc.F.f mod_xc.F.o
+\rm -f mod_za.o mod_za.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_za.F > mod_za.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_za.F.f
+/bin/cp mod_za.F.o mod_za.o
+\rm -f mod_za.F.f mod_za.F.o
+\rm -f mod_restart.o mod_restart.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_restart.F > mod_restart.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_restart.F.f
+/bin/cp mod_restart.F.o mod_restart.o
+\rm -f mod_restart.F.f mod_restart.F.o
+\rm -f wtime.o wtime.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   wtime.F > wtime.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c wtime.F.f
+/bin/cp wtime.F.o wtime.o
+\rm -f wtime.F.f wtime.F.o
+\rm -f archv2restart.o archv2restart.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c archv2restart.f
+\rm -f bigrid.o bigrid.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c bigrid.f
+\rm -f blkin.o blkin.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c blkin.f
+\rm -f extrct.o extrct.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c extrct.f
+\rm -f extrot.o extrot.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c extrot.f
+\rm -f fordate.o fordate.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c fordate.f
+\rm -f getdat.o getdat.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c getdat.f
+\rm -f getdtm.o getdtm.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c getdtm.f
+\rm -f getdepth.o getdepth.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c getdepth.f
+\rm -f putdat.o putdat.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c putdat.f
+\rm -f indxi.o indxi.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c indxi.f
+\rm -f indxj.o indxj.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c indxj.f
+\rm -f pakk.o pakk.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c pakk.f
+\rm -f zebra.o zebra.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c zebra.f
+\rm -f zh.o zh.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   zh.F > zh.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c zh.F.f
+/bin/cp zh.F.o zh.o
+\rm -f zh.F.f zh.F.o
+\rm -f dum_gks.o dum_gks.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c dum_gks.f
+mpiifort  -Wl,-noinhibit-exec -o ../../exec/hafs_archv2restart  archv2restart.o mod_plot.o mod_xc.o mod_za.o mod_restart.o wtime.o bigrid.o blkin.o extrct.o extrot.o fordate.o getdat.o getdtm.o getdepth.o putdat.o indxi.o  indxj.o  pakk.o zebra.o   zh.o    dum_gks.o 
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_archv2restart'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_gfs2ofs2
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_gfs2ofs2'
+/bin/rm -f flush.o flush.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c flush.f90 
+/bin/rm -f constants.o constants.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c constants.f90 
+/bin/rm -f horiz_interp.o horiz_interp.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c horiz_interp.f90 
+/bin/rm -f mod_hytime.o mod_hytime.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_hytime.f90 
+/bin/rm -f mod_flags.o mod_flags.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_flags.f90 
+/bin/rm -f mod_hycomio1.o mod_hycomio1.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_hycomio1.f90 
+/bin/rm -f mod_dump.o mod_dump.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_dump.f90 
+/bin/rm -f mod_grib2io.o mod_grib2io.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_grib2io.f90 
+/bin/rm -f mod_geom.o mod_geom.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c mod_geom.f90 
+/bin/rm -f intp.o intp.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c intp.f90 
+/bin/rm -f cd.o cd.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -I/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/include/g2_v3.1.1_4 -c cd.f90 
+ifort -Wl,-noinhibit-exec -o ../../exec/hafs_gfs2ofs2 flush.o constants.o horiz_interp.o mod_hytime.o mod_flags.o mod_hycomio1.o mod_dump.o mod_grib2io.o mod_geom.o intp.o cd.o -L../../libs -lofs_mods /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3nco_v2.0.7_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libbacio_v2.0.3_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libg2_v3.1.1_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3emc_v2.3.1_4.a -L -ljasper /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libpng_v1.2.44.a -lz
+/scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libg2_v3.1.1_4.a(dec_jpeg2000.o): In function `dec_jpeg2000_':
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:82: undefined reference to `jas_stream_memopen'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:87: undefined reference to `jpc_decode'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:136: undefined reference to `jas_matrix_create'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:137: undefined reference to `jas_image_readcmpt'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:149: undefined reference to `jas_matrix_destroy'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:150: undefined reference to `jas_stream_close'
+/scratch3/NCEPDEV/nceplibs/Dexin.Zhang/work6/NCEPLIBS-g2/src/dec_jpeg2000.c:151: undefined reference to `jas_image_destroy'
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_gfs2ofs2'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_restart2restart
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_restart2restart'
+/bin/rm -f hycom_subset.o hycom_subset.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   hycom_subset.F > hycom_subset.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c hycom_subset.F.f
+/bin/cp hycom_subset.F.o hycom_subset.o
+/bin/rm -f hycom_subset.F.f hycom_subset.F.o
+/bin/rm -f parse.o
+mpiicc -cc=icc -O0 -DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'  -c parse.c	
+ifort -Wl,-noinhibit-exec -o ../../exec/hafs_restart2restart  hycom_subset.o parse.o 
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_restart2restart'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_subregion
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_subregion'
+\rm -f mod_xc.o mod_xc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -traditional-cpp   mod_xc.F > mod_xc.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_xc.F.f
+/bin/cp mod_xc.F.o mod_xc.o
+\rm -f mod_xc.F.f mod_xc.F.o
+\rm -f mod_za.o mod_za.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -traditional-cpp   mod_za.F > mod_za.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_za.F.f
+/bin/cp mod_za.F.o mod_za.o
+\rm -f mod_za.F.f mod_za.F.o
+\rm -f mod_zb.o mod_zb.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -traditional-cpp   mod_zb.F > mod_zb.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c mod_zb.F.f
+/bin/cp mod_zb.F.o mod_zb.o
+\rm -f mod_zb.F.f mod_zb.F.o
+\rm -f wtime.o wtime.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -traditional-cpp   wtime.F > wtime.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c wtime.F.f
+/bin/cp wtime.F.o wtime.o
+\rm -f wtime.F.f wtime.F.o
+\rm -f zh.o zh.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -traditional-cpp   zh.F > zh.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c zh.F.f
+/bin/cp zh.F.o zh.o
+\rm -f zh.F.f zh.F.o
+\rm -f subregion.o subregion.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -c subregion.f
+ifort -Wl,-noinhibit-exec -i_dynamic  subregion.o  mod_xc.o mod_za.o mod_zb.o wtime.o zh.o -o ../../exec/hafs_rtofs_subregion
+ifort: command line remark #10148: option '-i_dynamic' not supported
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_subregion'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_timeinterp_forcing
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_timeinterp_forcing'
+/bin/rm -f get_abfld1.o get_abfld1.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -c get_abfld1.f
+/bin/rm -f timeinterp_forcing.o timeinterp_forcing.mod
+ifort -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I../../libs/src/ofs_mods -c timeinterp_forcing.f90 
+mpiifort  -Wl,-noinhibit-exec -o ../../exec/hafs_timeinterp_forcing timeinterp_forcing.o  get_abfld1.o -L../../libs -lofs_mods 
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init/hafs_timeinterp_forcing'
+make[1]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/init'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post
+make[1]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post'
+for dir in hafs_ab2data; do \
+   ( cd $dir; echo "Making all in `pwd`" ; make ); \
+done
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post/hafs_ab2data
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post/hafs_ab2data'
+/bin/rm -f mod_plot.o mod_plot.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_plot.F > mod_plot.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c mod_plot.F.f
+/bin/cp mod_plot.F.o mod_plot.o
+/bin/rm -f mod_plot.F.f mod_plot.F.o
+/bin/rm -f mod_xc.o mod_xc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_xc.F > mod_xc.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c mod_xc.F.f
+/bin/cp mod_xc.F.o mod_xc.o
+/bin/rm -f mod_xc.F.f mod_xc.F.o
+/bin/rm -f mod_za.o mod_za.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_za.F > mod_za.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c mod_za.F.f
+/bin/cp mod_za.F.o mod_za.o
+/bin/rm -f mod_za.F.f mod_za.F.o
+/bin/rm -f mod_zb.o mod_zb.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   mod_zb.F > mod_zb.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c mod_zb.F.f
+/bin/cp mod_zb.F.o mod_zb.o
+/bin/rm -f mod_zb.F.f mod_zb.F.o
+/bin/rm -f wtime.o wtime.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   wtime.F > wtime.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c wtime.F.f
+/bin/cp wtime.F.o wtime.o
+/bin/rm -f wtime.F.f wtime.F.o
+/bin/rm -f archv2data3z.o archv2data3z.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c archv2data3z.f
+/bin/rm -f bigrid.o bigrid.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c bigrid.f
+/bin/rm -f bigrd1.o bigrd1.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c bigrd1.f
+/bin/rm -f blkin.o blkin.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c blkin.f
+/bin/rm -f extrct.o extrct.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c extrct.f
+/bin/rm -f extrot.o extrot.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c extrot.f
+/bin/rm -f fordate.o fordate.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c fordate.f
+/bin/rm -f getdat.o getdat.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c getdat.f
+/bin/rm -f getdtm.o getdtm.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c getdtm.f
+/bin/rm -f getdepth.o getdepth.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c getdepth.f
+/bin/rm -f indxi.o indxi.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c indxi.f
+/bin/rm -f indxj.o indxj.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c indxj.f
+/bin/rm -f pakk.o pakk.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c pakk.f
+/bin/rm -f poisnd.o poisnd.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c poisnd.f
+/bin/rm -f psmoo.o psmoo.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c psmoo.f
+/bin/rm -f sbmerg.o sbmerg.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c sbmerg.f
+/bin/rm -f zebra.o zebra.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c zebra.f
+/bin/rm -f zh.o zh.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -traditional-cpp   zh.F > zh.F.f
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c zh.F.f
+/bin/cp zh.F.o zh.o
+/bin/rm -f zh.F.f zh.F.o
+/bin/rm -f dum_gks.o dum_gks.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c dum_gks.f
+/bin/rm -f horout_nc.o horout_nc.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c horout_nc.f
+/bin/rm -f layer2z.o layer2z.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c layer2z.f
+/bin/rm -f ab2grib.o ab2grib.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c ab2grib.f
+/bin/rm -f gribit.o gribit.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c gribit.f
+/bin/rm -f grib_maps.o grib_maps.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c grib_maps.f
+/bin/rm -f pot2pot0.o pot2pot0.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c pot2pot0.f
+ifort -Wl,-noinhibit-exec -o ../../exec/hafs_archv2data3z  archv2data3z.o  mod_plot.o mod_xc.o mod_za.o mod_zb.o wtime.o bigrid.o  bigrd1.o blkin.o extrct.o  extrot.o fordate.o getdat.o  getdtm.o getdepth.o indxi.o  indxj.o pakk.o    poisnd.o psmoo.o sbmerg.o  zebra.o  zh.o dum_gks.o  horout_nc.o layer2z.o ab2grib.o gribit.o grib_maps.o pot2pot0.o -L../../libs -lofs_mods /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3nco_v2.0.7_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3emc_v2.3.1_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libbacio_v2.0.3_4.a -L/apps/netcdf/4.6.1/intel/16.1.150/lib -lnetcdff -lnetcdf  -L/apps/hdf5/1.10.5/intel/18.0.5.274/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran -lz -lz
+/bin/rm -f archv2data3z_insitu.o archv2data3z_insitu.mod
+ifort -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -I/apps/netcdf/4.6.1/intel/16.1.150/include -I../../libs/src/ofs_mods -I. -c archv2data3z_insitu.f
+ifort -Wl,-noinhibit-exec -o ../../exec/hafs_archv2data3z_insitu  archv2data3z_insitu.o  mod_plot.o mod_xc.o mod_za.o mod_zb.o wtime.o bigrid.o  bigrd1.o blkin.o extrct.o  extrot.o fordate.o getdat.o  getdtm.o getdepth.o indxi.o  indxj.o pakk.o    poisnd.o psmoo.o sbmerg.o  zebra.o  zh.o dum_gks.o  horout_nc.o layer2z.o ab2grib.o gribit.o grib_maps.o pot2pot0.o -L../../libs -lofs_mods /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3nco_v2.0.7_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libw3emc_v2.3.1_4.a /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/18.0.5.274/lib/libbacio_v2.0.3_4.a -L/apps/netcdf/4.6.1/intel/16.1.150/lib -lnetcdff -lnetcdf  -L/apps/hdf5/1.10.5/intel/18.0.5.274/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran -lz -lz
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post/hafs_ab2data'
+make[1]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/post'
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast
+make[1]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast'
+for dir in hafs_forecast; do \
+   ( cd $dir; echo "Making all in `pwd`" ; ./run_makefile.sh ); \
+done
+Making all in /scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast/hafs_forecast
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast/hafs_forecast'
+/bin/rm -f *.o *.mod *.F.f dimensions.h
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast/hafs_forecast'
+make[2]: Entering directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast/hafs_forecast'
+/bin/cp -f rtofs_fcst_dimensions.h dimensions.h
+/bin/rm -f mpi_more.o mpi_more.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mpi_more.f
+/bin/rm -f cmp.comm.o cmp.comm.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c cmp.comm.f
+/bin/rm -f hc.comm.o hc.comm.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c hc.comm.f
+/bin/rm -f mod_dimensions.o mod_dimensions.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_dimensions.F > mod_dimensions.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_dimensions.F.f
+/bin/cp mod_dimensions.F.o mod_dimensions.o
+/bin/rm -f mod_dimensions.F.f mod_dimensions.F.o
+/bin/rm -f mod_xc.o mod_xc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_xc.F > mod_xc.F.f
+In file included from mod_xc.F:150:0:
+mod_xc_mp.h:6:0: warning: "BARRIER" redefined [enabled by default]
+ # define BARRIER call mpi_barrier(mpi_comm_ocean,mpierr)
+ ^
+mod_xc_mp.h:4:0: note: this is the location of the previous definition
+ # define BARRIER call mpi_barrier(mpi_comm_hycom,mpierr)
+ ^
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_xc.F.f
+/bin/cp mod_xc.F.o mod_xc.o
+/bin/rm -f mod_xc.F.f mod_xc.F.o
+/bin/rm -f mod_za.o mod_za.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_za.F > mod_za.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_za.F.f
+/bin/cp mod_za.F.o mod_za.o
+/bin/rm -f mod_za.F.f mod_za.F.o
+/bin/rm -f mod_cb_arrays.o mod_cb_arrays.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_cb_arrays.F > mod_cb_arrays.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_cb_arrays.F.f
+/bin/cp mod_cb_arrays.F.o mod_cb_arrays.o
+/bin/rm -f mod_cb_arrays.F.f mod_cb_arrays.F.o
+/bin/rm -f mod_stokes.o mod_stokes.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_stokes.F > mod_stokes.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_stokes.F.f
+/bin/cp mod_stokes.F.o mod_stokes.o
+/bin/rm -f mod_stokes.F.f mod_stokes.F.o
+/bin/rm -f mod_pipe.o mod_pipe.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_pipe.F > mod_pipe.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_pipe.F.f
+/bin/cp mod_pipe.F.o mod_pipe.o
+/bin/rm -f mod_pipe.F.f mod_pipe.F.o
+/bin/rm -f mod_incupd.o mod_incupd.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_incupd.F > mod_incupd.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_incupd.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_incupd.F.o mod_incupd.o
+/bin/rm -f mod_incupd.F.f mod_incupd.F.o
+/bin/rm -f mod_floats.o mod_floats.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_floats.F > mod_floats.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_floats.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_floats.F.o mod_floats.o
+/bin/rm -f mod_floats.F.f mod_floats.F.o
+/bin/rm -f mod_tides.o mod_tides.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_tides.F > mod_tides.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_tides.F.f
+/bin/cp mod_tides.F.o mod_tides.o
+/bin/rm -f mod_tides.F.f mod_tides.F.o
+/bin/rm -f mod_mean.o mod_mean.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_mean.F > mod_mean.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_mean.F.f
+/bin/cp mod_mean.F.o mod_mean.o
+/bin/rm -f mod_mean.F.f mod_mean.F.o
+/bin/rm -f mod_archiv.o mod_archiv.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_archiv.F > mod_archiv.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_archiv.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_archiv.F.o mod_archiv.o
+/bin/rm -f mod_archiv.F.f mod_archiv.F.o
+/bin/rm -f mod_tsadvc.o mod_tsadvc.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_tsadvc.F > mod_tsadvc.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_tsadvc.F.f
+mod_tsadvc.F.f(1617): remark #5140: Unrecognized directive
+!DIR$   PREFERVECTOR
+--------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_tsadvc.F.o mod_tsadvc.o
+/bin/rm -f mod_tsadvc.F.f mod_tsadvc.F.o
+/bin/rm -f mod_momtum.o mod_momtum.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_momtum.F > mod_momtum.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_momtum.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_momtum.F.o mod_momtum.o
+/bin/rm -f mod_momtum.F.f mod_momtum.F.o
+/bin/rm -f mod_hycom.o mod_hycom.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_hycom.F > mod_hycom.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_hycom.F.f
+mod_hycom.F.f(612): remark #5140: Unrecognized directive
+!DIR$       PREFERVECTOR
+------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mod_hycom.F.o mod_hycom.o
+/bin/rm -f mod_hycom.F.f mod_hycom.F.o
+/bin/rm -f hc_tiles.o hc_tiles.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c hc_tiles.f
+/bin/rm -f barotp.o barotp.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   barotp.F > barotp.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c barotp.F.f
+/bin/cp barotp.F.o barotp.o
+/bin/rm -f barotp.F.f barotp.F.o
+/bin/rm -f bigrid.o bigrid.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c bigrid.f
+/bin/rm -f blkdat.o blkdat.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   blkdat.F > blkdat.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c blkdat.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp blkdat.F.o blkdat.o
+/bin/rm -f blkdat.F.f blkdat.F.o
+/bin/rm -f cnuity.o cnuity.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   cnuity.F > cnuity.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c cnuity.F.f
+/bin/cp cnuity.F.o cnuity.o
+/bin/rm -f cnuity.F.f cnuity.F.o
+/bin/rm -f convec.o convec.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   convec.F > convec.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c convec.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+/bin/cp convec.F.o convec.o
+/bin/rm -f convec.F.f convec.F.o
+/bin/rm -f diapfl.o diapfl.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   diapfl.F > diapfl.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c diapfl.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+/bin/cp diapfl.F.o diapfl.o
+/bin/rm -f diapfl.F.f diapfl.F.o
+/bin/rm -f dpthuv.o dpthuv.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   dpthuv.F > dpthuv.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c dpthuv.F.f
+/bin/cp dpthuv.F.o dpthuv.o
+/bin/rm -f dpthuv.F.f dpthuv.F.o
+/bin/rm -f dpudpv.o dpudpv.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   dpudpv.F > dpudpv.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c dpudpv.F.f
+/bin/cp dpudpv.F.o dpudpv.o
+/bin/rm -f dpudpv.F.f dpudpv.F.o
+/bin/rm -f forfun.o forfun.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c forfun.f
+/bin/rm -f geopar.o geopar.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   geopar.F > geopar.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c geopar.F.f
+/bin/cp geopar.F.o geopar.o
+/bin/rm -f geopar.F.f geopar.F.o
+/bin/rm -f hybgen.o hybgen.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   hybgen.F > hybgen.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c hybgen.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp hybgen.F.o hybgen.o
+/bin/rm -f hybgen.F.f hybgen.F.o
+/bin/rm -f icloan.o icloan.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   icloan.F > icloan.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c icloan.F.f
+/bin/cp icloan.F.o icloan.o
+/bin/rm -f icloan.F.f icloan.F.o
+/bin/rm -f inicon.o inicon.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   inicon.F > inicon.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c inicon.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp inicon.F.o inicon.o
+/bin/rm -f inicon.F.f inicon.F.o
+/bin/rm -f inigiss.o inigiss.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c inigiss.f
+inigiss.f(623): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 9160 format(F11.3,1x,6(E10.4,1x),3(F10.6,1x),F9.3)
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/rm -f inikpp.o inikpp.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c inikpp.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/rm -f inimy.o inimy.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c inimy.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/rm -f latbdy.o latbdy.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   latbdy.F > latbdy.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c latbdy.F.f
+/bin/cp latbdy.F.o latbdy.o
+/bin/rm -f latbdy.F.f latbdy.F.o
+/bin/rm -f matinv.o matinv.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c matinv.f
+/bin/rm -f mxkprf.o mxkprf.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mxkprf.F > mxkprf.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mxkprf.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mxkprf.F.o mxkprf.o
+/bin/rm -f mxkprf.F.f mxkprf.F.o
+/bin/rm -f mxkrt.o mxkrt.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mxkrt.F > mxkrt.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mxkrt.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+/bin/cp mxkrt.F.o mxkrt.o
+/bin/rm -f mxkrt.F.f mxkrt.F.o
+/bin/rm -f mxkrtm.o mxkrtm.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mxkrtm.F > mxkrtm.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mxkrtm.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+mxkrtm.F.f(390): remark #7713: This statement function has not been used.   [ROOT2]
+     .     root2,root3
+-----------^
+mxkrtm.F.f(390): remark #7713: This statement function has not been used.   [ROOT3]
+     .     root2,root3
+-----------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mxkrtm.F.o mxkrtm.o
+/bin/rm -f mxkrtm.F.f mxkrtm.F.o
+/bin/rm -f mxpwp.o mxpwp.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mxpwp.F > mxpwp.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mxpwp.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp mxpwp.F.o mxpwp.o
+/bin/rm -f mxpwp.F.f mxpwp.F.o
+/bin/rm -f overtn.o overtn.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   overtn.F > overtn.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c overtn.F.f
+/bin/cp overtn.F.o overtn.o
+/bin/rm -f overtn.F.f overtn.F.o
+/bin/rm -f poflat.o poflat.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c poflat.f
+/bin/rm -f prtmsk.o prtmsk.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c prtmsk.f
+/bin/rm -f psmoo.o psmoo.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c psmoo.f
+/bin/rm -f restart.o restart.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c restart.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/rm -f thermf.o thermf.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   thermf.F > thermf.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c thermf.F.f
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDT]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [DSIGDS]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+-------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [TOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+--------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [SOFSIG]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+---------------------------------------^
+stmt_fns.h(6): remark #7713: This statement function has not been used.   [KAPPAF]
+      real    sig,dsigdt,dsigds,tofsig,sofsig,kappaf,
+----------------------------------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [SIGLOC]
+     &        sigloc,dsiglocdt,dsiglocds
+--------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDT]
+     &        sigloc,dsiglocdt,dsiglocds
+---------------------^
+stmt_fns.h(7): remark #7713: This statement function has not been used.   [DSIGLOCDS]
+     &        sigloc,dsiglocdt,dsiglocds
+-------------------------------^
+/bin/cp thermf.F.o thermf.o
+/bin/rm -f thermf.F.f thermf.F.o
+/bin/rm -f trcupd.o trcupd.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   trcupd.F > trcupd.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c trcupd.F.f
+/bin/cp trcupd.F.o trcupd.o
+/bin/rm -f trcupd.F.f trcupd.F.o
+/bin/rm -f rdgrids.o rdgrids.mod
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c rdgrids.f
+/bin/rm -f machine.o machine.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   machine.F > machine.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c machine.F.f
+/bin/cp machine.F.o machine.o
+/bin/rm -f machine.F.f machine.F.o
+/bin/rm -f wtime.o wtime.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   wtime.F > wtime.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c wtime.F.f
+/bin/cp wtime.F.o wtime.o
+/bin/rm -f wtime.F.f wtime.F.o
+/bin/rm -f machi_c.o
+mpiicc -cc=icc -O0 -DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'  -c machi_c.c	
+/bin/rm -f isnan.o isnan.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   isnan.F > isnan.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c isnan.F.f
+/bin/cp isnan.F.o isnan.o
+/bin/rm -f isnan.F.f isnan.F.o
+/bin/rm -f hycom.o hycom.mod
+/lib/cpp  -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   hycom.F > hycom.F.f
+mpiifort  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c hycom.F.f
+/bin/cp hycom.F.o hycom.o
+/bin/rm -f hycom.F.f hycom.F.o
+mpiifort  -Wl,-noinhibit-exec -o ../../exec/hafs_rtofs_reloc_forecast hycom.o mod_dimensions.o mod_xc.o mod_za.o mod_cb_arrays.o mod_pipe.o mod_incupd.o mod_floats.o mod_stokes.o mod_tides.o mod_mean.o mod_archiv.o mod_tsadvc.o mod_momtum.o mod_hycom.o barotp.o  bigrid.o blkdat.o  cnuity.o convec.o diapfl.o dpthuv.o  dpudpv.o forfun.o  geopar.o hybgen.o icloan.o inicon.o inigiss.o inikpp.o   inimy.o latbdy.o matinv.o mxkprf.o  mxkrt.o  mxkrtm.o  mxpwp.o overtn.o poflat.o  prtmsk.o  psmoo.o restart.o thermf.o trcupd.o rdgrids.o machine.o  wtime.o machi_c.o  isnan.o cmp.comm.o mpi_more.o hc.comm.o hc_tiles.o 
+make[2]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast/hafs_forecast'
+make[1]: Leaving directory `/scratch2/NCEPDEV/marine/Jili.Dong/save/HAFS_couple/HAFS/sorc/hafs_hycom_utils.fd/forecast'

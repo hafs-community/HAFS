@@ -1,0 +1,10 @@
+
+SHELL           	=       /bin/sh
+
+# Listing of options that are usually independent of machine type.
+# When necessary, these are over-ridden by each architecture.
+
+ARFLAGS			=	-X64
+
+#### Architecture specific settings ####
+

@@ -1,0 +1,272 @@
+################################################################################
+#
+#     Makefile for Ocean Forecast Model rtofs_forecast
+#                  core: hycom version 2.2
+#     Use:
+#     make all     -  build the executable
+#     make clean   -  start with a clean slate
+#
+#     The following macros will be of interest:
+#
+#         TARGET   - name of the executable
+#         FC       - name of Fortran compiler
+#         CPP      - name of CPP
+#         ARCH     - architecture
+#         CPPFLAGS - CPP flags
+#         OPTS     - compiler code optimizations
+#         LIST     - source listing
+#         SMP      - threading
+#         TRAPS    - runtime traps for floating point exceptions
+#         PROFILE  - source code profiling ( -pg )
+#         DEBUG    - -g
+#         MEM      - user data area and stack size
+#         MAP      - load map
+#         W3LIB    - w3lib
+#         BACIO    - bacio lib
+#         ESSL     - ESSL library
+#         MASS     - MASS library
+#         HPMLIB   - hpm lib
+#         SEARCH   - library search location
+#
+#################################################################################
+#
+# Define the name of the default executable
+#
+
+
+include ../../configure.hycom
+
+FC=$(DM_FC)
+
+CPPFLAGS+= -DMPI
+
+TARGETS = \
+	hwrf_rtofs_reloc_forecast \
+	hwrf_rtofs_reloc_forecast_way3
+#
+# CPP, Compiler, and Linker Options
+#
+#FC       = ncepmpxlf95
+#CPP      = /usr/lib/cpp -P
+#RCH     =
+#CPPFLAGS = -DAIX -DREAL8 -DMPI -DSERIAL_IO -DTIMER
+### 	   -DUSE_SCOUPLER
+### 	   -DUSE_SURFLUX
+###	   -DNAN2003
+# -DARCTIC  this is not a golbal model
+
+#OPTS     = -O -qfixed -qstrict -qtune=auto -qcache=auto
+#LIST     = -qspillsize=32000 -qrealsize=8 -qintsize=4 -qfullpath
+SMP      =
+TRAPS    =
+PROFILE  =
+DEBUG    =
+MEM      =
+MAP      =
+W3LIB    =
+BACIO    =
+ESSL     =
+MASS     =  -lmass
+HPMLIB   =
+SEARCH   =
+#
+# Assemble Options
+#
+#FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG)
+#CFLAGS   =
+#FFLAGST  = $(FFLAGS) $(SMP)
+#LDFLAGS  = $(FFLAGS) $(MEM) $(MAP) $(SMP) $(PROFILE)
+#LIBS     = $(W3LIB) $(BACIO) $(ESSL) $(MASS) $(HPMLIB) $(SEARCH)
+
+#
+# --- generic make definitions
+#
+SHELL         = /bin/sh
+
+CPPFLAGS+= $(CUSE_FLAG)
+FFLAGS+= $(FFLAGS_DOUBLE)
+
+#
+# rules.
+#
+
+.SUFFIXES:
+.SUFFIXES: .c .F .f .o 
+
+#
+# rules.
+#
+## cj notice the presence of F.f files
+#############################################################
+MODS =   mod_dimensions.o mod_xc.o mod_za.o mod_cb_arrays.o mod_pipe.o \
+         mod_incupd.o \
+         mod_floats.o mod_stokes.o mod_tides.o mod_mean.o mod_archiv.o \
+         mod_tsadvc.o mod_momtum.o \
+         mod_hycom.o
+
+MODD =   mod_dimensions.o mod_xc.o mod_za.o mod_cb_arrays.o mod_pipe.o \
+         mod_incupd.o \
+         mod_floats.o mod_stokes.o mod_tides.o mod_mean.o mod_archiv.o \
+         mod_tsadvc.o mod_momtum.o \
+         mod_hycom_dummy.o
+
+OBJS =           barotp.o  bigrid.o blkdat.o  cnuity.o convec.o \
+        diapfl.o dpthuv.o  dpudpv.o forfun.o  geopar.o hybgen.o \
+        icloan.o inicon.o inigiss.o inikpp.o   inimy.o latbdy.o \
+        matinv.o mxkprf.o  mxkrt.o  mxkrtm.o  mxpwp.o \
+        overtn.o poflat.o  prtmsk.o  psmoo.o restart.o \
+        thermf.o trcupd.o  \
+        rdgrids.o  \
+        machine.o  wtime.o machi_c.o  isnan.o
+
+SRCS =	barotp.F blkdat.F cnuity.F convec.F diapfl.F dpthuv.F \
+	dpudpv.F geopar.F hybgen.F hycom_cice.F hycom.F \
+	icloan.F inicon.F isnan.F latbdy.F machine.F \
+	mod_archiv.F mod_cb_arrays.F mod_dimensions.F mod_floats.F \
+	mod_hycom.F mod_incupd.F mod_mean.F mod_momtum.F mod_OICPL.F \
+	mod_pipe.F mod_stokes.F mod_tsadvc.F mod_tides.F \
+        mod_xc.F mod_za.F \
+	mxkprf.F mxkrt.F mxkrtm.F mxpwp.F overtn.F thermf.F \
+	trcupd.F wtime.F \
+	hc4wwcpl.F layer2z.F \
+	bigrid.f forfun.f inigiss.f inikpp.f inimy.f \
+	rdgrids.f \
+	matinv.f poflat.f prtmsk.f psmoo.f restart.f 
+
+COBJS = cmp.comm.o mpi_more.o hc.comm.o
+
+C1OBJS = hc_tiles.o
+
+CSRCS = cmp.comm.f mpi_more.f hc.comm.f
+
+C1SRCS = hc_tiles.f
+
+
+#
+#hycom:	$(MODS) $(OBJS) hycom.o
+#	$(LD)  $(LDFLAGS) -o hycom  hycom.o $(MODS) $(OBJS) $(EXTRALIBS)
+
+
+# ---------------------------------------------------------------------
+# Standard part of the Makefile starts here
+# ---------------------------------------------------------------------
+
+all:	$(TARGETS) 
+
+../../exec/hwrf_rtofs_reloc_forecast:  hwrf_rtofs_dimensions.h $(COBJS) $(MODS) $(C1OBJS) $(OBJS) hycom.o
+	$(DM_FC) $(LDFLAGS) -o $@ hycom.o $(MODS) $(OBJS) $(COBJS) $(C1OBJS) $(LIBS)
+
+../../exec/hwrf_rtofs_reloc_forecast_way3:  hwrf_rtofs_dimensions.h $(COBJS) $(MODS) $(C1OBJS) $(OBJS) hycom.o
+	$(DM_FC) $(LDFLAGS) -o $@ hycom.o $(MODS) $(OBJS) $(COBJS) $(C1OBJS) $(LIBS)
+
+esmf:	$(MODS) $(OBJS)
+	@echo "--- ESMF hycom component has been built ---"
+
+hycom_cice:	$(MODS) $(OBJS) mod_OICPL.o hycom_cice.o
+	$(LD)  $(LDFLAGS) -o hycom_cice \
+				hycom_cice.o mod_OICPL.o \
+				$(MODS) $(OBJS) \
+				${CICE_DIR}/esmf/compile/*.o \
+				$(EXTRALIBS)
+
+clean:
+	/bin/rm -f *.o *.mod *.F.f dimensions.h
+
+hwrf_rtofs_dimensions.h:
+	/bin/cp -f rtofs_fcst_dimensions.h dimensions.h
+
+#####################################################################
+## OC dependencies
+
+mpi_more.o: mpi_more.f
+cmp.comm.o: cmp.comm.f mpi_more.o
+hc.comm.o: hc.comm.f cmp.comm.o mpi_more.o 
+hc_tiles.o: hc_tiles.f mod_xc.o 
+
+#rdgrids.o: rdgrids.f mod_za.o hc.comm.o
+rdgrids.o: rdgrids.f hc.comm.o
+
+## hycom and other models and interfaces dependencies
+hycom.o:        hycom.F       mod_hycom.o
+hycom_cice.o:   hycom_cice.F  mod_hycom.o mod_OICPL.o
+barotp.o:  barotp.F  mod_xc.o mod_cb_arrays.o                     mod_pipe.o \
+                                                                  mod_tides.o \
+                                                                  mod_stokes.o
+bigrid.o:  bigrid.f  mod_xc.o
+blkdat.o:  blkdat.F  mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_incupd.o \
+                                                                  mod_floats.o \
+                                                                  mod_tides.o \
+                                                                  mod_stokes.o
+cnuity.o:  cnuity.F  mod_xc.o mod_cb_arrays.o                     mod_pipe.o \
+                                                                  mod_stokes.o
+convec.o:  convec.F  mod_xc.o mod_cb_arrays.o stmt_fns.h
+diapfl.o:  diapfl.F  mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_stokes.o
+dpthuv.o:  dpthuv.F  mod_xc.o mod_cb_arrays.o
+dpudpv.o:  dpudpv.F  mod_xc.o
+forfun.o:  forfun.f  mod_xc.o mod_cb_arrays.o            mod_za.o
+geopar.o:  geopar.F  mod_xc.o mod_cb_arrays.o stmt_fns.h mod_za.o
+hybgen.o:  hybgen.F  mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_pipe.o
+icloan.o:  icloan.F  mod_xc.o mod_cb_arrays.o stmt_fns.h
+inicon.o:  inicon.F  mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_pipe.o
+inigiss.o: inigiss.f mod_xc.o mod_cb_arrays.o stmt_fns.h
+inikpp.o:  inikpp.f  mod_xc.o mod_cb_arrays.o stmt_fns.h
+inimy.o:   inimy.f   mod_xc.o mod_cb_arrays.o stmt_fns.h
+isnan.o:   isnan.F
+latbdy.o:  latbdy.F  mod_xc.o mod_cb_arrays.o                     mod_tides.o
+machine.o: machine.F
+machi_c.o: machi_c.c
+matinv.o:  matinv.f  mod_xc.o mod_cb_arrays.o
+mxkprf.o:  mxkprf.F  mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_pipe.o \
+                                                                  mod_stokes.o
+mxkrt.o:   mxkrt.F   mod_xc.o mod_cb_arrays.o stmt_fns.h
+mxkrtm.o:  mxkrtm.F  mod_xc.o mod_cb_arrays.o stmt_fns.h
+mxpwp.o:   mxpwp.F   mod_xc.o mod_cb_arrays.o stmt_fns.h
+overtn.o:  overtn.F  mod_xc.o mod_cb_arrays.o
+poflat.o:  poflat.f
+prtmsk.o:  prtmsk.f
+psmoo.o:   psmoo.f   mod_xc.o
+restart.o: restart.f mod_xc.o mod_cb_arrays.o            mod_za.o mod_tides.o
+thermf.o:  thermf.F  mod_xc.o mod_cb_arrays.o stmt_fns.h
+trcupd.o:  trcupd.F  mod_xc.o mod_cb_arrays.o                     mod_pipe.o
+wtime.o:   wtime.F
+hc4wwcpl.o:   hc4wwcpl.F layer2z.o mod_cb_arrays.o
+layer2z.o:   layer2z.F
+
+mod_hycom.o: \
+        mod_hycom.F  mod_xc.o mod_cb_arrays.o            mod_za.o mod_pipe.o \
+                                                                  mod_incupd.o \
+                                                                  mod_mean.o \
+                                                                  mod_floats.o \
+                                                                  mod_momtum.o \
+                                                                  mod_tsadvc.o \
+                                                                  mod_stokes.o
+mod_cb_arrays.o: \
+        mod_cb_arrays.F mod_dimensions.o
+mod_momtum.o: \
+        mod_momtum.F mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_pipe.o \
+                                                                  mod_tides.o \
+                                                                  mod_stokes.o
+mod_tsadvc.o: \
+        mod_tsadvc.F mod_xc.o mod_cb_arrays.o stmt_fns.h          mod_pipe.o
+mod_incupd.o: \
+        mod_incupd.F mod_xc.o mod_cb_arrays.o            mod_za.o
+mod_floats.o: \
+        mod_floats.F mod_xc.o mod_cb_arrays.o            mod_za.o mod_pipe.o \
+                                                                  mod_stokes.o
+mod_pipe.o: \
+        mod_pipe.F   mod_xc.o mod_cb_arrays.o                     mod_stokes.o
+mod_stokes.o: \
+        mod_stokes.F mod_xc.o mod_cb_arrays.o            mod_za.o
+mod_tides.o: \
+        mod_tides.F  mod_xc.o mod_cb_arrays.o            mod_za.o
+mod_mean.o: \
+        mod_mean.F   mod_xc.o mod_cb_arrays.o            mod_za.o mod_stokes.o
+mod_archiv.o: \
+        mod_archiv.F mod_xc.o mod_cb_arrays.o            mod_za.o mod_stokes.o
+
+mod_dimensions.o:   mod_dimensions.F dimensions.h dimensions_relo.h
+mod_xc.o: mod_xc.F  mod_dimensions.o mod_xc_sm.h mod_xc_mp.h
+mod_za.o: mod_za.F  mod_xc.o         mod_za_sm.h mod_za_mp.h mod_za_mp1.h mod_za_zt.h
+
+mod_OICPL.o: mod_OICPL.F
+

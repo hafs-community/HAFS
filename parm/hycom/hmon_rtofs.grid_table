@@ -1,0 +1,42 @@
+grid_table: 
+
+grid_id    	src_grid_label	grid_label	grid_source	grid_size_idm_jdm_kdm	i0j0_pts	ijgrd  gridno
+rtofs_26     	ncep1_12      	A12         	rtofs_26     	1200 1684 26           	1   1     	1      120
+g_mx           	ncep1_12       	S12_gmc     	rtofs_26    	350   465  26      	460 1180 	1      122
+nw_atl_mid  	ncep1_12       	S12_atlm     	rtofs_26    	240   314  26      	640   895  	1      124
+nw_atl_north	ncep1_12       	S12_atln       	rtofs_26 	280   360  26       	710   610  	1      123
+nw_atl_south	ncep1_12       	S12_atls       	rtofs_26 	300   340  26     	400   900  	1      125
+hw_west         ncep1_12        H06_west        rtofs_26        361   481  26           249   721       2      991
+hw_mid          ncep1_12        H06_mid         rtofs_26        386   536  26           221   381       2      992
+hw_east         ncep1_12        H06_east        rtofs_26        386   452  26           221   319       2      993
+hw_beast        ncep1_12        H06_beast       rtofs_26        403   683  26           187   319       2      994
+rtofs_06_26     ncep1_12        ncep_06         rtofs_26        600   842  26           2    2          2      995
+rtofs_03_26     ncep_06         ncep_03         rtofs_06_26     300   421  26           2    2          2      996
+rtofs_navy      navy_0.08       rtofs.glo       rtofs_navy     4500  3298  32           1    1          1      899
+hat11_west      navy_0.08       west         rtofs_glo        563 351 32           2349 1578 1 801
+hat12_mid       navy_0.08       mid          rtofs_glo        501 362 32           2661 1578 1 802
+hat13_east      navy_0.08       east         rtofs_glo        533 340 32           2911 1574 1 803
+hat14_north     navy_0.08       north        rtofs_glo        393 464 32           2557 1691 1 804
+hep21_west      navy_0.08       west         rtofs_glo        485 346 32           1340 1568 1 811
+hep22_mid       navy_0.08       mid          rtofs_glo        514 346 32           1561 1568 1 812
+hep23_east      navy_0.08       east         rtofs_glo        672 346 32           1886 1568 1 813
+hwp31_west      navy_0.08       west         rtofs_glo        564 365 32           386 1506 1 821
+hwp32_east      navy_0.08       east         rtofs_glo        620 328 32           699 1543 1 822
+hwp33_north     navy_0.08       north        rtofs_glo        532 340 32           543 1669 1 823
+hat11_west      basin_0.08     west          rtofs_hat10       563 351 32           26 105 1 801
+hat12_mid       basin_0.08     mid           rtofs_hat10       501 362 32           338 105 1 801
+hat13_east      basin_0.08     east          rtofs_hat10       533 340 32           588 101 1 801
+hat14_north     basin_0.08     north         rtofs_hat10       393 464 32           234 218 1 801
+hep21_west      basin_0.08     west          rtofs_hep20       485 346 32           14 317 1 813
+hep22_mid       basin_0.08     mid           rtofs_hep20       514 346 32           235 317 1 813
+hep23_east      basin_0.08     east          rtofs_hep20       672 346 32           560 317 1 813
+hwp31_west      basin_0.08       west         rtofs_hwp30        564 365 32          76 395 1 821
+hwp32_east      basin_0.08       east         rtofs_hwp30        620 328 32         389 432 1 822
+hwp33_north     basin_0.08       north        rtofs_hwp30        532 340 32         233 558 1 823
+hat10_basin 	navy_0.08	basin	        rtofs_glo	1135 633 41        2346 1518 1 850
+hep20_basin	navy_0.08	basin		rtofs_glo	1226 476 41	   1318 1568 1 860
+hwp30_basin	navy_0.08	basin		rtofs_glo	 989 480 41  	    311 1568 1 870
+hin40_basin	navy_0.08	basin		rtofs_glo	 712 331 41	   4113 1568 1 880
+hsn50_basin	navy_0.08	basin		rtofs_glo	1215  567 41	   3968  909 1 890
+hsp60_basin	navy_0.08	basin		rtofs_glo	1313  566 41	     11  909 1 900
+hcp70_basin	navy_0.08	basin		rtofs_glo	876   476 41	   1074 1568 1 900
