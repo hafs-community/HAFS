@@ -1,0 +1,60 @@
+SHELL=/bin/sh
+#
+
+#include ../make.include
+
+SFC            =   ifort
+SF90           =   ifort -free
+CPP            =   /lib/cpp
+CPPFLAGS       =   -C -P -traditional-cpp -DLINUX
+FFLAGS=-fp-model precise -assume byterecl -convert big_endian -DLINUX
+
+LN              =       ln -sf
+MAKE            =       make -i -r
+RM              =       /bin/rm -f
+CP              =       /bin/cp
+MV              =       /bin/mv
+AR              =       ar
+MKDIR           =       /bin/mkdir -p
+
+SRCS=   flush.f90 constants.f90 horiz_interp.f90 mod_hytime.f90 mod_flags.f90 \
+	mod_hycomio1.f90 mod_dump.f90 mod_grib2io.f90 mod_geom.f90 intp.f90 cd.f90
+
+OBJS=	${SRCS:.f90=.o}
+
+CMD   =		gfs2hycom
+
+LIB_TEMP_LOCATION = ../../lib/
+LIB_NWPROD_LOCATION = /nwprod/lib/
+INC   = $(LIB_NWPROD_LOCATION)/incmod/ofs_mods
+INC1	= /nwprod/lib/incmod/g2_4
+LIBS   = -L$(LIB_TEMP_LOCATION) -L$(LIB_NWPROD_LOCATION) -lofs_mods -lg2_4 -lw3nco_4 -lbacio_4 -ljasper -lpng -lz
+FFLAGS += -I$(INC) -I$(INC1)
+#
+all:	$(CMD)
+
+$(CMD):		$(OBJS) 
+	$(SFC) $(LDFLAGS) -o $(@) $(OBJS) $(LIBS)
+
+clean:
+	$(RM) $(OBJS) *.mod $(CMD)
+
+.IGNORE:
+.SUFFIXES: .c .f .F .F90 .f90 .o
+
+.f.o:
+	$(RM) $@ $*.mod
+	$(SFC) $(FFLAGS) -c $<
+
+.F.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(CPPFLAGS) $(FDEFS)  $< > $<.f
+	$(SFC) $(FFLAGS) -c $<.f
+	$(MV) $<.o $*.o
+#       $(RM) $<.f
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(SF90) -g $(FFLAGS) -c $<
+
+

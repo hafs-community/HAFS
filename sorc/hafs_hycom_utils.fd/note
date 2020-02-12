@@ -1,0 +1,3 @@
+ recompile hycom using  mvapich2/2.3  intel/18.0.5.274  
+  copy configure.hycom  configure.hycom-20190402  as a backup
+   remove '-C' in CPPFLAG  in configure.hycom

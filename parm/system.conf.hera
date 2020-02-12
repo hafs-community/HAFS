@@ -30,6 +30,10 @@ CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+COMrtofs=/scratch1/NCEPDEV/stmp2/Jili.Dong/COMRTOFS
+
+MPISERIAL=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/H220baseline/exec/mpiserial
+
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)

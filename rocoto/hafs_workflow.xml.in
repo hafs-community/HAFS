@@ -266,10 +266,11 @@
 
 
 
-  <task name="ocean_init" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_OCEAN_INIT</command>
-    <jobname>hafs_ocean_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_ocean_init.log</cyclestr></join>
+  <task name="hycom_icbc" maxtries="&MAX_TRIES;">
+    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
+    <command>&PRE; &EXhafs;/exhafs_hycom_icbc.py</command>
+    <jobname>hafs_hycom_icbc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycom_icbc.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
@@ -295,6 +296,38 @@
     </dependency>
   </task>
 
+
+  <task name="hycom_forcing" maxtries="&MAX_TRIES;">
+    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
+    <command>&PRE; &EXhafs;/exhafs_hycom_forcing.py</command>
+    <jobname>hafs_hycom_forcing_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycom_forcing.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &OCEAN_INIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="grid"/>
+        <or>
+          <taskdep task="input"/>
+          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+        </or>
+        <!-- Second dependency: the GFS output must be available -->
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
+        <and>
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+          <!-- <datadep age="02:00" minsize="300000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/@H/rtofs.f126</cyclestr></datadep> -->
+        </and>
+      </and>
+    </dependency>
+  </task>
+
+
 @** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
@@ -313,6 +346,7 @@
         <taskdep task="chgres_ic"/>
 @** if gtype==regional
         <metataskdep metatask="chgres_bc"/>
+        <taskdep task="hycom_icbc"/>
 @** endif
       </and>
     </dependency>

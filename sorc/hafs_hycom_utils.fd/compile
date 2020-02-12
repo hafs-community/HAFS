@@ -1,0 +1,33 @@
+#!/bin/csh -f
+
+if ( ! -e configure.hycom ) then
+	echo "Do 'configure' first"
+	exit ( 1 ) 
+endif
+
+if      ( ${#argv} == 0 ) then
+	set names	=	( libs init post )
+	set NAMES	=	( LIBS INIT POST )
+else
+        echo "*****"
+        echo " "
+	echo "Unrecognized compile target $1."
+        echo " "
+        echo " or just run compile with no target to build everything."
+        echo " "
+        echo "*****"
+        exit(1)
+endif
+
+echo " "
+if ( ${#argv} == 0 ) then
+	echo "**** Compiling HMON Hycom ****"
+else
+	echo "**** No arguments are needed... Compiling NCEP Coupler ****"
+endif
+echo " "
+/bin/rm -rf ./exec/*
+
+( make -i -f makefile all )
+
+exit(0)

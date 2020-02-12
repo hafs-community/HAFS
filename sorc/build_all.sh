@@ -89,6 +89,15 @@ echo " .... Building gsi .... "
 ./build_gsi.sh > $logs_dir/build_gsi.log 2>&1
 }
 
+#------------------------------------
+# build hycom_utils 
+#------------------------------------
+$Build_hycom_utils && {
+echo " .... Building hycom_utils .... "
+./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
+}
+
+
 echo;echo " .... Build system finished .... "
 
 exit 0

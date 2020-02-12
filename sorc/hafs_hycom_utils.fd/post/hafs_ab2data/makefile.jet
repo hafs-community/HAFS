@@ -1,0 +1,49 @@
+PATH_TO_NWJET=../../nwjet
+include ../../nwjet/sorc/config/configure.hycom
+
+LIBS = -L$(LIB_OFSMODS_PATH) -lofs_mods -lw3_i4r4 -lbacio_i4r4 -L$(PATH_TO_NETCDF)/lib -lnetcdf
+INCMOD1 = $(LIB_OFSMODS_PATH)/ofs_mods 
+INCMOD2 = $(PATH_TO_NETCDF)/include
+
+CPPFLAGS+= -I$(INCMOD1) -I$(INCMOD2)
+FFLAGS += -I$(INCMOD1) -I$(INCMOD2)
+F90FLAGS=$(FFLAGS)
+
+MODB     =      mod_plot.o mod_xc.o mod_za.o mod_zb.o wtime.o
+
+DATAX_OBJ =     bigrid.o  bigrd1.o blkin.o    \
+		extrct.o  extrot.o fordate.o  \
+		getdat.o  getdtm.o getdepth.o \
+		          indxi.o  indxj.o    \
+		pakk.o    poisnd.o psmoo.o    \
+		sbmerg.o  zebra.o  zh.o       \
+		dum_gks.o
+
+DATAH_OBJ =     $(DATAX_OBJ) horout_nc.o
+DATAZ_OBJ =     $(DATAH_OBJ) layer2z.o
+
+NCDFH_OBJ =     $(DATAX_OBJ) horout_nc.o
+NCDFZ_OBJ =     $(NCDFH_OBJ) layer2z.o
+
+GRIB_OBJ =      ab2grib.o gribit.o grib_maps.o
+
+THERM_OBJ=      pot2pot0.o
+
+EXEC	= hwrf_ofs_archv2data2d hwrf_ofs_archv2data2d_insitu hwrf_ofs_archv2data3z_insitu
+
+all:	$(EXEC)
+
+hwrf_ofs_archv2data2d: $(MODB) archv2data2d.o $(NCDFH_OBJ) $(GRIB_OBJ) $(THERM_OBJ) 
+	$(FC) $(LDFLAGS) -o hwrf_ofs_archv2data2d  archv2data2d.o  $(MODB) $(NCDFH_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
+
+hwrf_ofs_archv2data2d_insitu: $(MODB) archv2data2d_insitu.o  $(NCDFH_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
+	$(FC) $(LDFLAGS) -o hwrf_ofs_archv2data2d_insitu archv2data2d_insitu.o $(MODB) $(NCDFH_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
+
+hwrf_ofs_archv2data3z_insitu: $(MODB) archv2data3z_insitu.o  $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
+	$(FC) $(LDFLAGS) -o hwrf_ofs_archv2data3z_insitu archv2data3z_insitu.o  $(MODB) $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	$(RM) $(DATAX_OBJ) $(MODB) $(EXEC) *.mod *.o
+

@@ -1,0 +1,62 @@
+PATH_TO_NWJET=../../nwjet
+include ../../nwjet/sorc/config/configure.hycom
+
+LIBS = -L$(LIB_OFSMODS_PATH) -lofs_mods -lw3_i4r4 -lbacio_i4r4 -L$(PATH_TO_NETCDF)/lib -lnetcdf
+INCMOD1 = $(LIB_OFSMODS_PATH)/ofs_mods 
+INCMOD2 = $(PATH_TO_NETCDF)/include
+
+CPPFLAGS+= -I$(INCMOD1) -I$(INCMOD2)
+FFLAGS += -I$(INCMOD1) -I$(INCMOD2)
+F90FLAGS=$(FFLAGS)
+
+MODS     =      mod_plot.o mod_xc.o mod_za.o               wtime.o
+MODB     =      mod_plot.o mod_xc.o mod_za.o mod_zb.o      wtime.o
+MODR     =      mod_plot.o mod_xc.o mod_za.o mod_restart.o wtime.o
+
+DATAX_OBJ =     bigrid.o  bigrd1.o blkin.o    \
+		buoflx.o                      \
+		extrct.o  extrot.o fordate.o  \
+		getdat.o  getdtm.o getdepth.o \
+		          indxi.o  indxj.o    \
+		pakk.o    poisnd.o psmoo.o    \
+		sbmerg.o  zebra.o  zh.o       \
+		dum_gks.o
+
+DATAH_OBJ =     $(DATAX_OBJ) horout.o
+DATAR_OBJ =     $(DATAX_OBJ) putdat.o
+DATAZ_OBJ =     $(DATAH_OBJ) layer2z.o mixlay.o
+
+NCDFH_OBJ =     $(DATAX_OBJ) horout_nc.o
+NCDFZ_OBJ =     $(NCDFH_OBJ) layer2z.o mixlay.o
+
+ARCHM_OBJ =     bigrid.o blkin.o  \
+		extrct.o extrot.o \
+		getdat.o getdtm.o getdepth.f putdat.o \
+		indxi.o  indxj.o  \
+		zebra.o  zh.o     dum_gks.o \
+		pakk.o
+#               pakk_micom.o
+
+ARCHV_OBJ =     bigrid.o blkin.o  \
+		extrct.o extrot.o fordate.o \
+		getdat.o getdtm.o getdepth.o putdat.o \
+		indxi.o  indxj.o  pakk.o  \
+		zebra.o   zh.o    dum_gks.o
+
+ARCHV_SRC =     hycomarchv.f micomarchv.f \
+		trim_archv.f archv2restart.f remap_archv \
+		archv2data2d.f archv2data2t.f archv2data3z.f archv2datasf.f archv2datasfl.f archv2restart.f putdat.f
+
+
+EXEC	= hwrf_archv2restart
+
+all:	$(EXEC)
+
+hwrf_archv2restart: $(MODR) archv2restart.o $(ARCHV_OBJ)
+	$(FC) $(LDFLAGS) -o hwrf_archv2restart  archv2restart.o  $(MODR) $(ARCHV_OBJ) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	$(RM) $(DATAX_OBJ) $(MODB) $(EXEC) *.mod *.o
+

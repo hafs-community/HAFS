@@ -16,8 +16,8 @@
 
   <!ENTITY GRID_RESOURCES "<nodes>1:ppn=6:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_IC_RESOURCES "<nodes>3:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY CHGRES_BC_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
-  <!ENTITY OCEAN_INIT_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
+  <!ENTITY CHGRES_BC_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">
+  <!ENTITY OCEAN_INIT_RESOURCES "<nodes>2:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
 
 
   <!ENTITY FORECAST_WALLTIME "<walltime>06:00:00</walltime>">
