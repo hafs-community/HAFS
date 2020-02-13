@@ -1,0 +1,52 @@
+-------------------------------- mpiserial -----------------------------
+
+This program is a simple MPI wrapper that runs a serial program on
+each MPI rank.  It has been tested on GAEA, Cirrus, Stratus, Tide,
+Gyre, Zeus and Jet.  Each MPI rank has two variables set:
+SCR_COMM_RANK and SCR_COMM_SIZE containing the MPI rank and
+communicator size.  The return status from mpiserial is 0 if the
+serial programs all exited with status 0.  If a command could not be
+executed, or if an MPI error is encountered, mpiserial will return a
+non-zero status.
+
+This program is not a substitute for a vendor MPMD interface that
+provides support for MPI in the commands.  In particular, the script
+that is executed cannot run any MPI programs, or most MPI
+implementations (including those on Zeus, GAEA, Tide and Gyre) will
+fail in generally unpredictable ways.  The coupled model case is an
+example of what must be handled by the vendor's MPMD method.
+
+To compile, edit the makefile to select the correct build options (CC
+and CFLAGS) or create a new build option if needed.  Build options are
+provided for GAEA, Tide, Gyre, Cirrus, Stratus, Jet and Zeus.  After
+editing the makefile, simply run "make".
+
+
+This program can be called in one of two different ways:
+
+
+SINGLE PROGRAM MULTIPLE DATA (SPMD)
+
+  mpiexec mpiserial 'command to run'
+
+Called like that, the program will run the specified command on all
+MPI ranks using /bin/sh.  This is intended to be used to execute
+simple commands like hostname or sync.  However, more complex programs
+can differentiate between tasks using $SCR_COMM_RANK.
+
+
+MULTIPLE PROGRAM MULTIPLE DATA (MPMD)
+
+  cp /my/command/file cmdfile
+  mpiexec mpiserial
+
+OR
+
+  export SCR_CMDFILE=/my/command/file
+  mpiexec mpiserial
+
+The program will read the first N lines of the command file, where N
+is the size of MPI_COMM_WORLD.  Each rank M runs the command on line
+M+1 (keeping in mind that MPI ranks are zero-based).  If the command
+file is too short, extra ranks will run "/bin/true".
+

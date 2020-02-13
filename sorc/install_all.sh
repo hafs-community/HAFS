@@ -95,6 +95,7 @@ $Build_vortextracker && {
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
   ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
+  ${CP} hafs_tools.fd/exec/mpiserial.exe             ../exec/mpiserial.x
 }
 
 #------------------------------------

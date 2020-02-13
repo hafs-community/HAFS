@@ -119,7 +119,10 @@ export PDY=${PDY:-${PDYtmp}}
 #export FIXgrid=${FIXhafs}/fix_fv3
 export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
 export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-export OCNdir=${OCNdir:-${WORKhafs}/ocean_init}
+export OCNicbcdir=${OCNicbcdir:-${WORKhafs}/hycominit1}
+export OCNforcngdir=${OCNforcngdir:-${WORKhafs}/hycominit2}
+export PARMocean=${PARMocean:-${PARMhafs}/hycom}
+export OCNfix=${OCNfix:-${FIXhafs}/fix_hycom}
 export DATA=${WORKhafs}/forecast
 
 export SCRUBDATA=${SCRUBDATA:-YES}

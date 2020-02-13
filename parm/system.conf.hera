@@ -32,7 +32,7 @@ syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
 COMrtofs=/scratch1/NCEPDEV/stmp2/Jili.Dong/COMRTOFS
 
-MPISERIAL=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/H220baseline/exec/mpiserial
+MPISERIAL={CDSAVE}/HAFS/exec/mpiserial.x
 
 
 [holdvars]

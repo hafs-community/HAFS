@@ -27,7 +27,12 @@ set -x
 ./clean -a
 find . -name '*.o' -o -name '*.a' -o -name '*.mod' | xargs rm -f
 
+if [ ! -d "./exec" ] ; then
+  mkdir -p ./exec
+fi
+
 #echo 3 | ./configure
 # Compile:
-./compile > make_log 2>&1
+##./compile > make_log 2>&1
+./compile
 
