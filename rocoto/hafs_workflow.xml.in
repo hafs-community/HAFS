@@ -347,6 +347,7 @@
 @** if gtype==regional
         <metataskdep metatask="chgres_bc"/>
         <taskdep task="hycom_icbc"/>
+        <taskdep task="hycom_forcing"/>
 @** endif
       </and>
     </dependency>
