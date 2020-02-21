@@ -142,7 +142,7 @@ PROGRAM timeinterp_forcing
       print *,time_star,mark,'time_star,mark, at end'     
      !
      ! Write extrapolated field at the end
-        CALL zaiowr(T_a_star,imsk,.TRUE., fldmin,fldmax, lua,.FALSE.)
+        CALL zaiowr(T_a_star,imsk,.FALSE., fldmin,fldmax, lua,.FALSE.)
         WRITE(lub,'(A,'' date,span,range = '',F10.2,'' 0 '',1P2E16.7)') &
           &       labela(1:10),time_star,fldmin,fldmax
      endif
