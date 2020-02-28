@@ -259,6 +259,46 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_DLAT_/$output_grid_dlat/ \
     >  model_configure
 
+# JDong copy ocean files
+# copy IC/BC
+cp ${OCNicbcdir}/restart_out.a restart_in.a 
+cp ${OCNicbcdir}/restart_out.b restart_in.b
+
+# copy forcing
+cp ${OCNforcngdir}/forcing* .
+
+# copy fix
+cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.depth.a regional.depth.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.depth.b regional.depth.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.grid.a regional.grid.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.grid.b regional.grid.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.forcing.chl.a forcing.chl.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.forcing.chl.b forcing.chl.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.iso.sigma.a iso.sigma.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.iso.sigma.b iso.sigma.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.ssh.a relax.ssh.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.ssh.b relax.ssh.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.tbaric.a tbaric.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.tbaric.b tbaric.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.thkdf4.a thkdf4.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.thkdf4.b thkdf4.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf2.a veldf2.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf2.b veldf2.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf4.a veldf4.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf4.b veldf4.b
+cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.rmu.a relax.rmu.a
+cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.rmu.b relax.rmu.b
+
+# copy parms
+cp ${PARMocean}/hafs_hycom_hat10.blkdat.input blkdat.input 
+cp ${PARMocean}/hmon_rtofs_hat10.basin.ports.input ports.input
+cp ${PARMocean}/hafs_hycom_hat10.patch.120.input patch.input
+cp ${OCNicbcdir}/hycom_settings hycom_settings 
+
+# create hycom limits
+${USHhafs}/hycom_limits.py ${yr}${mn}${dy}${cyc}
+
+
 #-------------------------------------------------------------------
 # Link the executable and run the forecast
 #-------------------------------------------------------------------

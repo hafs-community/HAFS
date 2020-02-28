@@ -95,6 +95,7 @@ $Build_vortextracker && {
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
   ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
+  ${CP} hafs_tools.fd/exec/mpiserial.exe             ../exec/mpiserial.x
 }
 
 #------------------------------------
@@ -125,6 +126,22 @@ $Build_gsi && {
   ${CP} hafs_gsi.fd/exec/recentersigp.x              ../exec/hafs_recentersigp.x
   ${CP} hafs_gsi.fd/exec/test_nc_unlimdims.x         ../exec/hafs_test_nc_unlimdims.x
 }
+
+#------------------------------------
+# install hycom_utils 
+#------------------------------------
+$Build_hycom_utils && {
+  ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z              ../exec/hafs_archv2data3z.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                  ../exec/hafs_gfs2ofs2.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_reloc_forecast      ../exec/hafs_rtofs_reloc_forecast.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z_insitu       ../exec/hafs_archv2data3z_insitu.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion           ../exec/hafs_rtofs_subregion.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart             ../exec/hafs_archv2restart.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart           ../exec/hafs_restart2restart.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing        ../exec/hafs_timeinterp_forcing.x
+}
+
 
 
 echo;echo " .... Install system finished .... "

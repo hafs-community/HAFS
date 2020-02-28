@@ -13,6 +13,7 @@
                        "Build_orog" \
                        "Build_nctools" \
                        "Build_tools" \
+                       "Build_hycom_utils" \
                        "Build_gsi" \
                       )
 

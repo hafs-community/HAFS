@@ -1,0 +1,58 @@
+b-name   varname         ioin       namec
+
+montg1   montg           mtgio      Montgomery_potential_surf
+srfhgt   srfht           sshio      sea_surface_height
+surflx   surflx          flxio      surface_heat_flux
+salflx   salflx ->
+         emnp            empio      surface_evaporation_precipitation
+surflxev surflx_evap     evpio prob evaporative_heat_flux
+surflxse surflx_snsi     snsio prob sensible_heat_flux
+bl_dpth  dpbl            bltio      surface_boundary_layer_thickness
+mix_dpth dpmixl          mltio      mixed_layer_thickness
+tmix     tmix            sstio      mixed_layer_temperature   
+smix     smix            sssio      mixed_layer_salinity
+thmix    thmix           ssdio      mixed_layer_density
+umix     umix            uvmio      mixed_layer_u_velocity
+vmix     vmix            vvmio      mixed_layer_v_velocity
+u_btrop  ubaro           vubio      barotropic_u_velocity
+v_btrop  vbaro           vvbio      barotropic_v_velocity
+u-vel.   u         1     uvlio      u_velocity
+v-vel.   v         1     vvlio      v_velocity
+thknss   dp        1     thkio      layer_thickness
+temp     temp      1     temio      layer_temperature
+salin    saln      1     salio      layer_salinity
+density  th3d      1     tthio      layer_density
+
+                         wvlio      w_velocity
+
+stress_x                 stxio      
+stress_y                 styio
+precip                   pcpio
+rad-flux                 rdfio
+swr-flux                 swfio
+atm-pres                 atpio
+sns-flux                 snfio
+lat-flux                 ltfio
+
+gfs_strx
+gfs_stry
+gfs_prcp 
+gfs_rdfx 
+gfs_swfx
+gfs_atps
+
+stress_x =   18875500   39323.96  0  0.000  -1.0000000E+30   5.1323071E+00
+stress_y =   18875500   39323.96  0  0.000  -1.0000000E+30   5.0715642E+00
+precip   =   18875500   39323.96  0  0.000   0.0000000E+00   2.0157609E-05
+rad-flux =   18875500   39323.96  0  0.000  -9.8761978E+01   2.2742793E+02
+swr-flux =   18875500   39323.96  0  0.000   0.0000000E+00   2.7520969E+02
+atm-pres =   18875500   39323.96  0  0.000  -8.9811816E+03   9.9194525E+02
+sns-flux =   18875500   39323.96  0  0.000  -6.7982841E+01   2.3341345E+02
+lat-flux =   18875500   39323.96  0  0.000   0.0000000E+00   2.0877915E+03
+gfs_strx =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+gfs_stry =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+gfs_prcp =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+gfs_rdfx =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+gfs_swfx =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+gfs_atps =   18875500   39323.96  0  0.000   0.0000000E+00   0.0000000E+00
+

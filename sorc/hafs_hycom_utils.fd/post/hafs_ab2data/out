@@ -1,0 +1,78 @@
+(ld): setopt 64
+(ld): halt 4
+(ld): setfflag 4
+(ld): savename ../../exec/hwrf_ofs_archv2data3z_insitu
+(ld): filelist 41 1
+(ld): i /lib/crt0_64.o
+(ld): i archv2data3z_insitu.o
+(ld): i mod_plot.o
+(ld): i mod_xc.o
+(ld): i mod_za.o
+(ld): i mod_zb.o
+(ld): i wtime.o
+(ld): i bigrid.o
+(ld): i bigrd1.o
+(ld): i blkin.o
+(ld): i extrct.o
+(ld): i extrot.o
+(ld): i fordate.o
+(ld): i getdat.o
+(ld): i getdtm.o
+(ld): i getdepth.o
+(ld): i indxi.o
+(ld): i indxj.o
+(ld): i pakk.o
+(ld): i poisnd.o
+(ld): i psmoo.o
+(ld): i sbmerg.o
+(ld): i zebra.o
+(ld): i zh.o
+(ld): i dum_gks.o
+(ld): i horout_nc.o
+(ld): i layer2z.o
+(ld): i ab2grib.o
+(ld): i gribit.o
+(ld): i grib_maps.o
+(ld): i pot2pot0.o
+(ld): i /usrx/local/netcdf.3.5.0/lib/libnetcdf.a
+(ld): lib /nwprod/lib/libw3_4.a
+(ld): lib /nwprod/lib/libbacio_4.a
+(ld): lib /usr/lpp/xlf/lib/libxlf90.a
+(ld): lib /usr/lpp/xlf/lib/libxlopt.a
+(ld): lib /usr/lpp/xlf/lib/libxlf.a
+(ld): lib /usr/lib/libxlomp_ser.a
+(ld): lib /usr/lib/libpthreads.a
+(ld): lib /usr/lib/libm.a
+(ld): lib /usr/lib/libc.a
+LIBRARY: Shared object libxlf90.a[io_64.o]: 94 symbols imported.
+LIBRARY: Shared object libxlf90.a[math_64.o]: 352 symbols imported.
+LIBRARY: Shared object libxlf90.a[xlfsys_64.o]: 34 symbols imported.
+LIBRARY: Symbols imported from import file /usr/lpp/xlf/lib/libxlf90.a[_xlf_aio.imp]: 10
+LIBRARY: Shared object libxlf90.a[_xlf_posix_64.o]: 88 symbols imported.
+LIBRARY: Shared object libxlomp_ser.a[omp_ser_64.o]: 84 symbols imported.
+LIBRARY: Shared object libpthreads.a[shr_xpg5_64.o]: 333 symbols imported.
+LIBRARY: Shared object libc.a[shr_64.o]: 2696 symbols imported.
+LIBRARY: Shared object libc.a[posix_aio_64.o]: 20 symbols imported.
+LIBRARY: Shared object libc.a[aio_64.o]: 18 symbols imported.
+LIBRARY: Shared object libc.a[pse_64.o]: 5 symbols imported.
+LIBRARY: Shared object libc.a[dl_64.o]: 4 symbols imported.
+LIBRARY: Shared object libc.a[pty_64.o]: 1 symbols imported.
+FILELIST: Number of previously inserted files processed: 41
+(ld): resolve
+RESOLVE: 956 of 15477 symbols were kept.
+(ld): addgl /usr/lib/glink64.o
+ADDGL: Glink code added for 61 symbols.
+(ld): er full
+ER: There are no unresolved symbols.
+(ld): mismatch
+MISMATCH: No type mismatches exist.
+(ld): comprld
+COMPRLD: Kept 12004 of 12004 relocation entries.
+(ld): origin page 0x100000000 0x110000000
+(ld): libpath /nwprod/lib:/usr/lpp/xlf/lib:/usr/lib:/lib
+LIBPATH: Library path set to /nwprod/lib:/usr/lpp/xlf/lib:/usr/lib:/lib
+(ld): save 1L .
+SAVE: Section sizes = 1109624+107888+12904 (0x10EE78+0x1A570+0x3268 hex)
+SAVE: Size of TOC: 1864 (0x748 hex)
+(ld): rc
+RC: Highest return code was 0.

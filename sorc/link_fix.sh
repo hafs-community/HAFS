@@ -27,4 +27,11 @@ do
     ln -sf ${FIXROOT}/${subdir} ./
 done
 
+if [ ${target} == "hera" ]; then
+    FIX_HYCOM_ROOT=/scratch1/NCEPDEV/hwrf/save/Jili.Dong/hycom_fix_for_hafs
+    cp -fr ${FIX_HYCOM_ROOT} fix_hycom 
+fi
+
+
+
 echo 'done'

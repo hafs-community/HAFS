@@ -1,0 +1,64 @@
+include ../../configure.hycom
+FC            = $(SFC)
+
+LDFLAGS        =  -Wl,-noinhibit-exec -i_dynamic 
+CPPFLAGS       =  -C -P -D$(BYTE_ORDER) -DWRF -DLINUX -DSERIAL_IO \
+                  -I$(WRF_DIR)/inc
+
+RM            = \rm -f
+#programs      = hwrf_isubregion2avg hwrf_isubregion2 hwrf_subregion1 \
+#		hwrf_sub_topog1 hwrf_sub_topog2 hwrf_sub_grid1 hwrf_sub_grid2
+programs      = ../../exec/hwrf_rtofs_isubregion ../../exec/hwrf_rtofs_subregion
+EXEC          = ../../exec
+
+.SUFFIXES: 
+.SUFFIXES: .c .F .f .o
+
+all:	$(programs)
+
+install: 
+	-mv $(programs) $(EXEC)
+
+clean:
+	-rm -f *.o *.mod  $(programs)
+
+MODS = mod_xc.o mod_za.o mod_zb.o wtime.o zh.o
+
+# select one of the programs to make,
+#  e.g. make subregion ARCH=sun >& Make_subregion
+
+$(EXEC)/hwrf_isubregion2:      $(MODS) isubregion2.o        
+	$(DM_FC) $(LDFLAGS) isubregion2.o $(MODS) -o $@
+
+$(EXEC)/hwrf_isubregion2avg:      $(MODS) isubregion2avg.o  avg2.o pavg.o
+	$(DM_FC) $(LDFLAGS) isubregion2avg.o $(MODS) avg2.o pavg.o -o $@
+
+$(EXEC)/hwrf_subregion1:       $(MODS) subregion1.o         
+	$(DM_FC) $(LDFLAGS) subregion1.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_sub_topog1:       $(MODS) sub_topog1.o         
+	$(DM_FC) $(LDFLAGS) sub_topog1.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_sub_topog2:       $(MODS) sub_topog2.o         
+	$(DM_FC) $(LDFLAGS) sub_topog2.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_sub_grid1:       $(MODS) sub_grid1.o         
+	$(DM_FC) $(LDFLAGS) sub_grid1.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_sub_grid2:       $(MODS) sub_grid2.o         
+	$(DM_FC) $(LDFLAGS) sub_grid2.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_rtofs_isubregion:       $(MODS) isubregion.o         
+	$(FC) $(LDFLAGS) isubregion.o  $(MODS) -o $@
+
+$(EXEC)/hwrf_rtofs_subregion:       $(MODS) subregion.o         
+	$(FC) $(LDFLAGS) subregion.o  $(MODS) -o $@
+
+
+mod_xc.o:   mod_xc.F
+
+mod_za.o:   mod_za.F mod_xc.o
+
+mod_zb.o:   mod_za.F mod_xc.o
+
+zh.o:       zh.F zh_sun.f zh_t3e.f zh_ymp.f

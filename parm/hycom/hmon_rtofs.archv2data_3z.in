@@ -1,0 +1,57 @@
+ 10	'iexpt ' = experiment number x10 (000=from archive file)
+  3	'yrflag' = days in year flag (0=360J16,1=366J16,2=366J01,3-actual)
+&idm    'idm   ' = longitudinal array size
+&jdm    'jdm   ' = latitudinal  array size
+&kdm    'kdm   ' = number of layers
+ 34.0	'thbase' = reference density (sigma units)
+  1     'surflg' =number of  surface heat flux fields [1,3,4]
+  1	'smooth' = smooth fields before plotting (0=F,1=T)
+  1	'iorign' = i-origin of plotted subregion
+  1	'jorign' = j-origin of plotted subregion
+  0     'idmp  ' = i-extent of plotted subregion (<=idm; 0 implies idm)
+  0     'jdmp  ' = j-extent of plotted subregion (<=jdm; 0 implies jdm)
+  1     'itype ' = interpolation type (0=sample,1=linear)
+ 26     'kz    ' = number of depths to sample
+  1     'z    '  = sample depth
+  3     'z    '  = sample depth
+  5     'z    '  = sample depth
+7.5     'z    '  = sample depth
+ 10     'z    '  = sample depth
+ 15     'z    '  = sample depth
+ 20     'z    '  = sample depth
+ 25     'z    '  = sample depth
+ 30     'z    '  = sample depth
+ 40     'z    '  = sample depth
+ 50     'z    '  = sample depth
+ 60     'z    '  = sample depth
+ 70     'z    '  = sample depth
+ 80     'z    '  = sample depth
+100     'z    '  = sample depth
+120     'z    '  = sample depth
+140     'z    '  = sample depth
+160     'z    '  = sample depth
+180     'z    '  = sample depth
+200     'z    '  = sample depth
+220     'z    '  = sample depth
+240     'z    '  = sample depth
+250     'z    '  = sample depth
+275     'z    '  = sample depth
+300     'z    '  = sample depth
+350     'z    '  = sample depth
+  0     'sshio ' = sea surface height
+  0     'mtgio ' = Montgomery stream function
+ 51     'mltio ' = mix. lay. thick. I/O unit (0 no I/O)
+  0     'infio ' = interface depths I/O unit (0 no I/O)
+  0     'wviio ' = intf. w-velocity I/O unit (0 no I/O)
+ 51     'wvlio ' = w-velocity       I/O unit (0 no I/O)
+ 51     'uvlio ' = u-velocity       I/O unit (0 no I/O)
+ 51     'vvlio ' = v-velocity       I/O unit (0 no I/O)
+  0     'splio ' = speed            I/O unit (0 no I/O)
+ 51     'temio ' = temperature      I/O unit (0 no I/O)
+ 51     'salio ' = salinity         I/O unit (0 no I/O)
+  0     'tthio ' = density          I/O unit (0 no I/O)
+ 51     'ohcio ' = ocean heat content      I/O unit (0 no I/O)
+ 51     'z26io ' = depth of 20C isotherm   I/O unit (0 no I/O)
+ 51     'z20io ' = depth of 20C isotherm   I/O unit (0 no I/O)
+  0     'keio  ' = kinetic energy   I/O unit (0 no I/O)
+
