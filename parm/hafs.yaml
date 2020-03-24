@@ -304,6 +304,16 @@ grid: # <------- section [grid]
 # Some options for FV3 model_configure
 forecast: # <------- section [forecast]
 
+# ccpp suites
+  ccpp_suite_regional: HAFS_v0_gfdlmp_nocp
+  # ^--- was ccpp_suite_regional=HAFS_v0_gfdlmp_nocp
+
+  ccpp_suite_glob: HAFS_v0_gfdlmp
+  # ^--- was ccpp_suite_glob=HAFS_v0_gfdlmp
+
+  ccpp_suite_nest: HAFS_v0_gfdlmp_nocp
+  # ^-- ccpp_suite_nest=HAFS_v0_gfdlmp_nocp
+
   dt_atmos: 90 ##  FV3 time step
   # ^--- was dt_atmos=90
 

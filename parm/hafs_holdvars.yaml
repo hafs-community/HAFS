@@ -49,6 +49,16 @@ holdvars: # <------- section [holdvars]
 #JET_NAME={ENV[JET_NAME]}
 #WHERE_AM_I={ENV[ENVEQUIV]}
 
+  ccpp_suite_regional: !calc doc.forecast.ccpp_suite_regional
+  # ^--- was ccpp_suite_regional={forecast/ccpp_suite_regional}
+
+  ccpp_suite_glob: !calc doc.forecast.ccpp_suite_glob
+  # ^--- was ccpp_suite_glob={forecast/ccpp_suite_glob}
+
+  ccpp_suite_nest: !calc doc.forecast.ccpp_suite_nest
+  # ^--- was ccpp_suite_nest={forecast/ccpp_suite_nest}
+
+
   CASE: !calc doc.grid.CASE
   # ^--- was CASE={grid/CASE}
 
