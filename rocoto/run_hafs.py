@@ -533,8 +533,7 @@ if multistorm:
                 MULTISTORM_SIDS=storms_opt,
                 FAKE_SID=fakestid.upper())
 else:
-    VARS.update(MULTISTORM='NO',
-                RENUM='',BASINS='',MULTISTORM_SIDS='',FAKE_SID='')
+    VARS.update(MULTISTORM='NO')
 
 try:
     stormlabel=conf.get('config','stormlabel','storm1')

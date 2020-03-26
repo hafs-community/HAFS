@@ -134,8 +134,8 @@ def basin_center_okay(vl):
             if vital.lat<0: continue  # should be in N hemisphere but is not
         yield vital
 
-def vit_key_by_storm(a,b):
-    """!A key comparison for StormInfo objects intended to be used with
+def vit_key_by_storm(storminfo):
+    """!A key generator for StormInfo objects intended to be used with
     sorted().  This is intended to be used on cleaned vitals returned
     by clean_up_vitals.  For other purposes, use vitcmp.
 
@@ -146,29 +146,33 @@ def vit_key_by_storm(a,b):
       4. Break ties by retaining original order ("stable sort").
 
     @param a,b StormInfo objects to order"""
-
-def vit_key_by_storm(storminfo):
     key=(storminfo.when.year,storminfo.longstormid,storminfo.when)
     return key
 
 def vitkey(a):
     """!A key generator for StormInfo objects intended to be used with
-    sorted().  
+    sorted().  This is intended for situations that need storm IDs
+    reverse sorted, such as during the renumbering code.
 
-    @param a,b StormInfo objects to order.
+    @param storminfo StormInfo objects for which a key is required.
+
+    @returns a tuple for comparing via the "less than" operator.
+
     Uses the following method:
 
       1. Sort numerically by date/time.
-      2. Break ties by a reverse sort by stormid.  This places Invest 
-         (90s) first.
-      3. Break ties by ASCII lexical sort by center (ie.: JTWC first, 
+      2. Break ties by a reverse sort by integer storm number.  This
+         places Invest (90s) first.
+      3. Break ties by a reverse lexical sort by basin letter (ie.: L before E)
+      4. Break ties by ASCII lexical sort by center (ie.: JTWC first, 
          NHC second)
-      4. Break ties by placing vitals WITH 34kt wind radii after those 
+      5. Break ties by placing vitals WITH 34kt wind radii after those 
          without.
-      5. Break ties by placing vitals with a full line (through 64kt 
+      6. Break ties by placing vitals with a full line (through 64kt 
          radii) last
-      6. Break ties by retaining original order ("stable sort")."""
-    key=(a.when,a.stormid3,a.center,a.have34kt)
+      7. Break ties by retaining original order ("stable sort").
+    """
+    key=(a.when,-a.stnum,-ord(a.basin1),a.center,a.have34kt)
     return key
 
 def storm_key(vit):
