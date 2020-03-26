@@ -415,6 +415,9 @@ else:
     conf=hafs.launcher.launch(infiles,None,stid,moreopt,case_root,
                               init_dirs=False,prelaunch=hafs.launcher.prelaunch)
 
+if site_file:
+    conf.read(site_file)
+
 logger.info('Run sanity checks.')
 try:
     conf.timeless_sanity_check(enset,logger)

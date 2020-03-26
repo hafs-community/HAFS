@@ -33,6 +33,14 @@ config: # <------- section [config]
   # ^--- was NBDYHRS=3
 
 
+
+  ictype: gfsnemsio     ## Input initial condition type: gfsnemsio
+  # ^--- was ictype=gfsnemsio
+
+  bctype: gfsnemsio     ## Input boundary condition type: gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
+  # ^--- was bctype=gfsnemsio
+
+
   ICTYPE: "pfv3gfs" ##  Initial condition type: pfv3gfs or gsmgfs 
   # ^--- was ICTYPE=pfv3gfs
 
