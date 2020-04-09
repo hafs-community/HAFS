@@ -19,6 +19,7 @@ fi
 if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = theia ]; then target=theia.intel ; fi
 if [ $target = jet ]; then target=jet.intel ; fi
+if [ $target = wcoss_cray ]; then module load python/2.7.14; fi
 
 cd hafs_forecast.fd/
 FV3=$( pwd -P )/FV3
