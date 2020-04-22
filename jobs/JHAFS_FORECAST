@@ -98,6 +98,10 @@ if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.run.${machine}
   #module purge
+  if [ "$machine" = wcoss_dell_p3 ]; then
+    module unload NetCDF
+    module unload HDF5-serial
+  fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
   module load fv3
   module list

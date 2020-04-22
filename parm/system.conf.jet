@@ -22,11 +22,11 @@ inputroot=/lfs1/projects/hwrf-data/hafs-input/COMGFS
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+CDNOSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
-CDSCRUB=/lfs3/projects/{disk_project}/{ENV[USER]}/hafstmp
+CDSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/hafstmp
 ## Save directory.  Make sure you edit this.
-CDSAVE=/lfs3/projects/{disk_project}/{ENV[USER]}
+CDSAVE=/lfs4/HFIP/{disk_project}/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS
 ## Input GFS data directory

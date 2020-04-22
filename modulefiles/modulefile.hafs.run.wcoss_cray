@@ -74,3 +74,4 @@ setenv WGRIB2 /gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/local/bin/wgrib2.v2.0.8b9
 #module load rocoto/1.2.4-RC3
 module use /usrx/local/emc_rocoto/modulefiles
 module load rocoto/1.3.0rc2
+module load intelpython/3.6.8
