@@ -30,7 +30,8 @@ CDSAVE=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/save
 #syndat=/gpfs/tp1/nco/ops/com/arch/prod/syndat
 syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
-COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
+#COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
+COMgfs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMGFS
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

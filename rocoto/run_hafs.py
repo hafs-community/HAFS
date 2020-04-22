@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace run_hafs
 # @brief A wrapper around the Rocoto workflow system that knows how to run HAFS in Rocoto
@@ -35,7 +35,7 @@
 
 ##@cond RUN_HAFS_PY
 
-import os, sys, re, logging, collections, StringIO, getopt, itertools
+import os, sys, re, logging, collections, io, getopt, itertools
 from os.path import realpath, normpath, dirname
 
 def ask(question):
@@ -60,7 +60,7 @@ def usage(message=None,logger=None):
     """!Dumps a usage message and exits with status 2.
     @param message An extra message to send to stderr after the usage message
     @param logger Ignored."""
-    print>>sys.stderr, '''
+    print('''
 Usage: run_hafs.py [options] [cycles] 95E case_root [conf]
 
 Mandatory arguments: 
@@ -114,9 +114,9 @@ SPECIFYING CYCLES:
 
 Configuration ([conf]):
 section.option=value -- override conf options on the command line
-/path/to/file.conf -- additional conf files to parse'''
+/path/to/file.conf -- additional conf files to parse''', file=sys.stderr)
     if message is not None:
-        print>>sys.stderr,str(message).rstrip()+'\n'
+        print(str(message).rstrip()+'\n', file=sys.stderr)
     sys.exit(2)
 
 ########################################################################
@@ -154,18 +154,18 @@ if HOMEhafs is not None:
     if PARMhafs is None:           PARMhafs=os.path.join(HOMEhafs,'parm')
 
 if USHhafs is None: 
-    print>>sys.stderr, "Cannot guess $USHhafs.  Please set $HOMEhafs or " \
-        "$USHhafs in environment."
+    print("Cannot guess $USHhafs.  Please set $HOMEhafs or " \
+        "$USHhafs in environment.", file=sys.stderr)
     sys.exit(2)
 
 if PARMhafs is None: 
-    print>>sys.stderr, "Cannot guess $PARMhafs.  Please set $HOMEhafs or " \
-        "$PARMhafs in environment."
+    print("Cannot guess $PARMhafs.  Please set $HOMEhafs or " \
+        "$PARMhafs in environment.", file=sys.stderr)
     sys.exit(2)
 
 if HOMEhafs is None:
-    print>>sys.stderr, "Cannot guess $HOMEhafs.  Please set $HOMEhafs " \
-        "in the environment."
+    print("Cannot guess $HOMEhafs.  Please set $HOMEhafs " \
+        "in the environment.", file=sys.stderr)
     sys.exit(2)
 
 sys.path.append(USHhafs)
@@ -240,7 +240,7 @@ long_opts  = ["cycling=",
 try:
     opts, args = getopt.getopt(sys.argv[1:], short_opts, long_opts)
 except getopt.GetoptError as err:
-    print str(err)
+    print(str(err))
     usage('SCRIPT IS ABORTING DUE TO UNRECOGNIZED ARGUMENT')
 
 for k, v in opts:
@@ -348,8 +348,8 @@ if enset==set(['99']):
     enset=set()
 
 # Now parse the rest of the arguments the same way as exhafs_launch:
-print 'firstarg',firstarg
-print 'argsfirstarg..',args[firstarg:]
+print('firstarg',firstarg)
+print('argsfirstarg..',args[firstarg:])
 
 stid=args[firstarg]
 case_root=args[firstarg+1]
@@ -431,7 +431,7 @@ if not loghere:
     except KeyError as ke:
         loghere=None
 if loghere:
-    print 'Sending jlogfile messages to %s'%(loghere,)
+    print('Sending jlogfile messages to %s'%(loghere,))
     produtil.log.set_jlogfile(loghere)
 
 ########################################################################
@@ -512,7 +512,7 @@ if cycleset:
     firstcycle=to_datetime(cyclelist[0])
     cycledesc=firstcycle.strftime('%Y%m%d%H')
 else:
-    assert(isinstance(benchmarkset,basestring))
+    assert(isinstance(benchmarkset,str))
     year=int(benchmarkset[5:])
     number=sid[0:2]
     basin1=sid[2].upper()
@@ -554,8 +554,8 @@ for (key,val) in conf.items('rocotobool'):
     VARS[key]=yesno(conf.getbool('rocotobool',key))
 
 bad=False
-for k,v in VARS.iteritems():
-    if not isinstance(v,basestring):
+for k,v in VARS.items():
+    if not isinstance(v,str):
         logger.error('%s: value is not a string.  '
                      'It is type %s with value %s'%(
                 str(k),type(v).__name__,repr(v)))
@@ -565,7 +565,7 @@ if bad: sys.exit(1)
 ########################################################################
 # Order the ATParser to create the XML file.
 
-rocotoxml=StringIO.StringIO()
+rocotoxml=io.StringIO()
 parser=produtil.atparse.ATParser(rocotoxml,varhash=VARS,logger=logger)
 if multistorm:
     parser.parse_file('hafs_multistorm_workflow.xml.in')
