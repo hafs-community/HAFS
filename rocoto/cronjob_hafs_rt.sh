@@ -18,7 +18,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
- HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/save/HAFS
+ HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
  dev="-s sites/hera.ent -f"
  PYTHON3=/apps/intel/intelpython3/bin/python3
 
