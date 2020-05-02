@@ -18,7 +18,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
- HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/save/HAFS
+ HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
  dev="-s sites/hera.ent -f"
  PYTHON3=/apps/intel/intelpython3/bin/python3
 
@@ -30,14 +30,14 @@ EXPT=$(basename ${HOMEhafs})
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
 # Run all cycles of a storm
-#./run_hafs.py ${dev} 2019 05L HISTORY config.EXPT=${EXPT}# Dorian
+#${PYTHON3} ./run_hafs.py ${dev} 2019 05L HISTORY config.EXPT=${EXPT}# Dorian
 
 # Run specified cycles of a storm
-#./run_hafs.py ${dev} 2018083018-2018083100 06L HISTORY \
+#${PYTHON3} ./run_hafs.py ${dev} 2018083018-2018083100 06L HISTORY \
 #   config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_try1 # Florence
 
 # Run one cycle of a storm
- ./run_hafs.py -t ${dev} 2019091600 09L HISTORY config.EXPT=${EXPT}
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY config.EXPT=${EXPT}
 
 #===============================================================================
 
