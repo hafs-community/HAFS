@@ -68,6 +68,10 @@ if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.base.${machine}
   #module load modulefile.hafs.run.${machine}
+  if [ "$machine" = wcoss_dell_p3 ]; then
+    module unload NetCDF
+    module unload HDF5-serial
+  fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list
