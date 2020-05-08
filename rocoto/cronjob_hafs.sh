@@ -2,35 +2,45 @@
 set -x
 date
 
-cd /gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/rocoto
+# NOAA WCOSS Dell Phase3
+#HOMEhafs=/gpfs/dell2/emc/modeling/noscrub/${USER}/save/HAFS
+#dev="-s sites/wcoss_dell_p3.ent -f"
+#PYTHON3=/usrx/local/prod/packages/python/3.6.3/bin/python3
 
-#dev="-f"
-dev="-s sites/wcoss_cray.ent -f"
+# NOAA WCOSS Cray
+#HOMEhafs=/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS
+#dev="-s sites/wcoss_cray.ent -f"
+#PYTHON3=/opt/intel/intelpython3/bin/python3
 
-# Run a storm by using relocatable regional standalone domain configuration
-# The 7th tile for the regional domain (2560x2160) sits at the center of the 6th tile.
-# Domain center and output grids are automatically determined
-# Real storm
-#./run_hafs.py ${dev} 2018 06L HISTORY # Florence
-#./run_hafs.py ${dev} 2018083018-2018083100 06L HISTORY config.EXPT=HAFS config.SUBEXPT=HAFS # Florence
+# NOAA RDHPCS Jet
+#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
+#dev="-s sites/xjet.ent -f"
+#PYTHON3=/apps/intel/intelpython3/bin/python3
 
-# Fake storm (e.g., NATL00L)
-# Run a real-time experiment (fakestorm, e.g., NATL00L) with the regional standalone domain configuration (using the default domain size configuration)
-#./run_hafs.py -t ${dev} 2019042000 00L HISTORY config.EXPT=HAFS config.SUBEXPT=HAFS_NATL00L ../parm/hafs_fakestorm.conf # real-time static NATL domain
+# NOAA RDHPCS Hera
+ HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+ dev="-s sites/hera.ent -f"
+ PYTHON3=/apps/intel/intelpython3/bin/python3
 
-# Another example
-#./run_hafs.py -t ${dev} 2019042200 00L HISTORY \
-#    config.EXPT=HAFS config.SUBEXPT=HAFS_regional \
-#    config.scrub_work=no config.scrub_com=no \
-#    dir.CDSCRUB=/gpfs/hps2/ptmp/{ENV[USER]} \
-#    ../parm/hafs_fakestorm.conf
+cd ${HOMEhafs}/rocoto
 
-# Run a storm by using HAFSv0.0A regional standalone domain and output configurations
-# The static regional domain (2880x1920) is slightly offcenter of the 6th tile.  
-# Real storm
-#./run_hafs.py ${dev} 2018083018-2018083100 06L ../parm/hafs_regional_static.conf
-# Fake storm (e.g., NATL00L)
-#./run_hafs.py -t ${dev} 2019042000 00L HISTORY ../parm/hafs_regional_static.conf
+EXPT=$(basename ${HOMEhafs})
+
+#===============================================================================
+# Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
+
+# Run all cycles of a storm
+#${PYTHON3} ./run_hafs.py ${dev} 2019 05L HISTORY config.EXPT=${EXPT}# Dorian
+
+# Run specified cycles of a storm
+#${PYTHON3} ./run_hafs.py ${dev} 2018083018-2018083100 06L HISTORY \
+#   config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_try1 # Florence
+
+# Run one cycle of a storm
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY config.EXPT=${EXPT}
+
+#===============================================================================
 
 date
+
 echo 'cronjob done'

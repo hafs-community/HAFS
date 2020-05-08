@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace produtil_deliver
 # A test program for the produtil.fileop.deliver_file() function.  
@@ -43,7 +43,7 @@ minblock=4096
 def usage(s=None):
     """!Prints a usage message to stderr
     @param s ignored"""
-    print>>sys.stderr, '''Format: %s [options] [--] from to
+    print('''Format: %s [options] [--] from to
 
 This is the test program for produtil.fileop.deliver_file.  It will
 copy or move file "from" to file or directory "to".  This is similar
@@ -65,10 +65,9 @@ Options:
                Can only contain: a-z A-Z 0-9 _ . -
   -k           Keep the temporary file if the delivery fails.
   --           Terminate option processing.  Use this if you need to deliver a
-               file whose name begins with a dash (-)''' % (sys.argv[0],minblock)
+               file whose name begins with a dash (-)''' % (sys.argv[0],minblock), file=sys.stderr)
     if s is not None:
-        print>>sys.stderr,\
-            'SCRIPT IS EXITING DUE TO INCORRECT ARGUMENTS: %s'%(str(s),minblock)
+        print('SCRIPT IS EXITING DUE TO INCORRECT ARGUMENTS: %s'%(str(s),minblock), file=sys.stderr)
 
 def main():
     """!Main program.  Parses arguments, delivers file."""

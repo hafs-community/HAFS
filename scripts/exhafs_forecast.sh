@@ -40,6 +40,10 @@ export output_grid_lat2=${output_grid_lat2:-30.0}
 export output_grid_dlon=${output_grid_dlon:-0.025}
 export output_grid_dlat=${output_grid_dlon:-0.025}
 
+export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
+export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
+export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
+
 if [ $gtype = uniform ];  then
   export ntiles=6
 elif [ $gtype = stretch ]; then
@@ -137,10 +141,14 @@ cp ${PARMforecast}/input_nest02.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
 
+ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
+cp ${ccpp_suite_glob_xml} .
+
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 nest_pes=$(( ${layoutx} * ${layouty} ))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
     -e "s/_layoutx_/${glob_layoutx}/g" \
     -e "s/_layouty_/${glob_layouty}/g" \
     -e "s/_npx_/${glob_npx}/g" \
@@ -154,10 +162,14 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_levp_/${LEVS}/g" \
 	input.nml.tmp > input.nml
 
+ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
+cp ${ccpp_suite_nest_xml} .
+
 ioffset=$(( (istart_nest-1)/2 + 1))
 joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \
@@ -207,7 +219,11 @@ cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
 
+ccpp_suite_regional_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_regional}.xml"
+cp ${ccpp_suite_regional_xml} .
+
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \

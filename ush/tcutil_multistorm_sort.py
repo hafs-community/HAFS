@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
-import logging, os, sys, re
+import logging, os, sys, re, functools
 import produtil.setup
 import tcutil.numerics, tcutil.revital
 
@@ -17,6 +17,11 @@ import tcutil.numerics, tcutil.revital
 # * stormid=priority --- 19L=3, 18E=1, 03A=5, etc.  A storm to run for
 #   that cycle and a user-specified priority for the storm.
 # * a basin --- L, E, C, etc.  All storms will be run from that basin.
+
+def oldcmp(a,b):
+    if a<b: return -1
+    if a>b: return 1
+    return 0
 
 def hrd_multistorm_sorter(a,b):
     """!A drop-in replacement for "cmp" that can be used for sorting or
@@ -42,14 +47,15 @@ def hrd_multistorm_sorter(a,b):
     a_basin=1  if (a.basin1=='E') else 0
     b_basin=1  if (b.basin1=='E') else 0
 
-    c = cmp(a_userprio,b_userprio) or\
-        cmp(a_invest,b_invest) or\
-        cmp(a_basin,b_basin) or\
-        -cmp(a.wmax,b.wmax) or\
-        (a.basin1=='L' and b.basin1=='L' and cmp(a.lon,b.lon)) or \
-        (a.basin1=='E' and b.basin1=='E' and -cmp(a.lon,b.lon))
+    c = oldcmp(a_userprio,b_userprio) or\
+        oldcmp(a_invest,b_invest) or\
+        oldcmp(a_basin,b_basin) or\
+        -oldcmp(a.wmax,b.wmax) or\
+        (a.basin1=='L' and b.basin1=='L' and oldcmp(a.lon,b.lon)) or \
+        (a.basin1=='E' and b.basin1=='E' and -oldcmp(a.lon,b.lon))
     return c
 
+hrd_multistorm_keygen=functools.cmp_to_key(hrd_multistorm_sorter)
 
 ##@var vitfiles
 # List of known tcvitals file locations.  Each is intended to be sent
@@ -107,8 +113,8 @@ def main(args):
             logger.info('User priority for %s is %d'%(v.stormid3,userprio))
             setattr(v,'userprio',userprio)
 
-    rv.sort_by_function(hrd_multistorm_sorter)
+    rv.sort_by_function(hrd_multistorm_keygen)
     for v in rv:
-        print v.as_tcvitals()
+        print(v.as_tcvitals())
 
 if __name__=='__main__': main(sys.argv)

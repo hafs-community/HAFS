@@ -5,7 +5,7 @@ workflow manager."""
 # List of symbols exported by "from tcutil.rocoto import *"
 __all__=['cycles_as_entity']
 
-import StringIO, random
+import io, random
 import tcutil.numerics
 
 from tcutil.numerics import to_datetime, to_timedelta
@@ -50,7 +50,7 @@ def cycles_as_entity(cycleset):
     cycles=list(cycleset)
     cycles = [ to_datetime(x) for x in cycles ]
     cycles.sort()
-    ctream=StringIO.StringIO()
+    ctream=io.StringIO()
     first=cycles[0]
     last=cycles[0]
     sent=cycles[0]-six_hours
