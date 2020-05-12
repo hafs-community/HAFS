@@ -31,7 +31,7 @@ elif [ "$machine" = wcoss_dell_p3 ]; then
   export APRUNC=${APRUNC:-"mpirun"}
   export APRUNF=${APRUNF:-"mpirun cfp"}
   export BACKGROUND=${BACKGROUND:-""}
-elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = theia ]; then
+elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ]; then
   export APRUNS=${APRUNS:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
   export APRUNO=${APRUNO:-"srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"}
   #export APRUNO=${APRUNO:-"srun --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"}

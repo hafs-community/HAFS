@@ -1,0 +1,44 @@
+## This is the system-specific configuration file for the Orion
+[config]
+## Project disk area
+disk_project=hwrf
+## Project hpss tape area
+tape_project=emc-hwrf
+## Theia CPU account name for submitting jobs to the batch system.
+cpu_account=hurricane
+## Archive path
+archive=disk:/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+## Specify input sources for HISTORY mode.
+input_sources=orion_sources_{GFSVER}
+## Specify the DataCatalog for FORECAST mode runs.
+fcst_catalog=orion_fcst_{GFSVER}
+
+[hafsdata]
+inputroot=/work/noaa/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
+
+[orion_fcst_PROD2019]
+inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+
+[dir]
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+## Save directory.  Make sure you edit this.
+CDSAVE=/work/noaa/{disk_project}/save/{ENV[USER]}
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/work/noaa/{disk_project}/scrub/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
+## Input GFS data directory
+COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+
+[holdvars]
+WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)
+WHICH_JET=none     ;; Which part of Jet are we on?  None; we are not on Jet.
+
+[forecast]
+glob_layoutx=8
+glob_layouty=10
+layoutx=40
+layouty=30
+write_groups=3
+write_tasks_per_group=40

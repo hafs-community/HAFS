@@ -81,27 +81,28 @@ def set_para_paths():
     """!Sets tcvitals and message file locations for non-NCO runs."""
     global tcvlocs, messagedir, inputs
     tcvlocs=[
-        "/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/scratch3/NCEPDEV/hwrf/noscrub/input/SYNDAT",
+        "/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS",
+        "/work/noaa/hwrf/noscrub/input/SYNDAT",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT",
-        "/lfs3/projects/hwrf-data/hwrf-input/SYNDAT-PLUS",
-        "/lfs3/projects/hwrf-data/hwrf-input/SYNDAT",
-        "/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/hwrf/noscrub/input/SYNDAT",
-        "/gpfs/gp1/nco/ops/com/arch/prod/syndat/",
-        "/gpfs/tp1/nco/ops/com/arch/prod/syndat/",
+        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
+        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT",
+        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
+        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT",
+        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS",
+        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT",
+        "/gpfs/dell1/nco/ops/com/gfs/prod/syndat",
         ]
     messagedir=[
-        "/scratch3/NCEPDEV/hwrf/noscrub/input/MESSAGES",
+        "/work/noaa/hwrf/noscrub/input/MESSAGES",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
-        "/lfs1/projects/hwrf-vd/hwrf-input/MESSAGES",
-        "/com/hur/prod/inpdata"
+        "/lfs1/HFIP/hwrf-vd/hwrf-input/MESSAGES",
+        "/gpfs/hps/nco/ops/com/hur/prod/inpdata"
         ]
     if 'CASE_ROOT' in os.environ and os.environ['CASE_ROOT']=='FORECAST':
-        tcvlocs=['/com/arch/prod/syndat']
+        tcvlocs=['/gpfs/dell1/nco/ops/com/gfs/prod/syndat']
     else:
-        tcvlocs.append('/com/arch/prod/syndat')
+        tcvlocs.append('/gpfs/dell1/nco/ops/com/gfs/prod/syndat')
 # END OF SECTION WITH HARD-CODED PATHS #################################
 ########################################################################
 

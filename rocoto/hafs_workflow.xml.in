@@ -481,7 +481,7 @@
   </task>
 
   <task name="donefile" maxtries="&MAX_TRIES;">
-    <command>&USHhafs;/hafs_donefile.py <cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></command>
+    <command>&PRE; &USHhafs;/hafs_donefile.py <cyclestr>&COMhafs;/&STORMLABEL;.done</cyclestr></command>
     <jobname><cyclestr>hafs_donefile_&SID;_@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&LOGhafs;/hafs_donefile_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
@@ -525,7 +525,7 @@
   NOTE: Most of the cycle-wide completion dependencies lie in the
   donefile job dependency. -->
   <task name="completion" maxtries="&MAX_TRIES;" final="true">
-    <command>&USHhafs;/hafs_completion.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>
+    <command>&PRE; &USHhafs;/hafs_completion.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>
     <jobname><cyclestr>hafs_completion_&SID;_@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&LOGhafs;/hafs_completion_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>

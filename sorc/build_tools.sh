@@ -36,9 +36,9 @@ elif [ $target = hera ]; then
     export F90=ifort
     export CC=icc
 
-elif [ $target = theia ]; then
+elif [ $target = orion ]; then
 
-    targetx=theia
+    targetx=orion
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -109,7 +109,8 @@ fi
 export NETCDF_INCLUDE="-I${NETCDF}/include"
 export NETCDF_LDFLAGS="-L${NETCDF}/lib -lnetcdff -lnetcdf"
 export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5}/include"}
-export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
+#export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
+export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5"}
 export BUFR_LDFLAGS="${BUFR_LIBd}"
 
 TOOLS_PATH=${cwd}/hafs_tools.fd
