@@ -14,9 +14,10 @@ elif [[ ${target} == "wcoss_dell_p3" || ${target} == "wcoss" ]]; then
 elif [ ${target} == "hera" ]; then
     FIXROOT=/scratch1/NCEPDEV/global/glopara/fix
 elif [ ${target} == "orion" ]; then
-    FIXROOT=/work/noaa/global/kfriedma/glopara/fix
+    #FIXROOT=/work/noaa/global/kfriedma/glopara/fix
+    FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/glopara/fix
 elif [ ${target} == "jet" ]; then
-    FIXROOT=/mnt/lfs1/projects/hwrf-data/git/fv3gfs/fix
+    FIXROOT=/lfs4/HFIP/hwrf-data/hafs-fix-files/glopara/fix
 else
     echo "Unknown site " ${target}
     exit 1

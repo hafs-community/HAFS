@@ -119,6 +119,7 @@
        stretch_fac = _stretch_fac_
        regional = .true.
        bc_update_interval = _bc_update_interval_
+       nrows_blend = _nrows_blend_
 
        full_zs_filter = .F. !unreleased feature
        n_zs_filter = 0 ! safety
@@ -202,7 +203,7 @@
        oz_phys        = .F.
        oz_phys_2015   = .T.
        nst_anl        = .true.
-       nstf_name      = 2,0,0,0,0
+       nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
        cplflx         = .F.
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015

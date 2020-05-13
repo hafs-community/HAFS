@@ -36,7 +36,7 @@ export halo=${halo:-3}                      # halo size to be used in the atmosp
 export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
 export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
 
-export LEVS=${LEVELS:-65}
+export LEVS=${LEVS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
 ####################################

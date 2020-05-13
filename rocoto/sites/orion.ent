@@ -33,6 +33,7 @@
   <!ENTITY FORECAST_RESOURCES_regional_64x30io3x48_omp2 "<nodes>171:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2052</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_64x30io3x72_omp2 "<nodes>177:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2124</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
+  <!ENTITY FORECAST_RESOURCES_regional_45x40io3x40_omp2 "<nodes>96:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_40x30io3x40_omp2 "<nodes>66:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
   <!-- FORECAST_RESOURCES for globnest HAFS -->

@@ -20,7 +20,7 @@ export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export LEVS=${LEVELS:-65}
+export LEVS=${LEVS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
 export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}

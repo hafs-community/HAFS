@@ -10,9 +10,10 @@ CRES=`echo $CASE | cut -c 2-`
 CDUMP=gfs		# gfs or gdas
 LEVS=${LEVS:-65}
 gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
-ictype=${ictype:-gfsnemsio} # gfsnemsio
+ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
+halo_blend=${halo_blend:-0}
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then
  echo "gtype: $gtype"
@@ -34,6 +35,8 @@ USHhafs=${USHhafs:-${HOMEhafs}/ush}
 PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
 
 WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
@@ -193,6 +196,7 @@ if [ $gtype = regional ]; then
    echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
  fi
  halo_bndy=4
+ halo_blend=${halo_blend:-0}
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
@@ -206,7 +210,7 @@ cat>./fort.41<<EOF
  fix_dir_target_grid="$FIXDIR/$CASE"
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
- vcoord_file_target_grid="${FIXhafs}/fix_am/global_hyblev.l65.txt"
+ vcoord_file_target_grid="${vcoord_file_target_grid}"
  mosaic_file_input_grid="NULL"
  orog_dir_input_grid="NULL"
  orog_files_input_grid="NULL"
@@ -226,6 +230,7 @@ cat>./fort.41<<EOF
  tracers_input=${tracers_input}
  regional=${regional}
  halo_bndy=${halo_bndy}
+ halo_blend=${halo_blend}
 /
 EOF
 

@@ -65,10 +65,11 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #    config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
 #    config.NHRS=12 ${scrubopt}
 
-# Regional storm-focused configuration with GFS nemsio format IC and grib2 format BC
+# Regional storm-focused configuration with GFS grib2 format IC and grib2 format BC
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_grib2_lbc \
-     config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_grib2 \
+     config.ictype=gfsgrib2_0p25 config.bctype=gfsgrib2_0p25 \
+     config.halo_blend=10 forecast.nstf_n2=1 \
      config.NHRS=12 ${scrubopt}
 
 #===============================================================================
@@ -80,8 +81,15 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_globnest_static.conf
 
 # Global-nesting storm-focused configuration with GFS nemsio format IC/BC
+#${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest.conf
+
+# Global-nesting storm-focused configuration with GFS grib2ab format IC/BC
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_grib2ab \
+     config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_globnest.conf
 
