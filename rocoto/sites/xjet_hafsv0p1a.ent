@@ -1,24 +1,24 @@
-  <!-- wcoss_cray -->
-  <!ENTITY SCHEDULER       "lsfcray">
+  <!-- xjet -->
+  <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
-  <!ENTITY QUEUE_PE        "dev"> <!-- queue for PE (parallel environment) jobs --> 
-  <!ENTITY PE_EXTRA        "">
-  <!ENTITY QUEUE_SERIAL    "dev"> <!-- queue for serial jobs -->
-  <!ENTITY SERIAL_EXTRA    "">
-  <!ENTITY QUEUE_SHARED    "dev_shared">
-  <!ENTITY SHARED_EXTRA    "<shared/>">
-  <!ENTITY QUEUE_SERVICE   "dev_transfer">
-  <!ENTITY SERVICE_EXTRA   "<shared/>">
+  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY PE_EXTRA        "<native>--partition=xjet</native>">
+  <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
+  <!ENTITY SERIAL_EXTRA    "<native>--partition=xjet</native>">
+  <!ENTITY QUEUE_SHARED    "batch">
+  <!ENTITY SHARED_EXTRA    "<native>--partition=xjet</native>">
+  <!ENTITY QUEUE_SERVICE   "batch">
+  <!ENTITY SERVICE_EXTRA   "<native>--partition=service</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>1G</memory>">
 
   <!ENTITY GRID_RESOURCES "<nodes>3:ppn=4:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>12</value></envar><envar><name>NCTSK</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY CHGRES_IC_RESOURCES "<nodes>3:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY CHGRES_BC_RESOURCES "<nodes>3:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
+  <!ENTITY CHGRES_IC_RESOURCES "<nodes>6:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY CHGRES_BC_RESOURCES "<nodes>6:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
 
-  <!ENTITY FORECAST_WALLTIME "<walltime>06:00:00</walltime>">
+  <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
   <!ENTITY FORECAST_EXTRA "&FORECAST_OMP;&FORECAST_WALLTIME;">
 
@@ -63,6 +63,6 @@
   <!-- FORECAST_RESOURCES for globnest HAFS for 2019 HFIP real-time parallel on xjet -->
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x12_40x33io3x48_omp2 "<nodes>170:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2040</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
-  <!ENTITY POST_RESOURCES "<nodes>3:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>72</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY POST_RESOURCES "<nodes>5:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
 

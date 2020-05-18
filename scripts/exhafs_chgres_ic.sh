@@ -9,9 +9,10 @@ gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stan
 CDUMP=gfs		# gfs or gdas
 LEVS=${LEVS:-65}
 gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
-ictype=${ictype:-gfsnemsio} # gfsnemsio
+ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
+halo_blend=${halo_blend:-0}
 
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
@@ -27,6 +28,8 @@ USHhafs=${USHhafs:-${HOMEhafs}/ush}
 PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
 
 WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
@@ -112,6 +115,21 @@ else
   exit 1
 fi
 
+if [ $input_type = "grib2" ]; then
+  if [ $ictype = gfsgrib2ab_0p25 ]; then
+    # Use both ${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} and ${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} files
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+    #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+  else
+    ln -sf ${INIDIR}/${grib2_file_input_grid} ./
+    #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+  fi
+  INPDIR="./"
+else
+  INPDIR=${INIDIR}
+fi
+
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then
 
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
@@ -122,13 +140,14 @@ if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then
  orog_files_target_grid='"'${CASE}'_oro_data.tile1.nc","'${CASE}'_oro_data.tile2.nc","'${CASE}'_oro_data.tile3.nc","'${CASE}'_oro_data.tile4.nc","'${CASE}'_oro_data.tile5.nc","'${CASE}'_oro_data.tile6.nc"'
  convert_atm=.true.
  convert_sfc=.true.
- convert_nst=.true.
- input_type="gaussian_nemsio"
- tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
- tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
+ if [ $input_type = "grib2" ]; then
+   convert_nst=.false.
+ else
+   convert_nst=.true.
+ fi
  regional=0
  halo_bndy=0
-
+ halo_blend=0
 
 elif [ $gtype = regional ]; then
 # set the links to use the 4 halo grid and orog files
@@ -148,13 +167,14 @@ elif [ $gtype = regional ]; then
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
  orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
  convert_atm=.true.
- input_type="gaussian_nemsio"
- tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
- tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
  if [ $REGIONAL -eq 1 ]; then
    regional=1
    convert_sfc=.true.
-   convert_nst=.true.
+   if [ $input_type = "grib2" ]; then
+     convert_nst=.false.
+   else
+     convert_nst=.true.
+   fi
  elif [ $REGIONAL -eq 2 ]; then
    regional=2
    convert_sfc=.false.
@@ -163,6 +183,7 @@ elif [ $gtype = regional ]; then
    echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
  fi
  halo_bndy=4
+ halo_blend=${halo_blend}
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
@@ -176,13 +197,14 @@ cat>./fort.41<<EOF
  fix_dir_target_grid="$FIXDIR/$CASE"
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
- vcoord_file_target_grid="${FIXhafs}/fix_am/global_hyblev.l65.txt"
+ vcoord_file_target_grid="${vcoord_file_target_grid}"
  mosaic_file_input_grid="NULL"
  orog_dir_input_grid="NULL"
  orog_files_input_grid="NULL"
- data_dir_input_grid="${INIDIR}"
+ data_dir_input_grid="${INPDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ grib2_file_input_grid="${grib2_file_input_grid}"
  varmap_file="${varmap_file}"
  cycle_mon=$month
  cycle_day=$day
@@ -195,6 +217,7 @@ cat>./fort.41<<EOF
  tracers_input=${tracers_input}
  regional=${regional}
  halo_bndy=${halo_bndy}
+ halo_blend=${halo_blend}
 /
 EOF
 
@@ -248,10 +271,11 @@ if [ $gtype = nest ];  then
  orog_files_target_grid='"'${CASE}'_oro_data.tile7.nc"'
  convert_atm=.true.
  convert_sfc=.true.
- convert_nst=.true.
- input_type="gaussian_nemsio"
- tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
- tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
+ if [ $input_type = "grib2" ]; then
+   convert_nst=.false.
+ else
+   convert_nst=.true.
+ fi
  regional=0
  halo_bndy=0
 
@@ -263,13 +287,15 @@ cat>./fort.41<<EOF
  fix_dir_target_grid="$FIXDIR/$CASE"
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
- vcoord_file_target_grid="${FIXhafs}/fix_am/global_hyblev.l65.txt"
+ vcoord_file_target_grid="${vcoord_file_target_grid}"
  mosaic_file_input_grid="NULL"
  orog_dir_input_grid="NULL"
  orog_files_input_grid="NULL"
- data_dir_input_grid="${INIDIR}"
+ data_dir_input_grid="${INPDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ grib2_file_input_grid="${grib2_file_input_grid}"
+ varmap_file="${varmap_file}"
  cycle_mon=$month
  cycle_day=$day
  cycle_hour=$hour
@@ -281,6 +307,7 @@ cat>./fort.41<<EOF
  tracers_input=${tracers_input}
  regional=${regional}
  halo_bndy=${halo_bndy}
+ halo_blend=${halo_blend}
 /
 EOF
 

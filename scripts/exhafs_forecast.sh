@@ -6,6 +6,12 @@ ulimit -s unlimited
 ulimit -a
 
 export gtype=${gtype:-regional}
+export halo_blend=${halo_blend:-0}
+export nstf_n1=${nstf_n1:-2}
+export nstf_n2=${nstf_n2:-0}
+export nstf_n3=${nstf_n3:-0}
+export nstf_n4=${nstf_n4:-0}
+export nstf_n5=${nstf_n5:-0}
 
 export dt_atmos=${dt_atmos:-90}
 export restart_interval=${restart_interval:-6}
@@ -160,6 +166,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
+    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
+    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
+    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
+    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
 	input.nml.tmp > input.nml
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
@@ -184,6 +195,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
+    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
+    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
+    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
+    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
 	input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
@@ -233,7 +249,13 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
     -e "s/_bc_update_interval_/${NBDYHRS}/g" \
+    -e "s/_nrows_blend_/${halo_blend}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
+    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
+    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
+    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
+    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
 	input.nml.tmp > input.nml
 
 fi
