@@ -5,7 +5,7 @@ MPF90=$(DM_F90) $(FFLAGS) -I../../libs/
 
 all: $(EXE)
 clean: 
-	rm -f *.o *.mod a.out *~
+	rm -f $(EXE) *.o *.mod a.out *~
 bare: clean
 	rm -f $(EXE)
 

@@ -5,7 +5,7 @@ SHELL=/bin/sh
 #------------
 include ./configure.hycom
 
-SUBDIRS = libs init post forecast
+SUBDIRS = libs init post
 LIBDIRS = libs
 
 all: $(SUBDIRS)

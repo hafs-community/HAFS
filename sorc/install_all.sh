@@ -134,7 +134,6 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z              ../exec/hafs_archv2data3z.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                  ../exec/hafs_gfs2ofs2.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_reloc_forecast      ../exec/hafs_rtofs_reloc_forecast.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z_insitu       ../exec/hafs_archv2data3z_insitu.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion           ../exec/hafs_rtofs_subregion.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart             ../exec/hafs_archv2restart.x

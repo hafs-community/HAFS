@@ -1,6 +1,0 @@
-mpif90 -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl -integer-size 32 -real-size 64 -c mpi_more.f
-
-/lib/cpp  -C -P -DLITTLE_ENDIAN -DWRF -DLINUX -DMPI -DSERIAL_IO -ICONFIGURE_WRF_PATH/inc -DNAN2003 -DTIMER -DRELO -DMPI -DUSE_SCOUPLER -DRELO  -traditional-cpp   mod_dimensions.F > mod_dimensions.F.f
-mpif90 -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl  -integer-size 32 -real-size 64 -c mod_dimensions.F.f
-
-

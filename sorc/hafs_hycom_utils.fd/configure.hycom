@@ -9,9 +9,6 @@ ARFLAGS			=	-X64
 #### Architecture specific settings ####
 
 # Settings for Linux x86_64, Intel compiler w/MKL	 (dmpar)#
-NETCDF_INCLUDE  = -I/apps/netcdf/4.6.1/intel/16.1.150/include
-NETCDF_LDFLAGS  = -L/apps/netcdf/4.6.1/intel/16.1.150/lib -lnetcdff -lnetcdf
-
 LDFLAGS        =  -Wl,-noinhibit-exec
 
 BYTE_ORDER     =  LITTLE_ENDIAN

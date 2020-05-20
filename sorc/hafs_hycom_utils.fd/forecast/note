@@ -1,8 +1,0 @@
-luna version of hmon_forecast
-
-cpied from HSK, see ../tmp/..
-
-
-need to edit 2 files.  cp old version, then add rdgrib.o  rdgrib.f......
-run_makefile.sh
-makefile.forecast
