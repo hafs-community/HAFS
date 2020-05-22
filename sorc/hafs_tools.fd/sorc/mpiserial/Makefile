@@ -4,7 +4,7 @@ include ./configure.hafs
 OBJS =	mpiserial.o
 
 LIBS  = 
-EXEC  =  ../../exec/mpiserial.exe
+EXEC  =  ../../exec/mpiserial.x
 
 # Lines from here on down should not need to be changed.
 
