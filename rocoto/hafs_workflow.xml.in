@@ -53,6 +53,7 @@
   <!ENTITY LOGhafs  "@[CDSCRUB]/&SUBEXPT;/log">
 
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
+  <!ENTITY COMrtofs "@[COMrtofs:-&WORKhafs;/hafsdata]">
 
   <!-- The output conf file for each cycle: -->
   <!ENTITY CONFhafs "&COMhafs;/&STORMLABEL;.conf">
@@ -264,18 +265,16 @@
     </task>
   </metatask>
 
-
-
-  <task name="hycom_icbc" maxtries="&MAX_TRIES;">
+  <task name="hycominit1" maxtries="&MAX_TRIES;">
     <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycom_icbc.py</command>
-    <jobname>hafs_hycom_icbc_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycom_icbc.log</cyclestr></join>
+    <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
+    <jobname>hafs_hycominit1_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycominit1.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &OCEAN_INIT_RESOURCES;
+    &HYCOMINIT_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -296,17 +295,16 @@
     </dependency>
   </task>
 
-
-  <task name="hycom_forcing" maxtries="&MAX_TRIES;">
+  <task name="hycominit2" maxtries="&MAX_TRIES;">
     <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycom_forcing.py</command>
-    <jobname>hafs_hycom_forcing_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycom_forcing.log</cyclestr></join>
+    <command>&PRE; &EXhafs;/exhafs_hycominit2.py</command>
+    <jobname>hafs_hycominit2_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycominit2.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &OCEAN_INIT_RESOURCES;
+    &HYCOMINIT_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -326,7 +324,6 @@
       </and>
     </dependency>
   </task>
-
 
 @** endif
 
@@ -346,8 +343,8 @@
         <taskdep task="chgres_ic"/>
 @** if gtype==regional
         <metataskdep metatask="chgres_bc"/>
-        <taskdep task="hycom_icbc"/>
-        <taskdep task="hycom_forcing"/>
+        <taskdep task="hycominit1"/>
+        <taskdep task="hycominit2"/>
 @** endif
       </and>
     </dependency>

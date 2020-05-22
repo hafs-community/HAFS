@@ -1,9 +1,9 @@
 """!This module provides two different ways to generate Fortran
-namelist files from HWRFConfig sections:
+namelist files from HAFSConfig sections:
 
     NamelistInserter - given a file, or a multi-line string, finds
       angle bracket (<vartype:stuff>) strings with values from an
-      HWRFConfig section.  This is the suggested method for namelists
+      HAFSConfig section.  This is the suggested method for namelists
       with very few configurable items.
 
     Conf2Namelist - given one or more Config sections, find values of
@@ -20,15 +20,15 @@ from_fortnml to convert between in-memory Python objects and strings
 suitable for pasting in a Fortran namelist to achieve the same value
 in Fortran."""
 
-import collections,re,fractions,datetime,ConfigParser, StringIO,logging
-import hwrf.numerics
+import collections,re,fractions,datetime,ConfigParser,StringIO,logging
+import tcutil.numerics
 
 from ConfigParser import NoOptionError,NoSectionError
-from hwrf.exceptions import *
-from hwrf.numerics import to_datetime, to_datetime_rel, to_fraction
+from hafs.exceptions import *
+from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction
 
 ##@var __all__
-# Symbols exported by "from hwrf.namelist import *"
+# Symbols exported by "from hafs.namelist import *"
 __all__=['to_fortnml','from_fortnml','Conf2Namelist','NamelistInserter']
 
 ##@var emptydict
@@ -168,11 +168,11 @@ class NamelistInserter(object):
     * @<b:varname@> -- same as <l:varname>
 
     @<d:varname@> -- the conf variable is converted to a
-      datetime.datetime using hwrf.numerics.to_datetime, and then to a
+      datetime.datetime using tcutil.numerics.to_datetime, and then to a
       string of the format "YYYY-MM-DD_HH:MM:SS".  If atime is
       specified to the parse subroutine, then the value is allowed to
       be a difference relative to the atime (as accepted by
-      hwrf.numerics.to_datetime_rel).
+      tcutil.numerics.to_datetime_rel).
  
     @<u:varname@> -- convert the conf variable to a string, and dump its
       value unquoted.  This is used, for example, to have the name of a
@@ -233,14 +233,14 @@ class NamelistInserter(object):
         """!NamelistInserter constructor
 
         Creates a new NamelistInserter that will get its data from the
-        specified section of the HWRFConfig conf.
-        @param conf the hwrf.config.HWRFConfig object to use
+        specified section of the HAFSConfig conf.
+        @param conf the hafs.config.HAFSConfig object to use
         @param section the section to read"""
         self._conf=conf
         self._section=section
 
     ##@var _conf
-    #  the hwrf.config.HWRFConfig object sent to  __init__(conf,section)
+    #  the hafs.config.HAFSConfig object sent to  __init__(conf,section)
 
     ##@var _section
     #  the section to read, sent to __init__(conf,section)
@@ -339,7 +339,7 @@ class NamelistInserter(object):
                             try:
                                 newval=val[sub]
                                 val=newval
-                            except (TypeError,KeyError,ValueError,HWRFError) \
+                            except (TypeError,KeyError,ValueError,HAFSError) \
                                     as e:
                                 if logger is not None:
                                     logger.warning('%s:%d: %s[%s]: %s'%(
@@ -417,7 +417,7 @@ class Conf2Namelist(object):
     ConfigParser-like object, starting at a specified conf section.
     This differs from NamelistInserter in that no external file is
     read - only the ConfigParser is used.  Also, an
-    hwrf.config.HWRFConfig is not required; any ConfigParser-like
+    hafs.config.HAFSConfig is not required; any ConfigParser-like
     object is sufficient.
 
     When parsing the section, variables of the form nlsection.nlkey
@@ -521,7 +521,7 @@ physics.bl_pbl_physics=3'''
 
         Creates a Conf2Namelist.
         
-        @param conf the HWRFConfig object
+        @param conf the HAFSConfig object
         @param section the section to start searching from.  
         @param section_sorter the cmp-like function to use to sort the
             sections when generating the output namelist
@@ -534,7 +534,7 @@ physics.bl_pbl_physics=3'''
             functionality is untested
         @param morevars a dict with additional variables to use when
             expanding strings This is simply passed to conf.items.
-            See the HWRFConfig documentation for details."""
+            See the HAFSConfig documentation for details."""
         if morevars is None: morevars=emptydict
         self.section_sorter=None
         self.var_sorters=var_sorters

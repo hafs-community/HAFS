@@ -4,8 +4,8 @@ initialization and forecast jobs."""
 
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
 import produtil.fileop, produtil.log
-import hwrf.numerics, hwrf.input
-import hwrf.hwrftask, hwrf.coupling, hwrf.exceptions
+import tcutil.numerics, hafs.input, hafs.namelist
+import hafs.hafstask, hafs.exceptions
 import time, shutil
 from produtil.cd import NamedDir
 from produtil.fileop import make_symlink, isnonempty, remove_file, \
@@ -13,7 +13,7 @@ from produtil.fileop import make_symlink, isnonempty, remove_file, \
 from produtil.datastore import FileProduct, COMPLETED, RUNNING, FAILED
 from produtil.run import *
 from produtil.log import jlogger
-from hwrf.numerics import to_datetime,to_datetime_rel,TimeArray,to_fraction,\
+from tcutil.numerics import to_datetime,to_datetime_rel,TimeArray,to_fraction,\
     to_timedelta
 
 NO_DEFAULT=object()
@@ -63,7 +63,7 @@ def read_RUNmodIDout(path):
                 RUNmodIDout=m.groups()[0]
     return RUNmodIDout
 
-class HYCOMInit1(hwrf.hwrftask.HWRFTask):
+class HYCOMInit1(hafs.hafstask.HAFSTask):
     def remove_ocean(): self.uncouple()
 
     def __init__(self,dstore,conf,section,taskname=None,fcstlen=126,
@@ -134,48 +134,6 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
         if cychour<18: return 0
         return 192
 
-    def fill_ocstatus(self,ocstatus,logger):
-        """Fills the ocean status files with information.  This is
-        called from exhwrf_ocean_init after a successful call to the
-        run() function below.  The ocstatus argument is the
-        hwrf.coupling.OceanStatus object that fills the files."""
-        # First argument: True=run coupled, False=don't
-        # Second argument: the logger argument sent to this function
-        # Third argument: a list of extra lines to dump into fill_ocstatus
-        ocstatus.set(self.run_coupled,logger,['forecast_exe=%s'%self.forecast_exe])
-
-    def recall_ocstatus(self,ocstatus,logger):
-        """Reads the ocean status back in during the forecast and
-        check_init jobs, filling the self.run_coupled,
-        self.forecast_exe variables."""
-        # Get the name of the first ocstatus file for error reporting:
-        for filename in ocstatus.fileiter():
-            break
-
-        # Read the lins of the ocstatus file:
-        lines=ocstatus.read(logger)
-        for line in lines:
-            # See if any lines are KEY=VALUE lines, and split them into parts
-            m=re.match('^ *([^ =]+) *= *(.*?) *$',line)
-            if not m:
-                logger.warning('%s: unparseable ocstatus line: %s'
-                               %(filename,line))
-                continue
-            (key,value)=m.groups()
-            value=value.strip()
-            key=key.strip()
-
-            # See if any recognized key=value lines are present:
-            if key=='RUN_COUPLED':
-                if value=='YES':     self.run_coupled=True
-                elif value=='NO':    self.run_coupled=False
-                else:
-                    logger.warning('%s: ignoring unrecognized RUN_COUPLED value %s'%(
-                            filename,repr(value)))
-            elif key=='forecast_exe': self.forecast_exe=value
-            else:
-                logger.warning('%s: ignoring unknown key %s'%(filename,key))
-
     def find_rtofs_data(self):
         """!Fills the RTOFS staging area with RTOFS data."""
 
@@ -222,7 +180,7 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
             outdir=os.path.join(self.workdir,rtofs_atime.strftime('rtofs.%Y%m%d'))
 
         # Get data:
-        ni=hwrf.namelist.NamelistInserter(self.conf,self.section)
+        ni=hafs.namelist.NamelistInserter(self.conf,self.section)
         with NamedDir(outdir,keep=True,logger=logger,rm_first=False) as d:
             parmin=self.confstrinterp('{PARMhycom}/hmon_get_rtofs.nml.in')
             parmout='get_rtofs.nml'
@@ -257,7 +215,6 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
             # directory and then cd back out at the end.  The
             # "rm_first=True" means the directory is deleted first if
             # it already exists upon entry of the "with" block.
-	    print "self.workdir", self.workdir
             with NamedDir(self.workdir,keep=not self.scrub,
                           logger=logger,rm_first=True) as d:
                 self.select_domain(logger)
@@ -312,45 +269,45 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
         ocean_fcst=self.confstr('ocean_fcst')
         spinlength=self.confint('spinlength',0)
         logger=self.log()
-        hwrfatime=self.conf.cycle
-        hwrf_start=0
-        hwrf_finish=int(math.ceil(float(self.fcstlen)/3)*3)
+        hafsatime=self.conf.cycle
+        hafs_start=0
+        hafs_finish=int(math.ceil(float(self.fcstlen)/3)*3)
         fcstint=self.confint('forecast_forcing_interval',3)
         # Assume 24 hour cycle for ocean model.
 
         # oceanatime is today's RTOFS analysis time as a datetime:
         todayatime=datetime.datetime(
-            hwrfatime.year,hwrfatime.month,hwrfatime.day)
+            hafsatime.year,hafsatime.month,hafsatime.day)
 
         # prioratime is yesterday's RTOFS analysis time as a datetime:
         prioratime=to_datetime_rel(-24*3600,todayatime)
 
         # Last allowed lead time today:
-        last_fhr_today=self.last_lead_time_today(hwrfatime.hour)
+        last_fhr_today=self.last_lead_time_today(hafsatime.hour)
 
         # Epsilon for time comparisons:
         epsilon=to_fraction(900) # 15 minutes
 
-        # Loop over all forecast hours from -24 to the end of the HWRF
-        # forecast, relative to the HWRF analysis time.  We round up
+        # Loop over all forecast hours from -24 to the end of the HAFS
+        # forecast, relative to the HAFS analysis time.  We round up
         # to the next nearest 3 hours since the RTOFS outputs
         # three-hourly:
 
         logger.info("In hycom inputiter, todayatime=%s prioratime=%s "
-                    "epsilon=%s hwrf_start=%s hwrf_finish=%s "
+                    "epsilon=%s hafs_start=%s hafs_finish=%s "
                     "last_fhr_today=%s"%(
                 repr(todayatime),repr(prioratime),repr(epsilon),
-                repr(hwrf_start),repr(hwrf_finish),repr(last_fhr_today)))
+                repr(hafs_start),repr(hafs_finish),repr(last_fhr_today)))
 
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='a')
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='b')
 
-        for fhr in xrange(hwrf_start,hwrf_finish+3,6):
+        for fhr in xrange(hafs_start,hafs_finish+3,6):
 
             # The ftime is the desired forecast time as a datetime:
-            ftime=to_datetime_rel(fhr*3600,hwrfatime)
+            ftime=to_datetime_rel(fhr*3600,hafsatime)
 
             # Which RTOFS cycle do we use?
             if fhr>last_fhr_today:
@@ -373,7 +330,7 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
                     repr(oceanfhr)))
 
             # Nowcasts are always from current RTOFS cycle since
-            # they're available before HWRF 0Z starts.
+            # they're available before HAFS 0Z starts.
             if oceanfhr<0:
                 logger.info('For fhr=%s oceanfhr=%s use ocean_past atime=%s ftime=%s'%(
                         repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
@@ -395,17 +352,17 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
                            atime=oceanatime,ftime=ftime,ab='b')
                 continue
 
-            # Later times' availability depends on HWRF forecast
+            # Later times' availability depends on HAFS forecast
             # cycle:
-            #   HWRF 00Z => RTOFS today available through 00Z
-            #   HWRF 06Z => RTOFS today available through +96 hours
-            #   HWRF 12Z => RTOFS today available through +192 hours
-            #   HWRF 18Z => RTOFS today available through +192 hours
+            #   HAFS 00Z => RTOFS today available through 00Z
+            #   HAFS 06Z => RTOFS today available through +96 hours
+            #   HAFS 12Z => RTOFS today available through +192 hours
+            #   HAFS 18Z => RTOFS today available through +192 hours
 
             chosen_atime=oceanatime
-            if oceanfhr<=96 and hwrfatime.hour<6:
+            if oceanfhr<=96 and hafsatime.hour<6:
                 chosen_atime=prioratime
-            if oceanfhr<96 and hwrfatime.hour<12:
+            if oceanfhr<96 and hafsatime.hour<12:
                 chosen_atime=prioratime
 
             logger.info('For fhr=%s oceanfhr=%s use ocean_fcst atime=%s ftime=%s'%(
@@ -463,7 +420,7 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
             msg='No ocean basin available for basin=%s lat=%s.  Run uncoupled.'%(
                 basin,repr(atmos_lon))
             jlogger.warning(msg)
-            raise hwrf.exceptions.NoOceanBasin(msg)
+            raise hafs.exceptions.NoOceanBasin(msg)
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
         
@@ -486,7 +443,7 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
             msg='%s: could not find Application=%s RUNmodIDin=%s'%(
                 aptable,repr(Application),repr(self.RUNmodIDin))
             logger.error(msg)
-            raise hwrf.exceptions.InvalidOceanInitMethod(msg)
+            raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
         gridtable=self.confstrinterp('{PARMhycom}/hmon_rtofs.grid_table')
         found=False
@@ -517,7 +474,7 @@ class HYCOMInit1(hwrf.hwrftask.HWRFTask):
             msg='%s: could not find grid=%s RUNmodIDin=%s'%(
                 gridtable,repr(self.gridid),repr(RUNmodIDin))
             logger.error(msg)
-            raise hwrf.exceptions.InvalidOceanInitMethod(msg)
+            raise hafs.exceptions.InvalidOceanInitMethod(msg)
         assert(self.section=='hycominit1')
         self.conf.set(self.section,'RUNmodIDin',self.RUNmodIDin)
         self.conf.set(self.section,'gridlabelin',self.gridlabelin)
@@ -546,16 +503,16 @@ export gridno={gridno}\n'''.format(**self.__dict__))
     @property
     def rtofs_inputs(self):
         if self.__rtofs_inputs is None:
-            hd=self.confstr('catalog','hwrfdata')
-            inputs=hwrf.input.DataCatalog(self.conf,hd,self.conf.cycle)
+            hd=self.confstr('catalog','hafsdata')
+            inputs=hafs.input.DataCatalog(self.conf,hd,self.conf.cycle)
             self.__rtofs_inputs=inputs
         return self.__rtofs_inputs
 
     @property
     def rtofs_inputs_ymd(self):
         if self.__rtofs_inputs_ymd is None:
-            hd=self.confstr('catalog','hwrfdata')
-            inputs=hwrf.input.DataCatalog(self.conf,hd,self.conf.cycle)
+            hd=self.confstr('catalog','hafsdata')
+            inputs=hafs.input.DataCatalog(self.conf,hd,self.conf.cycle)
             self.__rtofs_inputs_ymd=inputs
         return self.__rtofs_inputs_ymd
 
@@ -577,7 +534,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         else:
             msg='Invalid ijgrid value %s'%(repr(ijgrid),)
             logger.critical(msg)
-            raise hwrf.exceptions.InvalidOceanInitMethod(msg)
+            raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
         self.linkab('{FIXhycom}/%s.%s.regional.grid'%(RUNmodIDin,gridlabelin),
              'regional.grid')
@@ -641,7 +598,7 @@ subregion %s
             msg='No rtofs restart file found.  Giving up.'
             jlogger.error(msg)
             if not allow_fallbacks and not expect:
-                raise hwrf.exceptions.OceanRestartMissing(msg)
+                raise hafs.exceptions.OceanRestartMissing(msg)
 
         self.restart2restart(restart_in_a,restart_in_b,
                              'restart_pre.a','restart_pre.b',logger)
@@ -791,7 +748,7 @@ restart_out.a
                         routf.write(oline)
 
 # Hycominit2 creates forcing for coupled run
-class HYCOMInit2(hwrf.hwrftask.HWRFTask):
+class HYCOMInit2(hafs.hafstask.HAFSTask):
     def remove_ocean(): self.uncouple()
 
     def __init__(self,dstore,conf,section,taskname=None,fcstlen=126,
@@ -814,8 +771,8 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
     @property
     def rtofs_inputs(self):
         if self.__rtofs_inputs is None:
-            hd=self.confstr('catalog','hwrfdata')
-            inputs=hwrf.input.DataCatalog(self.conf,hd,self.conf.cycle)
+            hd=self.confstr('catalog','hafsdata')
+            inputs=hafs.input.DataCatalog(self.conf,hd,self.conf.cycle)
             self.__rtofs_inputs=inputs
         return self.__rtofs_inputs
 
@@ -847,48 +804,6 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
         self.blkdat_input=FileProduct(
             self.dstore,'blkdat.input',self.taskname,location=
             self.confstrinterp('{com}/{out_prefix}.standalone.blkdat.input'))
-
-    def fill_ocstatus(self,ocstatus,logger):
-        """Fills the ocean status files with information.  This is
-        called from exhwrf_ocean_init after a successful call to the
-        run() function below.  The ocstatus argument is the
-        hwrf.coupling.OceanStatus object that fills the files."""
-        # First argument: True=run coupled, False=don't
-        # Second argument: the logger argument sent to this function
-        # Third argument: a list of extra lines to dump into fill_ocstatus
-        ocstatus.set(self.run_coupled,logger,['forecast_exe=%s'%self.forecast_exe])
-
-    def recall_ocstatus(self,ocstatus,logger):
-        """Reads the ocean status back in during the forecast and
-        check_init jobs, filling the self.run_coupled,
-        self.forecast_exe variables."""
-        # Get the name of the first ocstatus file for error reporting:
-        for filename in ocstatus.fileiter():
-            break
-
-        # Read the lins of the ocstatus file:
-        lines=ocstatus.read(logger)
-        for line in lines:
-            # See if any lines are KEY=VALUE lines, and split them into parts
-            m=re.match('^ *([^ =]+) *= *(.*?) *$',line)
-            if not m:
-                logger.warning('%s: unparseable ocstatus line: %s'
-                               %(filename,line))
-                continue
-            (key,value)=m.groups()
-            value=value.strip()
-            key=key.strip()
-
-            # See if any recognized key=value lines are present:
-            if key=='RUN_COUPLED':
-                if value=='YES':     self.run_coupled=True
-                elif value=='NO':    self.run_coupled=False
-                else:
-                    logger.warning('%s: ignoring unrecognized RUN_COUPLED value %s'%(
-                            filename,repr(value)))
-            elif key=='forecast_exe': self.forecast_exe=value
-            else:
-                logger.warning('%s: ignoring unknown key %s'%(filename,key))
 
     def make_forecast_forcing(self,logger):
         cyc=self.conf.cycle
@@ -968,17 +883,17 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
         ocean_fcst=self.confstr('ocean_fcst')
         spinlength=self.confint('spinlength',24)
         logger=self.log()
-        hwrfatime=self.conf.cycle
-        hwrf_start=-24
-        hwrf_finish=int(math.ceil(float(self.fcstlen)/3)*3)
+        hafsatime=self.conf.cycle
+        hafs_start=-24
+        hafs_finish=int(math.ceil(float(self.fcstlen)/3)*3)
         fcstint=self.confint('forecast_forcing_interval',3)
 
         # Request GDAS data from -25 to +1
         assert(atmos1ds == 'gdas1')
         for h in xrange(-spinlength-1,2):
             ahr= (h-1)//6.0 * 6  # 6 is the GDAS cycling interval
-            atime=to_datetime_rel(ahr*3600,hwrfatime)
-            ftime=to_datetime_rel(h*3600,hwrfatime)
+            atime=to_datetime_rel(ahr*3600,hafsatime)
+            ftime=to_datetime_rel(h*3600,hafsatime)
             assert(ftime>atime)
             yield dict(dataset=atmos1ds,item=atmos1_flux,
                        atime=atime,ftime=ftime)
@@ -988,17 +903,17 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
             del atime, ftime, ahr
         del h
 
-        # Request GFS data from -3 to hwrf_finish+3
+        # Request GFS data from -3 to hafs_finish+3
         assert(atmos2ds == 'gfs')
-        for h in xrange(-fcstint,hwrf_finish+fcstint*2,fcstint):
-            ftime=to_datetime_rel(h*3600,hwrfatime)
+        for h in xrange(-fcstint,hafs_finish+fcstint*2,fcstint):
+            ftime=to_datetime_rel(h*3600,hafsatime)
             if h<=0:
                 ahr= (h-1)//6.0 * 6  # 6 is the GFS cycling interval
-                atime=to_datetime_rel(ahr*3600,hwrfatime)
+                atime=to_datetime_rel(ahr*3600,hafsatime)
                 logger.info('negative h=%d with ahr=%d atime=%s'%(
                         h,ahr,atime.strftime('%Y%m%d%H')))
             else:
-                atime=hwrfatime
+                atime=hafsatime
                 logger.info('positive h=%d atime=%s'%(h,atime.strftime('%Y%m%d%H')))
             yield dict(dataset=atmos2ds,item=atmos2_flux,
                        atime=atime,ftime=ftime)
@@ -1014,37 +929,37 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
 
         # oceanatime is today's RTOFS analysis time as a datetime:
         todayatime=datetime.datetime(
-            hwrfatime.year,hwrfatime.month,hwrfatime.day)
+            hafsatime.year,hafsatime.month,hafsatime.day)
 
         # prioratime is yesterday's RTOFS analysis time as a datetime:
         prioratime=to_datetime_rel(-24*3600,todayatime)
 
         # Last allowed lead time today:
-        last_fhr_today=self.last_lead_time_today(hwrfatime.hour)
+        last_fhr_today=self.last_lead_time_today(hafsatime.hour)
 
         # Epsilon for time comparisons:
         epsilon=to_fraction(900) # 15 minutes
 
-        # Loop over all forecast hours from -24 to the end of the HWRF
-        # forecast, relative to the HWRF analysis time.  We round up
+        # Loop over all forecast hours from -24 to the end of the HAFS
+        # forecast, relative to the HAFS analysis time.  We round up
         # to the next nearest 3 hours since the RTOFS outputs
         # three-hourly:
 
         logger.info("In hycom inputiter, todayatime=%s prioratime=%s "
-                    "epsilon=%s hwrf_start=%s hwrf_finish=%s "
+                    "epsilon=%s hafs_start=%s hafs_finish=%s "
                     "last_fhr_today=%s"%(
                 repr(todayatime),repr(prioratime),repr(epsilon),
-                repr(hwrf_start),repr(hwrf_finish),repr(last_fhr_today)))
+                repr(hafs_start),repr(hafs_finish),repr(last_fhr_today)))
 
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='a')
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='b')
 
-        for fhr in xrange(hwrf_start,hwrf_finish+3,3):
+        for fhr in xrange(hafs_start,hafs_finish+3,3):
 
             # The ftime is the desired forecast time as a datetime:
-            ftime=to_datetime_rel(fhr*3600,hwrfatime)
+            ftime=to_datetime_rel(fhr*3600,hafsatime)
 
             # Which RTOFS cycle do we use?
             if fhr>last_fhr_today:
@@ -1067,7 +982,7 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
                     repr(oceanfhr)))
 
             # Nowcasts are always from current RTOFS cycle since
-            # they're available before HWRF 0Z starts.
+            # they're available before HAFS 0Z starts.
             if oceanfhr<0:
                 logger.info('For fhr=%s oceanfhr=%s use ocean_past atime=%s ftime=%s'%(
                         repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
@@ -1089,17 +1004,17 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
                            atime=oceanatime,ftime=ftime,ab='b')
                 continue
 
-            # Later times' availability depends on HWRF forecast
+            # Later times' availability depends on HAFS forecast
             # cycle:
-            #   HWRF 00Z => RTOFS today available through 00Z
-            #   HWRF 06Z => RTOFS today available through +96 hours
-            #   HWRF 12Z => RTOFS today available through +192 hours
-            #   HWRF 18Z => RTOFS today available through +192 hours
+            #   HAFS 00Z => RTOFS today available through 00Z
+            #   HAFS 06Z => RTOFS today available through +96 hours
+            #   HAFS 12Z => RTOFS today available through +192 hours
+            #   HAFS 18Z => RTOFS today available through +192 hours
 
             chosen_atime=oceanatime
-            if oceanfhr<=96 and hwrfatime.hour<6:
+            if oceanfhr<=96 and hafsatime.hour<6:
                 chosen_atime=prioratime
-            if oceanfhr<96 and hwrfatime.hour<12:
+            if oceanfhr<96 and hafsatime.hour<12:
                 chosen_atime=prioratime
 
             logger.info('For fhr=%s oceanfhr=%s use ocean_fcst atime=%s ftime=%s'%(
@@ -1134,7 +1049,7 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
             msg='No ocean basin available for basin=%s lat=%s.  Run uncoupled.'%(
                 basin,repr(atmos_lon))
             jlogger.warning(msg)
-            raise hwrf.exceptions.NoOceanBasin(msg)
+            raise hafs.exceptions.NoOceanBasin(msg)
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
         
@@ -1157,7 +1072,7 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
             msg='%s: could not find Application=%s RUNmodIDin=%s'%(
                 aptable,repr(Application),repr(self.RUNmodIDin))
             logger.error(msg)
-            raise hwrf.exceptions.InvalidOceanInitMethod(msg)
+            raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
         gridtable=self.confstrinterp('{PARMhycom}/hmon_rtofs.grid_table')
         found=False
@@ -1188,7 +1103,7 @@ class HYCOMInit2(hwrf.hwrftask.HWRFTask):
             msg='%s: could not find grid=%s RUNmodIDin=%s'%(
                 gridtable,repr(self.gridid),repr(RUNmodIDin))
             logger.error(msg)
-            raise hwrf.exceptions.InvalidOceanInitMethod(msg)
+            raise hafs.exceptions.InvalidOceanInitMethod(msg)
         assert(self.section=='hycominit2')
         self.conf.set(self.section,'RUNmodIDin',self.RUNmodIDin)
         self.conf.set(self.section,'gridlabelin',self.gridlabelin)
@@ -1250,7 +1165,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
             atime=atime-sixhrs
         msg='Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
         self.log().error(msg)
-        raise hwrf.exceptions.NoOceanData(msg)
+        raise hafs.exceptions.NoOceanData(msg)
 
 
 # seasforce4 (init2) - 
@@ -1309,7 +1224,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
 
         datei=rdate1
         inputs=self.rtofs_inputs
-        cmd=self.getexe('gfs2ofsinputs.py')
+        cmd=self.getexe('hafs_gfs2ofsinputs.py')
         commands=list()
         while datei<stopdate:
             sf=self.getges1(atmosds,atmos_grid,datei)
@@ -1356,9 +1271,9 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
 	mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
 	if mpiserial_path=='*MISSING*':
+             mpiserial_path=self.getexe('mpiserial','*MISSING*')
+	if mpiserial_path=='*MISSING*':
              mpiserial_path=produtil.fileop.find_exe('mpiserial')
-# or mpiserial_path='/path/to/where/dan/has/mpiserial'
-#        cmd2=mpirun(mpi(mpiserial)['-m','command.file.preview'],allranks=True)
         cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
 
@@ -1400,7 +1315,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         logger.info ('BIGCMD %s '%repr(bigcmd))
 
 #        checkrun(hmon_gfs2ofs,logger=logger)
-        checkrun(mpirun(bigcmd),logger=logger)
+        checkrun(mpirun(bigcmd,mpiserial_path=mpiserial_path),logger=logger)
         self.ofs_timeinterp_forcing(logger)
 
     def ofs_forcing_info(self,filename):
@@ -1415,7 +1330,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
                     break
             if aname is None:
                 msg='%s: could not find data records in file.'%(filename,)
-                raise hwrf.exceptions.OceanDataInvalid(msg)
+                raise hafs.exceptions.OceanDataInvalid(msg)
             inf.seek(start)
             for line in inf:
                 blines+=1
@@ -1582,270 +1497,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
     def baclin(self):
         return self.blkdat['baclin'][0]
 
-class HYCOMIniter(hwrf.coupling.ComponentIniter):
-    def __init__(self,hycomfcst,ocstatus):
-        self.hycomfcst=hycomfcst
-        self.ocstatus=ocstatus
-    @property
-    def hycominit1(self):
-        return self.hycomfcst.hycominit
-
-    def check_coupled_inputs(self,logger):
-        """This subroutine is run by the check_init job and checks to
-        see if the initialization has succeeded.  It returns True if
-        the inputs are all present, and False if they're not."""
-        hf=self.hycomfcst
-        hi=hf.hycominit
-        hi.recall_ocstatus(self.ocstatus,logger)
-        if not hi.run_coupled:
-            logger.warning('Hycom init says we will not run coupled.')
-            return True
-        # We get here if we run coupled.  The HYCOMInit.run() function
-        # always makes the init_file1 and init_file2 products:
-        prods=list()
-
-        # Check A files:
-        for (ftime,prod) in hi.init_file2a.iteritems():
-            prods.append(prod)
-        # Check B files
-        for (ftime,prod) in hi.init_file2b.iteritems():
-            prods.append(prod)
-        # Check restart files
-        # add restart files
-        # Check forcing files
-        # add forcing files
-
-        count=0
-        for prod in prods:
-            if not prod.available:
-                logger.error('%s: product not available'%(prod.did,))
-            elif not prod.location:
-                logger.error('%s: no path set in database'%(prod.did,))
-            elif not os.path.exists(prod.location):
-                logger.error('%s: %s: file does not exist'%(
-                        prod.did,prod.location))
-            else:
-                logger.info('%s: %s: product is delivered'%(
-                        prod.did,prod.location))
-                count+=1
-        if count<len(prods):
-            logger.error('Have only %d of %d products.  Ocean init failed.'%(
-                    count,len(prods)))
-            return False
-        else:
-            logger.info('Rejoice: we have all coupled inputs')
-            return True
-
-    def link_coupled_inputs(self,just_check,logger):
-        """Called from the forecast job.  If just_check=True, this
-        calls check_coupled_inputs.  Otherwise, this links all hycom
-        inputs to the local directory."""
-        if just_check:
-            return self.check_coupled_inputs(logger)
-        hi=self.hycomfcst.hycominit
-        hi.recall_ocstatus(self.ocstatus,logger)
-        if not hi.run_coupled:
-            logger.warning('Hycom init says we will not run coupled.')
-            return True
-
-        # List of product object to link/copy:
-        prods=list()
-
-        # A files:
-        for (ftime,prod) in hi.init_file2a.iteritems():
-            prods.append(prod)
-        # B files
-        for (ftime,prod) in hi.init_file2b.iteritems():
-            prods.append(prod)
-
-        # Make the subdirectories
-        if not just_check:
-            produtil.fileop.makedirs('nest',logger=logger)
-            produtil.fileop.makedirs('incup',logger=logger)
-
-        # Now link the inputs:
-        cycle=self.hycominit.conf.cycle
-        for prod in prods:
-            if not prod.available or not prod.location or \
-                    not os.path.exists(prod.location):
-                msg='%s: input not present (location=%s available=%s)'\
-                    %(prod.did, repr(prod.location), repr(prod.available))
-                logger.error(msg)
-                raise hwrf.exceptions.OceanInitFailed(msg)
-            m=re.match('hmon_basin.0*(\d+).([ab])',prod.prodname)
-            if not m:
-                make_symlink(prod.location,prod.prodname,
-                             logger=logger,force=True)
-            else:
-                (hr,ab)=m.groups()
-                hr=int(hr)
-                hycomtime=to_datetime_rel(-24*3600,cycle)
-                logger.info('Link hour %s relative to cycle %s.'%(repr(hr),repr(hycomtime)))
-                t=hwrf.numerics.to_datetime_rel(hr*3600,hycomtime)
-                name1=t.strftime('nest/archv.%Y_%j_%H.')+ab
-                name2=t.strftime('incup/incupd.%Y_%j_%H.')+ab
-                for name in ( name1, name2 ):
-                    make_symlink(prod.location,name,
-                                 logger=logger,force=True)
-
-        # link restart file (bill02l.2015061600.rtofs_hat10.restart.[ab])
-        op=hi.timestr('{out_prefix}.')
-        nop=len(op)
-        assert(nop>5)
-        for part in [ 'rtofs','limits','forcing' ]:
-            globby=hi.timestr('{com}/{out_prefix}.{part}*',part=part)
-            nfound=0
-            # Path will be something like:
-            # /path/to/com/2015061600/02L/bill02l.2015061600.rtofs_hat10.restart.a
-            # ipref is index of the "." after 2015061600
-            # localname is rtofs_hat10.restart.a
-            # finalname is hat10.restart_in.a
-            for path in glob.glob(globby):
-                nfound+=1
-                ipref=path.rfind(op)
-                localname=path[ipref+nop:]
-                # Rename restart files:
-                finalname=re.sub('.*\.restart\.([^/]*)','restart_in.\\1',localname)
-                make_symlink(path,finalname,force=True,logger=logger)
-            logger.info('%s: %d files linked\n',globby,nfound)
-            assert(nfound>0)
-    
-	if not just_check:
-            hsprod=self.hycominit.hycom_settings
-            assert(hsprod is not None)
-            assert(hsprod.available)
-            assert(hsprod.location)
-            RUNmodIDout=read_RUNmodIDout(hsprod.location)
-            self.link_hycom_fix(RUNmodIDout)
-            self.link_hycom_parm(RUNmodIDout)
-        return True
-
-    def link_hycom_parm(self,RUNmodIDout):
-        logger=self.hycominit.log()
-        mine={ 'fcst.blkdat.input':'blkdat.input',
-               'patch.input.90':'patch.input',
-               'ports.input':'ports.input' }
-        for (parmbase,localname) in mine.iteritems():
-            parmfile=self.hycominit.timestr(
-                '{PARMhycom}/hmon_{RUNmodIDout}.basin.{PARMBASE}',
-                RUNmodIDout=RUNmodIDout,PARMBASE=parmbase)
-            produtil.fileop.make_symlink(parmfile,localname,logger=logger,force=True)
-
-    def link_hycom_fix(self,RUNmodIDout):
-        assert(RUNmodIDout)
-        logger=self.hycominit.log()
-        globby=self.hycominit.timestr('{FIXhycom}/hmon_{RUNmodIDout}.basin.*',
-                          RUNmodIDout=RUNmodIDout)
-        forcewanted=set(['chl.a','chl.b','offlux.a','offlux.b','rivers.a','rivers.b'])
-        n=0
-        nlinked=0
-        for path in glob.glob(globby):
-            basename=os.path.basename(path)
-            fd=basename.find('forcing')
-            linked=False
-            n+=1
-            if fd<0:
-                bd=basename.find('basin.')
-                if bd>0:
-                    produtil.fileop.make_symlink(path,basename[(bd+6):],logger=logger,force=True)
-                    linked=True
-            else:
-                forcetype=basename[(fd+8):]
-                if forcetype in forcewanted:
-                    produtil.fileop.make_symlink(path,'forcing.'+forcetype,logger=logger,force=True)
-                    linked=True
-            if not linked:
-                logger.info('%s: not linking %s'%(basename,path))
-            else:
-                nlinked+=1
-        logger.info('Linked %d of %d HyCOM fix files for RUNmodIDout=%s'%(
-                    nlinked,n,repr(RUNmodIDout)))
-        produtil.fileop.make_symlink('../relax.rmu.a','nest/rmu.a',logger=logger,force=True)
-        produtil.fileop.make_symlink('../relax.rmu.b','nest/rmu.b',logger=logger,force=True)
-
-    def make_exe(self,task,exe,ranks):
-        """Returns an MPIRanksBase to run the executable chosen by the
-        initialization.  This function must only be called after
-        link_coupled_inputs"""
-        if not isinstance(ranks,int):
-            raise TypeError('The ranks argument to make_exe must be an int.  You provided a %s %s'%(type(ranks).__name__,repr(ranks)))
-        task.read_hycom_init_vars()
-        assert(task.tvhave('RUNmodIDout'))
-        exec_name=task.icstr('hafs_{RUNmodIDout}_forecast')
-        wantexe=task.getexe(exec_name)
-#        wantexe=task.hycominit.forecast_exe
-        if not wantexe:
-            raise hwrf.exceptions.OceanExeUnspecified(
-                'The forecast_exe option was not specified in the '
-                'ocean status file.')
-        return mpi(wantexe)*ranks
-
-class WRFCoupledHYCOM(hwrf.coupling.CoupledWRF):
-    """This subclass of CoupledWRF runs the HyCOM-coupled WRF."""
-    def __init__(self,dstore,conf,section,wrf,ocstatus,keeprun=True,
-                 wrfdiag_stream='auxhist1',hycominit=None,**kwargs):
-        if not isinstance(hycominit,HYCOMInit):
-            raise TypeError(
-                'The hycominit argument to WRFCoupledHYCOM.__init__ must be a '
-                'HYCOMInit object.  You passed a %s %s.'%
-                (type(hycominit).__name__,repr(hycominit)))
-        super(WRFCoupledHYCOM,self).__init__(dstore,conf,section,wrf,keeprun,
-                                           wrfdiag_stream,**kwargs)
-        self._hycominit=hycominit
-        hycominiter=HYCOMIniter(self,ocstatus)
-
-        self.couple('coupler','hafs_wm3c','wm3c_ranks',1)
-        #self.couple('ocean','hycom','ocean_ranks',90,hycominiter)
-        #self.couple('wrf','wrf','wrf_ranks')
-
-	self._add_wave()
-
-        # For backward compatibility, use ocean_ranks option as default:
-        ocean_ranks=self.confint('ocean_ranks',150)
-        self.couple('ocean','hycom','hycom_ranks',ocean_ranks,hycominiter)
-        self.couplewrf()
-
-    def read_hycom_init_vars(self):
-        hsprod=self.hycominit.hycom_settings
-        (av,loc)=(hsprod.available,hsprod.location)
-        logger=self.log()
-        if not loc:
-            msg='%s: no location for hycom_settings'%(hsprod.did,)
-            logger.error(msg)
-            raise hwrf.exceptions.OceanInitFailed(msg)
-        if not av:
-            msg='%s: not available yet according to database'%(loc,)
-            logger.error(msg)
-            raise hwrf.exceptions.OceanInitFailed(msg)
-        found=0
-        with open(loc,'rt') as f:
-            for line in f:
-                m=re.match('export (\S+)=(\S+)\s*$',line)
-                if m:
-                    (var,val)=m.groups(0)
-                    self.tvset(var,val)
-                    logger.info('%s: set %s = %s'%(loc,var,repr(val)))
-                    found+=1
-                else:
-                    logger.warning('%s: unrecognized line "%s"'%(loc,line))
-        if found<1:
-            msg='%s: no variables found in file'%(loc,)
-            logger.error(msg)
-            raise hwrf.exceptions.OceanInitFailed(msg)
-        else:
-            logger.info('%s: set %d vars'%(loc,found))
-    @property
-    def hycominit(self):
-        """Returns the HYCOMInit object."""
-        return self._hycominit
-
-    def _add_wave(self):
-        """!Internal function for adding wave coupling.  This must be
-        implemented by a subclass.
-        @protected"""
-        pass
-
-class HYCOMPost(hwrf.hwrftask.HWRFTask):
+class HYCOMPost(hafs.hafstask.HAFSTask):
 
 # todo:
 # done - get vars from COM hycom_settings (or via recall_ocstatus)
@@ -1870,7 +1522,7 @@ class HYCOMPost(hwrf.hwrftask.HWRFTask):
       logger=self.log()
       self.state=RUNNING
 
-      #produtil.fileop.chdir('WORKhwrf')
+      #produtil.fileop.chdir('WORKhafs')
       with NamedDir(self.workdir,keep=not self.scrub, logger=logger,rm_first=True) as d:
 
         fcstlen=self.fcstlen
@@ -2079,7 +1731,7 @@ HYCOM
 
            else:
                logger.info('Do Surface HERE')
-               ## surface_z  (not done in HyHWRF)
+               ## surface_z  (not done in HyHAFS)
 
                ## surface_d
                parmfile='%s/hmon_rtofs.archv2data_2d.in'%(PARMhycom)
@@ -2120,7 +1772,7 @@ HYCOM
         return -1
 
         #try:
-        #    checkrun(scriptexe(self,'{USHhwrf}/hycom/ocean_post.sh'),
+        #    checkrun(scriptexe(self,'{USHhafs}/hycom/ocean_post.sh'),
         #             logger=logger)
         #    self.state=COMPLETED
         #except Exception as e:
@@ -2134,7 +1786,7 @@ HYCOM
         logger=self.log()
         self.state=RUNNING
 #        try:
-#            checkrun(scriptexe(self,'{USHhwrf}/hycom/ocean_unpost.sh'),
+#            checkrun(scriptexe(self,'{USHhafs}/hycom/ocean_unpost.sh'),
 #                    logger=logger)
         self.state=COMPLETED
 #        except Exception as e:
