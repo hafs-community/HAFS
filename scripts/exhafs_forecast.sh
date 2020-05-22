@@ -334,7 +334,7 @@ cp ${PARMocean}/hafs_hycom_hat10.patch.120.input patch.input
 cp ${OCNicbcdir}/hycom_settings hycom_settings 
 
 # create hycom limits
-${USHhafs}/hycom_limits.py ${yr}${mn}${dy}${cyc}
+${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
 
 
 #-------------------------------------------------------------------

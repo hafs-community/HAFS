@@ -1,28 +1,28 @@
 
 """!Obtains input data needed by various subclasses of
-hwrf.hwrftask.HWRFTask.  
+hafs.hafstask.HAFSTask.  
 
 This module implements the functionality described in
-hwrf.hwrftask.HWRFTask.inputiter().  It takes many HWRF tasks, asks
+hafs.hafstask.HAFSTask.inputiter().  It takes many HAFS tasks, asks
 them what input is needed and collates that information.  It has a
 list of many possible input sources, and knows which ones are
 available from which cluster.  It goes through available input sources
 in priority order, obtaining the input data."""
 
 ##@var __all__ 
-# Symbols exported by "from hwrf.input import *"
+# Symbols exported by "from hafs.input import *"
 __all__=["DataCatalog","InputSource",'in_date_range']
 
 import collections, os, ftplib, tempfile, ConfigParser, urlparse, stat, \
     re, threading, time, datetime, StringIO
 import produtil.run, produtil.cluster, produtil.fileop, produtil.cd, \
     produtil.workpool, produtil.listing
-import hwrf.numerics, hwrf.exceptions
+import tcutil.numerics, hafs.exceptions
 
 from produtil.run import alias, batchexe, checkrun, ExitStatusException, run
 from produtil.fileop import deliver_file, isnonempty, make_symlink, makedirs
-from hwrf.numerics import to_datetime, to_datetime_rel, to_timedelta
-from hwrf.exceptions import InputSourceBadType,PartialTransfer,\
+from tcutil.numerics import to_datetime, to_datetime_rel, to_timedelta
+from hafs.exceptions import InputSourceBadType,PartialTransfer,\
     UnsupportedTransfer
 from produtil.log import jlogger
 
@@ -34,11 +34,11 @@ def in_date_range(t,trange):
       December 31, 1830 at 18:00 UTC.
     @param trange A comma-separated list of time ranges such as
     this:
-    * 2015081412 --- 12:00 UTC on August 14, 2015
-    * 2015081412-2015082318 --- From 12:00 UTC on August 14, 2015
-      through 18:00 UTC on August 23, 2015
-    * 2015081412-2015082318,2011010100-2011123123 --- From 12:00 UTC
-      on August 14, 2015 through 18:00 UTC on August 23, 2015 and all
+    * 2019081412 --- 12:00 UTC on August 14, 2019
+    * 2019081412-2019082318 --- From 12:00 UTC on August 14, 2019
+      through 18:00 UTC on August 23, 2019
+    * 2019081412-2019082318,2011010100-2011123123 --- From 12:00 UTC
+      on August 14, 2019 through 18:00 UTC on August 23, 2019 and all
       of year 2011.
     @returns True if t falls in the range trange, or False otherwise."""
     epsilon=to_timedelta('1800') # epsilon = one half hour
@@ -74,7 +74,7 @@ def tempopen(f,m):
 
 def strsrc(d):
     """!Makes a string version of a dataset+item dict as produced by
-    hwrf_expt.inputiter() or hwrf.hwrftask.HWRFTask.inputiter()"""
+    hafs.hafstask.HAFSTask.inputiter()"""
     s=StringIO.StringIO()
     s.write("%s(%s"%(d.get("dataset","(**no*dataset**)"),
                      d.get("item","(**no*item**)")))
@@ -92,7 +92,7 @@ def strsrc(d):
 
 def strsrc(d):
     """!Makes a string version of a dataset+item dict as produced by
-    hwrf_expt.inputiter() or hwrf.hwrftask.HWRFTask.inputiter()"""
+    hafs.hafstask.HAFSTask.inputiter()"""
     s=StringIO.StringIO()
     s.write("%s(%s"%(d.get("dataset","(**no*dataset**)"),
                      d.get("item","(**no*item**)")))
@@ -115,13 +115,13 @@ class DataCatalog(object):
     the location of a file in either an archive or a filesystem.  It
     does not know how to actually obtain the file.  This serves as the
     underlying "where is that file" implementation of InputSource.
-    All of this is driven by a section in an hwrf.config.HWRFConfig
+    All of this is driven by a section in an hafs.config.HAFSConfig
     object.
 
     For example, suppose one set up this configuration file:
     @code{.conf}
       [wcoss_fcst_nco]
-      # WCOSS: Input locations for the production HWRF
+      # WCOSS: Input locations for the production HAFS
       gfs               = /com/gfs/prod/gfs.{aYMD}/
       gdas1             = /com/gfs/prod/gdas.{aYMD}/
       gfs_sf            = gfs.t{aHH}z.sf{fahr:02d}
@@ -132,15 +132,15 @@ class DataCatalog(object):
     In this example, "gfs" is a dataset, while "gfs_sfcanl" is an item
     in the dataset.  The DataCatalog.locate() function can find the
     location of a gfs_sf file given the inputs required for string
-    expansion by hwrf.config.HWRFConfig.timestrinterp().  In this
+    expansion by hafs.config.HAFSConfig.timestrinterp().  In this
     case, only the analysis time is required for the "{aYMD}" in the
     dataset location and "{aHH}" in the gfs_sfcanl filename.
     @code{.py}
-      dc=DataCatalog(conf,"wcoss_fcst_nco","2015091800")
+      dc=DataCatalog(conf,"wcoss_fcst_nco","2019091800")
       sfcanl=dc.locate("gfs","gfs_sfcanl")
       print sfcanl
     @endcode
-    That code would print "/com/gfs/prod/gfs.20150818/gfs.t00z.sfcanl"
+    That code would print "/com/gfs/prod/gfs.20190818/gfs.t00z.sfcanl"
     which is the operational output path of the GFS surface analysis
     file for the analysis time in question.
 
@@ -149,13 +149,13 @@ class DataCatalog(object):
     ("ftime") in order to fill in the "{fahr:02d}" in the filename
     with the number 54.
     @code{.py}
-      dc=DataCatalog(conf,"wcoss_fcst_nco","2015091800")
-      sf48a=dc.locate("gfs","gfs_sf",ftime="2015092006")
+      dc=DataCatalog(conf,"wcoss_fcst_nco","2019091800")
+      sf48a=dc.locate("gfs","gfs_sf",ftime="2019092006")
       sf48b=dc.locate("gfs","gfs_sf",ftime=48*3600)
       print sf48a
       print sf48b
     @endcode
-    That code would print "/com/gfs/prod/gfs.20150818/gfs.t00z.sf54"
+    That code would print "/com/gfs/prod/gfs.20190818/gfs.t00z.sf54"
     twice.  Note that you can specify the forecast time as an absolute
     time, or as a number of seconds relative to the analysis time and 
     achieve the same effect either way.
@@ -163,15 +163,15 @@ class DataCatalog(object):
     If we want the bufr file, we have to provide one more piece of
     information: the observation type, to fill in "{obstype}".
     @code{.py}
-      dc=DataCatalog(conf,"wcoss_fcst_nco","2015091800")
+      dc=DataCatalog(conf,"wcoss_fcst_nco","2019091800")
       gpm=dc.locate("gdas1","gdas1_bufr",obstype="gpm")
       print gpm
     @endcode
-    which prints "/com/gfs/prod/gdas.20150918/gdas1.t00z.gpm.tm00.bufr_d"
+    which prints "/com/gfs/prod/gdas.20190918/gdas1.t00z.gpm.tm00.bufr_d"
     """
     def __init__(self,conf,section,anltime):
         """!DataCatalog constructor
-        @param conf the configuration object, an hwrf.config.HWRFConfig
+        @param conf the configuration object, an hafs.config.HAFSConfig
         @param section the section that provides location information
         @param anltime the default analysis time        """
         self.conf=conf
@@ -184,7 +184,7 @@ class DataCatalog(object):
     # The section used for dataset and item locations in conf.
         
     ##@var conf
-    # The configuration object, an hwrf.config.HWRFConfig or subclass.
+    # The configuration object, an hafs.config.HAFSConfig or subclass.
 
     ##@var anltime
     # The default analysis time for parse() and locate() if none is
@@ -214,12 +214,12 @@ class DataCatalog(object):
         This is an internal implementation function that you should
         not call directly.  It performs string interpolation using the
         underlying conf object.  This acts exactly like the expansions
-        done in the hwrf.conf file: {stuff} is expanded to the
+        done in the hafs.conf file: {stuff} is expanded to the
         contents of the "stuff" variable.  Expansions are done in the
         section specified in the constructor.  In addition, various a*
         and f* variables are expanded based on the analysis time
         ("atime") and forecast time ("ftime").  See
-        hwrf.config.HWRFConfig.timestrinterp() for details.
+        hafs.config.HAFSConfig.timestrinterp() for details.
         @param string the string being expanded
         @param atime Optional: the analysis time.  The default is self.anltime
         @param ftime Optional: the forecast time.
@@ -228,7 +228,7 @@ class DataCatalog(object):
           This is passed to in_date_range() for validation.  This is
           used to implement the InputSource date ranges.
         @param kwargs Additional keyword arguments are passed to the
-          hwrf.config.HWRFConfig.timestrinterp() for string replacement.
+          hafs.config.HAFSConfig.timestrinterp() for string replacement.
         @returns The return value from string interpolation or None if
           nothing was found."""
         if atime is None: 
@@ -272,7 +272,7 @@ class DataCatalog(object):
         @param item The name of the item in the dataset.
         @param atime Optional: the analysis time.  The default is self.anltime.
         @param ftime Optional: the forecast time which can be anything
-          accepted by hwrf.numerics.to_datetime_rel() relative to the
+          accepted by tcutil.numerics.to_datetime_rel() relative to the
           analysis time.
         @param logger Optional: a logging.Logger for log messages.  If this
           is provided, several steps along the way of finding the data 
@@ -281,7 +281,7 @@ class DataCatalog(object):
           This is passed to in_date_range() for validation.  This is
           used to implement the InputSource date ranges.
         @param kwargs Additional keyword arguments are passed by
-          parse() to the hwrf.config.HWRFConfig.timestrinterp() for
+          parse() to the hafs.config.HAFSConfig.timestrinterp() for
           string replacement.
         @return The path to the requested data or None if it is not found."""
         if logger is not None: 
@@ -324,21 +324,21 @@ class InputSource(object):
 
     For example, suppose you are on the Jet supercomputer running a
     HISTORY (retrospective) simulation.  You set up this configuration
-    section in your hwrf.conf config file:
+    section in your hafs.conf config file:
     @code{.conf}
-      [jet_sources_prod2014]
-      jet_hist_PROD2014%location  = file:///
-      jet_hist_PROD2014%histprio=90
-      jet_hist_PROD2014%fcstprio=90
+      [jet_sources_prod2019]
+      jet_hist_PROD2019%location  = file:///
+      jet_hist_PROD2019%histprio=90
+      jet_hist_PROD2019%fcstprio=90
 
       prod15_data_sp%location=htar://
       prod15_data_sp%histprio=59
-      prod15_data_sp%dates=2015011218-2015123118
+      prod15_data_sp%dates=2019011218-2019123118
       
-      [jet_hist_PROD2014]
-      @inc=gfs2014_naming
-      inputroot2014=/lfs3/projects/hwrf-data/hwrf-input
-      gfs={inputroot2014}/HISTORY/GFS.{aYYYY}/{aYMDH}/
+      [jet_hist_PROD2019]
+      @inc=gfs2019_naming
+      inputroot2019=/lfs4/HFIP/hafs-data/hafs-input
+      gfs={inputroot2019}/HISTORY/GFS.{aYYYY}/{aYMDH}/
       gfs_sfcanl = gfs.t{aHH}z.sfcanl
       
       [prod15_data_sp]
@@ -346,48 +346,48 @@ class InputSource(object):
       gfs={inputroot}/
       gfs_sfcanl = {gfs_tar}#./gfs.t{aHH}z.sfcanl
       
-      [hwrfdata]
-      inputroot=/pan2/projects/hwrfv3/John.Doe/hwrfdata
-      gfs={inputroot}/hwrf.{aYMDH}/
+      [hafsdata]
+      inputroot=/lfs4/HFIP/hafsv3/John.Doe/hafsdata
+      gfs={inputroot}/hafs.{aYMDH}/
       gfs_sfcanl = gfs.t{aHH}z.sfcanl
     @endcode
     and this is the code:
     @code{.py}
-      is=InputSource(conf,"jet_sources_prod2014","2015071806")
-      hwrfdata=DataCatalog(conf,"hwrfdata")
+      is=InputSource(conf,"jet_sources_prod2019","2019071806")
+      hafsdata=DataCatalog(conf,"hafsdata")
       is.get([
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2015071800"},
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2015071806"},
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2015071812"} ],
-         hwrfdata,realtime=False)
+         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071800"},
+         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071806"},
+         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071812"} ],
+         hafsdata,realtime=False)
     @endcode
 
     In this example, the InputSource will look for three GFS surface
     analysis files.  It will search two possible locations for them:
-    the on-disk Jet "PROD2014" history location and the NCO production
+    the on-disk Jet "PROD2019" history location and the NCO production
     tape files.  The disk location will be searched first because its
     history priority is 90, while the tape area has a priority of 59.
 
     Three files will show up eventually:
 
-    * /pan2/projects/hwrfv3/John.Doe/hwrfdata/hwrf.2015071800/gfs.t00z.sfcanl
-    * /pan2/projects/hwrfv3/John.Doe/hwrfdata/hwrf.2015071806/gfs.t06z.sfcanl
-    * /pan2/projects/hwrfv3/John.Doe/hwrfdata/hwrf.2015071812/gfs.t12z.sfcanl
+    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071800/gfs.t00z.sfcanl
+    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071806/gfs.t06z.sfcanl
+    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071812/gfs.t12z.sfcanl
 
     Each file will come from either here:
 
-    * /lfs3/projects/hwrf-data/hwrf-input/HISTORY/GFS.2015071800/gfs.t00z.sfcanl
-    * /lfs3/projects/hwrf-data/hwrf-input/HISTORY/GFS.2015071806/gfs.t06z.sfcanl
-    * /lfs3/projects/hwrf-data/hwrf-input/HISTORY/GFS.2015071812/gfs.t12z.sfcanl
+    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071800/gfs.t00z.sfcanl
+    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071806/gfs.t06z.sfcanl
+    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071812/gfs.t12z.sfcanl
 
     or here:
 
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2015/201507/20150718/2015071800gfs.tar ./gfs.t00z.sfcanl
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2015/201507/20150718/2015071806gfs.tar ./gfs.t06z.sfcanl
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2015/201507/20150718/2015071812gfs.tar ./gfs.t12z.sfcanl    """
+    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071800gfs.tar ./gfs.t00z.sfcanl
+    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071806gfs.tar ./gfs.t06z.sfcanl
+    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071812gfs.tar ./gfs.t12z.sfcanl    """
     def __init__(self,conf,section,anltime,htar=None,logger=None,hsi=None):
         """!InputSource constructor.
-        @param conf    the hwrf.config.HWRFConfig to use for
+        @param conf    the hafs.config.HAFSConfig to use for
           configuration info
         @param section the section that specifies the list of data catalogs
         @param anltime the default analysis time
@@ -454,13 +454,13 @@ class InputSource(object):
                 logger.warning('Bad source %s: must have location and either histprio or fcstprio.'%(src,))
                 bad.append(str(src))
         if bad:
-            raise hwrf.exceptions.InvalidInputSpecification(
+            raise hafs.exceptions.InvalidInputSpecification(
                 'Input sources must ahve location and either histprio or '
                 'fcstprio.  Check options in [%s]: %s and rerun launcher '
                 'job.'%(self.section,', '.join(bad)))
         self._sort()
     ##@var conf
-    # The hwrf.config.HWRFConfig object used for configuration info
+    # The hafs.config.HAFSConfig object used for configuration info
 
     ##@var section
     # The section in conf that contains the data catalog list and relevant info
@@ -529,7 +529,7 @@ class InputSource(object):
         The location parameter is a URL from file, sftp, ftp or htar.
         Examples:
 
-        * local files: file:///lfs3/projects/hwrf-data/hwrf-input/
+        * local files: file:///lfs4/HFIP/hwrf-data/hafs-input/
         * scp:         sftp://Some.Username@dtn-zeus.rdhpcs.noaa.gov/
         * ftp:         ftp://anonymous@ftpprd.ncep.noaa.gov/
         * htar:        htar:///NCEPPROD/1year/hpssprod/runhistory/rh2012/201204/20120418/
@@ -939,9 +939,9 @@ class InputSource(object):
         Example:
             Prioritized list of data sources:
             PRIO-   LOCATION = SOURCE @ DATES
-            100 -   file:/// = DataCatalog(conf,'wcoss_fcst_PROD2014',2015080518) @ '1970010100-2038011818'
-            098 -   file:/// = DataCatalog(conf,'wcoss_prepbufrnr_PROD2014',2015080518) @ '1970010100-2038011818'
-            097 -    file:// = DataCatalog(conf,'zhan_gyre',2015080518) @ '2011060718-2011111200,2013051800-2013091018'"""
+            100 -   file:/// = DataCatalog(conf,'wcoss_fcst_PROD2019',2019080518) @ '1970010100-2038011818'
+            098 -   file:/// = DataCatalog(conf,'wcoss_prepbufrnr_PROD2019',2019080518) @ '1970010100-2038011818'
+            097 -    file:// = DataCatalog(conf,'zhan_gyre',2019080518) @ '2011060718-2011111200,2013051800-2013091018'"""
         s=StringIO.StringIO()
         s.write('Prioritized list of data sources:\nPRIO-   LOCATION = SOURCE @ DATES\n')
         for ( prio, loc, parsed, dc, dates ) in dclist:

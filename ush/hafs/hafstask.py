@@ -1,32 +1,32 @@
-"""!Base class of tasks run by HWRF.
+"""!Base class of tasks run by HAFS.
 
-This module contains the HWRFTask class, a subclass of
-produtil.datastore.Task intended to be the base class of any HWRF
+This module contains the HAFSTask class, a subclass of
+produtil.datastore.Task intended to be the base class of any HAFS
 task.  It provides logging services, easy access to a config file,
-access to tcvitals, and extends the hwrf.config.HWRFConfig string
+access to tcvitals, and extends the hafs.config.HAFSConfig string
 interpolation to include vitals information.  It also provides a
 standard way of setting and querying the work and output directories
 of a task, and whether the task should scrub its output."""
 
 import re, os
-import hwrf.numerics
+import tcutil.numerics, tcutil.storminfo
 import produtil.log
 from produtil.datastore import Task
 
 ##@var __all__
-# Symbols exported by "from hwrf.hwrftask import *"
-__all__=['HWRFTask']
+# Symbols exported by "from hafs.hafstask import *"
+__all__=['HAFSTask']
 
 ##@var UNSPECIFIED
 # Special constant used to detect unspecified arguments to functions.
 # This allows None to be sent.
 UNSPECIFIED=object()
 
-class HWRFTask(Task):
-    """!The base class of tasks run by the HWRF system.
+class HAFSTask(Task):
+    """!The base class of tasks run by the HAFS system.
 
-    This class represents a task to be run by the HWRF system.  It can
-    be configured by an hwrf.config.HWRFConfig object.  Internal state
+    This class represents a task to be run by the HAFS system.  It can
+    be configured by an hafs.config.HAFSConfig object.  Internal state
     information is stored in an produtil.datastore.Datastore.  Each
     task has its own workdir, outdir and scrub flag, as well as its
     own vitals information.
@@ -36,7 +36,7 @@ class HWRFTask(Task):
     def __init__(self,dstore,conf,section,taskname=None,workdir=None,
                  outdir=None,storminfo=UNSPECIFIED,taskvars=UNSPECIFIED,
                  **kwargs):
-        """!Creates an HWRFTask
+        """!Creates an HAFSTask
         @param dstore passed to Datum: the Datastore object for this Task
         @param conf the conf object for this task
         @param section the conf section for this task
@@ -46,16 +46,16 @@ class HWRFTask(Task):
                Any value set in the database will override this value.
         @param outdir  directory where output should be copied.  This
                argument must not be changed throughout the lifetime of
-               the HWRF datstore database file.
+               the HAFS datstore database file.
         @param storminfo the storm vitals information for the storm this
                task is running.
         @param taskvars additonal variables for string expansion, sent to
-               the taskvars arguments of hwrf.config.HWRFConfig member
+               the taskvars arguments of hafs.config.HAFSConfig member
                functions.
         @param kwargs passed to the parent class constructor."""
         if taskname is None:
             taskname=section
-        conf.register_hwrf_task(taskname)
+        conf.register_hafs_task(taskname)
         self.__taskvars=dict()
         if taskvars is not UNSPECIFIED:
             for k,v in taskvars.iteritems():
@@ -71,13 +71,13 @@ class HWRFTask(Task):
         if workdir is None:
             workdir=self.confstr('workdir','')
             if workdir is None or workdir=='':
-                workdir=os.path.join(self.getdir('WORKhwrf'),taskname)
+                workdir=os.path.join(self.getdir('WORKhafs'),taskname)
         if outdir is None:
             outdir=self.confstr('workdir','')
             if outdir is None or outdir=='':
                 outdir=os.path.join(self.getdir('intercom'),taskname)
         with dstore.transaction():
-            super(HWRFTask,self).__init__(dstore,taskname=taskname,
+            super(HAFSTask,self).__init__(dstore,taskname=taskname,
                                           logger=conf.log(taskname),**kwargs)
             mworkdir=self.meta('workdir','')
             moutdir=self.meta('outdir','')
@@ -94,24 +94,24 @@ class HWRFTask(Task):
                 self.storminfo=conf.syndat
         elif storminfo is not None:
             if isinstance(storminfo,basestring):
-                self.storminfo=hwrf.storminfo.StormInfo()
+                self.storminfo=tcutil.storminfo.StormInfo()
                 self.storminfo.update(conf.items('config'))
                 self.storminfo.parse_vitals(storminfo)
-            elif isinstance(storminfo,hwrf.storminfo.StormInfo):
+            elif isinstance(storminfo,tcutil.storminfo.StormInfo):
                 self.storminfo=storminfo.copy()
             else:
-                raise TypeError("The storminfo argument to HWRFTask() must "
+                raise TypeError("The storminfo argument to HAFSTask() must "
                                 'be None, a string or '
-                                'hwrf.storminfo.StormInfo')
+                                'tcutil.storminfo.StormInfo')
     ##@var storminfo
-    # The hwrf.storminfo.StormInfo describing the vitals information
-    # for the storm processed by this HWRFTask.
+    # The tcutil.storminfo.StormInfo describing the vitals information
+    # for the storm processed by this HAFSTask.
 
     # Intent is to be absolutely certain this is the fakestorm
     # and that the fake storm id is uppercase.
     @property
     def isfakestorm(self):
-        """Is this the fake storm of a multistorm HWRF run?"""
+        """Is this the fake storm of a multistorm HAFS run?"""
         isfakestorm = False
         if self._conf.getbool('config','run_multistorm',False):
             fakestormid=self._conf.getstr('config','fakestormid', 'nofakeid')
@@ -119,12 +119,12 @@ class HWRFTask(Task):
                 if fakestormid == self.storminfo.stormid3:
                     isfakestorm = True
                 elif fakestormid.upper() == self.storminfo.stormid3.upper():
-                    raise hwrf.exceptions.HWRFConfigInsane(
+                    raise hafs.exceptions.HAFSConfigInsane(
                         "Multistorm run: isfakestorm property can not be "
                         "set since case mismatch between fakestormid: %s "
                         "and stormid3: %s"%(fakestormid,self.storminfo.stormid3))
             else:
-                raise hwrf.exceptions.HWRFConfigInsane(
+                raise hafs.exceptions.HAFSConfigInsane(
                     "Multistorm run: isfakestorm property can not be set since No "
                     "'fakestormid' in config section of storm %s."
                     "Check if you defined a list of multistorm ids."
@@ -133,7 +133,7 @@ class HWRFTask(Task):
         return isfakestorm
     @property
     def ismultistorm(self):
-        """Is this a multistorm HWRF run?"""
+        """Is this a multistorm HAFS run?"""
         ismultistorm = False
         if self._conf.getbool('config','run_multistorm',False):
             ismultistorm = True
@@ -143,7 +143,7 @@ class HWRFTask(Task):
         the "workdir" metadata value."""
         workdir=self.meta('workdir','')
         if not workdir:
-            workdir=os.path.join(self.getdir('WORKhwrf'),self.taskname)
+            workdir=os.path.join(self.getdir('WORKhafs'),self.taskname)
         assert(workdir!='/')
         return workdir
     def set_workdir(self,val):
@@ -201,14 +201,14 @@ class HWRFTask(Task):
         """!Sets a taskvar option's value.
 
         Sets an object-local (taskvar) value for option "opt" to value "val".
-        This will override config settings from the HWRFConfig object.
+        This will override config settings from the HAFSConfig object.
         These are sent into the taskvars= parameter to the various
-        HWRFConfig member functions (hence the "tv" in "tvset").
+        HAFSConfig member functions (hence the "tv" in "tvset").
         @param opt the name of the taskvar
         @param val the string value of the option"""
         sopt=str(opt)
         if sopt[0:2]=='__':
-            raise hwrf.exceptions.InvalidConfigOptName(
+            raise hafs.exceptions.InvalidConfigOptName(
                 '%s: invalid option name.  Cannot begin with __'%(sopt,))
         self.__taskvars[sopt]=val
 
@@ -374,7 +374,7 @@ class HWRFTask(Task):
         which will be used to expand values such as fHH, fYMDH, etc.
         The optional atime will be used to expand aHH, aYMDH, etc.,
         and the two will be used together for forecast minus analysis
-        fields like fahr.  See hwrf.config.timestrinterp for details
+        fields like fahr.  See hafs.config.timestrinterp for details
 
         As with self.icstr, this class's vitals are available via the
         "vit" variable while interpolating strings.
@@ -396,33 +396,33 @@ class HWRFTask(Task):
                                             __taskvars=self.__taskvars,**kwargs)
 
     def getdir(self,opt,default=None,morevars=None):
-        """!Alias for hwrf.config.HWRFConfig.get() for the "dir" section.
+        """!Alias for hafs.config.HAFSConfig.get() for the "dir" section.
         @param opt the option name
         @param default Optional: default value if nothing is found.
         @param morevars Optional: more variables for string substitution"""
         return self._conf.get('dir',opt,default,morevars=morevars,
                               taskvars=self.__taskvars)
     def getexe(self,opt,default=None,morevars=None):
-        """!Alias for hwrf.config.HWRFConfig.get() for the "exe" section.
+        """!Alias for hafs.config.HAFSConfig.get() for the "exe" section.
         @param opt the option name
         @param default Optional: default value if nothing is found.
         @param morevars Optional: more variables for string substitution"""
         return self._conf.get('exe',opt,default,morevars=morevars,
                               taskvars=self.__taskvars)
     def getconf(self):
-        """!Returns this HWRFTask's hwrf.config.HWRFConfig object."""
+        """!Returns this HAFSTask's hafs.config.HAFSConfig object."""
         return self._conf
     ##@var conf
-    # This HWRFTask's hwrf.config.HWRFConfig object
+    # This HAFSTask's hafs.config.HAFSConfig object
     conf=property(getconf,None,None,
-                  """!The HWRFConfig for this HWRFTask (read-only)""")
+                  """!The HAFSConfig for this HAFSTask (read-only)""")
     def getsection(self):
-        """!Returns this HWRFTask's section name in the HWRFConfig."""
+        """!Returns this HAFSTask's section name in the HAFSConfig."""
         return self._section
     ##@var section
-    # The confsection in self.section for this HWRFTask (read-only)
+    # The confsection in self.section for this HAFSTask (read-only)
     section=property(getsection,None,None,
-        """!The confsection in self.section for this HWRFTask (read-only)""")
+        """!The confsection in self.section for this HAFSTask (read-only)""")
 
     def log(self,subdom=None):
         """!Obtain a logging domain.
@@ -439,7 +439,7 @@ class HWRFTask(Task):
         """!Iterates over all inputs required by this task.  
 
         Iterates over dict-like objects suitable for input to
-        hwrf.input.InputSource.get.  Each object contains the
+        hafs.input.InputSource.get.  Each object contains the
         following keywords:
         * dataset: string name of the dataset (gfs, gdas1, gefs,
             enkf, etc.)
@@ -450,7 +450,7 @@ class HWRFTask(Task):
         * enkfmem: only present when relevant: the ENKF member ID
         * obstype: only present when relevant: the bufr data type.
         Other keywords may be present if needed.  They will be passed on
-        by hwrf.input.InputSource for string replacement."""  
+        by hafs.input.InputSource for string replacement."""  
         return
         yield {} # ensures this is an iterator
         

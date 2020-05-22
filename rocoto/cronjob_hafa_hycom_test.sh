@@ -13,7 +13,9 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.EXPT=${EXPT} config.SUBEXPT=hafs_couplehycom \
      config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
      ${scrubopt} \
+     ../parm/hafs_hycom.conf \
      ../parm/hafs_regional_static.conf
+
 
 date
 echo 'cronjob done'
