@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 
 import sys, getopt
 from datetime import datetime, date, time, timedelta
@@ -25,9 +24,8 @@ results.append(delta2.days++cycle_hr/24.0+5.25)
 results.append("false")
 results.append("false")
 
-print results
+print(results)
 
 with open('limits', 'w') as f:
     for row in results:
         f.write("%s " % str(row))
-

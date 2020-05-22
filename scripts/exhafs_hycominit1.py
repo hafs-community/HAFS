@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import os, sys, logging
 import produtil.setup, produtil.datastore, produtil.fileop

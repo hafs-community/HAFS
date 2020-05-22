@@ -24,7 +24,7 @@ def yesno(x):
 hycom_epoch=datetime.datetime(1900,12,31,0,0,0)
 
 def date_hycom2normal(hycom):
-    if isinstance(hycom,basestring):
+    if isinstance(hycom,str):
         hycom=float(hycom)
     if isinstance(hycom,int):
         hycom=datetime.timedelta(hours=hycom*24)
@@ -97,7 +97,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             self.confstrinterp('{com}/{out_prefix}.hycom_settings'))
 
         # prodnameA and prodnameB are three-hourly:
-        fhrs=range(int(self.fcstlen+25.001))
+        fhrs=list(range(int(self.fcstlen+25.001)))
         fhrs=fhrs[0::3]
         atime=to_datetime(self.conf.cycle)
         ftimes=[to_datetime_rel(t*3600,atime) for t in fhrs]
@@ -231,7 +231,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 RUNmodIDout=read_RUNmodIDout('./hycom_settings')
 
                 # Deliver restart files
-                for(prodname,prod) in self.restart_out.iteritems():
+                for(prodname,prod) in self.restart_out.items():
                     (local,ab)=prodname.split('.')
                     loc=self.timestr('{'+local+'}',ab=ab,RUNmodIDout=RUNmodIDout)
                     prod.deliver(location=loc,frominfo=prodname,
@@ -304,7 +304,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='b')
 
-        for fhr in xrange(hafs_start,hafs_finish+3,6):
+        for fhr in range(hafs_start,hafs_finish+3,6):
 
             # The ftime is the desired forecast time as a datetime:
             ftime=to_datetime_rel(fhr*3600,hafsatime)
@@ -702,7 +702,7 @@ restart_out.a
 #                  < 'archv2restart.in' )\
 #                  > 'archv2restart.out'
 
-#	cmd=self.getexe('hmon_archv2restart')
+#    cmd=self.getexe('hmon_archv2restart')
 #        checkrun(exe(cmd<'archv2restart.in',logger=logger))
 
         cmd=( exe(self.getexe('hafs_archv2restart')) < 'archv2restart.in' )
@@ -846,7 +846,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 self.make_forecast_forcing(logger)
 
                 # Deliver the forcing files: 
-                for (name,prod) in self.forcing_products.iteritems():
+                for (name,prod) in self.forcing_products.items():
                     prod.deliver(frominfo='./'+name)
 
                 self.limits.deliver(frominfo='./limits')
@@ -890,7 +890,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
 
         # Request GDAS data from -25 to +1
         assert(atmos1ds == 'gdas1')
-        for h in xrange(-spinlength-1,2):
+        for h in range(-spinlength-1,2):
             ahr= (h-1)//6.0 * 6  # 6 is the GDAS cycling interval
             atime=to_datetime_rel(ahr*3600,hafsatime)
             ftime=to_datetime_rel(h*3600,hafsatime)
@@ -905,7 +905,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
 
         # Request GFS data from -3 to hafs_finish+3
         assert(atmos2ds == 'gfs')
-        for h in xrange(-fcstint,hafs_finish+fcstint*2,fcstint):
+        for h in range(-fcstint,hafs_finish+fcstint*2,fcstint):
             ftime=to_datetime_rel(h*3600,hafsatime)
             if h<=0:
                 ahr= (h-1)//6.0 * 6  # 6 is the GFS cycling interval
@@ -956,7 +956,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         yield dict(dataset=oceands,item=ocean_rst,
                    atime=prioratime,ftime=prioratime,ab='b')
 
-        for fhr in xrange(hafs_start,hafs_finish+3,3):
+        for fhr in range(hafs_start,hafs_finish+3,3):
 
             # The ftime is the desired forecast time as a datetime:
             ftime=to_datetime_rel(fhr*3600,hafsatime)
@@ -1138,7 +1138,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         atime=atime0
         rinput=self.rtofs_inputs
         glocset=0
-        for itry in xrange(0,-10,-1):
+        for itry in range(0,-10,-1):
             if time>atime+epsilon:
 
                 gloc=rinput.locate(atmosds,grid,atime=atime,ftime=time)
@@ -1269,10 +1269,10 @@ export gridno={gridno}\n'''.format(**self.__dict__))
 
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
-	mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-	if mpiserial_path=='*MISSING*':
+        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+        if mpiserial_path=='*MISSING*':
              mpiserial_path=self.getexe('mpiserial','*MISSING*')
-	if mpiserial_path=='*MISSING*':
+        if mpiserial_path=='*MISSING*':
              mpiserial_path=produtil.fileop.find_exe('mpiserial')
         cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
@@ -1297,7 +1297,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         #hmon_gfs2ofs=exe(self.getexe('hmon_gfs2ofs'))
         hafs_gfs2ofs=alias(batchexe(self.getexe('hafs_gfs2ofs2')))
         commands=list()
-        for i in xrange(1,11):
+        for i in range(1,11):
           gfs2ofs_in='gfs2ofs.%d.in'%i
           gfs2ofs_out='gfs2ofs.%d.out'%i
           with open (gfs2ofs_in,'wt') as f:
@@ -1309,7 +1309,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         for c in commands[1:]:
             bigcmd+=mpiserial(c)
         ttotal=(len(commands))
-        for i in xrange(ttotal,tt):
+        for i in range(ttotal,tt):
             bigcmd+=mpiserial(batchexe('/bin/true'))
 
         logger.info ('BIGCMD %s '%repr(bigcmd))
@@ -1403,7 +1403,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         wndflg=self.blkflag('wndflg',False)
         atpflg=self.blkflag('atpflg',False)
         logger.info('ANOTHER STRING FOR WHICH TO GREP - mode=%s adjust_temp=%s adjust_wind=%s '%(
-		repr(mode),repr(adjust_river),repr(adjust_wind)))
+        repr(mode),repr(adjust_river),repr(adjust_wind)))
         forcingfilesmade=-1
 
         # Atmospheric forcing
@@ -1645,7 +1645,7 @@ HYCOM
                with open ('tempinfile') as inf:
                    with open ('infile','w') as outf:
                        for line in inf:
-                          for src,targ in replacements.iteritems():
+                          for src,targ in replacements.items():
                              line=line.replace(src,targ)
                           outf.write(line)
 
@@ -1684,7 +1684,7 @@ HYCOM
                with open ('tempinfile') as inf:
                    with open ('infile','w') as outf:
                        for line in inf:
-                          for src,targ in replacements.iteritems():
+                          for src,targ in replacements.items():
                              line=line.replace(src,targ)
                           outf.write(line)
 
@@ -1713,7 +1713,7 @@ HYCOM
                with open ('tempinfile') as inf:
                    with open ('infile','w') as outf:
                        for line in inf:
-                          for src,targ in replacements.iteritems():
+                          for src,targ in replacements.items():
                              line=line.replace(src,targ)
                           outf.write(line)
 
@@ -1745,7 +1745,7 @@ HYCOM
                with open ('tempinfile') as inf:
                    with open ('infile','w') as outf:
                        for line in inf:
-                          for src,targ in replacements.iteritems():
+                          for src,targ in replacements.items():
                              line=line.replace(src,targ)
                           outf.write(line)
 

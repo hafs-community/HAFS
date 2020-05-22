@@ -58,15 +58,15 @@ class HAFSTask(Task):
         conf.register_hafs_task(taskname)
         self.__taskvars=dict()
         if taskvars is not UNSPECIFIED:
-            for k,v in taskvars.iteritems():
+            for k,v in taskvars.items():
                 self.tvset(k,v)
         self._conf=conf
         self._section=str(section)
         self._storminfo=storminfo
-        if taskname is not None and not isinstance(taskname,basestring):
+        if taskname is not None and not isinstance(taskname,str):
             raise TypeError('The taskname must be None or a basestring '
                             'subclass')
-        if not isinstance(section,basestring):
+        if not isinstance(section,str):
             raise TypeError('The section be a basestring subclass')
         if workdir is None:
             workdir=self.confstr('workdir','')
@@ -93,7 +93,7 @@ class HAFSTask(Task):
             if hasattr(conf,'syndat'):
                 self.storminfo=conf.syndat
         elif storminfo is not None:
-            if isinstance(storminfo,basestring):
+            if isinstance(storminfo,str):
                 self.storminfo=tcutil.storminfo.StormInfo()
                 self.storminfo.update(conf.items('config'))
                 self.storminfo.parse_vitals(storminfo)
@@ -386,7 +386,6 @@ class HAFSTask(Task):
         @param kwargs: more arguments for string substitution"""
         if(section is None): section=self._section
 
-	print "section", section
         if self.storminfo and 'vit' not in kwargs: 
             kwargs['vit']=self.storminfo.__dict__
         if 'taskvars' in kwargs:

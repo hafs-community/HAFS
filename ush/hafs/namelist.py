@@ -20,10 +20,10 @@ from_fortnml to convert between in-memory Python objects and strings
 suitable for pasting in a Fortran namelist to achieve the same value
 in Fortran."""
 
-import collections,re,fractions,datetime,ConfigParser,StringIO,logging
+import collections,re,fractions,datetime,configparser,io,logging
 import tcutil.numerics
 
-from ConfigParser import NoOptionError,NoSectionError
+from configparser import NoOptionError,NoSectionError
 from hafs.exceptions import *
 from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction
 
@@ -87,7 +87,7 @@ def __to_fortnml_impl(py,recursed=False,exc_hint=''):
     if isinstance(py,int):                   return str(py)
     if isinstance(py,float):                 return str(py)
     if isinstance(py,fractions.Fraction):    return str(float(py))
-    if isinstance(py,basestring):            return '"'+re.sub('"','""',str(py))+'"'
+    if isinstance(py,str):                   return '"'+re.sub('"','""',str(py))+'"'
     if isinstance(py,datetime.datetime):     return py.strftime('"%Y-%m-%d_%H:%M:%S"') # WPS format
     if isinstance(py,list) or isinstance(py,tuple):
         if recursed:
@@ -266,14 +266,14 @@ class NamelistInserter(object):
         @param ftime Optional: the forecast time for conf.timestrinterp
         @param kwargs   additional variables and their values for config
                         file accesses."""
-        assert(not isinstance(line_iterable,basestring))
+        assert(not isinstance(line_iterable,str))
         if atime is not None:
             atime=to_datetime(atime)
         if ftime is not None:
             ftime=to_datetime_rel(ftime,atime)
         elif atime is not None:
             ftime=atime
-        out=StringIO.StringIO()
+        out=io.StringIO()
         conf=self._conf
         section=self._section
         iline=0
@@ -339,8 +339,7 @@ class NamelistInserter(object):
                             try:
                                 newval=val[sub]
                                 val=newval
-                            except (TypeError,KeyError,ValueError,HAFSError) \
-                                    as e:
+                            except (TypeError,KeyError,ValueError,HAFSError) as e:
                                 if logger is not None:
                                     logger.warning('%s:%d: %s[%s]: %s'%(
                                             source,iline,var,sub,str(e)),
@@ -353,7 +352,7 @@ class NamelistInserter(object):
                             elif typ in 'bBlL':
                                 if isinstance(val,bool):
                                     typval=val
-                                elif isinstance(val,basestring):
+                                elif isinstance(val,str):
                                     if NamelistInserter.nlfalse.match(val):
                                         typval=False
                                     elif NamelistInserter.nltrue.match(val):
@@ -542,8 +541,8 @@ physics.bl_pbl_physics=3'''
             self.section_sorter=cmp
         self.nl=collections.defaultdict(lambda: collections.defaultdict())
         if nl is not None:
-            for (sec,con) in nl.iteritems():
-                for key,val in con.iteritems():
+            for (sec,con) in nl.items():
+                for key,val in con.items():
                     nl[sec][key]=val
         if conf is None or section is None:
             return
@@ -594,7 +593,7 @@ physics.bl_pbl_physics=3'''
         @param data the value.  This can be a string,
           datetime.datetime, int, float, fractions.Fraction or a list or
           tuple of such"""
-        if not ( isinstance(data,basestring) or 
+        if not ( isinstance(data,str) or
                  isinstance(data,datetime.datetime) or
                  isinstance(data,int) or isinstance(data,float) or
                  isinstance(data,list) or
@@ -669,15 +668,15 @@ physics.bl_pbl_physics=3'''
         """!Iterates over variable,value tuples in the given
         namelist.
         @param section the namelist over which to iterate"""
-        if not isinstance(section,basestring): section=str(section)
+        if not isinstance(section,str): section=str(section)
         if not section in self.nl: return
-        for var,value in self.nl[section].iteritems():
+        for var,value in self.nl[section].items():
             yield var,value
     def trait_each(self):
         """!Iterates over variable,value tuples in the traits."""
         assert(Conf2Namelist.TRAIT in self.nl)
         assert(self.nl[Conf2Namelist.TRAIT])
-        for var,value in self.nl[Conf2Namelist.TRAIT].iteritems():
+        for var,value in self.nl[Conf2Namelist.TRAIT].items():
             yield var,value
     def trait_set(self,var,value):
         """!Sets a trait's value.
@@ -733,9 +732,9 @@ physics.bl_pbl_physics=3'''
         if len(others)==0:
             return self.copy()
         out=Conf2Namelist(None,None)
-        for secname,mydict in self.nl.iteritems():
+        for secname,mydict in self.nl.items():
             outsec=out.nl[secname]
-            for var,value in mydict.iteritems():
+            for var,value in mydict.items():
                 thelist=[value]
                 default=value
                 for other in others:
@@ -768,10 +767,10 @@ physics.bl_pbl_physics=3'''
         into this one."""
         if other is None:
             other=Conf2Namelist(None,None)
-        for s,sd in self.nl.iteritems():
+        for s,sd in self.nl.items():
             if section_subset is None or section_subset(s):
                 outdict=other.nl[s]
-                for var,value in sd.iteritems():
+                for var,value in sd.items():
                     if var_subset is None or var_subset(s,var):
                         try:
                             junk=outdict[var]
@@ -817,7 +816,7 @@ physics.bl_pbl_physics=3'''
             else:
                 return sd[var]
 
-        for sec in sorted(self.nl.iterkeys(),section_sorter):
+        for sec in sorted(iter(self.nl.keys()),section_sorter):
             sd=self.nl[sec]
             if sec==Conf2Namelist.TRAIT:
                 out+='! Traits:\n'
@@ -832,11 +831,11 @@ physics.bl_pbl_physics=3'''
                 if sec==Conf2Namelist.TRAIT:
                     out+="\n".join('!  %s = %s,'%(var,to_fortnml(getvar(var),
                         exc_hint='%s%%%s='%(str(sec),str(var)))) \
-                            for var in sorted(sd.keys(),sorter))
+                            for var in sorted(list(sd.keys()),sorter))
                 else:
                     out+="\n".join('  %s = %s,'%(var,to_fortnml(getvar(var),
                         exc_hint='%s%%%s='%(str(sec),str(var)))) \
-                            for var in sorted(sd.keys(),sorter))
+                            for var in sorted(list(sd.keys()),sorter))
             if sec==Conf2Namelist.TRAIT:
                 out+='\n\n'
             else:

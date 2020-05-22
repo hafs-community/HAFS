@@ -1,9 +1,9 @@
   <!-- hera -->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
-  <!ENTITY QUEUE_PE        "debug"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
   <!ENTITY PE_EXTRA        "">
-  <!ENTITY QUEUE_SERIAL    "debug"> <!-- queue for serial jobs -->
+  <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "">
   <!ENTITY QUEUE_SHARED    "batch">
   <!ENTITY SHARED_EXTRA    "">
@@ -18,7 +18,6 @@
   <!ENTITY CHGRES_IC_RESOURCES "<nodes>4:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_BC_RESOURCES "<nodes>4:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>80</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">
   <!ENTITY HYCOMINIT_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
-
 
   <!ENTITY FORECAST_WALLTIME "<walltime>06:00:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">

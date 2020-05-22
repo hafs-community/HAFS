@@ -4,11 +4,11 @@ set -xe
 
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 
-CDUMP=gfs		# gfs or gdas
+CDUMP=gfs                   # gfs or gdas
 LEVS=${LEVS:-65}
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}

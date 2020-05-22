@@ -13,8 +13,8 @@ in priority order, obtaining the input data."""
 # Symbols exported by "from hafs.input import *"
 __all__=["DataCatalog","InputSource",'in_date_range']
 
-import collections, os, ftplib, tempfile, ConfigParser, urlparse, stat, \
-    re, threading, time, datetime, StringIO
+import collections, os, ftplib, tempfile, configparser, urllib.parse, stat, \
+    re, threading, time, datetime, io
 import produtil.run, produtil.cluster, produtil.fileop, produtil.cd, \
     produtil.workpool, produtil.listing
 import tcutil.numerics, hafs.exceptions
@@ -75,10 +75,10 @@ def tempopen(f,m):
 def strsrc(d):
     """!Makes a string version of a dataset+item dict as produced by
     hafs.hafstask.HAFSTask.inputiter()"""
-    s=StringIO.StringIO()
+    s=io.StringIO()
     s.write("%s(%s"%(d.get("dataset","(**no*dataset**)"),
                      d.get("item","(**no*item**)")))
-    for k in sorted(list(d.iterkeys())):
+    for k in sorted(list(d.keys())):
         if k=='dataset' or k=='item': continue
         v=d[k]
         if isinstance(v,datetime.datetime):
@@ -93,10 +93,10 @@ def strsrc(d):
 def strsrc(d):
     """!Makes a string version of a dataset+item dict as produced by
     hafs.hafstask.HAFSTask.inputiter()"""
-    s=StringIO.StringIO()
+    s=io.StringIO()
     s.write("%s(%s"%(d.get("dataset","(**no*dataset**)"),
                      d.get("item","(**no*item**)")))
-    for k in sorted(list(d.iterkeys())):
+    for k in sorted(list(d.keys())):
         if k=='dataset' or k=='item': continue
         v=d[k]
         if isinstance(v,datetime.datetime):
@@ -175,7 +175,7 @@ class DataCatalog(object):
         @param section the section that provides location information
         @param anltime the default analysis time        """
         self.conf=conf
-        if not isinstance(section,basestring):
+        if not isinstance(section,str):
             raise TypeError('In DataCatalog.__init__, section must be a '
                             'string.')
         self.section=section
@@ -205,7 +205,7 @@ class DataCatalog(object):
         conf[section,"rt_updated"] is set to "yes" or False otherwise."""
         try:
             return conf.getbool(section,'rt_updated',False)
-        except ( ConfigParser.Error,KeyError,TypeError,ValueError ) as e:
+        except ( configparser.Error,KeyError,TypeError,ValueError ) as e:
             return False
     def parse(self,string,atime=None,ftime=None,logger=None,dates=None,
               **kwargs):
@@ -432,7 +432,7 @@ class InputSource(object):
                                     sec,key,str(ke)))
                         continue
         bad=list()
-        for (src,attr) in sources.iteritems():
+        for (src,attr) in sources.items():
             if 'location' in attr and ('histprio' in attr or \
                                            'fcstprio' in attr):
                 dctype=attr.get('type','DataCatalog')
@@ -554,7 +554,7 @@ class InputSource(object):
         if fcstprio is None and histprio is None: return
         if dates is None:
             dates='1970010100-2038011818'
-        parsed=urlparse.urlparse(location)
+        parsed=urllib.parse.urlparse(location)
         if fcstprio is not None:
             self.forecast.append( ( float(fcstprio), location, parsed, dc, dates ) )
             self._f_sorted=False
@@ -637,9 +637,9 @@ class InputSource(object):
         @param realtime True for FORECAST mode, False for HISTORY mode.
         @returns True if successful, False if not"""
         if logger is None: logger=self._logger
-        parsed=urlparse.urlparse(dsurl)
-        joined=urlparse.urljoin(dsurl,urlmore,allow_fragments=True)
-        parsed=urlparse.urlparse(joined)
+        parsed=urllib.parse.urlparse(dsurl)
+        joined=urllib.parse.urljoin(dsurl,urlmore,allow_fragments=True)
+        parsed=urllib.parse.urlparse(joined)
         if logger is not None:
             logger.info('%s + %s = %s',repr(dsurl),repr(urlmore),repr(joined))
         scheme=parsed.scheme
@@ -831,7 +831,7 @@ class InputSource(object):
                                    "file. Htar will probably fail."
                                    %(archpath,int(err)))
             r=self.htar['-xpf',archpath]\
-                [ [p for p in parts.iterkeys()] ]\
+                [ [p for p in parts.keys()] ]\
                 .cd(td.dirname)
             logger.info('%s: list contents'%(td.dirname,))
             for line in str(produtil.listing.Listing(path=td.dirname)):
@@ -840,7 +840,7 @@ class InputSource(object):
             if stat!=0:
                 logger.info('non-zero exit status %d from htar; will retry '
                             'in five seconds.'%stat)
-                for x in xrange(50):
+                for x in range(50):
                     time.sleep(0.1)
                 stat=run(r,logger=logger)
             if stat!=0:
@@ -851,7 +851,7 @@ class InputSource(object):
                             %(archpath,len(parts)))
             nope=set() # Files missing from archive
             yup=set() # Files found in archive
-            for (filepart,tgti) in parts.iteritems():
+            for (filepart,tgti) in parts.items():
                 tgt=tgti[0]
                 src=os.path.join(td.dirname,filepart)
                 logger.debug('%s: check for this at %s'%(tgt,src))
@@ -942,7 +942,7 @@ class InputSource(object):
             100 -   file:/// = DataCatalog(conf,'wcoss_fcst_PROD2019',2019080518) @ '1970010100-2038011818'
             098 -   file:/// = DataCatalog(conf,'wcoss_prepbufrnr_PROD2019',2019080518) @ '1970010100-2038011818'
             097 -    file:// = DataCatalog(conf,'zhan_gyre',2019080518) @ '2011060718-2011111200,2013051800-2013091018'"""
-        s=StringIO.StringIO()
+        s=io.StringIO()
         s.write('Prioritized list of data sources:\nPRIO-   LOCATION = SOURCE @ DATES\n')
         for ( prio, loc, parsed, dc, dates ) in dclist:
             s.write('%03d - %10s = %s @ %s\n'%(
@@ -1039,7 +1039,7 @@ class InputSource(object):
                                 archives,data,target_dc,realtime,logger,
                                 skip_existing])
                     workpool.barrier()
-                    for (archpath,parts) in archives.iteritems():
+                    for (archpath,parts) in archives.items():
                         if len(parts)<=0: 
                             if logger is not None:
                                 logger.info("%s: nothing to pull; skip"
@@ -1052,7 +1052,7 @@ class InputSource(object):
             finally:
                 if logger is not None:
                     logger.warning('In finally block, closing streams.')
-                for (key,stream) in streams.iteritems(): 
+                for (key,stream) in streams.items(): 
                     try:
                         stream.close()
                     except Exception as e:
@@ -1110,7 +1110,7 @@ class InputSource(object):
         finally:
             if logger is not None:
                 logger.warning('In finally block, closing streams.')
-            for (key,stream) in streams.iteritems(): 
+            for (key,stream) in streams.items(): 
                 try:
                     stream.close()
                 except Exception as e:

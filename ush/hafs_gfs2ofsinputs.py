@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
+
 import os, sys, logging
 import produtil.setup
 import produtil.fileop
@@ -23,7 +24,7 @@ flxfile=sys.argv[2]
 wgrib2=alias(exe(sys.argv[3]))
 grb2index=alias(exe(sys.argv[4]))
 
-print "inputs are", mode, flxfile, wgrib2, grb2index
+print("inputs are", mode, flxfile, wgrib2, grb2index)
 
 if mode=='anal':
    TYPEx='hour fcst'

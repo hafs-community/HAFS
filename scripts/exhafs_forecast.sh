@@ -171,7 +171,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input.nml.tmp > input.nml
+    input.nml.tmp > input.nml
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
 cp ${ccpp_suite_nest_xml} .
@@ -200,7 +200,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input_nest02.nml.tmp > input_nest02.nml
+    input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
 
@@ -256,7 +256,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input.nml.tmp > input.nml
+    input.nml.tmp > input.nml
 
 fi
   
