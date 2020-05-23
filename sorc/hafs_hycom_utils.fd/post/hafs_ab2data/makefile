@@ -14,8 +14,7 @@ MODS     =	mod_plot.o mod_xc.o mod_za.o          wtime.o
 MODB     =	mod_plot.o mod_xc.o mod_za.o mod_zb.o wtime.o
 EXEC     =      ../../exec
 
-programs=  ../../exec/hafs_archv2data3z \
-	   ../../exec/hafs_archv2data3z_insitu 
+programs=  ../../exec/hafs_archv2data3z
 
 all: ${programs}
 
@@ -49,18 +48,11 @@ THERM_OBJ=      pot2pot0.o
 # --- executables.
 #
 
-../../exec/hafs_archv2data3z_insitu:  $(MODB) archv2data3z_insitu.o  $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
-	$(FC) $(LDFLAGS) -o $@  archv2data3z_insitu.o  $(MODB) $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
-
 ../../exec/hafs_archv2data3z:  $(MODB) archv2data3z.o  $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
 	$(FC) $(LDFLAGS) -o $@  archv2data3z.o  $(MODB) $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
 
-
-
 archv2data2d.o:  archv2data2d.f  mod_plot.o mod_za.o
-archv2data2d_insitu.o:  archv2data2d_insitu.f  mod_plot.o mod_za.o
 archv2data3z.o:  archv2data3z.f  mod_plot.o mod_za.o
-archv2data3z_insitu.o:  archv2data3z_insitu.f  mod_plot.o mod_za.o
 
 bigrd1.o:   bigrd1.f      mod_plot.o
 bigrid.o:   bigrid.f      mod_plot.o

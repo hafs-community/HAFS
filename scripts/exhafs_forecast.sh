@@ -5,6 +5,9 @@ set -xe
 ulimit -s unlimited
 ulimit -a
 
+export PARMhycom=${PARMhycom:-${PARMhafs}/hycom}
+export FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
+
 export gtype=${gtype:-regional}
 export halo_blend=${halo_blend:-0}
 export nstf_n1=${nstf_n1:-2}
@@ -68,6 +71,10 @@ NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+
+yr=`echo $CDATE | cut -c1-4`
+mn=`echo $CDATE | cut -c5-6`
+dy=`echo $CDATE | cut -c7-8`
 
 if [ ! -d $INPdir ]; then
    echo Cannot find $INPdir ... exit
@@ -258,15 +265,51 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
     input.nml.tmp > input.nml
 
+# Copy hycom related files
+# copy IC/BC
+cp ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
+cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
+
+# copy forcing
+cp ${WORKhafs}/intercom/hycominit/forcing* .
+
+# copy fix
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.depth.a regional.depth.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.depth.b regional.depth.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.grid.a regional.grid.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.grid.b regional.grid.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.forcing.chl.a forcing.chl.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.forcing.chl.b forcing.chl.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.iso.sigma.a iso.sigma.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.iso.sigma.b iso.sigma.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.ssh.a relax.ssh.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.ssh.b relax.ssh.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.tbaric.a tbaric.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.tbaric.b tbaric.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.thkdf4.a thkdf4.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.thkdf4.b thkdf4.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf2.a veldf2.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf2.b veldf2.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf4.a veldf4.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf4.b veldf4.b
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.rmu.a relax.rmu.a
+cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.rmu.b relax.rmu.b
+
+# copy parms
+cp ${PARMhycom}/hafs_hycom_hat10.blkdat.input blkdat.input 
+cp ${PARMhycom}/hafs_rtofs_hat10.basin.ports.input ports.input
+cp ${PARMhycom}/hafs_hycom_hat10.patch.120.input patch.input
+cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+
+# create hycom limits
+${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
+
+
 fi
   
 #-------------------------------------------------------------------
 # Generate diag_table, model_configure from their tempelates
 #-------------------------------------------------------------------
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
-
 echo ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 echo $yr $mn $dy $cyc 0 0
 cat > temp << EOF
@@ -296,46 +339,6 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_DLON_/$output_grid_dlon/ | \
     sed s/_DLAT_/$output_grid_dlat/ \
     >  model_configure
-
-# JDong copy ocean files
-# copy IC/BC
-cp ${OCNicbcdir}/restart_out.a restart_in.a 
-cp ${OCNicbcdir}/restart_out.b restart_in.b
-
-# copy forcing
-cp ${OCNforcngdir}/forcing* .
-
-# copy fix
-cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.depth.a regional.depth.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.depth.b regional.depth.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.grid.a regional.grid.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.regional.grid.b regional.grid.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.forcing.chl.a forcing.chl.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.forcing.chl.b forcing.chl.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.iso.sigma.a iso.sigma.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.iso.sigma.b iso.sigma.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.ssh.a relax.ssh.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.ssh.b relax.ssh.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.tbaric.a tbaric.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.tbaric.b tbaric.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.thkdf4.a thkdf4.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.thkdf4.b thkdf4.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf2.a veldf2.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf2.b veldf2.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf4.a veldf4.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.veldf4.b veldf4.b
-cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.rmu.a relax.rmu.a
-cp ${OCNfix}/hmon_rtofs_hat10.basin.relax.rmu.b relax.rmu.b
-
-# copy parms
-cp ${PARMocean}/hafs_hycom_hat10.blkdat.input blkdat.input 
-cp ${PARMocean}/hmon_rtofs_hat10.basin.ports.input ports.input
-cp ${PARMocean}/hafs_hycom_hat10.patch.120.input patch.input
-cp ${OCNicbcdir}/hycom_settings hycom_settings 
-
-# create hycom limits
-${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
-
 
 #-------------------------------------------------------------------
 # Link the executable and run the forecast

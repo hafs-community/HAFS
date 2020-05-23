@@ -104,9 +104,9 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         self.init_file2a=TimeArray(atime,ftimes[-1],3*3600.0)
         self.init_file2b=TimeArray(atime,ftimes[-1],3*3600.0)
         for ftime in ftimes:
-            prodnameA=self.timestr('hmon_basin.{fahr:03d}.a',ftime,atime)
+            prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
             filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
-            prodnameB=self.timestr('hmon_basin.{fahr:03d}.b',ftime,atime)
+            prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
             filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
             self.init_file2a[ftime]=FileProduct(
                 self.dstore,prodnameA,self.taskname,location=filepathA)
@@ -182,7 +182,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         # Get data:
         ni=hafs.namelist.NamelistInserter(self.conf,self.section)
         with NamedDir(outdir,keep=True,logger=logger,rm_first=False) as d:
-            parmin=self.confstrinterp('{PARMhycom}/hmon_get_rtofs.nml.in')
+            parmin=self.confstrinterp('{PARMhycom}/hafs_get_rtofs.nml.in')
             parmout='get_rtofs.nml'
 
 # from PDY (loc0)
@@ -220,6 +220,12 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 self.select_domain(logger)
                 self.hycom_settings.deliver(frominfo='./hycom_settings')
 
+                # Deliver hycom_settings to intercom
+                produtil.fileop.makedirs(self.timestr('{intercom}/hycominit'),logger=logger)
+                prodname='hycom_settings'
+                locintercom=self.timestr('{intercom}/hycominit/'+prodname)
+                deliver_file(prodname,locintercom,keep=True,logger=logger)
+
                 self.find_rtofs_data()
 
                 # Create BC and IC for this domain 
@@ -230,12 +236,18 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 RUNmodIDout=self.RUNmodIDout
                 RUNmodIDout=read_RUNmodIDout('./hycom_settings')
 
-                # Deliver restart files
+                # Deliver restart files to com
                 for(prodname,prod) in self.restart_out.items():
                     (local,ab)=prodname.split('.')
                     loc=self.timestr('{'+local+'}',ab=ab,RUNmodIDout=RUNmodIDout)
                     prod.deliver(location=loc,frominfo=prodname,
                                  keep=True,logger=logger)
+
+                # Deliver restart files to intercom
+                for(prodname,prod) in self.restart_out.items():
+                    (local,ab)=prodname.split('.')
+                    locintercom=self.timestr('{intercom}/hycominit/'+prodname)
+                    deliver_file(prodname,locintercom,keep=True,logger=logger)
 
                 # Make the flag file to indicate we're done.
                 done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycom1_init.done')
@@ -424,7 +436,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
         
-        aptable=self.confstrinterp('{PARMhycom}/hmon_rtofs.application_table')
+        aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
         found=False
         with open(aptable,'rt') as apfile:
             for line in apfile:
@@ -445,7 +457,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             logger.error(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
-        gridtable=self.confstrinterp('{PARMhycom}/hmon_rtofs.grid_table')
+        gridtable=self.confstrinterp('{PARMhycom}/hafs_rtofs.grid_table')
         found=False
         with open(gridtable,'rt') as gridfile:
             for line in gridfile:
@@ -540,9 +552,9 @@ export gridno={gridno}\n'''.format(**self.__dict__))
              'regional.grid')
         self.linkab('{FIXhycom}/%s.%s.regional.depth'%(RUNmodIDin,gridlabelin),
              'regional.depth')
-        self.linkab('{FIXhycom}/hmon_%s.%s.regional.grid'%(RUNmodIDout,gridlabelout),
+        self.linkab('{FIXhycom}/hafs_%s.%s.regional.grid'%(RUNmodIDout,gridlabelout),
              'regional.subgrid')
-        self.linkab('{FIXhycom}/hmon_%s.%s.regional.depth'%(RUNmodIDout,gridlabelout),
+        self.linkab('{FIXhycom}/hafs_%s.%s.regional.depth'%(RUNmodIDout,gridlabelout),
              'regional.subdepth')
 
         cyc=self.conf.cycle
@@ -565,7 +577,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         subregion_out='subregion.%d.out'%icount
         with open(subregion_in,'wt') as f:
             f.write("""archv_in.%d.b
-hmon_basin.%03d.b
+hafs_basin.%03d.b
 subregion %s
 %d         'idm   ' = longitudinal array size
 %d         'jdm   ' = latitudinal  array size
@@ -649,7 +661,7 @@ subregion %s
         if self.__blkdat is not None: return self.__blkdat
         d=collections.defaultdict(list)
         self.__blkdat=d
-        blkdat_input=self.timestr('{PARMhycom}/hmon_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
+        blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
                 m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
@@ -664,18 +676,18 @@ subregion %s
         return self.blkdat['baclin'][0]
 
     def archv2restart(self,logger):
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.grid',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.grid',
              'regional.grid')
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.depth',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.depth',
              'regional.depth')
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.grid',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.grid',
              'regional.grid')
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.depth',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.depth',
              'regional.depth')
 
         baclin=self.baclin
 
-        self.linkab('hmon_basin.000','archv2r_in')
+        self.linkab('hafs_basin.000','archv2r_in')
         if isnonempty('restart_forspin.b'):
             self.linkab('restart_forspin','restart_in')
         elif isnonempty('restart_pre.b'):
@@ -698,11 +710,11 @@ restart_out.a
 %f                 'baclin' = baroclinic time step (seconds)
 '''%( self.idm, self.jdm, self.kdm, baclin))
 
-#        cmd=( mpirun(exe(self.getexe('hmon_archv2restart'))) \
+#        cmd=( mpirun(exe(self.getexe('hafs_archv2restart'))) \
 #                  < 'archv2restart.in' )\
 #                  > 'archv2restart.out'
 
-#    cmd=self.getexe('hmon_archv2restart')
+#    cmd=self.getexe('hafs_archv2restart')
 #        checkrun(exe(cmd<'archv2restart.in',logger=logger))
 
         cmd=( exe(self.getexe('hafs_archv2restart')) < 'archv2restart.in' )
@@ -815,9 +827,9 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         fcstlen=self.fcstlen
         enddate=to_datetime_rel(fcstlen*3600,startdate)
 
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.grid',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.grid',
              'regional.grid')
-        self.linkab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.regional.depth',
+        self.linkab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.regional.depth',
              'regional.depth')
 
         self.rtofs_get_forcing(startdate,enddate,interval*3600,adjust_river,
@@ -845,9 +857,15 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 # Create forcing for coupled run and raise an exception if it fails:
                 self.make_forecast_forcing(logger)
 
-                # Deliver the forcing files: 
+                # Deliver the forcing files to com
                 for (name,prod) in self.forcing_products.items():
                     prod.deliver(frominfo='./'+name)
+
+                # Deliver the forcing files to intercom
+                produtil.fileop.makedirs(self.timestr('{intercom}/hycominit'),logger=logger)
+                for (name,prod) in self.forcing_products.items():
+                    locintercom=self.timestr('{intercom}/hycominit/'+name)
+                    deliver_file(name,locintercom,keep=True,logger=logger)
 
                 self.limits.deliver(frominfo='./limits')
 
@@ -1053,7 +1071,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
         
-        aptable=self.confstrinterp('{PARMhycom}/hmon_rtofs.application_table')
+        aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
         found=False
         with open(aptable,'rt') as apfile:
             for line in apfile:
@@ -1074,7 +1092,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
             logger.error(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
-        gridtable=self.confstrinterp('{PARMhycom}/hmon_rtofs.grid_table')
+        gridtable=self.confstrinterp('{PARMhycom}/hafs_rtofs.grid_table')
         found=False
         with open(gridtable,'rt') as gridfile:
             for line in gridfile:
@@ -1294,7 +1312,6 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
 # echo "8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0" > jpdt_table.dat
         with open('jpdt_table.dat','wt') as j:
             j.write('''8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0''')
-        #hmon_gfs2ofs=exe(self.getexe('hmon_gfs2ofs'))
         hafs_gfs2ofs=alias(batchexe(self.getexe('hafs_gfs2ofs2')))
         commands=list()
         for i in range(1,11):
@@ -1314,7 +1331,6 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
 
         logger.info ('BIGCMD %s '%repr(bigcmd))
 
-#        checkrun(hmon_gfs2ofs,logger=logger)
         checkrun(mpirun(bigcmd,mpiserial_path=mpiserial_path),logger=logger)
         self.ofs_timeinterp_forcing(logger)
 
@@ -1423,7 +1439,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
 
         # River forcing:
         if priver>0:
-            self.copyab('{FIXhycom}/hmon_{RUNmodIDout}.{gridlabelout}.forcing.'
+            self.copyab('{FIXhycom}/hafs_{RUNmodIDout}.{gridlabelout}.forcing.'
                    'rivers','forcing.rivers')
             logger.info('Station River Forcing Files copied')
             forcingfilesmade=0
@@ -1483,7 +1499,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         if self.__blkdat is not None: return self.__blkdat
         d=collections.defaultdict(list)
         self.__blkdat=d
-        blkdat_input=self.timestr('{PARMhycom}/hmon_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
+        blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
                 m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
@@ -1554,12 +1570,12 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
 #        self.state=FAILED
 #        raise
 
-        ffrom='%s/hmon_%s.%s.regional.grid'%(FIXhycom,RUNmodIDout,gridlabelout)
+        ffrom='%s/hafs_%s.%s.regional.grid'%(FIXhycom,RUNmodIDout,gridlabelout)
         produtil.fileop.make_symlink(
             ffrom+'.a','regional.grid.a',force=True,logger=self.log())
         produtil.fileop.make_symlink(
             ffrom+'.b','regional.grid.b',force=True,logger=self.log())
-        ffrom='%s/hmon_%s.%s.regional.depth'%(FIXhycom,RUNmodIDout,gridlabelout)
+        ffrom='%s/hafs_%s.%s.regional.depth'%(FIXhycom,RUNmodIDout,gridlabelout)
         produtil.fileop.make_symlink(
             ffrom+'.a','regional.depth.a',force=True,logger=self.log())
         produtil.fileop.make_symlink(
@@ -1634,7 +1650,7 @@ HYCOM
                logger.info('Do Volume HERE')
                ## volume_3z
                #concat topzinfile and parmfile
-               parmfile='%s/hmon_rtofs.archv2data_3z.in'%(PARMhycom)
+               parmfile='%s/hafs_rtofs.archv2data_3z.in'%(PARMhycom)
                filenames = ['topzfile',parmfile]
                with open('tempinfile', 'w') as iff:
                    for fname in filenames:
@@ -1658,7 +1674,7 @@ HYCOM
                            if i>4 and i<11:
                                pb.write(line)
                            i=i+1
-               outfile='%s.%04d%02d%02d%02d.hmon_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+               outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
                outfilea=outfile+'.a'
                outfileb=outfile+'.b'
                filenames = ['partialb', 'fort.51']
@@ -1673,7 +1689,7 @@ HYCOM
 
                ## volume_3d
                #concat topinfile and parmfile
-               parmfile='%s/hmon_rtofs.archv2data_3d.in'%(PARMhycom)
+               parmfile='%s/hafs_rtofs.archv2data_3d.in'%(PARMhycom)
                filenames = ['topinfile',parmfile]
                with open('tempinfile', 'w') as iff:
                    for fname in filenames:
@@ -1702,7 +1718,7 @@ HYCOM
                ## mld from 3d volume grib
                
                ## surface_d for volume
-               parmfile='%s/hmon_rtofs.archv2data_2d.in'%(PARMhycom)
+               parmfile='%s/hafs_rtofs.archv2data_2d.in'%(PARMhycom)
                filenames = ['topinfile',parmfile]
                with open('tempinfile', 'w') as iff:
                    for fname in filenames:
@@ -1734,7 +1750,7 @@ HYCOM
                ## surface_z  (not done in HyHAFS)
 
                ## surface_d
-               parmfile='%s/hmon_rtofs.archv2data_2d.in'%(PARMhycom)
+               parmfile='%s/hafs_rtofs.archv2data_2d.in'%(PARMhycom)
                filenames = ['topinfile',parmfile]
                with open('tempinfile', 'w') as iff:
                    for fname in filenames:
@@ -1762,7 +1778,7 @@ HYCOM
                remove_file('fort.51',info=True,logger=logger)
            
 #        #####    deliver ab files to comout
-           notabout='hmon_%s.%s'%(RUNmodIDout,archtimestring)
+           notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
            deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
            deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
 
