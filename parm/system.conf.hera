@@ -31,7 +31,7 @@ syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
 COMINgfs={COMgfs}
-COMrtofs=/scratch1/NCEPDEV/stmp2/Jili.Dong/COMRTOFS
+COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFS
 COMINrtofs={COMrtofs}
 
 [holdvars]

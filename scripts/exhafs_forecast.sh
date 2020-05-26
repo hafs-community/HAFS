@@ -53,6 +53,22 @@ export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
 
+export run_ocean=${run_ocean:-no}
+export ocean_model=${ocean_model:-hycom}
+export cpl_ocean=${cpl_ocean:-0}
+export ocean_tasks=${ocean_tasks:-120}
+export cpl_dt=${cpl_dt:-360}
+export cplflx=${cplflx:-.false.}
+export ATM_petlist_bounds=${ATM_petlist_bounds:-'ATM_petlist_bounds: 0000 1319'}
+export OCN_petlist_bounds=${OCN_petlist_bounds:-'OCN_petlist_bounds: 1320 1439'}
+export runSeq_OCN2ATM=${runSeq_OCN2ATM:-''}
+export runSeq_ATM2OCN=${runSeq_ATM2OCN:-''}
+export runSeq_ATM=${runSeq_ATM:-'ATM'}
+export runSeq_OCN=${runSeq_OCN:-'OCN'}
+export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
+#export base_dtg=${CDATE:-2019082900}
+#export end_hour=${NHRS:-126}
+
 if [ $gtype = uniform ];  then
   export ntiles=6
 elif [ $gtype = stretch ]; then
@@ -152,7 +168,7 @@ cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/input_nest02.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
-cp ${PARMforecast}/nems.configure .
+cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
 
 ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
 cp ${ccpp_suite_glob_xml} .
@@ -178,6 +194,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
     input.nml.tmp > input.nml
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
@@ -207,6 +224,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
     input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
@@ -240,7 +258,26 @@ cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
-cp ${PARMforecast}/nems.configure .
+
+if [ ${run_ocean} = yes ];  then
+  cp ${PARMforecast}/nems.configure.atm_ocn.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_runSeq_OCN2ATM_/${runSeq_OCN2ATM}/g" \
+      -e "s/_runSeq_ATM2OCN_/${runSeq_ATM2OCN}/g" \
+      -e "s/_runSeq_ATM_/${runSeq_ATM}/g" \
+      -e "s/_runSeq_OCN_/${runSeq_OCN}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      nems.configure.atm_ocn.tmp > nems.configure
+elif [ ${run_ocean} = no ];  then
+  cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
+else
+  echo "Error: unknown run_ocean option: ${run_ocean}"
+  exit 9
+fi
 
 ccpp_suite_regional_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_regional}.xml"
 cp ${ccpp_suite_regional_xml} .
@@ -263,6 +300,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
     input.nml.tmp > input.nml
 
 # Copy hycom related files
@@ -304,7 +342,6 @@ cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
 # create hycom limits
 ${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
 
-
 fi
   
 #-------------------------------------------------------------------
@@ -337,7 +374,8 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_LON2_/$output_grid_lon2/ | \
     sed s/_LAT2_/$output_grid_lat2/ | \
     sed s/_DLON_/$output_grid_dlon/ | \
-    sed s/_DLAT_/$output_grid_dlat/ \
+    sed s/_DLAT_/$output_grid_dlat/ | \
+    sed s/_cpl_/${cplflx:-.false.}/ \
     >  model_configure
 
 #-------------------------------------------------------------------

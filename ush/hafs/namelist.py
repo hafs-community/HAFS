@@ -59,7 +59,7 @@ def to_fortnml(py,exc_hint=''):
     * float ==> str(py)
     * fractions.Fraction ==> str(float(py))
     * basestring ==> double-quoted string
-    * datetime.datetime ==> WPS/WRF format date stamp: %Y-%m-%D_%H:%M:%S 
+    * datetime.datetime ==> WPS/WRF format date stamp: %Y-%m-%D_%H:%M:%S
     * list or tuple ==> comma-separated list of converted values
 
     Anything else will raise an exception.
@@ -108,7 +108,7 @@ fortnml_parse=re.compile("""(?ix)\s*(?:
       (?:(?:[+-]?[0-9]+\.[0-9]*|[+-]?\.[0-9]+)(?:[eE][+-]?[0-9]+)?) |
       (?:[+-]?[0-9]+[eE][+-]?[0-9]+)
     ) |
-    (?P<int>[+-]?[0-9]+) | 
+    (?P<int>[+-]?[0-9]+) |
     (?P<identifier>[a-zA-Z_][a-zA-Z0-9_]+|[a-eg-su-zA-EG-SU-Z_]) |
     (?P<true>t|\.true\.) |
     (?P<false>f|\.false\.) |
@@ -125,7 +125,7 @@ def from_fortnml(py):
     a Fortran namelist value, returns an equivalent python object.
     Will throw NamelistValueError if an unrecognized object is
     present, or NamelistRecursion if you send a nested container (such
-    as a list of lists).  
+    as a list of lists).
     @param py the string to convert
     @return the Python object"""
     out=[]
@@ -173,7 +173,7 @@ class NamelistInserter(object):
       specified to the parse subroutine, then the value is allowed to
       be a difference relative to the atime (as accepted by
       tcutil.numerics.to_datetime_rel).
- 
+
     @<u:varname@> -- convert the conf variable to a string, and dump its
       value unquoted.  This is used, for example, to have the name of a
       namelist variable be generated from a conf file.
@@ -195,7 +195,7 @@ class NamelistInserter(object):
 
     @code
       &nl
-        myvar=@<var@> / 
+        myvar=@<var@> /
     @endcode
 
     will produce:
@@ -206,14 +206,14 @@ class NamelistInserter(object):
     @endcode
 
     As for variables, one can request a subitem of a variable:
- 
+
     * varname -- get variable varname
-    * vit[stormname] -- get variable "vit" and then get 
+    * vit[stormname] -- get variable "vit" and then get
                         vit.__getitem__["stormname"]
 
     for subscriptable types.  This is mainly intended for vitals."""
 
-    ## @var find_ltgt 
+    ## @var find_ltgt
     # regular expression that finds namelist insertion data @<...@>
     find_ltgt=re.compile('''(?P<pre>(?:[^<]|"(?:[^"]|""")*"|'(?:[^']|'{3})*')*)<(?:(?P<typ>[^:]*):)?(?P<var>[^>\[]*)(?:\[(?P<sub>[^\]]*)\])?>(?P<rest>.*)''')
 
@@ -357,7 +357,7 @@ class NamelistInserter(object):
                                         typval=False
                                     elif NamelistInserter.nltrue.match(val):
                                         typval=True
-                                    else: 
+                                    else:
                                         raise ValueError(
                                             '%s is not a valid logical'
                                             %(repr(val),))
@@ -429,7 +429,7 @@ class Conf2Namelist(object):
     the local conf section will always override variables in included
     conf sections, and variables in later included conf sections will
     override variables in earlier included conf sections.
-        
+
     For example:
     @code
         conf=RawConfigParser()
@@ -519,13 +519,13 @@ physics.bl_pbl_physics=3'''
         """!Conf2Namelist constructor
 
         Creates a Conf2Namelist.
-        
+
         @param conf the HAFSConfig object
-        @param section the section to start searching from.  
+        @param section the section to start searching from.
         @param section_sorter the cmp-like function to use to sort the
             sections when generating the output namelist
         @param var_sorters a dict-like mapping from section name to a
-            cmp-like function to use to sort variable names within 
+            cmp-like function to use to sort variable names within
             each section.
         @param logger a logging.Logger object to use to log messages
         @param nl a dict of dicts (or object that acts like that)
@@ -604,7 +604,7 @@ physics.bl_pbl_physics=3'''
     def nl_del(self,section,var):
         """!Removes a variable from a namelist.
 
-        Removes a variable from a namelist 
+        Removes a variable from a namelist
         @param section the namelist
         @param var the variable to delete"""
         try:
@@ -694,7 +694,7 @@ physics.bl_pbl_physics=3'''
         @param var the variable to delete."""
         return self.nl_del(Conf2Namelist.TRAIT,var)
     def trait_get(self,var,default=None):
-        """!Returns a trait's value.  
+        """!Returns a trait's value.
 
         Returns the value of a trait.  If a default is given and
         non-None, returns the default if the trait does not exist.
@@ -865,7 +865,7 @@ physics.bl_pbl_physics=3'''
         python built-in function sorted() for details.
 
         @param section_sorter a cmp-like function for sorting
-        namelist by namelist name.  If section_sorters is None, 
+        namelist by namelist name.  If section_sorters is None,
         cmp is used.
         @param var_sorters a dict-like mapping from namelist name to a
         variable sorter function.  Each variable sorter function must

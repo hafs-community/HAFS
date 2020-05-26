@@ -11,7 +11,7 @@ nhours_fcst:             NHRS
 RUN_CONTINUE:            .false.
 ENS_SPS:                 .false.
 dt_atmos:                _dt_atmos_
-cpl:                     .false.
+cpl:                     _cpl_
 calendar:                'julian'
 memuse_verbose:          .false.
 atmos_nthreads:          NTHRD

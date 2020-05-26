@@ -1,6 +1,6 @@
 
 """!Obtains input data needed by various subclasses of
-hafs.hafstask.HAFSTask.  
+hafs.hafstask.HAFSTask.
 
 This module implements the functionality described in
 hafs.hafstask.HAFSTask.inputiter().  It takes many HAFS tasks, asks
@@ -9,7 +9,7 @@ list of many possible input sources, and knows which ones are
 available from which cluster.  It goes through available input sources
 in priority order, obtaining the input data."""
 
-##@var __all__ 
+##@var __all__
 # Symbols exported by "from hafs.input import *"
 __all__=["DataCatalog","InputSource",'in_date_range']
 
@@ -59,7 +59,7 @@ def in_date_range(t,trange):
                     and t<=to_datetime_rel(epsilon,end):
                 return True
     return False
-            
+
 
 ########################################################################
 def tempopen(f,m):
@@ -87,7 +87,7 @@ def strsrc(d):
             s.write(', %s=%s'%(str(k),repr(v)))
     s.write(')')
     return s.getvalue()
-            
+
 ########################################################################
 
 def strsrc(d):
@@ -105,7 +105,7 @@ def strsrc(d):
             s.write(', %s=%s'%(str(k),repr(v)))
     s.write(')')
     return s.getvalue()
-            
+
 ########################################################################
 class DataCatalog(object):
     """!Provides the location of a file in an archive, on disk or on a
@@ -157,7 +157,7 @@ class DataCatalog(object):
     @endcode
     That code would print "/com/gfs/prod/gfs.20190818/gfs.t00z.sf54"
     twice.  Note that you can specify the forecast time as an absolute
-    time, or as a number of seconds relative to the analysis time and 
+    time, or as a number of seconds relative to the analysis time and
     achieve the same effect either way.
 
     If we want the bufr file, we have to provide one more piece of
@@ -182,7 +182,7 @@ class DataCatalog(object):
         self.anltime=to_datetime(anltime)
     ##@var section
     # The section used for dataset and item locations in conf.
-        
+
     ##@var conf
     # The configuration object, an hafs.config.HAFSConfig or subclass.
 
@@ -210,7 +210,7 @@ class DataCatalog(object):
     def parse(self,string,atime=None,ftime=None,logger=None,dates=None,
               **kwargs):
         """!Internal function that performs string interpolation.
-        
+
         This is an internal implementation function that you should
         not call directly.  It performs string interpolation using the
         underlying conf object.  This acts exactly like the expansions
@@ -231,13 +231,13 @@ class DataCatalog(object):
           hafs.config.HAFSConfig.timestrinterp() for string replacement.
         @returns The return value from string interpolation or None if
           nothing was found."""
-        if atime is None: 
+        if atime is None:
             if logger is not None:
                 logger.info(
                     '{%s}: has no atime.  Will use atime=self.anltime=%s.'%(
                         str(string),repr(atime)))
             atime=self.anltime
-        if ftime is None: 
+        if ftime is None:
             if logger is not None:
                 logger.info('{%s}: has no ftime.  Will use ftime=atime=%s.'%(
                         str(string),repr(atime)))
@@ -275,7 +275,7 @@ class DataCatalog(object):
           accepted by tcutil.numerics.to_datetime_rel() relative to the
           analysis time.
         @param logger Optional: a logging.Logger for log messages.  If this
-          is provided, several steps along the way of finding the data 
+          is provided, several steps along the way of finding the data
           location are logged.
         @param dates Optional: dates for which this datasource is valid.
           This is passed to in_date_range() for validation.  This is
@@ -284,7 +284,7 @@ class DataCatalog(object):
           parse() to the hafs.config.HAFSConfig.timestrinterp() for
           string replacement.
         @return The path to the requested data or None if it is not found."""
-        if logger is not None: 
+        if logger is not None:
             logger.info(
                 'locate item=%s atime=%s ftime=%s in dataset=%s'
                 %(repr(item),repr(atime),repr(ftime),repr(dataset)))
@@ -334,18 +334,18 @@ class InputSource(object):
       prod15_data_sp%location=htar://
       prod15_data_sp%histprio=59
       prod15_data_sp%dates=2019011218-2019123118
-      
+
       [jet_hist_PROD2019]
       @inc=gfs2019_naming
       inputroot2019=/lfs4/HFIP/hafs-data/hafs-input
       gfs={inputroot2019}/HISTORY/GFS.{aYYYY}/{aYMDH}/
       gfs_sfcanl = gfs.t{aHH}z.sfcanl
-      
+
       [prod15_data_sp]
       inputroot=/NCEPPROD/2year/hpssprod/runhistory/rh{aYYYY}/{aYYYY}{aMM}/{aYMD}
       gfs={inputroot}/
       gfs_sfcanl = {gfs_tar}#./gfs.t{aHH}z.sfcanl
-      
+
       [hafsdata]
       inputroot=/lfs4/HFIP/hafsv3/John.Doe/hafsdata
       gfs={inputroot}/hafs.{aYMDH}/
@@ -436,7 +436,7 @@ class InputSource(object):
             if 'location' in attr and ('histprio' in attr or \
                                            'fcstprio' in attr):
                 dctype=attr.get('type','DataCatalog')
-                if   dctype=='DataCatalog': 
+                if   dctype=='DataCatalog':
                     dc=DataCatalog(self.conf,src,self.anltime)
                 else:
                     raise InputSourceBadType(
@@ -479,7 +479,7 @@ class InputSource(object):
 
     ##@var htar
     # A produtil.prog.ImmutableRunner that runs htar.
-    
+
     ##@var hsi
     # A produtil.prog.ImmutableRunner that runs hsi.
 
@@ -517,7 +517,7 @@ class InputSource(object):
         self.forecast=sorted(self.forecast,key=lambda x: -x[0])
         self.history=sorted(self.history,key=lambda x: -x[0])
     def add(self,dc,location,fcstprio=None,histprio=None,dates=None):
-        """!Adds a DataCatalog to this InputSource.  
+        """!Adds a DataCatalog to this InputSource.
 
         Called automatically from the constructor to add a DataCatalog
         to this InputSource.  The list of add() calls is generated
@@ -595,7 +595,7 @@ class InputSource(object):
         except Exception as e:
             valid['ftp://'+netpart]=False
         finally:
-            if f is not None: 
+            if f is not None:
                 if logger is not None:
                     logger.warning('In finally block, closing FTP stream.')
                 f.close()
@@ -630,7 +630,7 @@ class InputSource(object):
         @param dc the DataCatalog being obtained
         @param dsurl the URL of the DataCatalog
         @param urlmore additional parts of the URL such as the
-          reference or HTTP Get 
+          reference or HTTP Get
         @param dest The local disk destination
         @param logger the logging.Logger for log messages
         @param timeout the connection timeout in seconds
@@ -739,7 +739,7 @@ class InputSource(object):
                         joined,repr(e.returncode)))
             return False
         finally:
-            if tempname is not None: 
+            if tempname is not None:
                 if logger is not None:
                     logger.warning('In finally block, deleting temp file %s.'%(tempname,))
                 os.remove(tempname)
@@ -790,7 +790,7 @@ class InputSource(object):
             os.rename(tempname,dest)
             tempname=None
         finally:
-            if tempname is not None: 
+            if tempname is not None:
                 logger.warning('In finally block, removing temp file %s'%(
                         tempname))
                 os.remove(tempname)
@@ -890,7 +890,7 @@ class InputSource(object):
         @param done an array of logical flags telling which files are transferred
         @param src the source location
         @param tgt the target location
-        @param prio the numerical priority 
+        @param prio the numerical priority
         @param loc the on-disk destination
         @param parsed the parsed URL as output by urlparse.urlparse
         @param dc the DataCatalog
@@ -971,7 +971,7 @@ class InputSource(object):
             forecast time.
           ...others... - any other keyword arguments will be sent to
             the .location functions in any of this InputSource's
-            DataCatalog objects."""  
+            DataCatalog objects."""
         if logger is None: logger=self._logger
         dclist=self.list_for(realtime)
         done=set()
@@ -1016,7 +1016,7 @@ class InputSource(object):
                                 logger.info('%s: already processing this'%(tgt,))
                             continue
                         if os.path.exists(tgt) and skip_existing:
-                            if logger is not None: 
+                            if logger is not None:
                                 logger.info('%s: already exists'%(tgt,))
                                 done.add(i)
                                 continue
@@ -1040,7 +1040,7 @@ class InputSource(object):
                                 skip_existing])
                     workpool.barrier()
                     for (archpath,parts) in archives.items():
-                        if len(parts)<=0: 
+                        if len(parts)<=0:
                             if logger is not None:
                                 logger.info("%s: nothing to pull; skip"
                                             %(archpath,))
@@ -1052,7 +1052,7 @@ class InputSource(object):
             finally:
                 if logger is not None:
                     logger.warning('In finally block, closing streams.')
-                for (key,stream) in streams.items(): 
+                for (key,stream) in streams.items():
                     try:
                         stream.close()
                     except Exception as e:
@@ -1105,12 +1105,12 @@ class InputSource(object):
                     raise NotImplementedError(
                         'Source is in an archive.  De-archiving is not '
                         'supported by "get_one."  Use "get" instead.')
-                elif self.fetch_file(streams,dc,loc,src,dest,logger=logger): 
+                elif self.fetch_file(streams,dc,loc,src,dest,logger=logger):
                     break
         finally:
             if logger is not None:
                 logger.warning('In finally block, closing streams.')
-            for (key,stream) in streams.items(): 
+            for (key,stream) in streams.items():
                 try:
                     stream.close()
                 except Exception as e:

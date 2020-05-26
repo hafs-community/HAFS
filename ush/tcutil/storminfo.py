@@ -16,13 +16,13 @@ packages should not use StormInfo.  It is better to use compiled
 programs for such purposes.  This slowness is inherent to Python,
 which is quite slow at creating and modifying objects."""
 
-##@var __all__ 
+##@var __all__
 # List of symbols exported by "from tcutil.storminfo import *"
-__all__=[ 'current_century', 'StormInfoError', 'InvalidBasinError', 
-          'InvalidStormInfoLine', 'InvalidVitals', 'CenturyError', 
+__all__=[ 'current_century', 'StormInfoError', 'InvalidBasinError',
+          'InvalidStormInfoLine', 'InvalidVitals', 'CenturyError',
           'InvalidATCF', 'NoSuchVitals', 'name_number_okay',
           'basin_center_okay', 'vit_cmp_by_storm', 'vitcmp', 'storm_key',
-          'clean_up_vitals', 'floatlatlon', 'quadrantinfo', 
+          'clean_up_vitals', 'floatlatlon', 'quadrantinfo',
           'parse_tcvitals', 'find_tcvitals_for', 'parse_carq', 'StormInfo',
           'expand_basin' ]
 
@@ -49,7 +49,7 @@ class InvalidBasinError(StormInfoError):
     def __init__(self,basin,subbasin=None):
         """!InvalidBasinError constructor
         @param basin the basin in question
-        @param subbasin the subbasin, if known.  For example, the 
+        @param subbasin the subbasin, if known.  For example, the
           North Indian Ocean (IO) is split into subbasins
           Arabian Sea (AA) and Bay of Bengal (BB)"""
         self.basin=basin
@@ -88,12 +88,12 @@ class InvalidStormInfoLine(StormInfoError):
     ##@var badline
     # The line at which the problem happened.
 
-class InvalidVitals(InvalidStormInfoLine): 
+class InvalidVitals(InvalidStormInfoLine):
     """!Raised when a syntax error is found in the tcvitals, and the
     code cannot guess what the operator intended."""
-class CenturyError(InvalidStormInfoLine): 
+class CenturyError(InvalidStormInfoLine):
     """!Raised when an implausible century is found."""
-class InvalidATCF(InvalidStormInfoLine): 
+class InvalidATCF(InvalidStormInfoLine):
     """!Raised when invalid ATCF data is found."""
 class NoSuchVitals(StormInfoError):
     """!This should be raised when the user requests a specific storm
@@ -164,11 +164,11 @@ def vitkey(a):
       2. Break ties by a reverse sort by integer storm number.  This
          places Invest (90s) first.
       3. Break ties by a reverse lexical sort by basin letter (ie.: L before E)
-      4. Break ties by ASCII lexical sort by center (ie.: JTWC first, 
+      4. Break ties by ASCII lexical sort by center (ie.: JTWC first,
          NHC second)
-      5. Break ties by placing vitals WITH 34kt wind radii after those 
+      5. Break ties by placing vitals WITH 34kt wind radii after those
          without.
-      6. Break ties by placing vitals with a full line (through 64kt 
+      6. Break ties by placing vitals with a full line (through 64kt
          radii) last
       7. Break ties by retaining original order ("stable sort").
     """
@@ -187,7 +187,7 @@ def storm_key(vit):
     @param vit the StormInfo of interest.
     @returns a tuple (center,stormid4,when) from the corresponding members of vit"""
     return (vit.center, vit.stormid4, vit.when)
-                            
+
 def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vitals_key=None):
     """!Given a list of StormInfo, sorts using the vitkey key function,
     discards suspect storm names and numbers as per name_number_okay,
@@ -205,8 +205,8 @@ def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vi
       for determining which basins and RSMCs are okay.
     @param vitals_key a key generator for ordering two StormInfo objects"""
 
-    if name_number_checker is None:  
-        name_number_checker=name_number_okay 
+    if name_number_checker is None:
+        name_number_checker=name_number_okay
     if basin_center_checker is None:
         basin_center_checker=basin_center_okay
     if vitals_key is None:
@@ -243,11 +243,11 @@ def floatlatlon(string,fact=10.0):
     floatlatlon(string="311N",fact=10.0) = float(31.1) # degrees North
     @endcode
     @returns degrees North or degrees East
-    @param string Latitude or longitude in sum multiple of a degree, 
+    @param string Latitude or longitude in sum multiple of a degree,
       followed by N, S, E or W to specify the hemisphere.  Must be
       a positive number
-    @param fact The strung value is divided by this number.  The 
-      default is to convert from tenths of a degree in string to 
+    @param fact The strung value is divided by this number.  The
+      default is to convert from tenths of a degree in string to
       a degree return value.
     @note This function does not accept negative numbers.  That means
     the tcvitals "badval" -999 or -99 or -9999 will result in a None
@@ -307,13 +307,13 @@ def parse_tcvitals(fd,logger=None,raise_all=False):
     """!Reads data from a tcvitals file.
 
     This reads line by line from the given file object fd, parsing
-    tcvitals.  
+    tcvitals.
 
-    @returns A list of StormInfo objects, one per line.  
+    @returns A list of StormInfo objects, one per line.
     @param fd An opened file to read.
     @param raise_all If raise_all=True, exceptions will be raised
     immediately.  Otherwise, any StormInfoError or ValueError will be
-    logged or ignored, and parsing will continue.  
+    logged or ignored, and parsing will continue.
     @param logger The logger is a logging.Logger object in which to
     log messages, or None (the default) to disable logging."""
     out=list()
@@ -323,7 +323,7 @@ def parse_tcvitals(fd,logger=None,raise_all=False):
         except (StormInfoError,ValueError) as e:
 #            if logger is not None:
 #                logger.warning(str(e))
-            if raise_all: raise           
+            if raise_all: raise
     return out
 
 def find_tcvitals_for(fd,logger=None,raise_all=False,when=None,
@@ -337,7 +337,7 @@ def find_tcvitals_for(fd,logger=None,raise_all=False,when=None,
 
     *  fd - the stream-like object to read from
     *  logger - the logging.Logger to log to, or None
-    *  raise_all - if True, exceptions are raised immediately instead 
+    *  raise_all - if True, exceptions are raised immediately instead
         of just being logged.
     *  when - the date to look for, or None
     *  stnum - the storm number (ie.: 09 in 09L)
@@ -360,7 +360,7 @@ def find_tcvitals_for(fd,logger=None,raise_all=False,when=None,
             logger.debug('VITALS: search for stnum=%s'%(strstnum,))
     if basin1 is not None:
         strbasin1=str(basin1)[0].upper()
-        if(logger is not None): 
+        if(logger is not None):
             logger.debug('VITALS: search for basin1=%s'%(basin1,))
     #---------------------------------
     # JTWC 05P FREDA     20130101 0000
@@ -376,7 +376,7 @@ def find_tcvitals_for(fd,logger=None,raise_all=False,when=None,
         if basin1 is not None and line[7]!=strbasin1: continue
         count+=1
         yield StormInfo('tcvitals',line.rstrip('\n'))
-    if(logger is not None): 
+    if(logger is not None):
         logger.debug('VITALS: yielded %d matches'%(count,))
 
 def parse_carq(fd,logger=None,raise_all=True):
@@ -480,17 +480,17 @@ class StormInfo(object):
         if   linetype=='tcvitals':
             self.line=str(inputs)
             self._parse_tcvitals_line(self.line)
-        elif linetype=='message':  
+        elif linetype=='message':
             self.line=str(inputs)
             self._parse_message_line(self.line)
-        elif linetype=='carq':   
+        elif linetype=='carq':
             self.lines=copy.copy(inputs)
             self._parse_carq(lines=inputs,tech=str(carq),logger=logger,
                              raise_all=bool(raise_all))
         elif linetype=='old' or linetype=='copy':
             old=linetype=='old'
             def checktype(var):
-                for t in ( str, int, float, datetime.datetime, 
+                for t in ( str, int, float, datetime.datetime,
                            datetime.timedelta ):
                     if isinstance(var,t): return True
                 return False
@@ -519,7 +519,7 @@ class StormInfo(object):
     def copy(self):
         """!Returns a copy if this object."""
         return StormInfo('copy',self)
-    def __sub__(self,amount): 
+    def __sub__(self,amount):
         """!Same as self + (-amount)
         @param amount The amount of time to extrapolate backwards."""
         return self+ (-amount)
@@ -548,7 +548,7 @@ class StormInfo(object):
         #        repr(vmag),repr(dt),repr(dx),repr(dy),repr(dlat),repr(dlon)))
         return copy
     def tcutil_domain_center(self,logger=None):
-        """!Decide domain center based on the storm location, basin, 
+        """!Decide domain center based on the storm location, basin,
         and, if available, the 72hr forecast location.  Returns a tuple
         containing a pair of floats (cenlo, cenla) which are the
         domain center longitude and latitude, respectively.  Results
@@ -569,7 +569,7 @@ class StormInfo(object):
             avglon=storm_lon-20.0
         assert(avglon is not None)
 
-        # Decide center latitude.  
+        # Decide center latitude.
         cenla=storm_lat
         if storm_lat<0: cenla=-cenla
         ilat=math.floor(cenla)
@@ -625,7 +625,7 @@ class StormInfo(object):
         Deck file, parses the data and adds it to this StormInfo
         object most of the work is done in other subroutines.
         @param lines list of lines of CARQ data
-        @param tech technique name to grep for, usually CARQ, though BEST also 
+        @param tech technique name to grep for, usually CARQ, though BEST also
            works when using B deck files
         @param logger a logging.Logger for log messages
         @param raise_all raise all exceptions instead of ignoring some of them"""
@@ -689,7 +689,7 @@ class StormInfo(object):
           4. The forecast hour for that line.
 
         @param lines list of lines of CARQ data
-        @param tech technique name to grep for, usually CARQ, though BEST also 
+        @param tech technique name to grep for, usually CARQ, though BEST also
            works when using B deck files
         @param logger a logging.Logger for log messages
         @param raise_all raise all exceptions instead of ignoring some of them"""
@@ -732,8 +732,8 @@ class StormInfo(object):
         output from _split_carq, and the other parameters are inputs
         to the original constructor.
         @param data Four element array where the last two are the forecast
-          hour and minute.  
-        @param tech technique name to grep for, usually CARQ, though BEST also 
+          hour and minute.
+        @param tech technique name to grep for, usually CARQ, though BEST also
            works when using B deck files
         @param logger a logging.Logger for log messages
         @param raise_all raise all exceptions instead of ignoring some of them"""
@@ -760,7 +760,7 @@ class StormInfo(object):
         _split_carq, and the other parameters are inputs to the
         original constructor.
         @param instr string to parse
-        @param tech technique name to grep for, usually CARQ, though BEST also 
+        @param tech technique name to grep for, usually CARQ, though BEST also
            works when using B deck files
         @param logger a logging.Logger for log messages
         @param raise_all raise all exceptions instead of ignoring some of them"""
@@ -810,7 +810,7 @@ class StormInfo(object):
         to the original constructor.
         @param instr string to parse
         @param data split-up elements of a A deck line
-        @param tech technique name to grep for, usually CARQ, though BEST also 
+        @param tech technique name to grep for, usually CARQ, though BEST also
            works when using B deck files
         @param logger a logging.Logger for log messages
         @param raise_all raise all exceptions instead of ignoring some of them"""
@@ -835,7 +835,7 @@ class StormInfo(object):
             # float, and assigning to d[s] if the input is >=0.
             try:
                 ix=int(data[i])
-                if ix>=0: 
+                if ix>=0:
                     d[s]=float(ix*c)
                     #print 'd[%s]=%f from %d'%(s,d[s],i)
                 #else:
@@ -876,7 +876,7 @@ class StormInfo(object):
             else:
                 fa('stormdir',25)
         if n>=27 and data[26]!='': fic('stormspeed',26,kts2mps)
-        if n>=28 and data[27]!='': 
+        if n>=28 and data[27]!='':
             d['stormname']=str(data[27]).upper()
         if n>=29 and data[28]!='': d['depth']=str(data[28]).upper()[0]
         self._set_basin(basin,subbasin)
@@ -923,7 +923,7 @@ class StormInfo(object):
         is missing or None, and the tcvitals does not specify the
         century either, then InvalidVitals will be raised.  If both
         are available, the tcvitals century is used."""
-        m=re.search('''(?xi) 
+        m=re.search('''(?xi)
           (?P<center>\S+) \s+ (?P<stnum>\d\d)(?P<rawbasin>[A-Za-z])
           \s+ (?P<rawstormname>[A-Za-z_ -]+)
           \s+ (?P<rawcentury>\d\d)? (?P<rawYYMMDD>\d\d\d\d\d\d)
@@ -1046,7 +1046,7 @@ class StormInfo(object):
                     raise CenturyError(
                         'Implausable tcvitals century %d.  Require '
                         '16 through 20.'%(icentury,))
-            sdate='%02d%06d%02d'%(icentury,int(d['rawYYMMDD']), 
+            sdate='%02d%06d%02d'%(icentury,int(d['rawYYMMDD']),
                                   int(d['rawHHMM'])//100)
             d['YMDH']=sdate
             d['when']=tcutil.numerics.to_datetime(sdate)
@@ -1070,7 +1070,7 @@ class StormInfo(object):
 
         return self
     def set_stormtype(self,stormtype,discardold=False):
-        """!Sets the two letter storm type self.stormtype.  
+        """!Sets the two letter storm type self.stormtype.
 
         @param discardold If discardold=False (the default), then the
         old value, if any, is moved to self.old_stormtype.
@@ -1087,8 +1087,8 @@ class StormInfo(object):
                 self.stormtype=self.stormtype[0:2]
         assert(self.stormtype is not None)
     def rename_storm(self,newname,discardold=False):
-        """!Sets the name of the storm.  
-        
+        """!Sets the name of the storm.
+
         @param newname the new storm name
         @param discardold If discardold=False (the default) then the
         old storm name is moved to self.old_stormname."""
@@ -1096,7 +1096,7 @@ class StormInfo(object):
             self.__dict__['old_stormname']=self.stormname
         self.stormname=str(newname)[0:9]
         if self.format=='tcvitals' or self.format=='message':
-            self.line='%s%-9s%s' % (self.line[0:9], 
+            self.line='%s%-9s%s' % (self.line[0:9],
                 self.stormname[0:9], self.line[18:])
         self.__dict__['stormnamelc']=self.stormname.lower()
 
@@ -1129,7 +1129,7 @@ class StormInfo(object):
             self.longstormid='%s%02d%04d' % (self.pubbasin2,self.stnum,
                                              self.when.year)
         if self.format=='tcvitals' or self.format=='message':
-            self.line='%s%02d%s' % (self.line[0:5], self.stnum, 
+            self.line='%s%02d%s' % (self.line[0:5], self.stnum,
                                     self.line[7:])
 
     def swap_numbers(self):
@@ -1147,7 +1147,7 @@ class StormInfo(object):
         swapname('old_stormid4','stormid4')
         swapname('old_longstormid','longstormid')
         if self.format=='tcvitals' or self.format=='message':
-            self.line='%s%02d%s' % (self.line[0:5], self.stnum, 
+            self.line='%s%02d%s' % (self.line[0:5], self.stnum,
                                     self.line[7:])
 
     def as_tcvitals(self):
@@ -1185,7 +1185,7 @@ class StormInfo(object):
             datestring='%Y%m%d %H%M'
         result='%-4s %02d%s %-9s %s %03d%s %04d%s %03d %03d %04d ' \
         '%04d %04d %02d %03d %04d %04d %04d %04d' % (
-            str(self.center)[0:4], int(abs(self.stnum)%100), 
+            str(self.center)[0:4], int(abs(self.stnum)%100),
             str(self.basin1[0]),
             str(self.stormname)[0:9], self.when.strftime(datestring),
             min(900,cint(self.lat*10.0)), ( 'N' if(self.lat>0) else 'S' ),
@@ -1209,7 +1209,7 @@ class StormInfo(object):
                 self.flon is not None and self.fhr>0
         gotst=( 'stormtype' in d )
 
-        if 'depth' not in d and not gotst and not gotfcst: 
+        if 'depth' not in d and not gotst and not gotfcst:
             return result
         result='%s %s'%(result,str(getattr(self,'depth','X'))[0])
 
@@ -1241,7 +1241,7 @@ class StormInfo(object):
             -999 if(bad0('SE64')) else min(9999,cint(self.SE64)),
             -999 if(bad0('SW64')) else min(9999,cint(self.SW64)),
             -999 if(bad0('NW64')) else min(9999,cint(self.NW64)))
-            
+
         if not gotst: return result
 
         return '%s % 2s'%(result,str(self.stormtype)[0:2])
@@ -1280,7 +1280,7 @@ class StormInfo(object):
         self.__dict__['basinname']=bb[3]
 
     def __doxygen(self):
-        """!Ensure that self.varname exists for all member variables, 
+        """!Ensure that self.varname exists for all member variables,
         so that Doxygen detects them"""
         self.center='' ;        self.flat=1 ;        self.flon=1
         self.havefcstloc=1 ;    self.fhr=1 ;         self.stormname=''
@@ -1305,12 +1305,12 @@ class StormInfo(object):
         self.stormid3lc='' ;    self.old_stormid3lc='' ; self.stormid4=''
         self.old_stormid4='' ;  self.longstormid='' ; self.old_longstormid=''
         self.line=''
-        
+
         return
 
     ##@var center
     # The forecast center (RSMC) whose forecaster provided this information
-    
+
     ##@var flat
     # Forecast latitude in degrees North
 
@@ -1329,7 +1329,7 @@ class StormInfo(object):
     ##@var stormnamelc
     # Lower-case storm name
 
-    ##@var technum 
+    ##@var technum
     # Technique number for ATCF
 
     ##@var technique
@@ -1338,13 +1338,13 @@ class StormInfo(object):
     ##@var when
     # The datetime.datetime for the valid time
 
-    ##@var YMDH 
+    ##@var YMDH
     # The ten digit date and time of the valid time
 
-    ##@var qset 
+    ##@var qset
     # Set of quadrant information keys
 
-    ##@var windcode34 
+    ##@var windcode34
     # Code sent for 34kt wind radii
 
     ##@var windcode50
@@ -1355,8 +1355,8 @@ class StormInfo(object):
 
     ##@var tau
     # Tau value from the ATCF
-    
-    ##@var lat 
+
+    ##@var lat
     # Storm center latitude in degrees North, a float
 
     ##@var lon
@@ -1368,7 +1368,7 @@ class StormInfo(object):
     ##@var pmin
     # Minimum pressure as a float
 
-    ##@var poci 
+    ##@var poci
     # Pressure of the outermost closed isobar
 
     ##@var roci
@@ -1386,7 +1386,7 @@ class StormInfo(object):
     ##@var maxseas
     # Maximum sea height as a float
 
-    ##@var stormdir 
+    ##@var stormdir
     # Storm movement direction from tcvitals, degrees
 
     ##@var stormspeed
@@ -1404,7 +1404,7 @@ class StormInfo(object):
     ##@var SE50
     # SE quadrant 50kt wind radius
 
-    ##@var SW50 
+    ##@var SW50
     # SW quadrant 50kt wind radius
 
     ##@var NW50
@@ -1449,13 +1449,13 @@ class StormInfo(object):
     ##@var rawbasin
     # Raw parser data for the basin
 
-    ##@var rawYYMMDD 
+    ##@var rawYYMMDD
     # Raw parser data for the date
 
     ##@var rawHHMM
     # Raw parser data for the time
 
-    ##@var strlat 
+    ##@var strlat
     # Original string version of lat
 
     ##@var strlon
@@ -1524,66 +1524,66 @@ def expand_basin(basin,subbasin=None):
       be S or P.
 
       3. The one-letter basin identifier.
-      
+
       4. A description of the meaning of the basin.
 
     @param basin the primary basin
     @param subbasin Optional: the subbasin, if known"""
     b=str(basin).upper()
     s='' if(subbasin is None) else str(subbasin).upper()
-    if   b=='AL' or b=='L': bb=( 'AL', 'AL', 'L', 
+    if   b=='AL' or b=='L': bb=( 'AL', 'AL', 'L',
                     'North Atlantic (L/AL)' )
-    elif b=='SL' or b=='Q': bb=( 'SL', 'SL', 'Q', 
+    elif b=='SL' or b=='Q': bb=( 'SL', 'SL', 'Q',
                     'South Atlantic (Q/SL/LS)' )
     elif b=='LS'          : bb=( 'LS', 'LS', 'Q',
                     'South Atlantic (Q/SL/LS)' )
-    elif b=='EP' or b=='E': bb=( 'EP', 'EP', 'E', 
+    elif b=='EP' or b=='E': bb=( 'EP', 'EP', 'E',
                     'North East Pacific (E/EP)' )
-    elif b=='CP' or b=='C': bb=( 'CP', 'CP', 'C', 
+    elif b=='CP' or b=='C': bb=( 'CP', 'CP', 'C',
                     'North Central Pacific (C/CP)' )
-    elif b=='SS' or b=='S': bb=( 'SS', 'SH', 'S', 
+    elif b=='SS' or b=='S': bb=( 'SS', 'SH', 'S',
                     'South Pacific (S/SH)' )
-    elif b=='PP' or b=='P': bb=( 'PP', 'SH', 'P', 
+    elif b=='PP' or b=='P': bb=( 'PP', 'SH', 'P',
                     'South Indian Ocean (P/SH/PP)' )
-    elif b=='AA' or b=='A': bb=( 'AA', 'IO', 'A', 
+    elif b=='AA' or b=='A': bb=( 'AA', 'IO', 'A',
                     'Indian Ocean: Arabian Sea (A/IO/AA)' )
-    elif b=='NA' or b=='A': bb=( 'NA', 'IO', 'A', 
+    elif b=='NA' or b=='A': bb=( 'NA', 'IO', 'A',
                     'Indian Ocean: Arabian Sea (A/IO/NA)' )
-    elif b=='BB' or b=='B': bb=( 'BB', 'IO', 'B', 
+    elif b=='BB' or b=='B': bb=( 'BB', 'IO', 'B',
                     'Indian Ocean: Bay of Bengal (B/IO/BB)' )
     elif b=='WP':
-        if          s=='O': bb=( 'OO', 'WP', 'O', 
+        if          s=='O': bb=( 'OO', 'WP', 'O',
                     'North West Pacific: South China Sea Basin (O/W/WP)' )
-        elif        s=='T': bb=( 'TT', 'WP', 'T', 
+        elif        s=='T': bb=( 'TT', 'WP', 'T',
                     'North West Pacific: East China Sea (T/W/WP)' )
         # no subbasin is same as s=='W' when basin is WP
-        else:               bb=( 'WP', 'WP', 'W', 
+        else:               bb=( 'WP', 'WP', 'W',
                     'North West Pacific (W/WP)' )
-    elif            b=='W': bb=( 'WP', 'WP', 'W', 
+    elif            b=='W': bb=( 'WP', 'WP', 'W',
                     'North West Pacific (W/WP)' )
     elif b=='SH':
-        if          s=='S': bb=( 'SS', 'SH', 'S', 
+        if          s=='S': bb=( 'SS', 'SH', 'S',
                     'South Pacific (S/SH)' )
-        elif        s=='P': bb=( 'PP', 'SH', 'P', 
+        elif        s=='P': bb=( 'PP', 'SH', 'P',
                     'South Indian Ocean (P/SH)' )
-        elif        s=='U': bb=( 'UU', 'SH', 'U', 
+        elif        s=='U': bb=( 'UU', 'SH', 'U',
                     'South Pacific: Australian Basin (U/P/S/SH)' )
-        else:               bb=( 'SH', 'SH', 'S', 
+        else:               bb=( 'SH', 'SH', 'S',
                     'South Pacific or South Indian Ocean (SH)' )
     elif b=='IO':
-        if          s=='A': bb=( 'AA', 'IO', 'A', 
+        if          s=='A': bb=( 'AA', 'IO', 'A',
                     'Indian Ocean: Arabian Sea (A/IO)' )
-        elif        s=='B': bb=( 'BB', 'IO', 'B', 
+        elif        s=='B': bb=( 'BB', 'IO', 'B',
                     'Indian Ocean: Bay of Bengal (B/IO)' )
-        else:               bb=( 'IO', 'IO', 'B', 
+        else:               bb=( 'IO', 'IO', 'B',
                     'Unspecified North Indian Ocean (IO)' )
     # These three are never used but are defined in the 2007
     # tcvitals documentation:
-    elif            b=='U': bb=( 'UU', 'SH', 'U', 
+    elif            b=='U': bb=( 'UU', 'SH', 'U',
                     'South Pacific: Australian Basin (U/P/S/SH)' )
-    elif            b=='O': bb=( 'OO', 'WP', 'O', 
+    elif            b=='O': bb=( 'OO', 'WP', 'O',
                     'North West Pacific: South China Sea Basin (O/W/WP)' )
-    elif            b=='T': bb=( 'TT', 'WP', 'T', 
+    elif            b=='T': bb=( 'TT', 'WP', 'T',
                     'North West Pacific: East China Sea (T/W/WP)' )
     else:
         raise InvalidBasinError(basin,subbasin)

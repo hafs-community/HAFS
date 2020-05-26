@@ -81,11 +81,11 @@ class HAFSTask(Task):
                                           logger=conf.log(taskname),**kwargs)
             mworkdir=self.meta('workdir','')
             moutdir=self.meta('outdir','')
-            if mworkdir: 
+            if mworkdir:
                 workdir=mworkdir
             else:
                 self['workdir']=workdir
-            if moutdir: 
+            if moutdir:
                 outdir=moutdir
             else:
                 self['outdir']=outdir
@@ -155,7 +155,7 @@ class HAFSTask(Task):
     # The directory in which this task should be run
     workdir=property(get_workdir,set_workdir,None,
         """!The directory in which this task should be run.""")
-    
+
     def get_outdir(self):
         """!Gets the directory that should receive output data.  This
         is in the "outdir" metadata value."""
@@ -178,7 +178,7 @@ class HAFSTask(Task):
 
     @property
     def realtime(self):
-        """!Is this job a real-time forecast job?  
+        """!Is this job a real-time forecast job?
 
         Is this job running an actual, real-time forecast for an event
         happening now?  This is different than self.conf.realtime: it
@@ -349,7 +349,7 @@ class HAFSTask(Task):
         return self._conf.getraw(section,opt,default)
 
     def icstr(self,string,section=None,**kwargs):
-        """!Expands a string in the given conf section. 
+        """!Expands a string in the given conf section.
 
         Given a string, expand it as if it was a value in the
         specified conf section.  Makes this objects tcvitals, if any,
@@ -359,7 +359,7 @@ class HAFSTask(Task):
           Default: self.section.
         @param kwargs: more arguments for string substitution"""
         if(section is None): section=self._section
-        if self.storminfo and 'vit' not in kwargs: 
+        if self.storminfo and 'vit' not in kwargs:
             kwargs['vit']=self.storminfo.__dict__
         return self._conf.strinterp(section,string,__taskvars=self.__taskvars,
                                     **kwargs)
@@ -386,7 +386,7 @@ class HAFSTask(Task):
         @param kwargs: more arguments for string substitution"""
         if(section is None): section=self._section
 
-        if self.storminfo and 'vit' not in kwargs: 
+        if self.storminfo and 'vit' not in kwargs:
             kwargs['vit']=self.storminfo.__dict__
         if 'taskvars' in kwargs:
             return self._conf.timestrinterp(section,string,ftime,atime,**kwargs)
@@ -435,7 +435,7 @@ class HAFSTask(Task):
             return self._logger
         return self._conf.log(self.taskname+'.'+str(subdom))
     def inputiter(self):
-        """!Iterates over all inputs required by this task.  
+        """!Iterates over all inputs required by this task.
 
         Iterates over dict-like objects suitable for input to
         hafs.input.InputSource.get.  Each object contains the
@@ -444,12 +444,12 @@ class HAFSTask(Task):
             enkf, etc.)
         * item: string name of the object (ie.: gfs_sf, gfs_sfcanl, bufr)
         * atime: self.conf.cycle
-        * ftime: only present when relevant: the forecast time, in a 
+        * ftime: only present when relevant: the forecast time, in a
             format accepted by to_datetime_rel
         * enkfmem: only present when relevant: the ENKF member ID
         * obstype: only present when relevant: the bufr data type.
         Other keywords may be present if needed.  They will be passed on
-        by hafs.input.InputSource for string replacement."""  
+        by hafs.input.InputSource for string replacement."""
         return
         yield {} # ensures this is an iterator
-        
+

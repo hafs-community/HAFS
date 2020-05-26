@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 ##@namespace produtil_deliver
-# A test program for the produtil.fileop.deliver_file() function.  
+# A test program for the produtil.fileop.deliver_file() function.
 #
 # This program provides access to the produtil.fileop.deliver_file()
 # function to shell programs.  It was originally used to test that
@@ -36,7 +36,7 @@ from produtil.fileop import *
 from produtil.sigsafety import *
 import sys,logging,getopt
 
-##@var minblock 
+##@var minblock
 # Minimum required block size in bytes when -b is specified.
 minblock=4096
 
@@ -72,18 +72,18 @@ Options:
 def main():
     """!Main program.  Parses arguments, delivers file."""
     install_handlers() # raise exception on SIGTERM or SIGHUP
-    
+
     dash_v_count=0
     kwargs={}
     try:
         (optarg,rest) = getopt.getopt(sys.argv[1:],'kmcrvb:t:')
     except getopt.GetoptError as e:
         usage(str(e))
-    
+
     if(len(rest)!=2):
         usage('You must provide exactly two non-option arguments: the source and destination (you gave %d args).'%(len(rest),))
     (infile,outfile)=rest
-    
+
     for opt,arg in optarg:
         if(opt=='-m'):
             kwargs['keep']=False
@@ -107,14 +107,14 @@ def main():
             kwargs['removefailed']=False
         else:
             usage('Unknown option %s'%(opt,))
-    
+
     level=logging.WARNING
     if dash_v_count>1:
         level=logging.DEBUG
     elif dash_v_count>0:
         level=logging.INFO
     logging.basicConfig(level=level)
-    
+
     try:
         deliver_file(infile,outfile,logger=logging.getLogger(),**kwargs)
         sys.exit(0)

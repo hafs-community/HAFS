@@ -28,7 +28,7 @@ from produtil.log import jlogger
 # @endcode
 #
 # If WORK or COM is an argument then CONFhafs from the
-# environment is used to read in stormN.conf and delete either 
+# environment is used to read in stormN.conf and delete either
 # WORKhafs or com directory from the value in conf file.
 #
 # It will recursively delete up to thirty directories and will log
@@ -63,7 +63,7 @@ class Deleter(object):
 
     def validate_path(self,norm):
         """!Checks to see if the given path is one that should not be
-        deleted.  
+        deleted.
 
         Raises WillNotDelete if the given directory is one of these:
         * /
@@ -77,7 +77,7 @@ class Deleter(object):
             raise WillNotDelete('%s: is a mount point (fs root)'%(norm,))
         if os.path.samefile('/',norm):
             raise WillNotDelete('%s: is same as /'%(norm,))
-        for var in ( 'HOMEhafs', 'USHhafs', 'EXhafs', 'PARMhafs', 
+        for var in ( 'HOMEhafs', 'USHhafs', 'EXhafs', 'PARMhafs',
                      'FIXhafs', 'FIXgsi' ):
             if var in os.environ:
                 vardir=os.environ[var]
@@ -144,7 +144,7 @@ class Deleter(object):
 
     def go(self,max_rmdir_loop=30):
         """!Deletes all directories sent to add()
-        
+
         @param max_rmdir_loop The maximum number of directories to
         delete before returning.  This is a safeguard against
         accidents."""
@@ -192,9 +192,9 @@ class Deleter(object):
 
     def add_tmpdir_check(self,parent_dir,child_dir):
         """!Simple check to determine if the child_dir should be scrubbed
-           based on the number of entries in the parent directory. 
-        
-        @return Returns True if child_dir should be scrubbed. 
+           based on the number of entries in the parent directory.
+
+        @return Returns True if child_dir should be scrubbed.
         @param parent_dir The parent direcory of child_dir.
         @param child_dir The directory that may be deleted.
         """
@@ -208,21 +208,21 @@ class Deleter(object):
                     return True
         else:
             return False
-                    
+
 def main():
     """!Main program: parses arguments, sends them to Deleter.add() and calls Deleter.go()"""
     logger=logging.getLogger('hafs_scrub')
     scrubber=Deleter(logger)
 
     # NOTE:
-    # Multistorm &WORKhafs;, &COMhafs; and &CONFhafs;  passed in from the entity 
+    # Multistorm &WORKhafs;, &COMhafs; and &CONFhafs;  passed in from the entity
     # file, are  always set to the fakestorm dir values since everything from
     # rocoto's perspective is running under the fakestorm.
     # However, the CONFhafs environment variable is not. It refers to the
     # correct stormN.conf file .../com/.../00L/stormN.conf
 
-    # The HAFS_FORCE_TMPDIR is created (currently, WORKhafs/tmpdir) before 
-    # this script is even launched. If WORKhafs dirs were deleted the 
+    # The HAFS_FORCE_TMPDIR is created (currently, WORKhafs/tmpdir) before
+    # this script is even launched. If WORKhafs dirs were deleted the
     # tmpdir is recreated when running scrub com jobs regardless if yes or no.
     # For multistorm, the tmpdir is only created under the fakestorm.
 
@@ -271,7 +271,7 @@ def main():
                         logger.info('Scrub job: %s , Removing %s since it was created by this task.'%(scrub_job,tmpdir))
                 logger.info('Used conf file to determine scrub dir: %s : %s'%(scrubdir,environ_CONFhafs))
                 scrubber.go()
-            else: 
+            else:
                 if scrub_job == 'COM':
                     if scrubber.add_tmpdir_check(environ_WORKhafs,tmpdir):
                         scrubber.add(tmpdir)
@@ -284,15 +284,15 @@ def main():
             for arg in sys.argv[2:]:
                 scrubber.add(arg)
             scrubber.go()
-            
+
         elif do_scrub=='NO':
             logger.info('Scrub job: %s , Not scrubbing since arg for scrub action is not YES: %s'%(scrub_job,do_scrub))
-        # hafs_scrub.py  /directory/one [/directory/two [...]] 
+        # hafs_scrub.py  /directory/one [/directory/two [...]]
         else:
             for arg in sys.argv[1:]:
                 scrubber.add(arg)
             scrubber.go()
-  
+
 
 if __name__=='__main__':
     try:

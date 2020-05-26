@@ -6,35 +6,44 @@ ATM_model: fv3
 OCN_model: hycom
 
 # component petLists
-ATM_petlist_bounds: 0000 1319
-OCN_petlist_bounds: 1320 1439
+_ATM_petlist_bounds_
+_OCN_petlist_bounds_
 
 # run sequence
 runSeq::
-    @10800:453600
-      ATM   # Run Atmosphere Component
-      OCN   # Run Ocean Component
+    @_cpl_dt_
+      _runSeq_OCN2ATM_
+      _runSeq_ATM2OCN_
+      _runSeq_ATM_
+      _runSeq_OCN_
     @
 ::
 
 # component attributes
+
+ATM_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+::
+
 OCN_attributes::
-  Verbosity = 65537
+  Verbosity = 1
+  Diagnostic = 0
   cdf_impexp_freq = 3
-  cpl_hour = 1
+  cpl_hour = 0
   cpl_min = 0
-  cpl_sec = 0
-  base_dtg = 2019082900
+  cpl_sec = _cpl_dt_
+  base_dtg = _base_dtg_
   hycom_arche_output = .true.
   hyc_esmf_exp_output = .true.
   hyc_esmf_imp_output = .true.
   hyc_impexp_file = dummy_file
   espc_show_impexp_minmax = .true.
-  ocean_start_dtg = 43340.00000
+  ocean_start_dtg = _ocean_start_dtg_
   start_hour = 0
   start_min = 0
   start_sec = 0
-  end_hour = 126
+  end_hour = _end_hour_
   end_min = 0
   end_sec = 0
 ::

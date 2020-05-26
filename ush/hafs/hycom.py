@@ -1,6 +1,5 @@
 
-"""This module will one day contain the implementation of the HyCOM
-initialization and forecast jobs."""
+"""HYCOM related initialization and post-processing jobs."""
 
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
 import produtil.fileop, produtil.log
@@ -15,6 +14,10 @@ from produtil.run import *
 from produtil.log import jlogger
 from tcutil.numerics import to_datetime,to_datetime_rel,TimeArray,to_fraction,\
     to_timedelta
+
+##@var __all__
+# Symbols exported by "from hafs.hycom import *"
+__all__=['date_hycom2normal','date_normal2hycom','HYCOMInit1', 'HYCOMInit2', 'HYCOMPost']
 
 NO_DEFAULT=object()
 
@@ -129,8 +132,8 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
 
     def last_lead_time_today(self,cychour):
         if cychour<6: return 0
-                 # 96 hours available minus 6z cycle
-#        if cychour<12: return 96   DAN - 6z and 12z RTOFS runs too late so get from PDYm1
+        # 96 hours available minus 6z cycle
+        #if cychour<12: return 96   DAN - 6z and 12z RTOFS runs too late so get from PDYm1
         if cychour<18: return 0
         return 192
 
@@ -158,7 +161,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         logger.info('FRD: oceanatime=%s'%(repr(oceanatime)))
         logger.info('FRD: cyctime=%s'%(repr(cyctime)))
 
-# find the latest RTOFS data for IC:
+        # find the latest RTOFS data for IC:
         if cyc.hour==0:
            zeroloc=inputs.locate(oceands,ocean_now,atime=oceanatime,ab='a')
         else:
@@ -185,7 +188,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             parmin=self.confstrinterp('{PARMhycom}/hafs_get_rtofs.nml.in')
             parmout='get_rtofs.nml'
 
-# from PDY (loc0)
+            # from PDY (loc0)
             if zerostat==0:
                 lastleadtimetoday=0
                 #starthr=cyc.hour-24
@@ -228,9 +231,8 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
 
                 self.find_rtofs_data()
 
-                # Create BC and IC for this domain 
+                # Create BC and IC for this domain
                 self.create_bc_ic(logger)
-                #         logger=logger)
 
                 # Find the runmodidout with respect to domain
                 RUNmodIDout=self.RUNmodIDout
@@ -265,124 +267,6 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         except:  # fatal signal, other catastrophic errors
             self.state=FAILED
             raise
-
-    def inputiter(self):
-        """!Iterates over all needed input data."""
-        atmos1ds=self.confstr('atmos1_dataset')
-        atmos2ds=self.confstr('atmos2_dataset')
-        atmos1_flux=self.confstr('atmos1_flux')
-        atmos1_grid=self.confstr('atmos1_grid')
-        atmos2_flux=self.confstr('atmos2_flux')
-        atmos2_grid=self.confstr('atmos2_grid')
-        oceands=self.confstr('ocean_dataset')
-        ocean_past=self.confstr('ocean_past')
-        ocean_now=self.confstr('ocean_now')
-        ocean_rst=self.confstr('ocean_rst')
-        ocean_fcst=self.confstr('ocean_fcst')
-        spinlength=self.confint('spinlength',0)
-        logger=self.log()
-        hafsatime=self.conf.cycle
-        hafs_start=0
-        hafs_finish=int(math.ceil(float(self.fcstlen)/3)*3)
-        fcstint=self.confint('forecast_forcing_interval',3)
-        # Assume 24 hour cycle for ocean model.
-
-        # oceanatime is today's RTOFS analysis time as a datetime:
-        todayatime=datetime.datetime(
-            hafsatime.year,hafsatime.month,hafsatime.day)
-
-        # prioratime is yesterday's RTOFS analysis time as a datetime:
-        prioratime=to_datetime_rel(-24*3600,todayatime)
-
-        # Last allowed lead time today:
-        last_fhr_today=self.last_lead_time_today(hafsatime.hour)
-
-        # Epsilon for time comparisons:
-        epsilon=to_fraction(900) # 15 minutes
-
-        # Loop over all forecast hours from -24 to the end of the HAFS
-        # forecast, relative to the HAFS analysis time.  We round up
-        # to the next nearest 3 hours since the RTOFS outputs
-        # three-hourly:
-
-        logger.info("In hycom inputiter, todayatime=%s prioratime=%s "
-                    "epsilon=%s hafs_start=%s hafs_finish=%s "
-                    "last_fhr_today=%s"%(
-                repr(todayatime),repr(prioratime),repr(epsilon),
-                repr(hafs_start),repr(hafs_finish),repr(last_fhr_today)))
-
-        yield dict(dataset=oceands,item=ocean_rst,
-                   atime=prioratime,ftime=prioratime,ab='a')
-        yield dict(dataset=oceands,item=ocean_rst,
-                   atime=prioratime,ftime=prioratime,ab='b')
-
-        for fhr in range(hafs_start,hafs_finish+3,6):
-
-            # The ftime is the desired forecast time as a datetime:
-            ftime=to_datetime_rel(fhr*3600,hafsatime)
-
-            # Which RTOFS cycle do we use?
-            if fhr>last_fhr_today:
-                oceanatime=prioratime
-            else:
-                oceanatime=todayatime
-
-            # The oceanftime is the forecast lead time for TODAY's
-            # RTOFS as a datetime.timedelta.
-            oceanftime=ftime-oceanatime
-
-            # The oceanfhr is the RTOFS forecast hour as an integer
-            # for TODAY's RTOFS forecast.
-            oceanfhr=int(round(to_fraction(oceanftime,negok=True)))
-
-            logger.info('fhr=%s ftime=%s oceanatime=%s oceanftime=%s oceanfhr: to_fraction=%s round=%s int=%s'%(
-                    repr(fhr),repr(ftime),repr(oceanatime),repr(oceanftime),
-                    repr(to_fraction(oceanftime,negok=True)),
-                    repr(round(to_fraction(oceanftime,negok=True))),
-                    repr(oceanfhr)))
-
-            # Nowcasts are always from current RTOFS cycle since
-            # they're available before HAFS 0Z starts.
-            if oceanfhr<0:
-                logger.info('For fhr=%s oceanfhr=%s use ocean_past atime=%s ftime=%s'%(
-                        repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
-                yield dict(dataset=oceands,item=ocean_past,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_past,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                continue
-            elif oceanfhr==0:
-                logger.info('For fhr=%s oceanfhr=%s use ocean_now atime=%s ftime=%s'%(
-                        repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
-                yield dict(dataset=oceands,item=ocean_now,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_now,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                yield dict(dataset=oceands,item=ocean_rst,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_rst,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                continue
-
-            # Later times' availability depends on HAFS forecast
-            # cycle:
-            #   HAFS 00Z => RTOFS today available through 00Z
-            #   HAFS 06Z => RTOFS today available through +96 hours
-            #   HAFS 12Z => RTOFS today available through +192 hours
-            #   HAFS 18Z => RTOFS today available through +192 hours
-
-            chosen_atime=oceanatime
-            if oceanfhr<=96 and hafsatime.hour<6:
-                chosen_atime=prioratime
-            if oceanfhr<96 and hafsatime.hour<12:
-                chosen_atime=prioratime
-
-            logger.info('For fhr=%s oceanfhr=%s use ocean_fcst atime=%s ftime=%s'%(
-                    repr(fhr),repr(oceanfhr),repr(chosen_atime),repr(ftime)))
-            yield dict(dataset=oceands,item=ocean_fcst,
-                       atime=chosen_atime,ftime=ftime,ab='a')
-            yield dict(dataset=oceands,item=ocean_fcst,
-                       atime=chosen_atime,ftime=ftime,ab='b')
 
     def create_bc_ic(self,logger):
         thiscycle=self.conf.cycle
@@ -435,7 +319,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             raise hafs.exceptions.NoOceanBasin(msg)
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
-        
+
         aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
         found=False
         with open(aptable,'rt') as apfile:
@@ -619,7 +503,7 @@ subregion %s
             splat=bf.readline().split()
             rydf=float(splat[4])
             ryd=date_hycom2normal(rydf)
-            
+
         logger.info('SOME STRING FOR WHICH TO GREP - ryd=%s spinstart=%s ryd-spinstart=%s to_fraction(...)=%s abs=%s epsilon=%s'%(
                     repr(ryd),repr(spinstart),repr(ryd-spinstart),repr(to_fraction(ryd-spinstart,negok=True)),
                     repr(abs(to_fraction(ryd-spinstart,negok=True))),repr(epsilon)))
@@ -807,7 +691,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 prod=FileProduct(self.dstore,file,self.taskname,location=comf)
                 prod.location=comf
                 self.forcing_products[file]=prod
-                logger.debug('%s => %s (%s)'%(file,comf,repr(prod))) 
+                logger.debug('%s => %s (%s)'%(file,comf,repr(prod)))
 
         self.limits=FileProduct(
             self.dstore,'limits',self.taskname,location=
@@ -886,162 +770,6 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
             self.state=FAILED
             raise
 
-    def inputiter(self):
-        """!Iterates over all needed input data."""
-        atmos1ds=self.confstr('atmos1_dataset')
-        atmos2ds=self.confstr('atmos2_dataset')
-        atmos1_flux=self.confstr('atmos1_flux')
-        atmos1_grid=self.confstr('atmos1_grid')
-        atmos2_flux=self.confstr('atmos2_flux')
-        atmos2_grid=self.confstr('atmos2_grid')
-        oceands=self.confstr('ocean_dataset')
-        ocean_past=self.confstr('ocean_past')
-        ocean_now=self.confstr('ocean_now')
-        ocean_rst=self.confstr('ocean_rst')
-        ocean_fcst=self.confstr('ocean_fcst')
-        spinlength=self.confint('spinlength',24)
-        logger=self.log()
-        hafsatime=self.conf.cycle
-        hafs_start=-24
-        hafs_finish=int(math.ceil(float(self.fcstlen)/3)*3)
-        fcstint=self.confint('forecast_forcing_interval',3)
-
-        # Request GDAS data from -25 to +1
-        assert(atmos1ds == 'gdas1')
-        for h in range(-spinlength-1,2):
-            ahr= (h-1)//6.0 * 6  # 6 is the GDAS cycling interval
-            atime=to_datetime_rel(ahr*3600,hafsatime)
-            ftime=to_datetime_rel(h*3600,hafsatime)
-            assert(ftime>atime)
-            yield dict(dataset=atmos1ds,item=atmos1_flux,
-                       atime=atime,ftime=ftime)
-            yield dict(dataset=atmos1ds,item=atmos1_grid,
-                       atime=atime,ftime=ftime)
-            logger.info('hycom inputiter, request flux and master from %s at atime=%s ftime=%s'%(atmos1ds,atime.strftime("%Y%m%d%H"),ftime.strftime('%Y%m%d%H')))
-            del atime, ftime, ahr
-        del h
-
-        # Request GFS data from -3 to hafs_finish+3
-        assert(atmos2ds == 'gfs')
-        for h in range(-fcstint,hafs_finish+fcstint*2,fcstint):
-            ftime=to_datetime_rel(h*3600,hafsatime)
-            if h<=0:
-                ahr= (h-1)//6.0 * 6  # 6 is the GFS cycling interval
-                atime=to_datetime_rel(ahr*3600,hafsatime)
-                logger.info('negative h=%d with ahr=%d atime=%s'%(
-                        h,ahr,atime.strftime('%Y%m%d%H')))
-            else:
-                atime=hafsatime
-                logger.info('positive h=%d atime=%s'%(h,atime.strftime('%Y%m%d%H')))
-            yield dict(dataset=atmos2ds,item=atmos2_flux,
-                       atime=atime,ftime=ftime)
-            yield dict(dataset=atmos2ds,item=atmos2_grid,
-                       atime=atime,ftime=ftime)
-            logger.info('hycom inputiter, request flux and master from '
-                        '%s at h=%d atime=%s ftime=%s'%(
-                    atmos2ds,h,atime.strftime("%Y%m%d%H"),
-                    ftime.strftime('%Y%m%d%H')))
-        del ftime, atime, ahr, h
-
-        # Assume 24 hour cycle for ocean model.
-
-        # oceanatime is today's RTOFS analysis time as a datetime:
-        todayatime=datetime.datetime(
-            hafsatime.year,hafsatime.month,hafsatime.day)
-
-        # prioratime is yesterday's RTOFS analysis time as a datetime:
-        prioratime=to_datetime_rel(-24*3600,todayatime)
-
-        # Last allowed lead time today:
-        last_fhr_today=self.last_lead_time_today(hafsatime.hour)
-
-        # Epsilon for time comparisons:
-        epsilon=to_fraction(900) # 15 minutes
-
-        # Loop over all forecast hours from -24 to the end of the HAFS
-        # forecast, relative to the HAFS analysis time.  We round up
-        # to the next nearest 3 hours since the RTOFS outputs
-        # three-hourly:
-
-        logger.info("In hycom inputiter, todayatime=%s prioratime=%s "
-                    "epsilon=%s hafs_start=%s hafs_finish=%s "
-                    "last_fhr_today=%s"%(
-                repr(todayatime),repr(prioratime),repr(epsilon),
-                repr(hafs_start),repr(hafs_finish),repr(last_fhr_today)))
-
-        yield dict(dataset=oceands,item=ocean_rst,
-                   atime=prioratime,ftime=prioratime,ab='a')
-        yield dict(dataset=oceands,item=ocean_rst,
-                   atime=prioratime,ftime=prioratime,ab='b')
-
-        for fhr in range(hafs_start,hafs_finish+3,3):
-
-            # The ftime is the desired forecast time as a datetime:
-            ftime=to_datetime_rel(fhr*3600,hafsatime)
-
-            # Which RTOFS cycle do we use?
-            if fhr>last_fhr_today:
-                oceanatime=prioratime
-            else:
-                oceanatime=todayatime
-
-            # The oceanftime is the forecast lead time for TODAY's
-            # RTOFS as a datetime.timedelta.
-            oceanftime=ftime-oceanatime
-
-            # The oceanfhr is the RTOFS forecast hour as an integer
-            # for TODAY's RTOFS forecast.
-            oceanfhr=int(round(to_fraction(oceanftime,negok=True)))
-
-            logger.info('fhr=%s ftime=%s oceanatime=%s oceanftime=%s oceanfhr: to_fraction=%s round=%s int=%s'%(
-                    repr(fhr),repr(ftime),repr(oceanatime),repr(oceanftime),
-                    repr(to_fraction(oceanftime,negok=True)),
-                    repr(round(to_fraction(oceanftime,negok=True))),
-                    repr(oceanfhr)))
-
-            # Nowcasts are always from current RTOFS cycle since
-            # they're available before HAFS 0Z starts.
-            if oceanfhr<0:
-                logger.info('For fhr=%s oceanfhr=%s use ocean_past atime=%s ftime=%s'%(
-                        repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
-                yield dict(dataset=oceands,item=ocean_past,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_past,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                continue
-            elif oceanfhr==0:
-                logger.info('For fhr=%s oceanfhr=%s use ocean_now atime=%s ftime=%s'%(
-                        repr(fhr),repr(oceanfhr),repr(oceanatime),repr(ftime)))
-                yield dict(dataset=oceands,item=ocean_now,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_now,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                yield dict(dataset=oceands,item=ocean_rst,
-                           atime=oceanatime,ftime=ftime,ab='a')
-                yield dict(dataset=oceands,item=ocean_rst,
-                           atime=oceanatime,ftime=ftime,ab='b')
-                continue
-
-            # Later times' availability depends on HAFS forecast
-            # cycle:
-            #   HAFS 00Z => RTOFS today available through 00Z
-            #   HAFS 06Z => RTOFS today available through +96 hours
-            #   HAFS 12Z => RTOFS today available through +192 hours
-            #   HAFS 18Z => RTOFS today available through +192 hours
-
-            chosen_atime=oceanatime
-            if oceanfhr<=96 and hafsatime.hour<6:
-                chosen_atime=prioratime
-            if oceanfhr<96 and hafsatime.hour<12:
-                chosen_atime=prioratime
-
-            logger.info('For fhr=%s oceanfhr=%s use ocean_fcst atime=%s ftime=%s'%(
-                    repr(fhr),repr(oceanfhr),repr(chosen_atime),repr(ftime)))
-            yield dict(dataset=oceands,item=ocean_fcst,
-                       atime=chosen_atime,ftime=ftime,ab='a')
-            yield dict(dataset=oceands,item=ocean_fcst,
-                       atime=chosen_atime,ftime=ftime,ab='b')
-
     def select_domain(self,logger):
         atmos_lon=self.conffloat('domlon','cenlo',section='config')
         # Fit lon within [-180,180)
@@ -1070,7 +798,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
             raise hafs.exceptions.NoOceanBasin(msg)
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
-        
+
         aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
         found=False
         with open(aptable,'rt') as apfile:
@@ -1147,7 +875,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
                 self.RUNmodIDin,self.gridlabelin,
                 self.RUNmodIDout,self.gridlabelout))
 
-# getges1 - if cannot find file then go back to previous cycle
+    # getges1 - if cannot find file then go back to previous cycle
     def getges1(self,atmosds,grid,time):
         logger=self.log()
         sixhrs=to_timedelta(6*3600)
@@ -1186,7 +914,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         raise hafs.exceptions.NoOceanData(msg)
 
 
-# seasforce4 (init2) - 
+# seasforce4 (init2) -
 #              calls gfs2ofs in mpmd mode. There are 10 instances of gfs2ofs
 #              and it creates 10 forcing files.
     def ofs_seasforce4(self,date1,date2,mode,logger):
@@ -1365,7 +1093,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
                         logger.info('Move %s => %s'%(ffrom,fto))
                         os.rename(ffrom,fto)
         # End moving of old forcing to temp/
-        
+
         ofs_timeinterp_forcing=alias(mpirun(mpi(self.getexe(
                     'hafs_timeinterp_forcing'))))
 
@@ -1584,7 +1312,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
         stime=self.conf.cycle
 
         navtime=0   # if we can get last file from hycominit
-        navtime=3 
+        navtime=3
         epsilon=.1
         while navtime<fcstlen+epsilon:
            archtime=to_datetime_rel(navtime*3600,stime)
@@ -1607,7 +1335,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
            if timesslept>=sleepmax:
               logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
               raise exception
-        
+
            logger.info('Will create ocean products for %s '%( repr(notabin)))
            afile=''.join(['../forecast/'+notabin,'.a'])
            bfile=''.join(['../forecast/'+notabin,'.b'])
@@ -1716,7 +1444,7 @@ HYCOM
 #               deliver_file(outfile,self.icstr('{com}/'+outfile),keep=False,logger=logger)
                remove_file('fort.51',info=True,logger=logger)
                ## mld from 3d volume grib
-               
+
                ## surface_d for volume
                parmfile='%s/hafs_rtofs.archv2data_2d.in'%(PARMhycom)
                filenames = ['topinfile',parmfile]
@@ -1776,13 +1504,13 @@ HYCOM
                gbfile.close()
 #               deliver_file(outfile,self.icstr('{com}/'+outfile),keep=False,logger=logger)
                remove_file('fort.51',info=True,logger=logger)
-           
+
 #        #####    deliver ab files to comout
            notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
            deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
            deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
 
-           # this is the frequency of files 
+           # this is the frequency of files
            navtime+=3
         logger.info('finishing up here')
         return -1
