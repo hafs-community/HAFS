@@ -158,11 +158,23 @@ c --- 'kz    ' = number of depths to sample
 c ---   'z     ' = sample depth
         call blkinr(zz(k),
      &             'z     ','("blkinr: ",a6," =",f11.4," m")')
-        if     (k.gt.1 .and. zz(k).le.zz(k-1)) then
+c
+c 2/25/2020
+c the following correct if statement had to become two if statements
+c because when compile with -check bounds, the system thought that
+c zz(k-1) was referencing index 0 even though the k.gt.1 was in the
+c if structure.  This was a silly change required by the check bounds.
+c hsk says this is stupid. dhi agrees!
+c
+
+corig        if     (k.gt.1 .and. zz(k).le.zz(k-1)) then
+        if (k.gt.1) then
+        if (zz(k).le.zz(k-1)) then
           write(lp,*)
           write(lp,*) 'error - current z shallower than last z'
           write(lp,*)
           stop
+        endif
         endif
       enddo
       write(lp,*)

@@ -320,8 +320,6 @@ c
       surflx(:,:) = 0.0
       salflx(:,:) = 0.0
       surflx_evap(:,:) = 0.0
-      surflx_snsi(:,:) = 0.0
-      surflx_assi(:,:) = 0.0
 c
       read (ni,'(3x,a,a)',end=6) text,cline
       read (cline,      *,end=6) nstep,time,thet,i,j,lgth
@@ -593,7 +591,27 @@ c
       call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
       call extrct_p(work,idm,jdm,iorign,jorign, 
      &              surflx,ii,jj)
+      write(lp,'("input  ",a," into ",a)') cline(1:8),'oneta  '
+      write(lp,*) 'time3 = ',time
+c
+      read (ni,'(a)',end=6) cline
+      write(lp,'(a)')       cline(1:len_trim(cline))
+      i = index(cline,'=')
+      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+      call extrct_p(work,idm,jdm,iorign,jorign,
+     &              surflx,ii,jj)
       write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx  '
+      write(lp,*) 'time3 = ',time
+c
+      read (ni,'(a)',end=6) cline
+      write(lp,'(a)')       cline(1:len_trim(cline))
+      i = index(cline,'=')
+      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+      call extrct_p(work,idm,jdm,iorign,jorign,
+     &              surflx,ii,jj)
+      write(lp,'("input  ",a," into ",a)') cline(1:8),'wtrflx  '
       write(lp,*) 'time3 = ',time
 c
       read (ni,'(a)',end=6) cline
@@ -606,36 +624,26 @@ c
       write(lp,'("input  ",a," into ",a)') cline(1:8),'salflx  '
 c
       if(surflg.gt.1) then
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
+        read (ni,'(a)',end=6) cline
+        write(lp,'(a)')       cline(1:len_trim(cline))
+        i = index(cline,'=')
+        read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+        call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+        call extrct_p(work,idm,jdm,iorign,jorign, 
      &              surflx_evap,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx_evap'
+        write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx_evap'
 
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
-     &                    surflx_snsi,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx_snsi'
-
-      if(surflg.gt.3) then
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
-     &              surflx_assi,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx_assi'
       endif
-
+c
+      if(surflg.gt.3) then
+        read (ni,'(a)',end=6) cline
+        write(lp,'(a)')       cline(1:len_trim(cline))
+        i = index(cline,'=')
+        read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+        call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+        call extrct_p(work,idm,jdm,iorign,jorign, 
+     &              surflx_assi,ii,jj)
+        write(lp,'("input  ",a," into ",a)') cline(1:8),'surflx_assi'
       endif
 c
       read (ni,'(a)',end=6) cline
@@ -655,51 +663,6 @@ c
       call extrct_p(work,idm,jdm,iorign,jorign, 
      &              dpmixl,ii,jj)
       write(lp,'("input  ",a," into ",a)') cline(1:8),'dpmixl  '
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
-     &              tmix,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'tmix    '
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
-     &              smix,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'smix    '
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign, 
-     &              thmix,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'thmix   '
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .true. ,lrange)
-      call extrct_u(work,idm,jdm,iorign,jorign, 
-     &              umix,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'umix    '
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .true. ,lrange)
-      call extrct_v(work,idm,jdm,iorign,jorign, 
-     &              vmix,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'vmix    '
 c
 c --- is there ke?
       read (ni,'(a)',iostat=ios) cline
@@ -881,141 +844,132 @@ c
       theta(k)=thet
  14   continue
 
-c skip diafx000 (20080123 - not written out anymore)
-c     do 15 k=1,kk
-c       read (ni,'(a)',end=6) cline
-c       write(lp,'(a)')       cline(1:len_trim(cline))
-c       i = index(cline,'=')
-c       read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-c       call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-c 15  continue
-
-c atmos
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    stressx,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'stressx'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    stressy,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'stressy'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    precip,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'precip'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    rflux,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'rflux'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    swflux,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'swflux'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    atmpres,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'atmpres'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    ssflux,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'ssflux'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    lflux,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'lflux'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    gfsstx,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'gfsstx'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    gfssty,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'gfssty'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    gprcp,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'gprcp'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    grdfx,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'grdfx'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    gswfx,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'gswfx'
-c
-      read (ni,'(a)',end=6) cline
-      write(lp,'(a)')       cline(1:len_trim(cline))
-      i = index(cline,'=')
-      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
-      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
-      call extrct_p(work,idm,jdm,iorign,jorign,
-     &                    gatps,ii,jj)
-      write(lp,'("input  ",a," into ",a)') cline(1:8),'gatps'
+cc atmos
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    stressx,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'stressx'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    stressy,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'stressy'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    precip,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'precip'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    rflux,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'rflux'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    swflux,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'swflux'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    atmpres,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'atmpres'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    ssflux,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'ssflux'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    lflux,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'lflux'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    gfsstx,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'gfsstx'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    gfssty,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'gfssty'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    gprcp,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'gprcp'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    grdfx,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'grdfx'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    gswfx,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'gswfx'
+cc
+c      read (ni,'(a)',end=6) cline
+c      write(lp,'(a)')       cline(1:len_trim(cline))
+c      i = index(cline,'=')
+c      read (cline(i+1:),*)  nstep,time(3),layer,thet,hminb,hmaxb
+c      call getfld(  work, ni, hminb,hmaxb, .false.,lrange)
+c      call extrct_p(work,idm,jdm,iorign,jorign,
+c     &                    gatps,ii,jj)
+c      write(lp,'("input  ",a," into ",a)') cline(1:8),'gatps'
 c
       kkin=kk
 114   continue
