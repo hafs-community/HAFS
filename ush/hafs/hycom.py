@@ -252,9 +252,9 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                     deliver_file(prodname,locintercom,keep=True,logger=logger)
 
                 # Make the flag file to indicate we're done.
-                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycom1_init.done')
+                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycominit1.done')
                 with open(done,'wt') as f:
-                    f.write('hycom1 init done for this cycle\n')
+                    f.write('hycominit1 done for this cycle\n')
 
                 # Make sure we run coupled:
                 self.run_coupled=True
@@ -320,15 +320,15 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
 
-        aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
+        aptable=self.confstrinterp('{PARMhycom}/hafs_hycom.application_table')
         found=False
         with open(aptable,'rt') as apfile:
             for line in apfile:
                 fields=line.split()
-                if len(fields)<9:
+                if len(fields)<4:
                     logger.info('%s: ignore line %s'%(aptable,line.strip()))
                     continue
-                (ap,inmod,outmod,gridid,proc,np1,np2,mp1,mp2) = fields
+                (ap,inmod,outmod,gridid) = fields
                 if ap==Application and inmod==self.RUNmodIDin:
                     found=True
                     self.RUNmodIDout=outmod
@@ -341,7 +341,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             logger.error(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
-        gridtable=self.confstrinterp('{PARMhycom}/hafs_rtofs.grid_table')
+        gridtable=self.confstrinterp('{PARMhycom}/hafs_hycom.grid_table')
         found=False
         with open(gridtable,'rt') as gridfile:
             for line in gridfile:
@@ -491,7 +491,7 @@ subregion %s
         logger.info('now=%s filestringtime=%s restart_in_a=%s'%(repr(now),repr(filestringtime),repr(restart_in_a)))
 
         if restart_in_a is None:
-            msg='No rtofs restart file found.  Giving up.'
+            msg='No hycom restart file found.  Giving up.'
             jlogger.error(msg)
             if not allow_fallbacks and not expect:
                 raise hafs.exceptions.OceanRestartMissing(msg)
@@ -754,9 +754,9 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 self.limits.deliver(frominfo='./limits')
 
                 # Make the flag file to indicate we're done.
-                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycom2_init.done')
+                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycominit2.done')
                 with open(done,'wt') as f:
-                    f.write('hycom2 init done for this cycle\n')
+                    f.write('hycominit2 done for this cycle\n')
 
                 # Make sure we run coupled:
                 self.run_coupled=True
@@ -799,15 +799,17 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         self.RUNmodIDin='rtofs_glo'
         RUNmodIDin=self.RUNmodIDin
 
-        aptable=self.confstrinterp('{PARMhycom}/hafs_rtofs.application_table')
+        aptable=self.confstrinterp('{PARMhycom}/hafs_hycom.application_table')
         found=False
         with open(aptable,'rt') as apfile:
             for line in apfile:
                 fields=line.split()
-                if len(fields)<9:
+                #if len(fields)<9:
+                if len(fields)<4:
                     logger.info('%s: ignore line %s'%(aptable,line.strip()))
                     continue
-                (ap,inmod,outmod,gridid,proc,np1,np2,mp1,mp2) = fields
+                #(ap,inmod,outmod,gridid,proc,np1,np2,mp1,mp2) = fields
+                (ap,inmod,outmod,gridid) = fields
                 if ap==Application and inmod==self.RUNmodIDin:
                     found=True
                     self.RUNmodIDout=outmod
@@ -820,7 +822,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
             logger.error(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
 
-        gridtable=self.confstrinterp('{PARMhycom}/hafs_rtofs.grid_table')
+        gridtable=self.confstrinterp('{PARMhycom}/hafs_hycom.grid_table')
         found=False
         with open(gridtable,'rt') as gridfile:
             for line in gridfile:
@@ -1156,10 +1158,10 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         else:
             forcingfilesmade=0
             logger.info('Create atmospheric forcing.')
-            deliver_file(self.icstr('{FIXhycom}/ofs_atl.ismus_msk1760x880.dat'),'ismus_msk1760x880.dat',keep=True,logger=logger)
-            deliver_file(self.icstr('{FIXhycom}/ofs_atl.ismus_msk3072x1536.dat'),'ismus_msk3072x1536.dat',keep=True,logger=logger)
-            deliver_file(self.icstr('{FIXhycom}/ofs_atl.ismus_msk1440x721.dat'),'ismus_msk1440x721.dat',keep=True,logger=logger)
-            deliver_file(self.icstr('{FIXhycom}/ofs_atl.ismus_msk1440x720.dat'),'ismus_msk1440x720.dat',keep=True,logger=logger)
+            deliver_file(self.icstr('{FIXhycom}/ismus_msk1760x880.dat'),'ismus_msk1760x880.dat',keep=True,logger=logger)
+            deliver_file(self.icstr('{FIXhycom}/ismus_msk3072x1536.dat'),'ismus_msk3072x1536.dat',keep=True,logger=logger)
+            deliver_file(self.icstr('{FIXhycom}/ismus_msk1440x721.dat'),'ismus_msk1440x721.dat',keep=True,logger=logger)
+            deliver_file(self.icstr('{FIXhycom}/ismus_msk1440x720.dat'),'ismus_msk1440x720.dat',keep=True,logger=logger)
             self.ofs_seasforce4(srtdate,enddate,mode,logger)
             if adjust_temp:
                 self.ofs_correct_forcing(logger)
@@ -1243,22 +1245,10 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
 
 class HYCOMPost(hafs.hafstask.HAFSTask):
 
-# todo:
-# done - get vars from COM hycom_settings (or via recall_ocstatus)
-# done - change volume3z to layers (hsk mods)
-# done - modify infile so that don't need archv2data_2dv.in (similar to archv2data_2d.in)
-# done - deliver coupled forecast products (archive files) to {com}
-# done - deliver hycompost products to {com} (don't need outfile set to actual name) (odd names tho)
-# - deliver runwrf/blkdat.input to {com}
-# - raise exception on any errors (timeout, any others?)
-# - add better logging information (on events)
-# - add switches on which to create (volume_3z, volume_3d, surface_d (((surface_z))) )
-# - also, make unpost python
-
     """Runs the ocean post-processor on the HyCOM output, in parallel
     with the model."""
-    def __init__(self,ds,conf,section,fcstlen=126,**kwargs):
-        super(HYCOMPost,self).__init__(ds,conf,section,**kwargs)
+    def __init__(self,dstore,conf,section,fcstlen=126,**kwargs):
+        super(HYCOMPost,self).__init__(dstore,conf,section,**kwargs)
         self.fcstlen=fcstlen
 
     def run(self):
@@ -1295,9 +1285,6 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
                RUNmodIDout=m.groups()[0]
         logger.info('POSTINFO- idm=%d jdm=%d kdm=%d gridlabelout=%s RUNmodIDout=%s '%(idm,jdm,kdm,gridlabelout,RUNmodIDout))
 
-#        self.state=FAILED
-#        raise
-
         ffrom='%s/hafs_%s.%s.regional.grid'%(FIXhycom,RUNmodIDout,gridlabelout)
         produtil.fileop.make_symlink(
             ffrom+'.a','regional.grid.a',force=True,logger=self.log())
@@ -1311,16 +1298,13 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
 
         stime=self.conf.cycle
 
-        navtime=0   # if we can get last file from hycominit
-        navtime=3
+        navtime=6
         epsilon=.1
         while navtime<fcstlen+epsilon:
            archtime=to_datetime_rel(navtime*3600,stime)
            archtimestring=archtime.strftime('%Y_%j_%H')
            if archtime.hour==0 or archtime.hour==6 or archtime.hour==12 or archtime.hour==18:
               notabin='archv.%s'%(archtimestring)
-           else:
-              notabin='archs.%s'%(archtimestring)
            logfile=''.join([notabin,'.txt'])
 
            timesslept=0
@@ -1341,28 +1325,6 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
            bfile=''.join(['../forecast/'+notabin,'.b'])
            produtil.fileop.make_symlink(afile,'archv.a',force=True,logger=logger)
            produtil.fileop.make_symlink(bfile,'archv.b',force=True,logger=logger)
-           #####        create latlon gribs
-#           with open ('for_latlon','wt') as fll:
-#              fll.write(""" %d %d %d %d %d 0.0 0.0 120
-#           """ %(int(stime.year),int(stime.month),int(stime.day),navtime,int(stime.hour)))
-#           with open ('fort.22','wt') as f22:
-#              f22.write(""" 1 1 %d %d
-#           """ %(idm,jdm))
-#           ofs_latlon=alias(exe(self.getexe('ofs_latlon')))
-#           checkrun(ofs_latlon<'for_latlon',logger=logger)
-
-           # create fort.22 and top of infile and top of inzfile
-           with open ('fort.22','wt') as f22:
-              f22.write(""" 120 """)
-           with open('topinfile','wt') as inf:
-                        inf.write("""archv.b
-GRIB1
-%d         'yyyy'   = year
-%d         'month ' = month
-%d         'day   ' = day
-%d         'hour  ' = hour
-%d         'verfhr' = verification hour
-""" %( int(stime.year),int(stime.month),int(stime.day),int(stime.hour),navtime))
 
            with open('topzfile','wt') as inf:
                         inf.write("""archv.b
@@ -1378,7 +1340,7 @@ HYCOM
                logger.info('Do Volume HERE')
                ## volume_3z
                #concat topzinfile and parmfile
-               parmfile='%s/hafs_rtofs.archv2data_3z.in'%(PARMhycom)
+               parmfile='%s/hafs_hycom.archv2data_3z.in'%(PARMhycom)
                filenames = ['topzfile',parmfile]
                with open('tempinfile', 'w') as iff:
                    for fname in filenames:
@@ -1415,126 +1377,12 @@ HYCOM
                deliver_file(outfileb,self.icstr('{com}/'+outfileb),keep=False,logger=logger)
                remove_file('fort.51',info=True,logger=logger)
 
-               ## volume_3d
-               #concat topinfile and parmfile
-               parmfile='%s/hafs_rtofs.archv2data_3d.in'%(PARMhycom)
-               filenames = ['topinfile',parmfile]
-               with open('tempinfile', 'w') as iff:
-                   for fname in filenames:
-                       with open(fname) as filen:
-                           iff.write(filen.read())
-               #replace idm,jdm,kdm
-               replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
-               with open ('tempinfile') as inf:
-                   with open ('infile','w') as outf:
-                       for line in inf:
-                          for src,targ in replacements.items():
-                             line=line.replace(src,targ)
-                          outf.write(line)
-
-               archv2data=alias(exe(self.getexe('hafs_archv2data2d')))
-               checkrun(archv2data<'infile',logger=logger)
-               outfile='%s.t%02dz.F%03d.3d.grb'%(RUNmodIDout,int(stime.hour),navtime)
-               gbfile=open(outfile,'wb')
-               shutil.copyfileobj(open('fort.51','rb'),gbfile)
-#               shutil.copyfileobj(open('ugrib','rb'),gbfile)
-#               shutil.copyfileobj(open('vgrib','rb'),gbfile)
-#               shutil.copyfileobj(open('pgrib','rb'),gbfile)
-               gbfile.close()
-#               deliver_file(outfile,self.icstr('{com}/'+outfile),keep=False,logger=logger)
-               remove_file('fort.51',info=True,logger=logger)
-               ## mld from 3d volume grib
-
-               ## surface_d for volume
-               parmfile='%s/hafs_rtofs.archv2data_2d.in'%(PARMhycom)
-               filenames = ['topinfile',parmfile]
-               with open('tempinfile', 'w') as iff:
-                   for fname in filenames:
-                       with open(fname) as filen:
-                           iff.write(filen.read())
-               #replace idm,jdm,kdm
-               replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
-               with open ('tempinfile') as inf:
-                   with open ('infile','w') as outf:
-                       for line in inf:
-                          for src,targ in replacements.items():
-                             line=line.replace(src,targ)
-                          outf.write(line)
-
-               archv2data=alias(exe(self.getexe('hafs_archv2data2d')))
-               checkrun(archv2data<'infile',logger=logger)
-               outfile='%s.t%02dz.f%03d.3d.grb'%(RUNmodIDout,int(stime.hour),navtime)
-               gbfile=open(outfile,'wb')
-               shutil.copyfileobj(open('fort.51','rb'),gbfile)
-#               shutil.copyfileobj(open('ugrib','rb'),gbfile)
-#               shutil.copyfileobj(open('vgrib','rb'),gbfile)
-#               shutil.copyfileobj(open('pgrib','rb'),gbfile)
-               gbfile.close()
-#               deliver_file(outfile,self.icstr('{com}/'+outfile),keep=False,logger=logger)
-               remove_file('fort.51',info=True,logger=logger)
-
-           else:
-               logger.info('Do Surface HERE')
-               ## surface_z  (not done in HyHAFS)
-
-               ## surface_d
-               parmfile='%s/hafs_rtofs.archv2data_2d.in'%(PARMhycom)
-               filenames = ['topinfile',parmfile]
-               with open('tempinfile', 'w') as iff:
-                   for fname in filenames:
-                       with open(fname) as filen:
-                           iff.write(filen.read())
-               #replace idm,jdm,kdm
-               replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(1)}
-               with open ('tempinfile') as inf:
-                   with open ('infile','w') as outf:
-                       for line in inf:
-                          for src,targ in replacements.items():
-                             line=line.replace(src,targ)
-                          outf.write(line)
-
-               archv2data=alias(exe(self.getexe('hafs_archv2data2d')))
-               checkrun(archv2data<'infile',logger=logger)
-               outfile='%s.t%02dz.f%03d.3d.grb'%(RUNmodIDout,int(stime.hour),navtime)
-               gbfile=open(outfile,'wb')
-               shutil.copyfileobj(open('fort.51','rb'),gbfile)
-#               shutil.copyfileobj(open('ugrib','rb'),gbfile)
-#               shutil.copyfileobj(open('vgrib','rb'),gbfile)
-#               shutil.copyfileobj(open('pgrib','rb'),gbfile)
-               gbfile.close()
-#               deliver_file(outfile,self.icstr('{com}/'+outfile),keep=False,logger=logger)
-               remove_file('fort.51',info=True,logger=logger)
-
-#        #####    deliver ab files to comout
+           # deliver ab files to comout
            notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
            deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
            deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
 
            # this is the frequency of files
-           navtime+=3
+           navtime+=6
         logger.info('finishing up here')
-        return -1
-
-        #try:
-        #    checkrun(scriptexe(self,'{USHhafs}/hycom/ocean_post.sh'),
-        #             logger=logger)
-        #    self.state=COMPLETED
-        #except Exception as e:
-        #    self.state=FAILED
-        #    logger.error("Ocean post failed: %s"%(str(e),),exc_info=True)
-        #    raise
-    def unrun(self):
-        """Called from the unpost job to delete the HyCOM post output
-        in preparation for a rerun of the entire post-processing for
-        the cycle."""
-        logger=self.log()
-        self.state=RUNNING
-#        try:
-#            checkrun(scriptexe(self,'{USHhafs}/hycom/ocean_unpost.sh'),
-#                    logger=logger)
-        self.state=COMPLETED
-#        except Exception as e:
-#            self.state=FAILED
-#            logger.error("Ocean post failed: %s"%(str(e),),exc_info=True)
-#            raise
-
+        return

@@ -1394,8 +1394,10 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
 
         run_ocean=self.getbool('config','run_ocean')
-        cpl_ocean=self.getint('config','cpl_ocean',0)
-        OCN_tasks=self.getint('forecast','ocean_tasks',120)
+        cpl_ocean=self.getint('forecast','cpl_ocean',0)
+        ocean_tasks=self.getint('forecast','ocean_tasks',120)
+        self.set('holdvars','ocean_tasks',ocean_tasks)
+        OCN_tasks=ocean_tasks
 
         # Set ATM/OCN_petlist_bounds if needed
         runSeq_ATM=self.getstr('forecast','runSeq_ATM','auto')
@@ -1403,10 +1405,10 @@ class HAFSLauncher(HAFSConfig):
         ATM_petlist_bounds=self.getstr('forecast','ATM_petlist_bounds','auto')
         OCN_petlist_bounds=self.getstr('forecast','OCN_petlist_bounds','auto')
         gtype=self.getstr('grid','gtype','regional')
-        glob_layoutx=self.getint('forecast','glob_layoutx','8')
-        glob_layouty=self.getint('forecast','glob_layouty','8')
-        layoutx=self.getint('forecast','layoutx','40')
-        layouty=self.getint('forecast','layouty','30')
+        glob_layoutx=self.getint('forecast','glob_layoutx',8)
+        glob_layouty=self.getint('forecast','glob_layouty',8)
+        layoutx=self.getint('forecast','layoutx',40)
+        layouty=self.getint('forecast','layouty',30)
         quilting=self.getbool('forecast','quilting',True)
         write_groups=self.getint('forecast','write_groups',3)
         write_tasks_per_group=self.getint('forecast','write_tasks_per_group',48)

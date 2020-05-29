@@ -2,10 +2,10 @@
 17T Sigma2*; GDEM4 Jan init; KPP; SeaWiFS KPAR; HYCOM+CICE; A=20;Smag=.05;
 Z(7):1-7,Z(16):8,Z(2):10-16,Z(13):dp00/f/x=36/1.18/262;Z(3):400-600m; NOGAPSsnow
 sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
-  22	  'iversn' = hycom version number x10
+  23	  'iversn' = hycom version number x10
  924	  'iexpt ' = experiment number x10
-1226	  'idm   ' = longitudinal array size
- 476	  'jdm   ' = latitudinal  array size
+1135	  'idm   ' = longitudinal array size
+ 633	  'jdm   ' = latitudinal  array size
  131	  'itest ' = grid point where detailed diagnostics are desired
  315	  'jtest ' = grid point where detailed diagnostics are desired
   41	  'kdm   ' = number of layers
@@ -68,6 +68,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
    1.00   'ds0k  ' = layer  14 shallow z-level spacing minimum thickness (m)
    1.0	  'dp00i ' = deep iso-pycnal spacing minimum thickness (m)
   83.0    'isotop' = shallowest depth for isopycnal layers (m), <0 from file
+   0.1    'oneta0' = minimum 1+eta, must be > 0.0
   35.0	  'saln0 ' = initial salinity value (psu), only used for iniflg<2
    1	  'locsig' = locally-referenced pot. density for stability (0=F,1=T)
   -1	  'kapref' = thermobaric ref. state (-1=input,0=none,1,2,3=constant)
@@ -119,20 +120,24 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   -1      'jerlv0' = initial jerlov water type (1 to 5; 0 for KPAR, -1 for CHL) 
    3	  'yrflag' = days in year flag (0=360,  1=366,  2=366J1, 3=actual)
    1	  'sshflg' = diagnostic SSH flag (0=SSH,1=SSH&stericSSH)
-.04166667 'dsurfq' = number of days between model diagnostics at the surface
-  0.250   'diagfq' = number of days between model diagnostics
+   0.125  'dsurfq' = number of days between model diagnostics at the surface
+   0.25   'diagfq' = number of days between model diagnostics
    0.0    'proffq' = number of days between model diagnostics at selected locs
    0.0    'tilefq' = number of days between model diagnostics on selected tiles
-   0.0    'meanfq' = number of days between model diagnostics (time averaged)
-   5.25   'rstrfq' = number of days between model restart output
-   0.125  'bnstfq' = number of days between baro nesting archive input
-   0.25	  'nestfq' = number of days between 3-d  nesting archive input
-  0.0     'cplifq' = number of days (or time steps) between sea ice coupling
+   0.25   'meanfq' = number of days between model diagnostics (time averaged)
+   0.25   'rstrfq' = number of days between model restart output
+   0.0    'bnstfq' = number of days between baro nesting archive input
+   0.0	  'nestfq' = number of days between 3-d  nesting archive input
+   0.0    'cplifq' = number of days (or time steps) between sea ice coupling
  120.0	  'baclin' = baroclinic time step (seconds), int. divisor of 86400
   10.0    'batrop' = barotropic time step (seconds), int. div. of baclin/2
    0      'incflg' = incremental update flag (0=no, 1=yes, 2=full-velocity)
  120      'incstp' = no. timesteps for full update (1=direct insertion)
-   1      'incupf' = number of days of incremental updating input
+   0      'incupf' = number of days of incremental updating input
+   0      'stfflg' = stochastic anomaly forcing flag (0=no, 1=TS, 2=TSV)
+  50.0    'stfrdt' = stochastic T anomaly forcing e-folding depth (m)
+  50.0    'stfrds' = stochastic S anomaly forcing e-folding depth (m)
+  50.0    'stfrdv' = stochastic V anomaly forcing e-folding depth (m)
    0.125  'ra2fac' = weight for Robert-Asselin time filter
    0.125  'wbaro ' = weight for time smoothing of barotropic fields
    1      'btrlfr' = leapfrog barotropic time step (0=F,1=T)
@@ -152,7 +157,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
  -0.00286 'veldf2' = diffusion velocity (m/s) for Laplacian  momentum dissip.
   -0.02   'veldf4' = diffusion velocity (m/s) for biharmonic momentum dissip.
    0.0    'thkdf2' = diffusion velocity (m/s) for Laplacian  thickness diffus.
-   0.01   'thkdf4' = diffusion velocity (m/s) for biharmonic thickness diffus.
+  0.01    'thkdf4' = diffusion velocity (m/s) for biharmonic thickness diffus.
    0.005  'temdf2' = diffusion velocity (m/s) for Laplacian  temp/saln diffus.
    1.0	  'temdfc' = temp diffusion conservation (0.0,1.0 all dens,temp resp.)
    0.0    'vertmx' = diffusion velocity (m/s) for momentum at MICOM M.L.base
@@ -162,6 +167,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   10.0	  'thkbot' = thickness of bottom boundary layer (m)
    0.02	  'sigjmp' = minimum density jump across interfaces  (kg/m**3)
    0.3	  'tmljmp' = equivalent temperature jump across mixed-layer (degC)
+  30.0    'sefold' = e-folding time                  for SSS relaxation (days)
   15.0	  'thkmls' = reference mixed-layer thickness for SSS relaxation (m)
    0.0	  'thkmlt' = reference mixed-layer thickness for SST relaxation (m)
    6.0    'thkriv' = nominal thickness of river inflow (m)
@@ -223,7 +229,8 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
    1      'ismpfl' = FLOATS: sample water properties at float (0=no; 1=yes)
 4.63e-6   'tbvar ' = FLOATS: horizontal turb. vel. variance scale (m**2/s**2)
    0.4    'tdecri' = FLOATS: inverse decorrelation time scale (1/day)
-   2      'lbflag' = lateral barotropic bndy flag (0=none, 1=port, 2=input)
+   0      'lbflag' = lateral barotropic bndy flag (0=none, 1=port, 2=input)
+   0      'lbmont' = baro nesting archives have sshflg=2
    0      'tidflg' = TIDES: tidal forcing flag    (0=none,1=open-bdy,2=bdy&body)
    0      'tidein' = TIDES: tide field input flag (0=no;1=yes;2=sal)
 00000001  'tidcon' = TIDES: 1 digit per (Q1K2P1N2O1K1S2M2), 0=off,1=on
@@ -235,13 +242,16 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
    1.0    'tidrmp' = TIDES:            ramp time  (days)
    0.0    'tid_t0' = TIDES: origin for ramp time  (model day)
   12	  'clmflg' = climatology frequency flag   (6=bimonthly, 12=monthly)
-   1	  'wndflg' = wind stress input flag (0=none,1=u/v-grid,2,3=p-grid,4=10m)
+   2	  'wndflg' = wind stress input flag (0=none,1=u/v-grid,2,3=p-grid,4=10m)
    4      'ustflg' = ustar   forcing   flag        (3=input,1,2=wndspd,4=stress)
    4	  'flxflg' = thermal forcing   flag (0=none,3=net-flux,1,2,4=sst-based)
    4      'empflg' = E-P     forcing   flag (0=none,3=net_E-P, 1,2,4=sst-bas_E)
+   0.0    'emptgt' = E-P     balance target (mm/week, into ocean)
+   1      'empbal' = E-P     balance   flag (0=none,1=offset,2=scale)
    0      'dswflg' = diurnal shortwave flag (0=none,1=daily to diurnal corr.)
    0      'albflg' = ocean albedo    flag (0=none,1=.06,2=L&Y)
    0	  'sssflg' = SSS relaxation flag (0=none,1=clim,-1=clim&rmx)
+   0      'sssbal' = SSS rlx balance   flag (0=none,1=offset,2=scale)
    2	  'lwflag' = longwave (SST) flag (0=none,1=clim,2=atmos)
    0	  'sstflg' = SST relaxation flag (0=none,1=clim,2=atmos,3=observed)
    0	  'icmflg' = ice mask       flag (0=none,1=clim,2=atmos,3=obs/coupled)

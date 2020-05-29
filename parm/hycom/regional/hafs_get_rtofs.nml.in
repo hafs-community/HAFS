@@ -1,4 +1,4 @@
-!! Input file for the get_rtofs.nml namelist, used by hwrf_get_rtofs.
+!! Input file for the get_rtofs.nml namelist, used by hafs_get_rtofs.
 !! This is passed through NamelistInserter to replace <> regions with
 !! variables from the conf files.
 

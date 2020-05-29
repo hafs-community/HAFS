@@ -265,6 +265,7 @@
     </task>
   </metatask>
 
+@** if RUN_OCEAN==YES
   <task name="hycominit1" maxtries="&MAX_TRIES;">
     <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
     <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
@@ -327,6 +328,8 @@
 
 @** endif
 
+@** endif
+
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -343,8 +346,10 @@
         <taskdep task="chgres_ic"/>
 @** if gtype==regional
         <metataskdep metatask="chgres_bc"/>
+@** if RUN_OCEAN==YES
         <taskdep task="hycominit1"/>
         <taskdep task="hycominit2"/>
+@** endif
 @** endif
       </and>
     </dependency>
@@ -371,6 +376,29 @@
     </dependency>
   </task>
 
+@** if RUN_OCEAN==YES
+  <task name="hycompost" maxtries="&MAX_TRIES;">
+    <command>&PRE; &EXhafs;/exhafs_hycompost.py</command>
+    <jobname>hafs_hycompost_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycompost.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &HYCOMPOST_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the post if the forecast is running or if it has
+           already completed. -->
+      <or>
+        <taskdep task="forecast" state="RUNNING"/>
+        <taskdep task="forecast"/>
+      </or>
+    </dependency>
+  </task>
+
+@** endif
   <task name="product" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -412,6 +440,9 @@
       <and>
         <taskdep task="forecast"/>
         <taskdep task="post"/>
+@** if RUN_OCEAN==YES
+        <taskdep task="hycompost"/>
+@** endif
         <taskdep task="product"/>
       </and>
     </dependency>
@@ -437,6 +468,9 @@
       <and>
         <taskdep task="forecast"/>
         <taskdep task="post"/>
+@** if RUN_OCEAN==YES
+        <taskdep task="hycompost"/>
+@** endif
         <taskdep task="product"/>
         <taskdep task="archive_disk"/>
       </and>

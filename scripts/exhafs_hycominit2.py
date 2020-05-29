@@ -15,6 +15,7 @@ conf=hafs.launcher.load(environ_CONFhafs)
 logger=conf.log('hycominit2')
 logger.info("hycominit2 started")
 
+fcstlen=conf.getint('config','NHRS',126)
 os.environ['MPISERIAL'] = conf.getloc('MPISERIAL','NONE') 
 os.environ['mpiserial'] = conf.getloc('mpiserial','NONE') 
 
@@ -22,7 +23,7 @@ filename=conf.getloc('WORKhafs','NONE')+"/hycominit2_state.sqlite3"
 remove_file(filename)
 ds=Datastore(filename,logger=logger)
 
-hycominit2=hafs.hycom.HYCOMInit2(dstore=ds,conf=conf,section='hycominit2',taskname='hycominit2')
+hycominit2=hafs.hycom.HYCOMInit2(dstore=ds,conf=conf,section='hycominit2',taskname='hycominit2',fcstlen=fcstlen)
 hycominit2.run()
 
 logger.info("hycominit2 done")

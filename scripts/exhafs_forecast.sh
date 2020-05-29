@@ -5,7 +5,7 @@ set -xe
 ulimit -s unlimited
 ulimit -a
 
-export PARMhycom=${PARMhycom:-${PARMhafs}/hycom}
+export PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 export FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 
 export gtype=${gtype:-regional}
@@ -48,6 +48,8 @@ export output_grid_lon2=${output_grid_lon2:-35.0}
 export output_grid_lat2=${output_grid_lat2:-30.0}
 export output_grid_dlon=${output_grid_dlon:-0.025}
 export output_grid_dlat=${output_grid_dlon:-0.025}
+
+export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
@@ -303,7 +305,13 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
     input.nml.tmp > input.nml
 
+if [ ${run_ocean} = yes ];  then
+
 # Copy hycom related files
+
+cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
+
 # copy IC/BC
 cp ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
 cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
@@ -312,35 +320,36 @@ cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
 cp ${WORKhafs}/intercom/hycominit/forcing* .
 
 # copy fix
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.depth.a regional.depth.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.depth.b regional.depth.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.grid.a regional.grid.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.regional.grid.b regional.grid.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.forcing.chl.a forcing.chl.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.forcing.chl.b forcing.chl.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.iso.sigma.a iso.sigma.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.iso.sigma.b iso.sigma.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.ssh.a relax.ssh.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.ssh.b relax.ssh.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.tbaric.a tbaric.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.tbaric.b tbaric.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.thkdf4.a thkdf4.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.thkdf4.b thkdf4.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf2.a veldf2.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf2.b veldf2.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf4.a veldf4.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.veldf4.b veldf4.b
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.rmu.a relax.rmu.a
-cp ${FIXhycom}/hafs_rtofs_hat10.basin.relax.rmu.b relax.rmu.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
 
 # copy parms
-cp ${PARMhycom}/hafs_hycom_hat10.blkdat.input blkdat.input 
-cp ${PARMhycom}/hafs_rtofs_hat10.basin.ports.input ports.input
-cp ${PARMhycom}/hafs_hycom_hat10.patch.120.input patch.input
-cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input 
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
 # create hycom limits
 ${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
+
+fi
 
 fi
   

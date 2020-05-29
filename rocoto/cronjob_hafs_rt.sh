@@ -72,6 +72,15 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.halo_blend=10 forecast.nstf_n2=1 \
      config.NHRS=12 ${scrubopt}
 
+# Regional static NATL basin-focused and ocean-coupled configuration with GFS nemsio format IC and grib2ab format BC
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled \
+     config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
+     config.halo_blend=10 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_hycom.conf
+
 #===============================================================================
 
 # Global-nesting static NATL basin-focused configuration with GFS nemsio format IC/BC

@@ -4,8 +4,8 @@ Z(7):1-7,Z(16):8,Z(2):10-16,Z(13):dp00/f/x=36/1.18/262;Z(3):400-600m; NOGAPSsnow
 sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   23	  'iversn' = hycom version number x10
  924	  'iexpt ' = experiment number x10
-1135	  'idm   ' = longitudinal array size
- 633	  'jdm   ' = latitudinal  array size
+1226	  'idm   ' = longitudinal array size
+ 476	  'jdm   ' = latitudinal  array size
  131	  'itest ' = grid point where detailed diagnostics are desired
  315	  'jtest ' = grid point where detailed diagnostics are desired
   41	  'kdm   ' = number of layers
@@ -120,15 +120,15 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   -1      'jerlv0' = initial jerlov water type (1 to 5; 0 for KPAR, -1 for CHL) 
    3	  'yrflag' = days in year flag (0=360,  1=366,  2=366J1, 3=actual)
    1	  'sshflg' = diagnostic SSH flag (0=SSH,1=SSH&stericSSH)
-   0.250  'dsurfq' = number of days between model diagnostics at the surface
-   0.250  'diagfq' = number of days between model diagnostics
+   0.125  'dsurfq' = number of days between model diagnostics at the surface
+   0.25   'diagfq' = number of days between model diagnostics
    0.0    'proffq' = number of days between model diagnostics at selected locs
    0.0    'tilefq' = number of days between model diagnostics on selected tiles
-   0.250  'meanfq' = number of days between model diagnostics (time averaged)
+   0.25   'meanfq' = number of days between model diagnostics (time averaged)
    0.25   'rstrfq' = number of days between model restart output
-   0.0  'bnstfq' = number of days between baro nesting archive input
+   0.0    'bnstfq' = number of days between baro nesting archive input
    0.0	  'nestfq' = number of days between 3-d  nesting archive input
-  0.0     'cplifq' = number of days (or time steps) between sea ice coupling
+   0.0    'cplifq' = number of days (or time steps) between sea ice coupling
  120.0	  'baclin' = baroclinic time step (seconds), int. divisor of 86400
   10.0    'batrop' = barotropic time step (seconds), int. div. of baclin/2
    0      'incflg' = incremental update flag (0=no, 1=yes, 2=full-velocity)
