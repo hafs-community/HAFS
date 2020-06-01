@@ -4,7 +4,6 @@ set -xe
 
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
 
 CDUMP=gfs		# gfs or gdas
 LEVS=${LEVS:-65}
@@ -12,6 +11,8 @@ gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stan
 ictype=${ictype:-gfsnemsio} # gfsnemsio
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
+
+nest_grids=${nest_grids:-1}
 
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
@@ -236,16 +237,22 @@ else
   exit 9
 fi
 
-# For the global-nesting configuration, run for the 7th tile
+# For the global-nesting configuration, run for the 7+th tiles
 if [ $gtype = nest ];  then
+
+ntiles=$(( ${nest_grids} + 6 ))
+for itile in $(seq 7 $ntiles)
+do
+
+ inest=$(($itile - 5))
 
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
 
- ln -sf $FIXDIR/$CASE/${CASE}_nested_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+ ln -sf $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
  export GRIDTYPE=nest
  HALO=${HALO:-0}
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
- orog_files_target_grid='"'${CASE}'_oro_data.tile7.nc"'
+ orog_files_target_grid='"'${CASE}'_oro_data.tile'${itile}'.nc"'
  convert_atm=.true.
  convert_sfc=.true.
  convert_nst=.true.
@@ -286,8 +293,10 @@ EOF
 
 ${APRUNC} ${CHGRESCUBEEXEC}
 
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
+mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
+mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
+
+done
 
 fi
 

@@ -124,8 +124,8 @@
 /
 
  &nest_nml
-       ntiles = 2
-       nest_pes = _glob_pes_,_nest_pes_
+       ngrids = _ngrids_
+       nest_pes = _nest_pes_,
        p_split = 1
 /
 
@@ -335,4 +335,5 @@
        knob_ugwp_ndx4lh  = 1                                                                                          
        knob_ugwp_version = 0                                                                                          
        launch_level      = 25                                                                                         
-/
+/global
+

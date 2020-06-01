@@ -16,7 +16,15 @@ export write_tasks_per_group=${write_tasks_per_group:-72}
 export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
+
+export nest_grids=${nest_grids:-1}
+export parent_grid_num=${parent_grid_num:-1}
+export parent_tile=${parent_tile:-6}
 export refine_ratio=${refine_ratio:-4}
+export istart_nest=${istart_nest:-46}
+export jstart_nest=${jstart_nest:-238}
+export iend_nest=${iend_nest:-1485}
+export jend_nest=${jend_nest:-1287}
 
 export glob_layoutx=${glob_layoutx:-12}
 export glob_layouty=${glob_layouty:-12}
@@ -49,7 +57,8 @@ if [ $gtype = uniform ];  then
 elif [ $gtype = stretch ]; then
   export ntiles=6
 elif [ $gtype = nest ]; then
-  export ntiles=7
+  #export ntiles=7
+  export ntiles=$((6 + ${nest_grids}))
 elif [ $gtype = regional ]; then
   export ntiles=1
 else
@@ -111,22 +120,26 @@ if [ $gtype = nest ]; then
 #---------------------------------------------- 
 # Copy tile data and orography
 #---------------------------------------------- 
-tile=1
-while [ $tile -le $ntiles ]; do
-  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.nc INPUT/oro_data.tile${tile}.nc
-  cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.nc INPUT/${CASE}_grid.tile${tile}.nc
-  let tile=tile+1
+for itile in $(seq 1 ${ntiles})
+do
+  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc INPUT/oro_data.tile${itile}.nc
+  cp $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc INPUT/${CASE}_grid.tile${itile}.nc
 done
 cp $FIXgrid/${CASE}/${CASE}_mosaic.nc INPUT/grid_spec.nc
 
 # The next 4 links are a hack GFDL requires for running a nest
- 
+
 cd ./INPUT
-#ln -sf ${CASE}_grid.tile7.nc ${CASE}_grid.nest02.tile7.nc
-ln -sf ${CASE}_grid.tile7.nc grid.nest02.tile7.nc
-ln -sf oro_data.tile7.nc oro_data.nest02.tile7.nc
-ln -sf gfs_data.tile7.nc gfs_data.nest02.tile7.nc
-ln -sf sfc_data.tile7.nc sfc_data.nest02.tile7.nc
+
+for itile in $(seq 7 ${ntiles})
+do
+  inest=$(($itile - 5))
+  ln -sf ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${itile}.nc
+  ln -sf oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${itile}.nc
+  ln -sf gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${itile}.nc
+  ln -sf sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
+done
+
 cd ..
 
 #-------------------------------------------------------------------
@@ -137,15 +150,22 @@ cp ${PARMforecast}/data_table .
 cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
-cp ${PARMforecast}/input_nest02.nml.tmp .
+cp ${PARMforecast}/input_nest.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 cp ${PARMforecast}/nems.configure .
 
+ngrids=$(( ${nest_grids} + 1 ))
+glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
+nest_pes="${glob_pes}"
+for n in $(seq 1 ${nest_grids})
+do
+  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+  nest_pes="${nest_pes},$(( $layoutx_tmp * $layouty_tmp ))"
+done
+
 ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
 cp ${ccpp_suite_glob_xml} .
-
-glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
-nest_pes=$(( ${layoutx} * ${layouty} ))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
@@ -157,7 +177,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_glob_pes_/${glob_pes}/g" \
+    -e "s/_ngrids_/${ngrids}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
 	input.nml.tmp > input.nml
@@ -165,26 +185,46 @@ sed -e "s/_fhmax_/${NHRS}/g" \
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
 cp ${ccpp_suite_nest_xml} .
 
-ioffset=$(( (istart_nest-1)/2 + 1))
-joffset=$(( (jstart_nest-1)/2 + 1))
+for n in $(seq 1 ${nest_grids})
+do
+  inest=$(( ${n} + 1 ))
+  parent_grid_num_tmp=$( echo ${parent_grid_num} | cut -d , -f ${n} )
+  parent_tile_tmp=$( echo ${parent_tile} | cut -d , -f ${n} )
+  refine_ratio_tmp=$( echo ${refine_ratio} | cut -d , -f ${n} )
+  istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
+  jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
+  iend_nest_tmp=$( echo ${iend_nest} | cut -d , -f ${n} )
+  jend_nest_tmp=$( echo ${jend_nest} | cut -d , -f ${n} )
+  ioffset_tmp=$(( ($istart_nest_tmp-1)/2 + 1))
+  joffset_tmp=$(( ($jstart_nest_tmp-1)/2 + 1))
 
-sed -e "s/_fhmax_/${NHRS}/g" \
+  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+
+  npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
+  npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+
+  sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
-    -e "s/_layoutx_/${layoutx}/g" \
-    -e "s/_layouty_/${layouty}/g" \
-    -e "s/_npx_/${npx}/g" \
-    -e "s/_npy_/${npy}/g" \
+    -e "s/_layoutx_/${layoutx_tmp}/g" \
+    -e "s/_layouty_/${layouty_tmp}/g" \
+    -e "s/_npx_/${npx_tmp}/g" \
+    -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_refinement_/${refine_ratio}/g" \
-    -e "s/_ioffset_/${ioffset}/g" \
-    -e "s/_joffset_/${joffset}/g" \
-    -e "s/_glob_pes_/${glob_pes}/g" \
+    -e "s/_parent_grid_num_/${parent_grid_num_tmp}/g" \
+    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
+    -e "s/_refinement_/${refine_ratio_tmp}/g" \
+    -e "s/_ioffset_/${ioffset_tmp}/g" \
+    -e "s/_joffset_/${joffset_tmp}/g" \
+    -e "s/_ngrids_/${ngrids}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
-	input_nest02.nml.tmp > input_nest02.nml
+	input_nest.nml.tmp > input_nest0${inest}.nml
+
+done
 
 elif [ $gtype = regional ]; then
 
@@ -237,7 +277,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
 	input.nml.tmp > input.nml
 
 fi
-  
+ 
 #-------------------------------------------------------------------
 # Generate diag_table, model_configure from their tempelates
 #-------------------------------------------------------------------

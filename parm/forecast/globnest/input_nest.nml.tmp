@@ -115,8 +115,8 @@
 
        nested = .true.
        twowaynest = .true.
-       parent_grid_num = 1
-       parent_tile = 6
+       parent_grid_num = _parent_grid_num_
+       parent_tile = _parent_tile_
        refinement = _refinement_
        ioffset = _ioffset_
        joffset = _joffset_
@@ -128,8 +128,8 @@
 /
 
  &nest_nml
-       ntiles = 2
-       nest_pes = _glob_pes_,_nest_pes_
+       ngrids = _ngrids_
+       nest_pes = _nest_pes_
        p_split = 1
 /
 

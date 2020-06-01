@@ -72,11 +72,31 @@ elif [ $gtype = stretch ]; then
   export target_lon=${target_lon:--97.5}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-35.5}       # center latitude of the highest resolution tile
   echo "creating stretched grid"
-elif [ $gtype = nest ] || [ $gtype = regional ]; then
+elif [ $gtype = nest ]; then
   export stretch_fac=${stretch_fac:-1.0001}   # Stretching factor for the grid
   export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
-  # Need for grid types: nest and regional
+
+  export nest_grids=${nest_grids:-1}
+  export parent_tile=${parent_tile:-6}
+  export refine_ratio=${refine_ratio:-4}
+  export istart_nest=${istart_nest:-46}
+  export jstart_nest=${jstart_nest:-238}
+  export iend_nest=${iend_nest:-1485}
+  export jend_nest=${jend_nest:-1287}
+
+  export halo=${halo:-3}                      # halo size to be used in the atmosphere cubic sphere model for the grid tile.
+  export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
+  export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
+
+  echo "creating global nested grid"
+elif [ $gtype = regional ]; then
+  export stretch_fac=${stretch_fac:-1.0001}   # Stretching factor for the grid
+  export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
+  export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
+
+  export nest_grids=${nest_grids:-1}
+  export parent_tile=${parent_tile:-6}
   export refine_ratio=${refine_ratio:-4}      # Specify the refinement ratio for nest grid
   export istart_nest=${istart_nest:-46}
   export jstart_nest=${jstart_nest:-238}
@@ -85,11 +105,8 @@ elif [ $gtype = nest ] || [ $gtype = regional ]; then
   export halo=${halo:-3}                      # halo size to be used in the atmosphere cubic sphere model for the grid tile.
   export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
   export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
-  if [ $gtype = nest ];then
-   echo "creating nested grid"
-  else
-   echo "creating regional grid"
-  fi
+
+  echo "creating regional grid"
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
   exit 1
@@ -173,10 +190,19 @@ fi
   $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir $cd4 $peak_fac $max_slope $n_del2_weak $script_dir $gtype
   echo "Grid and orography files are now prepared"
 elif [ $gtype = nest ]; then
-  export ntiles=7
+	export ntiles=$((6 + ${nest_grids}))
   date
   echo "............ execute $MAKEGRIDSSH ................."
-  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
+       $nest_grids \
+       "$parent_tile" \
+       "$refine_ratio" \
+       "$istart_nest" \
+       "$jstart_nest" \
+       "$iend_nest" \
+       "$jend_nest" \
+       $halo $script_dir
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
@@ -187,6 +213,7 @@ elif [ $gtype = nest ]; then
   echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 8 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
 if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
@@ -414,16 +441,21 @@ if [ $gtype = regional ]; then
 fi
 
 #----------------------------------------------------------------
-# Run for the global nest - tile 7.
-# Second pass for global-nesting configuration will run the 7th tile
+# Run for the global nest - tiles 7+.
+# Second pass for global-nesting configuration will run the 7+th tiles
 #----------------------------------------------------------------
 
 if [ $gtype = nest ]; then
 
 export GRIDTYPE=nest
 HALO=${HALO:-0}
-mosaic_file=$out_dir/${CASE}_nested_mosaic.nc
-the_orog_files='"'${CASE}'_oro_data.tile7.nc"'
+
+for itile in $(seq 7 $ntiles)
+do
+
+inest=$(($itile - 5))
+mosaic_file=$out_dir/${CASE}_nested0${inest}_mosaic.nc
+the_orog_files='"'${CASE}'_oro_data.tile'${itile}'.nc"'
 
 cat>./fort.41<<EOF
 &config
@@ -462,8 +494,10 @@ else
   exit $rc
 fi
 
+done
+
 fi
-# End of run for the global nest - tile 7.
+# End of run for the global nest - tiles 7+.
 #----------------------------------------------------------------
 
 exit
