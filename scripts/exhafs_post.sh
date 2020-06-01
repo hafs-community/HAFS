@@ -146,7 +146,7 @@ echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:
 echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
 echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
 echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
-if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
+if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> cmdfile
 fi
 chmod u+x ./cmdfile
@@ -177,7 +177,7 @@ mv ${synop_grb2post} ${synop_grb2file}
 #echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
 #echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
 #echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
-#if [ "$machine" = hera ] || [ "$machine" = theia ] || [ "$machine" = jet ]; then
+#if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
 #  echo 'wait' >> cmdfile
 #fi
 #chmod u+x ./cmdfile

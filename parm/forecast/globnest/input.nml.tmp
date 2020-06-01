@@ -206,7 +206,7 @@
        oz_phys        = .F.
        oz_phys_2015   = .T.
        nst_anl        = .true.
-       nstf_name      = 2,0,0,0,0
+       nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
        cplflx         = .F.
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015

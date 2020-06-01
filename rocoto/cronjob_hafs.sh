@@ -17,6 +17,11 @@ date
 #dev="-s sites/xjet.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
+# MSU Orion
+#HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
+#dev="-s sites/orion.ent -f"
+#PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
+
 # NOAA RDHPCS Hera
  HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
  dev="-s sites/hera.ent -f"

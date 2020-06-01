@@ -67,16 +67,21 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
     module purge
     module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
     MOD_PATH=/scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-elif [[ -d /scratch3 && -d /scratch ]] ; then
-    # We are on NOAA Theia
+elif [[ -d /work/noaa ]] ; then
+    # We are on MSU Orion
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2
-        source /apps/lmod/lmod/init/$__ms_shell
+        source /apps/lmod/init/$__ms_shell
     fi
-    target=theia
+    target=orion
     module purge
-    module use /scratch3/NCEPDEV/nwprod/modulefiles/
-    module use /scratch3/NCEPDEV/nwprod/lib/modulefiles
+    module use /apps/modulefiles/core
+    module use /apps/contrib/modulefiles
+    module use /apps/contrib/NCEPLIBS/lib/modulefiles
+    module use /apps/contrib/NCEPLIBS/orion/modulefiles
+    MOD_PATH=/apps/contrib/NCEPLIBS/orion/modulefiles
+    ulimit -s unlimited
+    #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then
