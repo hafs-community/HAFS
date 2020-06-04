@@ -46,7 +46,7 @@ do
 
 cd ${DATA}
 
-NEWDATE=`${NDATE} +${FHR3} $CDATE`
+NEWDATE=`${NDATE} +${FHR} $CDATE`
 YYYY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
@@ -120,9 +120,9 @@ cp ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
 cp ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
 
 # Run the post
-#cp ${POSTEXEC} ./post.x
-ln -sf ${POSTEXEC} ./post.x
-${APRUNC} ./post.x < itag > outpost_${NEWDATE}
+cp -p  ${POSTEXEC} ./hafs_post.x
+#ln -sf ${POSTEXEC} ./hafs_post.x
+${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
 
 mv HURPRS.GrbF${FHR2} ${synop_grb2post} 
 

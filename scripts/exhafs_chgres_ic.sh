@@ -221,7 +221,9 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${APRUNC} ${CHGRESCUBEEXEC}
+cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+${APRUNC} ./hafs_chgres_cube.x
+#${APRUNC} ${CHGRESCUBEEXEC}
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then
 
@@ -311,7 +313,9 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${APRUNC} ${CHGRESCUBEEXEC}
+cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+${APRUNC} ./hafs_chgres_cube.x
+#${APRUNC} ${CHGRESCUBEEXEC}
 
 mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
 mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc

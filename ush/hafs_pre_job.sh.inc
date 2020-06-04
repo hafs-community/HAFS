@@ -46,7 +46,7 @@ fi
 target=""
 USERNAME=`echo $LOGNAME | awk '{ print tolower($0)'}`
 
-if [[ -d /lfs3 ]] ; then
+if [[ -d /lfs4 ]] ; then
     # We are on NOAA Jet
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2
@@ -54,9 +54,6 @@ if [[ -d /lfs3 ]] ; then
     fi
     target=jet
     module purge
-     export NCEPLIBS=/mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
-     echo NCEPLIBS HARD SET to  $NCEPLIBS in `pwd`/module_setup.sh.inc
-     module use $NCEPLIBS/modulefiles
 elif [[ -d /scratch1/NCEPDEV ]] ; then
     # We are on NOAA Hera
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -65,8 +62,6 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
     fi
     target=hera
     module purge
-    module use /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-    MOD_PATH=/scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
 elif [[ -d /work/noaa ]] ; then
     # We are on MSU Orion
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -79,7 +74,7 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
-    MOD_PATH=/apps/contrib/NCEPLIBS/orion/modulefiles
+	#MOD_PATH=/apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
     #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then

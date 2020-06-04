@@ -302,7 +302,7 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
 #-------------------------------------------------------------------
 #cp ${EXEChafs}/hafs_forecast.x hafs_forecast.x
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
-cp ${FORECASTEXEC} hafs_forecast.x
+cp -p ${FORECASTEXEC} ./hafs_forecast.x
 
 ${APRUNC} ./hafs_forecast.x 1>out.$CRES 2>err.$CRES
 export err=$?
