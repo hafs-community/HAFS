@@ -234,7 +234,9 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${APRUNC} ${CHGRESCUBEEXEC}
+cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+${APRUNC} ./hafs_chgres_cube.x
+#${APRUNC} ${CHGRESCUBEEXEC}
 
 #
 # move output files to save directory

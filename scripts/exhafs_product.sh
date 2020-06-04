@@ -125,9 +125,9 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 
 # Run the vortex tracker gettrk.x
-#cp ${GETTRKEXEC} ./gettrk.x
-ln -sf ${GETTRKEXEC} ./gettrk.x
-${APRUNC} ./gettrk.x < namelist.gettrk
+cp -p ${GETTRKEXEC} ./hafs_gettrk.x
+#ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
+${APRUNC} ./hafs_gettrk.x < namelist.gettrk
 
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
