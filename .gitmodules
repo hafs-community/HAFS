@@ -20,5 +20,5 @@
 	branch = support/HAFS
 [submodule "sorc/hafs_gsi.fd"]
 	path = sorc/hafs_gsi.fd
-	url = gerrit:ProdGSI
-	branch = HAFS
+	url = https://github.com/hafs-community/GSI.git
+	branch = support/HAFS
