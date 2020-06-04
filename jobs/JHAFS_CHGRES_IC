@@ -50,6 +50,11 @@ export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.run.${machine}
+  if [ "$machine" = wcoss_dell_p3 ]; then
+    module unload NetCDF
+    module unload HDF5-serial
+  fi
+  source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
   module list
 fi
 

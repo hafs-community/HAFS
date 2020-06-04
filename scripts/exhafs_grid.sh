@@ -400,7 +400,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-$APRUNC $SFCCLIMOEXEC
+cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+$APRUNC ./hafs_sfc_climo_gen.x
+#$APRUNC $SFCCLIMOEXEC
 
 rc=$?
 
@@ -476,7 +478,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-$APRUNC $SFCCLIMOEXEC
+cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+$APRUNC ./hafs_sfc_climo_gen.x
+#$APRUNC $SFCCLIMOEXEC
 
 rc=$?
 
