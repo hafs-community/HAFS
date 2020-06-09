@@ -179,4 +179,7 @@ if [[ "Q${EXEChafs:-}" != Q ]] ; then
 elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
   export PATH=$HOMEhafs/exec:$PATH
 fi
+if [[ "$target" == "wcoss_dell_p3" ]]; then
+  export PYTHONPATH=$PYTHONPATH:$HOMEhafs/ush
+fi
 set -u
