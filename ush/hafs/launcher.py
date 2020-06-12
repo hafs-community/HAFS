@@ -1424,6 +1424,10 @@ class HAFSLauncher(HAFSConfig):
             if cplflx=='auto': self.set('holdvars','cplflx','.true.')
             if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapMethod=nearest_stod:srcmaskvalues=0"')
             if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapMethod=nearest_stod:srcmaskvalues=1:dstmaskvalues=0"')
+        if run_ocean and cpl_ocean==2:
+            if cplflx=='auto': self.set('holdvars','cplflx','.true.')
+            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0"')
+            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0"')
 
         if runSeq_ATM=='auto': self.set('holdvars','runSeq_ATM','ATM')
         if run_ocean and runSeq_OCN=='auto':
