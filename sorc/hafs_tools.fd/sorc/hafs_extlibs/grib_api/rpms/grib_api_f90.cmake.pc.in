@@ -1,0 +1,16 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+bindir=@CMAKE_INSTALL_PREFIX@/bin
+includedir=@CMAKE_INSTALL_PREFIX@/include
+libdir=@CMAKE_INSTALL_PREFIX@/lib
+FC=@CMAKE_Fortran_COMPILER@
+
+Name: grib_api_f90
+Description: The GRIB API library for Fortran 90
+Version: @GRIB_API_VERSION@
+
+# Cflags: @F90_MODULE_FLAG@@CMAKE_INSTALL_PREFIX@/include
+
+Cflags: -I@CMAKE_INSTALL_PREFIX@/include
+Libs: -L${libdir} -lgrib_api_f90 -lgrib_api
+Libs.private: -L${libdir} -lgrib_api_f90 -lgrib_api

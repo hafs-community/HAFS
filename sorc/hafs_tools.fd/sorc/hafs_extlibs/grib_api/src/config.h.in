@@ -1,0 +1,229 @@
+/* src/config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if the `closedir' function returns void instead of `int'. */
+#undef CLOSEDIR_VOID
+
+/* Grib Api Age of ABI version */
+#undef GRIB_ABI_AGE
+
+/* Grib Api Current ABI version */
+#undef GRIB_ABI_CURRENT
+
+/* Grib Api Revision ABI version */
+#undef GRIB_ABI_REVISION
+
+/* Grib Api version */
+#undef GRIB_API_MAIN_VERSION
+
+/* Grib Api Major release */
+#undef GRIB_API_MAJOR_VERSION
+
+/* Grib Api Minor release */
+#undef GRIB_API_MINOR_VERSION
+
+/* Grib Api Revision release */
+#undef GRIB_API_REVISION_VERSION
+
+/* 1->IBM Power6/7 Optimisations enabled 0->IBM Power6/7 Optimisations
+   disabled */
+#undef GRIB_IBMPOWER67_OPT
+
+/* inline if available */
+#undef GRIB_INLINE
+
+/* 1->pthreads enabled 0->pthreads disabled */
+#undef GRIB_LINUX_PTHREADS
+
+/* memory alignment required */
+#undef GRIB_MEM_ALIGN
+
+/* 1->pthreads enabled 0->pthreads disabled */
+#undef GRIB_PTHREADS
+
+/* 1->Timer on 0->Timer off */
+#undef GRIB_TIMER
+
+/* Define to 1 if you have the <assert.h> header file. */
+#undef HAVE_ASSERT_H
+
+/* Define to 1 if you have the `bzero' function. */
+#undef HAVE_BZERO
+
+/* Define to 1 if you have the <ctype.h> header file. */
+#undef HAVE_CTYPE_H
+
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_DIRENT_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
+#undef HAVE_DOPRNT
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#undef HAVE_FCNTL_H
+
+/* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
+#undef HAVE_FSEEKO
+
+/* Define to 1 if you have the `gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* JPEG enabled */
+#undef HAVE_JPEG
+
+/* Define to 1 if you have the `aec' library (-laec). */
+#undef HAVE_LIBAEC
+
+/* Define if you have EMOS library */
+#undef HAVE_LIBEMOS
+
+/* Define if you have JPEG version 2 "Jasper" library */
+#undef HAVE_LIBJASPER
+
+/* Define to 1 if you have the `m' library (-lm). */
+#undef HAVE_LIBM
+
+/* Define if you have JPEG version 2 "Openjpeg" library */
+#undef HAVE_LIBOPENJPEG
+
+/* Define to 1 if you have the png library (-lpng) */
+#undef HAVE_LIBPNG
+
+/* Define to 1 if you have the <math.h> header file. */
+#undef HAVE_MATH_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
+#undef HAVE_NDIR_H
+
+/* NETCDF enabled */
+#undef HAVE_NETCDF
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#undef HAVE_STDARG_H
+
+/* Define to 1 if you have the <stddef.h> header file. */
+#undef HAVE_STDDEF_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_DIR_H
+
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_NDIR_H
+
+/* Define to 1 if you have the <sys/param.h> header file. */
+#undef HAVE_SYS_PARAM_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `vprintf' function. */
+#undef HAVE_VPRINTF
+
+/* 1-> ieee big endian float/double 0->no ieee big endian float/double */
+#undef IEEE_BE
+
+/* 1-> ieee little endian float/double 0->no ieee little endian float/double
+   */
+#undef IEEE_LE
+
+/* 1-> big endian 0->little endian */
+#undef IS_BIG_ENDIAN
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* memory management */
+#undef MANAGE_MEM
+
+/* 1->OpenMP packing 0->single thread packing */
+#undef OMP_PACKING
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* posix_memalign present */
+#undef POSIX_MEMALIGN
+
+/* Define as the return type of signal handlers (`int' or `void'). */
+#undef RETSIGTYPE
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
+
+/* vectorised code */
+#undef VECTOR
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#undef _FILE_OFFSET_BITS
+
+/* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
+#undef _LARGEFILE_SOURCE
+
+/* Define for large files, on AIX-style hosts. */
+#undef _LARGE_FILES
+
+/* Needs to be undefined on some AIX */
+#undef _LARGE_FILE_API
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t

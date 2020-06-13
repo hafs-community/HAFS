@@ -1,0 +1,17 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+bindir=@CMAKE_INSTALL_PREFIX@/bin
+includedir=@CMAKE_INSTALL_PREFIX@/include
+libdir=@CMAKE_INSTALL_PREFIX@/lib
+
+Name: grib_api
+Description: The GRIB API library
+Version: @GRIB_API_VERSION@
+
+# Cflags: -I${includedir} @GRIB_API_EXTRA_INCLUDE_DIRS@
+Cflags: -I${includedir}
+
+Libs: -L${libdir} -lgrib_api
+Libs.private: -L${libdir} -lgrib_api
+
+# Libs.private: -L${libdir} -lgrib_api @GRIB_API_EXTRA_LIBRARIES@

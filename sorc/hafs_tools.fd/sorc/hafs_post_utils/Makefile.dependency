@@ -1,0 +1,84 @@
+#=======================================================================
+
+#$$$ MAKEFILE DOCUMENTATION BLOCK
+
+# Copyright (C) 2019 Henry R. Winterbottom
+
+# Email: henry.winterbottom@noaa.gov
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+# Review the README, within the top-level directory, which provides
+# relevant instructions and (any) references cited by algorithms
+# within this software suite.
+
+#=======================================================================
+
+constants_interface.o: constants_interface.F90 \
+                       kinds_interface.o
+
+diagnostics_interface.o: diagnostics_interface.F90 \
+                         kinds_interface.o 
+
+fileio_interface.o: fileio_interface.F90 \
+		    json_interface.o \
+		    kinds_interface.o \
+		    namelist_interface.o \
+		    nemsio_interface.o \
+		    netcdf_interface.o 
+
+fv3_post_interface.o: fv3_post_interface.F90 \
+		      constants_interface.o \
+		      fileio_interface.o \
+		      grid_methods_interface.o \
+		      interpolation_interface.o \
+		      kinds_interface.o \
+		      namelist_interface.o \
+		      variable_interface.o
+
+grid_methods_interface.o: grid_methods_interface.F90 \
+			  kinds_interface.o \
+			  variable_interface.o 
+
+interpolation_interface.o: interpolation_interface.F90 \
+			   constants_interface.o \
+			   kinds_interface.o \
+			   variable_interface.o
+
+json_interface.o: json_interface.F90 \
+		  kinds_interface.o \
+		  variable_interface.o
+
+kinds_interface.o: kinds_interface.F90
+
+
+namelist_interface.o: namelist_interface.F90 \
+		      kinds_interface.o
+
+nemsio_interface.o: nemsio_interface.F90 \
+		    kinds_interface.o \
+		    variable_interface.o
+
+netcdf_interface.o: netcdf_interface.F90 \
+		    kinds_interface.o \
+		    variable_interface.o
+
+post_utils_interface.o: post_utils_interface.F90 \
+			diagnostics_interface.o \
+			kinds_interface.o \
+			namelist_interface.o
+
+variable_interface.o: variable_interface.F90 \
+		      kinds_interface.o

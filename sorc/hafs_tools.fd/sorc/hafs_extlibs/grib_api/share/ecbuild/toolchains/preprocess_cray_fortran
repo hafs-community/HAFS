@@ -1,0 +1,31 @@
+
+set -e
+
+cray_compiler=$1
+defines=$2
+includes=$3
+flags=$4
+source=$5
+destination=$6
+
+# Comment out to turn on line directives
+line_directives="-P"
+
+#
+# Use gfortran as preprocessor:
+#
+gfortran_compiler="gfortran -D_CRAYFTN -U__GFORTRAN__ -U__GNUC__ -I$MPICH_DIR/include"
+$gfortran_compiler -cpp $line_directives $defines $includes -E $source -o $destination
+
+
+#
+# Use crayftn as preprocessor:
+#
+# Warning! Cannot use for certain files due to bugs
+#
+#extension=${source##*.}
+#filename=$(basename $source)
+#filename=${filename%.*}
+#preprocessed=${filename}.i
+#$cray_compiler $defines $includes $flags -eP $source && mv $preprocessed $destination
+

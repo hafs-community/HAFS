@@ -1,0 +1,7 @@
+enable_language(CXX)
+include(${cookoff_path}/CheckCXX11Features.cmake)
+cxx11_find_all_features(ALL_CPP11_FEATURES)
+LIST(LENGTH ALL_CPP11_FEATURES LIST_LENGTH)
+if(${LIST_LENGTH} EQUAL 0)
+  message(FATAL_ERROR "No c++11 features found")
+endif()
