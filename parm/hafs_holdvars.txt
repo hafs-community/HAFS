@@ -119,6 +119,7 @@ export ocean_tasks={ocean_tasks}
 export ATM_petlist_bounds={ATM_petlist_bounds}
 export OCN_petlist_bounds={OCN_petlist_bounds}
 export ocean_start_dtg={ocean_start_dtg}
+export merge_import={merge_import}
 
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec

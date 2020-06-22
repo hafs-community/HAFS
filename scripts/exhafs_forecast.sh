@@ -70,6 +70,7 @@ export runSeq_OCN=${runSeq_OCN:-'OCN'}
 export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
 #export base_dtg=${CDATE:-2019082900}
 #export end_hour=${NHRS:-126}
+export merge_import=${merge_import:-.false.}
 
 if [ $gtype = uniform ];  then
   export ntiles=6
@@ -197,6 +198,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
@@ -227,6 +229,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
@@ -273,6 +276,7 @@ if [ ${run_ocean} = yes ];  then
       -e "s/_base_dtg_/${CDATE}/g" \
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.false.}/g" \
       nems.configure.atm_ocn.tmp > nems.configure
 elif [ ${run_ocean} = no ];  then
   cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
@@ -303,6 +307,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
 
 if [ ${run_ocean} = yes ];  then

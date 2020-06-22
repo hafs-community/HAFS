@@ -18,6 +18,7 @@
      fhmaxhf = 0
      fhouthf = 3
      ccpp_suite = '_ccpp_suite_'
+     merge_import = _merge_import_
 /
 
 &diag_manager_nml
@@ -151,7 +152,7 @@
        lradar         = .true.
        avg_max_length = 3600.
        h2o_phys       = .true.
-       fhcyc          = 24.
+       fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
        ncld           = 5
