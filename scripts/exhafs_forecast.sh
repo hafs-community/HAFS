@@ -323,6 +323,8 @@ cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
 
 # copy forcing
 cp ${WORKhafs}/intercom/hycominit/forcing* .
+ln -sf forcing.presur.a forcing.mslprs.a
+ln -sf forcing.presur.b forcing.mslprs.b
 
 # copy fix
 cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a

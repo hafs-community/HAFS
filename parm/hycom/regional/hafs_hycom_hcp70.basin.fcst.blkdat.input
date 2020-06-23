@@ -256,7 +256,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
    0	  'sstflg' = SST relaxation flag (0=none,1=clim,2=atmos,3=observed)
    0	  'icmflg' = ice mask       flag (0=none,1=clim,2=atmos,3=obs/coupled)
  1E+5     'prsbas' = msl pressure is input field + prsbas (Pa)
-   0      'mslprf' = msl pressure forcing flag            (0=F,1=T)
+   1      'mslprf' = msl pressure forcing flag            (0=F,1=T)
    0      'stroff' = net stress offset flag (0=F,1=T)
    0      'flxoff' = net flux offset flag   (0=F,1=T)
    0	  'flxsmo' = smooth surface fluxes  (0=F,1=T)
