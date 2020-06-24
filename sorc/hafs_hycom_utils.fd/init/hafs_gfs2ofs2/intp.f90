@@ -581,7 +581,7 @@ timeloop: do m=1,ntime
                jpdtno=jpdt_num(7)
                jdiscno=jdisc_num(7)
       endif
-      CALL rdgrib(82,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,1,xpts,ypts)
+      CALL rdgrib(82+m,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,1,xpts,ypts)
       mrfflx=reshape(source=xgfld,shape=SHAPE(mrfflx))
       mrfflxs(:,:,i)=mrfflx
       print*,'MRF fluxes: i,min,max=',i,minval(mrfflxs(:,:,i)),maxval(mrfflxs(:,:,i))
