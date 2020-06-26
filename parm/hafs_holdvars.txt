@@ -109,6 +109,11 @@ export out_prefix_nodate={out_prefix_nodate}
 export synop_gridspecs={synop_gridspecs}
 export trker_gridspecs={trker_gridspecs}
 
+export prodglb_nlon={prodglb_nlon}
+export prodglb_nlat={prodglb_nlat}
+export atmos_tracker_base={atmos_tracker_base}
+export atmos_tracker_remap_weight={atmos_tracker_remap_weight}
+
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec
 

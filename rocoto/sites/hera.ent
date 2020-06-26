@@ -64,4 +64,4 @@
 
   <!ENTITY POST_RESOURCES "<nodes>3:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-
+  <!ENTITY PRODGLB_RESOURCES "<nodes>8:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:59:00</walltime>">

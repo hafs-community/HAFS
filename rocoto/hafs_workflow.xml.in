@@ -328,6 +328,24 @@
     </dependency>
   </task>
 
+@** if gtype==nest
+  <task name="prodglb" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_PRODGLB</command>
+    <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_prodglb.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &PRODGLB_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <taskdep task="forecast"/>
+    </dependency>
+  </task>
+@** endif
+
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -349,6 +367,9 @@
         <taskdep task="forecast"/>
         <taskdep task="post"/>
         <taskdep task="product"/>
+@** if gtype==nest
+        <taskdep task="prodglb"/>
+@** endif
       </and>
     </dependency>
   </task>
@@ -374,6 +395,9 @@
         <taskdep task="forecast"/>
         <taskdep task="post"/>
         <taskdep task="product"/>
+@** if gtype==nest
+        <taskdep task="prodglb"/>
+@** endif
         <taskdep task="archive_disk"/>
       </and>
     </dependency>
@@ -501,6 +525,9 @@
         <and>
           <taskdep task="post"/>
           <taskdep task="product"/>
+@** if gtype==nest
+          <taskdep task="prodglb"/>
+@** endif
         </and>
 
         <!-- Allow a scrubbed cycle to complete.  This is needed to
