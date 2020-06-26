@@ -112,6 +112,9 @@ for file in `ls $CO2DIR/global_co2historicaldata* ` ; do
  cp $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
+# Copy the fix files needed by the hwrf ccpp physics suite
+cp ${PARMhafs}/forecast/hwrf_physics_fix/* .
+
 if [ $gtype = nest ]; then
 
 #---------------------------------------------- 
