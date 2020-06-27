@@ -129,7 +129,7 @@
  "dynamics",      "z500",        "z500",         "atmos_tracker",     "all", .false.,  "none", 2
  "dynamics",      "z200",        "z200",         "atmos_tracker",     "all", .false.,  "none", 2
  "dynamics",      "rh850",       "rh850",        "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "rh850",       "rh500",        "atmos_tracker",     "all", .false.,  "none", 2
+ "dynamics",      "rh500",       "rh500",        "atmos_tracker",     "all", .false.,  "none", 2
 #"gfs_phys",      "u10m",        "u10m",         "atmos_tracker",     "all", .false.,  "none", 2
 #"gfs_phys",      "v10m",        "v10m",         "atmos_tracker",     "all", .false.,  "none", 2
 ###
