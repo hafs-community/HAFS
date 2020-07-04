@@ -18,7 +18,6 @@
      fhmaxhf = 0
      fhouthf = 3
      ccpp_suite = '_ccpp_suite_'
-     merge_import = _merge_import_
 /
 
 &diag_manager_nml
@@ -38,7 +37,7 @@
 /
 
  &fv_grid_nml
-       grid_file = 'INPUT/grid_spec.nc'
+       !grid_file = 'INPUT/grid_spec.nc'
 /
 
  &fv_core_nml
@@ -74,7 +73,7 @@
        p_fac = 0.1
        k_split  = 4
        n_split  = 5
-       nwat = 6
+       nwat = 4
        na_init = 1
        d_ext = 0.0
        dnats = 1
@@ -101,7 +100,7 @@
        hord_tr = 8
        adjust_dry_mass = .F.
        consv_te = 0.
-       do_sat_adj = .T.
+       do_sat_adj = .F.
        consv_am = .F.
        fill = .T.
        dwind_2d = .F.
@@ -114,17 +113,24 @@
        res_latlon_dynamics = "fv3_increment.nc"
        write_3d_diags = .true.
 
-       do_schmidt = .true.
-       target_lat = _target_lat_
-       target_lon = _target_lon_
-       stretch_fac = _stretch_fac_
-       regional = .true.
-       bc_update_interval = _bc_update_interval_
-       nrows_blend = _nrows_blend_
+       nested = .true.
+       twowaynest = .true.
+       parent_grid_num = 1
+       parent_tile = 6
+       refinement = _refinement_
+       ioffset = _ioffset_
+       joffset = _joffset_
+       nestupdate = 7
 
        full_zs_filter = .F. !unreleased feature
-       n_zs_filter = 0 ! safety
+       n_zs_filter = 1
        nord_zs_filter = 4
+/
+
+ &nest_nml
+       ntiles = 2
+       nest_pes = _glob_pes_,_nest_pes_
+       p_split = 1
 /
 
  &surf_map_nml
@@ -152,11 +158,22 @@
        lradar         = .true.
        avg_max_length = 3600.
        h2o_phys       = .true.
-       fhcyc          = 24.
+       fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
        ncld           = 5
-       imp_physics    = 11
+       imp_physics    = 15         ! F-A MP scheme 
+       RHGRD          = 1.0        ! F-A
+       spec_adv       = .true.     ! F-A
+       icloud         = 3          ! Thompson cloud fraction
+       iovr_lw        = 4          ! HWRF RRTMG
+       iovr_sw        = 4          ! HWRF RRTMG
+       hwrf_samfdeep  = .true.     ! HWRF SASdeep
+       hwrf_samfshal  = .true.     ! HWRF SASshal
+       asolfac_deep   = 0.89       ! HWRF SASdeep; GFS SAS:0.958
+       asolfac_shal   = 0.89       ! HWRF SASdeep; GFS SAS:0.958
+       hurr_pbl       = .T.        ! HWRF moninedmf
+       moninq_fac     = -1.0       ! HWRF moninedmf
        pdfcld         = .false.
        fhswr          = 3600.
        fhlwr          = 3600.
@@ -169,26 +186,24 @@
        isol           = 2
        lwhtr          = .true.
        swhtr          = .true.
-       cnvgwd         = .false.
-       shal_cnv       = .false. !Shallow convection
+       cnvgwd         = .true.
+       shal_cnv       = .true. !  HWRF SAS Shallow convection
        cal_pre        = .false.
        redrag         = .true.
        dspheat        = .true.
        hybedmf        = .true.
-       hurr_pbl       = .T.        ! HWRF moninedmf
-       moninq_fac     = -1.0       ! HWRF_moninedmf
        satmedmf       = .false.
        random_clds    = .false.
        trans_trac     = .true.
-       cnvcld         = .false.
+       cnvcld         = .true.
        imfshalcnv     = 2
        imfdeepcnv     = 2
        cdmbgwd        = 3.5, 0.01
-       sfc_z0_type    = 6 
+       sfc_z0_type    = 4      !HWRF 
        prslrd0        = 0.
        ivegsrc        = 1
        isot           = 1
-       lsm            = 1
+       lsm            = 4      !HWRF
        iopt_dveg      = 2
        iopt_crs       = 1
        iopt_btr       = 1
@@ -212,7 +227,7 @@
        iau_delthrs    = 6
        iaufhrs        = 30
        iau_inc_files  = ''
-       do_deep        = .false.
+       do_deep        = .true.
        lgfdlmprad     = .true.
        effr_in        = .true.
        do_sppt        = .F.

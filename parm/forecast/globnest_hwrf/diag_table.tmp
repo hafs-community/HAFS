@@ -119,9 +119,9 @@
 "gfs_dyn",     "rainwat",     "rwmr",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "snowwat",     "snmr",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "graupel",     "grle",      "fv3_history",    "all",  .false.,  "none",  2
+"gfs_dyn",     "q_rimef",     "qrim",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "ps",          "pressfc",   "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "hs",          "hgtsfc",    "fv3_history",    "all",  .false.,  "none",  2
-"gfs_dyn",     "cld_amt",     "cld_amt",   "fv3_history",    "all",  .false.,  "none",  2
 #"gfs_dyn",     "ice_nc",      "nicp",      "fv3_history",  "all",  .false.,  "none",  2
 #"gfs_dyn",     "rain_nc",     "ntrnc",     "fv3_history",  "all",  .false.,  "none",  2
 
@@ -201,6 +201,9 @@
 "gfs_phys",    "u10m",        "ugrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "v10m",        "vgrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "crain",       "crain",     "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",  "f_ice",         "f_ice",    "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "f_rain",        "f_rain",   "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "f_rimef",       "f_rimef",  "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_sfc",     "tprcp",       "tprcp",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "hgtsfc",      "orog",      "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "weasd",       "weasd",     "fv3_history2d",  "all",  .false.,  "none",  2
@@ -302,7 +305,11 @@
 "gfs_phys",    "nbdsf_ave",    "nbdsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "nddsf_ave",    "nddsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "trans_ave",    "trans_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
-
+#HWRF
+#"gfs_phys",    "cleffr",       "cleffr",        "fv3_history2d",  "all",  .false.,  "none",  2 
+#"gfs_phys",    "cieffr",       "cieffr",        "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "cseffr",       "cseffr",        "fv3_history2d",  "all",  .false.,  "none",  2
+#
 # Reflectivity from microphysics
 "gfs_phys", "refl_10cm", "refl_10cm", "fv3_history2d", "all", .false., "none", 2
 

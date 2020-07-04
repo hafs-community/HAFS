@@ -65,8 +65,8 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
 elif [[ -d /work/noaa ]] ; then
     # We are on MSU Orion
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-        echo load the module command 1>&2
-        source /apps/lmod/init/$__ms_shell
+	echo load the module command 1>&2
+        source /apps/lmod/lmod/init/$__ms_shell
     fi
     target=orion
     module purge

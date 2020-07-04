@@ -177,7 +177,8 @@
        redrag         = .true.
        dspheat        = .true.
        hybedmf        = .true.
-       moninq_fac     = -1.0
+       hurr_pbl       = .T.        ! HWRF moninedmf
+       moninq_fac     = -1.0       ! HWRF_moninedmf
        satmedmf       = .false.
        random_clds    = .false.
        trans_trac     = .true.
