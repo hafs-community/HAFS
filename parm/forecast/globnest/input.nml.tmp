@@ -123,10 +123,13 @@
        nord_zs_filter = 4
 /
 
- &nest_nml
-       ntiles = 2
-       nest_pes = _glob_pes_,_nest_pes_
-       p_split = 1
+ &fv_nest_nml
+       grid_pes = _glob_pes_, _nest_pes_
+       grid_coarse = 0, 1
+       tile_coarse = 0, 6
+       nest_refine = 0, _refinement_
+       nest_ioffsets= 1, _ioffset_
+       nest_joffsets= 1, _joffset_
 /
 
  &surf_map_nml
