@@ -181,6 +181,8 @@ cp ${ccpp_suite_glob_xml} .
 
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 nest_pes=$(( ${layoutx} * ${layouty} ))
+ioffset=$(( (istart_nest-1)/2 + 1))
+joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
@@ -192,6 +194,9 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
+    -e "s/_refinement_/${refine_ratio}/g" \
+    -e "s/_ioffset_/${ioffset}/g" \
+    -e "s/_joffset_/${joffset}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
@@ -206,9 +211,6 @@ sed -e "s/_fhmax_/${NHRS}/g" \
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
 cp ${ccpp_suite_nest_xml} .
-
-ioffset=$(( (istart_nest-1)/2 + 1))
-joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
