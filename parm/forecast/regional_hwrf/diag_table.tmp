@@ -2,8 +2,6 @@
 "grid_spec",     -1,  "months",  1,  "days",   "time"
 #"atmos_4xdaily",  1,  "hours",   1,  "days",   "time"
 "atmos_static",  -1,  "hours",   1,  "hours",  "time"
-# GFDL tracker needed variables
-"atmos_tracker",  3,  "hours",   1,  "hours",  "time"
 "fv3_history",    0,  "hours",   1,  "hours",  "time"
 "fv3_history2d",  0,  "hours",   1,  "hours",  "time"
 #"ref3D",          0,  "hours",   1,  "hours",  "time"
@@ -106,33 +104,6 @@
  "dynamics",      "hybm",        "hybm",         "atmos_static",      "all", .false.,  "none", 2
  "dynamics",      "zsurf",       "zsurf",        "atmos_static",      "all", .false.,  "none", 2
 ###
-# GFDL tracker needed variables
-###
- "dynamics",      "grid_lont",   "grid_lont",    "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "grid_latt",   "grid_latt",    "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vort850",     "vort850",      "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vort700",     "vort700",      "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "us",          "us",           "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u850",        "u850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u700",        "u700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u500",        "u500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vs",          "vs",           "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v850",        "v850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v700",        "v700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v500",        "v500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t850",        "t850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t500",        "t500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t300",        "t300",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "slp",         "slp",          "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z850",        "z850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z700",        "z700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z500",        "z500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z200",        "z200",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "rh850",       "rh850",        "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "rh500",       "rh500",        "atmos_tracker",     "all", .false.,  "none", 2
-#"gfs_phys",      "u10m",        "u10m",         "atmos_tracker",     "all", .false.,  "none", 2
-#"gfs_phys",      "v10m",        "v10m",         "atmos_tracker",     "all", .false.,  "none", 2
-###
 # FV3 variabls needed for NGGPS evaluation
 ###
 "gfs_dyn",     "ucomp",       "ugrd",      "fv3_history",    "all",  .false.,  "none",  2
@@ -148,9 +119,9 @@
 "gfs_dyn",     "rainwat",     "rwmr",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "snowwat",     "snmr",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "graupel",     "grle",      "fv3_history",    "all",  .false.,  "none",  2
+"gfs_dyn",     "q_rimef",     "qrim",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "ps",          "pressfc",   "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "hs",          "hgtsfc",    "fv3_history",    "all",  .false.,  "none",  2
-"gfs_dyn",     "cld_amt",     "cld_amt",   "fv3_history",    "all",  .false.,  "none",  2
 #"gfs_dyn",     "ice_nc",      "nicp",      "fv3_history",  "all",  .false.,  "none",  2
 #"gfs_dyn",     "rain_nc",     "ntrnc",     "fv3_history",  "all",  .false.,  "none",  2
 
@@ -230,6 +201,9 @@
 "gfs_phys",    "u10m",        "ugrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "v10m",        "vgrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "crain",       "crain",     "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",  "f_ice",         "f_ice",    "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "f_rain",        "f_rain",   "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "f_rimef",       "f_rimef",  "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_sfc",     "tprcp",       "tprcp",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "hgtsfc",      "orog",      "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "weasd",       "weasd",     "fv3_history2d",  "all",  .false.,  "none",  2
@@ -331,7 +305,11 @@
 "gfs_phys",    "nbdsf_ave",    "nbdsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "nddsf_ave",    "nddsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "trans_ave",    "trans_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
-
+#HWRF
+#"gfs_phys",    "cleffr",       "cleffr",        "fv3_history2d",  "all",  .false.,  "none",  2 
+#"gfs_phys",    "cieffr",       "cieffr",        "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "cseffr",       "cseffr",        "fv3_history2d",  "all",  .false.,  "none",  2
+#
 # Reflectivity from microphysics
 "gfs_phys", "refl_10cm", "refl_10cm", "fv3_history2d", "all", .false., "none", 2
 

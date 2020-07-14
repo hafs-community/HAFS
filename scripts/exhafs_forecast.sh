@@ -88,9 +88,9 @@ ln -sf ${INPdir}/*.nc INPUT/
 #cp ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
 
-#---------------------------------------------- 
+#----------------------------------------------
 # Copy all the necessary fix files
-#---------------------------------------------- 
+#----------------------------------------------
 cp $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
 cp $FIXam/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77 global_o3prdlos.f77
 cp $FIXam/global_h2o_pltc.f77               global_h2oprdlos.f77
@@ -121,11 +121,14 @@ for file in `ls $CO2DIR/global_co2historicaldata* ` ; do
  cp $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
+# Copy the fix files needed by the hwrf ccpp physics suite
+cp ${PARMhafs}/forecast/hwrf_physics_fix/* .
+
 if [ $gtype = nest ]; then
 
-#---------------------------------------------- 
+#----------------------------------------------
 # Copy tile data and orography
-#---------------------------------------------- 
+#----------------------------------------------
 for itile in $(seq 1 ${ntiles})
 do
   cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc INPUT/oro_data.tile${itile}.nc
@@ -162,16 +165,25 @@ cp ${PARMforecast}/nems.configure .
 
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
-nest_pes="${glob_pes}"
+grid_pes="${glob_pes}"
 for n in $(seq 1 ${nest_grids})
 do
   layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
   layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
-  nest_pes="${nest_pes},$(( $layoutx_tmp * $layouty_tmp ))"
+  grid_pes="${grid_pes},$(( $layoutx_tmp * $layouty_tmp ))"
 done
 
 ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
 cp ${ccpp_suite_glob_xml} .
+
+for n in $(seq 1 ${nest_grids})
+do
+  inest=$(( ${n} + 1 ))
+  istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
+  jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
+  ioffset="$ioffset,$(( ($istart_nest_tmp-1)/2 + 1))"
+  joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))
+done
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
@@ -183,8 +195,12 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_ngrids_/${ngrids}/g" \
-    -e "s/_nest_pes_/${nest_pes}/g" \
+    -e "s/_grid_pes_/${grid_pes}/g" \
+    -e "s/_parent_grid_num_/${parent_grid_num}/g" \
+    -e "s/_parent_tile_/${parent_tile}/g" \
+    -e "s/_refinement_/${refine_ratio}/g" \
+    -e "s/_ioffset_/${ioffset}/g" \
+    -e "s/_joffset_/${joffset}/g" \
     -e "s/_levp_/${LEVS}/g" \
     -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
     -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
@@ -199,19 +215,8 @@ cp ${ccpp_suite_nest_xml} .
 for n in $(seq 1 ${nest_grids})
 do
   inest=$(( ${n} + 1 ))
-  parent_grid_num_tmp=$( echo ${parent_grid_num} | cut -d , -f ${n} )
-  parent_tile_tmp=$( echo ${parent_tile} | cut -d , -f ${n} )
-  refine_ratio_tmp=$( echo ${refine_ratio} | cut -d , -f ${n} )
-  istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
-  jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
-  iend_nest_tmp=$( echo ${iend_nest} | cut -d , -f ${n} )
-  jend_nest_tmp=$( echo ${jend_nest} | cut -d , -f ${n} )
-  ioffset_tmp=$(( ($istart_nest_tmp-1)/2 + 1))
-  joffset_tmp=$(( ($jstart_nest_tmp-1)/2 + 1))
-
   layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
   layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
-
   npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
   npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
 
@@ -222,16 +227,6 @@ do
     -e "s/_npx_/${npx_tmp}/g" \
     -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
-    -e "s/_target_lat_/${target_lat}/g" \
-    -e "s/_target_lon_/${target_lon}/g" \
-    -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_parent_grid_num_/${parent_grid_num_tmp}/g" \
-    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
-    -e "s/_refinement_/${refine_ratio_tmp}/g" \
-    -e "s/_ioffset_/${ioffset_tmp}/g" \
-    -e "s/_joffset_/${joffset_tmp}/g" \
-    -e "s/_ngrids_/${ngrids}/g" \
-    -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
     -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
     -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
@@ -243,9 +238,9 @@ done
 
 elif [ $gtype = regional ]; then
 
-#---------------------------------------------- 
+#----------------------------------------------
 # Copy tile data and orography for regional
-#---------------------------------------------- 
+#----------------------------------------------
 tile=7
 # Copy grid and orog files (halo[034])
 cp $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc INPUT/.
@@ -298,7 +293,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
 	input.nml.tmp > input.nml
 
 fi
- 
+
 #-------------------------------------------------------------------
 # Generate diag_table, model_configure from their tempelates
 #-------------------------------------------------------------------

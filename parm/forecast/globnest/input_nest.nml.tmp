@@ -115,22 +115,11 @@
 
        nested = .true.
        twowaynest = .true.
-       parent_grid_num = _parent_grid_num_
-       parent_tile = _parent_tile_
-       refinement = _refinement_
-       ioffset = _ioffset_
-       joffset = _joffset_
        nestupdate = 7
 
        full_zs_filter = .F. !unreleased feature
        n_zs_filter = 1
        nord_zs_filter = 4
-/
-
- &nest_nml
-       ngrids = _ngrids_
-       nest_pes = _nest_pes_
-       p_split = 1
 /
 
  &surf_map_nml

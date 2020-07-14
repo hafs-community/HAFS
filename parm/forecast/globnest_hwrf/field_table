@@ -9,20 +9,18 @@
            "longname",     "cloud water mixing ratio"
            "units",        "kg/kg"
        "profile_type", "fixed", "surface_value=1.e30" /
- "TRACER", "atmos_mod", "rainwat"
-           "longname",     "rain mixing ratio"
-           "units",        "kg/kg"
-       "profile_type", "fixed", "surface_value=1.e30" /
  "TRACER", "atmos_mod", "ice_wat"
            "longname",     "cloud ice mixing ratio"
            "units",        "kg/kg"
        "profile_type", "fixed", "surface_value=1.e30" /
- "TRACER", "atmos_mod", "snowwat"
-           "longname",     "snow mixing ratio"
+# prognostic rain water mixing ratio
+ "TRACER", "atmos_mod", "rainwat"
+           "longname",     "rain mixing ratio"
            "units",        "kg/kg"
        "profile_type", "fixed", "surface_value=1.e30" /
- "TRACER", "atmos_mod", "graupel"
-           "longname",     "graupel mixing ratio"
+# prognostic mass weighted rime factor
+ "TRACER", "atmos_mod", "q_rimef"
+           "longname",     "mass weighted rime factor"
            "units",        "kg/kg"
        "profile_type", "fixed", "surface_value=1.e30" /
 # prognostic ozone mixing ratio tracer
