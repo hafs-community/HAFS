@@ -33,7 +33,7 @@
   trkrinfo%inp_data_type = "grib",
   trkrinfo%gribver = 2,
   trkrinfo%g2_jpdtn = 0,
-  trkrinfo%g2_mslp_parm_id = 1,
+  trkrinfo%g2_mslp_parm_id = 192,
   trkrinfo%g1_mslp_parm_id = 2,
   trkrinfo%g1_sfcwind_lev_typ = 105,
   trkrinfo%g1_sfcwind_lev_val = 10,
