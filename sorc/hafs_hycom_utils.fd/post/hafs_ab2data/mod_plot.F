@@ -16,7 +16,11 @@ c --- ms-1  = max. number of interruptions of any grid row or column by land
 c --- msd-1 = max. number of interruptions of diagonal rows/columns by land
 c
 c      integer, parameter :: ms=31, msd=31
-      integer, parameter :: ms=51, msd=51
+      integer, parameter :: ms=99, msd=99
+c --- loneta  = oneta  in input (and output) archives
+c --- lwtrflx = wtrflx in input (and output) archives
+c
+      logical, save :: loneta,lwtrflx
 c
 c --- input file names
 c
@@ -36,10 +40,10 @@ c
      &   diaflx, ubaro,vbaro,pbaro,kebaro, montg,srfht,dpbl,dpmixl,
      &   tmix,smix,thmix,umix,vmix,kemix, 
      &   depths,coast,plon,plat,qlon,qlat,ulon,ulat,vlon,vlat,
-     &   surflx,salflx, ttrend,strend,emnp, covice,thkice,temice,
+     &   surflx,salflx,wtrflx, ttrend,strend,emnp, covice,thkice,temice,
      &   scux,scvx,scpx,scuy,scvy,scpy,scu2,scv2,scp2,
      &   surflx_evap,surflx_snsi,surflx_assi,ttrenda,
-     &   field, steric,
+     &   field, steric, oneta, onetas,
      &  stressx,stressy,precip,rflux,swflux,atmpres,ssflux,lflux,
      &  gfsstx,gfssty,gprcp,grdfx,gswfx,gatps,
      &   ohcs,z26c,z20c
@@ -75,6 +79,9 @@ c
       ii2 = ii - 2
       jj1 = jj - 1
       jj2 = jj - 2
+c
+      loneta  = .false. !default
+      lwtrflx = .false. !default
 c
       allocate(      u(ii,jj,kkmax*2) )
       allocate(      v(ii,jj,kkmax*2) )
@@ -120,6 +127,7 @@ c
       allocate( surflx_snsi(ii,jj) )
       allocate( surflx_assi(ii,jj) )
       allocate( salflx(ii,jj) )
+      allocate( wtrflx(ii,jj) )
       allocate( ttrend(ii,jj) )
       allocate( ttrenda(ii,jj) )
       allocate( strend(ii,jj) )
@@ -138,6 +146,7 @@ c
       allocate(   scp2(ii,jj) )
 c
       allocate(steric(ii,jj) )
+      allocate(  oneta(ii,jj) )
 
       allocate(stressx(ii,jj) )
       allocate(stressy(ii,jj) )

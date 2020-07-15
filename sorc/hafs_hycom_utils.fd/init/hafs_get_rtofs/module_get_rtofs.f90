@@ -279,7 +279,7 @@ contains !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           lead_time=0
        else
           ! Archv files lead time depends on RTOFS analysis time.
-          lead_time=24*(itime-1)+list%starthr+(mywork-2)*list%stephr
+          lead_time=6*(itime-1)+list%starthr+(mywork-2)*list%stephr
        endif
  
        ! Make sure we are allowed to access this lead time from the

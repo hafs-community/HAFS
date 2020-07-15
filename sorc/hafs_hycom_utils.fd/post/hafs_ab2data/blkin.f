@@ -117,3 +117,74 @@ c
       return
  6000 format('blkinl: ',a6,' =',l6)
       end
+
+      subroutine blkinl_99(lvar,cvar)
+      implicit none
+c
+      logical     lvar
+      character*6 cvar
+c
+      integer       lp
+      common/linepr/lp
+c
+c     read in one logical value from unit 99
+c     due to a SGI bug for logical I/O: read in an integer 0=F,1=T
+c
+      character*6 cvarin
+      integer     ivar
+c
+      read(99,*) ivar,cvarin
+      lvar = ivar .ne. 0
+      write(lp,6000) cvarin,lvar
+      call flush(lp)
+c
+      if     (cvar.ne.cvarin) then
+        write(lp,*)
+        write(lp,*) 'error in blkinl_99 - input ',cvarin,
+     +                      ' but should be ',cvar
+        write(lp,*)
+        call flush(lp)
+        stop
+      endif
+      return
+ 6000 format('blkinl: ',a6,' =',l6)
+      end
+
+      subroutine blkinl2_99(lvar,nvar,cvar1,cvar2)
+      implicit none
+c
+      logical     lvar
+      integer     nvar
+      character*6 cvar1,cvar2
+c
+      integer       lp
+      common/linepr/lp
+c
+c     read in one logical value from unit 99
+c     identified as either cvar1 (return nvar=1) or cvar2 (return nvar=2)
+c     due to a SGI bug for logical I/O: read in an integer 0=F,1=T
+c
+      character*6 cvarin
+      integer     ivar
+c
+      read(99,*) ivar,cvarin
+      lvar = ivar .ne. 0
+      write(lp,6000) cvarin,lvar
+      call flush(lp)
+c
+      if     (cvarin.eq.cvar1) then
+        nvar = 1
+      elseif (cvarin.eq.cvar2) then
+        nvar = 2
+      else
+        write(lp,*)
+        write(lp,*) 'error in blkinl2_99 - input ',cvarin,
+     +                      ' but should be ',cvar1,' or ',cvar2
+        write(lp,*)
+        call flush(lp)
+        stop
+      endif
+      return
+ 6000 format('blkinl: ',a6,' =',l6)
+      end
+

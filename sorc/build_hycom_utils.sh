@@ -17,46 +17,9 @@ else
   export MOD_PATH=${cwd}/lib/modulefiles
 fi
 
-if [ $target = wcoss ]; then
-
-    echo "Does not support wcoss phase 1/2."
-    exit 1
-
-elif [ $target = hera ]; then
-
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-elif [ $target = orion ]; then
-
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-elif [ $target = jet ]; then
-
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-elif [ $target = wcoss_cray ]; then
-
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-elif [ $target = wcoss_dell_p3 ]; then
-
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-else
-
-    echo "Unknown machine = $target"
-    exit 1
-fi
+module use hafs_hycom_utils.fd/modulefiles
+module load modulefile.hycom_utils.$target
+module list
 
 #export NETCDF_INCLUDE=${NETCDF_INCLUDE:-"-I${NETCDF}/include"}
 #export NETCDF_LDFLAGS=${NETCDF_LDFLAGS:-"-L${NETCDF}/lib -lnetcdf -lnetcdff"}

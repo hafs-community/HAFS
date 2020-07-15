@@ -155,7 +155,6 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
 
         logger.info('FRD: oceands=%s'%(repr(oceands)))
 
-        cyc=self.conf.cycle
         oceanatime=datetime.datetime(cyc.year,cyc.month,cyc.day,0,0,0)
         cyctime=to_timedelta(cyc.hour*3600)
         logger.info('FRD: oceanatime=%s'%(repr(oceanatime)))
@@ -191,17 +190,18 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             # from PDY (loc0)
             if zerostat==0:
                 lastleadtimetoday=0
-                #starthr=cyc.hour-24
+                #-org: starthr=cyc.hour-24
                 # need to change it into
                 starthr=cyc.hour
-                endhr=cyc.hour
+                #-org: endhr=cyc.hour
+                endhr=cyc.hour+18
                 logger.info('FRDa: dir0=%s starthr=%d endhr=%d lastleadtimetoday=%d'%(repr(dir0),starthr,endhr,lastleadtimetoday))
                 with open(parmin,'rt') as inf:
                     with open(parmout,'wt') as outf:
                         outf.write(ni.parse(inf,logger,parmin,atime=rtofs_atime,
                             INDIR1=dir0,INDIR2=dir0,INDIR3=dir0,
                             STARTHR=starthr,ENDHR=endhr,
-                            LAST_LEAD_TIME_TODAY=96))
+                            LAST_LEAD_TIME_TODAY=18))
                 checkrun(mpirun(mpi(self.getexe('hafs_get_rtofs')),allranks=True),logger=logger)
                 os.rename('get_rtofs.nml','get_rtofs.nml.0')
 
@@ -1298,91 +1298,125 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
 
         stime=self.conf.cycle
 
-        navtime=6
+        navtime=3
         epsilon=.1
         while navtime<fcstlen+epsilon:
-           archtime=to_datetime_rel(navtime*3600,stime)
-           archtimestring=archtime.strftime('%Y_%j_%H')
-           if archtime.hour==0 or archtime.hour==6 or archtime.hour==12 or archtime.hour==18:
-              notabin='archv.%s'%(archtimestring)
-           logfile=''.join([notabin,'.txt'])
-
-           timesslept=0
-           sleepmax=180
-           while timesslept<sleepmax:
-              if os.path.exists("../forecast/"+logfile):
-                 break
-              else:
-                 timesslept=timesslept+1
-                 logger.warning('Cannot find file %s %d times'%( repr(logfile),timesslept))
-                 time.sleep(10)
-           if timesslept>=sleepmax:
-              logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
-              raise exception
-
-           logger.info('Will create ocean products for %s '%( repr(notabin)))
-           afile=''.join(['../forecast/'+notabin,'.a'])
-           bfile=''.join(['../forecast/'+notabin,'.b'])
-           produtil.fileop.make_symlink(afile,'archv.a',force=True,logger=logger)
-           produtil.fileop.make_symlink(bfile,'archv.b',force=True,logger=logger)
-
-           with open('topzfile','wt') as inf:
-                        inf.write("""archv.b
-HYCOM
+            archtime=to_datetime_rel(navtime*3600,stime)
+            archtimestring=archtime.strftime('%Y_%j_%H')
+            if archtime.hour in [0, 6, 12, 18]:
+                # convert archv.[ab] to .nc
+                notabin='archv.%s'%(archtimestring)
+                logfile=''.join([notabin,'.txt'])
+                timesslept=0
+                sleepmax=180
+                while timesslept<sleepmax:
+                    if os.path.exists("../forecast/"+logfile):
+                        break
+                    else:
+                        timesslept=timesslept+1
+                        logger.warning('Cannot find file %s %d times'%( repr(logfile),timesslept))
+                        time.sleep(10)
+                if timesslept>=sleepmax:
+                    logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
+                    raise exception
+                logger.info('Will create ocean products for %s '%( repr(notabin)))
+                afile=''.join(['../forecast/'+notabin,'.a'])
+                bfile=''.join(['../forecast/'+notabin,'.b'])
+                archxa='archv.a'
+                archxb='archv.b'
+                produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)
+                produtil.fileop.make_symlink(bfile,archxb,force=True,logger=logger)
+                with open('topzfile','wt') as inf:
+                    inf.write("""%s
+NetCDF
 %d         'yyyy'   = year
 %d         'month ' = month
 %d         'day   ' = day
 %d         'hour  ' = hour
 %d         'verfhr' = verification hour
-""" %( int(stime.year),int(stime.month),int(stime.day),int(stime.hour),navtime))
+""" %(archxb,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),navtime))
+                logger.info('Do Volume HERE')
+                ## volume_3z to NetCDF
+                #concat topzinfile and parmfile
+                parmfile='%s/hafs_hycom.archv2data_3z.in'%(PARMhycom)
+                filenames = ['topzfile',parmfile]
+                with open('tempinfile', 'w') as iff:
+                    for fname in filenames:
+                        with open(fname) as filen:
+                            iff.write(filen.read())
+                #replace idm,jdm,kdm
+                replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
+                with open ('tempinfile') as inf:
+                    with open ('infile','w') as outf:
+                        for line in inf:
+                            for src,targ in replacements.items():
+                                line=line.replace(src,targ)
+                            outf.write(line)
+                outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+                outfileNC=outfile+'.nc'
+                archv2data=alias(exe(self.getexe('hafs_archv2data3z')).env(CDF051=outfileNC))
+                checkrun(archv2data<'infile',logger=logger)
+                deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+                # deliver ab files to comout
+                notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
+                deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
+                deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
 
-           if archtime.hour==0 or archtime.hour==6 or archtime.hour==12 or archtime.hour==18:
-               logger.info('Do Volume HERE')
-               ## volume_3z
-               #concat topzinfile and parmfile
-               parmfile='%s/hafs_hycom.archv2data_3z.in'%(PARMhycom)
-               filenames = ['topzfile',parmfile]
-               with open('tempinfile', 'w') as iff:
-                   for fname in filenames:
-                       with open(fname) as filen:
-                           iff.write(filen.read())
-               #replace idm,jdm,kdm
-               replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
-               with open ('tempinfile') as inf:
-                   with open ('infile','w') as outf:
-                       for line in inf:
-                          for src,targ in replacements.items():
-                             line=line.replace(src,targ)
-                          outf.write(line)
+            # convert 3-hrly archs.[ab] to .nc
+            notabin='archs.%s'%(archtimestring)
+            logfile=''.join([notabin,'.txt'])
+            timesslept=0
+            sleepmax=180
+            while timesslept<sleepmax:
+               if os.path.exists("../forecast/"+logfile):
+                  break
+               else:
+                  timesslept=timesslept+1
+                  logger.warning('Cannot find file %s %d times'%( repr(logfile),timesslept))
+                  time.sleep(10)
+            if timesslept>=sleepmax:
+               logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
+               raise exception
+            logger.info('Will create ocean products for %s '%( repr(notabin)))
+            afile=''.join(['../forecast/'+notabin,'.a'])
+            bfile=''.join(['../forecast/'+notabin,'.b'])
+            archxa='archs.a'
+            archxb='archs.b'
+            produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)
+            produtil.fileop.make_symlink(bfile,archxb,force=True,logger=logger)
+            with open('topzfile','wt') as inf:
+                inf.write("""%s
+NetCDF
+%d         'yyyy'   = year
+%d         'month ' = month
+%d         'day   ' = day
+%d         'hour  ' = hour
+%d         'verfhr' = verification hour
+""" %(archxb,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),navtime))
+            logger.info('Do SURFACE HERE')
+            ## surface_2d to NetCDF
+            #concat topzinfile and parmfile
+            parmfile='%s/hafs_hycom.archv2data_2d.in'%(PARMhycom)
+            filenames = ['topzfile',parmfile]
+            with open('tempinfile', 'w') as iff:
+                for fname in filenames:
+                    with open(fname) as filen:
+                        iff.write(filen.read())
+            #replace idm,jdm,kdm
+            replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
+            with open ('tempinfile') as inf:
+                with open ('infile','w') as outf:
+                    for line in inf:
+                        for src,targ in replacements.items():
+                            line=line.replace(src,targ)
+                        outf.write(line)
+            outfile='%s.%04d%02d%02d%02d.hafs_%s_2d.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+            outfileNC=outfile+'.nc'
+            archv2data=alias(exe(self.getexe('hafs_archv2data2d')).env(CDF001=outfileNC))
+            checkrun(archv2data<'infile',logger=logger)
+            deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
 
-               archv2data=alias(exe(self.getexe('hafs_archv2data3z')))
-               checkrun(archv2data<'infile',logger=logger)
-               i=1
-               with open ('archv.b','rt') as ib:
-                   with open ('partialb','wt') as pb:
-                       for line in ib:
-                           if i>4 and i<11:
-                               pb.write(line)
-                           i=i+1
-               outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
-               outfilea=outfile+'.a'
-               outfileb=outfile+'.b'
-               filenames = ['partialb', 'fort.51']
-               with open(outfileb,'w') as ob:
-                   for fname in filenames:
-                       with open(fname) as filen:
-                           ob.write(filen.read())
-               os.rename('fort.051a',outfilea)
-               deliver_file(outfilea,self.icstr('{com}/'+outfilea),keep=False,logger=logger)
-               deliver_file(outfileb,self.icstr('{com}/'+outfileb),keep=False,logger=logger)
-               remove_file('fort.51',info=True,logger=logger)
-
-           # deliver ab files to comout
-           notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
-           deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
-           deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
-
-           # this is the frequency of files
-           navtime+=6
+            # this is the frequency of files
+            navtime+=3
         logger.info('finishing up here')
         return

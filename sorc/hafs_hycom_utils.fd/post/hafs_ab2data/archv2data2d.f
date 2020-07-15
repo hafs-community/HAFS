@@ -14,7 +14,7 @@ c
       common/conrng/ amn,amx
 c
       character flnm*240,frmt*80
-      logical   smooth,mthin,icegln,lperiod
+      logical   smooth,mthin,icegln,lperiod,lsteric
 c
       logical plot4(4)
       real    qq4(4),qc4(4)
@@ -142,7 +142,7 @@ c ---   The size of the subgrid is determined by ii,jj.
         write (lp,'(2(a,i5),9x,2(a,i5))') 'extracting i =',iorign,
      &    ' ...',iorign+ii-1,'j =',jorign,' ...',jorign+jj-1
         call flush(lp)
-
+c
 c
 c --- array allocation
 c
@@ -174,21 +174,16 @@ c
       enddo
 c
 c --- read the archive file.
-c
-      if (lhycom) then
+c     
         call getdat(flnm,time3,artype,initl,icegln,trcout,surflg,
      &              iexpt,iversn,yrflag,kkin)       ! hycom input
         time = time3(3)
-      else
-        call getdtm(flnm,time,initl, thbase)        ! micom input
-        artype = 1
-        iversn = 10
-      endif
+
 c
-      if     (artype.eq.3) then
-        smooth = .false.
-        mthin  = .false.
-      endif
+c      if     (artype.eq.3) then
+c        smooth = .false.
+c        mthin  = .false.
+c      endif
 c
       write(lp,'(/a,2f8.2/a,2f8.2)') 
      &     'sub-domain longitude range = ',
@@ -244,6 +239,7 @@ c
 c
         call bigrd1(depth1)
 c
+
       do 3 k=1,kkin
       do 3 j=1,jj
       do 3 i=1,ii
@@ -277,10 +273,10 @@ c --- convert layer thickness to meters
         dp(i,j,k)=dp(i,j,k)/9806.
         p(i,j,k+1)=p(i,j,k)+dp(i,j,k)
         th3d(i,j,2*k)=th3d(i,j,2*k)+thbase
-      else
-        saln(i,j,2*k)=flag
-        temp(i,j,2*k)=flag
-        th3d(i,j,2*k)=flag
+c      else
+c        saln(i,j,2*k)=flag
+c        temp(i,j,2*k)=flag
+c        th3d(i,j,2*k)=flag
         ke(  i,j,2*k)=flag
         dp(i,j,k)=flag
         p(i,j,k+1)=flag
@@ -446,6 +442,7 @@ c
         do 71 k1=1,kkin
         delp=max(0.,min(p(i,j,k1+1),phi)-max(p(i,j,k1),plo))
         sum=sum+delp
+c
         temp(i,j,2*k-1)=temp(i,j,2*k-1)+temp(i,j,2*k1)*delp
         saln(i,j,2*k-1)=saln(i,j,2*k-1)+saln(i,j,2*k1)*delp
  71     th3d(i,j,2*k-1)=th3d(i,j,2*k-1)+th3d(i,j,2*k1)*delp
@@ -477,10 +474,10 @@ c
         temp(i,j,2*k-1)=temp(i,j,2*k)*util1(i,j)
         saln(i,j,2*k-1)=saln(i,j,2*k)*util1(i,j)
         th3d(i,j,2*k-1)=th3d(i,j,2*k)*util1(i,j)
-      else
-        temp(i,j,2*k-1)=flag
-        saln(i,j,2*k-1)=flag
-        th3d(i,j,2*k-1)=flag
+c      else
+c        temp(i,j,2*k-1)=flag
+c        saln(i,j,2*k-1)=flag
+c        th3d(i,j,2*k-1)=flag
       end if
  76   continue
 c
@@ -901,8 +898,8 @@ c --- 'mltio ' = mix. lay. thick. I/O unit (0 no I/O)
      &              k,ltheta, frmt,ioin,fdate,verfhour)
       endif
 c
-c --- 'sstio ' = mix. lay. temp.  I/O unit (0 no I/O)
-      call blkini(ioin,'sstio ')
+c --- 'mxtio ' = mix. lay. temp.  I/O unit (0 no I/O)
+      call blkini(ioin,'mxtio ')
 
       if (ioin.gt.0) then
         do j=1,jj
@@ -933,8 +930,8 @@ c                  call pot_t2t(smix(i,j),t_deg,depth_m,util1(i,j))
      &              k,ltheta, frmt,ioin,fdate,verfhour)
       endif
 c
-c --- 'sssio ' = mix. lay. saln.  I/O unit (0 no I/O)
-      call blkini(ioin,'sssio ')
+c --- 'mxsio ' = mix. lay. saln.  I/O unit (0 no I/O)
+      call blkini(ioin,'mxsio ')
       if (ioin.gt.0) then
         call horout(smix,  artype,yrflag,time3,iexpt,lhycom,
      &              'mix.layr.saln     ',       ! plot name
@@ -943,8 +940,8 @@ c --- 'sssio ' = mix. lay. saln.  I/O unit (0 no I/O)
      &              k,ltheta, frmt,ioin,fdate,verfhour)
       endif
 c
-c --- 'ssdio ' = mix. lay. dens.  I/O unit (0 no I/O)
-      call blkini(ioin,'ssdio ')
+c --- 'mxdio ' = mix. lay. dens.  I/O unit (0 no I/O)
+      call blkini(ioin,'mxdio ')
       if (ioin.gt.0) then
         call horout(thmix, artype,yrflag,time3,iexpt,lhycom,
      &              'mix.layr.dens     ',       ! plot name
@@ -1372,134 +1369,136 @@ c
 c
       enddo  !layer loop
 
-c new code for atmos vars
-c --- 'stxio ' = 
-      call blkini(ioin,'stxio ')
-      if (ioin.gt.0) then
-        call horout(stressx, artype,yrflag,time3,iexpt,lhycom,
-     &              ' stressx ',                ! plot name
-     &              'stress_x ',                ! ncdf name
-     &              'N/m2',                     ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'stxio ' = 
-      call blkini(ioin,'styio ')
-      if (ioin.gt.0) then
-        call horout(stressy, artype,yrflag,time3,iexpt,lhycom,
-     &              ' stressy ',                ! plot name
-     &              'stress_y ',                ! ncdf name
-     &              'N/m2',                     ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'pcpio ' = 
-      call blkini(ioin,'pcpio ')
-      if (ioin.gt.0) then
-        call horout(precip, artype,yrflag,time3,iexpt,lhycom,
-     &              ' precip ',               ! plot name
-     &              'precip ',                ! ncdf name
-     &              'kg/m2/s',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'rdfio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'rdfio ')
-      if (ioin.gt.0) then
-        call horout(rflux, artype,yrflag,time3,iexpt,lhycom,
-     &              ' radflux ',               ! plot name
-     &              'rad-flux ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'swfio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'swfio ')
-      if (ioin.gt.0) then
-        call horout(swflux, artype,yrflag,time3,iexpt,lhycom,
-     &              ' swrflux ',               ! plot name
-     &              'swr-flux ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'atpio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'atpio ')
-      if (ioin.gt.0) then
-        call horout(atmpres, artype,yrflag,time3,iexpt,lhycom,
-     &              ' atmpres ',               ! plot name
-     &              'atm-pres ',                ! ncdf name
-     &              'Pa',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'snfio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'snfio ')
-      if (ioin.gt.0) then
-        call horout(ssflux, artype,yrflag,time3,iexpt,lhycom,
-     &              ' snsflux ',               ! plot name
-     &              'sns-flux ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'ltfio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'ltfio ')
-      if (ioin.gt.0) then
-        call horout(lflux, artype,yrflag,time3,iexpt,lhycom,
-     &              ' latflux ',               ! plot name
-     &              'lat-flux ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'gsxio '
-      call blkini(ioin,'gsxio ')
-      if (ioin.gt.0) then
-        call horout(gfsstx, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsstrx ',               ! plot name
-     &              'gfs_strx ',                ! ncdf name
-     &              'N/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'gsyio ' 
-      call blkini(ioin,'gsyio ')
-      if (ioin.gt.0) then
-        call horout(gfssty, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsstry ',               ! plot name
-     &              'gfs_stry ',                ! ncdf name
-     &              'N/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'gpcio '
-      call blkini(ioin,'gpcio ')
-      if (ioin.gt.0) then
-        call horout(gprcp, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsprcp ',               ! plot name
-     &              'gfs_prcp ',                ! ncdf name
-     &              'kg/m2/s',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'grdio '
-      call blkini(ioin,'grdio ')
-      if (ioin.gt.0) then
-        call horout(grdfx, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsrdfx ',               ! plot name
-     &              'gfs_rdfx ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'gswio '
-      call blkini(ioin,'gswio ')
-      if (ioin.gt.0) then
-        call horout(gswfx, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsswfx ',               ! plot name
-     &              'gfs_swfx ',                ! ncdf name
-     &              'W/m2',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c --- 'gapio ' = baro v-vel.  I/O unit (0 no I/O)
-      call blkini(ioin,'gapio ')
-      if (ioin.gt.0) then
-        call horout(gatps, artype,yrflag,time3,iexpt,lhycom,
-     &              ' gfsatps ',               ! plot name
-     &              'gfs_atps ',                ! ncdf name
-     &              'Pa',                  ! units
-     &              k,ltheta, frmt,ioin,fdate,verfhour)
-      endif
-c end atmos vars
+c-hsk July 2020: commented out
+cc new code for atmos vars
+cc --- 'stxio ' = 
+c      call blkini(ioin,'stxio ')
+c      if (ioin.gt.0) then
+c        call horout(stressx, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' stressx ',                ! plot name
+c     &              'stress_x ',                ! ncdf name
+c     &              'N/m2',                     ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'stxio ' = 
+c      call blkini(ioin,'styio ')
+c      if (ioin.gt.0) then
+c        call horout(stressy, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' stressy ',                ! plot name
+c     &              'stress_y ',                ! ncdf name
+c     &              'N/m2',                     ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'pcpio ' = 
+c      call blkini(ioin,'pcpio ')
+c      if (ioin.gt.0) then
+c        call horout(precip, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' precip ',               ! plot name
+c     &              'precip ',                ! ncdf name
+c     &              'kg/m2/s',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'rdfio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'rdfio ')
+c      if (ioin.gt.0) then
+c        call horout(rflux, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' radflux ',               ! plot name
+c     &              'rad-flux ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'swfio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'swfio ')
+c      if (ioin.gt.0) then
+c        call horout(swflux, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' swrflux ',               ! plot name
+c     &              'swr-flux ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'atpio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'atpio ')
+c      if (ioin.gt.0) then
+c        call horout(atmpres, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' atmpres ',               ! plot name
+c     &              'atm-pres ',                ! ncdf name
+c     &              'Pa',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'snfio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'snfio ')
+c      if (ioin.gt.0) then
+c        call horout(ssflux, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' snsflux ',               ! plot name
+c     &              'sns-flux ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'ltfio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'ltfio ')
+c      if (ioin.gt.0) then
+c        call horout(lflux, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' latflux ',               ! plot name
+c     &              'lat-flux ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'gsxio '
+c      call blkini(ioin,'gsxio ')
+c      if (ioin.gt.0) then
+c        call horout(gfsstx, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsstrx ',               ! plot name
+c     &              'gfs_strx ',                ! ncdf name
+c     &              'N/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'gsyio ' 
+c      call blkini(ioin,'gsyio ')
+c      if (ioin.gt.0) then
+c        call horout(gfssty, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsstry ',               ! plot name
+c     &              'gfs_stry ',                ! ncdf name
+c     &              'N/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'gpcio '
+c      call blkini(ioin,'gpcio ')
+c      if (ioin.gt.0) then
+c        call horout(gprcp, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsprcp ',               ! plot name
+c     &              'gfs_prcp ',                ! ncdf name
+c     &              'kg/m2/s',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'grdio '
+c      call blkini(ioin,'grdio ')
+c      if (ioin.gt.0) then
+c        call horout(grdfx, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsrdfx ',               ! plot name
+c     &              'gfs_rdfx ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'gswio '
+c      call blkini(ioin,'gswio ')
+c      if (ioin.gt.0) then
+c        call horout(gswfx, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsswfx ',               ! plot name
+c     &              'gfs_swfx ',                ! ncdf name
+c     &              'W/m2',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc --- 'gapio ' = baro v-vel.  I/O unit (0 no I/O)
+c      call blkini(ioin,'gapio ')
+c      if (ioin.gt.0) then
+c        call horout(gatps, artype,yrflag,time3,iexpt,lhycom,
+c     &              ' gfsatps ',               ! plot name
+c     &              'gfs_atps ',                ! ncdf name
+c     &              'Pa',                  ! units
+c     &              k,ltheta, frmt,ioin,fdate,verfhour)
+c      endif
+cc end atmos vars
+c-hsk 2020
 c
 c -- close unit if open
 c
