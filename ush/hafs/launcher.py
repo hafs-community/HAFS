@@ -1325,8 +1325,8 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
-        *  cap_run_vortexinit --- capitalized version of [config]
-            section run_vortexinit
+        *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
+        *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
         assert(isinstance(part1,str))
@@ -1399,6 +1399,10 @@ class HAFSLauncher(HAFSConfig):
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',
                  ('YES' if reloc_flag else 'NO'))
+
+        gplot_flag=self.getbool('config','run_hrdgraphics')
+        self.set('holdvars','cap_run_hrdgraphics',
+                 ('YES' if gplot_flag else 'NO'))
 
         with open(self.strinterp('dir',part1),'rt') as f:
             for line in f:

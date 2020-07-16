@@ -31,6 +31,10 @@ CDSAVE=/lfs4/HFIP/{disk_project}/{ENV[USER]}
 syndat=/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/lfs1/HFIP/hwrf-data/hafs-input/COMGFS
+## A-Deck directory for graphics
+ADECKhafs=/lfs1/HFIP/hur-aoml/Ghassan.Alaka/adeck/NHC
+## B-Deck directory for graphics
+BDECKhafs=/lfs1/HFIP/hur-aoml/Ghassan.Alaka/bdeck
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]
