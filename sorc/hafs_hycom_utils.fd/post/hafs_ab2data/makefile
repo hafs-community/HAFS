@@ -15,7 +15,8 @@ MODB     =	mod_plot.o mod_xc.o mod_za.o mod_zb.o wtime.o
 EXEC     =      ../../exec
 
 programs=  ../../exec/hafs_archv2data3z \
-	   ../../exec/hafs_archv2data2d
+	   ../../exec/hafs_archv2data2d \
+	   ../../exec/hafs_archv3z2nc
 
 all: ${programs}
 
@@ -32,7 +33,8 @@ DATAX_OBJ = 	bigrid.o  bigrd1.o blkin.o    \
 		          indxi.o  indxj.o    \
                 pakk.o    poisnd.o psmoo.o    \
 		sbmerg.o  zebra.o  zh.o       \
-                dum_gks.o 
+                dum_gks.o  \
+		getdat4rtofs.o 
 
 DATAH_OBJ = 	$(DATAX_OBJ) horout_nc.o
 DATAZ_OBJ = 	$(DATAH_OBJ) layer2z.o
@@ -55,8 +57,12 @@ THERM_OBJ=      pot2pot0.o
 ../../exec/hafs_archv2data2d:  $(MODB) archv2data2d.o  $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
 	$(FC) $(LDFLAGS) -o $@  archv2data2d.o  $(MODB) $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
 
+../../exec/hafs_archv3z2nc:  $(MODB) archv3z2nc.o  $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ)
+	$(FC) $(LDFLAGS) -o $@  archv3z2nc.o  $(MODB) $(NCDFZ_OBJ) $(GRIB_OBJ) $(THERM_OBJ) $(LIBS)
+
 archv2data2d.o:  archv2data2d.f  mod_plot.o mod_za.o
-archv2data3z.o:  archv2data3z.f  mod_plot.o mod_za.o
+archv2data2d.o:  archv2data2d.f  mod_plot.o mod_za.o
+archv3z2nc.o:  archv3z2nc.f  mod_plot.o mod_za.o
 
 bigrd1.o:   bigrd1.f      mod_plot.o
 bigrid.o:   bigrid.f      mod_plot.o
@@ -65,6 +71,7 @@ dum_gks.o:  dum_gks.f
 extrct.o:   extrct.f
 extrot.o:   extrot.f
 fordate.o:  fordate.f
+getdat4rtofs.o:   getdat4rtofs.f      mod_plot.o mod_za.o
 getdat.o:   getdat.f      mod_plot.o mod_za.o
 getdepth.o: getdepth.f    mod_plot.o mod_za.o
 getdtm.o:   getdtm.f      mod_plot.o mod_za.o

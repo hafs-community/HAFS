@@ -1306,7 +1306,59 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
         produtil.fileop.make_symlink(
             ffrom+'.b','regional.depth.b',force=True,logger=self.log())
 
+        ## Convert hafs_basin.000.[ab] to NetCDF
+        logger.info('Convert hafs_basin.000.[ab] to NetCDF')
         stime=self.conf.cycle
+        navtime=0
+        archtime=to_datetime_rel(navtime*3600,stime)
+        archtimestring=archtime.strftime('%Y_%j_%H')
+        atime=to_datetime(self.conf.cycle)
+        ftime=to_datetime_rel(0*3600,atime)
+        prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
+        filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
+        prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
+        filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
+        if not os.path.exists(filepathA):
+            logger.error('Cannot find file %s - exiting'%(filepathA))
+            raise
+        if not os.path.exists(filepathB):
+            logger.error('Cannot find file %s - exiting'%(filepathB))
+            raise
+        logger.info('Will create ocean products for %s '%(filepathA))
+        archxa='archv.a'
+        archxb='archv.b'
+        produtil.fileop.make_symlink(filepathA,archxa,force=True,logger=logger)
+        produtil.fileop.make_symlink(filepathB,archxb,force=True,logger=logger)
+        with open('topzfile','wt') as inf:
+            inf.write("""%s
+NetCDF
+%d         'yyyy'   = year
+%d         'month ' = month
+%d         'day   ' = day
+%d         'hour  ' = hour
+%d         'verfhr' = verification hour
+""" %(archxb,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),navtime))
+        logger.info('Do Volume HERE')
+        #concat topzinfile and parmfile
+        parmfile='%s/hafs_hycom.archv2data_3z.in'%(PARMhycom)
+        filenames = ['topzfile',parmfile]
+        with open('tempinfile', 'w') as iff:
+            for fname in filenames:
+                with open(fname) as filen:
+                    iff.write(filen.read())
+        #replace idm,jdm,kdm
+        replacements={'&idm':repr(idm),'&jdm':repr(jdm),'&kdm':repr(kdm)}
+        with open ('tempinfile') as inf:
+            with open ('infile','w') as outf:
+                for line in inf:
+                    for src,targ in replacements.items():
+                        line=line.replace(src,targ)
+                    outf.write(line)
+        outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+        outfileNC=outfile+'.nc'
+        archv2data=alias(exe(self.getexe('hafs_archv3z2nc')).env(CDF051=outfileNC))
+        checkrun(archv2data<'infile',logger=logger)
+        deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
 
         navtime=3
         epsilon=.1
@@ -1328,7 +1380,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
                         time.sleep(10)
                 if timesslept>=sleepmax:
                     logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
-                    raise exception
+                    raise
                 logger.info('Will create ocean products for %s '%( repr(notabin)))
                 afile=''.join(['../forecast/'+notabin,'.a'])
                 bfile=''.join(['../forecast/'+notabin,'.b'])
@@ -1386,7 +1438,7 @@ NetCDF
                   time.sleep(10)
             if timesslept>=sleepmax:
                logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
-               raise exception
+               raise
             logger.info('Will create ocean products for %s '%( repr(notabin)))
             afile=''.join(['../forecast/'+notabin,'.a'])
             bfile=''.join(['../forecast/'+notabin,'.b'])
