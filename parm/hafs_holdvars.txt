@@ -6,6 +6,7 @@
 export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
+export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
 export RUN_GSI={RUN_GSI}
 export GSID01={GSID01}
@@ -30,6 +31,10 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+
+export SYNDAThafs={syndat}
+export ADECKhafs={ADECKhafs}
+export BDECKhafs={BDECKhafs}
 
 export PARMforecast={PARMforecast}
 
@@ -125,3 +130,4 @@ if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
     export CDSCRUB={CDSCRUB}
     export RUNhafs={RUNhafs}
 fi
+
