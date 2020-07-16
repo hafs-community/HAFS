@@ -877,7 +877,15 @@ contains !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     allocate(character(len=len(outfmt)*2+100) :: list%boutfile)
 
     ahr64=lead_time
-    ftime=atime%add(ahr64*3600)
+!    ftime=atime%add(ahr64*3600)
+! Biju Thomas
+! On Orion, atime%add is not working correctly. If ahr6=0, ftime and atime are
+! not same on Orion. Temporary fix for ahr64=0. 
+    if (ahr64 .ne. 0) then
+      ftime=atime%add(ahr64*3600)
+    else
+      ftime=atime
+    endif
 
 !<-hsk 2016: for HYCOM v11 
     if (list%filetype=='archv'.and.((mod(lead_time,6)==3).or.(mod(lead_time,6)==-3))) then

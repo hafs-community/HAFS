@@ -74,7 +74,6 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
-	#MOD_PATH=/apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
     #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then

@@ -193,8 +193,8 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 #-org: starthr=cyc.hour-24
                 # need to change it into
                 starthr=cyc.hour
-                #-org: endhr=cyc.hour
-                endhr=cyc.hour+18
+                endhr=cyc.hour
+                #endhr=cyc.hour+18
                 logger.info('FRDa: dir0=%s starthr=%d endhr=%d lastleadtimetoday=%d'%(repr(dir0),starthr,endhr,lastleadtimetoday))
                 with open(parmin,'rt') as inf:
                     with open(parmout,'wt') as outf:
@@ -237,6 +237,16 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 # Find the runmodidout with respect to domain
                 RUNmodIDout=self.RUNmodIDout
                 RUNmodIDout=read_RUNmodIDout('./hycom_settings')
+
+                # Deliver hafs_basin.{fahr:03d}.[ab] files to com
+                atime=to_datetime(self.conf.cycle)
+                ftime=to_datetime_rel(0*3600,atime)
+                prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
+                filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
+                prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
+                filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
+                deliver_file(prodnameA,filepathA,keep=True,logger=logger)
+                deliver_file(prodnameB,filepathB,keep=True,logger=logger)
 
                 # Deliver restart files to com
                 for(prodname,prod) in self.restart_out.items():

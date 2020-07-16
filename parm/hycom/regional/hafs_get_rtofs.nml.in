@@ -19,7 +19,7 @@
   ! Time span of interest, and timestep.  All are in hours relative to atime:
   starthr=<i:STARTHR>
   endhr=<i:ENDHR>
-  stephr=3
+  stephr=6
 
   ! Last lead time allowed in the current day:
   last_lead_time_today=<i:LAST_LEAD_TIME_TODAY>
