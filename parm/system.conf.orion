@@ -30,6 +30,10 @@ CDSCRUB=/work/noaa/{disk_project}/scrub/{ENV[USER]}
 syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+## A-Deck directory for graphics
+ADECKhafs=/atcf/adeck
+## B-Deck directory for graphics
+BDECKhafs=/atcf/bdeck
 
 [holdvars]
 WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)
