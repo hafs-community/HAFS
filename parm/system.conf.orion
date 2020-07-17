@@ -33,6 +33,10 @@ COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
 COMINgfs={COMgfs}
 COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFS
 COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/atcf/adeck
+## B-Deck directory for graphics
+BDECKhafs=/atcf/bdeck
 
 [holdvars]
 WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)

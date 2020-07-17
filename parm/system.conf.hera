@@ -33,6 +33,10 @@ COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
 COMINgfs={COMgfs}
 COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFS
 COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/atcf/adeck
+## B-Deck directory for graphics
+BDECKhafs=/atcf/bdeck
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)
