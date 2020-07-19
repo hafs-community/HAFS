@@ -2,6 +2,7 @@
 """HYCOM related initialization and post-processing jobs."""
 
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
+import tarfile
 import produtil.fileop, produtil.log
 import tcutil.numerics, hafs.input, hafs.namelist
 import hafs.hafstask, hafs.exceptions
@@ -229,7 +230,8 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 locintercom=self.timestr('{intercom}/hycominit/'+prodname)
                 deliver_file(prodname,locintercom,keep=True,logger=logger)
 
-                self.find_rtofs_data()
+                # Do not need this step anymore, use the RTOFS input files from COMRTOFS directly
+                #self.find_rtofs_data()
 
                 # Create BC and IC for this domain
                 self.create_bc_ic(logger)
@@ -463,8 +465,35 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         icount+=1
         now=to_datetime_rel(ihr*3600.0,cyc)
         filestringtime=now.strftime('%Y%m%d_%H%M%S')
-        archva='%s/rtofs_%s_arch%s.a'%(outdir,filestringtime,atype)
-        archvb='%s/rtofs_%s_arch%s.b'%(outdir,filestringtime,atype)
+
+        if cyc.hour == 0:
+           rtofsatgz=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n{aHH}.archv.a.tgz')
+           rtofsa=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n{aHH}.archv.a')
+           rtofsb=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n{aHH}.archv.b')
+           archva=self.timestr('./rtofs_glo.t00z.n{aHH}.archv.a')
+           archvb=self.timestr('./rtofs_glo.t00z.n{aHH}.archv.b')
+        else:
+           rtofsatgz=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.f{aHH}.archv.a.tgz')
+           rtofsa=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.f{aHH}.archv.a')
+           rtofsb=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.f{aHH}.archv.b')
+           archva=self.timestr('./rtofs_glo.t00z.f{aHH}.archv.a')
+           archvb=self.timestr('./rtofs_glo.t00z.f{aHH}.archv.b')
+
+        if os.path.exists(rtofsb):
+           produtil.fileop.make_symlink(rtofsb,archvb,force=True,logger=logger)
+        else:
+           logger.error('File %s does not exist'%(rtofsb))
+           raise
+        if os.path.exists(rtofsa):
+           produtil.fileop.make_symlink(rtofsa,archva,force=True,logger=logger)
+        elif os.path.exists(rtofsatgz):
+           logger.info('File %s exists, untar it into %s'%(rtofsatgz,archva))
+           with tarfile.open(rtofsatgz,'r:gz') as tgz:
+              tgz.extractall()
+        else:
+           logger.error('Neither %s nor %s exists'%(rtofsa,rtofsatgz))
+           raise
+
         linkf(archva,'archv_in.%d.a'%icount)
         linkf(archvb,'archv_in.%d.b'%icount)
         subregion_in='subregion.%d.in'%icount
@@ -493,12 +522,30 @@ subregion %s
         spinstart=to_datetime_rel(-self.spinlength*3600,cyc)
 
         epsilon=30
-        outdir=self.confstr('RTOFS_STAGE','')
-        now=datetime.datetime(cyc.year,cyc.month,cyc.day,0,0,0)
-        filestringtime=now.strftime('%Y%m%d_%H%M%S')
-        restart_in_a='%s/rtofs_%s_restart.a'%(outdir,filestringtime)
-        restart_in_b='%s/rtofs_%s_restart.b'%(outdir,filestringtime)
-        logger.info('now=%s filestringtime=%s restart_in_a=%s'%(repr(now),repr(filestringtime),repr(restart_in_a)))
+
+        rtofs_restart_atgz=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n00.restart.a.tgz')
+        rtofs_restart_a=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n00.restart.a')
+        rtofs_restart_b=self.timestr('{COMrtofs}/rtofs.{aYMD}/rtofs_glo.t00z.n00.restart.b')
+        restart_in_a=self.timestr('./rtofs_glo.t00z.n00.restart.a')
+        restart_in_b=self.timestr('./rtofs_glo.t00z.n00.restart.b')
+
+        if os.path.exists(rtofs_restart_b):
+           produtil.fileop.make_symlink(rtofs_restart_b,restart_in_b,force=True,logger=logger)
+        else:
+           logger.error('File %s does not exist'%(rtofs_restart_b))
+           raise
+        if os.path.exists(rtofs_restart_a):
+           produtil.fileop.make_symlink(rtofs_restart_a,restart_in_a,force=True,logger=logger)
+        elif os.path.exists(rtofs_restart_atgz):
+           logger.info('File %s exists, untar it into %s'%(rtofs_restart_atgz,rtofs_restart_a))
+           with tarfile.open(rtofs_restart_atgz,'r:gz') as tgz:
+              tgz.extractall()
+        else:
+           logger.error('Neither %s nor %s exists'%(rtofs_restart_a,rtofs_restart_atgz))
+           raise
+
+        logger.info('restart_in_a=%s'%(repr(restart_in_a)))
+        logger.info('restart_in_b=%s'%(repr(restart_in_b)))
 
         if restart_in_a is None:
             msg='No hycom restart file found.  Giving up.'
@@ -603,13 +650,6 @@ restart_out.a
 34.0               'thbase' = reference density (sigma units)
 %f                 'baclin' = baroclinic time step (seconds)
 '''%( self.idm, self.jdm, self.kdm, baclin))
-
-#        cmd=( mpirun(exe(self.getexe('hafs_archv2restart'))) \
-#                  < 'archv2restart.in' )\
-#                  > 'archv2restart.out'
-
-#    cmd=self.getexe('hafs_archv2restart')
-#        checkrun(exe(cmd<'archv2restart.in',logger=logger))
 
         cmd=( exe(self.getexe('hafs_archv2restart')) < 'archv2restart.in' )
         checkrun(cmd,logger=logger)
