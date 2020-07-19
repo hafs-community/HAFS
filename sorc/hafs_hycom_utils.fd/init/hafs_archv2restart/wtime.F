@@ -1,16 +1,3 @@
-#if defined(MPI)
-      REAL*8 FUNCTION WTIME()
-      IMPLICIT NONE
-C
-C     USE THE MPI FUNCTION  MPI_WTIME  TO RETURN WALL TIME.
-C
-      DOUBLE PRECISION MPI_WTIME
-C
-      WTIME = MPI_WTIME()
-      RETURN
-C     END OF WTIME.
-      END
-#else
       REAL*8 FUNCTION WTIME()
       IMPLICIT NONE
 C
@@ -74,4 +61,3 @@ C
       RETURN
 C     END OF WTIME.
       END
-#endif  /* MPI:else */
