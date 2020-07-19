@@ -290,10 +290,23 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
         <and>
-          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
           <or>
-          <!--  <datadep age="02:00" minsize="300000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a.tgz</cyclestr></datadep> -->
-            <datadep age="02:00" minsize="300000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a</cyclestr></datadep>
+            <datadep age="02:00" minsize="25000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a</cyclestr></datadep>
+            <datadep age="02:00" minsize="10000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a.tgz</cyclestr></datadep>
+          </or>
+          <or>
+            <strneq><left><cyclestr>@H</cyclestr></left><right>00</right></strneq>
+            <or>
+              <datadep age="02:00" minsize="12000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.archv.a</cyclestr></datadep>
+              <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.archv.a.tgz</cyclestr></datadep>
+            </or>
+          </or>
+          <or>
+            <streq><left><cyclestr>@H</cyclestr></left><right>00</right></streq>
+            <or>
+              <datadep age="02:00" minsize="12000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a</cyclestr></datadep>
+              <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a.tgz</cyclestr></datadep>
+            </or>
           </or>
         </and>
       </and>

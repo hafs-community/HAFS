@@ -537,7 +537,7 @@ subregion %s
         if os.path.exists(rtofs_restart_a):
            produtil.fileop.make_symlink(rtofs_restart_a,restart_in_a,force=True,logger=logger)
         elif os.path.exists(rtofs_restart_atgz):
-           logger.info('File %s exists, untar it into %s'%(rtofs_restart_atgz,rtofs_restart_a))
+           logger.info('File %s exists, untar it into %s'%(rtofs_restart_atgz,restart_in_a))
            with tarfile.open(rtofs_restart_atgz,'r:gz') as tgz:
               tgz.extractall()
         else:
