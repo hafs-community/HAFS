@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/sh --login
 
 set -xe
 
@@ -25,7 +25,7 @@ GRB2INDEX=${GRB2INDEX:-grb2index}
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 SENDCOM=${SENDCOM:-YES}
-CDNOSCRUB="${CDNOSCRUB}/${SUBEXPT}"
+CDNOSCRUB="${CDNOSCRUB}"
 
 output_grid=${output_grid:-rotated_latlon}
 synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
@@ -41,7 +41,7 @@ BDECKhafs=${BDECKhafs:-/lfs1/HFIP/hur-aoml/Ghassan.Alaka/bdeck}
 SYNDAThafs=${SYNDAThafs:-/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS}
 
 # Setup the working directory and change into it
-COMgplot=${COMhafs:-${COMhafs}/hrdgraphics}
+COMgplot=${COMgplot:-${COMhafs}/hrdgraphics/}
 WORKgplot=${WORKgplot:-${WORKhafs}/hrdgraphics}
 mkdir -p ${COMgplot}
 mkdir -p ${WORKgplot}
@@ -60,13 +60,13 @@ sed -i 's/^FNL_HR =.*/FNL_HR = '"${NHRS}"'/g' ${NML}
 sed -i 's@^IDIR =.*@IDIR = '"${COMhafs}"'@g' ${NML}
 sed -i 's@^ODIR =.*@ODIR = '"${WORKgplot}"'@g' ${NML}
 sed -i 's@^ATCF1_DIR =.*@ATCF1_DIR = '"${COMhafs}"'@g' ${NML}
-sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${CDNOSCRUB}"'@g' ${NML}
-sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}"'@g' ${NML}
+sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${CDNOSCRUB}/${SUBEXPT}"'@g' ${NML}
+sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}/${SUBEXPT}"'@g' ${NML}
 sed -i 's@^BDECK_DIR =.*@BDECK_DIR = '"${BDECKhafs}"'@g' ${NML}
 sed -i 's/^SYS_ENV =.*/SYS_ENV = '"$( echo ${machine} | tr "[a-z]" "[A-Z]")"'/g' ${NML}
 sed -i 's/^BATCH_MODE =.*/BATCH_MODE = Background/g' ${NML}
 
-# Initialize ALL_COMPLETE as false 
+# Initialize ALL_COMPLETE as false
 ALL_COMPLETE=0
 
 # Loop for forecast hours
@@ -78,7 +78,7 @@ do
     # Do this even for HAFS regional to remove ".all" from file name.
     ${GPLOT_PARSE} HAFS ${COMhafs} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} 4
     ${GPLOT_PARSE} HAFS ${CDNOSCRUB}/${SUBEXPT} ${CDNOSCRUB}/${SUBEXPT} ${BDECKhafs} ${SYNDAThafs} 0 "*${DATE}*.atcfunix.all"
-    
+
     # Check the status files for all GPLOT components.
     GPLOT_STATUS=( `find ${WORKgplot} -name "status.*" -exec cat {} \;` )
     ALL_COMPLETE=1
@@ -97,7 +97,8 @@ do
     # Deliver all new and modified graphics to COMhafs/graphics
     # Note: a fatal error (24) occurs when a file staged for transfer vanishes.
     #cp -rup ${WORKgplot} ${COMgplot}
-    #rsync -zav --include="*/" --include="*gif" --exclude="*" ${WORKgplot} ${COMgplot}
+    rsync -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 
     # If all are complete, then exit with success!
     # If not, submit the GPLOT wrapper again.
@@ -108,10 +109,10 @@ do
     else
         echo "Waiting for all status files to read 'complete'. Trying again..."
     fi
-    
+
     # Call the GPLOT wrapper
     ${GPLOT_WRAPPER} ${NML} &
-    
+
     # Now sleep for 5 min
     echo "sleeping 300 seconds..."
     sleep 300s
@@ -121,7 +122,8 @@ done
 # Now that everything is complete, move all graphics to the $COMhafs directory.
 if [ "${SENDCOM}" == "YES" ]; then
     #cp -rup ${WORKgplot} ${COMgplot}
-    rsync -zav --include="*/" --include="*gif" --exclude="*" ${WORKgplot} ${COMgplot}
+    rsync -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 fi
 
 # Zip up and move contents to the tape archive. Local scrubbing optional.
