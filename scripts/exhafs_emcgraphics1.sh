@@ -62,17 +62,19 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run graphics for this forecast hour
 else
 
-# Wait for post output
+atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+
+# Wait for post and product output
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${WORKhafs}/forecast/postf${FHR3} ] || [ ! -s ${atcfFile} ] ; then
-    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
-    sleep 60s
-  else
+  if [ -s ${WORKhafs}/forecast/postf${FHR3} ] && [ -s ${atcfFile} ] ; then
     echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist, do graphics"
     sleep 1s
     break
+  else
+    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
+    sleep 60s
   fi
   n=$(( n+1 ))
 done
