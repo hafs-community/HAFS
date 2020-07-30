@@ -36,9 +36,9 @@ COMINgfs={COMgfs}
 COMrtofs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMRTOFS
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
-ADECKhafs=/atcf/adeck
+ADECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/aid
 ## B-Deck directory for graphics
-BDECKhafs=/atcf/bdeck
+BDECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/btk
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

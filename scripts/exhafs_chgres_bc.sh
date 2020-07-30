@@ -141,7 +141,7 @@ while [ $n -le 30 ]
 do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 5s
+    sleep 1s
     break
   else
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"

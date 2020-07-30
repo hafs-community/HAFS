@@ -91,7 +91,7 @@ touch $cmdfile
 #==============================================================================
 
 # Produce these figures only if product job is still running (not done yet).
-if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all ]; then
+if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig ]; then
 
 atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
 
@@ -322,7 +322,7 @@ done
 # Plot ATCF track and intensity figures after the product job is done
 #==============================================================================
 
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig
 
 # Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
 n=1
@@ -340,6 +340,8 @@ do
 done
 
 cd ${WORKgraph}
+
+atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
 
 if [ -f ${atcfFile} ]; then
   atcfFile=${atcfFile}

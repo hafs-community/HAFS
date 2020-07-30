@@ -40,7 +40,7 @@ cd ${WORKgraph}
 # Plot ATCF track and intensity figures after the product job is done
 #==============================================================================
 
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig
 
 # Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
 n=1
@@ -58,6 +58,8 @@ do
 done
 
 cd ${WORKgraph}
+
+atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
 
 if [ -f ${atcfFile} ]; then
   atcfFile=${atcfFile}
@@ -159,12 +161,12 @@ HH=`echo $NEWDATE | cut -c9-10`
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${WORKhafs}/forecast/postf${FHR3} ] || [ ! -s ${atcfFile} ] ; then
-    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
-    sleep 60s
-  else
+  if [ -s ${WORKhafs}/forecast/postf${FHR3} ] || [ -s ${atcfFile} ] ; then
     echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist, do graphics"
     break
+  else
+    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
+    sleep 60s
   fi
   n=$(( n+1 ))
 done
