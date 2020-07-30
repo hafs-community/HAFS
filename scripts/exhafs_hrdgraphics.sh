@@ -97,7 +97,7 @@ do
     # Deliver all new and modified graphics to COMhafs/graphics
     # Note: a fatal error (24) occurs when a file staged for transfer vanishes.
     #cp -rup ${WORKgplot} ${COMgplot}
-    rsync -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
     rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 
     # If all are complete, then exit with success!
@@ -122,7 +122,7 @@ done
 # Now that everything is complete, move all graphics to the $COMhafs directory.
 if [ "${SENDCOM}" == "YES" ]; then
     #cp -rup ${WORKgplot} ${COMgplot}
-    rsync -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
     rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 fi
 
