@@ -1,8 +1,8 @@
  10	'iexpt ' = experiment number x10 (000=from archive file)
   3	'yrflag' = days in year flag (0=360J16,1=366J16,2=366J01,3-actual)
-1135    'idm   ' = longitudinal array size
- 633    'jdm   ' = latitudinal  array size
-  41    'kdm   ' = number of layers
+&idm    'idm   ' = longitudinal array size
+&jdm    'jdm   ' = latitudinal  array size
+&kdm    'kdm   ' = number of layers
  34.0	'thbase' = reference density (sigma units)
   1     'surflg' =number of  surface heat flux fields [1,3,4]
   1	'smooth' = smooth fields before plotting (0=F,1=T)
