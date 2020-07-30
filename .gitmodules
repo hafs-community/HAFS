@@ -26,3 +26,7 @@
 	path = sorc/hafs_graphics.fd/hrd_gplot
 	url = https://github.com/hafs-community/GPLOT.git
 	branch = support/HAFS
+[submodule "hafs_graphics"]
+	path = sorc/hafs_graphics.fd/emc_graphics
+	url = https://github.com/hafs-community/hafs_graphics.git
+	branch = support/HAFS

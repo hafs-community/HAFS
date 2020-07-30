@@ -65,7 +65,8 @@
   <!ENTITY RUN_GSI "@[RUN_GSI]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
-  <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS]">
+  <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
+  <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
 
   <!ENTITY gtype "@[gtype:-regional]">
@@ -460,6 +461,30 @@
   </task>
 @** endif
 
+@** if RUN_EMCGRAPHICS==YES
+  <task name="emcgraphics" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_EMCGRAPHICS</command>
+    <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_emcgraphics.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <!--&RESERV_FCST;-->
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA_SJET;
+    &EMCGRAPHICS_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the product if the product is running or if it has
+           already completed. -->
+      <or>
+        <!--<taskdep task="product" state="RUNNING"/>-->
+        <taskdep task="product"/>
+      </or>
+    </dependency>
+  </task>
+@** endif
+
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -486,6 +511,9 @@
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
+@** endif
+@** if RUN_EMCGRAPHICS==YES
+        <taskdep task="emcgraphics"/>
 @** endif
       </and>
     </dependency>
@@ -517,6 +545,9 @@
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
+@** endif
+@** if RUN_EMCGRAPHICS==YES
+        <taskdep task="emcgraphics"/>
 @** endif
         <taskdep task="archive_disk"/>
       </and>
