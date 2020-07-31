@@ -68,7 +68,7 @@ atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
 n=1
 while [ $n -le 600 ]
 do
-  if [ -s ${WORKhafs}/forecast/postf${FHR3} ] && [ -s ${atcfFile} ] ; then
+  if [ -f ${WORKhafs}/forecast/postf${FHR3} ] && [ -f ${atcfFile} ] ; then
     echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist, do graphics"
     sleep 1s
     break
@@ -328,7 +328,7 @@ atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.a
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${atcfFile} ] ; then
+  if [ ! -f ${atcfFile} ] ; then
     echo "${atcfFile} not ready, sleep 60"
     sleep 60s
   else

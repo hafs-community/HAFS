@@ -46,7 +46,7 @@ atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.a
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${atcfFile} ] ; then
+  if [ ! -f ${atcfFile} ] ; then
     echo "${atcfFile} not ready, sleep 60"
     sleep 60s
   else
@@ -123,7 +123,7 @@ fi
   storm_atcfFile=${WORKgraph}/${stormnm}${stid}.${YMDH}.trak.hafs.atcfunix
   grep "^${BASIN2C}, ${STORMNUM}," ${atcfFile} > ${storm_atcfFile}
 
-  if [ -s ${storm_atcfFile} ]; then
+  if [ -f ${storm_atcfFile} ]; then
     echo "${storm_atcfFile} present, will proceed"
     # make the track and intensity plots
     sh ${HOMEgraph}/ush/plotATCF.sh ${STORMNM} ${STID} ${YMDH} ${stormModel} ${storm_atcfFile} ${ADECKgraph} ${BDECKgraph} ${HOMEgraph}/ush/ncl ${WORKgraph} ${archdir} ${modelLabels} ${modelColors} ${modelMarkers}
@@ -161,7 +161,7 @@ HH=`echo $NEWDATE | cut -c9-10`
 n=1
 while [ $n -le 600 ]
 do
-  if [ -s ${WORKhafs}/forecast/postf${FHR3} ] || [ -s ${atcfFile} ] ; then
+  if [ -f ${WORKhafs}/forecast/postf${FHR3} ] || [ -f ${atcfFile} ] ; then
     echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist, do graphics"
     break
   else
