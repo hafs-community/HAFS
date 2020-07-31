@@ -13,7 +13,7 @@
 1226    'ifport' = first i-index
 1226    'ilport' = last  i-index (=ifport for east/west port)
    2    'jfport' = first j-index
-  35    'jlport' = last  j-index (=jfport for north/south port)
+  38    'jlport' = last  j-index (=jfport for north/south port)
    4    'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
    2    'ifport' = first i-index
    2    'ilport' = last  i-index (=ifport for east/west port)
