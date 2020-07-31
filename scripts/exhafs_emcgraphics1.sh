@@ -45,6 +45,7 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le $NHRS ];
 do
 
+
 cd ${WORKgraph}
 
 NEWDATE=`${NDATE} +${FHR} $CDATE`
@@ -63,15 +64,25 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 else
 
 atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+prodlog=${WORKhafs}/hafs_product.log
+FHRN=`expr $FHR + $NOUTHRS`
+STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
+STRDONE="PROGRAM GETTRK   HAS ENDED"
 
 # Wait for post and product output
 n=1
 while [ $n -le 600 ]
 do
   if [ -f ${WORKhafs}/forecast/postf${FHR3} ] && [ -f ${atcfFile} ] ; then
-    echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist, do graphics"
-    sleep 1s
-    break
+    echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist"
+    if grep -q "$STRDONE" ${prodlog} || grep -q "$STRFHRN" ${prodlog} ; then
+      echo "GFDL tracker succeeded or has processed this time level, do graphics."
+      sleep 1s
+      break
+	else
+      echo "GFDL tracker has not processed this time level, sleep 60"
+      sleep 60s
+    fi
   else
     echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
     sleep 60s
@@ -349,8 +360,7 @@ elif [ -f ${atcfFile%.all} ]; then
   atcfFile=${atcfFile%.all}
 else
   echo "File ${atcfFile} does not exist"
-  echo 'SCRIPT WILL EXIT'
-  exit 1
+  exit
 fi
 
 array=$( sh ${USHgraph}/getStormNames.sh ${atcfFile} ${YMDH} )
