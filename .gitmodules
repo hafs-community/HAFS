@@ -1,7 +1,7 @@
 [submodule "ufs-hafs-model"]
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/hafs-community/ufs-hafs-model.git
-	branch = feature/hafs_couplehycom
+	branch = feature/hafs_couplehycom_cmeps
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
 	url = https://github.com/hafs-community/EMC_post.git
