@@ -358,6 +358,9 @@ cp ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
+# copy fd_nems.yaml
+cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_nems.yaml ./ 
+
 # create hycom limits
 ${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
 

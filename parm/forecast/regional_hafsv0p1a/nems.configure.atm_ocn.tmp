@@ -49,3 +49,12 @@ OCN_attributes::
   end_min = 0
   end_sec = 0
 ::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+ALLCOMP_attributes::
+  mediator_read_restart = false
+::
+
