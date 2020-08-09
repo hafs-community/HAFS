@@ -88,6 +88,10 @@ do
   basin1c=${BASIN1C,,}
   yyyy=`echo ${YMDH} | cut -c1-4`
 
+  if [ ${BASIN1C} != ${STORMID: -1} ]; then
+    continue
+  fi
+
 if [ ${basin1c} = 'l' ]; then
   basin2c='al'
   BASIN2C='AL'
