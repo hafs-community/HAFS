@@ -359,6 +359,8 @@ figScriptAll=( \
 
 nscripts=${#figScriptAll[*]}
 
+trackOn=True
+
 for((i=0;i<${nscripts};i++));
 do
 
