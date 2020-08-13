@@ -9,6 +9,9 @@ STORM=${STORM:-NATL}
 storm=${STORM,,}
 STORMID=${STORMID:-00L}
 stormid=${STORMID,,}
+
+export run_ocean=${run_ocean:-no}
+
 stormModel=${stormModel:-HAFS}
 is6Hr=${is6Hr:-False}
 #figTimeLevels=$(seq 0 42)
@@ -21,6 +24,7 @@ modelMarkers='(/17,18,18,18,18,18/)'
 export HOMEgraph=${HOMEgraph:-/mnt/lfs4/HFIP/hwrfv3/${USER}/hafs_graphics}
 export USHgraph=${USHgraph:-${HOMEgraph}/ush}
 export DRIVERDOMAIN=${USHgraph}/driverDomain.sh
+export DRIVEROCEAN=${USHgraph}/driverOcean.sh
 export PLOTATCF=${USHgraph}/plotATCF.sh
 
 export COMhafs=${COMhafs:-/hafs/com/${YMDH}/${STORMID}}
@@ -40,11 +44,11 @@ IFHR=0
 FHR=0
 FHR2=$( printf "%02d" "$FHR" )
 FHR3=$( printf "%03d" "$FHR" )
+NHR3=$( printf "%03d" "$NHRS" )
 
 # Loop for forecast hours
 while [ $FHR -le $NHRS ];
 do
-
 
 cd ${WORKgraph}
 
@@ -431,6 +435,79 @@ fi
     echo "${storm_atcfFile} NOT PRESENT. SKIP."
   fi
 done
+
+date
+
+#==============================================================================
+# For the ocean figures
+#==============================================================================
+
+if [ ${run_ocean} = yes ];  then
+
+cd ${WORKgraph}
+
+cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
+export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
+
+# Wait for hycompost and product output
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig
+n=1
+while [ $n -le 600 ]
+do
+  if [ -f ${COMhafs}/${storm}${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc ] && [ -f ${atcfFile} ] ; then
+    echo "${COMhafs}/${storm}${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc and ${atcfFile} exist"
+    sleep 1s
+    break
+  else
+    echo "${COMhafs}/${storm}${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    sleep 60s
+  fi
+  n=$(( n+1 ))
+done
+
+#Generate the cmdfile
+cmdfile='cmdfile'
+rm -f $cmdfile
+touch $cmdfile
+
+figScriptAll=( \
+  "SSTnc.py" \
+  "MLDnc.py" \
+  "OHCnc.py" \
+  "Z20nc.py" \
+  "storm_SST.py" \
+  "storm_MLD.py" \
+  "storm_OHC.py" \
+  "storm_Z20.py" \
+  "storm_tempZ40m.py" \
+  "storm_tempZ70m.py" \
+  "storm_tempZ100m.py" \
+  "storm_WvelZ40m.py" \
+  "storm_WvelZ70m.py" \
+  "storm_WvelZ100m.py" \
+  )
+# "storm_HeatFlux.py" \
+
+nscripts=${#figScriptAll[*]}
+
+for((i=0;i<${nscripts};i++));
+do
+
+  echo ${figScriptAll[$i]}
+  echo "${APRUNS} ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $trackOn ${figScriptAll[$i]} > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.log 2>&1 ${BACKGROUND}" >> $cmdfile
+
+done
+
+if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  echo 'wait' >> $cmdfile
+fi
+chmod u+x ./$cmdfile
+${APRUNF} ./$cmdfile
+
+wait
+
+fi
+#==============================================================================
 
 date
 
