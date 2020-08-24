@@ -30,6 +30,13 @@ CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+COMINgfs={COMgfs}
+COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFS
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)

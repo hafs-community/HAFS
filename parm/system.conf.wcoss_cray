@@ -32,6 +32,13 @@ syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 #COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
 COMgfs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMGFS
+COMINgfs={COMgfs}
+COMrtofs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMRTOFS
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/btk
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

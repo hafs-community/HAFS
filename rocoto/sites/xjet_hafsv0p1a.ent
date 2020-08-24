@@ -17,6 +17,7 @@
   <!ENTITY GRID_RESOURCES "<nodes>3:ppn=4:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>12</value></envar><envar><name>NCTSK</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_IC_RESOURCES "<nodes>6:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_BC_RESOURCES "<nodes>6:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>144</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
+  <!ENTITY HYCOMINIT_RESOURCES "<nodes>1:ppn=6:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime><memory>8G</memory>">
 
   <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
@@ -38,6 +39,13 @@
   <!ENTITY FORECAST_RESOURCES_regional_45x40io3x48_omp2 "<nodes>162:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1944</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
   <!ENTITY FORECAST_RESOURCES_regional_40x30io3x40_omp2 "<nodes>66:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
+  <!-- FORECAST_RESOURCES for regional HYCOM coupling -->
+  <!ENTITY FORECAST_RESOURCES_regional_48x40io1x48_ocn60_omp2 "<nodes>169:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2028</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_36x32io1x48_ocn60_omp2 "<nodes>105:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1260</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY FORECAST_RESOURCES_regional_12x10io1x12_ocn60_omp2 "<nodes>16:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>192</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_8x6io1x12_ocn60_omp2 "<nodes>10:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
   <!-- FORECAST_RESOURCES for globnest HAFS -->
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2 "<nodes>53:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>636</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
@@ -66,5 +74,8 @@
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x12_40x33io3x48_omp2 "<nodes>170:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2040</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
   <!ENTITY POST_RESOURCES "<nodes>5:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY HYCOMPOST_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime><memory>24G</memory>">
 
+  <!ENTITY HRDGRAPHICS_RESOURCES "<nodes>1:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>24</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY EMCGRAPHICS_RESOURCES "<nodes>36:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>432</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:15:00</walltime>">

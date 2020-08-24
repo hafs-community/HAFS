@@ -7,9 +7,9 @@ NBDYHRS=${NBDYHRS:-3}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
 
-CDUMP=gfs		# gfs or gdas
+CDUMP=gfs                   # gfs or gdas
 LEVS=${LEVS:-65}
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
@@ -141,7 +141,7 @@ while [ $n -le 30 ]
 do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 5s
+    sleep 1s
     break
   else
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"

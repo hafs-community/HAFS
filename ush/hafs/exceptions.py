@@ -2,7 +2,7 @@
 
 This module contains exceptions raised by the hafs package."""
 
-class HAFSError(Exception): 
+class HAFSError(Exception):
     """!Base class of all exceptions in this module.
 
     This is the base class of exceptions raised by the HAFS module
@@ -168,61 +168,61 @@ class GSIInputError(HAFSError):
     """!Raised when GSI cannot find a required input file."""
 class ExpectedTDR(HAFSError):
     """!Used in failure testing to abort the system if TDR was not present."""
-    
+
 ########################################################################
 # TRACKER EXCEPTIONS
 
-class TrackerError(HAFSError): 
+class TrackerError(HAFSError):
     """!Base class of hafs.tracker exceptions."""
-class TrackerModeError(TrackerError): 
+class TrackerModeError(TrackerError):
     """!Raised when an impossible tracker configuration is requested,
     such as running with a grid that is both regional and global."""
-class TrackerStormError(TrackerError): 
+class TrackerStormError(TrackerError):
     """!Raised when multiple storms are requested, but only one was
     expected."""
-class TrackerInputError(TrackerError): 
+class TrackerInputError(TrackerError):
     """!Base class of exceptions raised when the tracker's input files
     are missing or invalid."""
-class MissingGRIBError(TrackerInputError): 
+class MissingGRIBError(TrackerInputError):
     """!Not currently used, this would be raised when GRIB inputs to
     the tracker are missing."""
-class GRIBLocationError(TrackerInputError): 
+class GRIBLocationError(TrackerInputError):
     """!Raised when no location is specified for a tracker input GRIB
     file."""
 
 ########################################################################
 # TIME-RELATED EXCEPTIONS (used by many modules)
 
-class HAFSTimeError(HAFSError): 
+class HAFSTimeError(HAFSError):
     """!Base class used for time-related HAFS exceptions."""
 
 # Time and timestep exceptions:
-class InvalidTimestep(HAFSTimeError): 
+class InvalidTimestep(HAFSTimeError):
     """!Raised when a timestep is invalid, such as a negative timestep
     for a situation that requires a positive one."""
 class TimestepModularityError(HAFSTimeError):
     """!Called when one hour is not divisable by the WRF output
     timestep."""
-class OverspecifiedOutputTime(HAFSTimeError): 
+class OverspecifiedOutputTime(HAFSTimeError):
     """!Raised when an output time is specified in two redundant ways.
 
     For example, one could specify a forecast time directly, and also
     specify the analysis time and forecast time delta."""
-class NoOutputTime(HAFSTimeError): 
+class NoOutputTime(HAFSTimeError):
     """!Raised when a time was required, but none was provided."""
-class TimezoneProvided(HAFSTimeError): 
+class TimezoneProvided(HAFSTimeError):
     """!Raised when a timezone is provided.  The hafs package does not
     support timezones: all times are in UTC."""
-class PrecisionTooHigh(HAFSTimeError): 
+class PrecisionTooHigh(HAFSTimeError):
     """!Raised when a time was requested with higher precision than available.
 
     Raised when a time was provided that contained fractions of a
     second, for a function that cannot handle that.  For example, the
     WRF output files must be exactly on a second boundary."""
-class NotInTimespan(HAFSTimeError): 
+class NotInTimespan(HAFSTimeError):
     """!Raised when a time is outside the range of times being
     processed by a function."""
-class NoNearbyValues(HAFSTimeError): 
+class NoNearbyValues(HAFSTimeError):
     """!Raised when an operation has a set of known times, but another
     provided time is not near one of those known times."""
 
@@ -237,77 +237,77 @@ class InvalidTimespan(HAFSTimeError):
 
     def __init__(self,message,start,end):
         """! Constructor for InvalidTimespan
-        
+
         @param message the string explanation of the problem
         @param start the start of the timespan
         @param end   the end of the timespan"""
         super(InvalidTimespan,self).__init__(message)
         self.start=start
         self.end=end
-class EndBeforeStart(InvalidTimespan): 
+class EndBeforeStart(InvalidTimespan):
     """!Raised when the end of a timespan is before the beginning."""
-class EndNotTimestep(InvalidTimespan): 
+class EndNotTimestep(InvalidTimespan):
     """!Raised when the end of a timespan is not a timestep.
     Presently unused.
 
     Presently unused, this was to indicate that the end of a timespan
     is not on a timestep, for temporally discrete processes.  Such end
     times are allowed in WRF, so this exception is unused."""
-class StartNotAtParentTimestep(InvalidTimespan): 
+class StartNotAtParentTimestep(InvalidTimespan):
     """!Raised when a timespan's beginning is not at a timestep."""
-class TimestepTooLong(InvalidTimespan): 
+class TimestepTooLong(InvalidTimespan):
     """!Raised when a timestep is too long for the process under
     consideration."""
-class TimestepTooShort(InvalidTimespan): 
+class TimestepTooShort(InvalidTimespan):
     """!Raised when a timestep is too short for the process under
     consideration."""
-class NoTimespan(InvalidTimespan): 
+class NoTimespan(InvalidTimespan):
     """!Raised when a timespan was expected, but none was available."""
 
 ########################################################################
 # REGRIB-RELATED EXCEPTIONS (mostly hafs.regrib and hafs.gribtask)
 
-class RegribError(HAFSError): 
+class RegribError(HAFSError):
     """!Superclass of errors used by Regrib."""
-class GRIBInputError(RegribError): 
-    """!Raised when a GRIB file is invalid.  
+class GRIBInputError(RegribError):
+    """!Raised when a GRIB file is invalid.
 
     Raised when a GRIB file is provided, but that file is invalid.
     This can be due to either an input to an operation, or the output
     from the operation."""
-class Subsetless(RegribError): 
+class Subsetless(RegribError):
     """!Raised when a Regrib was expecting a GRIB subsetter function,
     but no such function was provided."""
 
-class InvalidRegribResult(RegribError): 
+class InvalidRegribResult(RegribError):
     """!Debug assetion in hafs.regrib used to detect type mismatches.
 
     Part of debug assertions in hafs.regrib, this is raised when the
     wrong type is generated by the "make" function."""
 
-class RegribProductError(RegribError): 
+class RegribProductError(RegribError):
     """!Superclass of errors relating to regrib products."""
-class NoProductError(RegribProductError): 
+class NoProductError(RegribProductError):
     """!Raised when an operation that produces input to Regrib should
     have produced a Product, but produced nothing at all."""
-class ProductAmbiguityError(RegribProductError): 
+class ProductAmbiguityError(RegribProductError):
     """!Raised when an operation that provides input to Regrib produces
     more than one product."""
 class NoIndexError(RegribError):
     """!Raised when a GRIB file should have an index file already, but
     doesn't."""
 
-class RegribManyError(RegribError): 
+class RegribManyError(RegribError):
     """!Base class of errors from the hafs.regrib.RegribMany"""
-class RegribKeyError(RegribManyError): 
+class RegribKeyError(RegribManyError):
     """!Raised when a RegribMany is given an invalid name: one that
     does not match a known grid or operation."""
 
-class RegribGridError(RegribError): 
+class RegribGridError(RegribError):
     """!Base class of grid-related regrib errors."""
-class GridlessError(RegribGridError): 
+class GridlessError(RegribGridError):
     """!Raised when a grid was expected but none was provided."""
-class GridMismatchError(RegribGridError): 
+class GridMismatchError(RegribGridError):
     """!Raised when two GRIB files have non-matching grids, but a
     matching grid is required."""
 
@@ -321,7 +321,7 @@ class GribberError(RegribError):
 ########################################################################
 # INPUT EXCEPTIONS
 
-class HAFSInputError(HAFSError): 
+class HAFSInputError(HAFSError):
     """!Base class of exceptions related to the hafs.input module."""
 class InputSourceBadType(HAFSInputError):
     """!Raised when a configuration file requests a DataCatalog class
@@ -369,5 +369,5 @@ class NoSuchDomain(RelocationError):
     """!Raised by hafs.input when trying to get the wrong domain from
     its hafs.relocate.Relocate child objects."""
 class EnsdaTrackerMissing(RelocationError):
-    """Raised when the relocation could not find the prior cycle's 
+    """Raised when the relocation could not find the prior cycle's
     ensemble forecast track, but it expected to be able to."""

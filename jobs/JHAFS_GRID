@@ -37,7 +37,7 @@ export halop1=${halop1:-4}                  # halo size that will be used for th
 export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
 
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 ####################################
 # Specify Execution Areas

@@ -27,7 +27,7 @@ from random import Random
 from produtil.fileop import isnonempty
 from produtil.run import run, exe
 from produtil.log import jlogger
-from tcutil.numerics import to_datetime_rel, to_datetime
+from tcutil.numerics import to_datetime_rel, to_datetime, to_fraction
 from hafs.config import HAFSConfig
 from hafs.exceptions import HAFSDirInsane,HAFSStormInsane,HAFSCycleInsane, \
     HAFSVariableInsane,HAFSInputInsane,HAFSScriptInsane,HAFSExecutableInsane,\
@@ -131,8 +131,8 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
                 multistorms[i][startfile_idx[0]]= args[startfile_idx[0]] + str(stormid)
 
     # The code block below inserts standard hafs_multistorm conf files to
-    # the existing list of ordered hafs conf files and ensures the required 
-    # multistorm order of conf files. 
+    # the existing list of ordered hafs conf files and ensures the required
+    # multistorm order of conf files.
     idx_system_conf=None
     for i, storm_args in enumerate(multistorms):
         (case_root,parm,infiles,stid,moreopt) = \
@@ -168,7 +168,7 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
 
     storms = list()
     strcycle=args[0]
-    cyc=tcutil.numerics.to_datetime(strcycle)
+    cyc=to_datetime(strcycle)
     YMDH=cyc.strftime('%Y%m%d%H')
     (case_root,parm,infiles,stid,moreopt) = \
             parse_launch_args(args[1:],logger,usage,PARMhafs)
@@ -450,7 +450,7 @@ def make_vit_for_prelaunch(stid):
 
 def prelaunch(conf,logger,cycle):
     """!This function makes per-cycle modifications to the
-    configuration file storm1.conf.  
+    configuration file storm1.conf.
 
     This is called in scripts.exhhafs_launch and run_hafs.py by
     hafs.launcher.launch() on the configuration object
@@ -1325,8 +1325,8 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
-        *  cap_run_vortexinit --- capitalized version of [config]
-            section run_vortexinit
+        *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
+        *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
         assert(isinstance(part1,str))
@@ -1334,24 +1334,24 @@ class HAFSLauncher(HAFSConfig):
         logger=self.log()
 
         # Generate the output grid for the write grid component of the forecast job
-        output_grid=self.getstr('forecast','output_grid','rotated_latlon') 
+        output_grid=self.getstr('forecast','output_grid','rotated_latlon')
         logger.info('output_grid is: %s'%(output_grid))
-        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0) 
-        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0) 
-        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0) 
-        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0) 
-        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025) 
-        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025) 
+        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0)
+        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0)
+        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0)
+        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0)
+        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025)
+        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025)
         if output_grid=='rotated_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0) 
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0) 
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0) 
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0) 
+            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0)
+            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0)
+            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0)
+            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0)
         elif output_grid=='regional_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0) 
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0) 
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0) 
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0) 
+            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0)
+            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0)
+            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0)
+            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0)
         else:
             logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
             sys.exit(2)
@@ -1361,7 +1361,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','output_grid_lat2',output_grid_lat2)
 
         # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('post','synop_gridspecs','auto') 
+        synop_gridspecs=self.getstr('post','synop_gridspecs','auto')
         # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
         if synop_gridspecs=='auto':
             if output_grid=='rotated_latlon':
@@ -1386,12 +1386,80 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','synop_gridspecs',synop_gridspecs)
 
         # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('post','trker_gridspecs','auto') 
+        trker_gridspecs=self.getstr('post','trker_gridspecs','auto')
         if trker_gridspecs=='auto':
             logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
             trker_gridspecs=synop_gridspecs
             logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
+
+        run_ocean=self.getbool('config','run_ocean')
+        cpl_ocean=self.getint('forecast','cpl_ocean',0)
+        ocean_tasks=self.getint('forecast','ocean_tasks',120)
+        self.set('holdvars','ocean_tasks',ocean_tasks)
+        OCN_tasks=ocean_tasks
+
+        # Set ATM/OCN_petlist_bounds if needed
+        runSeq_ATM=self.getstr('forecast','runSeq_ATM','auto')
+        runSeq_OCN=self.getstr('forecast','runSeq_OCN','auto')
+        ATM_petlist_bounds=self.getstr('forecast','ATM_petlist_bounds','auto')
+        OCN_petlist_bounds=self.getstr('forecast','OCN_petlist_bounds','auto')
+        gtype=self.getstr('grid','gtype','regional')
+        glob_layoutx=self.getint('forecast','glob_layoutx',8)
+        glob_layouty=self.getint('forecast','glob_layouty',8)
+        layoutx=self.getint('forecast','layoutx',40)
+        layouty=self.getint('forecast','layouty',30)
+        quilting=self.getbool('forecast','quilting',True)
+        write_groups=self.getint('forecast','write_groups',3)
+        write_tasks_per_group=self.getint('forecast','write_tasks_per_group',48)
+        runSeq_OCN2ATM=self.getstr('forecast','runSeq_OCN2ATM','auto')
+        runSeq_ATM2OCN=self.getstr('forecast','runSeq_ATM2OCN','auto')
+        cplflx=self.getstr('forecast','cplflx','auto')
+
+        if run_ocean and cpl_ocean==0:
+            if cplflx=='auto': self.set('holdvars','cplflx','.false.')
+            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','')
+            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','')
+        if run_ocean and cpl_ocean==1:
+            if cplflx=='auto': self.set('holdvars','cplflx','.true.')
+            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapMethod=nearest_stod:srcmaskvalues=0"')
+            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapMethod=nearest_stod:srcmaskvalues=1:dstmaskvalues=0"')
+        if run_ocean and cpl_ocean==2:
+            if cplflx=='auto': self.set('holdvars','cplflx','.true.')
+            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0"')
+            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0"')
+
+        if runSeq_ATM=='auto': self.set('holdvars','runSeq_ATM','ATM')
+        if run_ocean and runSeq_OCN=='auto':
+            self.set('holdvars','runSeq_OCN','OCN')
+
+        if gtype=='regional':
+            if quilting:
+                ATM_tasks=layoutx*layouty+write_groups*write_tasks_per_group
+            else:
+                ATM_tasks=layoutx*layouty
+        elif gtype=='nest':
+            if quilting:
+                ATM_tasks=6*glob_layoutx*glob_layouty+layoutx*layouty+write_groups*write_tasks_per_group
+            else:
+                ATM_tasks=6*glob_layoutx*glob_layouty+layoutx*layouty
+        else:
+            logger.warning('unsupported grid type')
+
+        if ATM_petlist_bounds=='auto':
+            ATM_petlist_bounds='"ATM_petlist_bounds: %04d %04d"'%(0, ATM_tasks-1)
+            self.set('holdvars','ATM_petlist_bounds',ATM_petlist_bounds)
+
+        if run_ocean and OCN_petlist_bounds=='auto':
+            OCN_petlist_bounds='"OCN_petlist_bounds: %04d %04d"'%(ATM_tasks, ATM_tasks+OCN_tasks-1)
+            self.set('holdvars','OCN_petlist_bounds',OCN_petlist_bounds)
+
+        # Set ocean_start_dtg if needed
+        ocean_start_dtg=self.getstr('forecast','ocean_start_dtg','auto')
+        hycom_epoch=to_datetime('1900123100')
+        ocean_start_dtg_float=to_fraction(self.cycle-hycom_epoch)/(3600*24)
+        if run_ocean and ocean_start_dtg=='auto':
+            self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
 
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
@@ -1399,6 +1467,10 @@ class HAFSLauncher(HAFSConfig):
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',
                  ('YES' if reloc_flag else 'NO'))
+
+        gplot_flag=self.getbool('config','run_hrdgraphics')
+        self.set('holdvars','cap_run_hrdgraphics',
+                 ('YES' if gplot_flag else 'NO'))
 
         with open(self.strinterp('dir',part1),'rt') as f:
             for line in f:

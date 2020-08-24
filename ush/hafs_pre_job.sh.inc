@@ -49,7 +49,7 @@ USERNAME=`echo $LOGNAME | awk '{ print tolower($0)'}`
 if [[ -d /lfs4 ]] ; then
     # We are on NOAA Jet
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
+        echo load the module command 1>&2
         source /apps/lmod/lmod/init/$__ms_shell
     fi
     target=jet
@@ -57,7 +57,7 @@ if [[ -d /lfs4 ]] ; then
 elif [[ -d /scratch1/NCEPDEV ]] ; then
     # We are on NOAA Hera
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
+        echo load the module command 1>&2
         source /apps/lmod/lmod/init/$__ms_shell
     fi
     target=hera
@@ -66,7 +66,7 @@ elif [[ -d /work/noaa ]] ; then
     # We are on MSU Orion
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2
-        source /apps/lmod/init/$__ms_shell
+        source /apps/lmod/lmod/init/$__ms_shell
     fi
     target=orion
     module purge
@@ -74,14 +74,13 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
-	#MOD_PATH=/apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
     #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
-	source /opt/modules/default/init/$__ms_shell
+        echo load the module command 1>&2
+        source /opt/modules/default/init/$__ms_shell
     fi
     target=wcoss_cray
 
@@ -98,9 +97,9 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     module purge > /dev/null 2>&1
 
     # Workaround until module issues are fixed:
-	unset _LMFILES_
-	unset LOADEDMODULES
-	echo y 2> /dev/null | module clear > /dev/null 2>&1
+    unset _LMFILES_
+    unset LOADEDMODULES
+    echo y 2> /dev/null | module clear > /dev/null 2>&1
 
     module use /usrx/local/prod/modulefiles
     module use /gpfs/hps/nco/ops/nwprod/lib/modulefiles
@@ -114,18 +113,18 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
 elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # We are on NOAA Venus or Mars
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
-	source /usrx/local/prod/lmod/lmod/init/$__ms_shell
+        echo load the module command 1>&2
+        source /usrx/local/prod/lmod/lmod/init/$__ms_shell
     fi
     target=wcoss_dell_p3
     module purge 
-	source /usrx/local/prod/lmod/lmod/init/$__ms_shell
-	module load EnvVars/1.0.2
+    source /usrx/local/prod/lmod/lmod/init/$__ms_shell
+    module load EnvVars/1.0.2
 
 elif [[ -d /dcom && -d /hwrf ]] ; then
     # We are on NOAA Tide or Gyre
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
+        echo load the module command 1>&2
         source /usrx/local/Modules/default/init/$__ms_shell
     fi
     target=wcoss
@@ -133,7 +132,7 @@ elif [[ -d /dcom && -d /hwrf ]] ; then
 elif [[ -d /glade ]] ; then
     # We are on NCAR Yellowstone
     if ( ! eval module help > /dev/null 2>&1 ) ; then
-	echo load the module command 1>&2
+        echo load the module command 1>&2
         . /usr/share/Modules/init/$__ms_shell
     fi
     target=yellowstone
@@ -146,7 +145,7 @@ elif [[ -d /lustre && -d /ncrc ]] ; then
         # before loading the module command.  Without those variables,
         # the module command fails.  Hence we actually have to source
         # /etc/profile here.
-	echo load the module command 1>&2
+        echo load the module command 1>&2
         source /etc/profile
     fi
     target=gaea
@@ -178,5 +177,8 @@ if [[ "Q${EXEChafs:-}" != Q ]] ; then
   export PATH=$EXEChafs:$PATH
 elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
   export PATH=$HOMEhafs/exec:$PATH
+fi
+if [[ "$target" == "wcoss_dell_p3" ]]; then
+  export PYTHONPATH=$PYTHONPATH:$HOMEhafs/ush
 fi
 set -u

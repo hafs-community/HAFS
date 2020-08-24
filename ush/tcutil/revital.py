@@ -13,9 +13,9 @@ import tcutil.storminfo, tcutil.numerics
 
 from tcutil.numerics import great_arc_dist, to_fraction, to_timedelta
 
-class RevitalError(Exception): 
+class RevitalError(Exception):
     """!Base class of errors related to rewriting vitals."""
-class RevitalInitError(RevitalError): 
+class RevitalInitError(RevitalError):
     """!This exception is raised when an argument to the Revital
     constructor is invalid."""
 
@@ -173,24 +173,24 @@ class Revital:
         if isinstance(filelist,str):
             filelist=[filelist]
         lines=list()
-        opened=False 
+        opened=False
         for tcvitals in filelist:
             if self.logger is not None:
                 self.logger.info('read file: %s'%(tcvitals,))
-            try: 
-                with open(tcvitals,'rt') as f: 
-                    lines.extend(f.readlines()) 
-                opened=True 
-            except EnvironmentError as e: 
-                if e.errno==errno.ENOENT or e.errno==errno.EISDIR: 
-                    self.logger.warning(tcvitals+': cannot open: '+str(e)) 
-                    if raise_all: raise 
-                else: 
-                    self.logger.warning(tcvitals+': cannot open: '+str(e)) 
-                    raise 
-        if not opened: 
+            try:
+                with open(tcvitals,'rt') as f:
+                    lines.extend(f.readlines())
+                opened=True
+            except EnvironmentError as e:
+                if e.errno==errno.ENOENT or e.errno==errno.EISDIR:
+                    self.logger.warning(tcvitals+': cannot open: '+str(e))
+                    if raise_all: raise
+                else:
+                    self.logger.warning(tcvitals+': cannot open: '+str(e))
+                    raise
+        if not opened:
             self.logger.critical('No message files or tcvitals files '
-                                 'provided to revital.readfiles.') 
+                                 'provided to revital.readfiles.')
         self.vitals.extend(tcutil.storminfo.parse_tcvitals(
             lines,raise_all=raise_all,logger=self.logger))
         self.is_cleaned=False
@@ -222,7 +222,7 @@ class Revital:
         it into the self.carqdat array, or adds the stormid to
         self.carqfail if the data cannot be read in.
         @param longstormid the long stormid of the storm to read
-        @post the self.carqfail will contain longstormid OR 
+        @post the self.carqfail will contain longstormid OR
           self.carqdat[longstormid] will contain data for that storm"""
         if longstormid in self.carqfail: return
         filename=os.path.join(self.adeckdir,'a%s.dat'%(longstormid,))
@@ -238,7 +238,7 @@ class Revital:
         self.carqdat[longstormid]=cdat
 
     def clean_up_vitals(self,name_number_checker=None,
-                        basin_center_checker=None,vitals_key=None): 
+                        basin_center_checker=None,vitals_key=None):
         """!Calls the tcutil.storminfo.clean_up_vitals on this object's
         vitals.  The optional arguments are passed to
         tcutil.storminfo.clean_up_vitals.
@@ -252,10 +252,10 @@ class Revital:
           basin and forecast center (RSMC)
 
         @post is_cleaned=True"""
-        self.vitals=tcutil.storminfo.clean_up_vitals( 
+        self.vitals=tcutil.storminfo.clean_up_vitals(
             self.vitals,name_number_checker=name_number_checker,
             basin_center_checker=basin_center_checker,
-            vitals_key=vitals_key) 
+            vitals_key=vitals_key)
         self.is_cleaned=True
 
     ##################################################################
@@ -277,10 +277,10 @@ class Revital:
         renumbered=False
         debug=self.debug and self.logger is not None
         logger=self.logger
-    
+
         assert(vit_motion>=0)
         assert(other_motion<=0)
-    
+
         # Get the storm's lat and lon for searching.  For the "subtract
         # the storm motion vector" mode (sub_motion=True), this is the
         # location minus the storm motion vector.  Otherwise, it is the
@@ -294,7 +294,7 @@ class Revital:
         if debug and lat is None or lon is None:
             if debug: logger.debug('    -- no lat,lon for search')
             return False
-    
+
         logger=self.logger
         debug=self.debug and logger is not None
         renumbered=False
@@ -339,7 +339,7 @@ class Revital:
                         logger.debug(' NOW  %s'%(vital.line,))
                     lastvit[othervit.stormid3]=vital
                 continue
-    
+
             if other_motion<0:
                 (otherlat,otherlon)=self.move_latlon(
                     othervit,3600.0*other_motion)
@@ -349,19 +349,19 @@ class Revital:
             else:
                 (otherlat,otherlon)=(othervit.lat,othervit.lon)
             if otherlat is None or otherlon is None:
-                if debug: 
+                if debug:
                     logger.debug(
                         '    -- cannot get other vitals location; moving on.')
                 continue
-    
+
             dist=great_arc_dist(lon,lat,otherlon,otherlat)
             if not (dist<self.search_dx and dt==six_hours):
-                if debug: 
+                if debug:
                     logger.debug(
                         '    -- not kinda near (distance %f km)'
                         %(dist/1e3,))
                 continue
-    
+
             if debug:
                 logger.debug('    -- within dx: renumber to %s and store'%\
                                  (othervit.stormid3,))
@@ -369,7 +369,7 @@ class Revital:
                 vital.rename_storm('INVEST%02d%1s'%
                                    (int(vital.stnum),vital.basin1))
             vital.change_basin(othervit.basin1,othervit.pubbasin2)
-            vital.renumber_storm(int(othervit.stormid3[0:2])) 
+            vital.renumber_storm(int(othervit.stormid3[0:2]))
             renumbered=True
             if debug: logger.debug(' NOW  %s'%(vital.line,))
             lastvit[othervit.stormid3]=vital
@@ -379,17 +379,17 @@ class Revital:
     def renumber(self,unrenumber=False,clean=True,threshold=0,
                  discard_duplicates=True):
         """!Renumbers storms with numbers 90-99, if possible, to have
-        the same number as later 1-49 numbered storms.  
+        the same number as later 1-49 numbered storms.
 
         Loops over all vitals from last to first, renumbering 90-99
-        storms to have the same storm number as later 1-49 storms.  
+        storms to have the same storm number as later 1-49 storms.
 
         @param threshold If a threshold is given, then a cycle will
         only be considered for renumbering if it is either above that
-        threshold, or is not an Invest. 
+        threshold, or is not an Invest.
         @param unrenumber If unrenumber is True, the original storm
-        numbers are restored after renumbering.  
-        @param discard_duplicate If True, discard invests that are 
+        numbers are restored after renumbering.
+        @param discard_duplicate If True, discard invests that are
           duplicates of non-invests.  This feature is disabled if
           unrenumber is enabled or cleaning is disabled.
         @param clean If clean is True (the default), then
@@ -495,11 +495,11 @@ class Revital:
 
     def discard_except(self,keep_condition):
         """!Discards all vitals except those for which the
-        keep_condition function returns True.  
+        keep_condition function returns True.
 
         @param keep_condition A function that receives a StormInfo
         object as its only argument, returning True if the vital
-        should be kept and False if not.  
+        should be kept and False if not.
         @note The list will be unmodified if an exception is thrown."""
         newvit=list()
         for vit in self.vitals:
@@ -577,7 +577,7 @@ class Revital:
         for x in self.vitals: yield x
     def each(self,stormid=None,old=False):
         """!Iterates over all vitals that match the specified stormid.
-        If no stormid is given, iterates over all vitals.  
+        If no stormid is given, iterates over all vitals.
 
         @param stormid the storm ID to search for.  This can be
           a stormid3, stormid4 or longstormid.
@@ -590,7 +590,7 @@ class Revital:
             def selected(vital): return True
         else:
             stormid=str(stormid).upper()
-            if   re.search('\A\d\d[a-zA-Z]\Z',stormid):  
+            if   re.search('\A\d\d[a-zA-Z]\Z',stormid):
                 def selected(vital): return vital.stormid3==stormid
                 if old:
                     def old_selected(vital):
@@ -630,7 +630,7 @@ class Revital:
          line; or "HHS" to use the HHS output format.  (Do not use the "HHS"
          option unless you are HHS.)
         @param renumberlog If given, sends information about renaming and
-        renumbering of the vitals to a second stream.  
+        renumbering of the vitals to a second stream.
         @param stormid The "stormid" argument is used to restrict
         printing to only a certain stormid.
         @param old If True, then vitals with an old_stormid that matches are
@@ -674,10 +674,10 @@ def hrd_multistorm_cmp(a,b):
     """!A compares two storminfo objects for use in sorting or comparison.
     Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is made in this
     order:
-    
+
     1. User priority (a.userprio): lower (priority 1) is "more
        important" than higher numbers (priority 9999 is fill value).
-    
+
     2.  Invest vs. non-invest: invest is less important
 
     3.  wind: stronger wind is more important than weaker wind
@@ -695,7 +695,7 @@ def hrd_multistorm_cmp(a,b):
     b_userprio=getattr(b,'userprio',9999)
     a_invest=1 if (a.stormname=='INVEST') else 0
     b_invest=1 if (b.stormname=='INVEST') else 0
-    
+
     c = oldcmp(a_userprio,b_userprio) or \
         oldcmp(a_invest,b_invest) or\
         -oldcmp(a.wmax,b.wmax) or\

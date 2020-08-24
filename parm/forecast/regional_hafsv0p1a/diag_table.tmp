@@ -303,7 +303,7 @@
 "gfs_phys",    "nddsf_ave",    "nddsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "trans_ave",    "trans_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 
-# Reflectivity from GFDL microphysics
+# Reflectivity from microphysics
 "gfs_phys", "refl_10cm", "refl_10cm", "fv3_history2d", "all", .false., "none", 2
 
 #Max/Min must be kept in separate files.  Time is controlled by diag_table

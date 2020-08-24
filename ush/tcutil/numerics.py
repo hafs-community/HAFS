@@ -5,7 +5,7 @@ partial sorting, time manipulation or fraction-to-date conversions.
 It also contains two array-like classes that take datetime objects as
 indices."""
 
-##@var __all__ 
+##@var __all__
 # The symbols exported by "from tcutil.numerics import *"
 __all__ = [ 'partial_ordering','fcst_hr_min','split_fraction','to_fraction',
             'to_datetime_rel','to_datetime','to_timedelta','TimeArray',
@@ -121,14 +121,14 @@ def within_dt_epsilon(time1,time2,epsilon):
     """!Returns True if time1 is within epsilon of time2, and False
     otherwise.
     @param time1,time2 the times being compared
-    @param epsilon how close they need to be in order to be 
+    @param epsilon how close they need to be in order to be
       considered equal.
     @returns True if the times are within epsilon of each other,
       False if not"""
     if not isinstance(time2,datetime.datetime):
         dt=to_fraction(time2)
     else:
-        if not isinstance(time1,datetime.datetime): 
+        if not isinstance(time1,datetime.datetime):
             time1=to_datetime(time1)
         dt=time2-time1
         dt=fractions.Fraction(dt.microseconds,1000000)+\
@@ -153,7 +153,7 @@ def timedelta_epsilon(times,rel=None,default=None,sort=False,numerator=10):
     unspecified and it is needed, then NoTimespan is raised.  If sort
     is specified and True, then the times will be sorted before
     anything is done (it is False by default).
-    
+
     @param times a list of example times for comparison
     @param rel a reference time to which the times will be compared
     @param default if too few unique times are found, this is returned
@@ -178,14 +178,14 @@ def timedelta_epsilon(times,rel=None,default=None,sort=False,numerator=10):
             if mindiff is None or diff<mindiff and diff>0: mindiff=diff
         prior=now
     if mindiff is None:
-        if default is None: 
+        if default is None:
             raise tcutil.exceptions.NoTimespan(
                 'Too few non-identical times in input, and no default '
                 'specified.  Cannot compute timespan in timedelta_epsilon.',
                 start=rel,end=None)
         return to_timedelta(default)
     return to_timedelta(mindiff)
-   
+
 ########################################################################
 
 def to_fraction(a,b=None,negok=False):
@@ -266,7 +266,7 @@ def to_datetime_rel(d,rel):
 ########################################################################
 
 def to_datetime(d):
-    """!Converts the argument to a datetime.  
+    """!Converts the argument to a datetime.
 
     If the argument is already a datetime, it is simply returned.
     Otherwise it must be a string of the format YYYYMMDDHH,
@@ -387,7 +387,7 @@ def is_at_timestep(start,target,timestep):
 ########################################################################
 
 def str_timedelta(dt):
-    """!Converts a timedelta to a string 
+    """!Converts a timedelta to a string
 
     Converts dt to a string of the format "DD:HH:MM:SS+num/den"
     * DD - number of days
@@ -487,7 +487,7 @@ class TimeContainer(object):
         return self._data[index]
     def neartime(self,when,epsilon=None):
         """!Returns a tuple containing the time nearest to "when"
-        without going over, and the index of that time.  
+        without going over, and the index of that time.
 
         @param epsilon If specified, raise
         tcutil.exceptions.NoNearbyValues if no times are near that
@@ -507,8 +507,8 @@ class TimeContainer(object):
             return then
     def get(self,when,default):
         """!Returns the item at the latest time that is not later than
-        "when."  
-        
+        "when."
+
         @param when the time of interest
         @param default If there is no data assigned at that time then the
         given default is returned."""
@@ -588,7 +588,7 @@ class TimeContainer(object):
                 yield self._times[i]
     def __str__(self):
         """!Returns a string representation of this object."""
-        def idxstr(i): 
+        def idxstr(i):
             t=self._times[i]
             st=t.strftime("%Y%m%d-%H%M%S")
             if self._assigned[i]:
@@ -642,13 +642,13 @@ class TimeArray(TimeContainer):
     ##@var end
     # End time.  Do not modify.
 
-    ##@var timestep   
+    ##@var timestep
     # Timestep between times.  Do not modify.
 
     def index_of(self,when):
         """!Returns the index of the specified time in the internal
         storage arrays or raises NotInTimespan if the time is not in
-        the timespan.  
+        the timespan.
         @param when Anything accepted by
         to_datetime_rel(when,self._start)"""
         when=to_datetime_rel(when,self._start)
@@ -693,7 +693,7 @@ class TimeMapping(TimeContainer):
     def index_of(self,when):
         """!Returns the index of the specified time in the internal
         storage arrays or raises NotInTimespan if the time is not in
-        the timespan.  
+        the timespan.
         @param when Anything accepted by
         to_datetime_rel(when,self._start)"""
         when=to_datetime(when)

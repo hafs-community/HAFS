@@ -23,7 +23,7 @@ export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, 
 export ictype=${ictype:-gfsnemsio} # gfsnemsio
 export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 if [ "${gtype}" != "regional" ]; then
   echo "INFO: ${gtype} not a regional run."

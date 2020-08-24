@@ -1,0 +1,26 @@
+   5     'nports' = number of boundary port sections
+   1     'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
+  478    'ifport' = first i-index
+ 1134    'ilport' = last  i-index (=ifport for east/west port)
+  633    'jfport' = first j-index
+  633    'jlport' = last  j-index (=jfport for north/south port)
+   2     'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
+  607    'ifport' = first i-index
+ 1134    'ilport' = last  i-index (=ifport for east/west port)
+   2     'jfport' = first j-index
+   2     'jlport' = last  j-index (=jfport for north/south port)
+   3     'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
+ 1135    'ifport' = first i-index
+ 1135    'ilport' = last  i-index (=ifport for east/west port)
+   2     'jfport' = first j-index
+  42     'jlport' = last  j-index (=jfport for north/south port)
+   3     'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
+ 1135    'ifport' = first i-index
+ 1135    'ilport' = last  i-index (=ifport for east/west port)
+  435    'jfport' = first j-index
+  486    'jlport' = last  j-index (=jfport for north/south port)
+   3     'kdport' = port orientation (1=N, 2=S, 3=E, 4=W)
+ 1135    'ifport' = first i-index
+ 1135    'ilport' = last  i-index (=ifport for east/west port)
+  599    'jfport' = first j-index
+  632    'jlport' = last  j-index (=jfport for north/south port)

@@ -6,6 +6,7 @@
 export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
+export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
 export RUN_GSI={RUN_GSI}
 export GSID01={GSID01}
@@ -30,6 +31,10 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+
+export SYNDAThafs={syndat}
+export ADECKhafs={ADECKhafs}
+export BDECKhafs={BDECKhafs}
 
 export PARMforecast={PARMforecast}
 
@@ -106,6 +111,21 @@ export out_prefix_nodate={out_prefix_nodate}
 export synop_gridspecs={synop_gridspecs}
 export trker_gridspecs={trker_gridspecs}
 
+export run_ocean={run_ocean}
+export ocean_model={ocean_model}
+export cpl_dt={cpl_dt}
+export cpl_ocean={cpl_ocean}
+export cplflx={cplflx}
+export runSeq_OCN2ATM={runSeq_OCN2ATM}
+export runSeq_ATM2OCN={runSeq_ATM2OCN}
+export runSeq_ATM={runSeq_ATM}
+export runSeq_OCN={runSeq_OCN}
+export ocean_tasks={ocean_tasks}
+export ATM_petlist_bounds={ATM_petlist_bounds}
+export OCN_petlist_bounds={OCN_petlist_bounds}
+export ocean_start_dtg={ocean_start_dtg}
+export merge_import={merge_import}
+
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec
 
@@ -125,3 +145,4 @@ if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
     export CDSCRUB={CDSCRUB}
     export RUNhafs={RUNhafs}
 fi
+

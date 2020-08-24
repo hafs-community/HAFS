@@ -5,6 +5,9 @@ set -xe
 ulimit -s unlimited
 ulimit -a
 
+export PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
+export FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
+
 export gtype=${gtype:-regional}
 export halo_blend=${halo_blend:-0}
 export nstf_n1=${nstf_n1:-2}
@@ -46,9 +49,28 @@ export output_grid_lat2=${output_grid_lat2:-30.0}
 export output_grid_dlon=${output_grid_dlon:-0.025}
 export output_grid_dlat=${output_grid_dlon:-0.025}
 
+export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+
 export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
+
+export run_ocean=${run_ocean:-no}
+export ocean_model=${ocean_model:-hycom}
+export cpl_ocean=${cpl_ocean:-0}
+export ocean_tasks=${ocean_tasks:-120}
+export cpl_dt=${cpl_dt:-360}
+export cplflx=${cplflx:-.false.}
+export ATM_petlist_bounds=${ATM_petlist_bounds:-'ATM_petlist_bounds: 0000 1319'}
+export OCN_petlist_bounds=${OCN_petlist_bounds:-'OCN_petlist_bounds: 1320 1439'}
+export runSeq_OCN2ATM=${runSeq_OCN2ATM:-''}
+export runSeq_ATM2OCN=${runSeq_ATM2OCN:-''}
+export runSeq_ATM=${runSeq_ATM:-'ATM'}
+export runSeq_OCN=${runSeq_OCN:-'OCN'}
+export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
+#export base_dtg=${CDATE:-2019082900}
+#export end_hour=${NHRS:-126}
+export merge_import=${merge_import:-.false.}
 
 if [ $gtype = uniform ];  then
   export ntiles=6
@@ -68,6 +90,10 @@ NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+
+yr=`echo $CDATE | cut -c1-4`
+mn=`echo $CDATE | cut -c5-6`
+dy=`echo $CDATE | cut -c7-8`
 
 if [ ! -d $INPdir ]; then
    echo Cannot find $INPdir ... exit
@@ -112,6 +138,9 @@ for file in `ls $CO2DIR/global_co2historicaldata* ` ; do
  cp $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
+# Copy the fix files needed by the hwrf ccpp physics suite
+cp ${PARMhafs}/forecast/hwrf_physics_fix/* .
+
 if [ $gtype = nest ]; then
 
 #---------------------------------------------- 
@@ -145,13 +174,15 @@ cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/input_nest02.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
-cp ${PARMforecast}/nems.configure .
+cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
 
 ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
 cp ${ccpp_suite_glob_xml} .
 
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 nest_pes=$(( ${layoutx} * ${layouty} ))
+ioffset=$(( (istart_nest-1)/2 + 1))
+joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
@@ -163,6 +194,9 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
+    -e "s/_refinement_/${refine_ratio}/g" \
+    -e "s/_ioffset_/${ioffset}/g" \
+    -e "s/_joffset_/${joffset}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
@@ -171,13 +205,12 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input.nml.tmp > input.nml
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
+    input.nml.tmp > input.nml
 
 ccpp_suite_nest_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_nest}.xml"
 cp ${ccpp_suite_nest_xml} .
-
-ioffset=$(( (istart_nest-1)/2 + 1))
-joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
@@ -200,7 +233,9 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input_nest02.nml.tmp > input_nest02.nml
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
+    input_nest02.nml.tmp > input_nest02.nml
 
 elif [ $gtype = regional ]; then
 
@@ -233,7 +268,27 @@ cp ${PARMforecast}/diag_table.tmp .
 cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
-cp ${PARMforecast}/nems.configure .
+
+if [ ${run_ocean} = yes ];  then
+  cp ${PARMforecast}/nems.configure.atm_ocn.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_runSeq_OCN2ATM_/${runSeq_OCN2ATM}/g" \
+      -e "s/_runSeq_ATM2OCN_/${runSeq_ATM2OCN}/g" \
+      -e "s/_runSeq_ATM_/${runSeq_ATM}/g" \
+      -e "s/_runSeq_OCN_/${runSeq_OCN}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.false.}/g" \
+      nems.configure.atm_ocn.tmp > nems.configure
+elif [ ${run_ocean} = no ];  then
+  cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
+else
+  echo "Error: unknown run_ocean option: ${run_ocean}"
+  exit 9
+fi
 
 ccpp_suite_regional_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_regional}.xml"
 cp ${ccpp_suite_regional_xml} .
@@ -256,17 +311,63 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-	input.nml.tmp > input.nml
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
+    input.nml.tmp > input.nml
+
+if [ ${run_ocean} = yes ];  then
+
+# Copy hycom related files
+
+cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
+
+# copy IC/BC
+cp ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
+cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
+
+# copy forcing
+cp ${WORKhafs}/intercom/hycominit/forcing* .
+ln -sf forcing.presur.a forcing.mslprs.a
+ln -sf forcing.presur.b forcing.mslprs.b
+
+# copy fix
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
+cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
+
+# copy parms
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input 
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
+
+# create hycom limits
+${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
+
+fi
 
 fi
   
 #-------------------------------------------------------------------
 # Generate diag_table, model_configure from their tempelates
 #-------------------------------------------------------------------
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
-
 echo ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 echo $yr $mn $dy $cyc 0 0
 cat > temp << EOF
@@ -294,7 +395,8 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_LON2_/$output_grid_lon2/ | \
     sed s/_LAT2_/$output_grid_lat2/ | \
     sed s/_DLON_/$output_grid_dlon/ | \
-    sed s/_DLAT_/$output_grid_dlat/ \
+    sed s/_DLAT_/$output_grid_dlat/ | \
+    sed s/_cpl_/${cplflx:-.false.}/ \
     >  model_configure
 
 #-------------------------------------------------------------------
