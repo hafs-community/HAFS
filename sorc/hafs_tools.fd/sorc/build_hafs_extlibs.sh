@@ -115,7 +115,11 @@ _extlib_gribapi (){
     # Configure the compile-time environment for the GRIB-API
     # application build.
 
-    ./configure --prefix=${PREFIX} >& ${HAFS_UTILS_EXTLIBS}/logs/configure.grib-api.log
+    if [ $GRIB_API_SHARED = "YES" ]; then
+       ./configure --prefix=${PREFIX} >& ${HAFS_UTILS_EXTLIBS}/logs/configure.grib-api.log
+    else
+       ./configure --prefix=${PREFIX} --disable-shared >& ${HAFS_UTILS_EXTLIBS}/logs/configure.grib-api.log
+    fi
 
     # Build the GRIB-API application.
 
