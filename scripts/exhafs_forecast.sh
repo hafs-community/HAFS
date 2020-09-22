@@ -377,27 +377,27 @@ EOF
 
 cat temp diag_table.tmp > diag_table
 
-cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
-    sed s/MN/$mn/ | sed s/DY/$dy/ | sed s/H_R/$cyc/ | \
-    sed s/NHRS/$NHRS/ | sed s/NTHRD/$OMP_NUM_THREADS/ | \
-    sed s/NCNODE/$NCNODE/ | \
-    sed s/_dt_atmos_/${dt_atmos}/ | \
-    sed s/_restart_interval_/${restart_interval}/ | \
-    sed s/_quilting_/${quilting}/ | \
-    sed s/_write_groups_/${write_groups}/ | \
-    sed s/_write_tasks_per_group_/${write_tasks_per_group}/ | \
-    sed s/_app_domain_/${app_domain}/ | \
-    sed s/_OUTPUT_GRID_/$output_grid/ | \
-    sed s/_CEN_LON_/$output_grid_cen_lon/ | \
-    sed s/_CEN_LAT_/$output_grid_cen_lat/ | \
-    sed s/_LON1_/$output_grid_lon1/ | \
-    sed s/_LAT1_/$output_grid_lat1/ | \
-    sed s/_LON2_/$output_grid_lon2/ | \
-    sed s/_LAT2_/$output_grid_lat2/ | \
-    sed s/_DLON_/$output_grid_dlon/ | \
-    sed s/_DLAT_/$output_grid_dlat/ | \
-    sed s/_cpl_/${cplflx:-.false.}/ \
-    >  model_configure
+sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
+    -e "s/MN/$mn/g" -e "s/DY/$dy/g" -e "s/H_R/$cyc/g" \
+    -e "s/NHRS/$NHRS/g" -e "s/NTHRD/$OMP_NUM_THREADS/g" \
+    -e "s/NCNODE/$NCNODE/g" \
+    -e "s/_dt_atmos_/${dt_atmos}/g" \
+    -e "s/_restart_interval_/${restart_interval}/g" \
+    -e "s/_quilting_/${quilting}/g" \
+    -e "s/_write_groups_/${write_groups}/g" \
+    -e "s/_write_tasks_per_group_/${write_tasks_per_group}/g" \
+    -e "s/_app_domain_/${app_domain}/g" \
+    -e "s/_OUTPUT_GRID_/$output_grid/g" \
+    -e "s/_CEN_LON_/$output_grid_cen_lon/g" \
+    -e "s/_CEN_LAT_/$output_grid_cen_lat/g" \
+    -e "s/_LON1_/$output_grid_lon1/g" \
+    -e "s/_LAT1_/$output_grid_lat1/g" \
+    -e "s/_LON2_/$output_grid_lon2/g" \
+    -e "s/_LAT2_/$output_grid_lat2/g" \
+    -e "s/_DLON_/$output_grid_dlon/g" \
+    -e "s/_DLAT_/$output_grid_dlat/g" \
+    -e "s/_cpl_/${cplflx:-.false.}/g" \
+    model_configure.tmp > model_configure
 
 #-------------------------------------------------------------------
 # Link the executable and run the forecast
