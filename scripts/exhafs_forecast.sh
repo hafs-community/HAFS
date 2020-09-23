@@ -100,10 +100,13 @@ if [ ! -d $INPdir ]; then
    exit 1
 fi
 
-mkdir -p INPUT RESTART
+mkdir -p INPUT
 ln -sf ${INPdir}/*.nc INPUT/
 #cp ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
+
+mkdir -p ${COMhafs}/RESTART
+ln -sf ${COMhafs}/RESTART RESTART
 
 #---------------------------------------------- 
 # Copy all the necessary fix files
