@@ -2,7 +2,7 @@
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by config.status (grib_api) 1.28.0
-# Libtool was configured on host borealis:
+# Libtool was configured on host hfe05:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
@@ -44,7 +44,7 @@ macro_version=2.4.2
 macro_revision=1.3337
 
 # Whether or not to build shared libraries.
-build_libtool_libs=no
+build_libtool_libs=yes
 
 # Whether or not to build static libraries.
 build_old_libs=yes
@@ -53,7 +53,7 @@ build_old_libs=yes
 pic_mode=default
 
 # Whether or not to optimize for fast installation.
-fast_install=needless
+fast_install=yes
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -66,12 +66,12 @@ PATH_SEPARATOR=":"
 
 # The host system.
 host_alias=
-host=x86_64-suse-linux-gnu
+host=x86_64-unknown-linux-gnu
 host_os=linux-gnu
 
 # The build system.
 build_alias=
-build=x86_64-suse-linux-gnu
+build=x86_64-unknown-linux-gnu
 build_os=linux-gnu
 
 # A sed program that does not truncate output.
@@ -96,7 +96,7 @@ NM="/usr/bin/nm -B"
 LN_S="ln -s"
 
 # What is the maximum length of a command?
-max_cmd_len=1572864
+max_cmd_len=2304000000
 
 # Object file suffix (normally "o").
 objext=o
@@ -161,7 +161,7 @@ old_postuninstall_cmds=""
 lock_old_archive_extraction=no
 
 # A C compiler.
-LTCC="gcc"
+LTCC="/usr/bin/gcc"
 
 # LTCC compiler flags.
 LTCFLAGS="-g -O2"
@@ -222,7 +222,7 @@ extract_expsyms_cmds=""
 
 # Variables whose values should be saved in libtool wrapper scripts and
 # restored at link time.
-variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH"
+variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH"
 
 # Do we need the "lib" prefix for modules?
 need_lib_prefix=no
@@ -240,7 +240,7 @@ runpath_var=LD_RUN_PATH
 shlibpath_var=LD_LIBRARY_PATH
 
 # Is shlibpath searched before the hard-coded library search path?
-shlibpath_overrides_runpath=yes
+shlibpath_overrides_runpath=no
 
 # Format of library name prefix.
 libname_spec="lib\$name"
@@ -272,10 +272,10 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/usr/local/apps/gcc/6.3.0/lib64/gcc/x86_64-suse-linux/lib64 /usr/local/apps/gcc/6.3.0/lib64 /lib64 /usr/lib64 "
+sys_lib_search_path_spec="/usr/lib/gcc/x86_64-redhat-linux/4.8.5 /usr/lib64 /lib64 /apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/compiler/lib/intel64_lin /apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/mkl/lib/intel64_lin /apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/tbb/lib/intel64/gcc4.7 /apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/daal/lib/intel64_lin /apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/tbb/lib/intel64_lin/gcc4.4 "
 
 # Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/local/lib64 /usr/local/lib /usr/lib64/graphviz /usr/lib64/graphviz/sharp /usr/lib64/graphviz/java /usr/lib64/graphviz/perl /usr/lib64/graphviz/php /usr/lib64/graphviz/ocaml /usr/lib64/graphviz/python /usr/lib64/graphviz/lua /usr/lib64/graphviz/tcl /usr/lib64/graphviz/guile /usr/lib64/graphviz/ruby /usr/lib64/mysql-workbench /usr/X11R6/lib64 /usr/X11R6/lib /usr/lib64/smokegen "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/lib64/atlas /usr/lib64//bind9-export/ /usr/lib64/dyninst /opt/mellanox/hcoll/lib /opt/ibutils/lib64 /usr/lib64/mysql /opt/mellanox/mxm/lib /usr/lib64/qt-3.3/lib /opt/mellanox/sharp/lib /usr/lib64/tcl8.5 /usr/lib64/xulrunner "
 
 # Whether dlopen is supported.
 dlopen_support=unknown
@@ -302,7 +302,7 @@ reload_cmds="\$LD\$reload_flag -o \$output\$reload_objs"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs~\$RANLIB \$tool_oldlib"
 
 # A language specific compiler.
-CC="gcc"
+CC="/usr/bin/gcc"
 
 # Is the compiler the GNU compiler?
 with_gcc=yes
@@ -317,13 +317,13 @@ pic_flag=" -fPIC -DPIC"
 wl="-Wl,"
 
 # Compiler flag to prevent dynamic linking.
-link_static_flag=""
+link_static_flag="-static"
 
 # Does compiler simultaneously support -c and -o options?
 compiler_c_o="yes"
 
 # Whether or not to add -lc for building shared libraries.
-build_libtool_need_lc=yes
+build_libtool_need_lc=no
 
 # Whether or not to disallow shared libs when runtime libs are static.
 allow_libtool_libs_with_static_runtimes=no
@@ -10255,10 +10255,10 @@ reload_cmds="\$LD\$reload_flag -o \$output\$reload_objs"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs~\$RANLIB \$tool_oldlib"
 
 # A language specific compiler.
-CC="gfortran"
+CC="/apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/bin/intel64/ifort"
 
 # Is the compiler the GNU compiler?
-with_gcc=yes
+with_gcc=no
 
 # Compiler flag to turn off builtin functions.
 no_builtin_flag=""
@@ -10270,7 +10270,7 @@ pic_flag=" -fPIC"
 wl="-Wl,"
 
 # Compiler flag to prevent dynamic linking.
-link_static_flag=""
+link_static_flag="-static"
 
 # Does compiler simultaneously support -c and -o options?
 compiler_c_o="yes"
@@ -10297,11 +10297,11 @@ old_archive_from_new_cmds=""
 old_archive_from_expsyms_cmds=""
 
 # Commands used to build a shared archive.
-archive_cmds="\$CC -shared \$pic_flag \$libobjs \$deplibs \$compiler_flags \${wl}-soname \$wl\$soname -o \$lib"
+archive_cmds="\$CC -shared -nofor_main \$libobjs \$deplibs \$compiler_flags \${wl}-soname \$wl\$soname -o \$lib"
 archive_expsym_cmds="echo \\\"{ global:\\\" > \$output_objdir/\$libname.ver~
 	    cat \$export_symbols | sed -e \\\"s/\\\\(.*\\\\)/\\\\1;/\\\" >> \$output_objdir/\$libname.ver~
 	    echo \\\"local: *; };\\\" >> \$output_objdir/\$libname.ver~
-	    \$CC -shared \$pic_flag \$libobjs \$deplibs \$compiler_flags \${wl}-soname \$wl\$soname \${wl}-version-script \${wl}\$output_objdir/\$libname.ver -o \$lib"
+	    \$CC -shared -nofor_main \$libobjs \$deplibs \$compiler_flags \${wl}-soname \$wl\$soname \${wl}-version-script \${wl}\$output_objdir/\$libname.ver -o \$lib"
 
 # Commands used to build a loadable module if different from building
 # a shared archive.

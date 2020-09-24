@@ -1,9 +1,9 @@
-prefix=/usr/local
+prefix=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hafs_vigsi_202008/sorc/hafs_tools.fd/sorc/hafs_extlibs
 exec_prefix=${prefix}
 bindir=${exec_prefix}/bin
 includedir=${prefix}/include
-libdir=${exec_prefix}/lib64
-FC=gfortran
+libdir=${exec_prefix}/lib
+FC=/apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/bin/intel64/ifort
 
 Name: grib_api_f90
 Description: The grib_api library for Fortran 90

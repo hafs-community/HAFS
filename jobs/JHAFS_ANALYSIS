@@ -1,0 +1,99 @@
+#!/bin/sh
+
+set -xe
+
+date
+source ${USHhafs}/hafs_pre_job.sh.inc
+HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
+source ${HOLDVARS}
+
+export EXPT=${EXPT:-HAFS}
+export SUBEXPT=${SUBEXPT:-${EXPT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:-00}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+
+export NHRS=${NHRS:-126}
+export NBDYHRS=${NBDYHRS:-3}
+export CASE=${CASE:-C768}
+export CRES=`echo $CASE | cut -c 2-`
+export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
+export LEVS=${LEVS:-65}
+export NTRAC=7            # output all gfdl mp tracers
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export COMhafs=${COMhafs:-${COMOUT}}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+export FIXam=${FIXhafs}/fix_am
+export FIXfv3=${FIXhafs}/fix_fv3
+
+export FIXnew=${FIXhafs}/fix
+export CO2DIR=${FIXam}/fix_co2_proj
+
+export GSIEXEC=${EXEChafs}/hafs_gsi.x
+
+####################################
+# Load Modules if Needed
+####################################
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
+#export RUN_ENVIR=${RUN_ENVIR:-prod}
+export RUN_ENVIR=${envir:-prod}
+if [ "$RUN_ENVIR" = prod ]; then
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
+  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+  #module load modulefile.ProdGSI.${machine}
+  source $HOMEhafs/sorc/hafs_gsi.fd/modulefiles/modulefile.ProdGSI.${machine}
+  #env
+  module list
+fi
+
+#####################################
+# Set up job node/core/run environment variables
+#####################################
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+####################################
+# Run setpdy and initialize PDY variables
+####################################
+#setpdy.sh
+#. ./PDY
+
+PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
+export PDY=${PDY:-${PDYtmp}}
+
+#####################################
+# Working directories
+#####################################
+#export FIXgrid=${FIXhafs}/fix_fv3
+export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+export DATA=${WORKhafs}/analysis
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+#####################################
+# Execute the script.
+${HOMEhafs}/scripts/exhafs_analysis.sh
+export err=$?
+#####################################
+
+exit $err

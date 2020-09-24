@@ -74,7 +74,7 @@
        k_split  = 4
        n_split  = 5
        nwat = 4
-       na_init = 1
+       na_init = _na_init_
        d_ext = 0.0
        dnats = 1
        fv_sg_adj = 300
@@ -86,11 +86,11 @@
        delt_max = 0.008
        ke_bg = 0.
        do_vort_damp = .T.
-       external_ic = .T.
+       external_ic = _external_ic_
        external_eta = .T.
        gfs_phil = .false.
-       nggps_ic = .T.
-       mountain = .F.
+       nggps_ic = _nggps_ic_
+       mountain = _mountain_
        ncep_ic = .F.
        d_con = 1.0
        hord_mt = 6
@@ -105,7 +105,7 @@
        fill = .T.
        dwind_2d = .F.
        print_freq = 3
-       warm_start = .F.
+       warm_start = _warm_start_
        no_dycore = .false.
        z_tracer = .T.
        agrid_vel_rst = .true.

@@ -16,7 +16,7 @@ WriteMakefile(
       (ABSTRACT_FROM  => 'lib/GRIB/API.pm', # retrieve abstract from module
        AUTHOR         => 'Baudouin Raoult <mab@suse.de>') : ()),
     LIBS              => ['-L../../src -lgrib_api -lm @LIB_JP2@ '], # e.g., '-lm'
-    INC               => '-I/var/tmp/tmpdir/masn/jtmp.1659/make_tarball.6261/grib_api/src', # e.g., '-I. -I/usr/include/other'
+    INC               => '-I/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hafs_vigsi_202008/sorc/hafs_tools.fd/sorc/hafs_extlibs/grib_api/src', # e.g., '-I. -I/usr/include/other'
 	# Un-comment this if you add C files to link with later:
     # OBJECT            => '$(O_FILES)', # link all the C files too
 	depend           => { "API.o" => "../../src/libgrib_api.a" }

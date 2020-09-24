@@ -5,6 +5,24 @@ set -xe
 ulimit -s unlimited
 ulimit -a
 
+yr=`echo $CDATE | cut -c1-4`
+mn=`echo $CDATE | cut -c5-6`
+dy=`echo $CDATE | cut -c7-8`
+
+NDATE=${NDATE:-ndate}
+NCP='/bin/cp'
+NLN='ln -sf'
+
+CDATEprior=`${NDATE} -6 $CDATE`
+yrprior=`echo ${CDATEprior} | cut -c1-4`
+mnprior=`echo ${CDATEprior} | cut -c5-6`
+dyprior=`echo ${CDATEprior} | cut -c7-8`
+hhprior=`echo ${CDATEprior} | cut -c9-10`
+PDYprior=`echo ${CDATEprior} | cut -c1-8`
+
+export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
+export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
+
 export PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 export FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 
@@ -21,6 +39,24 @@ export restart_interval=${restart_interval:-6}
 export quilting=${quilting:-.true.}
 export write_groups=${write_groups:-3}
 export write_tasks_per_group=${write_tasks_per_group:-72}
+
+# For cold start from chgres_ic
+export na_init=${na_init:-1}
+export external_ic=${external_ic:-.true.}
+export nggps_ic=${nggps_ic:-.true.}
+export mountain=${mountain:-.false.}
+export warm_start=${warm_start:-.false.}
+
+export warmstart_from_analysis=${warmstart_from_analysis:-no}
+
+# For warm start from restart files (either before or after analysis)
+if [ ${warmstart_from_analysis} = yes ]; then
+export na_init=0
+export external_ic=.false.
+export nggps_ic=.false.
+export mountain=.true.
+export warm_start=.true.
+fi
 
 export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
@@ -194,6 +230,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${glob_npx}/g" \
     -e "s/_npy_/${glob_npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_na_init_/${na_init}/g" \
+    -e "s/_external_ic_/${external_ic}/g" \
+    -e "s/_nggps_ic_/${nggps_ic}/g" \
+    -e "s/_mountain_/${mountain}/g" \
+    -e "s/_warm_start_/${warm_start}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
@@ -222,6 +263,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_na_init_/${na_init}/g" \
+    -e "s/_external_ic_/${external_ic}/g" \
+    -e "s/_nggps_ic_/${nggps_ic}/g" \
+    -e "s/_mountain_/${mountain}/g" \
+    -e "s/_warm_start_/${warm_start}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
@@ -260,6 +306,16 @@ ln -sf ${CASE}_oro_data.tile7.halo0.nc oro_data.nc
 ln -sf ${CASE}_oro_data.tile7.halo4.nc oro_data.tile7.halo4.nc
 ln -sf sfc_data.tile7.nc sfc_data.nc
 ln -sf gfs_data.tile7.nc gfs_data.nc
+
+# For warm start from restart files (either before or after analysis)
+if [ ${warmstart_from_analysis} = yes ]; then
+${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.coupler.res ./coupler.res
+${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.nc ./fv_core.res.nc
+${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
+${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
+${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+fi
+
 cd ..
 
 #-------------------------------------------------------------------
@@ -303,6 +359,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_na_init_/${na_init}/g" \
+    -e "s/_external_ic_/${external_ic}/g" \
+    -e "s/_nggps_ic_/${nggps_ic}/g" \
+    -e "s/_mountain_/${mountain}/g" \
+    -e "s/_warm_start_/${warm_start}/g" \
     -e "s/_target_lat_/${target_lat}/g" \
     -e "s/_target_lon_/${target_lon}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \

@@ -4,11 +4,11 @@ Summary: The ECMWF GRIB API is an application program interface accessible from 
 
 %define version 1.28.0
 %define pkgname grib_api
-%define prefix /usr/local
-%define _prefix /usr/local
-%define _target_platform x86_64-suse-linux-gnu
+%define prefix /scratch1/NCEPDEV/hwrf/save/Bin.Liu/hafs_vigsi_202008/sorc/hafs_tools.fd/sorc/hafs_extlibs
+%define _prefix /scratch1/NCEPDEV/hwrf/save/Bin.Liu/hafs_vigsi_202008/sorc/hafs_tools.fd/sorc/hafs_extlibs
+%define _target_platform x86_64-unknown-linux-gnu
 %define _target_cpu x86_64
-%define _enable_python %(test -z "" && echo 1 || echo 0)
+%define _enable_python %(test -z "#" && echo 1 || echo 0)
 %define _enable_fortran %(test -z "" && echo 1 || echo 0)
 %define _requires_openjpeg %(test -n "" && echo 1 || echo 0)
 %define _requires_jasper %(test -n "-ljasper" && echo 1 || echo 0)
@@ -17,12 +17,12 @@ Summary: The ECMWF GRIB API is an application program interface accessible from 
 %define lt_version @LT_CURRENT@.@LT_REVISION@.@LT_AGE@
 
 %define __aclocal   aclocal || aclocal -I ./macros
-%define configure_args  '--enable-python' '--disable-shared' 'CC=gcc' 'F77=gfortran' 'FC=gfortran'
+%define configure_args  '--prefix=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hafs_vigsi_202008/sorc/hafs_tools.fd/sorc/hafs_extlibs' 'CC=/usr/bin/gcc' 'FC=/apps/intel/parallel_studio_xe_2018.4.057/compilers_and_libraries_2018/linux/bin/intel64/ifort'
 
 Name: %{pkgname}
 Version: %{version}
 Release: %{rel}
-Distribution: openSUSE 42.3 (x86_64) 
+Distribution: CentOS Linux release 7.7.1908 (Core) 
 
 Vendor: ECMWF
 License: Apache Licence version 2.0 
