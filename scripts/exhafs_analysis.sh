@@ -6,6 +6,8 @@ export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 
+export hybrid_3denvar_gdas=${hybrid_3denvar_gdas:-no}
+
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
@@ -105,13 +107,24 @@ ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_s
 ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
+if [ $hybrid_3denvar_gdas = yes ]; then
+export L_HYB_ENS=.true.
+export N_ENS=80
+for mem in $(seq -f '%03g' 1 ${N_ENS})
+do
+  ${NLN} ${COMgfs}/enkfgdas.$PDYprior/${hhprior}/sfg_${CDATEprior}_fhr06s_mem${mem} ./
+done
+/bin/ls -1 sfg_${CDATEprior}_fhr06s_mem??? > filelist06
+fi	
+
 #---------------------------------------------- 
 # Prepare gsiparm.anl
 #---------------------------------------------- 
 ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
-sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-F}/g" \
-    -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio}/g" \
+sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
+    -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------

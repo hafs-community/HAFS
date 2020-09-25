@@ -162,7 +162,7 @@ OBS_INPUT::
  /
  &HYBRID_ENSEMBLE
    l_hyb_ens=_L_HYB_ENS_,
-   n_ens=80,
+   n_ens=_N_ENS_,
    uv_hyb_ens=T,
    beta_s0=0.2,
    s_ens_h=300,
