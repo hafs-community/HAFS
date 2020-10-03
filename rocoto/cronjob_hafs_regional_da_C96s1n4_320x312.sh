@@ -24,7 +24,7 @@ date
 #PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
- HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/hafs_vigsi_202008
+ HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
  dev="-s sites/hera.ent -f"
  PYTHON3=/apps/intel/intelpython3/bin/python3
 
@@ -36,7 +36,19 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #===============================================================================
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_da_C96s1n4_320x312 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_noda_C96s1n4_320x312 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3dvar_C96s1n4_320x312 \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=no \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_C96s1n4_320x312 \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 

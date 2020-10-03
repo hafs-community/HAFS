@@ -6,7 +6,7 @@ export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 
-export hybrid_3denvar_gdas=${hybrid_3denvar_gdas:-no}
+export hybrid_3denvar_gdas=${hybrid_3denvar_gdas:-yes}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -31,6 +31,19 @@ PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
+
+if [ ! ${RUN_GSI} = "YES" ]; then
+  echo "RUN_GSI: ${RUN_GSI} is not YES"
+  echo "Do nothing. Exiting"
+  exit
+fi
+
+if [ ! -s ${COMhafsprior}/storm1.holdvars.txt ] && [ ! -s ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  echo "Prior cycle does not exist. No need to run gsi for the first cycle."
+  echo "Do nothing. Exiting"
+  exit
+fi
+
 
 #---------------------------------------------- 
 # Link all the necessary fix files

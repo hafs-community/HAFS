@@ -47,7 +47,11 @@ export nggps_ic=${nggps_ic:-.true.}
 export mountain=${mountain:-.false.}
 export warm_start=${warm_start:-.false.}
 
-export warmstart_from_analysis=${warmstart_from_analysis:-no}
+if [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_analysis=yes
+else
+  export warmstart_from_analysis=no
+fi
 
 # For warm start from restart files (either before or after analysis)
 if [ ${warmstart_from_analysis} = yes ]; then
