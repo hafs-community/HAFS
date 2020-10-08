@@ -48,7 +48,7 @@ fi
 #---------------------------------------------- 
 # Link all the necessary fix files
 #---------------------------------------------- 
-${NLN} ${PARMgsi}/anavinfo ./anavinfo
+${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 
 ${NLN} ${FIXcrtm}/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
@@ -84,8 +84,21 @@ ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.ssmisu.tm00.bufr_d               ssm
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.ssmisu.tm00.bufr_d               ssmisbufr
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.sevcsr.tm00.bufr_d               seviribufr
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.satwnd.tm00.bufr_d               satwndbufr
-${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.saphir.tm00.bufr_d               saphirbufr
-${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr                         prepbufr
+if [ -s ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.saphir.tm00.bufr_d ] ; then
+  ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.saphir.tm00.bufr_d             saphirbufr
+elif [ -s ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.saphir.tm00.bufr_d.nr ] ; then
+  ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.saphir.tm00.bufr_d.nr          saphirbufr
+else
+  echo "No saphirbufr file"
+fi
+if [ -s ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr ] ; then
+  ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr                       prepbufr
+elif [ -s ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr.nr ] ; then
+  ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr.nr                    prepbufr
+else
+  echo "No prepbufr file, create a link anyway"
+  ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.prepbufr.nr                    prepbufr
+fi
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.1bmhs.tm00.bufr_d                mhsbufr
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.mtiasi.tm00.bufr_d               iasibufr
 ${NLN} ${COMgfs}/gfs.$PDY/$cyc/gfs.t${cyc}z.1bhrs4.tm00.bufr_d               hirs4bufr
