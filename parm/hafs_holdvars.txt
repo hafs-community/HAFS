@@ -8,6 +8,7 @@ export envir={ENV[envir|-prod]}
 export storm_num={storm_num}
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
+export RUN_GSI_VR={RUN_GSI_VR}
 export RUN_GSI={RUN_GSI}
 export GSID01={GSID01}
 export GSID02={GSID02}
@@ -15,6 +16,8 @@ export GSID03={GSID03}
 export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
+
+export warm_start_opt={warm_start_opt}
 
 export utilexec={utilexec}
 

@@ -41,6 +41,12 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_noda_cycling_C96s1n4_320x312 \
+     config.warm_start_opt=2 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3dvar_C96s1n4_320x312 \
      config.run_gsi=yes gsi.hybrid_3denvar_gdas=no \
      config.NHRS=12 ${scrubopt} \
@@ -49,6 +55,20 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_C96s1n4_320x312 \
      config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_gsivr_3denvar_C96s1n4_320x312 \
+     config.run_gsi_vr=yes \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_gsivr_C96s1n4_320x312 \
+     config.run_gsi_vr=yes \
+     config.run_gsi=no gsi.hybrid_3denvar_gdas=no \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 

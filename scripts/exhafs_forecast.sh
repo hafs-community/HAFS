@@ -47,14 +47,59 @@ export nggps_ic=${nggps_ic:-.true.}
 export mountain=${mountain:-.false.}
 export warm_start=${warm_start:-.false.}
 
-if [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  export warmstart_from_analysis=yes
-else
-  export warmstart_from_analysis=no
+#export coldstart_from_chgres=${coldstart_from_chgres:-yes}
+#export warmstart_from_init=${warmstart_from_init:-no}
+#export warmstart_from_priorcyc=${warmstart_from_priorcyc:-no}
+#export warmstart_from_analysis_vr=${warmstart_from_analysis_vr:-no}
+#export warmstart_from_analysis=${warmstart_from_analysis:-no}
+
+# In the future, can consider using the following multiple options:
+# warm_start_opt: 0, coldstart from chgres; 1, warmstart from init; 2,
+# warmstart from prior cycle's restart files; 3, warmstart from vortex
+# initialization; 4, warmstart from DA based vortex relocation; 5, warmstart
+# from DA analysis
+
+export warm_start_opt=${warm_start_opt:-0}
+
+export warmstart_from_restart=${warmstart_from_restart:-no}
+export RESTARTinp=${RESTARTinp:-"UNNEEDED"}
+
+if [ ${warm_start_opt} -eq 0 ]; then
+  export warmstart_from_restart=no
+  export RESTARTinp="UNNEEDED"
 fi
 
-# For warm start from restart files (either before or after analysis)
-if [ ${warmstart_from_analysis} = yes ]; then
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_init
+fi
+
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafsprior}/RESTART
+fi
+
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART
+fi
+
+#if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warm_start_opt=4
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_analysis_vr
+fi
+
+#if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warm_start_opt=5
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_analysis
+fi
+
+# For warm start from restart files
+if [ ${warmstart_from_restart} = yes ]; then
 export na_init=0
 export external_ic=.false.
 export nggps_ic=.false.
@@ -145,8 +190,9 @@ ln -sf ${INPdir}/*.nc INPUT/
 #cp ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
 
-mkdir -p ${COMhafs}/RESTART
-ln -sf ${COMhafs}/RESTART RESTART
+export RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
+mkdir -p ${RESTARTout}
+ln -sf ${RESTARTout} RESTART
 
 #---------------------------------------------- 
 # Copy all the necessary fix files
@@ -312,12 +358,12 @@ ln -sf sfc_data.tile7.nc sfc_data.nc
 ln -sf gfs_data.tile7.nc gfs_data.nc
 
 # For warm start from restart files (either before or after analysis)
-if [ ${warmstart_from_analysis} = yes ]; then
-${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.coupler.res ./coupler.res
-${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.nc ./fv_core.res.nc
-${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
-${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
-${NLN} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+if [ ${warmstart_from_restart} = yes ]; then
+${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
+${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv_core.res.nc
+${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
+${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
+${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
 fi
 
 cd ..
@@ -480,6 +526,9 @@ export err=$?
 #-------------------------------------------------------------------
 # Deliver files to COM
 #-------------------------------------------------------------------
+cp grid_spec.nc RESTART/
+cp atmos_static.nc RESTART/
+cp INPUT/oro_data.nc RESTART/
 
 exit $err
 

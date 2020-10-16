@@ -1,27 +1,51 @@
- &SETUP
-   miter=2,niter(1)=50,niter(2)=50,niter_no_qc(1)=20,niter_no_qc(2)=0,
-   write_diag(1)=.true.,write_diag(2)=.false.,write_diag(3)=.true.,
-   gencode=78,qoption=2,
-   factqmin=0.0,factqmax=0.0,deltim=1200,
-   iguess=-1,
-   oneobtest=.false.,retrieval=.false.,
-   nhr_assimilation=6,l_foto=.false.,
-   use_pbl=.false.,
-   print_diag_pcg=.true.,
-   use_gfs_ozone=F,
-   gpstop=30.,
-   use_gfs_nemsio=T,
-   newpc4pred=.true., adp_anglebc=.true., angord=4,
-                     passive_bc=.true., use_edges=.false., emiss_bc=.true.,
-                     diag_precon=.true., step_start=1.e-3, upd_pred(1)=0,
-                     upd_pred(2)=0,upd_pred(3)=0,upd_pred(4)=0,
-                     upd_pred(5)=0,upd_pred(6)=0,upd_pred(7)=0,
-                     upd_pred(8)=0,upd_pred(9)=0,upd_pred(10)=0,
-                     upd_pred(11)=0,upd_pred(12)=0,
- /
+&SETUP
+      miter            = 2,
+      niter(1)         = 100,
+      niter(2)         = 100,
+      niter_no_qc(1)   = 20,
+      deltim           = 1200,
+      offtime_data     = F
+      write_diag(1)    = T,
+      write_diag(2)    = F,
+      write_diag(3)    = T,
+      gencode          = 78,
+      qoption          = 2,
+      factqmin         = 0.0,
+      factqmax         = 0.0,
+      iguess           = -1,
+      use_gfs_ozone    = F,
+      oneobtest        = F,
+      retrieval        = F,
+      nhr_assimilation = 3,
+      l_foto           = F,
+      use_pbl          = F,
+      gpstop           = 30.,
+      use_gfs_nemsio   = T,
+      print_diag_pcg   = T,
+      newpc4pred       = T, 
+      adp_anglebc      = T, 
+      angord           = 4,
+      passive_bc       = T, 
+      use_edges        = F, 
+      emiss_bc         = T,
+      diag_precon      = T, 
+      step_start       = 1.e-3,
+      upd_pred(1)      = 0,
+      upd_pred(2)      = 0,
+      upd_pred(3)      = 0,
+      upd_pred(4)      = 0,
+      upd_pred(5)      = 0,
+      upd_pred(6)      = 0,
+      upd_pred(7)      = 0,
+      upd_pred(8)      = 0,
+      upd_pred(9)      = 0,
+      upd_pred(10)     = 0,
+      upd_pred(11)     = 0,
+      upd_pred(12)     = 0,
+/
 &GRIDOPTS
       fv3_regional            = T,
-      grid_ratio_fv3_regional = 4,
+      grid_ratio_fv3_regional = _GRID_RATIO_FV3_REGIONAL_,
       nvege_type              = 20,
 /
 &BKGERR
@@ -30,38 +54,51 @@
       bw    = 0.,
       fstat = F,
 /
- &ANBKGERR
-   anisotropic=.false.,an_vs=1.0,ngauss=1,
-   an_flen_u=-5.,an_flen_t=3.,an_flen_z=-200.,
-   ifilt_ord=2,npass=3,normal=-200,grid_ratio=4.,nord_f2a=4,
- /
- &JCOPTS
- /
- &STRONGOPTS
-   tlnmc_option=0,reg_tlnmc_type=1,nstrong=1,nvmodes_keep=8,period_max=6.,
-   period_width=1.5,baldiag_full=.false.,baldiag_inc=.false.,
- /
- &OBSQC
-   dfact=0.75,dfact1=3.0,erradar_inflate=1.0,tdrerr_inflate=.true.,
-   noiqc=.true.,c_varqc=0.03333,vadfile='prepbufr',njqc=.false.,vqc=.true.,vadwnd_l2rw_qc=.false.,
-   q_doe_a_136 = 1.4,
-   q_doe_b_136 = 0.0003,
-   q_doe_a_137 = 1.0,
-   q_doe_b_137 = 0.0002,
-   t_doe_a_136 = 1.15,
-   t_doe_b_136 = 0.23,
-   t_doe_a_137 = 1.0,
-   t_doe_b_137 = 0.2,
-   uv_doe_a_236 = 0.75,
-   uv_doe_b_236 = 0.5,
-   uv_doe_a_237 = 0.75,
-   uv_doe_b_237 = 0.3,
-   uv_doe_a_292 = 1.0,
-   uv_doe_b_292 = 5.0,
- /
- &OBS_INPUT
-   dmesh(1)=90.0,dmesh(2)=45.0,dmesh(3)=45.0,dmesh(4)=45.0,dmesh(5)=90,time_window_max=3.0,l_foreaft_thin=.false.,
- /
+&ANBKGERR
+      anisotropic = F,
+      an_vs       = 1.0,
+      ngauss      = 1,
+      an_flen_u   = -5.0,
+      an_flen_t   = 3.0,
+      an_flen_z   = -200.0,
+      ifilt_ord   = 2,
+      npass       = 3,
+      normal      = -200,
+      grid_ratio  = 4.0,
+      nord_f2a    = 4,
+/
+&JCOPTS
+/
+&STRONGOPTS
+      tlnmc_option   = 0,
+      reg_tlnmc_type = 1,
+      nstrong        = 1,
+      nvmodes_keep   = 8,
+      period_max     = 6.,
+      period_width   = 1.5,
+      baldiag_full   = F,
+      baldiag_inc    = F,
+/
+&OBSQC
+      dfact           = 0.75,
+      dfact1          = 3.0,
+      erradar_inflate = 1.0
+      tdrerr_inflate  = T
+      noiqc           = T,
+      c_varqc         = 0.03333,
+      vadfile         = 'prepbufr',
+      njqc            = F,
+      vqc             = T,
+/
+&OBS_INPUT
+      dmesh(1)        = 90.0,
+      dmesh(2)        = 45.0
+      dmesh(3)        = 45.0
+      dmesh(4)        = 45.0
+      dmesh(5)        = 90.0      
+      time_window_max = 3.0,
+      l_foreaft_thin  = F
+/
 OBS_INPUT::
    prepbufr       ps          null      ps                  0.0      0     0
    prepbufr       t           null      t                   0.0      0     0
@@ -153,41 +190,40 @@ OBS_INPUT::
    gmibufr        gmi         gpm         gmi_gpm           0.0      3     0
    saphirbufr     saphir      meghat      saphir_meghat     0.0      3     0
    ahibufr        ahi         himawari8   ahi_himawari8     0.0      3     0
+   rapidscatbufr  uv          null        uv                0.0      0     0
 ::
- &SUPEROB_RADAR
-   del_azimuth=5.,del_elev=.25,del_range=10000.,del_time=.1,elev_angle_max=5.,minnum=1,range_max=100000.,
-   l2superob_only=.false.,
- /
- &LAG_DATA
- /
- &HYBRID_ENSEMBLE
-   l_hyb_ens=F,
-   n_ens=80,
-   uv_hyb_ens=T,
-   beta_s0=0.2,
-   s_ens_h=300,
-   s_ens_v=-0.5,
-   readin_localization=F,
-   generate_ens=F,
-   regional_ensemble_option=1,
-   grid_ratio_ens=1,
-   pseudo_hybens=F,
-   merge_two_grid_ensperts=F,
-   pwgtflg=F,
-   aniso_a_en=F,
-   nlon_ens=387,
-   nlat_ens=777,
-   write_ens_sprd=F,
- /
- &RAPIDREFRESH_CLDSURF
-   dfi_radar_latent_heat_time_period=30.0,
- /
- &CHEM
- /
- &SINGLEOB_TEST
-   maginnov=1.0,magoberr=0.8,oneob_type='t',
-   oblat=38.,oblon=279.,obpres=500.,obdattim=2019082900,
-   obhourset=0.,
- /
- &NST
- /
+&SUPEROB_RADAR
+      del_azimuth    = 5.,
+      del_elev       = 0.25,
+      del_range      = 5000.,
+      del_time       = 0.5,
+      elev_angle_max = 5.,
+      minnum         = 50,
+      range_max      = 100000.,
+      l2superob_only = F,
+/
+&LAG_DATA
+/
+&HYBRID_ENSEMBLE
+      l_hyb_ens=_L_HYB_ENS_,
+      n_ens=_N_ENS_,
+      uv_hyb_ens               = T,
+      beta_s0                  = 0.2,
+      s_ens_h                  = 150.0,
+      s_ens_v                  = -0.5,
+      generate_ens             = F,
+      regional_ensemble_option = 2,
+      readin_localization      = F
+      aniso_a_en               = F,
+      pwgtflg                  = F,
+      write_ens_sprd           = F
+/
+&RAPIDREFRESH_CLDSURF
+      dfi_radar_latent_heat_time_period = 30.0,
+/
+&CHEM
+/
+&SINGLEOB_TEST
+/
+&NST
+/

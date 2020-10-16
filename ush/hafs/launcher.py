@@ -1325,6 +1325,7 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
+        *  cap_run_gsi_vr --- capitalized version of [config] section run_gsi_vr
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1463,6 +1464,9 @@ class HAFSLauncher(HAFSConfig):
 
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+
+        gsi_vr_flag=self.getbool('config','run_gsi_vr')
+        self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
 
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',

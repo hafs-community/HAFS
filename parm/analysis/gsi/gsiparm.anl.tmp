@@ -21,7 +21,7 @@
  /
 &GRIDOPTS
       fv3_regional            = T,
-      grid_ratio_fv3_regional = 4,
+      grid_ratio_fv3_regional = _GRID_RATIO_FV3_REGIONAL_,
       nvege_type              = 20,
 /
 &BKGERR

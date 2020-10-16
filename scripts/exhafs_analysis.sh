@@ -6,6 +6,8 @@ export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 
+export RUN_GSI=${RUN_GSI:-NO}
+export RUN_GSI_VR=${RUN_GSI_VR:-NO}
 export hybrid_3denvar_gdas=${hybrid_3denvar_gdas:-yes}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
@@ -44,6 +46,33 @@ if [ ! -s ${COMhafsprior}/storm1.holdvars.txt ] && [ ! -s ${COMhafsprior}/RESTAR
   exit
 fi
 
+# Copy the first guess files
+if [ ${RUN_GSI_VR} = "YES" ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  RESTARTinp=${COMhafs}/RESTART_analysis_vr
+else
+  RESTARTinp=${COMhafsprior}/RESTART
+fi
+
+${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
+${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
+${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
+
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
+
+if [ $hybrid_3denvar_gdas = yes ]; then
+export L_HYB_ENS=.true.
+export N_ENS=80
+for mem in $(seq -f '%03g' 1 ${N_ENS})
+do
+  ${NLN} ${COMgfs}/enkfgdas.$PDYprior/${hhprior}/sfg_${CDATEprior}_fhr06s_mem${mem} ./
+done
+/bin/ls -1 sfg_${CDATEprior}_fhr06s_mem??? > filelist06
+fi	
 
 #---------------------------------------------- 
 # Link all the necessary fix files
@@ -123,26 +152,6 @@ ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias_pc        sat
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.atmf006.nemsio  gfs_sigf06
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.atmf009.nemsio  gfs_sigf09
 
-# Copy the first guess files
-${NCP} ${WORKhafsprior}/forecast/grid_spec.nc ./fv3_grid_spec
-
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.coupler.res ./coupler.res
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
-${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
-
-if [ $hybrid_3denvar_gdas = yes ]; then
-export L_HYB_ENS=.true.
-export N_ENS=80
-for mem in $(seq -f '%03g' 1 ${N_ENS})
-do
-  ${NLN} ${COMgfs}/enkfgdas.$PDYprior/${hhprior}/sfg_${CDATEprior}_fhr06s_mem${mem} ./
-done
-/bin/ls -1 sfg_${CDATEprior}_fhr06s_mem??? > filelist06
-fi	
-
 #---------------------------------------------- 
 # Prepare gsiparm.anl
 #---------------------------------------------- 
@@ -159,20 +168,26 @@ sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
-${APRUNC} ./hafs_gsi.x 1>stdout 2>&1
+${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
 cat stdout
 export err=$?
 
 #-------------------------------------------------------------------
 # Deliver files to COM
 #-------------------------------------------------------------------
-mkdir -p ${COMhafs}/RESTART_analysis
-${NCP} ./coupler.res ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.coupler.res
-${NCP} ./fv3_akbk ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.nc
-${NCP} ./fv3_sfcdata ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.sfc_data.nc
-${NCP} ./fv3_srfwnd ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
-${NCP} ./fv3_dynvars ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-${NCP} ./fv3_tracer  ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_analysis}
+mkdir -p ${RESTARTout}
+
+${NCP} ./fv3_oro_data ${RESTARTout}/oro_data.nc
+${NCP} ./fv3_atmos_static ${RESTARTout}/atmos_static.nc
+${NCP} ./fv3_grid_spec ${RESTARTout}/grid_spec.nc
+
+${NCP} ./coupler.res ${RESTARTout}/${PDY}.${cyc}0000.coupler.res
+${NCP} ./fv3_akbk ${RESTARTout}/${PDY}.${cyc}0000.fv_core.res.nc
+${NCP} ./fv3_sfcdata ${RESTARTout}/${PDY}.${cyc}0000.sfc_data.nc
+${NCP} ./fv3_srfwnd ${RESTARTout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
+${NCP} ./fv3_dynvars ${RESTARTout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
+${NCP} ./fv3_tracer ${RESTARTout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
 
 exit $err
 
