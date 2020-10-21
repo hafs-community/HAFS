@@ -332,6 +332,9 @@ class ObsPreProcTCV(object):
         6. <NCEP tracker minimum central pressure (hPa)>
         7. <TCV maximum wind speed (meters per second)> 
         8. <NCEP tracker maximum wind speed (meters per second)> 
+        
+	Note: write out the records only if the forecasted and observed storm
+	centers are 0.2 degree away from each other.
 
         """
         records_list = ['clat', 'clon', 'pcen', 'vmax']
@@ -343,7 +346,11 @@ class ObsPreProcTCV(object):
                     info_str = info_str+' %s' % self.tcv_dict[event][item]
                     info_str = info_str + \
                         ' %s' % self.ncep_trkr_dict[event][item]
-                f.write('%s\n' % info_str)
+		# Change to only write out the records if the forecasted and
+		# observed storm centers are 0.2 degree away from each other.
+                if sqrt( (self.ncep_trkr_dict[event]['clon']-self.tcv_dict[event]['clon'])**2. 
+                       + (self.ncep_trkr_dict[event]['clat']-self.tcv_dict[event]['clat'])**2. ) > 0.2 : 
+		    f.write('%s\n' % info_str)
 
     def run(self):
         """

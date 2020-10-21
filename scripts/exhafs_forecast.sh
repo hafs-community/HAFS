@@ -194,6 +194,17 @@ export RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
 mkdir -p ${RESTARTout}
 ln -sf ${RESTARTout} RESTART
 
+# Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
+if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
+  cp -p ${COMhafsprior}/RESTART/grid_spec.nc RESTART/
+fi
+if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
+  cp -p ${COMhafsprior}/RESTART/atmos_static.nc RESTART/
+fi
+if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
+  cp -p ${COMhafsprior}/RESTART/oro_data.nc RESTART/
+fi
+
 #---------------------------------------------- 
 # Copy all the necessary fix files
 #---------------------------------------------- 
@@ -526,9 +537,17 @@ export err=$?
 #-------------------------------------------------------------------
 # Deliver files to COM
 #-------------------------------------------------------------------
-cp grid_spec.nc RESTART/
-cp atmos_static.nc RESTART/
-cp INPUT/oro_data.nc RESTART/
+
+# Deliver the grid_spec.nc, atmos_static.nc, oro_data.nc if not exist
+if [ ! -s RESTART/grid_spec.nc ]; then
+  cp -p grid_spec.nc RESTART/
+fi
+if [ ! -s atmos_static.nc ]; then
+  cp -p atmos_static.nc RESTART/
+fi
+if [ ! -s RESTART/oro_data.nc ]; then
+  cp -pL INPUT/oro_data.nc RESTART/
+fi
 
 exit $err
 

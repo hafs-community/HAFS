@@ -36,6 +36,8 @@ PDYprior=`echo ${CDATEprior} | cut -c1-8`
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
+out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+
 if [ ! ${RUN_GSI_VR} = "YES" ]; then
   echo "RUN_GSI_VR: ${RUN_GSI_VR} is not YES"
   echo "Do nothing. Exiting"
@@ -118,6 +120,26 @@ ${NLN} ${PARMgsi}/hwrf_nam_errtable.r3dv_vr ./errtable
 # Link GFS/GDAS input and observation files
 ${NLN} ./synobs_vr.prepbufr ./prepbufr
 
+# Diagnostic files
+# if requested, link GSI diagnostic file directories for use later
+export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_vr_diags}
+if [ ${GENDIAG:-YES} = "YES" ] ; then
+   if [ ${lrun_subdirs:-.true.} = ".true." ] ; then
+      if [ -d $DIAG_DIR ]; then
+      rm -rf $DIAG_DIR
+      fi
+      npe_m1="$(($TOTAL_TASKS-1))"
+      for pe in $(seq 0 1 $npe_m1); do
+        pedir="dir."$(printf %04i $pe)
+        mkdir -p $DIAG_DIR/$pedir
+        $NLN $DIAG_DIR/$pedir $pedir
+      done
+   else
+      echo "FATAL ERROR: lrun_subdirs must be true. lrun_subdirs=$lrun_subdirs"
+      exit 2
+   fi
+fi
+
 #---------------------------------------------- 
 # Prepare gsiparm.anl
 #---------------------------------------------- 
@@ -137,6 +159,11 @@ ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
 ${APRUNC} ./hafs_gsi.x 1>stdout 2>&1
 cat stdout
+
+${NCP} -p ./stdout ${COMhafs}/${out_prefix}.analysis_vr.stdout
+
+# Cat runtime output files.
+cat fort.2* > ${COMhafs}/${out_prefix}.analysis_vr.gsistat
 
 fi # end if [ -s ./synobs_vr.info ]; then
 
