@@ -82,6 +82,7 @@ export halo0={halo0}
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
 export hybrid_3denvar_gdas={hybrid_3denvar_gdas}
+export use_bufr_nr={use_bufr_nr}
 
 export dt_atmos={dt_atmos}
 export restart_interval={restart_interval}

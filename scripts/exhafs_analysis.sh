@@ -7,6 +7,7 @@ export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
+export use_bufr_nr=${use_bufr_nr:-no}
 
 export RUN_GSI=${RUN_GSI:-NO}
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
@@ -252,9 +253,10 @@ $NLN $B1AVHPM          avhpmbufr
 
 ##[[ $DONST = "YES" ]] && $NLN $NSSTBF nsstbufr
 
-if [[ ${USE_BUFR_NR} = "yes" ]]; then
+if [[ ${use_bufr_nr:-no} = "yes" ]]; then
   $NLN ${PREPQC}.nr    prepbufr
   $NLN ${SAPHIRBF}.nr  saphirbufr
+##[[ $DONST = "YES" ]] && $NLN /dev/null nsstbufr
 fi
 
 # HAFS specific observations
