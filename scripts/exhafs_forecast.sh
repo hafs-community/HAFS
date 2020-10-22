@@ -542,7 +542,7 @@ export err=$?
 if [ ! -s RESTART/grid_spec.nc ]; then
   cp -p grid_spec.nc RESTART/
 fi
-if [ ! -s atmos_static.nc ]; then
+if [ ! -s RESTART/atmos_static.nc ]; then
   cp -p atmos_static.nc RESTART/
 fi
 if [ ! -s RESTART/oro_data.nc ]; then

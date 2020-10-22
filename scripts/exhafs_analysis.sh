@@ -81,7 +81,11 @@ fhrs="06"
 for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${N_ENS}); do
-    ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${ENKF_SUFFIX:-s}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
+      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
+      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    fi
     echo "./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
 done
