@@ -48,6 +48,7 @@ HISTORY:
 # ----
 
 import argparse
+from math import sqrt
 
 # ----
 
@@ -350,7 +351,7 @@ class ObsPreProcTCV(object):
 		# observed storm centers are 0.2 degree away from each other.
                 if sqrt( (self.ncep_trkr_dict[event]['clon']-self.tcv_dict[event]['clon'])**2. 
                        + (self.ncep_trkr_dict[event]['clat']-self.tcv_dict[event]['clat'])**2. ) > 0.2 : 
-		    f.write('%s\n' % info_str)
+                    f.write('%s\n' % info_str)
 
     def run(self):
         """
