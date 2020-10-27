@@ -85,14 +85,14 @@ if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${PDY}.${cyc}0000.f
 fi
 
 #if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-if [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warm_start_opt=4
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis_vr
 fi
 
 #if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-if [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warm_start_opt=5
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis
