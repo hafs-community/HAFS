@@ -341,17 +341,20 @@ class ObsPreProcTCV(object):
         records_list = ['clat', 'clon', 'pcen', 'vmax']
         with open(self.output_filename, 'wt') as f:
             for event in self.ncep_trkr_dict.keys():
-                info_str = str()
-                info_str = info_str+'%s' % event
-                for item in records_list:
-                    info_str = info_str+' %s' % self.tcv_dict[event][item]
-                    info_str = info_str + \
-                        ' %s' % self.ncep_trkr_dict[event][item]
-		# Change to only write out the records if the forecasted and
-		# observed storm centers are 0.2 degree away from each other.
-                if sqrt( (self.ncep_trkr_dict[event]['clon']-self.tcv_dict[event]['clon'])**2. 
-                       + (self.ncep_trkr_dict[event]['clat']-self.tcv_dict[event]['clat'])**2. ) > 0.2 : 
-                    f.write('%s\n' % info_str)
+		# Only do relocation if the storm exists in both previous
+		# forecast guess and tcvitals and the observed vmax > 17. m/s
+                if event in self.tcv_dict.keys() and self.tcv_dict[event]['vmax'] > 17. :
+                    info_str = str()
+                    info_str = info_str+'%s' % event
+                    for item in records_list:
+                        info_str = info_str+' %s' % self.tcv_dict[event][item]
+                        info_str = info_str + \
+                            ' %s' % self.ncep_trkr_dict[event][item]
+	            # Change to only write out the records if the forecasted and
+	            # observed storm centers are 0.2 degree away from each other.
+                    if sqrt( (self.ncep_trkr_dict[event]['clon']-self.tcv_dict[event]['clon'])**2.
+                           + (self.ncep_trkr_dict[event]['clat']-self.tcv_dict[event]['clat'])**2. ) > 0.2 :
+                        f.write('%s\n' % info_str)
 
     def run(self):
         """
