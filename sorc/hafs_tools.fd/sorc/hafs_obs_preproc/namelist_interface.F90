@@ -227,6 +227,9 @@ module namelist_interface
   ! * sample_radius; a FORTRAN 4-byte float value specifying the
   !   thinning radius for forecast model derived observations; units
   !   are meters.
+
+  ! * sample_nindex; a FORTRAN integer value specifying the
+  !   thinning index for forecast model derived observations.
   
   ! * sonde_filelist; a FORTRAN character string specifying the
   !   full-path to the external file containing a list of TEMPDROP
@@ -369,6 +372,8 @@ module namelist_interface
        & grid_ratio = 1.0
   real(r_kind)                                                          :: &
        & sample_radius = spval
+  integer                                                               :: &
+       & sample_nindex = 1
   real(r_kind)                                                          :: &
        & tc_radius = 600000.0
   real(r_kind)                                                          :: &
@@ -388,7 +393,7 @@ module namelist_interface
   namelist /fcst_mdl/   fv3_dyns_filename, fv3_gridspec_filename,          &
        & fv3_orog_filename, fv3_static_filename, fv3_tracer_filename,      &
        & grid_ratio, is_fv3, is_global, is_regional, is_rotate_winds,      &
-       & sample_radius
+       & sample_radius, sample_nindex
   namelist /recon/      is_recon_tdr, is_recon_vdm, recon_filelist,        &
        & recon_tdr_filepath, tdr_min_offset_seconds,                       &
        & tdr_max_offset_seconds, tdr_offset_dseconds
@@ -605,6 +610,7 @@ contains
     write(6,*) 'IS_REGIONAL                   = ', is_regional
     write(6,*) 'IS_ROTATE_WINDS               = ', is_rotate_winds
     write(6,*) 'SAMPLE_RADIUS                 = ', sample_radius
+    write(6,*) 'SAMPLE_NINDEX                 = ', sample_nindex
     write(6,*) '/'
     write(6,*) '&RECON'
     write(6,*) 'IS_RECON_TDR                  = ', is_recon_tdr

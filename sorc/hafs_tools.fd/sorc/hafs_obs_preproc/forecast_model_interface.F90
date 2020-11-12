@@ -435,9 +435,9 @@ contains
                        ! .eq. fv3%slmsk(kdtree%idx(j,1)))
 
              end do ! do k = 1, fcstmdl(i)%nz
-                
+             if (debug) write(6,*) 'i,j,fcstmdl(i)%nz,fcstmdl(i)%nobs=',i,j,fcstmdl(i)%nz,fcstmdl(i)%nobs
           end do ! do j = 1, fcstmdl(i)%nobs
-                       
+
        end if ! if(mask_ocean .or. mask_land)
           
        ! Deallocate memory for local variables
@@ -707,6 +707,7 @@ contains
     type(kdtree_struct)                                                 :: kdtree
     real(r_kind)                                                        :: radius_max
     real(r_kind)                                                        :: radius_min
+    real(r_kind)                                                        :: sample_radius_threshold
 
     ! Define counting variables
 
@@ -726,17 +727,22 @@ contains
 
     call math_methods_kdtree_r2(grid,grid,kdtree)
     
+    if(debug) write(6,*) 'kdtree%nfound=', kdtree%nfound
+
     ! Check local variable and proceed accordingly
 
     if(sample_radius .eq. spval) then
 
        ! Define local variables
 
-       fcstmdl%nobs = kdtree%nfound
+       fcstmdl%nobs = kdtree%nfound / sample_nindex
        call variable_interface_setup_struct(fcstmdl)
-       fcstmdl%idx  = kdtree%idx(1,1:kdtree%nfound)
+       fcstmdl%idx  = kdtree%idx(1,1:kdtree%nfound:sample_nindex)
 
     else   ! if(sample_radius .eq. spval)
+
+       sample_radius_threshold = sqrt(kdtree%r2dist(1,2))
+       if(debug) write(6,*) 'sample_radius_threshold=', sample_radius_threshold
 
        ! Define local variables
 
@@ -759,7 +765,9 @@ contains
 
                 ! Define local variables
 
+                if(abs(sqrt(kdtree%r2dist(1,i)) - 0.5*(radius_min+radius_max)) .lt. sample_radius_threshold ) then
                 fcstmdl%nobs = fcstmdl%nobs + 1
+                end if
 
              end if ! if((sqrt(kdtree%r2dist(1,i)) .ge. radius_min)
                     ! .and. (sqrt(kdtree%r2dist(1,i))
@@ -795,9 +803,11 @@ contains
                   & (sqrt(kdtree%r2dist(1,i)) .lt. radius_max)) then
 
                 ! Define local variables
-
+                if(abs(sqrt(kdtree%r2dist(1,i)) - 0.5*(radius_min+radius_max)) .lt. sample_radius_threshold ) then
+                !if(debug) write(6,*) 'i,radius_min,radius_max,sqrt(kdtree%r2dist(1,i)=',i,radius_min,radius_max,sqrt(kdtree%r2dist(1,i))
                 fcstmdl%nobs              = fcstmdl%nobs + 1
                 fcstmdl%idx(fcstmdl%nobs) = kdtree%idx(1,i)
+                end if
 
              end if ! if((sqrt(kdtree%r2dist(1,i)) .ge. radius_min)
                     ! .and. (sqrt(kdtree%r2dist(1,i))
@@ -813,7 +823,9 @@ contains
        end do ! do while(radius .le. tc_radius)       
        
     end if ! if(sample_radius .eq. spval)
-    
+
+    if(debug) write(6,*) 'fcstmdl%nobs=', fcstmdl%nobs
+
     ! Deallocate memory for local variables
 
     call variable_interface_cleanup_struct(kdtree)    
