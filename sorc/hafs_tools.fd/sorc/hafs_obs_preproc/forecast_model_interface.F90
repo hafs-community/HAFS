@@ -435,7 +435,9 @@ contains
                        ! .eq. fv3%slmsk(kdtree%idx(j,1)))
 
              end do ! do k = 1, fcstmdl(i)%nz
-             if (debug) write(6,*) 'i,j,fcstmdl(i)%nz,fcstmdl(i)%nobs=',i,j,fcstmdl(i)%nz,fcstmdl(i)%nobs
+             if (debug) write(6,601) 'i,j,Lev1:',i,j, &
+                fcstmdl(i)%lon(j),fcstmdl(i)%lat(j),fcstmdl(i)%p(j,1),fcstmdl(i)%t(j,1),fcstmdl(i)%q(j,1), &
+                fcstmdl(i)%u(j,1),fcstmdl(i)%v(j,1)
           end do ! do j = 1, fcstmdl(i)%nobs
 
        end if ! if(mask_ocean .or. mask_land)
@@ -455,7 +457,7 @@ contains
     ! Deallocate memory for local variables
 
     call variable_interface_cleanup_struct(dst_grid)
-
+601 format(a10,i3,i12,7f15.6)
     !=====================================================================
     
   end subroutine fv3_bufr
