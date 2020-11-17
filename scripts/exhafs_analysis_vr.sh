@@ -69,7 +69,11 @@ ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
-${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix
+# Extract the 6-hr forecast atcf records from the prior cycle
+${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
+grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
+cat ./hafs.atcfunix
+
 # Find and sort active storms for this cycle from known tcvitals file
 # This can potentially provide multiple tcvital messages to the tracker, 
 # so that it can track multiple storms simultaneously.
