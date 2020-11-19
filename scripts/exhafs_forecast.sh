@@ -55,6 +55,10 @@ export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
 
+export run_datm=${run_datm:-no}
+export domain_atm=${domain_atm:-''}
+export mesh_atm=${mesh_atm:-''}
+
 export run_ocean=${run_ocean:-no}
 export ocean_model=${ocean_model:-hycom}
 export cpl_ocean=${cpl_ocean:-0}
@@ -108,6 +112,8 @@ ln -sf ${INPdir}/*.nc INPUT/
 #---------------------------------------------- 
 # Copy all the necessary fix files
 #---------------------------------------------- 
+if [ ${run_datm} = no ];  then
+
 cp $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
 cp $FIXam/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77 global_o3prdlos.f77
 cp $FIXam/global_h2o_pltc.f77               global_h2oprdlos.f77
@@ -315,6 +321,12 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
 
+fi # if regional
+
+fi # if not cdeps datm
+
+if [ $gtype = regional ]; then
+
 if [ ${run_ocean} = yes ];  then
 
 # Copy hycom related files
@@ -359,7 +371,11 @@ cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
 # copy fd_nems.yaml
-cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_nems.yaml ./ 
+if [ ${run_datm} = no ];  then
+  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_nems.yaml ./ 
+else
+  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_cdeps.yaml fd.yaml
+fi
 
 # create hycom limits
 ${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
@@ -378,7 +394,47 @@ ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 $yr $mn $dy $cyc 0 0
 EOF
 
+if [ ${run_datm} = no ];  then
+
 cat temp diag_table.tmp > diag_table
+
+else
+
+#---------------------------------------------- 
+# Copy CDEPS parm files if required.
+#---------------------------------------------- 
+  cp ${PARMforecast}/model_configure.tmp .
+  cp ${PARMhafs}/cdeps/datm_in .
+  cp ${PARMhafs}/cdeps/datm.streams.xml .
+  cp ${PARMhafs}/cdeps/pio_in .
+  cp ${PARMhafs}/cdeps/modelio.nml atm_modelio.nml
+  cp ${PARMhafs}/cdeps/modelio.nml med_modelio.nml
+  cp ${PARMhafs}/cdeps/modelio.nml ocn_modelio.nml
+
+  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
+
+  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams.xml
+  for file in `ls INPUT/*.nc ` ; do
+    sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" datm.streams.xml
+  done
+
+  ln -sf ${domain_atm} INPUT/
+  ln -sf ${mesh_atm} INPUT/
+
+  cp ${PARMforecast}/nems.configure.datm_ocn.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.true.}/g" \
+      -e "s/_domain_atm_/INPUT\/$(basename $domain_atm)/g" \
+      -e "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" \
+      nems.configure.datm_ocn.tmp > nems.configure
+
+fi
 
 cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/MN/$mn/ | sed s/DY/$dy/ | sed s/H_R/$cyc/ | \

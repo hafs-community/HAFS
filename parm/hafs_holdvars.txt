@@ -31,6 +31,14 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+export INPdir={INPdir}
+
+export run_datm={run_datm}
+export run_docn={run_docn}
+export run_dwav={run_dwav}
+
+export domain_atm={domain_atm}
+export mesh_atm={mesh_atm}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
@@ -122,6 +130,7 @@ export runSeq_ATM={runSeq_ATM}
 export runSeq_OCN={runSeq_OCN}
 export ocean_tasks={ocean_tasks}
 export ATM_petlist_bounds={ATM_petlist_bounds}
+export MED_petlist_bounds={MED_petlist_bounds}
 export OCN_petlist_bounds={OCN_petlist_bounds}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}

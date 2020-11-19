@@ -1,0 +1,15 @@
+&datm_nml
+  datamode = "ERA5"
+  factorfn_data = "null"
+  factorfn_mesh = "null"
+  flds_co2 = .false.
+  flds_presaero = .false.
+  flds_wiso = .false.
+  iradsw = 1
+  model_createmesh_fromfile = "null"
+  model_maskfile = "_mesh_atm_"
+  model_meshfile = "_mesh_atm_"
+  nx_global = 1440
+  ny_global = 721
+  restfilm = "null"
+/

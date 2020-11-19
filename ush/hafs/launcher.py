@@ -1403,6 +1403,7 @@ class HAFSLauncher(HAFSConfig):
         runSeq_ATM=self.getstr('forecast','runSeq_ATM','auto')
         runSeq_OCN=self.getstr('forecast','runSeq_OCN','auto')
         ATM_petlist_bounds=self.getstr('forecast','ATM_petlist_bounds','auto')
+        MED_petlist_bounds=self.getstr('forecast','MED_petlist_bounds','auto')        
         OCN_petlist_bounds=self.getstr('forecast','OCN_petlist_bounds','auto')
         gtype=self.getstr('grid','gtype','regional')
         glob_layoutx=self.getint('forecast','glob_layoutx',8)
@@ -1449,6 +1450,10 @@ class HAFSLauncher(HAFSConfig):
         if ATM_petlist_bounds=='auto':
             ATM_petlist_bounds='"ATM_petlist_bounds: %04d %04d"'%(0, ATM_tasks-1)
             self.set('holdvars','ATM_petlist_bounds',ATM_petlist_bounds)
+
+        if MED_petlist_bounds=='auto':
+            MED_petlist_bounds='"MED_petlist_bounds: %04d %04d"'%(0, ATM_tasks-1)
+            self.set('holdvars','MED_petlist_bounds',MED_petlist_bounds)
 
         if run_ocean and OCN_petlist_bounds=='auto':
             OCN_petlist_bounds='"OCN_petlist_bounds: %04d %04d"'%(ATM_tasks, ATM_tasks+OCN_tasks-1)

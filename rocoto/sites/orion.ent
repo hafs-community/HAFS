@@ -50,6 +50,9 @@
   <!ENTITY FORECAST_RESOURCES_regional_48x40io2x40_ocn60_omp2 "<nodes>103:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2060</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_48x40io1x80_ocn60_omp2 "<nodes>103:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2060</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!-- FORECAST_RESOURCES for CDEPS DATM with regional HYCOM coupling -->
+  <!ENTITY FORECAST_RESOURCES_regional_10x8io1x40_ocn120_omp1 "<nodes>6:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:00:00</walltime>">
+
   <!-- FORECAST_RESOURCES for globnest HAFS -->
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x36_omp2 "<nodes>53:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>636</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_12x12io3x48_omp2 "<nodes>56:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>672</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
