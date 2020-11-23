@@ -32,7 +32,7 @@ $Build_utils && {
   ${CP} hafs_utils.fd/exec/chgres_cube               ../exec/hafs_chgres_cube.x
   ${CP} hafs_utils.fd/exec/orog                      ../exec/hafs_orog.x
   ${CP} hafs_utils.fd/exec/sfc_climo_gen             ../exec/hafs_sfc_climo_gen.x
-# ${CP} hafs_utils.fd/exec/regional_grid             ../exec/hafs_regional_grid.x
+  ${CP} hafs_utils.fd/exec/regional_esg_grid         ../exec/hafs_regional_esg_grid.x
   ${CP} hafs_utils.fd/exec/make_hgrid                ../exec/hafs_make_hgrid.x
   ${CP} hafs_utils.fd/exec/make_solo_mosaic          ../exec/hafs_make_solo_mosaic.x
   ${CP} hafs_utils.fd/exec/fregrid                   ../exec/hafs_fregrid.x
@@ -74,7 +74,9 @@ $Build_gsi && {
   ${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
   ${CP} hafs_gsi.fd/exec/adderrspec.x                ../exec/hafs_adderrspec.x
   ${CP} hafs_gsi.fd/exec/adjustps.x                  ../exec/hafs_adjustps.x
+  ${CP} hafs_gsi.fd/exec/calc_increment_ens_ncio.x   ../exec/hafs_calc_increment_ens_ncio.x
   ${CP} hafs_gsi.fd/exec/calc_increment_ens.x        ../exec/hafs_calc_increment_ens.x
+  ${CP} hafs_gsi.fd/exec/calc_increment_ncio.x       ../exec/hafs_calc_increment_ncio.x
   ${CP} hafs_gsi.fd/exec/calc_increment_serial.x     ../exec/hafs_calc_increment_serial.x
   ${CP} hafs_gsi.fd/exec/getnstensmeanp.x            ../exec/hafs_getnstensmeanp.x
   ${CP} hafs_gsi.fd/exec/getsfcensmeanp.x            ../exec/hafs_getsfcensmeanp.x
@@ -82,14 +84,16 @@ $Build_gsi && {
   ${CP} hafs_gsi.fd/exec/getsigensmeanp_smooth.x     ../exec/hafs_getsigensmeanp_smooth.x
   ${CP} hafs_gsi.fd/exec/getsigensstatp.x            ../exec/hafs_getsigensstatp.x
   ${CP} hafs_gsi.fd/exec/gribmean.x                  ../exec/hafs_gribmean.x
-  ${CP} hafs_gsi.fd/exec/nc_diag_cat.x               ../exec/hafs_nc_diag_cat.x
-  ${CP} hafs_gsi.fd/exec/nc_diag_cat_serial.x        ../exec/hafs_nc_diag_cat_serial.x
+  ${CP} hafs_gsi.fd/exec/interp_inc.x                ../exec/hafs_interp_inc.x
+  ${CP} hafs_gsi.fd/exec/ncdiag_cat_mpi.x            ../exec/hafs_ncdiag_cat_mpi.x
+  ${CP} hafs_gsi.fd/exec/ncdiag_cat.x                ../exec/hafs_ncdiag_cat.x
   ${CP} hafs_gsi.fd/exec/oznmon_horiz.x              ../exec/hafs_oznmon_horiz.x
   ${CP} hafs_gsi.fd/exec/oznmon_time.x               ../exec/hafs_oznmon_time.x
   ${CP} hafs_gsi.fd/exec/radmon_angle.x              ../exec/hafs_radmon_angle.x
   ${CP} hafs_gsi.fd/exec/radmon_bcoef.x              ../exec/hafs_radmon_bcoef.x
   ${CP} hafs_gsi.fd/exec/radmon_bcor.x               ../exec/hafs_radmon_bcor.x
   ${CP} hafs_gsi.fd/exec/radmon_time.x               ../exec/hafs_radmon_time.x
+  ${CP} hafs_gsi.fd/exec/recenterncio_hybgain.x      ../exec/hafs_recenterncio_hybgain.x
   ${CP} hafs_gsi.fd/exec/recenternemsiop_hybgain.x   ../exec/hafs_recenternemsiop_hybgain.x
   ${CP} hafs_gsi.fd/exec/recentersigp.x              ../exec/hafs_recentersigp.x
   ${CP} hafs_gsi.fd/exec/test_nc_unlimdims.x         ../exec/hafs_test_nc_unlimdims.x
