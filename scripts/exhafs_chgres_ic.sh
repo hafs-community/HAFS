@@ -241,8 +241,8 @@ elif [ $gtype = regional ]; then
 #
 mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
 mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
+mv out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
+mv out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
 #
 #remove the links that were set above for the halo4 files
 #
