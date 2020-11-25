@@ -82,13 +82,13 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_hycom.conf
 
 # Regional static NATL basin-focused configuration with the hwrf physics suite
- ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_hwrf \
-     config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_regional_static.conf \
-     dir.PARMforecast={PARMhafs}/forecast/regional_hwrf \
-     forecast.ccpp_suite_regional=HAFS_v0_hwrf_nougwd
+#${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_hwrf \
+#    config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_regional_static.conf \
+#    dir.PARMforecast={PARMhafs}/forecast/regional_hwrf \
+#    forecast.ccpp_suite_regional=HAFS_v0_hwrf_nougwd
 
 #===============================================================================
 
@@ -112,13 +112,13 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_globnest.conf
 
 # Global-nesting static NATL basin-focused configuration with the hwrf physics suite
- ${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static_hwrf \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_globnest_static.conf \
-     dir.PARMforecast={PARMhafs}/forecast/globnest_hwrf \
-     forecast.ccpp_suite_glob=HAFS_v0_hwrf \
-     forecast.ccpp_suite_nest=HAFS_v0_hwrf_nougwd
+#${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static_hwrf \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest_static.conf \
+#    dir.PARMforecast={PARMhafs}/forecast/globnest_hwrf \
+#    forecast.ccpp_suite_glob=HAFS_v0_hwrf \
+#    forecast.ccpp_suite_nest=HAFS_v0_hwrf_nougwd
 
 #===============================================================================
 
