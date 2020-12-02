@@ -21,7 +21,7 @@ fi
 # install forecast
 #------------------------------------
 $Build_forecast && {
-  ${CP} hafs_forecast.fd/test/fv3_32bit.exe          ../exec/hafs_forecast.x
+  ${CP} hafs_forecast.fd/tests/fv3_32bit.exe         ../exec/hafs_forecast.x
 }
 
 #------------------------------------
