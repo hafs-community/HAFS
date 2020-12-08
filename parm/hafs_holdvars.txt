@@ -6,6 +6,7 @@
 export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
+export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
 export RUN_GSI={RUN_GSI}
 export GSID01={GSID01}
@@ -31,6 +32,10 @@ export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
 
+export SYNDAThafs={syndat}
+export ADECKhafs={ADECKhafs}
+export BDECKhafs={BDECKhafs}
+
 export PARMforecast={PARMforecast}
 
 export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
@@ -41,10 +46,22 @@ export STORMID={vit[stormid3]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
-export ICTYPE={ICTYPE}
+export ictype={ictype}
+export bctype={bctype}
+export halo_blend={halo_blend}
+
+export ccpp_suite_regional={ccpp_suite_regional}
+export ccpp_suite_glob={ccpp_suite_glob}
+export ccpp_suite_nest={ccpp_suite_nest}
+
+export nstf_n1={nstf_n1}
+export nstf_n2={nstf_n2}
+export nstf_n3={nstf_n3}
+export nstf_n4={nstf_n4}
+export nstf_n5={nstf_n5}
 
 export CASE={CASE}
-export LEVELS={LEVELS}
+export LEVS={LEVS}
 export gtype={gtype}
 export gridfixdir={gridfixdir}
 export stretch_fac={stretch_fac}
@@ -58,6 +75,8 @@ export jend_nest={jend_nest}
 export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
+
+export vcoord_file_target_grid={vcoord_file_target_grid}
 
 export dt_atmos={dt_atmos}
 export restart_interval={restart_interval}
@@ -75,7 +94,7 @@ export layouty={layouty}
 export npx={npx}
 export npy={npy}
 export npz={npz}
- 
+
 export app_domain={app_domain}
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
@@ -111,3 +130,4 @@ if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
     export CDSCRUB={CDSCRUB}
     export RUNhafs={RUNhafs}
 fi
+

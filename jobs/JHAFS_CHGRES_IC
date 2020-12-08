@@ -2,6 +2,7 @@
 
 set -xe
 
+date
 source ${USHhafs}/hafs_pre_job.sh.inc
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
@@ -19,8 +20,9 @@ export NBDYHRS=${NBDYHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
-export ictype=${ICTYPE:-pfv3gfs}
-export LEVS=${LEVELS:-65}
+export ictype=${ictype:-gfsnemsio} # gfsnemsio
+export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
+export LEVS=${LEVS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
 ####################################
@@ -36,78 +38,30 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
-
-export FIXam=${FIXhafs}/fix_am
-#export FIXfv3=${FIXhafs}/fix_fv3
-export FIXfv3=${WORKhafs}/intercom/grid
-
-export CHGRESEXEC=${EXEChafs}/hafs_chgres.x
-export CHGRESSH=${USHhafs}/hafs_chgres.sh
+export WGRIB2=${WGRIB2:-wgrib2}
+export CHGRESCUBEEXEC=${EXEChafs}/hafs_chgres_cube.x
 
 ####################################
 # Load Modules if Needed
 ####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.run.${machine}
+  if [ "$machine" = wcoss_dell_p3 ]; then
+    module unload NetCDF
+    module unload HDF5-serial
+  fi
+  source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
   module list
 fi
 
 #####################################
-# Environment settings
+# Set up job node/core/run environment variables
 #####################################
-  export TOTAL_TASKS=${TOTAL_TASKS:-1}
-  export NCTSK=${NCTSK:-1}
-  export NCNODE=${NCNODE:-24}
-  #export OMP_NUM_THREADS_CH=${OMP_THREADS:-24}
-  export OMP_NUM_THREADS_CH=${OMP_NUM_THREADS_CH:-${OMP_THREADS:-${OMP_NUM_THREADS:-24}}}
-  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-24}}
-  export KMP_STACKSIZE=1024m
-  export KMP_AFFINITY=disabled
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=1
-  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
-  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
-  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = wcoss_dell_p3 ]; then
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-"mpirun cfp"}
-  export APRUNC=${APRUNC:-"time"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = theia ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export BACKGROUND="&"
-elif [ "$machine" = jet ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export BACKGROUND="&"
-else
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
-  export APRUNC=${APRUNC:-"mpirun"}
-  export APRUNO="time"
-  export BACKGROUND=""
-fi
-
-
-env
+source ${USHhafs}/hafs_runcmd.sh.inc
 
 ####################################
 # Run setpdy and initialize PDY variables
@@ -121,17 +75,16 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-export OUTDIR=${OUTDIR:-${WORKhafs}/chgres_ic/out}
-export DATA=${WORKhafs}/chgres_ic/work
+export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+export DATA=${WORKhafs}/chgres_ic
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA $OUTDIR 
+  rm -rf $DATA
 fi
 
-mkdir -p $INPdir $OUTDIR $DATA
+mkdir -p $OUTDIR $DATA
 cd $DATA
 
 #####################################
@@ -148,12 +101,6 @@ export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 if [ $gtype = regional ] ; then
   export REGIONAL=1
   export HALO=4
-#
-# set the links to use the 4 halo grid and orog files
-# these are necessary for creating the boundary data
-#
-  ln -sf $FIXfv3/$CASE/${CASE}_grid.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_grid.tile7.nc
-  ln -sf $FIXfv3/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXfv3/$CASE/${CASE}_oro_data.tile7.nc
 else
 #
 # for gtype = uniform, stretch, or nest
@@ -163,11 +110,8 @@ fi
 
 #####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_chgres.sh
+${HOMEhafs}/scripts/exhafs_chgres_ic.sh
 export err=$?
 #####################################
-
-mv $OUTDIR/gfs*nc $INPdir/.
-mv $OUTDIR/sfc*nc $INPdir/.
 
 exit $err

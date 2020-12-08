@@ -19,7 +19,7 @@ fi
 target=""
 USERNAME=`echo $LOGNAME | awk '{ print tolower($0)'}`
 
-if [[ -d /lfs3 ]] ; then
+if [[ -d /lfs4 ]] ; then
     # We are on NOAA Jet
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2
@@ -27,19 +27,23 @@ if [[ -d /lfs3 ]] ; then
     fi
     target=jet
     module purge
-     export NCEPLIBS=/mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
-     echo NCEPLIBS HARD SET to  $NCEPLIBS in `pwd`/module_setup.sh.inc
-     module use $NCEPLIBS/modulefiles
-elif [[ -d /scratch3 ]] ; then
-    # We are on NOAA Theia
+elif [[ -d /scratch1/NCEPDEV ]] ; then
+    # We are on NOAA Hera
     if ( ! eval module help > /dev/null 2>&1 ) ; then
 	echo load the module command 1>&2
         source /apps/lmod/lmod/init/$__ms_shell
     fi
-    target=theia
+    target=hera
     module purge
-    module use /scratch3/NCEPDEV/nwprod/modulefiles/
-    module use /scratch3/NCEPDEV/nwprod/lib/modulefiles
+elif [[ -d /work/noaa ]] ; then
+    # We are on MSU Orion
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+	echo load the module command 1>&2
+        source /apps/lmod/lmod/init/$__ms_shell
+    fi
+    target=orion
+    module purge
+    module load contrib noaatools
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then

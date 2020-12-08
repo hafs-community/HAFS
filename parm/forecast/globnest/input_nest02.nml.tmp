@@ -17,6 +17,7 @@
      fhout = 3
      fhmaxhf = 0
      fhouthf = 3
+     ccpp_suite = '_ccpp_suite_'
 /
 
 &diag_manager_nml
@@ -92,10 +93,10 @@
        mountain = .F.
        ncep_ic = .F.
        d_con = 1.0
-       hord_mt = 5
-       hord_vt = 5
-       hord_tm = 5
-       hord_dp = -5
+       hord_mt = 6
+       hord_vt = 6
+       hord_tm = 6
+       hord_dp = -6
        hord_tr = 8
        adjust_dry_mass = .F.
        consv_te = 0.
@@ -180,19 +181,37 @@
        redrag         = .true.
        dspheat        = .true.
        hybedmf        = .true.
+       moninq_fac     = -1.0
        satmedmf       = .false.
        random_clds    = .false.
        trans_trac     = .true.
        cnvcld         = .false.
        imfshalcnv     = 2
        imfdeepcnv     = 2
-       cdmbgwd        = 3.5, 0.25       ! NCEP default
+       cdmbgwd        = 3.5, 0.01
+       sfc_z0_type    = 6 
        prslrd0        = 0.
        ivegsrc        = 1
        isot           = 1
+       lsm            = 1
+       iopt_dveg      = 2
+       iopt_crs       = 1
+       iopt_btr       = 1
+       iopt_run       = 1
+       iopt_sfc       = 1
+       iopt_frz       = 1
+       iopt_inf       = 1
+       iopt_rad       = 1
+       iopt_alb       = 2
+       iopt_snf       = 4
+       iopt_tbot      = 2
+       iopt_stc       = 1
        debug          = .false.
+       oz_phys        = .F.
+       oz_phys_2015   = .T.
        nst_anl        = .true.
-       nstf_name      = 2,0,0,0,0
+       nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
+       cplflx         = .F.
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
@@ -201,6 +220,10 @@
        do_deep        = .false.
        lgfdlmprad     = .true.
        effr_in        = .true.
+       do_sppt        = .F.
+       do_shum        = .F.
+       do_skeb        = .F.
+       do_sfcperts    = .F.
 /
 
  &gfdl_cloud_microphysics_nml
@@ -301,4 +324,19 @@
 &nam_stochy
 /
 &nam_sfcperts
+/
+
+ &cires_ugwp_nml                                                                                                       
+       knob_ugwp_solver  = 2                                                                                          
+       knob_ugwp_source  = 1,1,0,0                                                                                    
+       knob_ugwp_wvspec  = 1,25,25,25                                                                                 
+       knob_ugwp_azdir   = 2,4,4,4                                                                                    
+       knob_ugwp_stoch   = 0,0,0,0                                                                                    
+       knob_ugwp_effac   = 1,1,1,1                                                                                    
+       knob_ugwp_doaxyz  = 1                                                                                          
+       knob_ugwp_doheat  = 1                                                                                          
+       knob_ugwp_dokdis  = 1                                                                                          
+       knob_ugwp_ndx4lh  = 1                                                                                          
+       knob_ugwp_version = 0                                                                                          
+       launch_level      = 25                                                                                         
 /

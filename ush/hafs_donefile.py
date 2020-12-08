@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 ##@namespace ush.hafs_donefile
 # A simple script that makes a "donefile" that indicates the

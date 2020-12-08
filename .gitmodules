@@ -1,16 +1,28 @@
-[submodule "NEMSfv3gfs"]
+[submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
-	url = gerrit:NEMSfv3gfs
-	branch = HAFS
+	url = https://github.com/hafs-community/ufs-weather-model.git
+	branch = support/HAFS
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
-	url = gerrit:EMC_post
-	branch = HAFS
-[submodule "ProdGSI"]
+	url = https://github.com/hafs-community/EMC_post.git
+	branch = support/HAFS
+[submodule "UFS_UTILS"]
+	path = sorc/hafs_utils.fd
+	url = https://github.com/hafs-community/UFS_UTILS.git
+	branch = support/HAFS
+[submodule "gfdl-tracker"]
+	path = sorc/hafs_vortextracker.fd
+	url = https://github.com/hafs-community/gfdl-tracker.git
+	branch = support/HAFS
+[submodule "NCEPLIBS-pyprodutil"]
+	path = ush/produtil_repo
+	url = https://github.com/hafs-community/NCEPLIBS-pyprodutil.git
+	branch = support/HAFS
+[submodule "sorc/hafs_gsi.fd"]
 	path = sorc/hafs_gsi.fd
-	url = gerrit:ProdGSI
-	branch = HAFS
-[submodule "Global Workflow"]
-	path = fv3gfs
-	url = gerrit:global-workflow
-	branch = HAFS
+	url = https://github.com/hafs-community/GSI.git
+	branch = support/HAFS
+[submodule "GPLOT"]
+	path = sorc/hafs_graphics.fd/hrd_gplot
+	url = https://github.com/hafs-community/GPLOT.git
+	branch = support/HAFS

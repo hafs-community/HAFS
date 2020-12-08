@@ -1,0 +1,47 @@
+print_esmf:              .false.
+total_member:            1
+PE_MEMBER01:             NTASKS
+start_year:              YR
+start_month:             MN
+start_day:               DY
+start_hour:              H_R
+start_minute:            0
+start_second:            0
+nhours_fcst:             NHRS
+RUN_CONTINUE:            .false.
+ENS_SPS:                 .false.
+dt_atmos:                _dt_atmos_
+cpl:                     .false.
+calendar:                'julian'
+memuse_verbose:          .false.
+atmos_nthreads:          NTHRD
+use_hyper_thread:        .false.
+ncores_per_node:         NCNODE
+debug_affinity:          .true.
+restart_interval:        _restart_interval_
+output_1st_tstep_rst:    .false.
+
+quilting:                _quilting_
+write_groups:            _write_groups_
+write_tasks_per_group:   _write_tasks_per_group_
+num_files:               2
+filename_base:           'dyn' 'phy'
+output_file:             'netcdf'
+write_nemsioflip:        .false.
+write_fsyncflag:         .false.
+
+app_domain:              '_app_domain_'
+output_grid:             '_OUTPUT_GRID_'
+cen_lon:                 _CEN_LON_               # central longitude
+cen_lat:                 _CEN_LAT_               # central latitude
+lon1:                    _LON1_                  # longitude of lower-left
+lat1:                    _LAT1_                  # latitude of lower-left
+lon2:                    _LON2_                  # longitude of upper-right
+lat2:                    _LAT2_                  # latitude of upper-right
+dlon:                    _DLON_
+dlat:                    _DLAT_
+
+nfhout:                  3 
+nfhmax_hf:               -1
+nfhout_hf:               3 
+nsout:                   -1

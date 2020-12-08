@@ -2,6 +2,7 @@
 
 set -xe
 
+date
 source ${USHhafs}/hafs_pre_job.sh.inc
 HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
 source ${HOLDVARS}
@@ -20,8 +21,7 @@ export NOUTHRS=${NOUTHRS:-3}
 export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export ictype=${ICTYPE:-pfv3gfs}
-export LEVS=${LEVELS:-65}
+export LEVS=${LEVS:-65}
 export NTRAC=7			# output all gfdl mp tracers
 
 export output_grid=${output_grid:-rotated_latlon}
@@ -60,7 +60,7 @@ export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb
 ####################################
 # Load Modules if Needed
 ####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, theia, jet
+export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
@@ -68,63 +68,19 @@ if [ "$RUN_ENVIR" = prod ]; then
   #module use ${HOMEhafs}/modulefiles
   #module load modulefile.hafs.base.${machine}
   #module load modulefile.hafs.run.${machine}
+  if [ "$machine" = wcoss_dell_p3 ]; then
+    module unload NetCDF
+    module unload HDF5-serial
+  fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list
 fi
 
 #####################################
-# Environment settings
+# Set up job node/core/run environment variables
 #####################################
-  export TOTAL_TASKS=${TOTAL_TASKS:-144}
-  export NCTSK=${NCTSK:-24}
-  export NCNODE=${NCNODE:-24}
-  export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-1}}
-  export KMP_STACKSIZE=1024m
-  export KMP_AFFINITY=disabled
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=1
-  export APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
-  export APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
-  export APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = wcoss_dell_p3 ]; then
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-"mpirun cfp"}
-  export APRUNC=${APRUNC:-"mpirun"}
-  export APRUNO="time"
-  export BACKGROUND=""
-elif [ "$machine" = theia ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  #export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  #export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNO=${APRUNO:-"srun --nodes=1 --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=1"}
-  #export APRUNO=${APRUNO:-"srun --nodes=1 --ntasks=1 --cpus-per-task=1"}
-  export APRUNO=${APRUNO:-"time"}
-  export BACKGROUND="&"
-elif [ "$machine" = jet ]; then
-  export APRUNS=${APRUNS:-"srun --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  #export APRUNF=${APRUNF:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNC=${APRUNC:-"srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  #export APRUNO=${APRUNO:-"srun --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  #export APRUNO=${APRUNO:-"srun --nodes=1 --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=1"}
-  #export APRUNO=${APRUNO:-"srun --nodes=1 --ntasks=1 --cpus-per-task=1"}
-  export APRUNO=${APRUNO:-"time"}
-  export BACKGROUND="&"
-else
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNF=${APRUNF:-${MPISERIAL:-mpiserial}}
-  export APRUNC=${APRUNC:-"mpirun"}
-  export APRUNO="time"
-  export BACKGROUND=""
-fi
-
-env
+source ${USHhafs}/hafs_runcmd.sh.inc
 
 ####################################
 # Run setpdy and initialize PDY variables

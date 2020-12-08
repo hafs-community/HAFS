@@ -13,24 +13,28 @@
   <value>YES</value>
 </envar>
 <envar>
-  <name>USHhafs</name>
-  <value>&USHhafs;</value>
-</envar>
-<envar>
   <name>WHERE_AM_I</name>
   <value>&WHERE_AM_I;</value>
-</envar>
-<envar>
-  <name>HAFS_FORCE_TMPDIR</name>
-  <value><cyclestr>&WORKhafs;/tmpdir</cyclestr></value>
 </envar>
 <envar>
   <name>HOMEhafs</name>
   <value>&HOMEhafs;</value>
 </envar>
 <envar>
+  <name>USHhafs</name>
+  <value>&USHhafs;</value>
+</envar>
+<envar>
   <name>PYTHONPATH</name>
   <value>&USHhafs;</value>
+</envar>
+<envar>
+  <name>WORKhafs</name>
+  <value><cyclestr>&WORKhafs;</cyclestr></value>
+</envar>
+<envar>
+  <name>COMhafs</name>
+  <value><cyclestr>&COMhafs;</cyclestr></value>
 </envar>
 <envar>
   <name>CONFhafs</name>
@@ -41,8 +45,8 @@
   <value><cyclestr>&HOLDVARS;</cyclestr></value>
 </envar>
 <envar>
-  <name>WORKhafs</name>
-  <value><cyclestr>&WORKhafs;</cyclestr></value>
+  <name>HAFS_FORCE_TMPDIR</name>
+  <value><cyclestr>&WORKhafs;/tmpdir</cyclestr></value>
 </envar>
 <envar>
   <name>jlogfile</name>
