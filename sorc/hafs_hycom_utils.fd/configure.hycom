@@ -30,9 +30,9 @@ FPPFLAGS       =  $(CPPFLAGS) -traditional-cpp
 ARFLAGS        =  -ruv
 
 #DM_FC          =  mpiifort -fc=ifort
-DM_FC          =  mpiifort 
-DM_F90         =  mpiifort -f90=ifort
-DM_CC          =  mpiicc -cc=icc
+DM_FC         ?=  mpiifort 
+DM_F90        ?=  mpiifort -f90=ifort
+DM_CC         ?=  mpiicc -cc=icc
 
 FC             =  $(DM_FC)
 F90            =  $(DM_F90)

@@ -78,6 +78,9 @@ elif [ $target = wcoss_cray ]; then
     export FC="ftn -static"
     export F90="ftn -free -static"
     export CC=icc
+    export DM_FC="ftn -static"
+    export DM_F90="ftn -free -static"
+    export DM_CC="cc -static"
 
 elif [ $target = wcoss_dell_p3 ]; then
 
