@@ -144,6 +144,8 @@ else
 grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
 fi
 
+if [ "${HAFS_ENS}" != YES ]; then
+
 # Deliver track file to NOSCRUB:
 mkdir -p ${CDNOSCRUB}/${SUBEXPT}
 cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
@@ -152,6 +154,8 @@ cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
 fi
 if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ] ; then 
 cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+fi
+
 fi
 #===============================================================================
 

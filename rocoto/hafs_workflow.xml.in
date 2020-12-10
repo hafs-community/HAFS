@@ -714,7 +714,8 @@
         <!-- Start the post if the forecast is running or if it has
                                      already completed. -->
         <or>
-          <metataskdep metatask="forecast_ens"/>
+          <taskdep task="forecast_ens#MEM#" state="RUNNING"/>
+          <taskdep task="forecast_ens#MEM#"/>
         </or>
       </dependency>
     </task>
@@ -765,6 +766,34 @@
       </or>
     </dependency>
   </task>
+
+@** if RUN_HAFS_ENS==YES
+  <metatask name="product_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="product_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_PRODUCT</command>
+      <jobname>hafs_product_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_product_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &PRODUCT_RESOURCES;
+      &ENV_VARS;
+      <envar><name>PRODUCT_ENSID</name><value>#MEM#</value></envar>
+      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+
+      <dependency>
+       <!-- Start the tracker if the post is running or if it has
+            already completed. -->
+        <or>
+          <taskdep task="post_ens#MEM#" state="RUNNING"/>
+          <taskdep task="post_ens#MEM#"/>
+        </or>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
 
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
@@ -843,6 +872,9 @@
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
 @** endif
+@** if RUN_HAFS_ENS==YES
+        <metataskdep metatask="product_ens"/>
+@** endif
       </and>
     </dependency>
   </task>
@@ -876,6 +908,9 @@
 @** endif
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
+@** if RUN_HAFS_ENS==YES
+        <metataskdep metatask="product_ens"/>
 @** endif
         <taskdep task="archive_disk"/>
       </and>

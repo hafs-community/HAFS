@@ -124,7 +124,7 @@ if [ $RUN_HAFS_ENS = YES ]; then
     ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
     ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
    else
-    if [ -s ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ];then
+    if [ -s ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ];then
      ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
      ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
      ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
