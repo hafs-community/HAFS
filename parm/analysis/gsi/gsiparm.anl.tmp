@@ -62,8 +62,8 @@
   uv_doe_b_236=0.5,
   uv_doe_a_237=0.75,
   uv_doe_b_237=0.3,
-  uv_doe_a_292=1.0,
-  uv_doe_b_292=5.0,
+  uv_doe_a_213=1.0,
+  uv_doe_b_213=5.0,
 /
 &OBS_INPUT
   dmesh(1)=90.0,dmesh(2)=45.0,dmesh(3)=45.0,dmesh(4)=45.0,dmesh(5)=90,time_window_max=3.0,l_foreaft_thin=.false.,
@@ -176,8 +176,8 @@ OBS_INPUT::
   s_ens_v=-0.5,
   readin_localization=F,
   generate_ens=F,
-  regional_ensemble_option=1,
-  grid_ratio_ens=1,
+  regional_ensemble_option=_REO_ENS_,
+  grid_ratio_ens=_G_RATIO_,
   pseudo_hybens=F,
   merge_two_grid_ensperts=F,
   pwgtflg=F,

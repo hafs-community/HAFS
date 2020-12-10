@@ -1468,6 +1468,13 @@ class HAFSLauncher(HAFSConfig):
         gsi_vr_flag=self.getbool('config','run_gsi_vr')
         self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
 
+################## OU added for hafs ens #################
+        hafs_ens_flag=self.getbool('config','run_hafs_ens')
+        self.set('holdvars','cap_run_hafs_ens',('YES' if hafs_ens_flag else 'NO'))
+        fgat_flag=self.getbool('config','run_gsi_fgat')
+        self.set('holdvars','cap_run_gsi_fgat',('YES' if fgat_flag else 'NO'))
+################## OU added for hafs ens #################
+
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',
                  ('YES' if reloc_flag else 'NO'))

@@ -52,8 +52,13 @@ FHR3="000"
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
 # Note: currently, generating IC from grib2 file is not supported yet.
 if [ $ictype = "gfsnemsio" ]; then
+ if [ "${HAFS_ENS}" = YES ]; then
+  atm_files_input_grid=gdas.t${cyc}z.ratmanl.nemsio
+  sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nemsio
+ else
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
+ fi
   grib2_file_input_grid=""
   input_type="gaussian_nemsio"
   varmap_file=""
@@ -127,7 +132,13 @@ if [ $input_type = "grib2" ]; then
   fi
   INPDIR="./"
 else
-  INPDIR=${INIDIR}
+  if [ ${HAFS_ENS} = YES ]; then
+   ln -sf ${INIDIR}/${atm_files_input_grid} ./
+   ln -sf ${INIDIR_PRIOR}/${sfc_files_input_grid} ./
+   INPDIR="./"
+  else
+   INPDIR=${INIDIR}
+  fi
 fi
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then

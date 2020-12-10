@@ -218,8 +218,15 @@ ${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
 
 # Deliver to COMhafs
 if [ $SENDCOM = YES ]; then
+ if [ "${HAFS_ENS}" = YES ]; then
+  mkdir -p ${COMhafs}/post_ens
+  mkdir -p ${COMhafs}/post_ens/member${POST_ENSID}
+  mv ${synop_grb2file} ${COMhafs}/post_ens/member${POST_ENSID}/
+  mv ${synop_grb2indx} ${COMhafs}/post_ens/member${POST_ENSID}/
+ else
   mv ${synop_grb2file} ${COMhafs}/
   mv ${synop_grb2indx} ${COMhafs}/
+ fi
 fi
 
 # Check if the products are missing

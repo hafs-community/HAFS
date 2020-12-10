@@ -16,13 +16,24 @@ export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
 export NHRS=${NHRS:-126}
-export NBDYHRS=${NBDYHRS:-3}
-export CASE=${CASE:-C768}
-export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
-export ictype=${ictype:-gfsnemsio} # gfsnemsio
-export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
-export LEVS=${LEVS:-65}
+export HAFS_ENS=${HAFS_ENS:-NO}
+if [ "${HAFS_ENS}" = YES ]; then
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}           # grid type = uniform, str
+  export ictype=${ictype_ens:-gfsnemsio} # gfsnemsio
+  export bctype=${bctype_ens:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NBDYHRS=${NBDYHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+  export ictype=${ictype:-gfsnemsio} # gfsnemsio
+  export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
+  export LEVS=${LEVS:-65}
+fi
 export NTRAC=7            # output all gfdl mp tracers
 
 ####################################
@@ -72,11 +83,24 @@ source ${USHhafs}/hafs_runcmd.sh.inc
 PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
 export PDY=${PDY:-${PDYtmp}}
 
+if [ "${HAFS_ENS}" = YES ]; then
+  NDATE=${NDATE:-ndate}
+  CDATEprior=`${NDATE} -6 $CDATE`
+  export PDY_prior=`echo ${CDATEprior} | cut -c1-8`
+  export cyc_prior=`echo ${CDATEprior} | cut -c9-10`
+fi
+
 #####################################
 # Working directories
 #####################################
-export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-export DATA=${WORKhafs}/chgres_ic
+if [ "${HAFS_ENS}" = YES ]; then
+  export IC_ENSID=$( printf "%03d" "${IC_ENSID:-001}" )
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/member${IC_ENSID}}
+  export DATA=${WORKhafs}/chgres_ic_ens/member${IC_ENSID}
+else
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/chgres_ic
+fi
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 
@@ -93,7 +117,12 @@ cd $DATA
 #export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+if [ "${HAFS_ENS}" = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY}/$cyc/mem${IC_ENSID}
+  export INIDIR_PRIOR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${IC_ENSID}
+else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+fi
 
 #####################################
 # Generate the ICs and BC hour 0

@@ -7,7 +7,11 @@ NBDYHRS=${NBDYHRS:-3}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
 
-CDUMP=gfs                   # gfs or gdas
+if [ $HAFS_ENS = YES ]; then
+ CDUMP=gdas                   # gfs or gdas
+else
+ CDUMP=gfs                   # gfs or gdas
+fi
 LEVS=${LEVS:-65}
 gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
@@ -71,9 +75,14 @@ cd ${DATA_BC}
 
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
 if [ $bctype = "gfsnemsio" ]; then
+ if [ $HAFS_ENS = YES ]; then
+  atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nemsio
+  sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nemsio
+ else
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmf${FHR3}.nemsio
   #sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcf${FHR3}.nemsio
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
+ fi
   grib2_file_input_grid=""
   input_type="gaussian_nemsio"
   varmap_file=""
@@ -137,8 +146,17 @@ fi
 
 # Check and wait for the input data
 n=1
-while [ $n -le 30 ]
-do
+if [ $HAFS_ENS = YES ]; then
+  if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+    echo " ${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
+    sleep 1s
+  else
+    echo "Either ${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
+    sleep 60s
+  fi
+else
+ while [ $n -le 30 ]
+ do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
     sleep 1s
@@ -148,7 +166,8 @@ do
     sleep 60s
   fi
   n=$(( n+1 ))
-done
+ done
+fi
 
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
@@ -162,7 +181,13 @@ if [ $input_type = "grib2" ]; then
   fi
   INPDIR="./"
 else
-  INPDIR=${INIDIR}
+  if [ ${HAFS_ENS} = YES ]; then
+   ln -sf ${INIDIR}/${atm_files_input_grid} ./
+   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
+   INPDIR="./"
+  else
+   INPDIR=${INIDIR}
+  fi
 fi
 
 if [ $gtype = regional ]; then

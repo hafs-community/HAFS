@@ -19,14 +19,14 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
-#HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
+#HOMEhafs=/work/noaa/hwrf/${USER}/HAFS
 #dev="-s sites/orion.ent -f"
 #PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
- HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
- dev="-s sites/hera.ent -f"
- PYTHON3=/apps/intel/intelpython3/bin/python3
+HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+dev="-s sites/hera.ent -f"
+PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
@@ -66,10 +66,34 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_gsivr_C96s1n4_320x312 \
-     config.run_gsi_vr=yes \
-     config.run_gsi=no gsi.hybrid_3denvar_gdas=no \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_gdas_fgat \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
      config.NHRS=12 ${scrubopt} \
+     config.run_gsi_fgat=yes \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
+     config.NHRS=12 ${scrubopt} \
+     config.run_gsi_fgat=no config.ENS=4\
+     config.run_gsi_vr=no config.warm_start_opt=5 config.run_hafs_ens=yes \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens_fgat \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
+     config.NHRS=12 ${scrubopt} \
+     config.run_gsi_fgat=yes config.ENS=4\
+     config.run_gsi_vr=no config.warm_start_opt=5 config.run_hafs_ens=yes \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens_fgatvr \
+     config.run_gsi=yes gsi.hybrid_3denvar_gdas=yes \
+     config.NHRS=12 ${scrubopt} \
+     config.run_gsi_vr=yes config.run_gsi_fgat=yes \
+     config.warm_start_opt=5 config.ENS=4 config.run_hafs_ens=yes \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
 #===============================================================================

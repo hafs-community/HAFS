@@ -74,7 +74,7 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
-    ulimit -s unlimited
+    ulimit -s 6000000
     #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge

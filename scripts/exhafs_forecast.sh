@@ -2,7 +2,8 @@
 
 set -xe
 
-ulimit -s unlimited
+ulimit -s 6000000 
+#unlimited
 ulimit -a
 
 yr=`echo $CDATE | cut -c1-4`
@@ -87,15 +88,35 @@ fi
 #if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warm_start_opt=4
+ if [ "${HAFS_ENS}" = YES ]; then 
+  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+   export warmstart_from_restart=yes
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+  else
+   export warmstart_from_restart=no
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+  fi
+ else
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis_vr
+ fi
 fi
 
 #if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  export warm_start_opt=5
+ if [ "${HAFS_ENS}" = YES ]; then
+  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+   export warmstart_from_restart=yes
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+  else
+   export warmstart_from_restart=no
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+  fi
+ else
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis
+ fi
+  export warm_start_opt=5
 fi
 
 # For warm start from restart files
@@ -190,19 +211,42 @@ ln -sf ${INPdir}/*.nc INPUT/
 #cp ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
 
-export RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
-mkdir -p ${RESTARTout}
-ln -sf ${RESTARTout} RESTART
+if [ "${HAFS_ENS}" = YES ]; then
+ if [ -s  ${COMhafs}/RESTART_ENS ]; then
+  echo " ${COMhafs}/RESTART_ENS dir already exist"
+ else
+  mkdir ${COMhafs}/RESTART_ENS
+ fi
+  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ENS/member${FC_ENSID}}
+  mkdir -p ${RESTARTout}
+  ln -sf ${RESTARTout} RESTART
+else
+  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
+  mkdir -p ${RESTARTout}
+  ln -sf ${RESTARTout} RESTART
+fi
 
 # Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
-if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
+if [ "${HAFS_ENS}" = YES ]; then
+ if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/grid_spec.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/grid_spec.nc RESTART/
+ fi
+ if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/atmos_static.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/atmos_static.nc RESTART/
+ fi
+ if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/oro_data.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/oro_data.nc RESTART/
+ fi
+else
+ if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
   cp -p ${COMhafsprior}/RESTART/grid_spec.nc RESTART/
-fi
-if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
+ fi
+ if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
   cp -p ${COMhafsprior}/RESTART/atmos_static.nc RESTART/
-fi
-if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
+ fi
+ if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
   cp -p ${COMhafsprior}/RESTART/oro_data.nc RESTART/
+ fi
 fi
 
 #---------------------------------------------- 

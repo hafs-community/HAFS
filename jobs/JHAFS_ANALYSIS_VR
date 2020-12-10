@@ -16,11 +16,21 @@ export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
 export NHRS=${NHRS:-126}
-export NBDYHRS=${NBDYHRS:-3}
-export CASE=${CASE:-C768}
-export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export LEVS=${LEVS:-65}
+export HAFS_ENS=${HAFS_ENS:-NO}
+export FGAT_OPT=${FGAT_OPT:-NO}
+if [ "${HAFS_ENS}" = YES ]; then
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}  
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NBDYHRS=${NBDYHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
+  export LEVS=${LEVS:-65}
+fi
 export NTRAC=7            # output all gfdl mp tracers
 
 ####################################
@@ -78,8 +88,19 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 #export FIXgrid=${FIXhafs}/fix_fv3
-export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-export DATA=${WORKhafs}/analysis_vr
+if [ "${HAFS_ENS}" = YES ]; then
+  export VR_ENSID=$( printf "%03d" "${VR_ENSID:-001}" )
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens/member${VR_ENSID}}
+  export DATA=${WORKhafs}/analysis_vr_ens/member${VR_ENSID}
+else
+ if [ ${FGAT_OPT} = YES ]; then 
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export DATA=${WORKhafs}/analysis_vr_${FGAT_ID:-00}
+ else
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export DATA=${WORKhafs}/analysis_vr
+ fi
+fi
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 

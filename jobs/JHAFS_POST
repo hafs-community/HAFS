@@ -15,13 +15,24 @@ export cyc=${cyc:-00}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
-export NHRS=${NHRS:-126}
-export NBDYHRS=${NBDYHRS:-3}
-export NOUTHRS=${NOUTHRS:-3}
-export CASE=${CASE:-C768}
-export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export LEVS=${LEVS:-65}
+export HAFS_ENS=${HAFS_ENS:-NO}
+if [ "${HAFS_ENS}" = YES ]; then
+  export NHRS=${NHRS_ENS:-126}
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export NOUTHRS=${NOUTHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}           # grid type = uniform, stretch, nest, or regional
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NHRS=${NHRS:-126}
+  export NBDYHRS=${NBDYHRS:-3}
+  export NOUTHRS=${NOUTHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
+  export LEVS=${LEVS:-65}
+fi
 export NTRAC=7            # output all gfdl mp tracers
 
 export output_grid=${output_grid:-rotated_latlon}
@@ -94,9 +105,17 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export INPdir=${INPdir:-${WORKhafs}/forecast}
-export DATA=${WORKhafs}/post
-export intercom=${WORKhafs}/intercom/post
+if [ "${HAFS_ENS}" = YES ]; then
+  export POST_ENSID=$( printf "%03d" "${POST_ENSID:-001}" )
+  export INPdir=${INPdir:-${WORKhafs}/forecast_ens/member${POST_ENSID}}
+  export DATA=${WORKhafs}/post_ens/member${POST_ENSID}
+  export intercom=${WORKhafs}/intercom/post_ens/member${POST_ENSID}
+else
+  export INPdir=${INPdir:-${WORKhafs}/forecast}
+  export DATA=${WORKhafs}/post
+  export intercom=${WORKhafs}/intercom/post
+fi
+
 export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 export SENDCOM=${SENDCOM:-YES}
