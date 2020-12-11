@@ -73,13 +73,13 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.NHRS=12 ${scrubopt}
 
 # Regional static NATL basin-focused and ocean-coupled configuration with GFS nemsio format IC and grib2ab format BC
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled \
-#    config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
-#    config.halo_blend=10 \
-#    config.NHRS=12 ${scrubopt} \
-#    ../parm/hafs_regional_static.conf \
-#    ../parm/hafs_hycom.conf
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled \
+     config.ictype=gfsnemsio config.bctype=gfsgrib2ab_0p25 \
+     config.halo_blend=10 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_hycom.conf
 
 # Regional static NATL basin-focused configuration with the hwrf physics suite
 #${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
