@@ -17,6 +17,12 @@ else
   export MOD_PATH=${cwd}/lib/modulefiles
 fi
 
+if [ $target = wcoss_cray ]; then
+  export DM_FC="ftn -static"
+  export DM_F90="ftn -free -static"
+  export DM_CC="cc -static"
+fi
+
 module use hafs_hycom_utils.fd/modulefiles
 module load modulefile.hycom_utils.$target
 module list
