@@ -733,7 +733,8 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         # forcing files for coupled run
         self.forcing_products=dict()
         ffiles=['airtmp','precip','presur','radflx','shwflx','surtmp',
-                'tauewd','taunwd','vapmix','wndspd']
+                'tauewd','taunwd','vapmix','wndspd','rivers']
+
         for ffile in ffiles:
             for ab in 'ab':
                 file='forcing.%s.%s'%(ffile,ab)
