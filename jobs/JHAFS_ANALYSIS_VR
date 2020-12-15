@@ -16,9 +16,9 @@ export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
 export NHRS=${NHRS:-126}
-export HAFS_ENS=${HAFS_ENS:-NO}
-export FGAT_OPT=${FGAT_OPT:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+export FGAT=${FGAT:-NO}
+if [ ${ENSDA} = YES ]; then
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
   export CRES=`echo $CASE | cut -c 2-`
@@ -88,14 +88,14 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 #export FIXgrid=${FIXhafs}/fix_fv3
-if [ "${HAFS_ENS}" = YES ]; then
-  export VR_ENSID=$( printf "%03d" "${VR_ENSID:-001}" )
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens/member${VR_ENSID}}
-  export DATA=${WORKhafs}/analysis_vr_ens/member${VR_ENSID}
+if [ ${ENSDA} = YES ]; then
+  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/analysis_vr_ens/mem${ENSID}
 else
- if [ ${FGAT_OPT} = YES ]; then 
+ if [ ${FGAT} = YES ]; then
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export DATA=${WORKhafs}/analysis_vr_${FGAT_ID:-00}
+  export DATA=${WORKhafs}/analysis_vr_${FGAT_HR:-00}
  else
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   export DATA=${WORKhafs}/analysis_vr

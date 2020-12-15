@@ -27,6 +27,8 @@ INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
 COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
+COMOUTproduct=${COMOUTproduct:-${COMhafs}}
+
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 trk_atcfunix=${out_prefix}.trak.hafs.atcfunix
 all_atcfunix=${out_prefix}.trak.hafs.atcfunix.all
@@ -106,8 +108,8 @@ ln -sf output.ike         fort.74
 ln -sf output.pdfwind     fort.76
 
 # The product atcf track file
-touch ${COMhafs}/${all_atcfunix}
-ln -sf ${COMhafs}/${all_atcfunix} output.atcfunix
+touch ${COMOUTproduct}/${all_atcfunix}
+ln -sf ${COMOUTproduct}/${all_atcfunix} output.atcfunix
 
 # Prepare the input namelist
 CC=`echo $CDATE | cut -c 1-2`
@@ -132,19 +134,19 @@ ${APRUNC} ./hafs_gettrk.x < namelist.gettrk
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
-cp ${COMhafs}/${all_atcfunix} ${COMhafs}/${all_atcfunix}.orig
+cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ $STORMNUM == "00" ] ; then
-norig=`cat ${COMhafs}/${all_atcfunix}.orig |wc -l `
+norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
 if [ $norig -eq 1 ] ; then
-> ${COMhafs}/${all_atcfunix}
+> ${COMOUTproduct}/${all_atcfunix}
 else
-grep -v "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix}.orig >  ${COMhafs}/${all_atcfunix}
+grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
 fi
 else
-grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
+grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
 fi
 
-if [ "${HAFS_ENS}" != YES ]; then
+if [ ${ENSDA} != YES ]; then
 
 # Deliver track file to NOSCRUB:
 mkdir -p ${CDNOSCRUB}/${SUBEXPT}

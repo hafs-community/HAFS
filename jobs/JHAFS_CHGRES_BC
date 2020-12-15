@@ -16,8 +16,8 @@ export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
 export NHRS=${NHRS:-126}
-export HAFS_ENS=${HAFS_ENS:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+if [ ${ENSDA} = YES ]; then
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
   export CRES=`echo $CASE | cut -c 2-`
@@ -90,7 +90,7 @@ source ${USHhafs}/hafs_runcmd.sh.inc
 PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
 export PDY=${PDY:-${PDYtmp}}
 
-if [ "${HAFS_ENS}" = YES ]; then
+if [ ${ENSDA} = YES ]; then
   NDATE=${NDATE:-ndate}
   CDATEprior=`${NDATE} -6 $CDATE`
   PDY_prior=`echo ${CDATEprior} | cut -c1-8`
@@ -103,10 +103,10 @@ fi
 export BC_GROUPN=${BC_GROUPN:-6}
 export BC_GROUPI=$( printf "%03d" "${BC_GROUPI:-001}" )
 
-if [ "${HAFS_ENS}" = YES ]; then
-  export BC_ENSID=$( printf "%03d" "${BC_ENSID:-001}" )
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/member${BC_ENSID}}
-  export DATA=${WORKhafs}/chgres_bc${BC_GROUPI}_ens/member${BC_ENSID}
+if [ ${ENSDA} = YES ]; then
+  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/chgres_bc${BC_GROUPI}_ens/mem${ENSID}
 else
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
   export DATA=${WORKhafs}/chgres_bc${BC_GROUPI}
@@ -127,9 +127,8 @@ cd $DATA
 #export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-if [ "${HAFS_ENS}" = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY}/$cyc/mem${BC_ENSID}
-  export INIDIR_PRIOR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${BC_ENSID}
+if [ ${ENSDA} = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY}/$cyc/mem${ENSID}
 else
  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 fi
@@ -139,9 +138,15 @@ fi
 #####################################
 export REGIONAL=2
 
-export FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
-export FHRI=$(( ${BC_GROUPN} * ${NBDYHRS} ))
-export FHRE=${NHRS}
+if [ ${ENSDA} = YES ]; then
+  export FHRB=$(( ${BC_GROUPI} * ${NBDYHRS_ENS} ))
+  export FHRI=$(( ${BC_GROUPN} * ${NBDYHRS_ENS} ))
+  export FHRE=${NHRS_ENS}
+else
+  export FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
+  export FHRI=$(( ${BC_GROUPN} * ${NBDYHRS} ))
+  export FHRE=${NHRS}
+fi
 
 #####################################
 # Execute the script.

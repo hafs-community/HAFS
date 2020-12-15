@@ -9,12 +9,16 @@ export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
 
-export RUN_GSI=${RUN_GSI:-NO}
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
-export hybrid_3denvar_gdas=${hybrid_3denvar_gdas:-yes}
-export RUN_HAFS_ENS=${RUN_HAFS_ENS:-NO}
-export G_RATIO_ENS=${G_RATIO_ENS:-1}
-export FGAT_OPT=${FGAT_OPT:-NO} 
+export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}
+export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
+export RUN_GSI=${RUN_GSI:-NO}
+export RUN_FGAT=${RUN_FGAT:-NO}
+export FGAT=${FGAT:-NO}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
+export RUN_ENSDA=${RUN_ENSDA:-NO}
+export ENSDA=${ENSDA:-NO}
+export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -37,11 +41,21 @@ dyprior=`echo ${CDATEprior} | cut -c7-8`
 hhprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
-if [ ${FGAT_OPT} = YES ]; then 
- CDATEpri=`${NDATE} -3 $CDATE`
- cyc_pri=`echo ${CDATEpri} | cut -c9-10`
- CDATEaft=`${NDATE} +3 $CDATE`
- cyc_aft=`echo ${CDATEaft} | cut -c9-10`
+if [ ${RUN_FGAT} = YES ]; then
+ CDATEtm03=`${NDATE} -3 $CDATE`
+ yrtm03=`echo ${CDATEtm03} | cut -c1-4`
+ mntm03=`echo ${CDATEtm03} | cut -c5-6`
+ dytm03=`echo ${CDATEtm03} | cut -c7-8`
+ hhtm03=`echo ${CDATEtm03} | cut -c9-10`
+ PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
+ cyctm03=`echo ${CDATEtm03} | cut -c9-10`
+ CDATEtp03=`${NDATE} +3 $CDATE`
+ yrtp03=`echo ${CDATEtp03} | cut -c1-4`
+ mntp03=`echo ${CDATEtp03} | cut -c5-6`
+ dytp03=`echo ${CDATEtp03} | cut -c7-8`
+ hhtp03=`echo ${CDATEtp03} | cut -c9-10`
+ PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
+ cyctp03=`echo ${CDATEtm03} | cut -c9-10`
 fi
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
@@ -71,33 +85,33 @@ fi
 ${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
 ${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
 ${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
-if [ ${FGAT_OPT} = YES ]; then 
- if [ ${RUN_GSI_VR} = "YES" ]; then
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.coupler.res ./coupler.res_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.fv_core.res.nc ./fv3_akbk_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.sfc_data.nc ./fv3_sfcdata_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_pri}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.coupler.res ./coupler.res_09
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.fv_core.res.nc ./fv3_akbk_09
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.sfc_data.nc ./fv3_sfcdata_09
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc_aft}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
+if [ ${RUN_FGAT} = "YES" ]; then
+ if [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3_akbk_03
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3_sfcdata_03
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
+  ${NCP} ${RESTARTinp}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3_akbk_09
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3_sfcdata_09
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
+  ${NCP} ${RESTARTinp}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
  else
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.coupler.res ./coupler.res_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.fv_core.res.nc ./fv3_akbk_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.sfc_data.nc ./fv3_sfcdata_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_pri}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.coupler.res ./coupler.res_09
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.fv_core.res.nc ./fv3_akbk_09
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.sfc_data.nc ./fv3_sfcdata_09
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
-  ${NCP} ${COMhafsprior}/RESTART/${PDY}.${cyc_aft}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3_akbk_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3_sfcdata_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3_akbk_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3_sfcdata_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
+  ${NCP} ${COMhafsprior}/RESTART/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
  fi
 fi
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
@@ -107,44 +121,44 @@ ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
-if [ $hybrid_3denvar_gdas = yes ]; then
+if [ ${RUN_ENVAR}= "YES" ]; then
 
 export L_HYB_ENS=.true.
-if [ $RUN_HAFS_ENS = YES ]; then
+if [ ${RUN_ENSDA} = "YES" ]; then
   export N_ENS=${ENS_SIZE:-2}
-  export G_RATIO=${G_RATIO_ENS}  
-  export REO_ENS=5
+  export GRID_RATIO_ENS=${GRID_RATIO_ENS}
+  export REGIONAL_ENSEMBLE_OPTION=5
   for mem in $(seq -f '%03g' 1 ${N_ENS})
   do
-   if  [ ${RUN_GSI_VR} = "YES" ]; then
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/member${mem}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+   if  [ ${RUN_GSI_VR_ENS} = "YES" ]; then
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
+    ${NLN} ${COMhafs}/RESTART_analysis_vr_ens/mem${mem}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
    else
-    if [ -s ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ];then
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+    if [ -s ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ];then
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
     else
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-     ${NLN} ${COMhafsprior}/RESTART_ENS/member${mem}/fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
+     ${NLN} ${COMhafsprior}/RESTART_ens/mem${mem}/fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
     fi
    fi
   done
 else
   export N_ENS=80
-  export G_RATIO=1
-  export REO_ENS=1
+  export GRID_RATIO_ENS=1
+  export REGIONAL_ENSEMBLE_OPTION=1
 # Link ensemble members
   mkdir -p ensemble_data
   ENKF_SUFFIX="s"
@@ -162,7 +176,8 @@ else
    done
   done
 fi
-fi	
+
+fi # endif ${RUN_ENVAR}
 
 #---------------------------------------------- 
 # Link all the necessary fix files
@@ -377,8 +392,8 @@ ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
 sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
-    -e "s/_G_RATIO_/${G_RATIO:-1}/g" \
-    -e "s/_REO_ENS_/${REO_ENS:-1}/g" \
+    -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
+    -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 

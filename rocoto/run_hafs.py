@@ -503,16 +503,6 @@ if parse_tcvitals:
 # Create the list of variables to send to the ATParser
 
 VARS=dict(os.environ)
-############## OU add for hafs_ens start #####################
-if conf.getbool('config','run_hafs_ens',False):
-    VARS.update(DA_ENSEMBLE='YES')
-    esize=conf.getint('config','ENS',40)
-    assert(esize>=1)
-    ensdalist=' '.join([ '%03d'%(i+1) for i in range(esize) ])
-    VARS.update(ENSIDS=ensdalist,ENS_SIZE='%d'%esize)
-else:
-    VARS.update(DA_ENSEMBLE='NO',ENS_SIZE='99',ENSIDS='001')
-############## OU add for hafs_ens end #####################
 
 if cycleset:
     VARS['CYCLE_LIST']=tcutil.rocoto.cycles_as_entity(cycleset)
@@ -563,6 +553,14 @@ for (key,val) in conf.items('rocotostr'):
     VARS[key]=str(val)
 for (key,val) in conf.items('rocotobool'):
     VARS[key]=yesno(conf.getbool('rocotobool',key))
+
+if conf.getbool('config','run_ensda',False):
+    ens_size=conf.getint('config','ENS_SIZE',40)
+    assert(ens_size>=1)
+    ensids=' '.join([ '%03d'%(i+1) for i in range(ens_size) ])
+    VARS.update(ENS_SIZE='%d'%ens_size,ENSIDS=ensids)
+else:
+    VARS.update(ENS_SIZE='000',ENSIDS='000')
 
 bad=False
 for k,v in VARS.items():

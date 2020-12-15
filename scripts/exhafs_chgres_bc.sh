@@ -2,12 +2,10 @@
 
 set -xe
 
-NHRS=${NHRS:-126}
-NBDYHRS=${NBDYHRS:-3}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
 
-if [ $HAFS_ENS = YES ]; then
+if [ ${ENSDA} = YES ]; then
  CDUMP=gdas                   # gfs or gdas
 else
  CDUMP=gfs                   # gfs or gdas
@@ -45,7 +43,12 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
-GRID_intercom=${WORKhafs}/intercom/grid
+if [ ${ENSDA} = YES ]; then
+  GRID_intercom=${WORKhafs}/intercom/grid_ens
+else
+  GRID_intercom=${WORKhafs}/intercom/grid
+fi
+
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
 DATA=${DATA:-${WORKhafs}/chgres_bc}
 mkdir -p ${OUTDIR} ${DATA}
@@ -75,7 +78,7 @@ cd ${DATA_BC}
 
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
 if [ $bctype = "gfsnemsio" ]; then
- if [ $HAFS_ENS = YES ]; then
+ if [ ${ENSDA} = YES ]; then
   atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nemsio
   sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nemsio
  else
@@ -146,16 +149,7 @@ fi
 
 # Check and wait for the input data
 n=1
-if [ $HAFS_ENS = YES ]; then
-  if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
-    echo " ${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 1s
-  else
-    echo "Either ${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
-    sleep 60s
-  fi
-else
- while [ $n -le 30 ]
+while [ $n -le 30 ]
  do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
@@ -166,8 +160,7 @@ else
     sleep 60s
   fi
   n=$(( n+1 ))
- done
-fi
+done
 
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
@@ -181,7 +174,7 @@ if [ $input_type = "grib2" ]; then
   fi
   INPDIR="./"
 else
-  if [ ${HAFS_ENS} = YES ]; then
+  if [ ${ENSDA} = YES ]; then
    ln -sf ${INIDIR}/${atm_files_input_grid} ./
    ln -sf ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"

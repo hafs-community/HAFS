@@ -15,8 +15,8 @@ export cyc=${cyc:-00}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
-export HAFS_ENS=${HAFS_ENS:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+if [ "${ENSDA}" = YES ]; then
   export NHRS=${NHRS_ENS:-6}
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
@@ -137,11 +137,11 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 #export FIXgrid=${FIXhafs}/fix_fv3
-if [ "${HAFS_ENS}" = YES ]; then
-  export FC_ENSID=$( printf "%03d" "${FC_ENSID:-001}" )
+if [ "${ENSDA}" = YES ]; then
+  export ENSID=$( printf "%03d" "${ENSID:-001}" )
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/member${FC_ENSID}}
-  export DATA=${WORKhafs}/forecast_ens/member${FC_ENSID}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/forecast_ens/mem${ENSID}
 else
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}

@@ -15,8 +15,8 @@ export cyc=${cyc:-00}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
-export HAFS_ENS=${HAFS_ENS:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
@@ -105,18 +105,19 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-if [ "${HAFS_ENS}" = YES ]; then
-  export POST_ENSID=$( printf "%03d" "${POST_ENSID:-001}" )
-  export INPdir=${INPdir:-${WORKhafs}/forecast_ens/member${POST_ENSID}}
-  export DATA=${WORKhafs}/post_ens/member${POST_ENSID}
-  export intercom=${WORKhafs}/intercom/post_ens/member${POST_ENSID}
+if [ ${ENSDA} = YES ]; then
+  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export INPdir=${INPdir:-${WORKhafs}/forecast_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/post_ens/mem${ENSID}
+  export COMOUTpost=${COMhafs}/post_ens/mem${ENSDA}
+  export intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+
 else
   export INPdir=${INPdir:-${WORKhafs}/forecast}
   export DATA=${WORKhafs}/post
+  export COMOUTpost=${COMhafs}
   export intercom=${WORKhafs}/intercom/post
 fi
-
-export COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -127,10 +128,10 @@ if [ "${SCRUBDATA}" = YES ]; then
   rm -rf ${intercom}
 fi
 
+mkdir -p ${COMOUTpost}
+mkdir -p ${intercom}
 mkdir -p $DATA
 cd $DATA
-
-mkdir -p ${intercom}
 
 #####################################
 # Execute the script.

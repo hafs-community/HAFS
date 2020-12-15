@@ -15,8 +15,8 @@ export cyc=${cyc:-00}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 
-export HAFS_ENS=${HAFS_ENS:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
@@ -98,14 +98,15 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-if [ "${HAFS_ENS}" = YES ]; then
-  export PRODUCT_ENSID=$( printf "%03d" "${PRODUCT_ENSID:-001}" )
-  export INPdir=${INPdir:-${WORKhafs}/intercom/post_ens/member${PRODUCT_ENSID}}
-  export DATA=${WORKhafs}/product_ens/member${PRODUCT_ENSID}
-  export COMhafs=${COMhafs}/product_ens/member${PRODUCT_ENSID}
+if [ ${ENSDA} = YES ]; then
+  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export INPdir=${INPdir:-${WORKhafs}/intercom/post_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/product_ens/mem${ENSID}
+  export COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
 else
   export INPdir=${INPdir:-${WORKhafs}/intercom/post}
   export DATA=${WORKhafs}/product
+  export COMOUTproduct=${COMhafs}
 fi
 
 export SENDCOM=${SENDCOM:-YES}
@@ -115,7 +116,7 @@ if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
 
-mkdir -p ${COMhafs}
+mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 

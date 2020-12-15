@@ -17,8 +17,8 @@ export STORMID=${STORMID:-00L}
 
 export NHRS=${NHRS:-126}
 export NBDYHRS=${NBDYHRS:-3}
-export HAFS_ENS=${HAFS_ENS:-NO}
-if [ "${HAFS_ENS}" = YES ]; then
+export ENSDA=${ENSDA:-NO}
+if [ ${ENSDA} = YES ]; then
   export CASE=${CASE_ENS:-C768}
   export CRES=`echo $CASE | cut -c 2-`
   export gtype=${gtype_ens:-regional}             # grid type = uniform, stretch, nest, or stand alone regional
@@ -117,7 +117,7 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-if [ "${HAFS_ENS}" = YES ]; then
+if [ ${ENSDA} = YES ]; then
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
   export DATA=${WORKhafs}/grid_ens
 else

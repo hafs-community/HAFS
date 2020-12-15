@@ -63,12 +63,19 @@
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
   <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
   <!ENTITY RUN_GSI_VR "@[RUN_GSI_VR]">
+  <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
+  <!ENTITY RUN_GSI_VR_ENS "@[RUN_GSI_VR_ENS]">
   <!ENTITY RUN_GSI "@[RUN_GSI]">
+  <!ENTITY RUN_FGAT "@[RUN_FGAT]">
+  <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
+
+  <!ENTITY ENS_SIZE "@[ENS_SIZE]">
+  <!ENTITY ENSIDS "@[ENSIDS]">
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
@@ -79,12 +86,6 @@
   <!-- Load the env_vars.ent into ENV_VARS so we can set variables
   common to all jobs. -->
   <!ENTITY ENV_VARS SYSTEM "env_vars.ent"> 
-
-  <!-- OU added for hafs ens -->
-  <!ENTITY ENSIDS "@[ENSIDS]">
-  <!ENTITY ENS_SIZE "@[ENS_SIZE]">
-  <!ENTITY RUN_HAFS_ENS "@[RUN_HAFS_ENS]">
-  <!ENTITY RUN_GSI_FGAT "@[RUN_GSI_FGAT]">
 
   <!-- Site that we are currently running on -->
   <!ENTITY % SITES    SYSTEM "sites/all.ent">
@@ -210,8 +211,7 @@
     </dependency>
   </task>
 
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <task name="grid_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_GRID</command>
     <jobname>hafs_grid_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -222,7 +222,7 @@
     &PE_EXTRA;
     &GRID_RESOURCES;
     &ENV_VARS;
-    <envar><name>HAFS_ENS</name><value>YES</value></envar>
+    <envar><name>ENSDA</name><value>YES</value></envar>
 
     <dependency>
       <and>
@@ -261,8 +261,7 @@
     </dependency>
   </task>
 
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <metatask name="chgres_ic_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="chgres_ic_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -275,8 +274,8 @@
       &PE_EXTRA;
       &CHGRES_IC_RESOURCES;
       &ENV_VARS;
-      <envar><name>IC_ENSID</name><value>#MEM#</value></envar>
-      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
         <and>
@@ -289,8 +288,8 @@
           <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
           <and>
-            <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio</cyclestr></datadep>
-            <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.sfcanl.nemsio</cyclestr></datadep>
+            <datadep age="02:00" minsize="15000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gfs.t@Hz.atmf006.nemsio</cyclestr></datadep>
+            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gfs.t@Hz.sfcf006.nemsio</cyclestr></datadep>
           </and>
         </and>
       </dependency>
@@ -333,16 +332,11 @@
     </task>
   </metatask>
 
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <metatask name="chgres_bc_ens">
     <var name="MEM">&ENSIDS;</var>
-    <metatask mode ="serial">
-@** if RUN_4DENVAR==YES
-      <var name="group">001 002 003</var>
-@** else
+    <metatask name="chgres_bcgrp_ens">
       <var name="group">001</var>
-@** endif
       <task name="chgres_bc#group#_ens#MEM#" maxtries="&MAX_TRIES;">
         <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
         <jobname>hafs_chgres_bc#group#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -353,10 +347,10 @@
         &PE_EXTRA;
         &CHGRES_BC_RESOURCES;
         &ENV_VARS;
-        <envar><name>BC_GROUPN</name><value>6</value></envar>
+        <envar><name>ENSDA</name><value>YES</value></envar>
+        <envar><name>ENSID</name><value>#MEM#</value></envar>
+        <envar><name>BC_GROUPN</name><value>1</value></envar>
         <envar><name>BC_GROUPI</name><value>#group#</value></envar>
-        <envar><name>BC_ENSID</name><value>#MEM#</value></envar>
-        <envar><name>HAFS_ENS</name><value>YES</value></envar>
 
         <dependency>
           <and>
@@ -368,10 +362,10 @@
             <!-- Second dependency: the GFS output must be available -->
             <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
             <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
-            <or>
-              <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
-              <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-            </or>
+            <and>
+              <datadep age="02:00" minsize="15000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+              <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+            </and>
           </and>
         </dependency>
       </task>
@@ -483,30 +477,32 @@
       </and>
     </dependency>
   </task>
+@** endif
 
-@** if RUN_GSI_FGAT==YES
-  <metatask name="analysis_vr_fgat" mode="parallel">
-    <var name="FGAT_ID">03 09</var>
-    <task name="analysis_vr_fgat_#FGAT_ID#" maxtries="&MAX_TRIES;">
+@** if RUN_GSI_VR_FGAT==YES 
+  <metatask name="analysis_vr_fgat">
+    <var name="FGAT_HR">03 09</var>
+    <task name="analysis_vr_fgat_#FGAT_HR#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-      <jobname>hafs_analysis_vr_fgat_#FGAT_ID#&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat_#FGAT_ID#.log</cyclestr></join>
+      <jobname>hafs_analysis_vr_fgat_#FGAT_HR#&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat_#FGAT_HR#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &ANALYSIS_RESOURCES;
       &ENV_VARS;
-      <envar><name>FGAT_OPT</name><value>YES</value></envar>
-      <envar><name>FGAT_ID</name><value>#FGAT_ID#</value></envar>
+      <envar><name>FGAT</name><value>YES</value></envar>
+      <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
       <dependency>
         <and>
           <taskdep task="chgres_ic"/>
-          <streq><left>&RUN_GSI_VR;</left><right>YES</right></streq>
+          <streq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="+3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
             </and>
           </or>
         </and>
@@ -515,7 +511,7 @@
   </metatask>
 @** endif
 
-@** if RUN_HAFS_ENS==YES
+@** if RUN_GSI_VR_ENS==YES
   <metatask name="analysis_vr_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="analysis_vr_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -528,9 +524,9 @@
       &PE_EXTRA;
       &ANALYSIS_RESOURCES;
       &ENV_VARS;
-@** if RUN_HAFS_ENS==YES
-      <envar><name>VR_ENSID</name><value>#MEM#</value></envar>
-      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+@** if RUN_ENSDA==YES
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
 @** endif
 
       <dependency>
@@ -540,16 +536,14 @@
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ENS/member#MEM#/fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ENS/member#MEM#/grid_spec.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
             </and>
           </or>
         </and>
       </dependency>
     </task>
   </metatask>
-@** endif
-
 @** endif
 
 @** if RUN_GSI==YES
@@ -563,27 +557,20 @@
     &PE_EXTRA;
     &ANALYSIS_RESOURCES;
     &ENV_VARS;
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
-    <envar><name>ENS_SIZE</name><value>&ENS_SIZE;</value></envar>
-@** endif
-@** if RUN_GSI_FGAT==YES
-    <envar><name>FGAT_OPT</name><value>YES</value></envar>
-@** endif
     <dependency>
       <and>
         <taskdep task="chgres_ic"/>
-@** if RUN_HAFS_ENS==YES
-        <metataskdep metatask="chgres_ic_ens"/>
-@** endif
 	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
 @** if RUN_GSI_VR==YES
 	<or>
           <strneq><left>&RUN_GSI_VR;</left><right>YES</right></strneq>
           <taskdep task="analysis_vr"/>
-@** if RUN_GSI_FGAT==YES
-          <metataskdep metatask="analysis_vr_fgat"/>
+        </or>
 @** endif
+@** if RUN_GSI_VR_FGAT==YES
+	<or>
+          <strneq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></strneq>
+          <taskdep task="analysis_vr_fgat"/>
         </or>
 @** endif
 	<or>
@@ -591,8 +578,8 @@
 	  <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-@** if RUN_HAFS_ENS==YES
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ENS/member001/fv_core.res.tile1.nc</datadep>
+@** if RUN_ENSDA==YES
+            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
 @** endif
           </and>
         </or>
@@ -635,8 +622,7 @@
     </dependency>
   </task>
 
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <metatask name="forecast_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="forecast_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -649,8 +635,8 @@
       &PE_EXTRA;
       &FORECAST_RESOURCES;
       &ENV_VARS;
-      <envar><name>FC_ENSID</name><value>#MEM#</value></envar>
-      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
         <and>
@@ -693,8 +679,7 @@
     </dependency>
   </task>
 
-  <!-- OU added -->
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <metatask name="post_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="post_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -707,8 +692,8 @@
       &PE_EXTRA;
       &POST_RESOURCES;
       &ENV_VARS;
-      <envar><name>POST_ENSID</name><value>#MEM#</value></envar>
-      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
         <!-- Start the post if the forecast is running or if it has
@@ -767,7 +752,7 @@
     </dependency>
   </task>
 
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
   <metatask name="product_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="product_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -780,8 +765,8 @@
       &PE_EXTRA;
       &PRODUCT_RESOURCES;
       &ENV_VARS;
-      <envar><name>PRODUCT_ENSID</name><value>#MEM#</value></envar>
-      <envar><name>HAFS_ENS</name><value>YES</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
        <!-- Start the tracker if the post is running or if it has
@@ -872,7 +857,7 @@
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
 @** endif
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
 @** endif
       </and>
@@ -909,7 +894,7 @@
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
 @** endif
-@** if RUN_HAFS_ENS==YES
+@** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
 @** endif
         <taskdep task="archive_disk"/>

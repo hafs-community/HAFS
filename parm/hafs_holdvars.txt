@@ -9,7 +9,12 @@ export storm_num={storm_num}
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
 export RUN_GSI_VR={RUN_GSI_VR}
+export RUN_GSI_VR_FGAT={RUN_GSI_VR_FGAT}
+export RUN_GSI_VR_ENS={RUN_GSI_VR_ENS}
 export RUN_GSI={RUN_GSI}
+export RUN_FGAT={RUN_FGAT}
+export RUN_ENVAR={RUN_ENVAR}
+export RUN_ENSDA={RUN_ENSDA}
 export GSID01={GSID01}
 export GSID02={GSID02}
 export GSID03={GSID03}
@@ -17,14 +22,13 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
-### OU added for HAFS ENS ###
-export RUN_HAFS_ENS={RUN_HAFS_ENS}
-export RUN_GSI_FGAT={RUN_GSI_FGAT}
+# ENSDA related items
+export ENS_SIZE={ENS_SIZE}
+export GRID_RATIO_ENS={GRID_RATIO_ENS}
 export NHRS_ENS={NHRS_ENS}
 export NBDYHRS_ENS={NBDYHRS_ENS}
 export CASE_ENS={CASE_ENS}
 export LEVS_ENS={LEVS_ENS}
-export G_RATIO_ENS={G_RATIO_ENS}
 export gtype_ens={gtype_ens}
 export gridfixdir_ens={gridfixdir_ens}
 export stretch_fac_ens={stretch_fac_ens}
@@ -36,7 +40,6 @@ export jstart_nest_ens={jstart_nest_ens}
 export iend_nest_ens={iend_nest_ens}
 export jend_nest_ens={jend_nest_ens}
 export restart_interval_ens={restart_interval_ens}
-### OU added for HAFS ENS ###
 
 export warm_start_opt={warm_start_opt}
 

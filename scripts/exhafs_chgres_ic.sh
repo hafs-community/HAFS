@@ -38,7 +38,11 @@ OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
 DATA=${DATA:-${WORKhafs}/chgres_ic}
 mkdir -p ${OUTDIR} ${DATA}
 
-GRID_intercom=${WORKhafs}/intercom/grid
+if [ ${ENSDA} = YES ]; then
+  GRID_intercom=${WORKhafs}/intercom/grid_ens
+else
+  GRID_intercom=${WORKhafs}/intercom/grid
+fi
 FIXDIR=${DATA}/grid
 FIXCASE=${DATA}/grid/${CASE}
 mkdir -p $DATA ${FIXDIR} ${FIXCASE}
@@ -52,8 +56,8 @@ FHR3="000"
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
 # Note: currently, generating IC from grib2 file is not supported yet.
 if [ $ictype = "gfsnemsio" ]; then
- if [ "${HAFS_ENS}" = YES ]; then
-  atm_files_input_grid=gdas.t${cyc}z.ratmanl.nemsio
+ if [ ${ENSDA} = YES ]; then
+  atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nemsio
   sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nemsio
  else
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
@@ -132,9 +136,9 @@ if [ $input_type = "grib2" ]; then
   fi
   INPDIR="./"
 else
-  if [ ${HAFS_ENS} = YES ]; then
+  if [ ${ENSDA} = YES ]; then
    ln -sf ${INIDIR}/${atm_files_input_grid} ./
-   ln -sf ${INIDIR_PRIOR}/${sfc_files_input_grid} ./
+   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"
   else
    INPDIR=${INIDIR}

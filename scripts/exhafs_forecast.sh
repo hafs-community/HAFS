@@ -88,13 +88,13 @@ fi
 #if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warm_start_opt=4
- if [ "${HAFS_ENS}" = YES ]; then 
-  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+ if [ ${ENSDA} = YES ]; then
+  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
    export warmstart_from_restart=yes
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   else
    export warmstart_from_restart=no
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   fi
  else
   export warmstart_from_restart=yes
@@ -104,13 +104,13 @@ fi
 
 #if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
- if [ "${HAFS_ENS}" = YES ]; then
-  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+ if [ ${ENSDA} = YES ]; then
+  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
    export warmstart_from_restart=yes
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   else
    export warmstart_from_restart=no
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/member${FC_ENSID}
+   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   fi
  else
   export warmstart_from_restart=yes
@@ -211,13 +211,13 @@ ln -sf ${INPdir}/*.nc INPUT/
 #cp ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
 
-if [ "${HAFS_ENS}" = YES ]; then
- if [ -s  ${COMhafs}/RESTART_ENS ]; then
-  echo " ${COMhafs}/RESTART_ENS dir already exist"
+if [ ${ENSDA} = YES ]; then
+ if [ -s  ${COMhafs}/RESTART_ens ]; then
+  echo " ${COMhafs}/RESTART_ens dir already exist"
  else
-  mkdir ${COMhafs}/RESTART_ENS
+  mkdir ${COMhafs}/RESTART_ens
  fi
-  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ENS/member${FC_ENSID}}
+  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
   mkdir -p ${RESTARTout}
   ln -sf ${RESTARTout} RESTART
 else
@@ -227,15 +227,15 @@ else
 fi
 
 # Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
-if [ "${HAFS_ENS}" = YES ]; then
- if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/grid_spec.nc ]; then
-  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/grid_spec.nc RESTART/
+if [ ${ENSDA} = YES ]; then
+ if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc RESTART/
  fi
- if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/atmos_static.nc ]; then
-  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/atmos_static.nc RESTART/
+ if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc RESTART/
  fi
- if [ -s ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/oro_data.nc ]; then
-  cp -p ${COMhafsprior}/RESTART_ENS/member${FC_ENSID}/oro_data.nc RESTART/
+ if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc ]; then
+  cp -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc RESTART/
  fi
 else
  if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then

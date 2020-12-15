@@ -28,6 +28,8 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 intercom=${intercom:-${WORKhafs}/intercom/post}
 SENDCOM=${SENDCOM:-YES}
 
+COMOUTpost=${COMOUTpost:-${COMhafs}}
+
 output_grid=${output_grid:-rotated_latlon}
 synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
@@ -64,12 +66,13 @@ atcfdescr=storm
 hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
 hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
 
+
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMhafs}/${synop_grb2file} ] && [ -s ${COMhafs}/${synop_grb2indx} ] ; then
+if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMOUTpost}/${synop_grb2file} ] && [ -s ${COMOUTpost}/${synop_grb2indx} ] ; then
 
 echo "post message ${INPdir}/postf${FHR3} exist"
-echo "product ${COMhafs}/${synop_grb2file} exist"
-echo "product ${COMhafs}/${synop_grb2indx} exist"
+echo "product ${COMOUTpost}/${synop_grb2file} exist"
+echo "product ${COMOUTpost}/${synop_grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
 
 # Otherwise run post for this forecast hour
@@ -216,47 +219,17 @@ ${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist}" -grib ${hafstrk_grb2f
 # Generate the index file for the tracker
 ${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
 
-# Deliver to COMhafs
+# Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
- if [ "${HAFS_ENS}" = YES ]; then
-  mkdir -p ${COMhafs}/post_ens
-  mkdir -p ${COMhafs}/post_ens/member${POST_ENSID}
-  mv ${synop_grb2file} ${COMhafs}/post_ens/member${POST_ENSID}/
-  mv ${synop_grb2indx} ${COMhafs}/post_ens/member${POST_ENSID}/
- else
-  mv ${synop_grb2file} ${COMhafs}/
-  mv ${synop_grb2indx} ${COMhafs}/
- fi
-fi
-
-# Check if the products are missing
-if [ ! -s ${COMhafs}/${synop_grb2file} ]; then
-  echo "ERROR: product ${COMhafs}/${synop_grb2file} not exist"
-  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
-  exit 1
-fi
-if [ ! -s ${COMhafs}/${synop_grb2indx} ] ; then
-  echo "ERROR: product ${COMhafs}/${synop_grb2indx} not exist"
-  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
-  exit 1
+  mkdir -p ${COMOUTpost}
+  mv ${synop_grb2file} ${COMOUTpost}/
+  mv ${synop_grb2indx} ${COMOUTpost}/
 fi
 
 # Deliver to intercom
 mkdir -p ${intercom}
 mv ${hafstrk_grb2file} ${intercom}/
 mv ${hafstrk_grb2indx} ${intercom}/
-
-# Check if the products are missing
-if [ ! -s ${intercom}/${hafstrk_grb2file} ]; then
-  echo "ERROR: intercom product ${intercom}/${hafstrk_grb2file} not exist"
-  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
-  exit 1
-fi
-if [ ! -s ${intercom}/${hafstrk_grb2indx} ] ; then
-  echo "ERROR: intercom product ${intercom}/${hafstrk_grb2indx} not exist"
-  echo "ERROR: post for hour ${FHR3} valid at ${NEWDATE} exitting"
-  exit 1
-fi
 
 # Write out the postdone message file
 echo 'done' > ${INPdir}/postf${FHR3}
