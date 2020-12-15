@@ -1462,18 +1462,26 @@ class HAFSLauncher(HAFSConfig):
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
 
-        gsi_flag=self.getbool('config','run_gsi')
-        self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
-
         gsi_vr_flag=self.getbool('config','run_gsi_vr')
         self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
 
-################## OU added for hafs ens #################
-        hafs_ens_flag=self.getbool('config','run_hafs_ens')
-        self.set('holdvars','cap_run_hafs_ens',('YES' if hafs_ens_flag else 'NO'))
-        fgat_flag=self.getbool('config','run_gsi_fgat')
-        self.set('holdvars','cap_run_gsi_fgat',('YES' if fgat_flag else 'NO'))
-################## OU added for hafs ens #################
+        gsi_vr_fgat_flag=self.getbool('config','run_gsi_vr_fgat')
+        self.set('holdvars','cap_run_gsi_vr_fgat',('YES' if gsi_vr_fgat_flag else 'NO'))
+
+        gsi_vr_ens_flag=self.getbool('config','run_gsi_vr_ens')
+        self.set('holdvars','cap_run_gsi_vr_ens',('YES' if gsi_vr_ens_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','run_gsi')
+        self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+
+        fgat_flag=self.getbool('config','run_fgat')
+        self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
+
+        envar_flag=self.getbool('config','run_envar')
+        self.set('holdvars','cap_run_envar',('YES' if envar_flag else 'NO'))
+
+        ensda_flag=self.getbool('config','run_ensda')
+        self.set('holdvars','cap_run_ensda',('YES' if ensda_flag else 'NO'))
 
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',

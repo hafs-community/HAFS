@@ -24,9 +24,9 @@ date
 #PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
-HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-dev="-s sites/hera.ent -f"
-PYTHON3=/apps/intel/intelpython3/bin/python3
+ HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+ dev="-s sites/hera.ent -f"
+ PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
@@ -35,65 +35,99 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
 
+# Cold-start from GFS analysis without DA
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_noda_C96s1n4_320x312 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96s1n4_regional_noda \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# Warm-start from prior HAFS forecast without DA
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_noda_cycling_C96s1n4_320x312 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_noda_cycling \
      config.warm_start_opt=2 \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# Simple 3DVar DA
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3dvar_C96s1n4_320x312 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_3dvar \
      config.run_gsi=yes config.run_envar=no \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# 3DEnVar with GDAS ensembles
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_C96s1n4_320x312 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_3denvar \
      config.run_gsi=yes config.run_envar=yes \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# GSI-based Vortex Relocation (GSIVR) + 3DEnVar with GDAS ensembles
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_gsivr_3denvar_C96s1n4_320x312 \
-     config.run_gsi_vr=yes \
-     config.run_gsi=yes config.run_envar=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_gsivr_3denvar \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=no config.run_envar=yes \
+     config.run_ensda=no config.ENS_SIZE=0 \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# 3DEnVar with GDAS ensembles + 3hourly FGAT
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_gdas_fgat \
-     config.run_gsi=yes config.run_envar=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_3denvar_fgat \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=no config.ENS_SIZE=0 \
      config.NHRS=12 ${scrubopt} \
-     config.run_gsi_fgat=yes \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# 3DEnVar with HAFS ensembles
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens \
-     config.run_gsi=yes config.run_envar=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_3densda \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=no config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 \
+     config.warm_start_opt=5 \
      config.NHRS=12 ${scrubopt} \
-     config.run_fgat=no config.ENS_SIZE=4 \
-     config.run_gsi_vr=no config.warm_start_opt=5 config.run_ensda=yes \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# 3DEnVar with HAFS ensembles + 3hourly FGAT
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens_fgat \
-     config.run_gsi=yes config.run_envar=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_3densda_fgat \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 \
+     config.warm_start_opt=5 \
      config.NHRS=12 ${scrubopt} \
-     config.run_fgat=yes config.ENS_SIZE=4 \
-     config.run_gsi_vr=no config.warm_start_opt=5 config.run_ensda=yes \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+# GSIVR + 3DEnVar with HAFS ensembles + 3hourly FGAT
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_3denvar_hafsens_fgatvr \
-     config.run_gsi=yes config.run_envar=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_gsivr_3densda_fgat \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 \
+     config.warm_start_opt=5 \
      config.NHRS=12 ${scrubopt} \
-     config.run_gsi_vr=yes config.run_fgat=yes \
-     config.warm_start_opt=5 config.ENS_SIZE=4 config.run_ensda=yes \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+# GSIVR + GSIVR_FGAT + 3DEnVar with HAFS ensembles + 3hourly FGAT
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_gsivrfgat_3densda_fgat \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 \
+     config.warm_start_opt=5 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf
+
+# GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with HAFS ensembles + 3hourly FGAT
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_gsivrfgatens_3densda_fgat \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 \
+     config.warm_start_opt=5 \
+     config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
 #===============================================================================
