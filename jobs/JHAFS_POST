@@ -83,6 +83,15 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
+  if [ "$machine" = wcoss_cray ]; then
+    module unload zlib-intel-haswell/1.2.7
+    module unload g2-intel/2.5.0
+    module unload w3nco-intel/2.0.6
+    module unload bacio-intel/2.0.1
+    module unload sp-intel/2.0.2
+    module unload w3emc-intel/2.2.0
+    module unload nemsio-intel/2.2.2
+  fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list

@@ -96,7 +96,9 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
-  source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  #source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
   module list
 fi
 

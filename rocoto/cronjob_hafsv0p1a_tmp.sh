@@ -34,27 +34,34 @@ EXPT=$(basename ${HOMEhafs})
 scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
-# hafs.v0.1a NATL
+# hafs.v0.1a near real-time parallel for 2020 NATL storms
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p1acpl_202007 \
+           config.run_hrdgraphics=yes \
+           config.run_emcgraphics=yes \
+           ../parm/hafsv0p1aL91_AL.conf \
+           ../parm/hafs_hycom.conf"
+# Add this option if pgrb2b GFS BC files do not exist
+#          config.bctype=gfsgrib2_0p25 \
 
-# NATL00L2019 block# 1-1
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019082406-2019082818 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_l75 \
-#    ../parm/hafsv0p1a_al.conf
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082400 00L HISTORY ${confopts}
 
-# NATL00L2019 block# 1-2
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019091006 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_l75 \
-#    ../parm/hafsv0p1a_al.conf
+#===============================================================================
+# hafs.v0.1a near real-time parallel for 2020 EPAC storms
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p1acpl_202007 \
+           config.run_hrdgraphics=no \
+           config.run_emcgraphics=yes \
+           ../parm/hafsv0p1aL91_EP.conf \
+           ../parm/hafs_hycom.conf"
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020072812 00E HISTORY ${confopts}
 
-# NATL00L2019 block# 2-1
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019091212-2019092106 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_l75 \
-#    ../parm/hafsv0p1a_al.conf
-
-# NATL00L2019 block# 2-2
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019092112-2019100206 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_l75 \
-#    ../parm/hafsv0p1a_al.conf
+#===============================================================================
+# hafs.v0.1a near real-time parallel for 2020 WPAC storms
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p1acpl_202007 \
+           config.run_hrdgraphics=no \
+           config.run_emcgraphics=yes \
+           ../parm/hafsv0p1aL91_WP.conf \
+           ../parm/hafs_hycom.conf"
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020081100 00W HISTORY ${confopts}
 
 #===============================================================================
 

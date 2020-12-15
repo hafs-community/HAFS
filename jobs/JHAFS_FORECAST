@@ -113,6 +113,17 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
+  if [ "$machine" = wcoss_cray ]; then
+    module unload zlib-intel-haswell/1.2.7
+  fi
+  if [ "$machine" = jet ]; then
+    module unload esmf/8.0.0
+    module unload hdf5/1.10.4
+    module unload netcdf/4.6.1
+    module unload z/v1.2.6
+    module unload png/v1.2.44
+    module unload jasper/v1.900.1
+  fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
   module load fv3
   module list
