@@ -37,7 +37,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 # Cold-start from GFS analysis without DA
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96s1n4_regional_noda \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_regional_C96s1n4_noda \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
