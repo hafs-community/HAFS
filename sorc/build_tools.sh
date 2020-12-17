@@ -134,9 +134,24 @@ cd ${TOOLS_PATH}/libsrc
 export TOOLS_INC=${TOOLS_PATH}/include
 export TOOLS_INCLUDE="-I${TOOLS_PATH}/include"
 export TOOLS_LIBDIR=${TOOLS_PATH}/lib
-cd ${TOOLS_PATH}/sorc
-make clean
-make
+#cd ${TOOLS_PATH}/sorc
+#make clean
+#make
+
+if [ -d "${TOOLS_PATH}/build" ]; then
+  rm -rf ${TOOLS_PATH}/build
+fi
+mkdir ${TOOLS_PATH}/build
+cd ${TOOLS_PATH}/build
+if [ $target = wcoss_cray ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+else
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+fi
+#make -j 8 
+make -j 8 VERBOSE=1
+make install
+
 
 cd ${TOOLS_PATH}/sorc
 
