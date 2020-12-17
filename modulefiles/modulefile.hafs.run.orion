@@ -20,6 +20,7 @@ module use /apps/contrib/NCEPLIBS/orion/modulefiles
 #module load netcdf_parallel/4.7.5
 
 module load jasper/1.900.2
+setenv Jasper_ROOT "/apps/jasper-1.900.1"
 module load png/1.2.44
 module load z/1.2.6
 module load g2/3.1.1
