@@ -121,7 +121,7 @@ ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
-if [ ${RUN_ENVAR}= "YES" ]; then
+if [ ${RUN_ENVAR} = "YES" ]; then
 
 export L_HYB_ENS=.true.
 if [ ${RUN_ENSDA} = "YES" ]; then
