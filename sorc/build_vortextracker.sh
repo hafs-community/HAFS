@@ -127,8 +127,25 @@ elif [ $target = orion ]; then
 fi
 
 cd hafs_vortextracker.fd
-   make clean
-   make FC=${FC} F90=${F90} CC=${CC} -f Makefile
+if [ -d "build" ]; then
+   rm -rf build
+fi
+mkdir build
+cd build
+if [ $target = hera ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
+elif [ $target = orion ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
+elif [ $target = wcoss_cray ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+else
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+fi
+make -j 8 VERBOSE=1
+make install
+
+#   make clean
+#   make FC=${FC} F90=${F90} CC=${CC} -f Makefile
 #  make install
 
 cd ../
