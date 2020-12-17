@@ -14,7 +14,9 @@ module load szip/2.1.1
 #module load netcdf/4.7.2
 
 module use /apps/contrib/NCEPLIBS/orion/modulefiles
-
+module load cmake/3.15.4
+setenv Jasper_ROOT "/apps/jasper-1.900.1"
+setenv LIBRARY_PATH "/apps/jasper-1.900.1/lib"
 #module load hdf5/1.10.1
 #module load netcdf/4.5.0
 #module load hdf5_parallel/1.12.0
