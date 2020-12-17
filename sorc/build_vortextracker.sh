@@ -33,6 +33,8 @@ elif [ $target = hera ]; then
     export FC=ifort
     export F90=ifort
     export CC=icc
+    export hwrf_g2_inc=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hwrf-utilities/libs/mods/g2
+    export hwrf_g2_lib=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hwrf-utilities/libs/libg2.a
 
 elif [ $target = orion ]; then
 
@@ -45,6 +47,8 @@ elif [ $target = orion ]; then
     export FC=ifort
     export F90=ifort
     export CC=icc
+    export hwrf_g2_inc=/work/noaa/hwrf/noscrub/bthomas/H220/sorc/hwrf-utilities/libs/mods/g2
+    export hwrf_g2_lib=/work/noaa/hwrf/noscrub/bthomas/H220/sorc/hwrf-utilities/libs/libg2.a
 
 elif [ $target = jet ]; then
 
