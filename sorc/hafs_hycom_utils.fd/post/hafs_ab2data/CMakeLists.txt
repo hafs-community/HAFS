@@ -74,23 +74,23 @@ target_link_libraries(
   ${exe_name1}
   ${ilib_dir}/ofs_mods/libofs_mods.a
   NetCDF::NetCDF_Fortran
-  w3nco_4
-  w3emc_4
-  bacio_4)
+  w3nco::w3nco_4
+  w3emc::w3emc_4
+  bacio::bacio_4)
 target_link_libraries(
   ${exe_name2}
   ${ilib_dir}/ofs_mods/libofs_mods.a
   NetCDF::NetCDF_Fortran
-  w3nco_4
-  w3emc_4
-  bacio_4)
+  w3nco::w3nco_4
+  w3emc::w3emc_4
+  bacio::bacio_4)
 target_link_libraries(
   ${exe_name3}
   ${ilib_dir}/ofs_mods/libofs_mods.a
   NetCDF::NetCDF_Fortran
-  w3nco_4
-  w3emc_4
-  bacio_4)
+  w3nco::w3nco_4
+  w3emc::w3emc_4
+  bacio::bacio_4)
 
 
 install(TARGETS ${exe_name1} DESTINATION ${exe_dir})

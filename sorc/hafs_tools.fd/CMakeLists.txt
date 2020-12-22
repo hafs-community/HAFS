@@ -21,9 +21,8 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
 endif()
 
 find_package(NetCDF REQUIRED C Fortran)
-#find_package(HDF5 REQUIRED)
+find_package(HDF5 REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(BUFR REQUIRED)
 find_package(MPI REQUIRED) 
 
 add_subdirectory(sorc/obs_to_bufr)

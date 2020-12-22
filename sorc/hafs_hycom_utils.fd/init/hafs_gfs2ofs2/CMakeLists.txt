@@ -35,13 +35,10 @@ target_include_directories(
 target_link_libraries(
   ${exe_name}
   ${ilib_dir}/ofs_mods/libofs_mods.a
-  w3nco_4
-  bacio_4
-  g2_4
-  w3emc_4
-  ${JASPER_LIBRARIES}
-  ${PNG_LIBRARIES}
-  z
+  w3nco::w3nco_4
+  bacio::bacio_4
+  g2::g2_4
+  w3emc::w3emc_4
   MPI::MPI_Fortran)
 
 install(TARGETS ${exe_name} DESTINATION ${exe_dir})

@@ -35,6 +35,7 @@ target_link_libraries(
   ${ilib_dir}/libslatec.a
   ${ilib_dir}/libsondelib.a
   ${ilib_dir}/libspline.a
+  $ENV{BUFR_LIBd}
   NetCDF::NetCDF_Fortran)
   
 install(TARGETS ${exe_name} DESTINATION ${exec_dir})

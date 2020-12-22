@@ -40,6 +40,6 @@ target_link_libraries(
   ${ilib_dir}/libslint.a
   ${ilib_dir}/libspline.a
   NetCDF::NetCDF_Fortran
-  ${BUFR_LIBRARY})
+  $ENV{BUFR_LIBd})
 
 install(TARGETS ${exe_name} DESTINATION ${exec_dir})

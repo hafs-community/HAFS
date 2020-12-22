@@ -92,6 +92,35 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload w3emc-intel/2.2.0
     module unload nemsio-intel/2.2.2
   fi
+  if [ "$machine" = orion ]; then
+    module unload hpc/1.0.0-beta1
+    module unload hpc-intel/2018.4
+    module unload hpc-impi/2018.4
+    module unload hdf5/1.10.6
+    module unload netcdf/4.7.4
+    module unload jasper/2.0.15
+    module unload zlib/1.2.11
+    module unload png/1.6.35
+    module unload g2/3.4.1
+    module unload g2tmpl/1.9.1
+    module unload w3emc/2.7.3
+    module unload w3nco/2.4.1
+    module unload sp/2.3.3
+    module unload ip/3.3.3
+    module unload bufr/11.4.0
+    module unload bacio/2.4.1
+    module unload sigio/2.3.2
+    module unload sfcio/1.4.1
+    module unload gfsio/1.4.1
+    module unload nemsio/2.5.2
+    module unload nemsiogfs/2.5.3
+    module unload landsfcutil/2.4.1
+    module unload crtm/2.3.0
+    module unload prod_util/1.2.1
+    module unload grib_util/1.2.1
+    module unload hdf5/1.10.5-parallel
+    module unload netcdf/4.7.2-parallel
+  fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}
   module list
