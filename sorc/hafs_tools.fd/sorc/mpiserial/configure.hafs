@@ -44,9 +44,9 @@ FPPFLAGS       =  $(CPPFLAGS) -traditional-cpp
 FPP	       = /lib/cpp -P -traditional-cpp
 ARFLAGS        =  -ruv
 
-DM_FC          =  mpif90 -f90=ifort
-DM_F90         =  mpif90 -free -f90=ifort
-DM_CC          =  mpicc -cc=icc
+DM_FC         ?=  mpif90 -f90=ifort
+DM_F90        ?=  mpif90 -free -f90=ifort
+DM_CC         ?=  mpicc -cc=icc
 
 FC             =  $(DM_FC)
 F90            =  $(DM_F90)

@@ -36,7 +36,7 @@ OCN_attributes::
   base_dtg = _base_dtg_
   merge_import = _merge_import_
   skip_first_import = .true.
-  hycom_arche_output = .true.
+  hycom_arche_output = .false.
   hyc_esmf_exp_output = .true.
   hyc_esmf_imp_output = .true.
   hyc_impexp_file = dummy_file

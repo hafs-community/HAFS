@@ -372,9 +372,9 @@ cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
 # copy fd_nems.yaml
 if [ ${run_datm} = no ];  then
-  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_nems.yaml ./ 
+  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
 else
-  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS/mediator/fd_cdeps.yaml fd.yaml
+  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_cdeps.yaml fd.yaml
 fi
 
 # create hycom limits

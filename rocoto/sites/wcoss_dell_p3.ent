@@ -56,6 +56,7 @@
 
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x10_40x30io3x40_omp2 "<nodes>90:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1800</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!ENTITY FORECAST_RESOURCES_globnest_6x8x10_40x30io3x48_omp2 "<nodes>152:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1824</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_48x32io3x36_omp2 "<nodes>169:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2028</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_48x32io3x48_omp2 "<nodes>172:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2064</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_48x32io3x72_omp2 "<nodes>178:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2136</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
