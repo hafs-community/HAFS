@@ -35,9 +35,6 @@ else
 fi
 export NTRAC=7            # output all gfdl mp tracers
 
-export NOUTHRS=${NOUTHRS:-3}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
-
 ####################################
 # Specify Execution Areas
 ####################################
@@ -51,23 +48,17 @@ export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+export FIXam=${FIXhafs}/fix_am
+export FIXfv3=${FIXhafs}/fix_fv3
 
-export GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
-export TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
-export VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
-export SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
+export FIXnew=${FIXhafs}/fix
+export CO2DIR=${FIXam}/fix_co2_proj
+
+export GSIEXEC=${EXEChafs}/hafs_gsi.x
+export ENKFEXEC=${EXEChafs}/hafs_enkf.x
 
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
-#export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
-export WGRIB2=${WGRIB2:-/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9}
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
-export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
 
 ####################################
 # Load Modules if Needed
@@ -76,8 +67,12 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-  #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.run.${machine}
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.run.${machine}
+  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+  #module load modulefile.ProdGSI.${machine}
+  source $HOMEhafs/sorc/hafs_gsi.fd/modulefiles/modulefile.ProdGSI.${machine}
+  #env
   module list
 fi
 
@@ -98,31 +93,20 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-if [ ${ENSDA} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
-  export INPdir=${INPdir:-${WORKhafs}/intercom/post_ens/mem${ENSID}}
-  export DATA=${WORKhafs}/product_ens/mem${ENSID}
-  export COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
-else
-  export INPdir=${INPdir:-${WORKhafs}/intercom/post}
-  export DATA=${WORKhafs}/product
-  export COMOUTproduct=${COMhafs}
-fi
+export DATA=${WORKhafs}/enkf_recenter
 
-export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
 
-mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
 #####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_product.sh
+${HOMEhafs}/scripts/exhafs_enkf.sh
 export err=$?
 #####################################
 

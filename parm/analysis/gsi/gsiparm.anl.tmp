@@ -1,6 +1,6 @@
 &SETUP
-  miter=2,
-  niter(1)=50,niter(2)=50,
+  miter=_MITER_,
+  niter(1)=_NITER_,niter(2)=_NITER_,
   niter_no_qc(1)=20,niter_no_qc(2)=0,
   write_diag(1)=.true.,write_diag(2)=.false.,write_diag(3)=.true.,
   qoption=2,
@@ -16,7 +16,7 @@
   print_diag_pcg=.true.,
   use_gfs_ozone=.false.,
   lrun_subdirs=.true.,
-  netcdf_diag=.true.,binary_diag=.false.,
+  netcdf_diag=_NETCDF_DIAG_,binary_diag=_BINARY_DIAG_,
   newpc4pred=.true., adp_anglebc=.true., angord=4,
   passive_bc=.true., use_edges=.false., emiss_bc=.true.,
   diag_precon=.true., step_start=1.e-3, upd_pred(1)=0,
@@ -24,6 +24,10 @@
   upd_pred(5)=0,upd_pred(6)=0,upd_pred(7)=0,
   upd_pred(8)=0,upd_pred(9)=0,upd_pred(10)=0,
   upd_pred(11)=0,upd_pred(12)=0,
+  lread_obs_save=_LREAD_OBS_SAVE_,
+  lread_obs_skip=_LREAD_OBS_SKIP_,
+  ens_nstarthr=_ENS_NSTARTHR_,
+  lwrite_predterms=._LWRITE_PREDTERMS_.,lwrite_peakwt=_LWRITE_PEAKWT_,reduce_diag=_REDUCE_DIAG_,
 /
 &GRIDOPTS
   fv3_regional=.true.,

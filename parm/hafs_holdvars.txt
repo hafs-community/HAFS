@@ -15,6 +15,7 @@ export RUN_GSI={RUN_GSI}
 export RUN_FGAT={RUN_FGAT}
 export RUN_ENVAR={RUN_ENVAR}
 export RUN_ENSDA={RUN_ENSDA}
+export RUN_ENKF={RUN_ENKF}
 export GSID01={GSID01}
 export GSID02={GSID02}
 export GSID03={GSID03}

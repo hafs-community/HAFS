@@ -46,6 +46,8 @@ module load grib_util/1.2.0
 module load wgrib/2.0.8
 setenv WGRIB2 /apps/wgrib-2.0.8/wgrib2/wgrib2
 
+module load nco/4.8.1
+
 #module use /apps/contrib/NCEPLIBS/lib/modulefiles
 #module load esmflocal/8.0.0.para
 #module use -a /apps/contrib/NCEPLIBS/lib/modulefiles
