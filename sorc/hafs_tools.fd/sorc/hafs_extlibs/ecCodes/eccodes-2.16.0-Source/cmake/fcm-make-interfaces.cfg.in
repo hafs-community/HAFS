@@ -1,0 +1,39 @@
+# (C) Copyright 2011- ECMWF.
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+# In applying this licence, ECMWF does not waive the privileges and immunities
+# granted to it by virtue of its status as an intergovernmental organisation
+# nor does it submit to any jurisdiction.
+
+# FCM configuration file used to auto-generate interface files
+# for F77 and F90 files.
+# Interface files will have the extention "@P_SUFFIX@"
+# Results will be in a directory "interfaces/include" relative to cwd
+
+# Usage: fcm make --config-file=<path -to-this-file> \
+#                 interfaces.ns-incl="<space-sep-list-of-dirs>"
+
+$SRC{?}  = $HERE
+
+step.class[interfaces] = build
+steps  = interfaces
+
+interfaces.target{task}     = ext-iface
+interfaces.target{category} = include
+
+interfaces.source = $SRC
+
+# Exclude all
+interfaces.ns-excl = /
+
+# Include some
+# interfaces.ns-incl = <list of dirs passed at command-line>
+
+# Extention of interface files
+interfaces.prop{file-ext.f90-interface} = @P_SUFFIX@
+
+# Do not follow includes
+interfaces.prop{no-dep.f.module} = *
+interfaces.prop{no-dep.include} = *
+

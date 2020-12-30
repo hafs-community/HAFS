@@ -1,0 +1,455 @@
+#!/bin/bash --noprofile
+
+# (C) Copyright 2011- ECMWF.
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+# In applying this licence, ECMWF does not waive the privileges and immunities
+# granted to it by virtue of its status as an intergovernmental organisation nor
+# does it submit to any jurisdiction.
+
+set -eua
+
+CMAKE_MIN_REQUIRED=3.6
+CMAKE_BUILD_VERSION=3.14.4
+
+usage()
+{
+  echo "Usage: ecbuild [--help] [--version]"
+  exit $1
+}
+
+help()
+{
+    cat <<EOF
+USAGE:
+
+  ecbuild [--help] [--version] [--toolchains]
+  ecbuild [option...] [--] [cmake-argument...] <path-to-source>
+  ecbuild [option...] [--] [cmake-argument...] <path-to-existing-build>
+
+DESCRIPTION:
+
+  ecbuild is a build system based on CMake, but providing a lot of macro's
+  to make it easier to work with. Upon execution,
+  the equivalent cmake command is printed.
+
+  ecbuild/cmake must be called from an out-of-source build directory and
+  forbids in-source builds.
+
+SYNOPSIS:
+
+    --help         Display this help
+    --version      Display ecbuild version
+    --toolchains   Display list of pre-installed toolchains (see below)
+
+
+Available values for "option":
+
+    --cmakebin=<path>
+          Set which cmake binary to use. Default is 'cmake'
+
+    --prefix=<prefix>
+          Set the install path to <prefix>.
+          Equivalent to cmake argument "-DCMAKE_INSTALL_PREFIX=<prefix>"
+
+    --build=<build-type>
+          Set the build-type to <build-type>.
+          Equivalent to cmake argument "-DCMAKE_BUILD_TYPE=<build-type>"
+          <build-type> can be any of:
+             - debug : Lowest optimization level, useful for debugging
+             - release : Highest optimization level, for best performance
+             - bit : Highest optimization level while staying bit-reproducible
+             - ...others depending on project
+
+    --log=<log-level>
+          Set the ecbuild log-level
+          Equivalent to "-DECBUILD_LOG_LEVEL=<log-level>"
+          <log-level> can be any of:
+             - DEBUG
+             - INFO
+             - WARN
+             - ERROR
+             - CRITICAL
+             - OFF
+          Every choice outputs also the log-levels listed below itself
+
+    --static
+          Build static libraries.
+          Equivalent to "-DBUILD_SHARED_LIBS=OFF"
+
+    --dynamic, --shared
+          Build dynamic libraries (usually the default).
+          Equivalent to "-DBUILD_SHARED_LIBS=ON"
+
+    --config=<config>
+          Configuration file using CMake syntax that gets included
+          Equivalent to cmake argument "-DECBUILD_CONFIG=<config-file>"
+
+    --toolchain=<toolchain>
+          Use a platform specific toolchain, containing settings such
+          as compilation flags, locations of commonly used dependencies.
+          <toolchain> can be the path to a custom toolchain file, or a
+          pre-installed toolchain provided with ecbuild. For a list of
+          pre-installed toolchains, run "ecbuild --toolchains".
+          Equivalent to cmake argument "-DCMAKE_TOOLCHAIN_FILE=<toolchain-file>"
+
+    --cache=<ecbuild-cache-file>    (advanced)
+          A file called "ecbuild-cache.cmake" is generated during configuration.
+          This file can be moved to a safe location, and specified for future
+          builds to speed up checking of compiler/platform capabilities. Note
+          that this is only accelerating fresh builds, as cmake internally
+          caches also. Therefore this option is *not* recommended.
+
+    --build-cmake[=<prefix>]
+          Automatically download and build CMake version $CMAKE_BUILD_VERSION.
+          Requires an internet connection and may take a while. If no prefix
+          is given, install into $PWD.
+
+    --dryrun
+          Don't actually execute the cmake call, just print what would have
+          been executed.
+
+
+Available values for "cmake-argument":
+
+    Any value that can be usually passed to cmake to (re)configure the build.
+    Typically these values start with "-D".
+        example:  -DENABLE_TESTS=ON  -DENABLE_MPI=OFF  -DECKIT_PATH=...
+
+    They can be explicitly separated from [option...] with a "--", for the case
+    there is a conflicting option with the "cmake" executable, and the latter's
+    option is requested.
+
+------------------------------------------------------------------------
+
+NOTE: When reconfiguring a build, it is only necessary to change the relevant
+options, as everything stays cached. For example:
+  > ecbuild --prefix=PREFIX .
+  > ecbuild -DENABLE_TESTS=ON .
+
+------------------------------------------------------------------------
+
+Compiling:
+
+  To compile the project with <N> threads:
+    > make -j<N>
+
+  To get verbose compilation/linking output:
+    > make VERBOSE=1
+
+Testing:
+
+  To run the project's tests
+    > ctest
+
+  Also check the ctest manual/help for more options on running tests
+
+Installing:
+
+  To install the project in location PREFIX with
+       "--prefix=PREFIX" or
+       "-DCMAKE_INSTALL_PREFIX=PREFIX"
+    > make install
+
+------------------------------------------------------------------------
+ECMWF"
+
+EOF
+    exit $1
+}
+
+INSTALL_DIR="$( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd -P )"
+ECBUILD_MODULE_PATH=""
+# If there is a directory share/ecbuild/cmake relative to the parent directory
+# (as in an install tree), add it to CMAKE_MODULE_PATH
+if [ -d $INSTALL_DIR/../share/ecbuild/cmake ]; then
+  ECBUILD_MODULE_PATH="$( cd "$INSTALL_DIR/../share/ecbuild/cmake" && pwd -P )"
+# If there is a cmake subdirectory relative to the script directory (as in a
+# tarball), add it to CMAKE_MODULE_PATH
+elif [ -d $INSTALL_DIR/../cmake ]; then
+  ECBUILD_MODULE_PATH="$( cd "$INSTALL_DIR/../cmake" && pwd -P )"
+fi
+
+# Fail if we couldn't find ecBuild modules
+if [ ! -f "$ECBUILD_MODULE_PATH/ecbuild_system.cmake" ]; then
+  echo "FATAL: ecBuild modules could not be found in either $INSTALL_DIR/../share/ecbuild/cmake or $INSTALL_DIR/../cmake" >&2
+  exit 1
+fi
+
+ADD_ECBUILD_OPTIONS="-DCMAKE_MODULE_PATH=$ECBUILD_MODULE_PATH"
+
+if [ -d $INSTALL_DIR/../share/ecbuild/toolchains ]; then
+  ECBUILD_TOOLCHAIN_DIR="$( cd "$INSTALL_DIR/../share/ecbuild/toolchains" && pwd -P )"
+elif [ -d $INSTALL_DIR/share/ecbuild/toolchains ]; then
+  ECBUILD_TOOLCHAIN_DIR="$( cd "$INSTALL_DIR/share/ecbuild/toolchains" && pwd -P )"
+fi
+
+version()
+{
+  ecbuild_version=$(cat ${ECBUILD_MODULE_PATH}/VERSION)
+  echo "ecbuild version ${ecbuild_version}"
+  command -v cmake >/dev/null 2>&1 || { exit 0; }
+  cmake --version | head -1
+  exit 0
+}
+
+log()
+{
+  log_level=$(tr "[a-z]" "[A-Z]" <<< "$1")
+  ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DECBUILD_LOG_LEVEL=${log_level}"
+}
+
+toolchains()
+{
+  if [ -d $ECBUILD_TOOLCHAIN_DIR ]; then
+    cd $ECBUILD_TOOLCHAIN_DIR
+    echo "Available toolchains:"
+    ls | while read fname
+    do
+        echo "  - ${fname%%.*}"
+    done
+    exit 0
+  else
+    echo "No toolchains available."
+    exit 1
+  fi
+}
+
+prefix()
+{
+  ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DCMAKE_INSTALL_PREFIX=${1/#\~\//$HOME/}"
+}
+
+config()
+{
+  arg=${1/#\~\//$HOME/}
+  if [ -f $arg ]; then
+    config_file=$arg
+    config_file="$( cd $( dirname "${config_file}" ) && pwd -P )/$( basename ${config_file} )"
+  else
+    echo "Error:"
+    echo "   Config file [$arg] is not found or is not a file."
+    exit 1
+  fi
+  ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DECBUILD_CONFIG=${config_file}"
+}
+
+toolchain()
+{
+  arg=${1/#\~\//$HOME/}
+  if [ -f $arg ]; then
+    toolchain_file=$arg
+  else
+    if [ -f $ECBUILD_TOOLCHAIN_DIR/$arg.cmake ]; then
+      toolchain_file=$ECBUILD_TOOLCHAIN_DIR/$arg.cmake
+    fi
+  fi
+  if [ -z ${toolchain_file+x} ]; then
+    echo "Error:"
+    echo "   Toolchain [$arg] is not valid: [$arg.cmake] cannot be"
+    echo "   found in [$ECBUILD_TOOLCHAIN_DIR]"
+    exit 1
+  else
+    ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${toolchain_file}"
+  fi
+}
+
+cache()
+{
+  arg=$1
+  if [ -f $arg ]; then
+    cache_file=$arg
+    cache_file="$( cd $( dirname "${cache_file}" ) && pwd -P )/$( basename ${cache_file} )"
+  else
+    echo "Error:"
+    echo "   Cache file [$arg] is not found or is not a file."
+    exit 1
+  fi
+  ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DECBUILD_CACHE=${cache_file}"
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+while test $# -gt 0; do
+
+    # Split --option=value in $opt="--option" and $val="value"
+
+    opt=""
+    val=""
+
+    case "$1" in
+    --*=*)
+      opt=`echo "$1" | sed 's/=.*//'`
+      val=`echo "$1" | sed 's/--[_a-zA-Z0-9-]*=//'`
+      ;;
+    --*)
+      opt=$1
+      ;;
+    # -D*)
+    #   ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS $1"
+    #   ;;
+    *)
+      break
+      ;;
+    esac
+
+    # echo "debug opt: $opt $val"
+
+    # Parse options
+    case "$opt" in
+      --help)
+        help 0
+  	    ;;
+      --version)
+        version
+        ;;
+      --dryrun)
+        dryrun="yes"
+        ;;
+      --toolchains)
+        toolchains
+        ;;
+      --cmakebin)
+        cmakebin="$val"
+        ;;
+      --prefix)
+        prefix "$val"
+        ;;
+      --build)
+        ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DCMAKE_BUILD_TYPE=$val"
+        ;;
+      --log)
+        log $val
+        ;;
+      --static)
+        ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DBUILD_SHARED_LIBS=OFF"
+        ;;
+      --dynamic)
+        ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DBUILD_SHARED_LIBS=ON"
+        ;;
+      --shared)
+        ADD_ECBUILD_OPTIONS="$ADD_ECBUILD_OPTIONS -DBUILD_SHARED_LIBS=ON"
+        ;;
+      --toolchain)
+        toolchain $val
+        ;;
+      --config)
+        config $val
+        ;;
+      --cache)
+        cache $val
+        ;;
+      --build-cmake)
+        build_cmake="yes"
+        if [[ -n $val ]]; then
+          cmake_prefix="$val"
+        fi
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "unknown option: $opt"
+	      usage 1
+        ;;
+    esac
+    shift
+done
+
+# If no arguments remain, set srcARG to "."
+if [ $# -eq 0 ]; then
+  srcARG="."
+fi
+
+if [ -z ${toolchain_file+x} ]; then
+  if [ -z ${ECBUILD_TOOLCHAIN+x} ]; then :
+  else
+    toolchain ${ECBUILD_TOOLCHAIN}
+    echo "ecbuild toolchain set using environment variable ECBUILD_TOOLCHAIN"
+  fi
+fi
+
+src=${srcARG:=""}
+cmake=${cmakebin:=cmake}
+dryrun=${dryrun:=no}
+build_cmake=${build_cmake:=""}
+cmake_prefix=${cmake_prefix:=$PWD}
+cmake_found=""
+cmake_version_sufficient=""
+
+
+# Check that version $1 satisfies $2
+# CMake versions have no more than 4 fields
+# Version sort (sort -V) is not available on all platforms
+version_gte() {
+  [ "$2" = "$(echo -e "$1\n$2" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | head -n1)" ]
+}
+
+# Use already built CMake if any
+if [[ -x "${cmake_prefix}/bin/cmake" ]]; then
+  echo "Using already built CMake in ${cmake_prefix}/bin/cmake" >&2
+  cmake="${cmake_prefix}/bin/cmake"
+# Build CMake if requested and no sufficient version found
+elif [[ $build_cmake ]]; then
+  echo "Building CMake version ${CMAKE_BUILD_VERSION} and installing into ${cmake_prefix} ..." >&2
+  tarball=cmake-${CMAKE_BUILD_VERSION}.tar.gz
+  if [[ ! -r $tarball ]]; then
+    shortver=$(echo $CMAKE_BUILD_VERSION | cut -d. -f1-2)
+    url=http://www.cmake.org/files/v$shortver/$tarball
+    # -N          Download only if the remote version of the file is newer
+    # --continue  Continue an interrupted download
+    # -T 60       Time out a download attempt after 60 seconds
+    # -t 3        Only make 3 download attempts
+    wget -N --continue -T 60 -t 3 $url || {
+      echo "Failed to download CMake release $CMAKE_BUILD_VERSION." >&2
+      echo "Please download from $url" >&2
+      echo "and place $tarball in $PWD" >&2
+      exit 1
+    }
+  fi
+  tar xzf cmake-${CMAKE_BUILD_VERSION}.tar.gz
+  (
+    mkdir -p build_cmake
+    cd build_cmake
+    ../cmake-${CMAKE_BUILD_VERSION}/bootstrap --prefix="${cmake_prefix}" && make && make install
+  )
+  cmake="${cmake_prefix}/bin/cmake"
+fi
+
+# Check if the cmake version is sufficient
+if $(command -v $cmake >/dev/null 2>&1); then
+  cmake_found="yes"
+  cmake_version=$($cmake --version | head -n1 | awk '{ print $3 }')
+  echo "Found CMake version $cmake_version" >& 2
+  if version_gte $cmake_version $CMAKE_MIN_REQUIRED; then
+    cmake_version_sufficient="yes"
+  fi
+fi
+
+# Fail if we don't have a sufficient CMake
+if [[ ! $cmake_version_sufficient ]]; then
+  if [[ ! $cmake_found ]]; then
+    echo "CMake is required and cannot be found in the PATH." >&2
+  else
+    echo "CMake version $CMAKE_MIN_REQUIRED is required but only $cmake_version was found." >&2
+  fi
+  echo "" >&2
+  echo "  Try 'module load cmake', specify a CMake binary with --cmakebin=/path/to/cmake" >&2
+  echo "  or  let ecbuild download and build CMake with the --build-cmake option." >&2
+  exit 1
+fi
+
+echo ""
+echo "$cmake ${ADD_ECBUILD_OPTIONS} $@ $src"
+echo ""
+
+if [ ${dryrun} == "yes" ]; then
+  echo "[DRYRUN] -- not executing"
+  exit 0
+fi
+
+$cmake ${ADD_ECBUILD_OPTIONS} "$@" $src
