@@ -1,0 +1,4 @@
+# The fortran modules provided by this target.
+provides
+ eccodes.mod
+ grib_api.mod

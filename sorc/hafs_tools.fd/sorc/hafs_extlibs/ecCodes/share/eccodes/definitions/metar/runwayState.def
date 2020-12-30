@@ -1,0 +1,4 @@
+include "metar/runwayState1.def";
+include "metar/runwayState2.def";
+include "metar/runwayState3.def";
+include "metar/runwayState4.def";

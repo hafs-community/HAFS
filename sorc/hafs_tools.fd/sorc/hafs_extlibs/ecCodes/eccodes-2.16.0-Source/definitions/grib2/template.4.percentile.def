@@ -1,0 +1,5 @@
+# Copyright 2005-2019 ECMWF.
+
+#  Percentile value
+# (from 100% to 0%)
+unsigned[1] percentileValue  : dump;

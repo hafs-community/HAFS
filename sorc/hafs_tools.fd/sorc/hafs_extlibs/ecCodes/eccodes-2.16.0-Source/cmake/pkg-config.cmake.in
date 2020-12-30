@@ -1,0 +1,14 @@
+
+file(READ @CMAKE_CURRENT_BINARY_DIR@/@_PAR_FILENAME@.tmp _content)
+
+string(REPLACE "@CMAKE_BINARY_DIR@/lib" "\${libdir}" _content "${_content}")
+if(NOT "@INSTALL_LIB_DIR@" STREQUAL "lib")
+  string(REPLACE "@CMAKE_BINARY_DIR@/@INSTALL_LIB_DIR@" "\${libdir}" _content "${_content}")
+endif()
+string(REPLACE "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@" "\${libdir}" _content "${_content}")
+
+string(REGEX REPLACE "%SHORTEN:lib" "%SHORTEN:" _content "${_content}")
+string(REGEX REPLACE "\\.(a|so|dylib|dll|lib)(\\.[0-9]+)*%" "%" _content "${_content}")
+string(REGEX REPLACE "%SHORTEN:([^%]+)%" "\\1" _content "${_content}")
+
+file(WRITE @PKGCONFIG_DIR@/@_PAR_FILENAME@ "${_content}")

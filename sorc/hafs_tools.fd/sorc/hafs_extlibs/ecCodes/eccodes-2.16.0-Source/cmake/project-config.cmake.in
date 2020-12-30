@@ -1,0 +1,82 @@
+# Config file for the @PROJECT_NAME@ package
+# Defines the following variables:
+#
+#  @PROJECT_NAME@_FEATURES       - list of enabled features
+#  @PROJECT_NAME@_VERSION        - version of the package
+#  @PROJECT_NAME@_GIT_SHA1       - Git revision of the package
+#  @PROJECT_NAME@_GIT_SHA1_SHORT - short Git revision of the package
+#
+
+@PACKAGE_INIT@
+
+### computed paths
+set_and_check(@PROJECT_NAME@_CMAKE_DIR "@PACKAGE_CMAKE_DIR@")
+set_and_check(@PROJECT_NAME@_BASE_DIR "@PACKAGE_BASE_DIR@")
+if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+  set(@PNAME@_CMAKE_DIR ${@PROJECT_NAME@_CMAKE_DIR})
+  set(@PNAME@_BASE_DIR ${@PROJECT_NAME@_BASE_DIR})
+endif()
+
+### export version info
+set(@PROJECT_NAME@_VERSION           "@PACKAGE_VERSION@")
+set(@PROJECT_NAME@_GIT_SHA1          "@PACKAGE_GIT_SHA1@")
+set(@PROJECT_NAME@_GIT_SHA1_SHORT    "@PACKAGE_GIT_SHA1_SHORT@")
+
+if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+  set(@PNAME@_VERSION           "@PACKAGE_VERSION@" )
+  set(@PNAME@_GIT_SHA1          "@PACKAGE_GIT_SHA1@" )
+  set(@PNAME@_GIT_SHA1_SHORT    "@PACKAGE_GIT_SHA1_SHORT@" )
+endif()
+
+### has this configuration been exported from a build tree?
+set(@PROJECT_NAME@_IS_BUILD_DIR_EXPORT @_is_build_dir_export@)
+if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+  set(@PNAME@_IS_BUILD_DIR_EXPORT ${@PROJECT_NAME@_IS_BUILD_DIR_EXPORT})
+endif()
+
+### include the <project>-import.cmake file if there is one
+if(EXISTS ${@PROJECT_NAME@_CMAKE_DIR}/@CONF_IMPORT_FILE@)
+  set(@PROJECT_NAME@_IMPORT_FILE "${@PROJECT_NAME@_CMAKE_DIR}/@CONF_IMPORT_FILE@")
+  include(${@PROJECT_NAME@_IMPORT_FILE})
+endif()
+
+### handle third-party dependencies
+if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+  set(@PNAME@_LIBRARIES         "@CONF_LIBRARIES@")
+  set(@PNAME@_TPLS              "@CONF_TPLS@" )
+
+  include(${CMAKE_CURRENT_LIST_FILE}.tpls OPTIONAL)
+endif()
+
+### insert definitions for IMPORTED targets
+if(NOT @PROJECT_NAME@_BINARY_DIR)
+  find_file(@PROJECT_NAME@_TARGETS_FILE
+    NAMES @PROJECT_NAME@-targets.cmake
+    HINTS @PACKAGE_TARGETS_DIRS@
+    NO_DEFAULT_PATH)
+  if(@PROJECT_NAME@_TARGETS_FILE)
+    include(${@PROJECT_NAME@_TARGETS_FILE})
+  endif()
+endif()
+
+### publish this file as imported
+if( DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT )
+  set(@PROJECT_NAME@_IMPORT_FILE ${CMAKE_CURRENT_LIST_FILE})
+  mark_as_advanced(@PROJECT_NAME@_IMPORT_FILE)
+  set(@PNAME@_IMPORT_FILE ${CMAKE_CURRENT_LIST_FILE})
+  mark_as_advanced(@PNAME@_IMPORT_FILE)
+endif()
+
+### export features and check requirements
+set(@PROJECT_NAME@_FEATURES "@CONF_FEATURES@")
+if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+  set(@PNAME@_FEATURES ${@PROJECT_NAME@_FEATURES})
+endif()
+foreach(_f ${@PROJECT_NAME@_FEATURES})
+  set(@PROJECT_NAME@_${_f}_FOUND 1)
+  set(@PROJECT_NAME@_HAVE_${_f} 1)
+  if(DEFINED ECBUILD_2_COMPAT AND ECBUILD_2_COMPAT)
+    set(@PNAME@_HAVE_${_f} 1)
+  endif()
+endforeach()
+check_required_components(@PROJECT_NAME@)

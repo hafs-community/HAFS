@@ -1,0 +1,1 @@
+/apps/intel-2018/intel-2018.u4/compilers_and_libraries_2018.5.274/linux/bin/intel64/icc -fPIC   -shared -Wl,-soname,libdso1.so -o lib/libdso1.so CMakeFiles/dso1.dir/dso1.c.o 

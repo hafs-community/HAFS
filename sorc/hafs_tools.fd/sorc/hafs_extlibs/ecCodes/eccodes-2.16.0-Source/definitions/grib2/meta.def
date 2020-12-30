@@ -1,0 +1,5 @@
+# Copyright 2005-2019 ECMWF.
+
+label "_Empty file";
+
+#meta area g1area(latitudeOfFirstGridPoint,longitudeOfFirstGridPoint,latitudeOfLastGridPoint,longitudeOfLastGridPoint,angleMultiplier,angleDivisor);

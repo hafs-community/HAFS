@@ -41,3 +41,4 @@ SLATEC        = ${NWP_LIBS}
 SLINT         = ${NWP_LIBS}
 SPHEREPACK    = ${NWP_LIBS}
 SPLINE        = ${NWP_LIBS}
+ECCODE        = ${EXT_LIBS}/ecCodes

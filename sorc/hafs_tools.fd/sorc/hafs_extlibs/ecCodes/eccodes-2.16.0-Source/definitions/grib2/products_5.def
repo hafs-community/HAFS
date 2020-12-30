@@ -1,0 +1,5 @@
+# Copyright 2005-2019 ECMWF.
+
+# Tigge
+constant marsExpver = 'test';
+include "grib2/products_tigge.def"

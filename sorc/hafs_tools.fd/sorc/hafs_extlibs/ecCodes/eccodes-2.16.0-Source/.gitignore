@@ -1,0 +1,74 @@
+# Generated stuff from libtool, automake etc
+Makefile
+Makefile.in
+config.h.in
+lex.yy.c
+stamp-h1
+src/config.h
+src/grib_api.h.new
+src/grib_api_constants.h.new
+src/eccodes_constants.h.new
+src/grib_errors.c.new
+src/grib_errors.h.new
+src/errors.py.new
+configure
+grib_api.spec
+grib_api.pc
+grib_api_f90.pc
+rpms/eccodes.pc
+rpms/eccodes.spec
+rpms/eccodes_f90.pc
+
+# compiled source #
+###################
+*.com
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.zip
+
+# Logs and databases #
+######################
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+.directory
+
+src/tags
+
+data/exp/
+
+CMakeLists.txt.user*
+
+#some config
+share/
+
+data/bufr/*diff
+data/bufr/*decode
+data/bufr/*test
+
+*.sublime-workspace
+.idea
+
+build/
+*.back

@@ -1,0 +1,11 @@
+ integer,public,parameter :: kindOfInt=           4
+ integer,public,parameter :: kindOfLong=           8
+ integer,public,parameter :: kindOfSize_t=           8
+ integer,public,parameter :: kindOfSize=           8
+ integer,public,parameter :: kindOfDouble=           8
+ integer,public,parameter :: kindOfFloat=           4
+ integer,public,parameter :: sizeOfInteger=           4
+ integer,public,parameter :: sizeOfInteger2=           2
+ integer,public,parameter :: sizeOfInteger4=           4
+ integer,public,parameter :: sizeOfReal4=           4
+ integer,public,parameter :: sizeOfReal8=           8

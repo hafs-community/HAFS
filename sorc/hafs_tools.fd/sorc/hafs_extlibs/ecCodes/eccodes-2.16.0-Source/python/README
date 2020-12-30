@@ -1,0 +1,15 @@
+ecCodes Python bindings
+
+In order to enable the Python bindings in the build,
+use the -DENABLE_PYTHON=ON in the cmake step:
+
+  cmake /path/to/src -DENABLE_PYTHON=ON
+
+This will enable the build of the Python bindings with 
+NumPy support enabled. Python needs to be in the path
+and, of course, the NumPy package installed.
+
+On 'make install', the Python bindings will be installed under
+'${ecCodes_install_dir}/lib/pythonX.X/site-packages/eccodes',
+where X.X is the version of python used to build the bindings.
+Add this folder to your PYTHONPATH and you are ready to go.

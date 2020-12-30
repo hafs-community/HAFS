@@ -1,0 +1,2 @@
+/bin/ar qc libtigge_tools.a  CMakeFiles/tigge_tools.dir/tigge_tools.c.o
+/bin/ranlib libtigge_tools.a

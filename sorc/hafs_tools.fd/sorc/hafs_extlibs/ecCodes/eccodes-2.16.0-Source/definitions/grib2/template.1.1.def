@@ -1,0 +1,5 @@
+# Copyright 2005-2019 ECMWF.
+
+# TEMPLATE 1.1, Paleontological Offset
+
+include "grib2/template.1.offset.def";

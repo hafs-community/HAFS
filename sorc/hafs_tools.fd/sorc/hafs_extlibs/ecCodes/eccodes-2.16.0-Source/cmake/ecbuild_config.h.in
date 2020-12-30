@@ -1,0 +1,72 @@
+/*
+ * (C) Copyright 2011- ECMWF.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+#ifndef @PROJECT_NAME@_ecbuild_config_h
+#define @PROJECT_NAME@_ecbuild_config_h
+
+/* ecbuild info */
+
+#ifndef ECBUILD_VERSION_STR
+#define ECBUILD_VERSION_STR "@ecbuild_VERSION_STR@"
+#endif
+#ifndef ECBUILD_VERSION
+#define ECBUILD_VERSION "@ecbuild_VERSION@"
+#endif
+#ifndef ECBUILD_MACROS_DIR
+#define ECBUILD_MACROS_DIR  "@ECBUILD_MACROS_DIR@"
+#endif
+
+/* config info */
+
+#define @PNAME@_OS_NAME          "@CMAKE_SYSTEM@"
+#define @PNAME@_OS_BITS          @EC_OS_BITS@
+#define @PNAME@_OS_BITS_STR      "@EC_OS_BITS@"
+#define @PNAME@_OS_STR           "@EC_OS_NAME@.@EC_OS_BITS@"
+#define @PNAME@_OS_VERSION       "@CMAKE_SYSTEM_VERSION@"
+#define @PNAME@_SYS_PROCESSOR    "@CMAKE_SYSTEM_PROCESSOR@"
+
+#define @PNAME@_BUILD_TIMESTAMP  "@EC_BUILD_TIMESTAMP@"
+#define @PNAME@_BUILD_TYPE       "@CMAKE_BUILD_TYPE@"
+
+#define @PNAME@_C_COMPILER_ID      "@CMAKE_C_COMPILER_ID@"
+#define @PNAME@_C_COMPILER_VERSION "@CMAKE_C_COMPILER_VERSION@"
+
+#define @PNAME@_CXX_COMPILER_ID      "@CMAKE_CXX_COMPILER_ID@"
+#define @PNAME@_CXX_COMPILER_VERSION "@CMAKE_CXX_COMPILER_VERSION@"
+
+#define @PNAME@_C_COMPILER       "@CMAKE_C_COMPILER@"
+#define @PNAME@_C_FLAGS          "@EC_C_FLAGS@"
+
+#define @PNAME@_CXX_COMPILER     "@CMAKE_CXX_COMPILER@"
+#define @PNAME@_CXX_FLAGS        "@EC_CXX_FLAGS@"
+
+/* Needed for finding per package config files */
+
+#define @PNAME@_INSTALL_DIR       "@CMAKE_INSTALL_PREFIX@"
+#define @PNAME@_INSTALL_BIN_DIR   "@CMAKE_INSTALL_PREFIX@/@INSTALL_BIN_DIR@"
+#define @PNAME@_INSTALL_LIB_DIR   "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@"
+#define @PNAME@_INSTALL_DATA_DIR  "@CMAKE_INSTALL_PREFIX@/@INSTALL_DATA_DIR@"
+
+#define @PNAME@_DEVELOPER_SRC_DIR "@CMAKE_SOURCE_DIR@"
+#define @PNAME@_DEVELOPER_BIN_DIR "@CMAKE_BINARY_DIR@"
+
+#cmakedefine EC_HAVE_FORTRAN
+
+#ifdef EC_HAVE_FORTRAN
+
+#define @PNAME@_Fortran_COMPILER_ID      "@CMAKE_Fortran_COMPILER_ID@"
+#define @PNAME@_Fortran_COMPILER_VERSION "@CMAKE_Fortran_COMPILER_VERSION@"
+
+#define @PNAME@_Fortran_COMPILER "@CMAKE_Fortran_COMPILER@"
+#define @PNAME@_Fortran_FLAGS    "@EC_Fortran_FLAGS@"
+
+#endif
+
+#endif /* @PROJECT_NAME@_ecbuild_config_h */

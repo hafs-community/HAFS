@@ -130,6 +130,49 @@ _extlib_gribapi (){
     make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.grib-api.log
 }
 
+
+#----
+
+# FUNCTION:
+
+# _extlib_eccodes.sh
+
+# Biju Thomas 12/29/2020
+
+# DESCRIPTION:
+
+# This function configures, builds, and installs the ecCodes (Replacing GRIB-API).
+# ecCodes is the primary GRIB encoding/decoding package used at ECMWF
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_extlib_eccodes (){
+
+    # Move to the working directory for the ecCodes
+    # application/library.
+
+    cd ${HAFS_UTILS_EXTLIBS}/ecCodes
+
+    if [ -d "build" ]; then
+       rm -rf build
+    fi
+    mkdir build ; cd build
+
+    # CMake to build ecCodes library
+    cmake -DCMAKE_INSTALL_PREFIX=../ ../eccodes-2.16.0-Source
+
+    make VERBOSE=1 >& ${HAFS_UTILS_EXTLIBS}/logs/make.eccodes.log
+
+    # Install the ecCodes
+
+    make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.eccodes.log
+}
+
+
 #----
 
 # FUNCTION:
@@ -197,7 +240,7 @@ build_extlibs (){
 
     # Build the GRIB-API application.
 
-    _extlib_gribapi
+    _extlib_eccodes
 
     # Build the FFTW application.
 
