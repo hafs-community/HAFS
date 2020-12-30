@@ -1,1 +1,0 @@
-/apps/intel-2018/intel-2018.u4/compilers_and_libraries_2018.5.274/linux/bin/intel64/ifort      -Wl,--disable-new-dtags -O2 -g -DNDEBUG -heap-arrays 32 CMakeFiles/grib_types.dir/grib_types.f90.o CMakeFiles/grib_types.dir/grib_fortran_kinds.c.o  -o grib_types  -lirng -ldecimal -lcilkrts -lstdc++ 
