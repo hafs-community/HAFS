@@ -27,7 +27,7 @@
   lread_obs_save=_LREAD_OBS_SAVE_,
   lread_obs_skip=_LREAD_OBS_SKIP_,
   ens_nstarthr=_ENS_NSTARTHR_,
-  lwrite_predterms=._LWRITE_PREDTERMS_.,lwrite_peakwt=_LWRITE_PEAKWT_,reduce_diag=_REDUCE_DIAG_,
+  lwrite_predterms=_LWRITE_PREDTERMS_,lwrite_peakwt=_LWRITE_PEAKWT_,reduce_diag=_REDUCE_DIAG_,
 /
 &GRIDOPTS
   fv3_regional=.true.,

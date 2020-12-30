@@ -5,6 +5,10 @@ set -xe
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export DONST=${DONST:-"NO"}
+export use_bufr_nr=${use_bufr_nr:-no}
+export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
 export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}
@@ -26,19 +30,31 @@ NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
+# Utilities
+NDATE=${NDATE:-ndate}
+export NCP=${NCP:-"/bin/cp"}
+export NMV=${NMV:-"/bin/mv"}
+export NLN=${NLN:-"/bin/ln -sf"}
+export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
+export CATEXEC=${CATEXEC:-${EXEChafs}/hafs_ncdiag_cat.x}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+export COMPRESS=${COMPRESS:-gzip}
+export UNCOMPRESS=${UNCOMPRESS:-gunzip}
+
+# Diagnostic files options
+export netcdf_diag=${netcdf_diag:-".true."}
+export binary_diag=${binary_diag:-".false."}
+
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`
-
-NDATE=${NDATE:-ndate}
-NCP='/bin/cp'
-NLN='ln -sf'
 
 CDATEprior=`${NDATE} -6 $CDATE`
 yrprior=`echo ${CDATEprior} | cut -c1-4`
 mnprior=`echo ${CDATEprior} | cut -c5-6`
 dyprior=`echo ${CDATEprior} | cut -c7-8`
 hhprior=`echo ${CDATEprior} | cut -c9-10`
+cycprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
 if [ ${FGAT} = "YES" ]; then
@@ -57,9 +73,7 @@ fi
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
-
-if [ ! ${RUN_GSI_VR} = "YES" ] || [ ! ${RUN_GSI_VR_FGAT} = "YES" ] || [ ! ${RUN_GSI_VR_ENS} = "YES" ]; then
+if [ ${RUN_GSI_VR} = "NO" ] && [ ${RUN_GSI_VR_FGAT} = "NO" ] && [ ${RUN_GSI_VR_ENS} = "NO" ]; then
   echo "None of RUN_GSI_VR, RUN_GSI_VR_FGAT, RUN_GSI_VR_ENS is YES"
   echo "$RUN_GSI_VR, $RUN_GSI_VR_FGAT, $RUN_GSI_VR_ENS"
   echo "Do nothing. Exiting"
@@ -97,12 +111,12 @@ if [ "${ENSDA}" = "YES" ]; then
   ${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
   ${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
   ${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
-  ${NCP} ${RESTARTinp}/coupler.res ./coupler.res
-  ${NCP} ${RESTARTinp}/fv_core.res.nc ./fv3_akbk
-  ${NCP} ${RESTARTinp}/sfc_data.nc ./fv3_sfcdata
-  ${NCP} ${RESTARTinp}/fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
-  ${NCP} ${RESTARTinp}/fv_core.res.tile1.nc ./fv3_dynvars
-  ${NCP} ${RESTARTinp}/fv_tracer.res.tile1.nc ./fv3_tracer
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
   ${NLN} ${COMhafsprior}/product_ens/mem${ENSID}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
 else
@@ -195,11 +209,7 @@ ${NLN} ./synobs_vr.prepbufr ./prepbufr
 # Diagnostic files
 # if requested, link GSI diagnostic file directories for use later
 if [ ${ENSDA} = "YES" ]; then
- if [ -d ${COMhafs}/analysis_vr_diags_ens/ ]; then
-   echo "${COMhafs}/analysis_vr_diags_ens/ exists"
- else
-   mkdir ${COMhafs}/analysis_vr_diags_ens/
- fi
+ mkdir -p ${COMhafs}/analysis_vr_diags_ens
  export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_vr_diags_ens/mem${ENSID}}
 else
  if [ ${FGAT} = "YES" ]; then
@@ -229,10 +239,19 @@ fi
 #---------------------------------------------- 
 # Prepare gsiparm.anl
 #---------------------------------------------- 
-#${NCP} ${PARMgsi}/gsiparm.anl.tmp_vr ./gsiparm.anl.tmp
-${NCP} ${PARMgsi}/gsiparm.anl.tmp ./gsiparm.anl.tmp
+${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
-sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
+sed -e "s/_MITER_/${MITER:-2}/g" \
+    -e "s/_NITER_/${NITER:-50}/g" \
+    -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
+    -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
+    -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
+    -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
+    -e "s/_LWRITE_PREDTERMS_/${LWRITE_PREDTERMS:-.false.}/g" \
+    -e "s/_LWRITE_PEAKWT_/${LWRITE_PEAKWT:-.false.}/g" \
+    -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
+    -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
@@ -245,15 +264,12 @@ sed -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
-${APRUNC} ./hafs_gsi.x 1>stdout 2>&1
+${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
 cat stdout
 cat fort.2*
 
 fi # end if [ -s ./synobs_vr.info ]; then
 
-#-------------------------------------------------------------------
-# Deliver files to COM
-#-------------------------------------------------------------------
 if [ ${ENSDA} = "YES" ]; then
   export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}}
 else

@@ -74,11 +74,12 @@ export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 export HX_ONLY=${HY_ONLY:-YES}
+export HX_ENS=${HX_ENS:-NO}
 
 if [ ${HX_ONLY} = "YES" ]; then
 
 # Deal with ensemble mean
-if [ ${HX_ENS:-NO} != "YES" ]; then
+if [ ${HX_ENS} != "YES" ]; then
   export USE_SELECT=NO
   export RUN_SELECT=YES
   export MEMSTR=${MEMSTR:-"ensmean"}
@@ -101,14 +102,14 @@ export REDUCE_DIAG=".true."
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
   if [ ${HX_ENS} != YES ]; then
-    export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens_anl/${MEMSTR}
+    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
   else
     export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
   fi
   #export RESTARTens_anl=${COMhafs}/RESTART_analysis_vr_ens_anl/${MEMSTR}
 else
   if [ ${HX_ENS} != YES ]; then
-    export RESTARTens_inp=${COMhafs}/RESTART_ens_anl/${MEMSTR}
+    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
   else
     export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
   fi
@@ -120,6 +121,8 @@ export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
 RESTARTinp=${RESTARTinp:-${RESTARTens_inp}}
 RESTARTanl=${RESTARTanl:-${RESTARTens_anl}}
 mkdir -p ${RESTARTanl}
+
+export DIAG_DIR=${RESTARTanl}/analysis_diags
 
 ## ObsInput file from ensemble mean
 export SELECT_OBS=${SELECT_OBS:-${RESTARTanl}/../ensmean/obsinput.tar}
@@ -409,7 +412,7 @@ ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NITER_/${NITER:-50}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
-    -e "s/_NINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \

@@ -129,11 +129,11 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   export REGIONAL_ENSEMBLE_OPTION=5
   for mem in $(seq -f '%03g' 1 ${N_ENS})
   do
-    if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
-      RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
-    else
+    #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
+    #  RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
+    #else
       RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
-    fi
+    #fi
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
@@ -445,7 +445,7 @@ ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NITER_/${NITER:-50}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
-    -e "s/_NINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
@@ -490,7 +490,7 @@ ${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.nc
 
 ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.nc
-${NCP} ./fv3_sfcdata ${RESTARTout}/${PDY}.${cyc}0000.sfc_data.nc
+${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.nc
 ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
 ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc

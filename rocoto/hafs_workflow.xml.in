@@ -375,6 +375,7 @@
 	  <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
           </and>
         </or>
       </and>
@@ -406,6 +407,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
             </and>
           </or>
         </and>
@@ -673,6 +675,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
+              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
             </and>
           </or>
         </and>
@@ -818,12 +821,18 @@
           <taskdep task="hycominit1"/>
           <taskdep task="hycominit2"/>
 @** endif
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
 @** if RUN_GSI_VR_ENS==YES
-          <taskdep task="analysis_vr_ens#MEM#"/>
+            <taskdep task="analysis_vr_ens#MEM#"/>
 @** endif
+          </or>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
 @** if RUN_ENKF==YES
-          <taskdep task="enkf_recenter"/>
+            <taskdep task="enkf_recenter"/>
 @** endif
+          </or>
 @** endif
         </and>
       </dependency>
