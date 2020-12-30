@@ -1,6 +1,0 @@
-alias remarkPresent=zero;
-if (g is "RMK") {
-    alias remarkPresent=one;
-		modify g : hidden;
-}
-
