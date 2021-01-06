@@ -31,7 +31,7 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
-export INPdir={INPdir}
+export DATMdir={DATMdir}
 
 export run_datm={run_datm}
 export run_docn={run_docn}

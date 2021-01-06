@@ -99,20 +99,21 @@ yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`
 
-if [ ! -d $INPdir ]; then
-   echo Cannot find $INPdir ... exit
-   exit 1
-fi
-
 mkdir -p INPUT RESTART
-ln -sf ${INPdir}/*.nc INPUT/
-#cp ${INPdir}/*.nc INPUT/
-#rsync ${INPdir}/*.nc INPUT/
 
 #---------------------------------------------- 
 # Copy all the necessary fix files
 #---------------------------------------------- 
 if [ ${run_datm} = no ];  then
+
+if [ ! -d $INPdir ]; then
+   echo Cannot find $INPdir ... exit
+   exit 1
+fi
+
+ln -sf ${INPdir}/*.nc INPUT/
+#cp ${INPdir}/*.nc INPUT/
+#rsync ${INPdir}/*.nc INPUT/
 
 cp $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
 cp $FIXam/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77 global_o3prdlos.f77
@@ -371,11 +372,7 @@ cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
 # copy fd_nems.yaml
-if [ ${run_datm} = no ];  then
-  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
-else
-  cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_cdeps.yaml fd.yaml
-fi
+cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
 
 # create hycom limits
 ${USHhafs}/hafs_hycom_limits.py ${yr}${mn}${dy}${cyc}
@@ -399,6 +396,8 @@ if [ ${run_datm} = no ];  then
 cat temp diag_table.tmp > diag_table
 
 else
+
+  ln -sf ${DATMdir}/*.nc INPUT/
 
 #---------------------------------------------- 
 # Copy CDEPS parm files if required.
