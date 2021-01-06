@@ -37,6 +37,10 @@
 ##   Machine: IBM SP
 ##
 ################################################################################
+##
+## CMake based build: Biju Thomas 2021-01-04
+##
+#################################################################################
 
 set -x -e
 
@@ -58,10 +62,18 @@ set -x -e
 
 _hafsutils_analysis_update (){
 
-    # Move to the working directory for the analysis-update
-    # application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_analysis_update
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application 
+    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the analysis-update application.
 
@@ -69,8 +81,7 @@ _hafsutils_analysis_update (){
 
     # Move the analysis-update application executable to the HAFS
     # utility application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_analysis_update/analysis_update.x ${HAFS_UTILS_EXEC}/hafs_analysis_update.x
+    make install >& ${HAFS_UTILS_SORC}/logs/install.analysis-update.log
 }
 
 #----
@@ -91,18 +102,25 @@ _hafsutils_analysis_update (){
 
 _hafsutils_da_utils (){
 
-    # Move to the working directory for the da-utils application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_da_utils
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_da_utils -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the da-utils application.
+    make VERBOSE=1 >& ${HAFS_UTILS_SORC}/logs/make.da-utils.log
 
-    make all >& ${HAFS_UTILS_SORC}/logs/make.da-utils.log
-
-    # Move the da-utils application executable to the HAFS utility
-    # application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_da_utils/da_utils.x ${HAFS_UTILS_EXEC}/hafs_da_utils.x
+    # Move the analysis-update application executable to the HAFS
+    # utility application executables path.
+    make install >& ${HAFS_UTILS_SORC}/logs/install.da-utils.log
 }
 
 #----
@@ -123,18 +141,25 @@ _hafsutils_da_utils (){
 
 _hafsutils_file_check (){
 
-    # Move to the working directory for the file-check application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_file_check
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_file_check -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the file-check application.
-
     make all >& ${HAFS_UTILS_SORC}/logs/make.file-check.log
 
-    # Move the file-check application executable to the HAFS utility
-    # application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_file_check/file_check.x ${HAFS_UTILS_EXEC}/hafs_file_check.x
+    # Move the analysis-update application executable to the HAFS
+    # utility application executables path.
+    make install >& ${HAFS_UTILS_SORC}/logs/install.file-check.log
 }
 
 #----
@@ -155,18 +180,25 @@ _hafsutils_file_check (){
 
 _hafsutils_obs_preproc (){
 
-    # Move to the working directory for the obs-preproc application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_obs_preproc
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the obs-preproc application.
-
     make all >& ${HAFS_UTILS_SORC}/logs/make.obs-preproc.log
 
-    # Move the obs-preproc application executable to the HAFS utility
-    # application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_obs_preproc/obs_preproc.x ${HAFS_UTILS_EXEC}/hafs_obs_preproc.x
+    # Move the analysis-update application executable to the HAFS
+    # utility application executables path.
+    make install >& ${HAFS_UTILS_SORC}/logs/install.obs-preproc.log
 }
 
 #----
@@ -187,18 +219,25 @@ _hafsutils_obs_preproc (){
 
 _hafsutils_post_utils (){
 
-    # Move to the working directory for the post-utils application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_post_utils
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_post_utils -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the post-utils application.
-
     make all >& ${HAFS_UTILS_SORC}/logs/make.post-utils.log
 
     # Move the post-utils application executable to the HAFS utility
     # application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_post_utils/post_utils.x ${HAFS_UTILS_EXEC}/hafs_post_utils.x
+    make install >& ${HAFS_UTILS_SORC}/logs/install.post-utils.log
 }
 
 #----
@@ -219,19 +258,25 @@ _hafsutils_post_utils (){
 
 _hafsutils_tc_diagnostics (){
 
-    # Move to the working directory for the tc-diagnostics
-    # application.
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
 
-    cd ${HAFS_UTILS_SORC}/hafs_tc_diagnostics
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_tc_diagnostics -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 
     # Build the tc-diagnostics application.
-
     make all >& ${HAFS_UTILS_SORC}/logs/make.tc-diagnostics.log
 
     # Move the tc-diagnostics application executable to the HAFS
     # utility application executables path.
-
-    mv ${HAFS_UTILS_SORC}/hafs_tc_diagnostics/tc_diagnostics.x ${HAFS_UTILS_EXEC}/hafs_tc_diagnostics.x
+    make install >& ${HAFS_UTILS_SORC}/logs/install.tc-diagnostics.log
 }
 
 #----
