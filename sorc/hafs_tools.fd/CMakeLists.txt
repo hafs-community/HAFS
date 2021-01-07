@@ -25,6 +25,4 @@ find_package(HDF5 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(MPI REQUIRED) 
 
-add_subdirectory(sorc/obs_to_bufr)
-add_subdirectory(sorc/tempdrop_sonde)
 add_subdirectory(sorc/mpiserial)

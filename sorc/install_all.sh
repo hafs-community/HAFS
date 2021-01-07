@@ -62,8 +62,6 @@ $Build_vortextracker && {
 # install tools
 #------------------------------------
 $Build_tools && {
-  ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
-  ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
   ${CP} hafs_tools.fd/exec/hafs_analysis_update.x    ../exec/hafs_analysis_update.x
   ${CP} hafs_tools.fd/exec/hafs_da_utils.x           ../exec/hafs_da_utils.x
   ${CP} hafs_tools.fd/exec/hafs_file_check.x         ../exec/hafs_file_check.x
