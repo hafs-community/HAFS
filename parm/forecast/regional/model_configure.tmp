@@ -26,7 +26,14 @@ write_groups:            _write_groups_
 write_tasks_per_group:   _write_tasks_per_group_
 num_files:               2
 filename_base:           'dyn' 'phy'
-output_file:             'netcdf'
+output_file:             'netcdf_parallel' 'netcdf_parallel'
+ichunk2d:                -1
+jchunk2d:                -1
+ichunk3d:                -1
+jchunk3d:                -1
+kchunk3d:                -1
+ideflate:                1
+nbits:                   0  
 write_nemsioflip:        .false.
 write_fsyncflag:         .false.
 
