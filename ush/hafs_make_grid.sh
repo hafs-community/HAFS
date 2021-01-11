@@ -1,5 +1,6 @@
-#!/bin/ksh
-set -ax
+#!/bin/bash
+
+set -eux
 
 nargv=$#
 if [ $nargv -ne 3 -a $nargv -ne 6 -a $nargv -ne 12 ]; then 

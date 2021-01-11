@@ -1093,26 +1093,29 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
 # echo "8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0" > jpdt_table.dat
         with open('jpdt_table.dat','wt') as j:
             j.write('''8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0''')
-        hafs_gfs2ofs=alias(batchexe(self.getexe('hafs_gfs2ofs2')))
+        cmd=self.getexe('hafs_gfs2ofs2')
         commands=list()
         for i in range(1,11):
           gfs2ofs_in='gfs2ofs.%d.in'%i
           gfs2ofs_out='gfs2ofs.%d.out'%i
           with open (gfs2ofs_in,'wt') as f:
               f.write("""%d\n"""%(i))
-          commands.append ( (hafs_gfs2ofs<gfs2ofs_in)>gfs2ofs_out )
-        logger.info ('COMMANDS %s '%repr(commands))
-        bigcmd=mpiserial(commands[0])
+          #commands.append ( (hafs_gfs2ofs<gfs2ofs_in)>gfs2ofs_out )
+          commands.append('%s < %s > %s 2>&1\n'%(cmd,gfs2ofs_in,gfs2ofs_out)) 
+
+        with open('command.file2.preview','wt') as cfpf:
+            cfpf.write(''.join(commands))
+
         tt=int(os.environ['TOTAL_TASKS'])
-        for c in commands[1:]:
-            bigcmd+=mpiserial(c)
-        ttotal=(len(commands))
-        for i in range(ttotal,tt):
-            bigcmd+=mpiserial(batchexe('/bin/true'))
+        logger.info ('CALLING gfs2ofs2 %d ',tt)
+        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+             mpiserial_path=self.getexe('mpiserial','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+             mpiserial_path=produtil.fileop.find_exe('mpiserial')
+        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file2.preview'],allranks=True)
+        checkrun(cmd2)
 
-        logger.info ('BIGCMD %s '%repr(bigcmd))
-
-        checkrun(mpirun(bigcmd,mpiserial_path=mpiserial_path),logger=logger)
         self.ofs_timeinterp_forcing(logger)
 
     def ofs_forcing_info(self,filename):

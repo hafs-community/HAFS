@@ -52,6 +52,7 @@
   <!ENTITY COMhafs  "@[CDSCRUB]/&SUBEXPT;/com/@Y@m@d@H/&SID;">
   <!ENTITY LOGhafs  "@[CDSCRUB]/&SUBEXPT;/log">
 
+  <!ENTITY GFSVER   "@[GFSVER:-PROD2019]">
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
   <!ENTITY COMrtofs "@[COMrtofs:-&WORKhafs;/hafsdata]">
 
@@ -225,8 +226,14 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
         <and>
+@** if GFSVER==PROD2019
           <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio</cyclestr></datadep>
           <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.sfcanl.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="12000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmanl.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.sfcanl.nc</cyclestr></datadep>
+@** endif
         </and>
       </and>
     </dependency>
@@ -259,8 +266,14 @@
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
           <or>
+@** if GFSVER==PROD2019
             <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+            <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
+@** endif
           </or>
         </and>
       </dependency>
@@ -337,7 +350,12 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
         <and>
+@** if GFSVER==PROD2019
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
         </and>
       </and>
     </dependency>
