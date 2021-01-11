@@ -95,7 +95,13 @@ cd $DATA
 #export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+if [ $GFSVER = "PROD2021" ]; then
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+elif [ $GFSVER = "PROD2019" ]; then
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+fi
 
 #####################################
 # Generate the ICs and BC hour 0

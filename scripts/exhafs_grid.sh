@@ -96,39 +96,6 @@ else
 fi
 
 #----------------------------------------------------------------
-#filter_topo parameters. C48->200km, C96->100km, C192->50km, C384->25km, C768->13km, 
-# C1152->8.5km, C1536->6.5km, C2304->4.3km, C3072->3.2km, C4608->2.1km, C6144->1.6km
-if [ $CRES -eq 48 ]; then 
- export cd4=0.12;  export max_slope=0.12; export n_del2_weak=4;   export peak_fac=1.1  
-elif [ $CRES -eq 96 ]; then 
- export cd4=0.12;  export max_slope=0.12; export n_del2_weak=8;   export peak_fac=1.1  
-elif [ $CRES -eq 128 ]; then
- export cd4=0.13;  export max_slope=0.12; export n_del2_weak=8;   export peak_fac=1.1
-elif [ $CRES -eq 192 ]; then 
- export cd4=0.15;  export max_slope=0.12; export n_del2_weak=12;  export peak_fac=1.05  
-elif [ $CRES -eq 384 ]; then 
- export cd4=0.15;  export max_slope=0.12; export n_del2_weak=12;  export peak_fac=1.0  
-elif [ $CRES -eq 768 ]; then 
- export cd4=0.15;  export max_slope=0.12; export n_del2_weak=16;   export peak_fac=1.0  
-elif [ $CRES -eq 1152 ]; then 
- export cd4=0.15;  export max_slope=0.16; export n_del2_weak=20;   export peak_fac=1.0  
-elif [ $CRES -eq 1536 ]; then 
- export cd4=0.15;  export max_slope=0.24; export n_del2_weak=20;   export peak_fac=1.0  
-elif [ $CRES -eq 2304 ]; then 
- export cd4=0.15;  export max_slope=0.27; export n_del2_weak=22;   export peak_fac=1.0  
-elif [ $CRES -eq 3072 ]; then 
- export cd4=0.15;  export max_slope=0.30; export n_del2_weak=24;   export peak_fac=1.0  
-elif [ $CRES -eq 4608 ]; then 
- export cd4=0.15;  export max_slope=0.33; export n_del2_weak=26;   export peak_fac=1.0  
-elif [ $CRES -eq 6144 ]; then 
- export cd4=0.15;  export max_slope=0.36; export n_del2_weak=28;   export peak_fac=1.0  
-else
- echo "grid C$CRES not supported, exit"
- exit 1
-fi
-
-date
-#----------------------------------------------------------------
 # Make grid and orography
 
 export grid_dir=$DATA/grid
@@ -170,7 +137,7 @@ fi
   #rm $DATA/orog.file1
   date
   echo "............ execute $FILTERTOPOSSH .............."
-  $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir $cd4 $peak_fac $max_slope $n_del2_weak $script_dir $gtype
+  $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
   echo "Grid and orography files are now prepared"
 elif [ $gtype = nest ]; then
   export ntiles=7
@@ -252,7 +219,7 @@ fi
 
   date
   echo "............ execute $FILTERTOPOSSH .............."
-  ${APRUNS} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir $cd4 $peak_fac $max_slope $n_del2_weak $script_dir $gtype
+  ${APRUNS} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
 
   echo "............ execute shave to reduce grid and orography files to required compute size .............."
   cd $filter_dir
