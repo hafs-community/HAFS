@@ -11,7 +11,7 @@
   oneobtest=.false.,retrieval=.false.,l_foto=.false.,
   nhr_assimilation=6,
   use_pbl=.false.,use_compress=.true.,nsig_ext=12,gpstop=50.,
-  use_gfs_nemsio=.true.,sfcnst_comb=.true.,
+  use_gfs_nemsio=_USE_GFS_NEMSIO_,use_gfs_ncio=_USE_GFS_NCIO_,sfcnst_comb=.true.,
   use_readin_anl_sfcmask=.true.,
   print_diag_pcg=.true.,
   use_gfs_ozone=.false.,

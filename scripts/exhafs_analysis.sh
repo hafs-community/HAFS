@@ -38,6 +38,20 @@ export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
 
+if [ $GFSVER = PROD2021 ]; then
+  export USE_GFS_NEMSIO=.false.
+  export USE_GFS_NCIO=.true.
+  GSUFFIX=${GSUFFIX:-.nc}
+elif [ $GFSVER = PROD2019 ]; then
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+else
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+fi
+
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
@@ -153,10 +167,19 @@ else
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${N_ENS}); do
+    if [ $USE_GFS_NEMSIO = .true. ]; then
     if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
       ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
     elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
       ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    fi
+    fi
+    if [ $USE_GFS_NCIO = .true. ]; then
+    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
+      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
+      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    fi
     fi
     echo "./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
@@ -444,6 +467,8 @@ ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
 sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NITER_/${NITER:-50}/g" \
+    -e "s/_USE_GFS_NEMSIO_/${USE_GFS_NEMSIO:-.true.}/g" \
+    -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
