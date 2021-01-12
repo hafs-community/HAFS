@@ -152,6 +152,18 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
+ # GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled HAFS enkf ensembles + 3hourly FGAT; GFSv16 input files 
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96s1n4_gsivrfgatens_3densda_enkf_fgat_gfsv16 \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 config.run_enkf=yes \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C96s1n4_320x312.conf \
+     config.GFSVER=PROD2021 \
+     config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
+     dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+
 #===============================================================================
 
 date

@@ -620,8 +620,14 @@
           <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
           <and>
+@** if GFSVER==PROD2019
             <datadep age="02:00" minsize="3000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
             <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.sfcf006.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+@** endif
           </and>
         </and>
       </dependency>
@@ -659,7 +665,12 @@
             <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
             <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
             <and>
+@** if GFSVER==PROD2019
               <datadep age="02:00" minsize="3000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+              <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+@** endif
             </and>
           </and>
         </dependency>
