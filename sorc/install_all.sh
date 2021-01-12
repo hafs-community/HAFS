@@ -78,7 +78,8 @@ $Build_tools && {
 #------------------------------------
 $Build_gsi && {
   ${CP} hafs_gsi.fd/exec/global_gsi.x                ../exec/hafs_gsi.x
-  ${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  #${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  ${CP} hafs_gsi.fd/exec/enkf_fv3reg.x               ../exec/hafs_enkf.x
   ${CP} hafs_gsi.fd/exec/adderrspec.x                ../exec/hafs_adderrspec.x
   ${CP} hafs_gsi.fd/exec/adjustps.x                  ../exec/hafs_adjustps.x
   ${CP} hafs_gsi.fd/exec/calc_increment_ens_ncio.x   ../exec/hafs_calc_increment_ens_ncio.x

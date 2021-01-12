@@ -22,5 +22,9 @@ fi
 cd hafs_gsi.fd/ush/
 ./build_all_cmake.sh "PRODUCTION" "$cwd/hafs_gsi.fd"
 
+# Build FV3 regional enkf executable
+cd hafs_gsi.fd/ush/
+./build_enkf_cmake.sh "PRODUCTION" "$cwd/hafs_gsi.fd"
+
 exit
 
