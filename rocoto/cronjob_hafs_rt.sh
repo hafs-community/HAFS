@@ -40,7 +40,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #    config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
 #    config.halo_blend=10 \
 #    config.GFSVER=PROD2021 \
-#    config.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
+#    dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
 #    config.NHRS=12 ${scrubopt} \
 #    ../parm/hafs_regional_static.conf \
 #    ../parm/hafs_hycom.conf
