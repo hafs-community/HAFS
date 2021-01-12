@@ -77,6 +77,8 @@ export NBDYHRS={NBDYHRS}
 export GFSVER={GFSVER}
 export ictype={ictype}
 export bctype={bctype}
+export ictype_ens={ictype_ens}
+export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
 
 export ccpp_suite_regional={ccpp_suite_regional}
