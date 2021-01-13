@@ -20,6 +20,10 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
 endif()
 
 find_package(NetCDF REQUIRED C Fortran)
+find_package(bacio REQUIRED)
+find_package(nemsio REQUIRED)
+find_package(bufr REQUIRED)
+
 
 set(fortran_srcs
   kinds_interface.F90 
@@ -54,13 +58,13 @@ target_include_directories(
 
 target_link_libraries(
   ${exe_name}
-  ${ilib_dir}/libbufr.a
+  bufr::bufr_d
   ${ilib_dir}/libdiagsread.a
   ${ilib_dir}/libfson.a
   ${ilib_dir}/libgridprojs.a
-  ${ilib_dir}/libnemsio.a
+  nemsio::nemsio
   NetCDF::NetCDF_Fortran
-  ${ilib_dir}/libbacio.a
+  bacio::bacio_4
   ${ilib_dir}/libw3.a)
 
  install(TARGETS ${exe_name} DESTINATION ${exec_dir})

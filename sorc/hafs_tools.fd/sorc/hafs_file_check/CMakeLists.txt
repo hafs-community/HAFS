@@ -20,6 +20,8 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
 endif()
 
 find_package(NetCDF REQUIRED C Fortran)
+find_package(nemsio REQUIRED)
+find_package(bacio REQUIRED)
 
 set(fortran_srcs
   kinds_interface.F90 
@@ -44,7 +46,7 @@ target_include_directories(
 
 target_link_libraries(
   ${exe_name}
-  ${nwp_dir}/libnemsio.a
-  ${nwp_dir}/libbacio.a)
+  nemsio::nemsio
+  bacio::bacio_4)
 
  install(TARGETS ${exe_name} DESTINATION ${exec_dir})

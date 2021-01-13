@@ -19,6 +19,8 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_C_COMPILER_ID}")
 endif()
 
+find_package(bacio REQUIRED)
+find_package(nemsio REQUIRED)
 find_package(NetCDF REQUIRED C Fortran)
 
 set(fortran_srcs
@@ -66,7 +68,7 @@ target_link_libraries(
   ${nwp_dir}/libfson.a
   ${nwp_dir}/libgridprojs.a
   ${nwp_dir}/libkdtree.a
-  ${nwp_dir}/libnemsio.a
+  nemsio::nemsio
   NetCDF::NetCDF_Fortran
   ${ext_dir}/libshtns.a
   ${ext_dir}/libfftw3.a
@@ -74,7 +76,7 @@ target_link_libraries(
   ${nwp_dir}/libslatec.a
   ${nwp_dir}/libslint.a
   ${nwp_dir}/libspline.a
-  ${nwp_dir}/libbacio.a
+  bacio::bacio_4
   ${nwp_dir}/libw3.a)
 
  install(TARGETS ${exe_name} DESTINATION ${exec_dir})

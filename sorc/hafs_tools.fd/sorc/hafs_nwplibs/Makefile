@@ -32,7 +32,7 @@ include configure.nwp-libs
 
 # Libraries and modules
 
-SUBDIRS = bacio bufr diagsread fson gridprojs gridtrans kdtree nemsio shtns sigio slatec slint sondelib spherepack spline w3 wmm
+SUBDIRS = diagsread fson gridprojs gridtrans kdtree shtns slatec slint sondelib spherepack spline w3 wmm
 
 # Make calls
 
