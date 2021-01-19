@@ -37,7 +37,7 @@ export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
 export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
 export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
-export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
 
 ####################################

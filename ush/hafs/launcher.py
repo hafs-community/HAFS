@@ -1483,6 +1483,9 @@ class HAFSLauncher(HAFSConfig):
         ensda_flag=self.getbool('config','run_ensda')
         self.set('holdvars','cap_run_ensda',('YES' if ensda_flag else 'NO'))
 
+        enkf_flag=self.getbool('config','run_enkf')
+        self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
+
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',
                  ('YES' if reloc_flag else 'NO'))

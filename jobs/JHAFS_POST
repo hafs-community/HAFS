@@ -60,7 +60,7 @@ export USHgfs=${USHfv3:-${HOMEgfs}/ush}
 
 export POSTEXEC=${EXEChafs}/hafs_post.x
 
-export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
 #export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
 export WGRIB2=${WGRIB2:-/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9}
@@ -93,33 +93,7 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload nemsio-intel/2.2.2
   fi
   if [ "$machine" = orion ]; then
-    module unload hpc/1.0.0-beta1
-    module unload hpc-intel/2018.4
-    module unload hpc-impi/2018.4
-    module unload hdf5/1.10.6
-    module unload netcdf/4.7.4
-    module unload jasper/2.0.15
-    module unload zlib/1.2.11
-    module unload png/1.6.35
-    module unload g2/3.4.1
-    module unload g2tmpl/1.9.1
-    module unload w3emc/2.7.3
-    module unload w3nco/2.4.1
-    module unload sp/2.3.3
-    module unload ip/3.3.3
-    module unload bufr/11.4.0
-    module unload bacio/2.4.1
-    module unload sigio/2.3.2
-    module unload sfcio/1.4.1
-    module unload gfsio/1.4.1
-    module unload nemsio/2.5.2
-    module unload nemsiogfs/2.5.3
-    module unload landsfcutil/2.4.1
-    module unload crtm/2.3.0
-    module unload prod_util/1.2.1
-    module unload grib_util/1.2.1
-    module unload hdf5/1.10.5-parallel
-    module unload netcdf/4.7.2-parallel
+    module unload nco netcdf hdf5
   fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load post/v8.0.0-${machine}

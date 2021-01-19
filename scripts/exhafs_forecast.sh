@@ -2,9 +2,9 @@
 
 set -xe
 
-ulimit -s 6000000 
+#ulimit -s 6000000 
 #unlimited
-ulimit -a
+#ulimit -a
 
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
@@ -20,6 +20,14 @@ mnprior=`echo ${CDATEprior} | cut -c5-6`
 dyprior=`echo ${CDATEprior} | cut -c7-8`
 hhprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
+
+CDATEnhrs=`${NDATE} +${NHRS} $CDATE`
+yrnhrs=`echo ${CDATEnhrs} | cut -c1-4`
+mnnhrs=`echo ${CDATEnhrs} | cut -c5-6`
+dynhrs=`echo ${CDATEnhrs} | cut -c7-8`
+hhnhrs=`echo ${CDATEnhrs} | cut -c9-10`
+cycnhrs=`echo ${CDATEnhrs} | cut -c9-10`
+PDYnhrs=`echo ${CDATEnhrs} | cut -c1-8`
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
@@ -70,6 +78,8 @@ if [ ${warm_start_opt} -eq 0 ]; then
   export RESTARTinp="UNNEEDED"
 fi
 
+if [ ${ENSDA} != "YES" ]; then # for deterministic forecast
+
 if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_init
@@ -82,42 +92,53 @@ fi
 
 if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
-  export RESTARTinp=${COMhafs}/RESTART
+  export RESTARTinp=${COMhafs}/RESTART_vi
 fi
 
 #if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  export warm_start_opt=4
- if [ ${ENSDA} = YES ]; then
-  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-   export warmstart_from_restart=yes
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
-  else
-   export warmstart_from_restart=no
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
-  fi
- else
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis_vr
- fi
+  export warm_start_opt=4
 fi
 
 #if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
- if [ ${ENSDA} = YES ]; then
-  if [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-   export warmstart_from_restart=yes
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
-  else
-   export warmstart_from_restart=no
-   export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
-  fi
- else
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis
- fi
   export warm_start_opt=5
 fi
+
+else # for ENSDA member forecast
+
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_init_ens/mem${ENSID}
+fi
+
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
+fi
+
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_vi_ens/mem${ENSID}
+fi
+
+if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
+  export warm_start_opt=4
+fi
+
+if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_ens_anl/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  export warmstart_from_restart=yes
+  export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
+  export warm_start_opt=5
+fi
+
+fi # ${ENSDA} != "YES" 
 
 # For warm start from restart files
 if [ ${warmstart_from_restart} = yes ]; then
@@ -212,11 +233,6 @@ ln -sf ${INPdir}/*.nc INPUT/
 #rsync ${INPdir}/*.nc INPUT/
 
 if [ ${ENSDA} = YES ]; then
- if [ -s  ${COMhafs}/RESTART_ens ]; then
-  echo " ${COMhafs}/RESTART_ens dir already exist"
- else
-  mkdir ${COMhafs}/RESTART_ens
- fi
   export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
   mkdir -p ${RESTARTout}
   ln -sf ${RESTARTout} RESTART
@@ -581,6 +597,17 @@ export err=$?
 #-------------------------------------------------------------------
 # Deliver files to COM
 #-------------------------------------------------------------------
+
+# Rename the restart files with a proper convention
+cd RESTART
+if [ -s fv_core.res.nc ]; then
+  #for file in $(/bin/ls -1 fv_core.res.nc sfc_data.nc fv_tracer.res.tile*.nc fv_srf_wnd.res.tile*.nc fv_core.res.tile*.nc phy_data.nc coupler.res)
+  for file in $(/bin/ls -1 fv*.nc phy_data.nc sfc_data.nc coupler.res)
+  do
+    mv ${file} ${PDYnhrs}.${cycnhrs}0000.${file}
+  done
+fi
+cd ${DATA}
 
 # Deliver the grid_spec.nc, atmos_static.nc, oro_data.nc if not exist
 if [ ! -s RESTART/grid_spec.nc ]; then

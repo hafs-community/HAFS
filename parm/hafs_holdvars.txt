@@ -15,6 +15,7 @@ export RUN_GSI={RUN_GSI}
 export RUN_FGAT={RUN_FGAT}
 export RUN_ENVAR={RUN_ENVAR}
 export RUN_ENSDA={RUN_ENSDA}
+export RUN_ENKF={RUN_ENKF}
 export GSID01={GSID01}
 export GSID02={GSID02}
 export GSID03={GSID03}
@@ -73,8 +74,11 @@ export STORMID={vit[stormid3]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
+export GFSVER={GFSVER}
 export ictype={ictype}
 export bctype={bctype}
+export ictype_ens={ictype_ens}
+export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
 
 export ccpp_suite_regional={ccpp_suite_regional}

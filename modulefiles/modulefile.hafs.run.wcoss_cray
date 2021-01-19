@@ -44,6 +44,7 @@ module load atp
 module load intel/15.0.3.187
 module load hpss
 
+module load nco-gnu-sandybridge/4.4.4
 module load NetCDF-intel-haswell/4.2
 module load HDF5-serial-intel-haswell/1.8.9
 

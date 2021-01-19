@@ -1,35 +1,53 @@
-#!/bin/ksh
-set -ax
+#!/bin/bash
+#set -eux
+set -x
 
-if [ $# -ne 10 ]; then
-   echo "Usage: $0 resolution grid_dir orog_dir out_dir cd4 peak_fac max_slope n_del2_weak script_dir gtype "
+#-----------------------------------------------------------------------------------------
+#
+# Script name: fv3gfs_filter_topo.sh
+# -----------
+#
+# Description: Filters the topography.
+# -----------
+#
+#-----------------------------------------------------------------------------------------
+
+if [ $# -ne 4 ]; then
+   set +x
+   echo
+   echo "FATAL ERROR: Usage: $0 resolution grid_dir orog_dir out_dir"
+   echo
+   set -x
    exit 1
 fi
 
 APRUN=${APRUN:-time}
 
-if [ $gtype = stretch ] || [ $gtype = regional ]; then
-stretch=$stretch_fac
-refine_ratio=$refine_ratio
+#if [ $gtype = stretch ] || [ $gtype = regional_gfdl ]; then
+if [ $gtype = stretch ] || [ $gtype = regional ] || [ $gtype = regional_gfdl ] || [ $gtype = regional_esg ]; then
+  stretch=$stretch_fac
 else
-stretch=1.0
-refine_ratio=1
+  stretch=1.0
 fi
-export res=$1 
-export griddir=$2
-export orodir=$3
-export outdir=$4
-export script_dir=$9
 
-#export executable=$exec_dir/filter_topo
-export executable=${FILTERTOPOEXEC:-$exec_dir/hafs_filter_topo.x}
+res=$1 
+griddir=$2
+orodir=$3
+outdir=$4
 
+#executable=$exec_dir/filter_topo
+executable=${FILTERTOPOEXEC:-$exec_dir/hafs_filter_topo.x}
 if [ ! -s $executable ]; then
-  echo "executable does not exist"
+  set +x
+  echo
+  echo "FATAL ERROR: ${executable} does not exist"
+  echo
+  set -x
   exit 1 
 fi
-export mosaic_grid=C${res}_mosaic.nc
-export topo_file=oro.C${res}
+
+mosaic_grid=C${res}_mosaic.nc
+topo_file=oro.C${res}
 
 if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
 cd $outdir ||exit 8
@@ -40,7 +58,7 @@ cp $orodir/${topo_file}.tile?.nc .
 cp $executable .
 
 regional=.false.
-if [ $gtype = regional ]; then
+if [ $gtype = regional ] || [ $gtype = regional_gfdl ] || [ $gtype = regional_esg ] ; then
   regional=.true.
 fi
 
@@ -48,15 +66,9 @@ cat > input.nml <<EOF
 &filter_topo_nml
   grid_file = $mosaic_grid
   topo_file = $topo_file
-  mask_field = "land_frac"    ! Defaults:
-  cd4 = $5                    ! 0.15
-  peak_fac =  $6              ! 1.0
-  max_slope = $7              ! 0.12
-  n_del2_weak = $8            ! 16
-  n_del2_weak = $8            ! 16
+  mask_field = "land_frac"
   regional = $regional 
   stretch_fac = $stretch
-  refine_ratio = $refine_ratio
   res = $res
   /
 EOF
@@ -64,10 +76,18 @@ EOF
 $APRUN $executable
 
 if [ $? -ne 0 ]; then
-  echo "ERROR in running filter topography for C$res "
+  set +x
+  echo
+  echo "FATAL ERROR running filter topography for C$res "
+  echo
+  set -x
   exit 1
 else
-  echo "successfully running filter topography for C$res"
+  set +x
+  echo
+  echo "Successfully ran filter topography for C$res"
+  echo
+  set -x
   exit 0
 fi
 

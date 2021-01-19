@@ -1,7 +1,10 @@
 #!/bin/sh
+# exhafs_enkf_hx.sh: Run the GSI forward operator performs mapping from model
+# space to observation space for the ensemble mean or ensemble members.
 
 set -xe
 
+export HDF5_USE_FILE_LOCKING=FALSE #avoild recenter's error "NetCDF: HDF error"
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
@@ -10,15 +13,7 @@ export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
-export RUN_GSI_VR=${RUN_GSI_VR:-NO}
-export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
-export RUN_GSI=${RUN_GSI:-NO}
-export RUN_FGAT=${RUN_FGAT:-NO}
-export FGAT=${FGAT:-NO}
-export RUN_ENVAR=${RUN_ENVAR:-NO}
-export RUN_ENSDA=${RUN_ENSDA:-NO}
-export ENSDA=${ENSDA:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
@@ -37,20 +32,6 @@ export CATEXEC=${CATEXEC:-${EXEChafs}/hafs_ncdiag_cat.x}
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
-
-if [ $GFSVER = PROD2021 ]; then
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
-elif [ $GFSVER = PROD2019 ]; then
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
-else
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
-fi
 
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
@@ -92,101 +73,64 @@ fi
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
-if [ ! ${RUN_GSI} = "YES" ]; then
-  echo "RUN_GSI: ${RUN_GSI} is not YES"
-  echo "Do nothing. Exiting"
-  exit
-fi
+export HX_ONLY=${HY_ONLY:-YES}
+export HX_ENS=${HX_ENS:-NO}
 
-if [ ! -s ${COMhafsprior}/storm1.holdvars.txt ] && [ ! -s ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  echo "Prior cycle does not exist. No need to run gsi for the first cycle."
-  echo "Do nothing. Exiting"
-  exit
-fi
+if [ ${HX_ONLY} = "YES" ]; then
 
-# Copy the first guess files
-if [ ${RUN_GSI_VR} = "YES" ]; then
-  RESTARTinp=${COMhafs}/RESTART_analysis_vr
+# Deal with ensemble mean
+if [ ${HX_ENS} != "YES" ]; then
+  export USE_SELECT=NO
+  export RUN_SELECT=YES
+  export MEMSTR=${MEMSTR:-"ensmean"}
+  export LREAD_OBS_SAVE=".true."
+  export LREAD_OBS_SKIP=".false."
+# Deal with ensemble member
 else
-  RESTARTinp=${COMhafsprior}/RESTART
+  export USE_SELECT=YES
+  export RUN_SELECT=NO
+  export MEMSTR=${MEMSTR:-"mem${ENSID}"}
+  export LREAD_OBS_SAVE=".false."
+  export LREAD_OBS_SKIP=".true."
 fi
 
-export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis}
+export MITER=0
+export NITER=1
+export LWRITE_PREDTERMS=".true."
+export LWRITE_PEAKWT=".true."
+export REDUCE_DIAG=".true."
+
+if [ ${RUN_GSI_VR_ENS} = YES ]; then
+  if [ ${HX_ENS} != YES ]; then
+    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+  else
+    export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
+  fi
+  #export RESTARTens_anl=${COMhafs}/RESTART_analysis_vr_ens_anl/${MEMSTR}
+else
+  if [ ${HX_ENS} != YES ]; then
+    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+  else
+    export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
+  fi
+  #export RESTARTens_anl=${COMhafs}/RESTART_ens_anl/${MEMSTR}
+fi
+
+export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+
+RESTARTinp=${RESTARTinp:-${RESTARTens_inp}}
+RESTARTanl=${RESTARTanl:-${RESTARTens_anl}}
 mkdir -p ${RESTARTanl}
 
-if [ ${RUN_FGAT} = "YES" ]; then
-  if [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
-    RESTARTinp_fgat=${COMhafs}/RESTART_analysis_vr
-  else
-    RESTARTinp_fgat=${COMhafsprior}/RESTART
-  fi
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3_akbk_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3_sfcdata_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3_akbk_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3_sfcdata_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
-fi
+export DIAG_DIR=${RESTARTanl}/analysis_diags
 
-if [ ${RUN_ENVAR} = "YES" ]; then
+## ObsInput file from ensemble mean
+export SELECT_OBS=${SELECT_OBS:-${RESTARTanl}/../ensmean/obsinput.tar}
 
-export L_HYB_ENS=.true.
-if [ ${RUN_ENSDA} = "YES" ]; then
-  export N_ENS=${ENS_SIZE:-2}
-  export GRID_RATIO_ENS=${GRID_RATIO_ENS}
-  export REGIONAL_ENSEMBLE_OPTION=5
-  for mem in $(seq -f '%03g' 1 ${N_ENS})
-  do
-    #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
-    #  RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
-    #else
-      RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
-    #fi
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
-  done
-else
-  export N_ENS=80
-  export GRID_RATIO_ENS=1
-  export REGIONAL_ENSEMBLE_OPTION=1
-# Link ensemble members
-  mkdir -p ensemble_data
-  ENKF_SUFFIX="s"
-  GSUFFIX=${GSUFFIX:-.nemsio}
-  fhrs="06"
-  for fhh in $fhrs; do
-  rm -f filelist${fhh}
-  for mem in $(seq -f '%03g' 1 ${N_ENS}); do
-    if [ $USE_GFS_NEMSIO = .true. ]; then
-    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
-    fi
-    if [ $USE_GFS_NCIO = .true. ]; then
-    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
-    fi
-    echo "./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
-  done
-  done
-fi
+# Stat files
+DIAG_SUFFIX="_${MEMSTR}"
 
-fi # endif ${RUN_ENVAR}
+fi # HX_ONLY
 
 # Copy first guess files
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
@@ -515,7 +459,7 @@ ${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.nc
 
 ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.nc
-${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.nc
+${NCP} ./fv3_sfcdata ${RESTARTout}/${PDY}.${cyc}0000.sfc_data.nc
 ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
 ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
