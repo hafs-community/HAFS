@@ -54,6 +54,7 @@ export STORMID={vit[stormid3]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
+export GFSVER={GFSVER}
 export ictype={ictype}
 export bctype={bctype}
 export halo_blend={halo_blend}
