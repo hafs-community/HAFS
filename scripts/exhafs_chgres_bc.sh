@@ -70,7 +70,7 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 cd ${DATA_BC}
 
 # Use gfs netcdf files from GFSv16
-if [ $ictype = "gfsnetcdf" ]; then
+if [ $bctype = "gfsnetcdf" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
   grib2_file_input_grid=""
