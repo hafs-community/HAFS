@@ -23,5 +23,5 @@ if [ $target = jet ]; then target=jet.intel ; fi
 
 cd hafs_forecast.fd/
 cd tests/
-./compile.sh "$target" "CCPP=Y STATIC=Y SUITES=HAFS_v0_gfdlmp_nonsstugwd,HAFS_v0_gfdlmp_nocpnsstugwd,HAFS_v0_gfdlmp_nocpnsst,HAFS_v0_gfdlmp_nocp,HAFS_v0_gfdlmp_nougwd,HAFS_v0_gfdlmp_nocpugwd,HAFS_v0_gfdlmp,HAFS_v0_hwrf_thompson,HAFS_v0_hwrf_nougwd,HAFS_v0_hwrf 32BIT=Y HYCOM=Y" 32bit YES NO
+./compile.sh "$target" "MOVING_NEST=Y DEBUG=Y CCPP=Y STATIC=Y SUITES=HAFS_v0_gfdlmp_nonsstugwd,HAFS_v0_gfdlmp_nocpnsstugwd,HAFS_v0_gfdlmp_nocpnsst,HAFS_v0_gfdlmp_nocp,HAFS_v0_gfdlmp_nougwd,HAFS_v0_gfdlmp_nocpugwd,HAFS_v0_gfdlmp,HAFS_v0_hwrf_thompson,HAFS_v0_hwrf_nougwd,HAFS_v0_hwrf 32BIT=Y HYCOM=Y" 32bit YES NO
 
