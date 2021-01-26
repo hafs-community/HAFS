@@ -74,6 +74,7 @@ target_link_libraries(
   ${ecc_dir}/libeccodes.so 
   ${nwp_dir}/libkdtree.a
   NetCDF::NetCDF_Fortran
+  NetCDF::NetCDF_C
   ${nwp_dir}/libslint.a
   ${nwp_dir}/libslatec.a
   ${nwp_dir}/libspherepack.a

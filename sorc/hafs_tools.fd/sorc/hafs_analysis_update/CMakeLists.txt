@@ -70,6 +70,7 @@ target_link_libraries(
   ${nwp_dir}/libkdtree.a
   nemsio::nemsio
   NetCDF::NetCDF_Fortran
+  NetCDF::NetCDF_C
   ${ext_dir}/libshtns.a
   ${ext_dir}/libfftw3.a
   ${nwp_dir}/libshtns_interface.a

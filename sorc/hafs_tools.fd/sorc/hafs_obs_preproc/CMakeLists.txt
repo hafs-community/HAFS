@@ -21,6 +21,7 @@ endif()
 
 find_package(NetCDF REQUIRED C Fortran)
 find_package(bufr REQUIRED)
+find_package(MPI REQUIRED)
 
 set(fortran_srcs
   kinds_interface.F90 
@@ -67,6 +68,8 @@ target_link_libraries(
   ${nwp_dir}/libgridtrans.a
   ${nwp_dir}/libkdtree.a
   NetCDF::NetCDF_Fortran
+  NetCDF::NetCDF_C
+  MPI::MPI_Fortran
   ${nwp_dir}/libslatec.a
   ${nwp_dir}/libsondelib.a
   ${nwp_dir}/libspline.a

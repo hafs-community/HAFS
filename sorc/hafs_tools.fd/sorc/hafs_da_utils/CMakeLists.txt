@@ -64,6 +64,7 @@ target_link_libraries(
   ${ilib_dir}/libgridprojs.a
   nemsio::nemsio
   NetCDF::NetCDF_Fortran
+  NetCDF::NetCDF_C
   bacio::bacio_4
   ${ilib_dir}/libw3.a)
 
