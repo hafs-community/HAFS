@@ -35,15 +35,15 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #===============================================================================
 
 # Regional static NATL basin-focused and ocean-coupled configuration with GFSv16 netcdf format IC and grib2ab format BC
-#${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled_netcdf \
-#    config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
-#    config.halo_blend=10 \
-#    config.GFSVER=PROD2021 \
-#    dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
-#    config.NHRS=12 ${scrubopt} \
-#    ../parm/hafs_regional_static.conf \
-#    ../parm/hafs_hycom.conf
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled_netcdf \
+     config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
+     config.halo_blend=10 \
+     config.GFSVER=PROD2021 \
+     dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_hycom.conf
 
 # Regional static NATL basin-focused configuration with GFS nemsio format IC/BC
 #${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \

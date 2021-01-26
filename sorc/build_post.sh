@@ -16,5 +16,5 @@ if [ ! -d "../exec" ]; then
   mkdir ../exec
 fi
 
-cd hafs_post.fd/sorc
-sh build_ncep_post.sh
+cd hafs_post.fd/tests
+sh compile_upp.sh
