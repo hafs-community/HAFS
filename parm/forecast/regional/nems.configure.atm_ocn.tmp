@@ -12,10 +12,7 @@ _OCN_petlist_bounds_
 # run sequence
 runSeq::
     @_cpl_dt_
-      _runSeq_OCN2ATM_
-      _runSeq_ATM2OCN_
-      _runSeq_ATM_
-      _runSeq_OCN_
+      _runSeq_ALL_
     @
 ::
 
@@ -48,4 +45,12 @@ OCN_attributes::
   end_hour = _end_hour_
   end_min = 0
   end_sec = 0
+::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+ALLCOMP_attributes::
+  mediator_read_restart = false
 ::

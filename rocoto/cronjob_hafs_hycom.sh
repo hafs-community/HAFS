@@ -35,9 +35,18 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
 
+# Run regional hafs-hycom coupled configuration with the cmeps-based coupling
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_cplocean3 \
+     config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
+     ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_hycom.conf \
+     forecast.cpl_ocean=3
+
 # Run regional hafs-hycom coupled configuration with the bilinear regridding method
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT} \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_cplocean2 \
      config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
      ${scrubopt} \
      ../parm/hafs_regional_static.conf \
@@ -46,7 +55,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 # Run regional hafs-hycom coupled configuration with the nearest point regridding method
 #${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT} \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_cplocean1 \
 #    config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
 #    ${scrubopt} \
 #    ../parm/hafs_regional_static.conf \
@@ -55,7 +64,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 # Run regional hafs-hycom coupled configuration in side-by-side model (no coupling)
 #${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT} \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_cplocean0 \
 #    config.ictype=gfsnemsio config.bctype=gfsgrib2_0p25 \
 #    ${scrubopt} \
 #    ../parm/hafs_regional_static.conf \
