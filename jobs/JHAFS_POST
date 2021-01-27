@@ -93,7 +93,10 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload nemsio-intel/2.2.2
   fi
   if [ "$machine" = orion ]; then
-    module unload nco netcdf hdf5
+     module purge
+     module use ${HOMEhafs}
+     module load modulefiles/modulefile.hafs.base.run.${machine}
+#    module unload nco netcdf hdf5
   fi
   if [ "$machine" = hera ]; then
      module purge
