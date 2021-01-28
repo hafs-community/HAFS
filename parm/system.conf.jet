@@ -18,7 +18,7 @@ fcst_catalog=jet_fcst_{GFSVER}
 inputroot=/lfs1/HFIP/hwrf-data/hafs-input/hafsdata_{GFSVER}
 
 [jet_fcst_PROD2019]
-inputroot=/lfs1/HFIP/hwrf-data/hafs-input/COMGFS
+inputroot=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -30,9 +30,9 @@ CDSAVE=/lfs4/HFIP/{disk_project}/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS
 ## Input GFS data directory
-COMgfs=/lfs1/HFIP/hwrf-data/hafs-input/COMGFS
+COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
-COMrtofs=/lfs1/HFIP/hwrf-data/hafs-input/COMRTOFS
+COMrtofs=/lfs4/HFIP/hwrf-data/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/aid

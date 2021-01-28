@@ -1,7 +1,7 @@
   <!-- kjet -->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
-  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs -->
   <!ENTITY PE_EXTRA        "<native>--partition=kjet</native>">
   <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=kjet</native>">
