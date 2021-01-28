@@ -1,7 +1,7 @@
   <!-- xjet -->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
-  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs --> 
+  <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs -->
   <!ENTITY PE_EXTRA        "<native>--partition=xjet</native>">
   <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=xjet</native>">
@@ -45,6 +45,10 @@
   <!ENTITY FORECAST_RESOURCES_regional_40x30io3x40_omp2 "<nodes>66:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
   <!-- FORECAST_RESOURCES for regional HYCOM coupling -->
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x48_ocn120_omp2 "<nodes>122:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1464</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io3x48_ocn60_omp2 "<nodes>117:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1404</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_40x30io1x48_ocn60_omp2 "<nodes>109:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1308</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+
   <!ENTITY FORECAST_RESOURCES_regional_48x40io1x48_ocn60_omp2 "<nodes>169:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2028</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_36x32io1x48_ocn60_omp2 "<nodes>105:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1260</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 

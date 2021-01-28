@@ -33,7 +33,7 @@ ichunk3d:                -1
 jchunk3d:                -1
 kchunk3d:                -1
 ideflate:                1
-nbits:                   0  
+nbits:                   0
 write_nemsioflip:        .false.
 write_fsyncflag:         .false.
 
@@ -48,7 +48,7 @@ lat2:                    _LAT2_                  # latitude of upper-right
 dlon:                    _DLON_
 dlat:                    _DLAT_
 
-nfhout:                  3 
+nfhout:                  3
 nfhmax_hf:               -1
-nfhout_hf:               3 
+nfhout_hf:               3
 nsout:                   -1

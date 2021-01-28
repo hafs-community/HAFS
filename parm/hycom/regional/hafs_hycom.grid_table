@@ -1,4 +1,4 @@
-grid_table: 
+grid_table:
 
 grid_id    	src_grid_label	grid_label	grid_source	grid_size_idm_jdm_kdm	i0j0_pts	ijgrd  gridno
 hat10_basin 	navy_0.08	basin	        rtofs_glo	1135 633 41        2346 1518 1 850

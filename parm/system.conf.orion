@@ -17,7 +17,7 @@ fcst_catalog=orion_fcst_{GFSVER}
 inputroot=/work/noaa/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
 
 [orion_fcst_PROD2019]
-inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -29,9 +29,9 @@ CDSCRUB=/work/noaa/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
-COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
-COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFS
+COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
