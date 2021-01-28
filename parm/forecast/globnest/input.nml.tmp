@@ -220,7 +220,7 @@
        iaufhrs        = 30
        iau_inc_files  = ''
        iau_drymassfixer = .false.
-       do_deep        = .false.
+       do_deep        = .true.
        lgfdlmprad     = .true.
        effr_in        = .true.
        do_sppt        = .F.

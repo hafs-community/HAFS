@@ -164,14 +164,7 @@ export run_ocean={run_ocean}
 export ocean_model={ocean_model}
 export cpl_dt={cpl_dt}
 export cpl_ocean={cpl_ocean}
-export cplflx={cplflx}
-export runSeq_OCN2ATM={runSeq_OCN2ATM}
-export runSeq_ATM2OCN={runSeq_ATM2OCN}
-export runSeq_ATM={runSeq_ATM}
-export runSeq_OCN={runSeq_OCN}
 export ocean_tasks={ocean_tasks}
-export ATM_petlist_bounds={ATM_petlist_bounds}
-export OCN_petlist_bounds={OCN_petlist_bounds}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
 

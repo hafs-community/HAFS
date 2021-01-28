@@ -165,7 +165,7 @@
        lwhtr          = .true.
        swhtr          = .true.
        cnvgwd         = .false.
-       shal_cnv       = .false. !Shallow convection
+       shal_cnv       = .true. !Shallow convection
        cal_pre        = .false.
        redrag         = .true.
        dspheat        = .true.
@@ -175,7 +175,7 @@
        satmedmf       = .false.
        random_clds    = .false.
        trans_trac     = .true.
-       cnvcld         = .false.
+       cnvcld         = .true.
        imfshalcnv     = 2
        imfdeepcnv     = 2
        cdmbgwd        = 3.5, 0.01
@@ -210,7 +210,7 @@
        iaufhrs        = 30
        iau_inc_files  = ''
        iau_drymassfixer = .false.
-       do_deep        = .false.
+       do_deep        = .true.
        lgfdlmprad     = .true.
        effr_in        = .true.
        do_sppt        = .F.

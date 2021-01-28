@@ -1395,65 +1395,6 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
 
         run_ocean=self.getbool('config','run_ocean')
-        cpl_ocean=self.getint('forecast','cpl_ocean',0)
-        ocean_tasks=self.getint('forecast','ocean_tasks',120)
-        self.set('holdvars','ocean_tasks',ocean_tasks)
-        OCN_tasks=ocean_tasks
-
-        # Set ATM/OCN_petlist_bounds if needed
-        runSeq_ATM=self.getstr('forecast','runSeq_ATM','auto')
-        runSeq_OCN=self.getstr('forecast','runSeq_OCN','auto')
-        ATM_petlist_bounds=self.getstr('forecast','ATM_petlist_bounds','auto')
-        OCN_petlist_bounds=self.getstr('forecast','OCN_petlist_bounds','auto')
-        gtype=self.getstr('grid','gtype','regional')
-        glob_layoutx=self.getint('forecast','glob_layoutx',8)
-        glob_layouty=self.getint('forecast','glob_layouty',8)
-        layoutx=self.getint('forecast','layoutx',40)
-        layouty=self.getint('forecast','layouty',30)
-        quilting=self.getbool('forecast','quilting',True)
-        write_groups=self.getint('forecast','write_groups',3)
-        write_tasks_per_group=self.getint('forecast','write_tasks_per_group',48)
-        runSeq_OCN2ATM=self.getstr('forecast','runSeq_OCN2ATM','auto')
-        runSeq_ATM2OCN=self.getstr('forecast','runSeq_ATM2OCN','auto')
-        cplflx=self.getstr('forecast','cplflx','auto')
-
-        if run_ocean and cpl_ocean==0:
-            if cplflx=='auto': self.set('holdvars','cplflx','.false.')
-            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','')
-            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','')
-        if run_ocean and cpl_ocean==1:
-            if cplflx=='auto': self.set('holdvars','cplflx','.true.')
-            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapMethod=nearest_stod:srcmaskvalues=0"')
-            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapMethod=nearest_stod:srcmaskvalues=1:dstmaskvalues=0"')
-        if run_ocean and cpl_ocean==2:
-            if cplflx=='auto': self.set('holdvars','cplflx','.true.')
-            if runSeq_OCN2ATM=='auto': self.set('holdvars','runSeq_OCN2ATM','"OCN -> ATM :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0"')
-            if runSeq_ATM2OCN=='auto': self.set('holdvars','runSeq_ATM2OCN','"ATM -> OCN :remapmethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0"')
-
-        if runSeq_ATM=='auto': self.set('holdvars','runSeq_ATM','ATM')
-        if run_ocean and runSeq_OCN=='auto':
-            self.set('holdvars','runSeq_OCN','OCN')
-
-        if gtype=='regional':
-            if quilting:
-                ATM_tasks=layoutx*layouty+write_groups*write_tasks_per_group
-            else:
-                ATM_tasks=layoutx*layouty
-        elif gtype=='nest':
-            if quilting:
-                ATM_tasks=6*glob_layoutx*glob_layouty+layoutx*layouty+write_groups*write_tasks_per_group
-            else:
-                ATM_tasks=6*glob_layoutx*glob_layouty+layoutx*layouty
-        else:
-            logger.warning('unsupported grid type')
-
-        if ATM_petlist_bounds=='auto':
-            ATM_petlist_bounds='"ATM_petlist_bounds: %04d %04d"'%(0, ATM_tasks-1)
-            self.set('holdvars','ATM_petlist_bounds',ATM_petlist_bounds)
-
-        if run_ocean and OCN_petlist_bounds=='auto':
-            OCN_petlist_bounds='"OCN_petlist_bounds: %04d %04d"'%(ATM_tasks, ATM_tasks+OCN_tasks-1)
-            self.set('holdvars','OCN_petlist_bounds',OCN_petlist_bounds)
 
         # Set ocean_start_dtg if needed
         ocean_start_dtg=self.getstr('forecast','ocean_start_dtg','auto')

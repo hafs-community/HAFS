@@ -96,7 +96,7 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload nco netcdf hdf5
   fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
-  module load post/v8.0.0-${machine}
+  module load ${machine}
   module list
 fi
 
