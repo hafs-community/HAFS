@@ -165,7 +165,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.ictype_ens=gfsnetcdf config.bctype_ens=gfsnetcdf \
      dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 
- # GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled HAFS enkf ensembles + 3hourly FGAT; GFSv16 input files 
+ # GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled HAFS enkf ensembles + 3hourly FGAT; GFSv16 input files
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96s1n4_gsivrfgatens_3densda_enkf_fgat_gfsv16 \
      config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
@@ -177,6 +177,27 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
      config.ictype_ens=gfsnetcdf config.bctype_ens=gfsnetcdf \
      dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+
+ # GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled dual-resolution HAFS enkf ensembles + 3hourly FGAT; GFSv16 input files
+ # On top of the hafsv0p1aL64 configuration with ocean coupling;
+ # Dual-resolution ENSDA system, 3-km deterministic, 6-km ensembles, same domain coverage
+ # Note: analysis and EnKF recenter not work yet
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900-2019082906 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsv0p1aL64_full_3densda_dualres_gfsv16 \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=4 config.run_enkf=yes \
+     gsi.use_bufr_nr=yes \
+     ../parm/hafsv0p1aL64_da_AL.conf \
+     ../parm/hafs_hycom.conf \
+     config.NHRS=12 ${scrubopt} \
+     config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
+     config.ictype_ens=gfsnetcdf config.bctype_ens=gfsnetcdf \
+     config.halo_blend=10 \
+     config.GFSVER=PROD2021 \
+     dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16 \
+     forecast.write_tasks_per_group=80 \
+     forecast_ens.write_tasks_per_group_ens=80
 
 #===============================================================================
 

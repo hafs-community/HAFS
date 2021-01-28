@@ -22,13 +22,13 @@
       gpstop           = 30.,
       use_gfs_nemsio   = T,
       print_diag_pcg   = T,
-      newpc4pred       = T, 
-      adp_anglebc      = T, 
+      newpc4pred       = T,
+      adp_anglebc      = T,
       angord           = 4,
-      passive_bc       = T, 
-      use_edges        = F, 
+      passive_bc       = T,
+      use_edges        = F,
       emiss_bc         = T,
-      diag_precon      = T, 
+      diag_precon      = T,
       step_start       = 1.e-3,
       upd_pred(1)      = 0,
       upd_pred(2)      = 0,
@@ -95,7 +95,7 @@
       dmesh(2)        = 45.0
       dmesh(3)        = 45.0
       dmesh(4)        = 45.0
-      dmesh(5)        = 90.0      
+      dmesh(5)        = 90.0
       time_window_max = 3.0,
       l_foreaft_thin  = F
 /

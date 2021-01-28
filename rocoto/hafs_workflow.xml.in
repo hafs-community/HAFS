@@ -724,6 +724,7 @@
     &PE_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
     <envar><name>ldo_enscalc_option</name><value>1</value></envar>
 
     <dependency>
@@ -752,6 +753,7 @@
     &PE_EXTRA;
     &ENKF_GSI_RESOURCES;
     &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
 
     <dependency>
       <and>
@@ -776,6 +778,7 @@
       &PE_EXTRA;
       &ENKF_GSI_RESOURCES;
       &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>HX_ENS</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
 
@@ -795,6 +798,7 @@
     &PE_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
     <envar><name>ldo_enscalc_option</name><value>0</value></envar>
 
     <dependency>
@@ -815,6 +819,7 @@
     &PE_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
     <envar><name>ldo_enscalc_option</name><value>2</value></envar>
 
     <dependency>

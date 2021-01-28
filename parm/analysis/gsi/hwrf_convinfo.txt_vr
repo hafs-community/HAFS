@@ -1,5 +1,5 @@
-! otype   = observation type (a7, t, uv, q, etc.)                                     
-! type    = prepbufr observation type (if available) 
+! otype   = observation type (a7, t, uv, q, etc.)
+! type    = prepbufr observation type (if available)
 ! sub     = prepbufr subtype (not yet available)
 ! iuse    = flag if to use/not use / monitor data
 !         = 1  use data
@@ -10,7 +10,7 @@
 ! ngroup  = cross validation parameter - group to remove from data use
 ! nmiter  = cross validation parameter - external iteration to introduce removed data
 ! gross   = gross error parameter - gross error
-! ermax   = gross error parameter - max error  
+! ermax   = gross error parameter - max error
 ! ermin   = gross error parameter - min error
 ! var_b   = variational quality control parameter -  b parameter
 ! var_pg ithin rmesh npred  = variational quality control parameter -  pg parameter

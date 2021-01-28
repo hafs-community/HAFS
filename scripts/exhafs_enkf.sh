@@ -144,7 +144,7 @@ fi
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 #checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
-${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
+#${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
 #checkgfs $NLN $vqcdat       vqctp001.dat
 #checkgfs $NLN $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
@@ -154,11 +154,16 @@ ${NLN} ${PARMgsi}/hwrf_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
   #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_ensmean_L${LEVS:-65}
-  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
+  #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
+  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
 else # enkf_update
-  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
+  #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
+  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
 fi
-${NCP} ${anavinfo} ./anavinfo
+#${NCP} ${anavinfo} ./anavinfo
+sed -e "s/_LEV_/${npz:-64}/g" \
+    -e "s/_LP1_/${LEVS:-65}/g" \
+    ${anavinfo} > ./anavinfo
 
 ${NLN} ${PARMgsi}/hwrf_satinfo.txt ./satinfo
 ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
@@ -183,7 +188,7 @@ cat > enkf.nml << EOFnml
    obtimelnh=1.e30,obtimelsh=1.e30,obtimeltr=1.e30,
    saterrfact=1.0,numiter=1,
    sprd_tol=1.e30,paoverpb_thresh=0.98,
-   nlons=$((${npx}-1)),nlats=$((${npy}-1)),nlevs=${npz},nanals=${nens},
+   nlons=$((${npx_ens:-$npx}-1)),nlats=$((${npy_ens:-$npy}-1)),nlevs=${npz_ens:-$npz},nanals=${nens},
    deterministic=.true.,sortinc=.true.,lupd_satbiasc=.false.,
    reducedgrid=.true.,readin_localization=.false.,
    use_gfs_nemsio=.false.,use_gfs_ncio=.false.,imp_physics=11,lupp=.false.,
@@ -288,7 +293,7 @@ cat > enkf.nml << EOFnml
 /
 
 &nam_fv3
-   fv3fixpath="./",nx_res=$((${npx}-1)),ny_res=$((${npy}-1)),ntiles=1,
+   fv3fixpath="./",nx_res=$((${npx_ens:-$npx}-1)),ny_res=$((${npy_ens:-$npy}-1)),ntiles=1,
 /
 
 EOFnml
@@ -304,7 +309,10 @@ cp -p $ENKFEXEC ./enkf.x
 #  #for infile in $(/bin/ls ${anavinfo}_p*)
 #  for infile in $(/bin/ls ${anavinfo})
 #  do
-#    cp $infile anavinfo 
+#    #${NCP} $infile anavinfo
+#    sed -e "s/_LEV_/${npz:-64}/g" \
+#        -e "s/_LP1_/${LEVS:-65}/g" \
+#        ${infile} > ./anavinfo
 #    ${APRUNC}  ./enkf.x < enkf.nml > stdout_p${i} 2>&1
 #    let i=i+1
 #  done

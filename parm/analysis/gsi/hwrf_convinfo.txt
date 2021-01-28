@@ -1,5 +1,5 @@
-! otype   = observation type (a7, t, uv, q, etc.)                                     
-! type    = prepbufr observation type (if available) 
+! otype   = observation type (a7, t, uv, q, etc.)
+! type    = prepbufr observation type (if available)
 ! sub     = prepbufr subtype (not yet available)
 ! iuse    = flag if to use/not use / monitor data
 !         = 1  use data
@@ -10,7 +10,7 @@
 ! ngroup  = cross validation parameter - group to remove from data use
 ! nmiter  = cross validation parameter - external iteration to introduce removed data
 ! gross   = gross error parameter - gross error
-! ermax   = gross error parameter - max error  
+! ermax   = gross error parameter - max error
 ! ermin   = gross error parameter - min error
 ! var_b   = variational quality control parameter -  b parameter
 ! var_pg ithin rmesh npred  = variational quality control parameter -  pg parameter
@@ -148,7 +148,7 @@
  uv       252    0   -1     3.0      0      0      0   2.5  20.0   1.4   2.5  0.000050     0    0.     0.      0    0.     0.
  uv       252  171    1     3.0      0      0      0   2.5  20.0   1.4   2.5  0.000050     0    0.     0.      0    0.     0.
  uv       252  172    1     3.0      0      0      0   2.5  20.0   1.4   2.5  0.000050     0    0.     0.      0    0.     0.
- uv       252  173    1     3.0      0      0      0   2.5  20.0   1.4   2.5  0.000050     0    0.     0.      0    0.     2.  
+ uv       252  173    1     3.0      0      0      0   2.5  20.0   1.4   2.5  0.000050     0    0.     0.      0    0.     2.
  uv       253    0   -1     3.0      0      0      0   1.5  20.0   1.4   1.5  0.000500     0    0.     0.      0    0.     0.
  uv       253   54    1     3.0      0      0      0   1.5  20.0   1.4   1.5  0.000500     0    0.     0.      0    0.     0.
  uv       253   55   -1     3.0      0      0      0   1.5  20.0   1.4   1.5  0.000500     0    0.     0.      0    0.     0.
