@@ -178,7 +178,7 @@
        cnvcld         = .true.
        imfshalcnv     = 2
        imfdeepcnv     = 2
-       cdmbgwd        = 3.5, 0.01
+       cdmbgwd        = 0.88, 0.04
        sfc_z0_type    = 6
        prslrd0        = 0.
        ivegsrc        = 1
