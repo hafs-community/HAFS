@@ -1356,10 +1356,10 @@ class HAFSLauncher(HAFSConfig):
         else:
             logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
             sys.exit(2)
-        self.set('holdvars','output_grid_lon1',output_grid_lon1)
-        self.set('holdvars','output_grid_lat1',output_grid_lat1)
-        self.set('holdvars','output_grid_lon2',output_grid_lon2)
-        self.set('holdvars','output_grid_lat2',output_grid_lat2)
+        self.set('holdvars','output_grid_lon1','%.6f'%(output_grid_lon1))
+        self.set('holdvars','output_grid_lat1','%.6f'%(output_grid_lat1))
+        self.set('holdvars','output_grid_lon2','%.6f'%(output_grid_lon2))
+        self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
 
         # Generate synop_gridspecs if needed
         synop_gridspecs=self.getstr('post','synop_gridspecs','auto')
