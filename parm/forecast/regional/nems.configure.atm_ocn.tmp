@@ -36,7 +36,7 @@ OCN_attributes::
   hycom_arche_output = .false.
   hyc_esmf_exp_output = .true.
   hyc_esmf_imp_output = .true.
-  hyc_impexp_file = nems.configure
+  hyc_impexp_file = dummy_file
   espc_show_impexp_minmax = .true.
   ocean_start_dtg = _ocean_start_dtg_
   start_hour = 0
