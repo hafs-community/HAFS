@@ -40,7 +40,7 @@ EXPT=$(basename ${HOMEhafs})
 
  # Technical test for 2020082506-2020082512 13L2020
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
-     config.run_hrdgraphics=yes config.run_emcgraphics=yes \
+     config.run_emcgraphics=yes \
      config.scrub_work=no config.scrub_com=no
 
 ## 2020 NATL storm slots
