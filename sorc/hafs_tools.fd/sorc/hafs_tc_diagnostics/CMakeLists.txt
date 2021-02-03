@@ -64,7 +64,8 @@ add_executable(${exe_name} ${fortran_srcs})
 target_include_directories(
   ${exe_name} PUBLIC
   ${nwp_inc_dir}
-  ${ecc_inc_dir})
+  ${ecc_inc_dir}
+  ${ext_inc_dir})
 
 target_link_libraries(
   ${exe_name}
