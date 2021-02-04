@@ -44,3 +44,10 @@ BDECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/btk
 [holdvars]
 WHERE_AM_I=wcoss_cray    ;; Which cluster? (For setting up environment.)
 WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.
+
+[forecast]
+write_groups=2
+write_tasks_per_group=48
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
