@@ -96,7 +96,7 @@ fi
 # Working directories
 #####################################
 if [ ${ENSDA} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/chgres_ic_ens/mem${ENSID}
 else

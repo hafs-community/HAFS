@@ -106,7 +106,7 @@ export BC_GROUPN=${BC_GROUPN:-6}
 export BC_GROUPI=$( printf "%03d" "${BC_GROUPI:-001}" )
 
 if [ ${ENSDA} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/chgres_bc${BC_GROUPI}_ens/mem${ENSID}
 else

@@ -164,7 +164,7 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 #export FIXgrid=${FIXhafs}/fix_fv3
 if [ "${ENSDA}" = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/forecast_ens/mem${ENSID}

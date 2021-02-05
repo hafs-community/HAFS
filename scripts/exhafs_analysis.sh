@@ -83,13 +83,13 @@ if [ ${RUN_FGAT} = YES ]; then
  cyctm01=`echo ${CDATEtm01} | cut -c9-10`
  CDATEtp03=`${NDATE} +3 $CDATE`
  PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
- cyctp03=`echo ${CDATEtm03} | cut -c9-10`
+ cyctp03=`echo ${CDATEtp03} | cut -c9-10`
  CDATEtp02=`${NDATE} +2 $CDATE`
  PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
- cyctp02=`echo ${CDATEtm02} | cut -c9-10`
+ cyctp02=`echo ${CDATEtp02} | cut -c9-10`
  CDATEtp01=`${NDATE} +1 $CDATE`
  PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
- cyctp01=`echo ${CDATEtm01} | cut -c9-10`
+ cyctp01=`echo ${CDATEtp01} | cut -c9-10`
 fi
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}

@@ -99,7 +99,7 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 if [ ${ENSDA} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export INPdir=${INPdir:-${WORKhafs}/intercom/post_ens/mem${ENSID}}
   export DATA=${WORKhafs}/product_ens/mem${ENSID}
   export COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
