@@ -18,14 +18,14 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
-#HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
-#dev="-s sites/orion.ent -f"
-#PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
+ dev="-s sites/orion.ent -f"
+ PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
- HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
- dev="-s sites/hera.ent -f"
- PYTHON3=/apps/intel/intelpython3/bin/python3
+#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+#dev="-s sites/hera.ent -f"
+#PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
@@ -40,10 +40,22 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
      config.halo_blend=10 \
      config.GFSVER=PROD2021 \
-     dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
+     dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16 \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_static.conf \
      ../parm/hafs_hycom.conf
+
+# Regional static NATL basin-focused and cmeps-based ocean-coupled configuration with GFSv16 netcdf format IC and grib2ab format BC
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_coupled_netcdf_cmeps \
+     config.ictype=gfsnetcdf config.bctype=gfsgrib2ab_0p25 \
+     config.halo_blend=10 \
+     config.GFSVER=PROD2021 \
+     dir.COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_hycom.conf \
+     forecast.cpl_ocean=3
 
 # Regional static NATL basin-focused configuration with GFS nemsio format IC/BC
 #${PYTHON3} ./run_hafs.py -t ${dev} 2019091600 09L HISTORY \
