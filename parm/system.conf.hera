@@ -47,5 +47,8 @@ glob_layoutx=8
 glob_layouty=10
 layoutx=40
 layouty=30
-write_groups=3
-write_tasks_per_group=40
+write_groups=1
+write_tasks_per_group=80
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
