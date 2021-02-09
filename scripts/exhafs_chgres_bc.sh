@@ -77,7 +77,7 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 cd ${DATA_BC}
 
 # Use gfs netcdf files from GFSv16
-if [ $ictype = "gfsnetcdf" ]; then
+if [ $bctype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nc
     sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nc

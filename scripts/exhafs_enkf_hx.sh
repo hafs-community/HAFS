@@ -33,6 +33,23 @@ export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
 
+if [ $GFSVER = PROD2021 ]; then
+  export atmos="atmos/"
+  export USE_GFS_NEMSIO=.false.
+  export USE_GFS_NCIO=.true.
+  GSUFFIX=${GSUFFIX:-.nc}
+elif [ $GFSVER = PROD2019 ]; then
+  export atmos=""
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+else
+  export atmos=""
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+fi
+
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
@@ -61,13 +78,13 @@ if [ ${RUN_FGAT} = YES ]; then
  cyctm01=`echo ${CDATEtm01} | cut -c9-10`
  CDATEtp03=`${NDATE} +3 $CDATE`
  PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
- cyctp03=`echo ${CDATEtm03} | cut -c9-10`
+ cyctp03=`echo ${CDATEtp03} | cut -c9-10`
  CDATEtp02=`${NDATE} +2 $CDATE`
  PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
- cyctp02=`echo ${CDATEtm02} | cut -c9-10`
+ cyctp02=`echo ${CDATEtp02} | cut -c9-10`
  CDATEtp01=`${NDATE} +1 $CDATE`
  PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
- cyctp01=`echo ${CDATEtm01} | cut -c9-10`
+ cyctp01=`echo ${CDATEtp01} | cut -c9-10`
 fi
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
@@ -186,7 +203,11 @@ ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 ${NLN} ${PARMgsi}/hwrf_satinfo.txt ./satinfo
 #checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
-${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
+#${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
+anavinfo=${PARMgsi}/anavinfo_hafs_tmp
+sed -e "s/_LEV_/${npz:-64}/g" \
+    -e "s/_LP1_/${LEVS:-65}/g" \
+    ${anavinfo} > ./anavinfo
 ${NLN} ${PARMgsi}/hwrf_convinfo.txt ./convinfo
 #checkgfs $NLN $vqcdat       vqctp001.dat
 #checkgfs $NLN $INSITUINFO   insituinfo
@@ -238,7 +259,7 @@ fi
 if [ ${USE_SELECT:-NO} != "YES" ]; then  #regular  run
 
 # Link GFS/GDAS input and observation files
-COMIN_OBS=${COMgfs}/gfs.$PDY/$cyc
+COMIN_OBS=${COMIN_OBS:-${COMgfs}/gfs.$PDY/$cyc/${atmos}}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
@@ -369,7 +390,7 @@ if [[ ${use_bufr_nr:-no} = "yes" ]]; then
 fi
 
 # HAFS specific observations
-COMINhafs_obs=${COMINhafs}/hafs.$PDY/$cyc
+COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
@@ -377,13 +398,13 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 fi #USE_SELECT
 
 #
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias_pc        satbias_pc
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias_air       satbias_air
+${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.atmf006.nemsio  gfs_sigf06
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.atmf009.nemsio  gfs_sigf09
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf006.nemsio  gfs_sigf06
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf009.nemsio  gfs_sigf09
 
 # Diagnostic files
 # if requested, link GSI diagnostic file directories for use later
@@ -459,7 +480,7 @@ ${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.nc
 
 ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.nc
-${NCP} ./fv3_sfcdata ${RESTARTout}/${PDY}.${cyc}0000.sfc_data.nc
+${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.nc
 ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
 ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc

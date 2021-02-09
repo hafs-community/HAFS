@@ -45,7 +45,7 @@ $Build_utils && {
 # install post
 #------------------------------------
 $Build_post && {
-  ${CP} hafs_post.fd/exec/ncep_post                  ../exec/hafs_post.x
+  ${CP} hafs_post.fd/exec/upp.x                      ../exec/hafs_post.x
 }
 
 #------------------------------------

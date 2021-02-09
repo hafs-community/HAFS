@@ -102,7 +102,7 @@ if [ "$RUN_ENVIR" = prod ]; then
      module purge
   fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
-  module load post/v8.0.0-${machine}
+  module load ${machine}
   module list
 fi
 
@@ -124,7 +124,7 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 if [ ${ENSDA} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export INPdir=${INPdir:-${WORKhafs}/forecast_ens/mem${ENSID}}
   export DATA=${WORKhafs}/post_ens/mem${ENSID}
   export COMOUTpost=${COMhafs}/post_ens/mem${ENSDA}

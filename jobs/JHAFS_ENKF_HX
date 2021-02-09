@@ -94,7 +94,7 @@ export PDY=${PDY:-${PDYtmp}}
 # Working directories
 #####################################
 if [ ${HX_ENS:-NO} = YES ]; then
-  export ENSID=$( printf "%03d" "${ENSID:-001}" )
+  export ENSID=${ENSID:-001}
   export MEMSTR="mem${ENSID}"
 else
   export ENSID="mean"

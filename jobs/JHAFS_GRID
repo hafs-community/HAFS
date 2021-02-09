@@ -29,28 +29,34 @@ if [ ${ENSDA} = YES ]; then
   export jstart_nest=${jstart_nest_ens:-238}
   export iend_nest=${iend_nest_ens:-1485}
   export jend_nest=${jend_nest_ens:-1287}
+# Otherwise, generate grid according to the following parameters
+  export stretch_fac=${stretch_fac_ens:-1.0001}     # stretching factor for the grid
+  export target_lon=${target_lon_ens:--62.0}      # center longitude of the highest resolution tile
+  export target_lat=${target_lat_ens:-22.0}       # center latitude of the highest resolution tile
+# Need for grid types: nest and regional
+  export refine_ratio=${refine_ratio_ens:-4}      # specify the refinement ratio for nest grid
 else
   export CASE=${CASE:-C768}
   export CRES=`echo $CASE | cut -c 2-`
   export gtype=${gtype:-regional}             # grid type = uniform, stretch, nest, or stand alone regional
 # If gridfixdir is specified and exists, use the grid fix files directly
   export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+  export LEVS=${LEVS:-65}
   export istart_nest=${istart_nest:-46}
   export jstart_nest=${jstart_nest:-238}
   export iend_nest=${iend_nest:-1485}
   export jend_nest=${jend_nest:-1287}
-fi
 # Otherwise, generate grid according to the following parameters
-export stretch_fac=${stretch_fac:-1.0001}     # stretching factor for the grid
-export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
-export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
+  export stretch_fac=${stretch_fac:-1.0001}     # stretching factor for the grid
+  export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
+  export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
 # Need for grid types: nest and regional
-export refine_ratio=${refine_ratio:-4}      # specify the refinement ratio for nest grid
+  export refine_ratio=${refine_ratio:-4}      # specify the refinement ratio for nest grid
+fi
+
 export halo=${halo:-3}                      # halo size to be used in the atmosphere cubic sphere model for the grid tile.
 export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
 export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
-
-export LEVS=${LEVS:-65}
 export NTRAC=7            # output all gfdl mp tracers
 
 ####################################

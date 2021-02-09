@@ -4,10 +4,10 @@ met_guess::
   z         1      -1         geopotential_height  phis
   u        64       2         zonal_wind           u
   v        64       2         meridional_wind      v
-  tv       64       2         virtual_temperature  t 
+  tv       64       2         virtual_temperature  t
   q        64       2         specific_humidity    sphum
-  oz       64       2         ozone                o3mr 
-  delp     64      -1         fv3 del pressure     delp    
+  oz       64       2         ozone                o3mr
+  delp     64      -1         fv3 del pressure     delp
 ::
 
 state_derivatives::
@@ -40,7 +40,7 @@ state_vector::
  q        64      1     met_guess    q
  oz       64      1     met_guess    oz
  prse     65      0     met_guess    prse
- ps        1      0     met_guess    ps   
+ ps        1      0     met_guess    ps
  sst       1      0     met_guess    sst
 ::
 
