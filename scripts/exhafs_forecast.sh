@@ -63,14 +63,57 @@ export run_ocean=${run_ocean:-no}
 export ocean_model=${ocean_model:-hycom}
 export cpl_ocean=${cpl_ocean:-0}
 export ocean_tasks=${ocean_tasks:-120}
-export cpl_dt=${cpl_dt:-360}
 export cplflx=${cplflx:-.false.}
-export ATM_petlist_bounds=${ATM_petlist_bounds:-'ATM_petlist_bounds: 0000 1319'}
-export OCN_petlist_bounds=${OCN_petlist_bounds:-'OCN_petlist_bounds: 1320 1439'}
-export runSeq_OCN2ATM=${runSeq_OCN2ATM:-''}
-export runSeq_ATM2OCN=${runSeq_ATM2OCN:-''}
-export runSeq_ATM=${runSeq_ATM:-'ATM'}
-export runSeq_OCN=${runSeq_OCN:-'OCN'}
+export cpl_dt=${cpl_dt:-360}
+
+if [ $gtype = regional ]; then
+  if [ $quilting = .true. ]; then
+    ATM_tasks=$(($layoutx*$layouty+$write_groups*$write_tasks_per_group))
+  else
+    ATM_tasks=$(($layoutx*$layouty))
+  fi
+elif [ $gtype = nest ]; then
+  if [ $quilting = .true. ]; then
+    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty+$write_groups*$write_tasks_per_group))
+  else
+    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty))
+  fi
+else
+  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
+  exit 9
+fi
+
+export ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
+
+# run ocean model side by side (no coupling)
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 0 ];  then
+  export cplflx=.false.
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=""
+  export runSeq_ALL="ATM\n OCN"
+fi
+# direct coupling through the nearest point regridding method
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 1 ];  then
+  export cplflx=.true.
+  export runSeq_ALL="OCN -> ATM :remapMethod=nearest_stod:srcmaskvalues=0\n ATM -> OCN :remapMethod=nearest_stod:srcmaskvalues=1:dstmaskvalues=0\n ATM\n OCN"
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=""
+fi
+# direct coupling through the bilinear regridding method
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 2 ];  then
+  export cplflx=.true.
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=""
+  export runSeq_ALL="OCN -> ATM :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0\n ATM -> OCN :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0\n ATM\n OCN"
+fi
+# CMEPS based coupling through the bilinear regridding method
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ];  then
+  export cplflx=.true.
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN"
+fi
+
 export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
 #export base_dtg=${CDATE:-2019082900}
 #export end_hour=${NHRS:-126}
@@ -276,20 +319,22 @@ cp ${PARMforecast}/field_table .
 cp ${PARMforecast}/input.nml.tmp .
 cp ${PARMforecast}/model_configure.tmp .
 
-if [ ${run_ocean} = yes ];  then
-  cp ${PARMforecast}/nems.configure.atm_ocn.tmp ./
+if [ ${run_ocean} = yes ]; then
+  if [[ ${cpl_ocean} -eq 3 ]]; then
+    cp ${PARMforecast}/nems.configure.atm_ocn_cmeps.tmp ./nems.configure.tmp
+  else
+    cp ${PARMforecast}/nems.configure.atm_ocn.tmp ./nems.configure.tmp
+  fi
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_cpl_dt_/${cpl_dt}/g" \
-      -e "s/_runSeq_OCN2ATM_/${runSeq_OCN2ATM}/g" \
-      -e "s/_runSeq_ATM2OCN_/${runSeq_ATM2OCN}/g" \
-      -e "s/_runSeq_ATM_/${runSeq_ATM}/g" \
-      -e "s/_runSeq_OCN_/${runSeq_OCN}/g" \
+      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
       -e "s/_base_dtg_/${CDATE}/g" \
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
       -e "s/_merge_import_/${merge_import:-.false.}/g" \
-      nems.configure.atm_ocn.tmp > nems.configure
+      nems.configure.tmp > nems.configure
 elif [ ${run_ocean} = no ];  then
   cp ${PARMforecast}/nems.configure.atmonly ./nems.configure
 else
@@ -456,6 +501,11 @@ cat model_configure.tmp | sed s/NTASKS/$TOTAL_TASKS/ | sed s/YR/$yr/ | \
     sed s/_DLAT_/$output_grid_dlat/ | \
     sed s/_cpl_/${cplflx:-.false.}/ \
     >  model_configure
+
+#-------------------------------------------------------------------
+# Copy the fd_nems.yaml file
+#-------------------------------------------------------------------
+cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
 
 #-------------------------------------------------------------------
 # Link the executable and run the forecast
