@@ -26,8 +26,8 @@
 
  &fms_io_nml
        checksum_required   = .false.
-       max_files_r = 100,
-       max_files_w = 100,
+       max_files_r = 1000,
+       max_files_w = 1000,
 /
 
  &fms_nml

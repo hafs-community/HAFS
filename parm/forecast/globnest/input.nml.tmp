@@ -26,8 +26,8 @@
 
  &fms_io_nml
        checksum_required   = .false.
-       max_files_r = 100,
-       max_files_w = 100,
+       max_files_r = 1000,
+       max_files_w = 1000,
 /
 
  &fms_nml
@@ -130,6 +130,11 @@
        nest_refine = 0, _refinement_
        nest_ioffsets= 1, _ioffset_
        nest_joffsets= 1, _joffset_
+/
+
+ &fv_moving_nest_nml
+       surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x/"
+       is_moving_nest = .F., .T.
 /
 
  &surf_map_nml
