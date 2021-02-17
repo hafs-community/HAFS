@@ -56,7 +56,6 @@ export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
 
 export run_datm=${run_datm:-no}
-export domain_atm=${domain_atm:-''}
 export mesh_atm=${mesh_atm:-''}
 
 export run_ocean=${run_ocean:-no}
@@ -107,11 +106,17 @@ if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 2 ];  then
   export runSeq_ALL="OCN -> ATM :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0\n ATM -> OCN :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0\n ATM\n OCN"
 fi
 # CMEPS based coupling through the bilinear regridding method
-if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ];  then
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ] && [ ${run_datm} = no ];  then
   export cplflx=.true.
   export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   export runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN"
+fi
+# CMEPS based coupling between HYCOM and DATM through the bilinear regridding method
+if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ] && [ ${run_datm} = yes ];  then
+  export cplflx=.true.
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 fi
 
 export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
@@ -462,7 +467,6 @@ else
     sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" datm.streams.xml
   done
 
-  ln -sf ${domain_atm} INPUT/
   ln -sf ${mesh_atm} INPUT/
 
   cp ${PARMforecast}/nems.configure.datm_ocn.tmp ./
@@ -474,7 +478,6 @@ else
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
-      -e "s/_domain_atm_/INPUT\/$(basename $domain_atm)/g" \
       -e "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" \
       nems.configure.datm_ocn.tmp > nems.configure
 
