@@ -58,7 +58,7 @@
   atcfdescr = "storm",
 /
 
-&cintinfo 
+&cintinfo
   contint_grid_bound_check = 50.0
 /
 

@@ -31,9 +31,9 @@ CDSAVE=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/save
 syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 #COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
-COMgfs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMGFS
+COMgfs=/gpfs/dell3/nco/storage/hurpara/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
-COMrtofs=/gpfs/hps3/emc/hwrf/noscrub/hafs-input/COMRTOFS
+COMrtofs=/gpfs/dell3/nco/storage/hurpara/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/aid
@@ -44,3 +44,10 @@ BDECKhafs=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/trak/abdeck/btk
 [holdvars]
 WHERE_AM_I=wcoss_dell_p3 ;; Which cluster? (For setting up environment.)
 WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.
+
+[forecast]
+write_groups=2
+write_tasks_per_group=48
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
