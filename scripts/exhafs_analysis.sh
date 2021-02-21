@@ -157,6 +157,9 @@ if [ ${RUN_ENSDA} = "YES" ]; then
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+    if [ ! -s ./fv3_ens_grid_spec ]; then
+      ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
+    fi
   done
 else
   export N_ENS=80
