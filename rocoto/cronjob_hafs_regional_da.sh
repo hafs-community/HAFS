@@ -148,7 +148,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96s1n4_gsivrfgatens_3densda_enkf_fgat \
      config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
-     config.run_ensda=yes config.ENS_SIZE=4 config.run_enkf=yes \
+     config.run_ensda=yes config.ENS_SIZE=10 config.run_enkf=yes \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_regional_da_C96s1n4_320x312.conf
 
@@ -156,13 +156,13 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  # On top of the hafsv0p1aL64 configuration without ocean coupling
  # Dual-resolution ENSDA system, 3-km deterministic, 6-km ensembles, same domain coverage
  # Notes: 
- #   * analysis and EnKF recenter not work yet
  #   * need to increase the number of cores (from 200 to 800) to run the analysis jobs
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsv0p1aL64_full_3densda_dualres \
      config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
-     config.run_ensda=yes config.ENS_SIZE=4 config.run_enkf=yes \
+     config.run_ensda=yes config.ENS_SIZE=10 config.run_enkf=yes \
+     config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      ../parm/hafsv0p1aL64_da_AL.conf \
      config.NHRS=12 ${scrubopt}
@@ -171,13 +171,13 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 ## On top of the hafsv0p1aL64 configuration with ocean coupling;
 ## Dual-resolution ENSDA system, 3-km deterministic, 6-km ensembles, same domain coverage
 ## Notes: 
-##   * analysis and EnKF recenter not work yet
 ##   * need to increase the number of cores (from 200 to 800) to run the analysis jobs
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY \
 #    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsv0p1acplL64_full_3densda_dualres \
 #    config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
 #    config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
-#    config.run_ensda=yes config.ENS_SIZE=4 config.run_enkf=yes \
+#    config.run_ensda=yes config.ENS_SIZE=10 config.run_enkf=yes \
+#    config.GRID_RATIO_ENS=2 \
 #    gsi.use_bufr_nr=yes \
 #    ../parm/hafsv0p1aL64_da_AL.conf \
 #    ../parm/hafs_hycom.conf \
