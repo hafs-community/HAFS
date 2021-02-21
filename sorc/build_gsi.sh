@@ -20,12 +20,8 @@ if [ ! -d "../exec" ]; then
 fi
 
 cd hafs_gsi.fd/ush/
-./build_all_cmake.sh "PRODUCTION" "$cwd/hafs_gsi.fd"
-
-cd ${cwd}
-# Build FV3 regional enkf executable
-cd hafs_gsi.fd/ush/
-./build_enkf_cmake.sh "PRODUCTION" "$cwd/hafs_gsi.fd"
+#./build_all_cmake.sh "PRODUCTION" "$cwd/hafs_gsi.fd"
+./build_all_cmake.sh "BUILD_FV3reg" "$cwd/hafs_gsi.fd"
 
 exit
 
