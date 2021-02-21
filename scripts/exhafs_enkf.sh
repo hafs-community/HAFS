@@ -87,9 +87,9 @@ if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
     mv fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_dynvartracer
   done
 else # enkf_recenter
-  ${NCP} ${COMhafs}/RESTART_analysis/grid_spec.nc fv3sar_tile1_grid_spec.nc
-  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc 
-  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.coupler.res coupler.res
+  ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc fv3sar_tile1_grid_spec.nc
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res coupler.res
   ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3_dynvars
   ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3_tracer
   #dynvar_list="delp,DZ,phis,T,u,ua,v,va,W"
@@ -101,9 +101,19 @@ else # enkf_recenter
   ncks --no-abc -A -v yaxis_2 fv3_dynvars fv3_tracer
   ncks -A -v ${tracer_list} fv3_tracer fv3_dynvars 
   # mem001 from deterministic EnVar analysis
-  mv fv3_dynvars fv3sar_tile1_mem001_dynvartracer 
+  # The assumption is that the deterministic and ensemble domains are identical but with different grid resolutions
+  # Also, the grid spacing ratio between the deterministic and ensemble domains is 1:GRID_RATIO_ENS, where GRID_RATIO_ENS can be 1, 2, 3, 4, 5, etc.
+  if [ ${GRID_RATIO_ENS:-1} -eq 1 ]; then
+    # the deterministic and ensemble domains are identical and with the same grid resolution
+    mv fv3_dynvars fv3sar_tile1_mem001_dynvartracer
+  else 
+    # subset every GRID_RATIO_ENS grid points to obtain the deterministic EnVar analysis in ensemble resolution
+    ncks -d xaxis_1,,,${GRID_RATIO_ENS} -d xaxis_2,,,${GRID_RATIO_ENS} \
+         -d yaxis_1,,,${GRID_RATIO_ENS} -d yaxis_2,,,${GRID_RATIO_ENS} \
+         fv3_dynvars fv3sar_tile1_mem001_dynvartracer
+  fi
   # 
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_dynvartracer fv3sar_tile1_ensmean_dynvartracer 
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_dynvartracer fv3sar_tile1_ensmean_dynvartracer
 
   let "nens0 = $nens"
   let "nens = $nens + 1"
@@ -114,7 +124,6 @@ else # enkf_recenter
     meminchar="mem"$(printf %03i $memin)
     ${NCP} ${RESTARTens_anl}/${memchar}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${meminchar}_dynvartracer
   done
-
 fi
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
