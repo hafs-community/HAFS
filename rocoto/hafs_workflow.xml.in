@@ -855,18 +855,18 @@
           <taskdep task="hycominit1"/>
           <taskdep task="hycominit2"/>
 @** endif
-          <or>
-            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
 @** if RUN_GSI_VR_ENS==YES
-            <taskdep task="analysis_vr_ens#MEM#"/>
-@** endif
-          </or>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-@** if RUN_ENKF==YES
-            <taskdep task="enkf_recenter"/>
-@** endif
+            <taskdep task="analysis_vr_ens#MEM#"/>
           </or>
+@** endif
+@** if RUN_ENKF==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="enkf_recenter"/>
+          </or>
+@** endif
 @** endif
         </and>
       </dependency>
