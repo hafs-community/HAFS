@@ -19,8 +19,6 @@ else
   export MOD_PATH=${cwd}/lib/modulefiles
 fi
 
-export GRIB_API_SHARED="YES"
-export JASPER_LIB_O=""
 if [ $target = wcoss ]; then
 
     echo "Does not support wcoss phase 1/2."
@@ -50,10 +48,7 @@ elif [ $target = orion ]; then
     export FC=ifort
     export F90=ifort
     export CC=icc
-    export LIBRARY_PATH=$LIBRARY_PATH:/apps/jasper-1.900.1/lib
     export MPIFC=mpiifort
-    export GRIB_API_SHARED="NO"
-    export JASPER_LIB_O=$JASPER_LIB
 
 elif [ $target = jet ]; then
 
