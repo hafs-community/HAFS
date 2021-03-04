@@ -117,7 +117,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   37.30   'sigma ' = layer 31 isopycnal target density (sigma units)
   37.42   'sigma ' = layer 32 isopycnal target density (sigma units)
    2	  'iniflg' = initial state flag (0=levl, 1=zonl, 2=clim)
-  -1      'jerlv0' = initial jerlov water type (1 to 5; 0 for KPAR, -1 for CHL) 
+  -1      'jerlv0' = initial jerlov water type (1 to 5; 0 for KPAR, -1 for CHL)
    3	  'yrflag' = days in year flag (0=360,  1=366,  2=366J1, 3=actual)
    1	  'sshflg' = diagnostic SSH flag (0=SSH,1=SSH&stericSSH)
    0.125  'dsurfq' = number of days between model diagnostics at the surface
