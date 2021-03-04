@@ -455,10 +455,6 @@ else
   cp ${PARMforecast}/model_configure.tmp .
   cp ${PARMhafs}/cdeps/datm_in .
   cp ${PARMhafs}/cdeps/datm.streams.xml .
-  cp ${PARMhafs}/cdeps/pio_in .
-  cp ${PARMhafs}/cdeps/modelio.nml atm_modelio.nml
-  cp ${PARMhafs}/cdeps/modelio.nml med_modelio.nml
-  cp ${PARMhafs}/cdeps/modelio.nml ocn_modelio.nml
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
 
