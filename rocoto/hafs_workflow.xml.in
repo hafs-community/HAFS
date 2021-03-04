@@ -475,7 +475,7 @@
     </dependency>
   </task>
 @** endif
-
+@** endif
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
