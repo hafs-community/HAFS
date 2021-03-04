@@ -362,6 +362,13 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   ncks -A -v $tracer_list fv3sar_tile1_mem001_dynvartracer ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
   ncks --no_abc -O -x -v yaxis_2 ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
   #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc ${RESTARTens_anl}/anlmean/
+  ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc ${RESTARTens_anl}/anlmean/
 
   for imem in $(seq 2 $nens)
   do
@@ -374,6 +381,13 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
     ncks -A -v $tracer_list fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
     ncks --no_abc -O -x -v yaxis_2 ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
     #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/grid_spec.nc ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/oro_data.nc ${RESTARTens_anl}/${memout}/
+    ${NCP} ${RESTARTens_inp}/${memout}/atmos_static.nc ${RESTARTens_anl}/${memout}/
   done
 else
   echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"

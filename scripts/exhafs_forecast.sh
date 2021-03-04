@@ -138,7 +138,7 @@ if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${E
   export warm_start_opt=4
 fi
 
-if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_ens_anl/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
   export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
   export warm_start_opt=5
