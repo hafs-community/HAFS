@@ -665,6 +665,8 @@ if [ -s fv_core.res.nc ]; then
 fi
 cd ${DATA}
 
+if [ $gtype = regional ]; then
+
 # Deliver the grid_spec.nc, atmos_static.nc, oro_data.nc if not exist
 if [ ! -s RESTART/grid_spec.nc ]; then
   cp -p grid_spec.nc RESTART/
@@ -674,6 +676,8 @@ if [ ! -s RESTART/atmos_static.nc ]; then
 fi
 if [ ! -s RESTART/oro_data.nc ]; then
   cp -pL INPUT/oro_data.nc RESTART/
+fi
+
 fi
 
 exit $err
