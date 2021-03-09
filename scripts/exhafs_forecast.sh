@@ -458,6 +458,13 @@ else
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
 
+  sed -i "s/_yearFirst_/$yr/g" datm.streams.xml
+
+  enddate=`${NDATE} +${NHRS} $CDATE`
+  endyr=`echo $enddate | cut -c1-4`
+
+  sed -i "s/_yearLast_/$endyr/g" datm.streams.xml
+
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams.xml
   for file in `ls INPUT/*.nc ` ; do
     sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" datm.streams.xml

@@ -7,8 +7,8 @@
    <readMode>single</readMode>
    <mapalgo>bilinear</mapalgo>
    <dtlimit>1.5</dtlimit>
-   <yearFirst>2019</yearFirst>
-   <yearLast>2019</yearLast>
+   <yearFirst>_yearFirst_</yearFirst>
+   <yearLast>_yearLast_</yearLast>
    <yearAlign>1900</yearAlign>
    <stream_vectors>u:v</stream_vectors>
    <stream_mesh_file>_mesh_atm_</stream_mesh_file>
