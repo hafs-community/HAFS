@@ -61,6 +61,8 @@ elif [ $target = jet ]; then
     export FC=ifort
     export F90=ifort
     export CC=icc
+    export hwrf_g2_inc=/lfs4/HFIP/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities/libs/mods/g2
+    export hwrf_g2_lib=/lfs4/HFIP/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities/libs/libg2.a
 
 elif [ $target = wcoss_cray ]; then
 
@@ -139,6 +141,8 @@ cd build
 if [ $target = hera ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 elif [ $target = orion ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
+elif [ $target = jet ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 elif [ $target = wcoss_cray ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
