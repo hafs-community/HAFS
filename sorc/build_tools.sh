@@ -97,7 +97,6 @@ elif [ $target = wcoss_dell_p3 ]; then
       module use ../modulefiles
       module load modulefile.tools.${target}_userlib
     fi
-    module load cmake/3.10.0
     module list
 
     export FC=ifort
