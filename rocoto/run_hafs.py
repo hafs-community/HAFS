@@ -418,6 +418,9 @@ try:
     conf.timeless_sanity_check(enset,logger)
 except Exception as e:
     tcutil.rocoto.sanity_check_failed(logger,e)
+    logger.critical("HAFS Sanity Checker Designation: INSANE!")
+    logger.critical("Check your configuration for errors.")
+    logger.critical("See earlier messages for clues.")
     sys.exit(1)
 logger.info("I think I'm sane.")
 

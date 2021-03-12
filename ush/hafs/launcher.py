@@ -558,6 +558,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
                             %(section,option,repr(value)))
                 conf.set(section,option,value)
     conf.guess_default_values()
+    conf.set_data_model_variables()
     cycling_interval=conf.getfloat('config','cycling_interval',6.0)
     cycling_interval=-abs(cycling_interval*3600.0)
     if cycle is not None:
@@ -787,6 +788,33 @@ class HAFSLauncher(HAFSConfig):
         revital=tcutil.revital.Revital(logger=logger)
         revital.readfiles(inputs,raise_all=False)
         return revital
+
+    def sanity_check_data_models(self,logger):
+        """!In the hafs_launcher job, this checks the data model variables and
+        files for obvious errors before starting the rest of the workflow."""
+        run_datm=self.getbool('config','run_datm',False)
+        if run_datm:
+            make_mesh_atm=self.getbool('config','make_mesh_datm',True)
+            if not make_mesh_atm:
+                mesh_atm=timestrinterp('forecast','mesh_atm')
+                if not os.path.exists(mesh_atm):
+                    msg='%s: mesh_atm file does not exist'%(mesh_atm,)
+                    logger.error(msg)
+                    raise msg
+                else:
+                    logger.info("%s: will use this pre-made datm esmf mesh (mesh_atm)."%(mesh_atm,))
+
+    def set_data_model_variables(self):
+        """!Sets conf variables for the data models."""
+        run_datm=self.getbool('config','run_datm',False)
+        if run_datm:
+            make_mesh_atm=self.getbool('config','make_mesh_datm',True)
+            if make_mesh_atm:
+                self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_gen'))
+            else:
+                self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_in'))
+        else:
+            self.set('forecast','mesh_atm','dummy.nc')
 
     def set_storm(self,syndat,oldsyndat):
         """!Sets the storm that is to be run.
@@ -1204,6 +1232,7 @@ class HAFSLauncher(HAFSConfig):
                 %(repr(case_root),))
 
         self.sanity_check_archive(logger)
+        self.sanity_check_data_models(logger)
 
     def guess_default_values(self):
         """!Tries to guess default values for many configuration settings.

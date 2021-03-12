@@ -14,6 +14,7 @@
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>1G</memory>">
 
+  <!ENTITY MESH_ATM_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime><memory>24G</memory>">
   <!ENTITY GRID_RESOURCES "<nodes>6:ppn=2:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>12</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>00:30:00</walltime><memory>24G</memory>">
   <!ENTITY CHGRES_IC_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY CHGRES_BC_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">

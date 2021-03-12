@@ -70,6 +70,7 @@
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
+  <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]"> <!-- FIXME: this should be MESH_ATM:-YES -->
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
@@ -365,6 +366,29 @@
     </dependency>
   </task>
 
+@** if RUN_DATM==YES
+
+  <task name="datm_mesh" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_DATM_MESH</command>
+    <jobname>hafs_datm_mesh_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_datm_mesh.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &MESH_ATM_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="launch"/>
+        <streq><left>&MAKE_MESH_ATM;</left><right>YES</right></streq>
+      </and>
+    </dependency>
+  </task>
+
+@** endif
+
 @** endif
 
 @** endif
@@ -395,6 +419,12 @@
 @** if RUN_OCEAN==YES
         <taskdep task="hycominit1"/>
         <taskdep task="hycominit2"/>
+@** if RUN_DATM==YES
+        <or>
+          <strneq><left>&MAKE_MESH_ATM;</left><right>YES</right></strneq>
+          <taskdep task="datm_mesh"/>
+        </or>
+@** endif
 @** endif
 @** endif
       </and>
