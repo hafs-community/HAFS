@@ -38,5 +38,5 @@ module load nemsiogfs/2.5.3
 module load gfsio/1.4.1
 module load landsfcutil/2.4.1
 module load g2/3.4.1
-module load hdf5parallel/1.10.6 
-module load netcdf-hdf5parallel/4.7.4 
+module load hdf5/1.10.6
+module load netcdf/4.7.4

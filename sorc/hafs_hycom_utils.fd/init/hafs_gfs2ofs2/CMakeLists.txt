@@ -37,6 +37,8 @@ target_link_libraries(
   ${ilib_dir}/ofs_mods/libofs_mods.a
   w3nco::w3nco_4
   bacio::bacio_4
+  NetCDF::NetCDF_Fortran
+  NetCDF::NetCDF_C
   g2::g2_4
   w3emc::w3emc_4
   MPI::MPI_Fortran)
