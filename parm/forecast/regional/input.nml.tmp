@@ -72,8 +72,8 @@
        beta = 0.
        a_imp = 1.
        p_fac = 0.1
-       k_split  = 4
-       n_split  = 5
+       k_split  = _k_split_
+       n_split  = _n_split_
        nwat = 6
        na_init = _na_init_
        d_ext = 0.0

@@ -81,6 +81,7 @@
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
+  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -841,7 +842,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &FORECAST_RESOURCES;
+      &FORECAST_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
