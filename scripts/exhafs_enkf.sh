@@ -21,6 +21,14 @@ NDATE=${NDATE:-ndate}
 NCP='/bin/cp'
 NLN='ln -sf'
 
+if [ $GFSVER = PROD2021 ]; then
+  export atmos="atmos/"
+elif [ $GFSVER = PROD2019 ]; then
+  export atmos=""
+else
+  export atmos=""
+fi
+
 export ldo_enscalc_option=${ldo_enscalc_option:-1}
 export nens=${ENS_SIZE:-40}
 
@@ -180,9 +188,9 @@ ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/hwrf_convinfo.txt ./convinfo
 
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias_pc        satbias_pc
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/gdas.t${hhprior}z.abias_air       satbias_air
+${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 # Make enkf namelist
 cat > enkf.nml << EOFnml
