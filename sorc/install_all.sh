@@ -114,6 +114,32 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing        ../exec/hafs_timeinterp_forcing.x
 }
 
+#------------------------------------
+# install ww3_utils 
+#------------------------------------
+$Build_ww3_utils && {
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grid                ../exec/hafs_ww3_grid.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_strt                ../exec/hafs_ww3_strt.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prep                ../exec/hafs_ww3_prep.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outf                ../exec/hafs_ww3_outf.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outp                ../exec/hafs_ww3_outp.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_trck                ../exec/hafs_ww3_trck.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grib                ../exec/hafs_ww3_grib.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gspl                ../exec/hafs_ww3_gspl.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gint                ../exec/hafs_ww3_gint.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outf                 ../exec/hafs_gx_outf.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outp                 ../exec/hafs_gx_outp.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_systrk              ../exec/hafs_ww3_systrk.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bound               ../exec/hafs_ww3_bound.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_shel                ../exec/hafs_ww3_shel.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_multi               ../exec/hafs_ww3_multi.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_sbs1                ../exec/hafs_ww3_sbs1.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prnc                ../exec/hafs_ww3_prnc.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounf                ../exec/hafs_ww3_ounf.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounp                ../exec/hafs_ww3_ounp.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bounc               ../exec/hafs_ww3_bounc.x
+}
+
 
 echo;echo " .... Install system finished .... "
 

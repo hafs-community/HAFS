@@ -97,6 +97,14 @@ echo " .... Building hycom_utils .... "
 ./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
 }
 
+#------------------------------------
+# build ww3_utils 
+#------------------------------------
+$Build_ww3_utils && {
+echo " .... Building ww3_utils .... "
+./build_ww3_utils.sh > $logs_dir/build_ww3_utils.log 2>&1
+}
+
 
 echo;echo " .... Build system finished .... "
 
