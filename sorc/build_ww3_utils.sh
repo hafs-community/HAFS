@@ -32,9 +32,9 @@ export PNG_LIB=${PNG_LIB:-$PNG_ROOT/lib64/libpng.a}
 export Z_LIB=${Z_LIB:-$ZLIB_ROOT/lib/libz.a}
 export JASPER_LIB=${JASPER_LIB:-$JASPER_ROOT/lib64/libjasper.a}
 export WWATCH3_NETCDF=NC4
-export NETCDF_CONFIG=$NETCDF_ROOT/bin/nc-config
+export NETCDF_CONFIG=${NETCDF_ROOT:-${NETCDF}}/bin/nc-config
 
-rm  $WWATCH3_ENV
+rm -f $WWATCH3_ENV
 echo '#'                                              > $WWATCH3_ENV
 echo '# ---------------------------------------'      >> $WWATCH3_ENV
 echo '# Environment variables for wavewatch III'      >> $WWATCH3_ENV
