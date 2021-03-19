@@ -82,13 +82,14 @@ sed -e 's/NOGRB/NCEP2 NCO/g' switch.shrd > switch.GRIB
 
 # Build NOMPI exes for prep and post (except grib)
 cp switch.shrd switch
-#ww3_tools="ww3_grid ww3_strt ww3_prep ww3_outf ww3_outp ww3_trck ww3_gspl gx_outf gx_outp ww3_systrk ww3_bound ww3_gint ${ww3_NetCDF}"
-ww3_tools="ww3_grid ww3_strt ww3_prep ww3_outf ww3_outp ww3_trck ww3_gspl gx_outf gx_outp ww3_bound ww3_gint ${ww3_NetCDF}"
-${WW3_BINDIR}/w3_make ${ww3_tools}
+#ww3_utils="ww3_grid ww3_strt ww3_prep ww3_outf ww3_outp ww3_trck ww3_gspl gx_outf gx_outp ww3_systrk ww3_bound ww3_gint ${ww3_NetCDF}"
+#ww3_utils="ww3_grid ww3_strt ww3_prep ww3_outf ww3_outp ww3_trck ww3_gspl gx_outf gx_outp ww3_bound ww3_gint ${ww3_NetCDF}"
+ww3_utils="ww3_grid ww3_strt ww3_prep ww3_outf ww3_outp ww3_trck ww3_gspl ww3_bound ww3_gint ${ww3_NetCDF}"
+${WW3_BINDIR}/w3_make ${ww3_utils}
 cd ../exe
 cp switch ../exec/switch.NOMPI
 cp exec_type ../exec/exec_type.NOMPI
-cp ${ww3_tools} ../exec/
+cp ${ww3_utils} ../exec/
 cd ../bin
 
 #${WW3_BINDIR}/w3_make ww3_outp
