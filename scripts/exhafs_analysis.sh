@@ -245,7 +245,7 @@ lrun_subdirs=${lrun_subdirs:-".true."}
 #---------------------------------------------- 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 #${NLN} ${PARMgsi}/nam_global_satangbias.txt ./satbias_angle
-${NLN} ${PARMgsi}/hwrf_satinfo.txt ./satinfo
+${NLN} ${PARMgsi}/hafs_satinfo.txt ./satinfo
 #checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
 #${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
@@ -253,7 +253,7 @@ anavinfo=${PARMgsi}/anavinfo_hafs_tmp
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo
-${NLN} ${PARMgsi}/hwrf_convinfo.txt ./convinfo
+${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 #checkgfs $NLN $vqcdat       vqctp001.dat
 #checkgfs $NLN $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
@@ -261,7 +261,7 @@ ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
 #checkgfs $NLN $AEROINFO     aeroinfo
 ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 #checkgfs $NLN $HYBENSINFO   hybens_info
-${NLN} ${PARMgsi}/hwrf_nam_errtable.r3dv ./errtable
+${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 ${NLN} ${PARMgsi}/prepobs_prep.bufrtable ./prepobs_prep.bufrtable
 ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr

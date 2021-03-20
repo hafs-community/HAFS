@@ -8,18 +8,18 @@
 
 set -xe
 
-export HDF5_USE_FILE_LOCKING=FALSE #avoild recenter's error "NetCDF: HDF error"
-export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
+# Utilities
 NDATE=${NDATE:-ndate}
-NCP='/bin/cp'
-NLN='ln -sf'
+export NCP=${NCP:-"/bin/cp"}
+export NMV=${NMV:-"/bin/mv"}
+export NLN=${NLN:-"/bin/ln -sf"}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 
 if [ $GFSVER = PROD2021 ]; then
   export atmos="atmos/"
@@ -29,6 +29,7 @@ else
   export atmos=""
 fi
 
+export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export ldo_enscalc_option=${ldo_enscalc_option:-1}
 export nens=${ENS_SIZE:-40}
 
@@ -53,10 +54,8 @@ export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
   export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
-  #export RESTARTens_anl=${COMhafs}/RESTART_analysis_vr_ens_anl
 else
   export RESTARTens_inp=${COMhafsprior}/RESTART_ens
-  #export RESTARTens_anl=${COMhafs}/RESTART_ens_anl
 fi
 
 export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
@@ -67,6 +66,7 @@ mkdir -p ${DATA}
 cd ${DATA}
 
 if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
+  # prepare ensemble mean files
   memstr="mem001"
   ensmean="ensmean"
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${ensmean}_tracer
@@ -83,9 +83,13 @@ if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.sfc_data.nc fv3_sfcdata
   cp ${RESTARTens_inp}/${memstr}/grid_spec.nc fv3sar_tile1_grid_spec.nc
-
+  # prepare ensemble member files
+  rm -f cmdfile_prep_dynvartracer_ens
   for memstr in $(seq -f 'mem%03g' 1 $nens)
   do
+    cat > ./prep_dynvartracer_ens${memstr}.sh << EOFprep
+#!/bin/sh
+set -x
     cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${memstr}_dynvars 
     cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${memstr}_tracer
     ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3sar_tile1_${memstr}_tracer
@@ -93,7 +97,12 @@ if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
     ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_tracer
     ncks -A -v $tracer_list fv3sar_tile1_${memstr}_tracer fv3sar_tile1_${memstr}_dynvars
     mv fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_dynvartracer
+EOFprep
+    chmod +x ./prep_dynvartracer_ens${memstr}.sh
+    echo "./prep_dynvartracer_ens${memstr}.sh" >> cmdfile_prep_dynvartracer_ens
   done
+  chmod +x cmdfile_prep_dynvartracer_ens
+  ${APRUNC} ${MPISERIAL} -m cmdfile_prep_dynvartracer_ens
 else # enkf_recenter
   ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc fv3sar_tile1_grid_spec.nc
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
@@ -120,9 +129,9 @@ else # enkf_recenter
          -d yaxis_1,,,${GRID_RATIO_ENS} -d yaxis_2,,,${GRID_RATIO_ENS} \
          fv3_dynvars fv3sar_tile1_mem001_dynvartracer
   fi
-  # 
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_dynvartracer fv3sar_tile1_ensmean_dynvartracer
-
+  # copy ensemble member files
+  rm -f cmdfile
   let "nens0 = $nens"
   let "nens = $nens + 1"
   for imem in $(seq 1 $nens0)
@@ -130,32 +139,38 @@ else # enkf_recenter
     memchar="mem"$(printf %03i $imem)
     let "memin = $imem + 1"
     meminchar="mem"$(printf %03i $memin)
-    ${NCP} ${RESTARTens_anl}/${memchar}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${meminchar}_dynvartracer
+    echo "${NCP} ${RESTARTens_anl}/${memchar}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${meminchar}_dynvartracer" >> cmdfile
   done
+  chmod +x cmdfile
+  ${APRUNC} ${MPISERIAL} -m cmdfile
 fi
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
-
+  rm -f cmdfile
   memstr="ensmean"
   RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
   CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
-  tar -xvf $RADSTAT
-  tar -xvf $CNVSTAT
+  echo "tar -xvf $RADSTAT" >> cmdfile
+  echo "tar -xvf $CNVSTAT" >> cmdfile
 
-for memstr in $(seq -f "mem%03g" 1 $nens)
-do
-  RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
-  CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
-  tar -xvf $RADSTAT
-  tar -xvf $CNVSTAT
-done
+  for memstr in $(seq -f "mem%03g" 1 $nens)
+  do
+    RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
+    CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
+    echo "tar -xvf $RADSTAT" >> cmdfile
+    echo "tar -xvf $CNVSTAT" >> cmdfile
+  done
 
-for gzfile in $(/bin/ls diag*ges*.gz) 
-do
-  gzip -d  $gzfile
-  rm -f $gzfile
-done
-
+  chmod +x cmdfile
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+  
+  rm -f cmdfile
+  for gzfile in $(/bin/ls diag*ges*.gz) 
+  do
+    echo "gzip -d $gzfile && rm -f $gzfile" >> cmdfile
+  done
+  chmod +x cmdfile
+  ${APRUNC} ${MPISERIAL} -m cmdfile
 fi
 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
@@ -167,14 +182,11 @@ ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
 #checkgfs $NLN $AEROINFO     aeroinfo
 #checkgfs $NLN $HYBENSINFO   hybens_info
-${NLN} ${PARMgsi}/hwrf_nam_errtable.r3dv ./errtable
+${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
-  #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_ensmean_L${LEVS:-65}
-  #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
   anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
 else # enkf_update
-  #anavinfo=${PARMgsi}/anavinfo_hafs_enkf_L${LEVS:-65}
   anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
 fi
 #${NCP} ${anavinfo} ./anavinfo
@@ -182,138 +194,29 @@ sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo
 
-${NLN} ${PARMgsi}/hwrf_satinfo.txt ./satinfo
+${NLN} ${PARMgsi}/hafs_satinfo.txt ./satinfo
 ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 #${NLN} ${PARMgsi}/nam_global_satangbias.txt ./satbias_angle
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
-${NLN} ${PARMgsi}/hwrf_convinfo.txt ./convinfo
+${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
 ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
 ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 # Make enkf namelist
-cat > enkf.nml << EOFnml
-&nam_enkf
-   datestring="$CDATE",datapath="./",
-   analpertwtnh=0.85,analpertwtsh=0.85,analpertwttr=0.85,
-   covinflatemax=1.e2,covinflatemin=1,pseudo_rh=.true.,iassim_order=0,
-   corrlengthnh=400,corrlengthsh=400,corrlengthtr=400,
-   lnsigcutoffnh=0.5,lnsigcutoffsh=0.5,lnsigcutofftr=0.5,
-   lnsigcutoffpsnh=0.5,lnsigcutoffpssh=0.5,lnsigcutoffpstr=0.5,
-   lnsigcutoffsatnh=0.5,lnsigcutoffsatsh=0.5,lnsigcutoffsattr=0.5,
-   obtimelnh=1.e30,obtimelsh=1.e30,obtimeltr=1.e30,
-   saterrfact=1.0,numiter=1,
-   sprd_tol=1.e30,paoverpb_thresh=0.98,
-   nlons=$((${npx_ens:-$npx}-1)),nlats=$((${npy_ens:-$npy}-1)),nlevs=${npz_ens:-$npz},nanals=${nens},
-   deterministic=.true.,sortinc=.true.,lupd_satbiasc=.false.,
-   reducedgrid=.true.,readin_localization=.false.,
-   use_gfs_nemsio=.false.,use_gfs_ncio=.false.,imp_physics=11,lupp=.false.,
-   univaroz=.false.,adp_anglebc=.true.,angord=4,use_edges=.false.,emiss_bc=.true.,
-   letkf_flag=.false.,nobsl_max=10000,denkf=.false.,getkf=.false.,
-   nhr_anal=6,nhr_state=6,use_qsatensmean=.false.,
-   lobsdiag_forenkf=.false.,
-   write_spread_diag=.false.,
-   modelspace_vloc=.false.,
-   use_correlated_oberrs=.false.,
-   netcdf_diag=${netcdf_diag},cnvw_option=.false.,
-   paranc=.false.,write_fv3_incr=.false.,
-   incvars_to_zero='NONE',
-   smoothparm=-1,
-   ldo_enscalc_option=${ldo_enscalc_option},
-/
+${NCP} ${PARMgsi}/enkf.nml.tmp ./
 
-&satobs_enkf
-   sattypes_rad(1) = 'amsua_n15',     dsis(1) = 'amsua_n15',
-   sattypes_rad(2) = 'amsua_n18',     dsis(2) = 'amsua_n18',
-   sattypes_rad(3) = 'amsua_n19',     dsis(3) = 'amsua_n19',
-   sattypes_rad(4) = 'amsub_n16',     dsis(4) = 'amsub_n16',
-   sattypes_rad(5) = 'amsub_n17',     dsis(5) = 'amsub_n17',
-   sattypes_rad(6) = 'amsua_aqua',    dsis(6) = 'amsua_aqua',
-   sattypes_rad(7) = 'amsua_metop-a', dsis(7) = 'amsua_metop-a',
-   sattypes_rad(8) = 'airs_aqua',     dsis(8) = 'airs_aqua',
-   sattypes_rad(9) = 'hirs3_n17',     dsis(9) = 'hirs3_n17',
-   sattypes_rad(10)= 'hirs4_n19',     dsis(10)= 'hirs4_n19',
-   sattypes_rad(11)= 'hirs4_metop-a', dsis(11)= 'hirs4_metop-a',
-   sattypes_rad(12)= 'mhs_n18',       dsis(12)= 'mhs_n18',
-   sattypes_rad(13)= 'mhs_n19',       dsis(13)= 'mhs_n19',
-   sattypes_rad(14)= 'mhs_metop-a',   dsis(14)= 'mhs_metop-a',
-   sattypes_rad(15)= 'goes_img_g11',  dsis(15)= 'imgr_g11',
-   sattypes_rad(16)= 'goes_img_g12',  dsis(16)= 'imgr_g12',
-   sattypes_rad(17)= 'goes_img_g13',  dsis(17)= 'imgr_g13',
-   sattypes_rad(18)= 'goes_img_g14',  dsis(18)= 'imgr_g14',
-   sattypes_rad(19)= 'goes_img_g15',  dsis(19)= 'imgr_g15',
-   sattypes_rad(20)= 'avhrr_n18',     dsis(20)= 'avhrr3_n18',
-   sattypes_rad(21)= 'avhrr_metop-a', dsis(21)= 'avhrr3_metop-a',
-   sattypes_rad(22)= 'avhrr_n19',     dsis(22)= 'avhrr3_n19',
-   sattypes_rad(23)= 'amsre_aqua',    dsis(23)= 'amsre_aqua',
-   sattypes_rad(24)= 'ssmis_f16',     dsis(24)= 'ssmis_f16',
-   sattypes_rad(25)= 'ssmis_f17',     dsis(25)= 'ssmis_f17',
-   sattypes_rad(26)= 'ssmis_f18',     dsis(26)= 'ssmis_f18',
-   sattypes_rad(27)= 'ssmis_f19',     dsis(27)= 'ssmis_f19',
-   sattypes_rad(28)= 'ssmis_f20',     dsis(28)= 'ssmis_f20',
-   sattypes_rad(29)= 'sndrd1_g11',    dsis(29)= 'sndrD1_g11',
-   sattypes_rad(30)= 'sndrd2_g11',    dsis(30)= 'sndrD2_g11',
-   sattypes_rad(31)= 'sndrd3_g11',    dsis(31)= 'sndrD3_g11',
-   sattypes_rad(32)= 'sndrd4_g11',    dsis(32)= 'sndrD4_g11',
-   sattypes_rad(33)= 'sndrd1_g12',    dsis(33)= 'sndrD1_g12',
-   sattypes_rad(34)= 'sndrd2_g12',    dsis(34)= 'sndrD2_g12',
-   sattypes_rad(35)= 'sndrd3_g12',    dsis(35)= 'sndrD3_g12',
-   sattypes_rad(36)= 'sndrd4_g12',    dsis(36)= 'sndrD4_g12',
-   sattypes_rad(37)= 'sndrd1_g13',    dsis(37)= 'sndrD1_g13',
-   sattypes_rad(38)= 'sndrd2_g13',    dsis(38)= 'sndrD2_g13',
-   sattypes_rad(39)= 'sndrd3_g13',    dsis(39)= 'sndrD3_g13',
-   sattypes_rad(40)= 'sndrd4_g13',    dsis(40)= 'sndrD4_g13',
-   sattypes_rad(41)= 'sndrd1_g14',    dsis(41)= 'sndrD1_g14',
-   sattypes_rad(42)= 'sndrd2_g14',    dsis(42)= 'sndrD2_g14',
-   sattypes_rad(43)= 'sndrd3_g14',    dsis(43)= 'sndrD3_g14',
-   sattypes_rad(44)= 'sndrd4_g14',    dsis(44)= 'sndrD4_g14',
-   sattypes_rad(45)= 'sndrd1_g15',    dsis(45)= 'sndrD1_g15',
-   sattypes_rad(46)= 'sndrd2_g15',    dsis(46)= 'sndrD2_g15',
-   sattypes_rad(47)= 'sndrd3_g15',    dsis(47)= 'sndrD3_g15',
-   sattypes_rad(48)= 'sndrd4_g15',    dsis(48)= 'sndrD4_g15',
-   sattypes_rad(49)= 'iasi_metop-a',  dsis(49)= 'iasi_metop-a',
-   sattypes_rad(50)= 'seviri_m08',    dsis(50)= 'seviri_m08',
-   sattypes_rad(51)= 'seviri_m09',    dsis(51)= 'seviri_m09',
-   sattypes_rad(52)= 'seviri_m10',    dsis(52)= 'seviri_m10',
-   sattypes_rad(53)= 'seviri_m11',    dsis(53)= 'seviri_m11',
-   sattypes_rad(54)= 'amsua_metop-b', dsis(54)= 'amsua_metop-b',
-   sattypes_rad(55)= 'hirs4_metop-b', dsis(55)= 'hirs4_metop-b',
-   sattypes_rad(56)= 'mhs_metop-b',   dsis(56)= 'mhs_metop-b',
-   sattypes_rad(57)= 'iasi_metop-b',  dsis(57)= 'iasi_metop-b',
-   sattypes_rad(58)= 'avhrr_metop-b', dsis(58)= 'avhrr3_metop-b',
-   sattypes_rad(59)= 'atms_npp',      dsis(59)= 'atms_npp',
-   sattypes_rad(60)= 'atms_n20',      dsis(60)= 'atms_n20',
-   sattypes_rad(61)= 'cris_npp',      dsis(61)= 'cris_npp',
-   sattypes_rad(62)= 'cris-fsr_npp',  dsis(62)= 'cris-fsr_npp',
-   sattypes_rad(63)= 'cris-fsr_n20',  dsis(63)= 'cris-fsr_n20',
-   sattypes_rad(64)= 'gmi_gpm',       dsis(64)= 'gmi_gpm',
-   sattypes_rad(65)= 'saphir_meghat', dsis(65)= 'saphir_meghat',
-   sattypes_rad(66)= 'amsua_metop-c', dsis(66)= 'amsua_metop-c',
-   sattypes_rad(67)= 'mhs_metop-c',   dsis(67)= 'mhs_metop-c',
-   sattypes_rad(68)= 'ahi_himawari8', dsis(68)= 'ahi_himawari8',
-   sattypes_rad(69)= 'abi_g16',       dsis(69)= 'abi_g16',
-   sattypes_rad(70)= 'abi_g17',       dsis(70)= 'abi_g17',
-/
-
-&ozobs_enkf
-   sattypes_oz(1) = 'sbuv2_n16',
-   sattypes_oz(2) = 'sbuv2_n17',
-   sattypes_oz(3) = 'sbuv2_n18',
-   sattypes_oz(4) = 'sbuv2_n19',
-   sattypes_oz(5) = 'omi_aura',
-   sattypes_oz(6) = 'gome_metop-a',
-   sattypes_oz(7) = 'gome_metop-b',
-   sattypes_oz(8) = 'mls30_aura',
-   sattypes_oz(9) = 'ompsnp_npp',
-   sattypes_oz(10) = 'ompstc8_npp',
-/
-
-&nam_fv3
-   fv3fixpath="./",nx_res=$((${npx_ens:-$npx}-1)),ny_res=$((${npy_ens:-$npy}-1)),ntiles=1,
-/
-
-EOFnml
+sed -e "s/_datestring_/${CDATE}/g" \
+    -e "s/_nlons_/$((${npx_ens:-$npx}-1))/g" \
+    -e "s/_nlats_/$((${npy_ens:-$npy}-1))/g" \
+    -e "s/_nlevs_/${npz_ens:-$npz}/g" \
+    -e "s/_nanals_/${nens}/g" \
+    -e "s/_netcdf_diag_/${netcdf_diag}/g" \
+    -e "s/_ldo_enscalc_option_/${ldo_enscalc_option}/g" \
+    -e "s/_nx_res_/$((${npx_ens:-$npx}-1))/g" \
+    -e "s/_ny_res_/$((${npy_ens:-$npy}-1))/g" \
+    enkf.nml.tmp > ./enkf.nml
 
 ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_enkf.x}
 cp -p $ENKFEXEC ./enkf.x
@@ -340,11 +243,14 @@ cp -p $ENKFEXEC ./enkf.x
 ${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
+  rm -f cmdfile
   for memstr in $(seq -f "mem%03g" 1 $nens)
   do
     mkdir -p ${RESTARTens_anl}/${memstr}
-    ${NCP} fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memstr}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc  
+    echo "${NCP} fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memstr}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc" >> cmdfile  
   done
+  chmod +x cmdfile
+  ${APRUNC} ${MPISERIAL} -m cmdfile
 elif  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean 
   memstr="ensmean"
   mkdir -p ${RESTARTens_anl}/${memstr}
@@ -378,11 +284,15 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc ${RESTARTens_anl}/anlmean/
   ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc ${RESTARTens_anl}/anlmean/
 
+  rm -f cmdfile_post_dynvartracer_ens
   for imem in $(seq 2 $nens)
   do
     memstr="mem"$(printf %03i $imem)
     memout="mem"$(printf %03i $(($imem-1)))
     mkdir -p ${RESTARTens_anl}/${memout}
+    cat > ./post_dynvartracer_ens${memout}.sh << EOFpost
+#!/bin/sh
+set -x
     cp ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
     ncks -A -v $dynvar_list fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
     cp ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
@@ -396,7 +306,12 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
     ${NCP} ${RESTARTens_inp}/${memout}/grid_spec.nc ${RESTARTens_anl}/${memout}/
     ${NCP} ${RESTARTens_inp}/${memout}/oro_data.nc ${RESTARTens_anl}/${memout}/
     ${NCP} ${RESTARTens_inp}/${memout}/atmos_static.nc ${RESTARTens_anl}/${memout}/
+EOFpost
+    chmod +x ./post_dynvartracer_ens${memout}.sh 
+    echo "./post_dynvartracer_ens${memout}.sh" >> cmdfile_post_dynvartracer_ens
   done
+  chmod +x cmdfile_post_dynvartracer_ens
+  ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
 else
   echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"
 fi

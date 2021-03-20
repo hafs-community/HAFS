@@ -169,6 +169,10 @@ if [[ "$moduleuse" != no ]] ; then
   module use $moduleuse 
   module load modulefile.hafs.run.$WHERE_AM_I
 fi
+
+# Avoild "NetCDF: HDF error"
+export HDF5_USE_FILE_LOCKING=FALSE
+
 set +u
 if [[ "Q${utilexec:-}" != Q ]] ; then
   export PATH=$utilexec:$PATH
