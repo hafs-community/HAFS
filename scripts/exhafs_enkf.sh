@@ -176,7 +176,6 @@ fi
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 #checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
-#${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
 #checkgfs $NLN $vqcdat       vqctp001.dat
 #checkgfs $NLN $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
@@ -185,9 +184,9 @@ ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
-  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
+  anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
 else # enkf_update
-  anavinfo=${PARMgsi}/anavinfo_hafs_enkf_tmp
+  anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
 fi
 #${NCP} ${anavinfo} ./anavinfo
 sed -e "s/_LEV_/${npz:-64}/g" \

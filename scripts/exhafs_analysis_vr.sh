@@ -198,8 +198,7 @@ ${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
 #---------------------------------------------- 
 # Link all the necessary fix files
 #---------------------------------------------- 
-#${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
-anavinfo=${PARMgsi}/anavinfo_hafs_tmp
+anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo

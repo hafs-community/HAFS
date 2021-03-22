@@ -51,7 +51,7 @@ control_vector_enkf::
 !w        _LEV_      0       0.5         -1.0     state    w
 !dz       _LEV_      0       0.5         -1.0     state    dz
  ps        1      0       0.5         -1.0     state    prse
- tsen     _LEV_      0       0.5         -1.0     state    tsen
+ t        _LEV_      0       0.5         -1.0     state    tv
 !delp     _LEV_      0       0.70        -1.0     state    delp
  q        _LEV_      0       0.70        -1.0     state    sphum
 !liq_wat  _LEV_      0       0.70        -1.0     state    liq_wat
@@ -59,7 +59,7 @@ control_vector_enkf::
 !ice_wat  _LEV_      0       0.70        -1.0     state    ice_wat
 !snowwat  _LEV_      0       0.70        -1.0     state    snowwat
 !graupel  _LEV_      0       0.70        -1.0     state    graupel
- oz       _LEV_      0       0.70        -1.0     state    oz
+!oz       _LEV_      0       0.70        -1.0     state    oz
 !cld_amt  _LEV_      0       0.70        -1.0     state    cld_amt
 ::
 
