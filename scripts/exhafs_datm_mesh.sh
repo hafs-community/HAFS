@@ -24,9 +24,9 @@ mesh_dir=$( dirname "$mesh_atm" )
 # Pick an input file. This will get the newest one, if the names are
 # identical except for YYYYMMDD date string:
 test -d "$DATMdir"
-ifile=$( ls -1 "$DATMdir"/*nc | sort -ur | head -1 )
+#ifile=$( ls -1 "$DATMdir"/*nc | sort -ur | head -1 )
+ifile="$DATMdir/ERA5_${CDATE:0:8}.nc"
 
-test -n "$ifile"
 test -s "$ifile"
 test -r "$ifile"
 

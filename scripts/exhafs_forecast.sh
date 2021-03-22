@@ -447,7 +447,15 @@ cat temp diag_table.tmp > diag_table
 
 else
 
-  ln -sf ${DATMdir}/*.nc INPUT/
+  enddate=`${NDATE} +${NHRS} $CDATE`
+  endyr=`echo $enddate | cut -c1-4`
+
+  nowdate=$CDATE
+  while (( nowdate <= enddate )) ; do
+      era5_name=ERA5_${nowdate:0:8}.nc
+      ln -sf $DATMdir/$era5_name INPUT/$era5_name
+      nowdate=`${NDATE} +6 $nowdate`
+  done
 
 #---------------------------------------------- 
 # Copy CDEPS parm files if required.
@@ -459,9 +467,6 @@ else
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
 
   sed -i "s/_yearFirst_/$yr/g" datm.streams.xml
-
-  enddate=`${NDATE} +${NHRS} $CDATE`
-  endyr=`echo $enddate | cut -c1-4`
 
   sed -i "s/_yearLast_/$endyr/g" datm.streams.xml
 

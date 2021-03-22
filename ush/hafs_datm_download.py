@@ -13,7 +13,19 @@ import re
 import logging
 import datetime
 import sys
-import cdsapi
+
+try:
+    import cdsapi
+except ImportError as ie:
+    sys.stderr.write("""You are missing the cdsapi module!
+You must install it to run this script.
+
+  pip install cdsapi --user
+
+You will also need to register on the cdsapi website, sign the ERA5
+license agreement, get a key, and put the key in your ~/.cdsapi file.
+""")
+
 import produtil.setup, produtil.fileop, produtil.locking
 
 # Constants

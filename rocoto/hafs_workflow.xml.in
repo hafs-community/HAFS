@@ -70,7 +70,11 @@
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
-  <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]"> <!-- FIXME: this should be MESH_ATM:-YES -->
+  <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
+
+  <!ENTITY DOWNLOAD_DATM "@[DOWNLOAD_DATM]">
+  <!ENTITY DOWNLOAD_DATM_LIST "@[DOWNLOAD_DATM_LIST]">
+  <!ENTITY DOWNLOAD_DATM_THRESHOLD "@[DOWNLOAD_DATM_THRESHOLD]">
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
@@ -188,6 +192,38 @@
       </and>
     </dependency>
   </task>
+
+@** if RUN_DATM==YES
+  <metatask name="download_datm">
+    <var name="idx">&DOWNLOAD_DATM_LIST;</var>
+    <task name="download_datm_#idx#" maxtries="&MAX_TRIES_TRANSFER;">
+      <command>&JOBhafs;/JHAFS_DATM_DOWNLOAD</command>
+      <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#idx#</jobname>
+      <join><cyclestr>&WORKhafs;/hafs_download_datm_#idx#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_SERVICE;</queue>
+      &SERVICE_EXTRA;
+      <cores>1</cores>
+      &CORES_EXTRA;
+      <envar><name>TOTAL_TASKS</name><value>1</value></envar>
+      <walltime>06:00:00</walltime>
+      &MEMORY;
+      &ENV_VARS;
+      
+      <dependency>
+        <and>
+          <taskdep task="launch"/>
+          <streq><left>&DOWNLOAD_DATM;</left><right>YES</right></streq>
+          <streq><left>&RUN_DATM;</left><right>YES</right></streq>
+          <not>
+            <metataskdep metatask="download_datm" threshold="&DOWNLOAD_DATM_THRESHOLD;"/>
+          </not>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
 
   <task name="grid" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_GRID</command>
@@ -383,6 +419,10 @@
       <and>
         <taskdep task="launch"/>
         <streq><left>&MAKE_MESH_ATM;</left><right>YES</right></streq>
+        <or>
+          <strneq><left>&DOWNLOAD_DATM;</left><right>YES</right></strneq>
+          <metataskdep metatask="download_datm" threshold="&DOWNLOAD_DATM_THRESHOLD;"/>
+        </or>
       </and>
     </dependency>
   </task>
@@ -420,6 +460,10 @@
         <taskdep task="hycominit1"/>
         <taskdep task="hycominit2"/>
 @** if RUN_DATM==YES
+        <or>
+          <strneq><left>&DOWNLOAD_DATM;</left><right>YES</right></strneq>
+          <metataskdep metatask="download_datm" threshold="0.2"/>
+        </or>
         <or>
           <strneq><left>&MAKE_MESH_ATM;</left><right>YES</right></strneq>
           <taskdep task="datm_mesh"/>
