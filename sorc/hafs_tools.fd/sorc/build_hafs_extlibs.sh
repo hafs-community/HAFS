@@ -238,9 +238,9 @@ build_extlibs (){
 
     mkdir -p ${HAFS_UTILS_EXTLIBS}/logs
 
-    # Build the GRIB-API application.
+##    # Build the GRIB-API application.
 
-    _extlib_eccodes
+##    _extlib_eccodes
 
     # Build the FFTW application.
 

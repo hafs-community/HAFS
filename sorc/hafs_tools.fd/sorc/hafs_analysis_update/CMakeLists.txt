@@ -21,6 +21,8 @@ endif()
 
 find_package(bacio REQUIRED)
 find_package(nemsio REQUIRED)
+find_package(w3nco REQUIRED)
+find_package(w3emc REQUIRED)
 find_package(NetCDF REQUIRED C Fortran)
 
 set(fortran_srcs
@@ -78,6 +80,8 @@ target_link_libraries(
   ${nwp_dir}/libslint.a
   ${nwp_dir}/libspline.a
   bacio::bacio_4
-  ${nwp_dir}/libw3.a)
+  w3emc::w3emc_d
+  w3nco::w3nco_d)
+
 
  install(TARGETS ${exe_name} DESTINATION ${exec_dir})

@@ -63,11 +63,7 @@ $Build_vortextracker && {
 #------------------------------------
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_analysis_update.x    ../exec/hafs_analysis_update.x
-  ${CP} hafs_tools.fd/exec/hafs_da_utils.x           ../exec/hafs_da_utils.x
-  ${CP} hafs_tools.fd/exec/hafs_file_check.x         ../exec/hafs_file_check.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x        ../exec/hafs_obs_preproc.x
-  ${CP} hafs_tools.fd/exec/hafs_post_utils.x         ../exec/hafs_post_utils.x
-  ${CP} hafs_tools.fd/exec/hafs_tc_diagnostics.x     ../exec/hafs_tc_diagnostics.x
   ${CP} hafs_tools.fd/exec/mpiserial.x               ../exec/hafs_mpiserial.x
 }
 

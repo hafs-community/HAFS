@@ -1,2 +1,0 @@
-metar.txt.dump.ref
-metar.txt.ls.ref

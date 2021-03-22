@@ -311,25 +311,25 @@ build_hafsutils (){
 
     _hafsutils_analysis_update
 
-    # Build the da-utils application.
+##    # Build the da-utils application.
 
-    _hafsutils_da_utils
+##    _hafsutils_da_utils
 
-    # Build the file-check application.
+##    # Build the file-check application.
 
-    _hafsutils_file_check
+##    _hafsutils_file_check
     
     # Build the obs-preproc application.
 
     _hafsutils_obs_preproc
 
-    # Build the post-utils application.
+##    # Build the post-utils application.
 
-    _hafsutils_post_utils
+##    _hafsutils_post_utils
 
-    # Build the tc-diagnostics application.
+##    # Build the tc-diagnostics application.
 
-    _hafsutils_tc_diagnostics
+##    _hafsutils_tc_diagnostics
 }
 
 #----
