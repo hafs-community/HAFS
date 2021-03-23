@@ -39,7 +39,7 @@ SUBDIRS = fson gridprojs gridtrans kdtree shtns slatec slint sondelib spline wmm
 all: 
 	$(MKDIR) -p ./lib ./include
 	@for dir in $(SUBDIRS); do \
-		( cd src/$$dir; echo "Making $@ in `pwd`" ; make >& make.$$dir; make install >& install.$$dir; cd ../) ; \
+		( cd src/$$dir; echo "Making $@ in `pwd`" ; make >& ../../logs/make.$$dir; make install >& ../../logs/install.$$dir; cd ../) ; \
 	done
 
 clean: 

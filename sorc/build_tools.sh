@@ -149,8 +149,6 @@ make install
 
 cd ${TOOLS_PATH}/sorc
 
-./build_hafs_extlibs.sh
-
 ./build_hafs_utils.sh
 
 exit

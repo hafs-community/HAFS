@@ -39,7 +39,9 @@
 ################################################################################
 ##
 ## CMake based build: Biju Thomas 2021-01-04
-##
+## Cleaning hafs_tools.fd:   Biju Thomas 2021-03-23
+##      * Removing sources that are not needed or no longer used
+##      * Merging internal libraries into a single folder with a single driver script
 #################################################################################
 
 set -x -e
@@ -88,84 +90,6 @@ _hafsutils_analysis_update (){
 
 # FUNCTION:
 
-# _hafsutils_da_utils.sh
-
-# DESCRIPTION:
-
-# This function compiles and install the HAFS utility da-utils
-# application.
-
-# NOTE:
-
-# This function should never be called directly by the user and is for
-# internal use only within this script.
-
-_hafsutils_da_utils (){
-
-    # Remove the build dir if it exists from previous build
-    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
-       rm -rf ${HAFS_UTILS_SORC}/build
-    fi
-
-    # Create a build directory for a fresh build
-    mkdir ${HAFS_UTILS_SORC}/build
-
-    cd ${HAFS_UTILS_SORC}/build
-
-    # Generate makefile using CMake for the application
-    cmake ../hafs_da_utils -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-
-    # Build the da-utils application.
-    make VERBOSE=1 >& ${HAFS_UTILS_SORC}/logs/make.da-utils.log
-
-    # Move the analysis-update application executable to the HAFS
-    # utility application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.da-utils.log
-}
-
-#----
-
-# FUNCTION:
-
-# _hafsutils_file_check.sh
-
-# DESCRIPTION:
-
-# This function compiles and install the HAFS utility file-check
-# application.
-
-# NOTE:
-
-# This function should never be called directly by the user and is for
-# internal use only within this script.
-
-_hafsutils_file_check (){
-
-    # Remove the build dir if it exists from previous build
-    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
-       rm -rf ${HAFS_UTILS_SORC}/build
-    fi
-
-    # Create a build directory for a fresh build
-    mkdir ${HAFS_UTILS_SORC}/build
-
-    cd ${HAFS_UTILS_SORC}/build
-
-    # Generate makefile using CMake for the application
-    cmake ../hafs_file_check -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-
-    # Build the file-check application.
-    make all >& ${HAFS_UTILS_SORC}/logs/make.file-check.log
-
-    # Move the analysis-update application executable to the HAFS
-    # utility application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.file-check.log
-}
-
-#----
-
-# FUNCTION:
-
 # _hafsutils_obs_preproc.sh
 
 # DESCRIPTION:
@@ -205,84 +129,6 @@ _hafsutils_obs_preproc (){
 
 # FUNCTION:
 
-# _hafsutils_post_utils.sh
-
-# DESCRIPTION:
-
-# This function compiles and install the HAFS utility post-utils
-# application.
-
-# NOTE:
-
-# This function should never be called directly by the user and is for
-# internal use only within this script.
-
-_hafsutils_post_utils (){
-
-    # Remove the build dir if it exists from previous build
-    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
-       rm -rf ${HAFS_UTILS_SORC}/build
-    fi
-
-    # Create a build directory for a fresh build
-    mkdir ${HAFS_UTILS_SORC}/build
-
-    cd ${HAFS_UTILS_SORC}/build
-
-    # Generate makefile using CMake for the application
-    cmake ../hafs_post_utils -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-
-    # Build the post-utils application.
-    make all >& ${HAFS_UTILS_SORC}/logs/make.post-utils.log
-
-    # Move the post-utils application executable to the HAFS utility
-    # application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.post-utils.log
-}
-
-#----
-
-# FUNCTION:
-
-# _hafsutils_tc_diagnostics.sh
-
-# DESCRIPTION:
-
-# This function compiles and install the HAFS utility tc-diagnostics
-# application.
-
-# NOTE:
-
-# This function should never be called directly by the user and is for
-# internal use only within this script.
-
-_hafsutils_tc_diagnostics (){
-
-    # Remove the build dir if it exists from previous build
-    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
-       rm -rf ${HAFS_UTILS_SORC}/build
-    fi
-
-    # Create a build directory for a fresh build
-    mkdir ${HAFS_UTILS_SORC}/build
-
-    cd ${HAFS_UTILS_SORC}/build
-
-    # Generate makefile using CMake for the application
-    cmake ../hafs_tc_diagnostics -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-
-    # Build the tc-diagnostics application.
-    make all >& ${HAFS_UTILS_SORC}/logs/make.tc-diagnostics.log
-
-    # Move the tc-diagnostics application executable to the HAFS
-    # utility application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.tc-diagnostics.log
-}
-
-#----
-
-# FUNCTION:
-
 # build_hafsutils.sh
 
 # DESCRIPTION:
@@ -311,25 +157,94 @@ build_hafsutils (){
 
     _hafsutils_analysis_update
 
-##    # Build the da-utils application.
-
-##    _hafsutils_da_utils
-
-##    # Build the file-check application.
-
-##    _hafsutils_file_check
-    
     # Build the obs-preproc application.
 
     _hafsutils_obs_preproc
 
-##    # Build the post-utils application.
+}
 
-##    _hafsutils_post_utils
+#----
 
-##    # Build the tc-diagnostics application.
+# FUNCTION:
 
-##    _hafsutils_tc_diagnostics
+# _extlib_fftw.sh
+
+# DESCRIPTION:
+
+# This function configures, builds, and installs the FFTW
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_extlib_fftw (){
+
+    # Move to the working directory for the FFTW application/library.
+
+    cd ${HAFS_UTILS_EXTLIBS}/fftw
+
+    # Define the local environment variables for the FFTW compilation.
+
+    PREFIX=${HAFS_UTILS_EXTLIBS}
+    export F77=`which ifort`
+    export CC=`which gcc`
+
+    # Configure the compile-time environment for the FFTW application
+    # build.
+
+    ./configure --prefix=${PREFIX} --disable-doc >& ${HAFS_UTILS_EXTLIBS}/logs/configure.fftw.log
+
+    # Build the FFTW application.
+
+    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.fftw.log
+
+    # Install the FFTW application.
+
+    make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.fftw.log
+}
+
+#----
+
+# FUNCTION:
+
+# _extlib_shtns.sh
+
+# DESCRIPTION:
+
+# This function configures, builds, and installs the SHTNS
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_extlib_shtns (){
+
+    # Move to the working directory for the SHTNS application/library.
+
+    cd ${HAFS_UTILS_EXTLIBS}/shtns
+
+    # Define the local environment variables for the SHTNS
+    # compilation.
+
+    export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
+    PREFIX=${HAFS_UTILS_EXTLIBS}
+
+    # Configure the compile-time environment for the SHTNS application
+    # build.
+
+    ./configure --prefix=${PREFIX} >& ${HAFS_UTILS_EXTLIBS}/logs/configure.shtns.log
+
+    # Build the SHTNS application.
+
+    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.shtns.log
+
+    # Install the SHTNS application.
+
+    make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.shtns.log
 }
 
 #----
@@ -344,6 +259,21 @@ build_hafsutils (){
 # the HAFS utility applications.
 
 build_nwplibs (){
+
+    # Create a directory to contain all configure, make, and
+    # installation logs.
+
+    mkdir -p ${HAFS_UTILS_EXTLIBS}/logs
+
+
+    # Build the FFTW application.
+
+    _extlib_fftw
+
+    # Build the SHTNS application.
+
+    _extlib_shtns
+
 
     # Define the top-level directory for all HAFS utility libraries.
 
@@ -360,6 +290,7 @@ build_nwplibs (){
 
     # Build all utility libraries.
 
+    make clean
     make >& ${HAFS_UTILS_NWPLIBS}/logs/make.nwp-libs.log
 }
 
@@ -424,30 +355,11 @@ export NWP_LIBS_FCFLAGS="-O3 -mcmodel=large -convert big_endian"
 export ANALYSIS_UPDATE_DEBUG=""
 export ANALYSIS_UPDATE_FCFLAGS="-O3 -heap-arrays -mkl=sequential -convert big_endian -assume byterecl -DLINUX"
 
-# Define all compiler flags for the da-utils application.
-
-export DA_UTILS_DEBUG=""
-export DA_UTILS_FCFLAGS="-O3 -heap-arrays -mcmodel=large -integer-size 32 -real-size 32"
-
-# Define all compiler flags for the file-check application.
-
-export FILE_CHECK_DEBUG=""
-export FILE_CHECK_FCFLAGS="-O3 -mkl=sequential -assume byterecl"
-
 # Define all compiler flags for the obs-preproc application.
 
 export OBS_PREPROC_DEBUG=""
 export OBS_PREPROC_FCFLAGS="-O3 -fp-model precise -assume byterecl -convert big_endian"
 
-# Define all compiler flags for the post-utils application.
-
-export POST_UTILS_DEBUG=""
-export POST_UTILS_FCFLAGS="-O3 -mkl=sequential -convert big_endian -assume byterecl -DLINUX"
-
-# Define all compiler flags for the tc-diagnostics application.
-
-export TC_DIAGNOSTICS_DEBUG=""
-export TC_DIAGNOSTICS_FCFLAGS="-O3 -heap-arrays -mkl=sequential -assume byterecl -mcmodel=large -DLINUX"
 
 }
 
