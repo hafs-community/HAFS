@@ -1,0 +1,4 @@
+make[1]: Entering directory `/scratch1/NCEPDEV/hwrf/save/Biju.Thomas/hafs_cmake_hpc_stack2/sorc/hafs_tools.fd/sorc/hafs_extlibs/kdtree'
+Makefile:31: ../../configure.ext-libs: No such file or directory
+make[1]: *** No rule to make target `../../configure.ext-libs'.  Stop.
+make[1]: Leaving directory `/scratch1/NCEPDEV/hwrf/save/Biju.Thomas/hafs_cmake_hpc_stack2/sorc/hafs_tools.fd/sorc/hafs_extlibs/kdtree'

@@ -50,8 +50,6 @@ set(fortran_srcs
 set(exe_name hafs_analysis_update.x)
 message("TYPE CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 set(exec_dir ${CMAKE_SOURCE_DIR}/../../exec)
-set(nwp_dir ${CMAKE_SOURCE_DIR}/../hafs_nwplibs/lib)
-set(nwp_inc_dir ${CMAKE_SOURCE_DIR}/../hafs_nwplibs/include)
 set(ext_dir ${CMAKE_SOURCE_DIR}/../hafs_extlibs/lib)
 set(ext_inc_dir ${CMAKE_SOURCE_DIR}/../hafs_extlibs/include)
 
@@ -61,24 +59,23 @@ add_executable(${exe_name} ${fortran_srcs})
 
 target_include_directories(
   ${exe_name} PUBLIC
-  ${nwp_inc_dir}
   ${ext_inc_dir})
 
 target_link_libraries(
   ${exe_name}
   ${ext_dir}/libfftw3.a
-  ${nwp_dir}/libfson.a
-  ${nwp_dir}/libgridprojs.a
-  ${nwp_dir}/libkdtree.a
+  ${ext_dir}/libfson.a
+  ${ext_dir}/libgridprojs.a
+  ${ext_dir}/libkdtree.a
   nemsio::nemsio
   NetCDF::NetCDF_Fortran
   NetCDF::NetCDF_C
   ${ext_dir}/libshtns.a
   ${ext_dir}/libfftw3.a
-  ${nwp_dir}/libshtns_interface.a
-  ${nwp_dir}/libslatec.a
-  ${nwp_dir}/libslint.a
-  ${nwp_dir}/libspline.a
+  ${ext_dir}/libshtns_interface.a
+  ${ext_dir}/libslatec.a
+  ${ext_dir}/libslint.a
+  ${ext_dir}/libspline.a
   bacio::bacio_4
   w3emc::w3emc_d
   w3nco::w3nco_d)

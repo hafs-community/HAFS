@@ -12,7 +12,7 @@
 ## Date:                2020-02-03
 ##
 ## Abstract:            This script compiles the HAFS local libraries
-##                      (nwp_libs) source codes and all utility applications.
+##                      (ext_libs) source codes and all utility applications.
 ##
 ## Script history log:  
 ##
@@ -148,11 +148,6 @@ build_hafsutils (){
 
     export EXT_LIBS=${HAFS_UTILS_EXTLIBS}
     
-    # Define the top-level directory for all HAFS utility application
-    # compile-time libraries.
-
-    export NWP_LIBS=${HAFS_UTILS_NWPLIBS}
-
     # Build the analysis-update application.
 
     _hafsutils_analysis_update
@@ -193,6 +188,8 @@ _extlib_fftw (){
 
     # Configure the compile-time environment for the FFTW application
     # build.
+
+#    make clean
 
     ./configure --prefix=${PREFIX} --disable-doc >& ${HAFS_UTILS_EXTLIBS}/logs/configure.fftw.log
 
@@ -251,20 +248,24 @@ _extlib_shtns (){
 
 # FUNCTION:
 
-# build_nwplibs.sh
+# build_extlibs.sh
 
 # DESCRIPTION:
 
 # This function builds all applications and/or libraries required for
 # the HAFS utility applications.
 
-build_nwplibs (){
+build_extlibs (){
 
     # Create a directory to contain all configure, make, and
     # installation logs.
 
     mkdir -p ${HAFS_UTILS_EXTLIBS}/logs
 
+    # clean previous build
+
+    cd ${HAFS_UTILS_EXTLIBS}
+    make clean
 
     # Build the FFTW application.
 
@@ -275,23 +276,19 @@ build_nwplibs (){
     _extlib_shtns
 
 
-    # Define the top-level directory for all HAFS utility libraries.
-
-    export HAFS_UTILS_NWPLIBS=${HAFS_UTILS_SORC}/hafs_nwplibs
-
     # Create a directory to contain all configure, make, and
     # installation logs.
 
-    mkdir -p ${HAFS_UTILS_NWPLIBS}/logs
+    mkdir -p ${HAFS_UTILS_EXTLIBS}/logs
 
     # Move to the working directory for the HAFS utility libraries.
 
-    cd ${HAFS_UTILS_NWPLIBS}
+    cd ${HAFS_UTILS_EXTLIBS}
 
     # Build all utility libraries.
 
-    make clean
-    make >& ${HAFS_UTILS_NWPLIBS}/logs/make.nwp-libs.log
+    _setup_compiler
+    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.ext-libs.log
 }
 
 #----
@@ -321,46 +318,55 @@ setup_hafs_utils_build (){
     # libraries.
 
     export HAFS_UTILS_EXTLIBS=${HAFS_UTILS_SORC}/hafs_extlibs
+
+    if [ -d "${HAFS_UTILS_EXTLIBS}/lib" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/lib; fi
+    if [ -d "${HAFS_UTILS_EXTLIBS}/bin" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/bin; fi
+    if [ -d "${HAFS_UTILS_EXTLIBS}/include" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/include; fi
+    if [ -d "${HAFS_UTILS_EXTLIBS}/logs" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/logs; fi
     
     # Create a working directory to contain all HAFS utility
     # application executables.
 
     mkdir -p ${HAFS_UTILS_EXEC}
+}
 
-    # Load all modules and compile-time environment variables for the
-    # HAFS utility applications build.
+#----
 
-#   . ${MODULES}
+# FUNCTION:
+
+# setup_compiler.sh
+
+# DESCRIPTION:
+
 # Define all compilers specific to the HAFS utility application
 # builds.
 
-export AR=/usr/bin/ar
-export CC=gcc
-export F77=ifort
-export FC=ifort
-export MKDIR=/bin/mkdir
-##export MPIFC=mpif90 (Moved to build_tools.sh)
-export MV=/bin/mv
-export RANLIB=/usr/bin/ranlib
-export RM=/bin/rm
+_setup_compiler (){
+    export AR=/usr/bin/ar
+    export MKDIR=/bin/mkdir
+    export MV=/bin/mv
+    export RANLIB=/usr/bin/ranlib
+    export RM=/bin/rm
+    export CC=gcc
+    export F77=ifort
+    export FC=ifort
+    ##export MPIFC=mpif90 (Moved to build_tools.sh)
 
-# Define all compiler flags for the NWP-libs applications.
+# Define all compiler flags for the EXT-libs applications.
 
-export NWP_LIBS_CCFLAGS="-O3"
-export NWP_LIBS_DEBUG=""
-export NWP_LIBS_FCFLAGS="-O3 -mcmodel=large -convert big_endian"
+    export EXT_LIBS_CCFLAGS="-O3"
+    export EXT_LIBS_DEBUG=""
+    export EXT_LIBS_FCFLAGS="-O3 -mcmodel=large -convert big_endian"
 
 # Define all compiler flags for the analysis-update application.
 
-export ANALYSIS_UPDATE_DEBUG=""
-export ANALYSIS_UPDATE_FCFLAGS="-O3 -heap-arrays -mkl=sequential -convert big_endian -assume byterecl -DLINUX"
+    export ANALYSIS_UPDATE_DEBUG=""
+    export ANALYSIS_UPDATE_FCFLAGS="-O3 -heap-arrays -mkl=sequential -convert big_endian -assume byterecl -DLINUX"
 
 # Define all compiler flags for the obs-preproc application.
 
-export OBS_PREPROC_DEBUG=""
-export OBS_PREPROC_FCFLAGS="-O3 -fp-model precise -assume byterecl -convert big_endian"
-
-
+    export OBS_PREPROC_DEBUG=""
+    export OBS_PREPROC_FCFLAGS="-O3 -fp-model precise -assume byterecl -convert big_endian"
 }
 
 #----
@@ -375,9 +381,9 @@ echo "START ${script_name}: ${start_date}"
 setup_hafs_utils_build
 
 # (2) Build all libraries specific to numerical weather prediction
-#     (NWP) applications.
+#     (EXT) applications.
 
-build_nwplibs
+build_extlibs
 
 # (3) Build all HAFS utility applications.
 
