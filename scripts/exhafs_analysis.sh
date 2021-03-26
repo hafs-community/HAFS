@@ -117,6 +117,9 @@ fi
 export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis}
 mkdir -p ${RESTARTanl}
 
+# We should already be in $DATA, but extra cd to be sure.
+cd $DATA
+
 if [ ${RUN_FGAT} = "YES" ]; then
   if [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
     RESTARTinp_fgat=${COMhafs}/RESTART_analysis_vr
@@ -565,9 +568,9 @@ if [ $GENDIAG = "YES" ] ; then
    fi
 
    if [ $USE_CFP = "YES" -o $USE_MPISERIAL = "YES" ]; then
-      [[ -f $DATA/diag.sh ]] && rm $DATA/diag.sh
-      [[ -f $DATA/mp_diag.sh ]] && rm $DATA/mp_diag.sh
-      cat > $DATA/diag.sh << EOFdiag
+      [[ -f ./diag.sh ]] && rm ./diag.sh
+      [[ -f ./mp_diag.sh ]] && rm ./mp_diag.sh
+      cat > ./diag.sh << EOFdiag
 #!/bin/sh
 lrun_subdirs=\$1
 binary_diag=\$2
@@ -592,7 +595,7 @@ if [ \$DIAG_COMPRESS = "YES" ]; then
    $COMPRESS \$file
 fi
 EOFdiag
-      chmod 755 $DATA/diag.sh
+      chmod 755 ./diag.sh
    fi
 
    # Collect diagnostic files as a function of loop and type.
@@ -620,12 +623,12 @@ EOFdiag
             count=$(ls ${prefix}${type}_${loop}* 2>/dev/null | wc -l)
             if [ $count -gt 1 ]; then
                if [ $USE_CFP = "YES" ]; then
-                  echo "$nm $DATA/diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a $DATA/mp_diag.sh
+                  echo "$nm ./diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a ./mp_diag.sh
           if [ ${CFP_MP:-"NO"} = "YES" ]; then
               nm=$((nm+1))
           fi
                elif [ $USE_MPISERIAL = "YES" ]; then
-                  echo "$nm $DATA/diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a $DATA/mp_diag.sh
+                  echo "$nm ./diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a ./mp_diag.sh
                else
                   if [ $binary_diag = ".true." ]; then
                      cat ${prefix}${type}_${loop}* > diag_${type}_${string}.${CDATE}${DIAG_SUFFIX}
@@ -661,12 +664,12 @@ EOFdiag
    fi
 
    if [ $USE_CFP = "YES" ] ; then
-      chmod 755 $DATA/mp_diag.sh
-      ncmd=$(cat $DATA/mp_diag.sh | wc -l)
+      chmod 755 ./mp_diag.sh
+      ncmd=$(cat ./mp_diag.sh | wc -l)
       if [ $ncmd -gt 0 ]; then
          ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
          APRUNCFP_DIAG=$(eval echo $APRUNCFP)
-         $APRUNCFP_DIAG $DATA/mp_diag.sh
+         $APRUNCFP_DIAG ./mp_diag.sh
          export ERR=$?
          export err=$ERR
          $ERRSCRIPT || exit 3
@@ -674,8 +677,8 @@ EOFdiag
    fi
 
    if [ $USE_MPISERIAL = "YES" ] ; then
-      chmod 755 $DATA/mp_diag.sh
-      ${APRUNC} ${MPISERIAL} -m $DATA/mp_diag.sh
+      chmod 755 ./mp_diag.sh
+      ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
    fi
 
    # If requested, create diagnostic file tarballs
