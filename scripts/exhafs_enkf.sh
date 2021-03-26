@@ -32,6 +32,7 @@ fi
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export ldo_enscalc_option=${ldo_enscalc_option:-1}
 export nens=${ENS_SIZE:-40}
+export ONLINE_SATBIAS=${ONLINE_SATBIAS:-NO}
 
 # Diagnostic files options
 netcdf_diag=${netcdf_diag:-".true."}
@@ -199,8 +200,23 @@ ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+# Workflow will read from previous cycles for satbias predictors if ONLINE_SATBIAS is set to yes
+if [ ${ONLINE_SATBIAS} = "YES" ]; then
+  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  else
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  fi
+else
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+fi
+
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 # Make enkf namelist

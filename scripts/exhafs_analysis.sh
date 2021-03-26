@@ -20,6 +20,7 @@ export RUN_ENVAR=${RUN_ENVAR:-NO}
 export RUN_ENSDA=${RUN_ENSDA:-NO}
 export ENSDA=${ENSDA:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
+export ONLINE_SATBIAS=${ONLINE_SATBIAS:-NO}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -441,9 +442,24 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 
 fi #USE_SELECT
 
+# Workflow will read from previous cycles for satbias predictors if ONLINE_SATBIAS is set to yes
+if [ ${ONLINE_SATBIAS} = "YES" ]; then
+  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  else
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  fi
+else
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+fi
+
 #
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
@@ -706,6 +722,10 @@ EOFdiag
       echo $(date) END tar diagnostic files >&2
    fi
 fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
+
+# Save satbias data for next cycle
+${NCP} satbias_out  $RESTARTanl/satbias_hafs_out
+${NCP} satbias_pc.out  $RESTARTanl/satbias_hafs_pc.out
 
 # If no processing error, remove $DIAG_DIR
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
