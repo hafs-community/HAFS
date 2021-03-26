@@ -29,6 +29,7 @@ OCN_attributes::
   mesh_ocn = _mesh_ocn_
   Verbosity = 1
   Diagnostic = 0
+# The following are only used by the hycom ocean model. #
   cdf_impexp_freq = 3
   cpl_hour = 0
   cpl_min = 0
