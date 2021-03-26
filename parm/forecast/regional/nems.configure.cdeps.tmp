@@ -1,0 +1,111 @@
+##############################################
+#####  NEMS Run-Time Configuration File  #####
+##############################################
+
+# EARTH #
+EARTH_component_list: MED ATM OCN
+EARTH_attributes::
+  Verbosity = 0
+::
+
+# MED #
+MED_model:                      nems
+_MED_petlist_bounds_
+::
+
+# ATM #
+ATM_model:                      _atm_model_
+_ATM_petlist_bounds_
+ATM_attributes::
+  mesh_atm = _mesh_atm_
+  Verbosity = 1
+  Diagnostic = 0
+::
+
+# OCN #
+OCN_model:                      _ocn_model_
+_OCN_petlist_bounds_
+OCN_attributes::
+  mesh_ocn = _mesh_ocn_
+  Verbosity = 1
+  Diagnostic = 0
+  cdf_impexp_freq = 3
+  cpl_hour = 0
+  cpl_min = 0
+  cpl_sec = _cpl_dt_
+  base_dtg = _base_dtg_
+  merge_import = _merge_import_
+  skip_first_import = .true.
+  hycom_arche_output = .true.
+  hyc_esmf_exp_output = .true.
+  hyc_esmf_imp_output = .true.
+  hyc_impexp_file = dummy_file
+  espc_show_impexp_minmax = .true.
+  ocean_start_dtg = _ocean_start_dtg_
+  start_hour = 0
+  start_min = 0
+  start_sec = 0
+  end_hour = _end_hour_
+  end_min = 0
+  end_sec = 0
+::
+
+# Run Sequence #
+runSeq::
+@_cpl_dt_
+_runSeq_ALL_
+@
+::
+
+# Other Attributes #
+DRIVER_attributes::
+  mediator_read_restart = false
+::
+
+MED_attributes::
+  ATM_model = _atm_model_
+  OCN_model = _ocn_model_
+  Verbosity = 1
+  Diagnostic = 0
+  history_n = 1
+  history_option = nhours
+  history_ymd = -999
+  coupling_mode = hafs
+  system_type = ufs
+::
+
+ALLCOMP_attributes::
+  ScalarFieldCount = 3
+  ScalarFieldIdxGridNX = 1
+  ScalarFieldIdxGridNY = 2
+  ScalarFieldIdxNextSwCday = 3
+  ScalarFieldName = cpl_scalars
+  start_type = startup
+  case_name = ufs.hafs
+  restart_n = 24
+  restart_option = nhours
+  restart_ymd = -999
+  normalization = none
+  merge_type = copy
+  orb_eccen = 1.e36
+  orb_iyear = 2000
+  orb_iyear_align = 2000
+  orb_mode = fixed_year
+  orb_mvelp = 1.e36
+  orb_obliq = 1.e36
+::
+
+ATM_modelio::
+  diro = .
+  logfile = atm.log
+::
+
+OCN_modelio::
+  diro = .
+  logfile = ocn.log
+::
+
+MED_modelio::
+  diro = .
+  logfile = nems.log
+::

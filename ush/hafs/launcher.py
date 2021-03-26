@@ -793,22 +793,43 @@ class HAFSLauncher(HAFSConfig):
         """!In the hafs_launcher job, this checks the data model variables and
         files for obvious errors before starting the rest of the workflow."""
         run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
+        run_ocean=self.getbool('config','run_ocean',False)
         if run_datm:
-            make_mesh_atm=self.getbool('config','make_mesh_datm',True)
+            if run_docn:
+              msg='run_datm and run_docn cannot both be set to yes'
+              logger.error(msg)
+              raise msg
+            make_mesh_atm=self.getbool('config','make_mesh_atm',True)
             if not make_mesh_atm:
-                mesh_atm=timestrinterp('forecast','mesh_atm')
+                mesh_atm=self.getstr('forecast','mesh_atm')
                 if not os.path.exists(mesh_atm):
                     msg='%s: mesh_atm file does not exist'%(mesh_atm,)
                     logger.error(msg)
                     raise msg
                 else:
                     logger.info("%s: will use this pre-made datm esmf mesh (mesh_atm)."%(mesh_atm,))
+        if run_docn:
+            make_mesh_ocn=self.getbool('config','make_mesh_ocn',True)
+            if not make_mesh_ocn:
+                mesh_ocn=self.getstr('forecast','mesh_ocn')
+                if not os.path.exists(mesh_ocn):
+                    msg='%s: mesh_ocn file does not exist'%(mesh_ocn,)
+                    logger.error(msg)
+                    raise msg
+                else:
+                    logger.info("%s: will use this pre-made docn esmf mesh (mesh_ocn)."%(mesh_ocn,))
+            if run_ocean:
+                msg='run_ocean=yes and run_docn=yes are incompatible.'
+                logger.error(msg)
+                raise msg
 
     def set_data_model_variables(self):
         """!Sets conf variables for the data models."""
         run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
         if run_datm:
-            make_mesh_atm=self.getbool('config','make_mesh_datm',True)
+            make_mesh_atm=self.getbool('config','make_mesh_atm',True)
             if make_mesh_atm:
                 self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_gen'))
             else:
@@ -824,6 +845,23 @@ class HAFSLauncher(HAFSConfig):
             self.set('config','download_datm',False)
             self.set('config','download_datm_list','0')
             self.set('config','download_datm_threshold','1.0')
+        if run_docn:
+            make_mesh_ocn=self.getbool('config','make_mesh_ocn',True)
+            if make_mesh_ocn:
+                self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_gen'))
+            else:
+                self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_in'))
+            docn_download_jobs=max(0,self.getint('config','docn_download_jobs',0))
+            download_docn_list=" ".join(["%02d"%x for x in range(max(1,docn_download_jobs))])
+            download_docn_threshold="%7.5f"%(1.0/(max(1,docn_download_jobs)),)
+            self.set('config','download_docn',docn_download_jobs>0)
+            self.set('config','download_docn_list',download_docn_list)
+            self.set('config','download_docn_threshold',download_docn_threshold)
+        else:
+            self.set('forecast','mesh_ocn','dummy.nc')
+            self.set('config','download_docn',False)
+            self.set('config','download_docn_list','0')
+            self.set('config','download_docn_threshold','1.0')
 
     def set_storm(self,syndat,oldsyndat):
         """!Sets the storm that is to be run.

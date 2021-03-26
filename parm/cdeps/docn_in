@@ -1,0 +1,10 @@
+&docn_nml
+  datamode = "sstdata"
+  model_createmesh_fromfile = "null"
+  model_maskfile = "_mesh_ocn_"
+  model_meshfile = "_mesh_ocn_"
+  nx_global = 1440
+  ny_global = 720
+  restfilm = "null"
+  sst_constant_value = -1.0
+/

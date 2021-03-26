@@ -56,7 +56,9 @@ export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
 
 export run_datm=${run_datm:-no}
+export run_docn=${run_docn:-no}
 export mesh_atm=${mesh_atm:-''}
+export mesh_ocn=${mesh_ocn:-''}
 
 export run_ocean=${run_ocean:-no}
 export ocean_model=${ocean_model:-hycom}
@@ -112,11 +114,17 @@ if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ] && [ ${run_datm} = no ];  then
   export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   export runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN"
 fi
-# CMEPS based coupling between HYCOM and DATM through the bilinear regridding method
-if [ ${run_ocean} = yes ] && [ $cpl_ocean -eq 3 ] && [ ${run_datm} = yes ];  then
+# CDEPS data models
+if [ ${run_datm} == yes ];  then
   export cplflx=.true.
   export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
+  export runSeq_ALL="MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n OCN\n ATM\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_aofluxes_run\n MED med_phases_prep_ocn_accum\n OCN -> MED :remapMethod=redist:ignoreUnmatchedIndices=true\n MED med_phases_post_ocn\n MED med_phases_history_write\n MED med_phases_restart_write"
+elif [ ${run_docn} = yes ]; then
+  export cplflx=.true.
+  export OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  export runSeq_ALL="MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_restart_write\n MED med_phases_history_write"
 fi
 
 export ocean_start_dtg=${ocean_start_dtg:-43340.00000}
@@ -432,7 +440,7 @@ fi
 fi
   
 #-------------------------------------------------------------------
-# Generate diag_table, model_configure from their tempelates
+# Generate diag_table, model_configure from their templates
 #-------------------------------------------------------------------
 echo ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 echo $yr $mn $dy $cyc 0 0
@@ -441,21 +449,14 @@ ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 $yr $mn $dy $cyc 0 0
 EOF
 
+enddate=`${NDATE} +${NHRS} $CDATE`
+endyr=`echo $enddate | cut -c1-4`
+
 if [ ${run_datm} = no ];  then
-
 cat temp diag_table.tmp > diag_table
+fi
 
-else
-
-  enddate=`${NDATE} +${NHRS} $CDATE`
-  endyr=`echo $enddate | cut -c1-4`
-
-  nowdate=$CDATE
-  while (( nowdate <= enddate )) ; do
-      era5_name=ERA5_${nowdate:0:8}.nc
-      ln -sf $DATMdir/$era5_name INPUT/$era5_name
-      nowdate=`${NDATE} +6 $nowdate`
-  done
+if [ ${run_datm} = yes ];  then
 
 #---------------------------------------------- 
 # Copy CDEPS parm files if required.
@@ -464,6 +465,14 @@ else
   cp ${PARMhafs}/cdeps/datm_in .
   cp ${PARMhafs}/cdeps/datm.streams.xml .
 
+  nowdate=$CDATE
+  while (( nowdate <= enddate )) ; do
+      era5_name=ERA5_${nowdate:0:8}.nc
+      ln -sf $DATMdir/$era5_name INPUT/$era5_name
+      sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>INPUT/$era5_name<\/file>" datm.streams.xml
+      nowdate=`${NDATE} +6 $nowdate`
+  done
+
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
 
   sed -i "s/_yearFirst_/$yr/g" datm.streams.xml
@@ -471,23 +480,60 @@ else
   sed -i "s/_yearLast_/$endyr/g" datm.streams.xml
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams.xml
-  for file in `ls INPUT/*.nc ` ; do
-    sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" datm.streams.xml
-  done
 
   ln -sf ${mesh_atm} INPUT/
 
-  cp ${PARMforecast}/nems.configure.datm_ocn.tmp ./
+  cp ${PARMforecast}/nems.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
       -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
       -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
       -e "s/_base_dtg_/${CDATE}/g" \
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
       -e "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" \
-      nems.configure.datm_ocn.tmp > nems.configure
+      -e "/_mesh_ocn_/d" \
+      -e "s/_atm_model_/datm/g" \
+      -e "s/_ocn_model_/hycom/g" \
+      nems.configure.cdeps.tmp > nems.configure
+
+elif [ ${run_docn} = yes ];  then
+
+  ln -sf $DOCNdir/*.nc INPUT/
+
+  cp ${PARMhafs}/cdeps/docn_in .
+  cp ${PARMhafs}/cdeps/docn.streams.xml .
+
+  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn_in
+
+  sed -i "s/_yearFirst_/$yr/g" docn.streams.xml
+
+  sed -i "s/_yearLast_/$endyr/g" docn.streams.xml
+
+  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams.xml
+  for file in `ls INPUT/sst*.nc ` ; do
+    sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" docn.streams.xml
+  done
+
+  ln -sf ${mesh_ocn} INPUT/
+
+  cp ${PARMforecast}/nems.configure.cdeps.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.true.}/g" \
+      -e "/_mesh_atm_/d" \
+      -e "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" \
+      -e "s/_atm_model_/fv3/g" \
+      -e "s/_ocn_model_/docn/g" \
+      nems.configure.cdeps.tmp > nems.configure
 
 fi
 
