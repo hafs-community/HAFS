@@ -75,7 +75,11 @@ _hafsutils_analysis_update (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application 
-    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+    if [[ $target = "wcoss_cray" ]]; then
+        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+    else
+        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+    fi
 
     # Build the analysis-update application.
 
@@ -115,7 +119,11 @@ _hafsutils_obs_preproc (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+    if [[ $target = "wcoss_cray" ]]; then
+       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+    else
+       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+    fi
 
     # Build the obs-preproc application.
     make all >& ${HAFS_UTILS_SORC}/logs/make.obs-preproc.log

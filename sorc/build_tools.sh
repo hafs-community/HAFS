@@ -26,7 +26,7 @@ if [ $target = wcoss ]; then
 
 elif [ $target = hera ]; then
 
-    targetx=hera
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -39,7 +39,7 @@ elif [ $target = hera ]; then
 
 elif [ $target = orion ]; then
 
-    targetx=orion
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -52,7 +52,7 @@ elif [ $target = orion ]; then
 
 elif [ $target = jet ]; then
 
-    targetx=jet
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -65,7 +65,7 @@ elif [ $target = jet ]; then
 
 elif [ $target = wcoss_cray ]; then
 
-    targetx=cray
+    export target
     if [ $USE_PREINST_LIBS = true ]; then
       #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
       module use ../modulefiles
@@ -87,7 +87,7 @@ elif [ $target = wcoss_cray ]; then
 
 elif [ $target = wcoss_dell_p3 ]; then
 
-    targetx=wcoss_dell_p3
+    export $target
     if [ $USE_PREINST_LIBS = true ]; then
       #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
       module use ../modulefiles
@@ -121,8 +121,8 @@ export BUFR_LDFLAGS="${BUFR_LIBd}"
 TOOLS_PATH=${cwd}/hafs_tools.fd
 
 # Build the libraries in the tools
-cd ${TOOLS_PATH}/libsrc
-./build_libs_cmake.sh
+##cd ${TOOLS_PATH}/libsrc
+##./build_libs_cmake.sh
 
 # Build the tools programs
 export TOOLS_INC=${TOOLS_PATH}/include
