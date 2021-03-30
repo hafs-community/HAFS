@@ -65,16 +65,22 @@
   <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
   <!ENTITY RUN_GSI "@[RUN_GSI]">
   <!ENTITY RUN_DATM "@[RUN_DATM]">
+  <!ENTITY RUN_DOCN "@[RUN_DOCN]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
   <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
+  <!ENTITY MAKE_MESH_OCN "@[MAKE_MESH_OCN]">
 
   <!ENTITY DOWNLOAD_DATM "@[DOWNLOAD_DATM]">
   <!ENTITY DOWNLOAD_DATM_LIST "@[DOWNLOAD_DATM_LIST]">
   <!ENTITY DOWNLOAD_DATM_THRESHOLD "@[DOWNLOAD_DATM_THRESHOLD]">
+
+  <!ENTITY DOWNLOAD_DOCN "@[DOWNLOAD_DOCN]">
+  <!ENTITY DOWNLOAD_DOCN_LIST "@[DOWNLOAD_DOCN_LIST]">
+  <!ENTITY DOWNLOAD_DOCN_THRESHOLD "@[DOWNLOAD_DOCN_THRESHOLD]">
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
@@ -225,6 +231,39 @@
   </metatask>
 @** endif
 
+
+@** if RUN_DOCN==YES
+  <metatask name="download_docn">
+    <var name="idx">&DOWNLOAD_DOCN_LIST;</var>
+    <task name="download_docn_#idx#" maxtries="&MAX_TRIES_TRANSFER;">
+      <command>&JOBhafs;/JHAFS_DOCN_DOWNLOAD</command>
+      <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#idx#</jobname>
+      <join><cyclestr>&WORKhafs;/hafs_download_docn_#idx#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_SERVICE;</queue>
+      &SERVICE_EXTRA;
+      <cores>1</cores>
+      &CORES_EXTRA;
+      <envar><name>TOTAL_TASKS</name><value>1</value></envar>
+      <walltime>06:00:00</walltime>
+      &MEMORY;
+      &ENV_VARS;
+      
+      <dependency>
+        <and>
+          <taskdep task="launch"/>
+          <streq><left>&DOWNLOAD_DOCN;</left><right>YES</right></streq>
+          <streq><left>&RUN_DOCN;</left><right>YES</right></streq>
+          <not>
+            <metataskdep metatask="download_docn" threshold="&DOWNLOAD_DOCN_THRESHOLD;"/>
+          </not>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
   <task name="grid" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_GRID</command>
     <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -307,21 +346,46 @@
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
           <or>
-@** if GFSVER==PROD2019
+@**   if GFSVER==PROD2019
             <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-@** endif
-@** if GFSVER==PROD2021
+@**   endif
+@**   if GFSVER==PROD2021
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
             <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
-@** endif
+@**   endif
           </or>
         </and>
       </dependency>
     </task>
   </metatask>
 
-@** if RUN_OCEAN==YES
+@**   if RUN_DOCN==YES
+  <task name="docn_mesh" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_DOCN_MESH</command>
+    <jobname>hafs_docn_mesh_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_docn_mesh.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &MAKE_ESMF_MESH_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="launch"/>
+        <streq><left>&MAKE_MESH_OCN;</left><right>YES</right></streq>
+        <or>
+          <strneq><left>&DOWNLOAD_DOCN;</left><right>YES</right></strneq>
+          <metataskdep metatask="download_docn" threshold="&DOWNLOAD_DOCN_THRESHOLD;"/>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@**   endif
+
+@**   if RUN_OCEAN==YES
   <task name="hycominit1" maxtries="&MAX_TRIES;">
     <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
     <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
@@ -391,18 +455,18 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
         <and>
-@** if GFSVER==PROD2019
+@**     if GFSVER==PROD2019
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
-@** endif
-@** if GFSVER==PROD2021
+@**     endif
+@**     if GFSVER==PROD2021
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
-@** endif
+@**     endif
         </and>
       </and>
     </dependency>
   </task>
 
-@** if RUN_DATM==YES
+@**     if RUN_DATM==YES
 
   <task name="datm_mesh" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_DATM_MESH</command>
@@ -412,7 +476,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &MESH_ATM_RESOURCES;
+    &MAKE_ESMF_MESH_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -427,9 +491,9 @@
     </dependency>
   </task>
 
-@** endif
+@**     endif
 
-@** endif
+@**   endif
 
 @** endif
 
@@ -456,10 +520,11 @@
           </and>
         </or>
 @** if gtype==regional
-@** if RUN_OCEAN==YES
+@**   if RUN_OCEAN==YES
         <taskdep task="hycominit1"/>
         <taskdep task="hycominit2"/>
-@** if RUN_DATM==YES
+@**   endif
+@**   if RUN_DATM==YES
         <or>
           <strneq><left>&DOWNLOAD_DATM;</left><right>YES</right></strneq>
           <metataskdep metatask="download_datm" threshold="0.2"/>
@@ -468,8 +533,17 @@
           <strneq><left>&MAKE_MESH_ATM;</left><right>YES</right></strneq>
           <taskdep task="datm_mesh"/>
         </or>
-@** endif
-@** endif
+@**   endif
+@**   if RUN_DOCN==YES
+        <or>
+          <strneq><left>&DOWNLOAD_DOCN;</left><right>YES</right></strneq>
+          <metataskdep metatask="download_docn" threshold="0.2"/>
+        </or>
+        <or>
+          <strneq><left>&MAKE_MESH_OCN;</left><right>YES</right></strneq>
+          <taskdep task="docn_mesh"/>
+        </or>
+@**   endif
 @** endif
       </and>
     </dependency>

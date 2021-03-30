@@ -34,23 +34,26 @@ test -r "$ifile"
 rm -f "$mesh_atm"
 [ -e "$ofile" -o -L "$ofile" ]] && rm -f "$ofile"
 
+set +x
 echo "Generating ESMF mesh from ERA5 files."
 echo "Running in dir \"$PWD\""
 echo "ERA5 grid generation input file is \"$ifile\""
 echo "Temporary output mesh is $ofile"
 echo "Will deliver to \"$mesh_atm\""
+set -x
 
-# since the mesh is created drectly from the data file (lat is already
-# reversed), there is no need to reverse in here again by providing
-# --latrev
-$APRUNS $USHhafs/hafs_datm_mesh.py --ifile "$ifile" --ofile "$ofile" \
+# Generate the mesh from the ERA5 file:
+$APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$ifile" --ofile "$ofile" \
     --overwrite --latvar latitude --lonvar longitude --double
 test -s "$ofile"
 
+# Copy mesh to final destination.
 $USHhafs/produtil_deliver.py -m "$ofile" "$mesh_atm"
 test -s "$mesh_atm"
 
 ls -l "$mesh_atm"
 
+# Rejoice.
+set +x
 echo "DATM mesh was successfully generated."
 echo "Enjoy your mesh and have a nice day."

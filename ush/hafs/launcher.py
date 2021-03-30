@@ -789,6 +789,25 @@ class HAFSLauncher(HAFSConfig):
         revital.readfiles(inputs,raise_all=False)
         return revital
 
+    def timeless_sanity_check_data_models(self,logger):
+        """!In the hafs_launcher job, this checks the data model variables and
+        files for obvious errors on the command line, before submitting jobs."""
+        run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
+        run_ocean=self.getbool('config','run_ocean',False)
+        if run_datm and run_docn:
+            msg='run_datm and run_docn cannot both be set to yes'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+        if run_docn and run_ocean:
+            msg='run_docn and run_ocean cannot both be set to yes'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+        if run_datm and not run_ocean:
+            msg='run_datm is useless without run_ocean'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+
     def sanity_check_data_models(self,logger):
         """!In the hafs_launcher job, this checks the data model variables and
         files for obvious errors before starting the rest of the workflow."""
@@ -799,14 +818,14 @@ class HAFSLauncher(HAFSConfig):
             if run_docn:
               msg='run_datm and run_docn cannot both be set to yes'
               logger.error(msg)
-              raise msg
+              raise HAFSDataModelInsane(msg)
             make_mesh_atm=self.getbool('config','make_mesh_atm',True)
             if not make_mesh_atm:
                 mesh_atm=self.getstr('forecast','mesh_atm')
                 if not os.path.exists(mesh_atm):
                     msg='%s: mesh_atm file does not exist'%(mesh_atm,)
                     logger.error(msg)
-                    raise msg
+                    raise HAFSDataModelInsane(msg)
                 else:
                     logger.info("%s: will use this pre-made datm esmf mesh (mesh_atm)."%(mesh_atm,))
         if run_docn:
@@ -816,13 +835,13 @@ class HAFSLauncher(HAFSConfig):
                 if not os.path.exists(mesh_ocn):
                     msg='%s: mesh_ocn file does not exist'%(mesh_ocn,)
                     logger.error(msg)
-                    raise msg
+                    raise HAFSDataModelInsane(msg)
                 else:
                     logger.info("%s: will use this pre-made docn esmf mesh (mesh_ocn)."%(mesh_ocn,))
             if run_ocean:
                 msg='run_ocean=yes and run_docn=yes are incompatible.'
                 logger.error(msg)
-                raise msg
+                raise HAFSDataModelInsane(msg)
 
     def set_data_model_variables(self):
         """!Sets conf variables for the data models."""
@@ -1192,6 +1211,7 @@ class HAFSLauncher(HAFSConfig):
                 '%s: not the same as the launcher.py that is running now '
                 '(%s) -- check your paths and EXPT.'%(checkme,myfile))
         self.sanity_check_forecast_length(logger)
+        self.timeless_sanity_check_data_models(logger)
 
     def sanity_check_forecast_length(self,logger=None):
         """!Ensures the forecast length is valid.

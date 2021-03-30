@@ -13,48 +13,32 @@ import re
 import logging
 import datetime
 import sys
+import random
 
 try:
-    import cdsapi
+    import requests
 except ImportError as ie:
-    sys.stderr.write("""You are missing the cdsapi module!
+    sys.stderr.write("""You are missing the request module!
 You must install it to run this script.
 
-  pip install cdsapi --user
-
-You will also need to register on the cdsapi website, sign the ERA5
-license agreement, get a key, and put the key in your ~/.cdsapi file.
+  pip install request --user
 """)
 
 import produtil.setup, produtil.fileop, produtil.locking
 
 # Constants
-UTILITY_NAME = 'era5_downloader'
+UTILITY_NAME = 'oisst_downloader'
 VERSION_STRING = '0.0.1'
 LOGGING_DOMAIN = UTILITY_NAME
-DATASET = 'reanalysis-era5-single-levels'
-PRODUCT_TYPE = 'reanalysis'
-VARIABLES = [
-    '10m_u_component_of_wind', '10m_v_component_of_wind', '2m_dewpoint_temperature',
-    '2m_temperature', 'convective_precipitation', 'convective_snowfall',
-    'large_scale_precipitation', 'large_scale_snowfall', 'mean_sea_level_pressure',
-    'near_ir_albedo_for_diffuse_radiation', 'near_ir_albedo_for_direct_radiation',
-    'uv_visible_albedo_for_diffuse_radiation', 'uv_visible_albedo_for_direct_radiation',
-    'surface_latent_heat_flux', 'surface_sensible_heat_flux', 
-    'surface_solar_radiation_downwards', 'surface_thermal_radiation_downwards',
-    'surface_pressure', 'total_precipitation', 'skin_temperature',
-    'eastward_turbulent_surface_stress', 'northward_turbulent_surface_stress',
-    'surface_net_solar_radiation', 'surface_net_thermal_radiation'
-]
-FILE_FORMAT = 'netcdf'
 CYCLING_INTERVAL = datetime.timedelta(seconds=3600*24)
 EPSILON = datetime.timedelta(seconds=5)  # epsilon for time comparison: five seconds
 
 # Non-constant globals:
 dayset=set() # list of YYYYMMDD strings
 happy=True # False = something failed
-filename_format = 'ERA5_%Y%m%d'
-swap_latitudes=True
+filename_format = 'oisst-avhrr-v02r01.%Y%m%d'
+base_url='https://www.ncei.noaa.gov/data/sea-surface-temperature-optimum-interpolation/v2.1/access/avhrr'
+block_size=65536
 
 def usage(why=None):
     print(f'''Synopsis: {UTILITY_NAME} [options] day [day [...]]
@@ -67,13 +51,14 @@ Downloads the listed days of data. Days can be specified as:
 Options:
   -q | --quiet = log only warnings and errors
   -v | --verbose = log all messages
-  -n | --no-invertlat = do not run "cdo invertlat" on downloaded files
+  -u https:... | --url https:... = base url with no ending /
+     default: {base_url}
   -F format | --format format = filename format as in strftime(3)
-  -i | --invertlat = DO run "cdo inverlat".  This is the default
+  -b N | --block-size N = bytes to download in each block (default {block_size})
   --version = print {UTILITY_NAME} {VERSION_STRING}
   --help = this message
 
-Format example: ERA5_%Y%m%d = ERA5_20210815
+Format example: stuffnthings_%Y%m%d = stuffnthings_20210815
 Script will automatically append ".nc"
 ''')
     if why:
@@ -81,74 +66,61 @@ Script will automatically append ".nc"
         return 1
     return 0
 
-# Function that makes the singleton for cdsapi client:
-_client = None
-def client():
-    global _client
-    if not _client:
-        logger.info('creating cdsapi client')
-        _client=cdsapi.Client()
-    return _client
-
-# Tell CDO to flip latitudes in a NetCDF file:
-def cdo_swap_latitudes(filename_in,filename_out):
-    logger.info('Flip latitudes in "'+str(filename_in)+'" and write to "'+str(filename_out)+'"')
-    cmd = [ 'cdo', 'invertlat', filename_in, filename_out ]
-    logger.info(f'''Run "{'" "'.join(cmd) }"''')
-    result = subprocess.run(cmd)
-    result.check_returncode()
-
 def quiet_remove(filename):
     with contextlib.suppress(FileNotFoundError):
         os.remove(filename)
 
+class RequestFailed(Exception):
+    def __init__(self,url,code):
+        self.url=str(url)
+        self.code=code
+    def __str__(self):
+        return f'requests.get("{self.url!s}") failed with code {self.code!s}'
+    def __repr__(self):
+        return f'RequestFailed({self.url!r},{self.code!r})'
+
 # The meat of the program: retrieve a file
-def request(when):
+def download_one_day(when):
     filename_base = when.strftime(filename_format)
-    filename_download = filename_base+'_download.nc'
-    filename_invert = filename_base+'_invert.nc'
-    filename_lock = filename_base+'.lock'
     filename_final = filename_base+'.nc'
     if os.path.exists(filename_final):
         logger.info(filename_final+': already exists. Skipping.')
-        return
+        return True
+
+    filename_download = filename_base+'_download.nc'
+    filename_lock = filename_base+'.lock'
+    request = None
+    yyyymm="%04d%02d"%(when.year,when.month)
+    yyyymmdd="%04d%02d%02d"%(when.year,when.month,when.day)
+    url=f'{base_url}/{yyyymm}/oisst-avhrr-v02r01.{yyyymmdd}.nc'
     with produtil.locking.LockFile(filename_lock,logger):
         try:
             if os.path.exists(filename_final):
-                logger.info(filename_final+': already exists (after lock). Skipping.')
-                return
-            quiet_remove(filename_download)
-            quiet_remove(filename_invert)
-            logger.info(filename_download+': retrieve '+str(when)+'...')
-            request = {
-                'product_type': PRODUCT_TYPE,
-                'variable': VARIABLES,
-                'year': '%04d'%int(when.year),
-                'month': [ '%02d'%int(when.month) ],
-                'day': [ '%02d'%int(when.day) ],
-                'time': [ '%02d'%hour for hour in range(24) ],
-                'format': FILE_FORMAT,
-            }
-            # super-wordy debugging: logger.debug(filename_download+': request is '+str(request))
-            client().retrieve(DATASET,request,filename_download)
-            filename_copy=filename_download
-            if swap_latitudes:
-                cdo_swap_latitudes(filename_download,filename_invert)
-                filename_copy=filename_invert
-            produtil.fileop.deliver_file(filename_copy,filename_final,logger=logger,
+                logger.info(filename_final+': already exists (after lock). Skipping. Will pick a random date to avoid lock contention..')
+                return False
+            with open(filename_download,'wb') as downloaded:
+                logger.info(filename_download+' <-- '+str(url))
+                request = requests.get(url)
+                if request.status_code!=200:
+                    raise RequestFailed(url,request.status_code)
+                for chunk in request.iter_content(block_size):
+                    downloaded.write(chunk)
+                request.close()
+            produtil.fileop.deliver_file(filename_download,filename_final,logger=logger,
                                          keep=False,verify=False,moveok=True,force=True)
             quiet_remove(filename_download)
-            quiet_remove(filename_invert)
             quiet_remove(filename_lock)
         except Exception as e:
             quiet_remove(filename_download)
-            quiet_remove(filename_invert)
+            if request is not None:
+                request.close()
             raise e
+    return True
 
 # Parse arguments and initialize logging:
 log_level = logging.INFO
-optlist,args = getopt.getopt(sys.argv[1:],'qveniF:',[
-    'version','help','verbose','quiet','invertlat','no-invertlat','format'])
+optlist,args = getopt.getopt(sys.argv[1:],'qveniu:b:F:',[
+    'version','help','verbose','quiet','block-size','url','format'])
 if len(args)<1:
     exit(usage("No arguments provided!"))
 for optarg in optlist:
@@ -156,12 +128,12 @@ for optarg in optlist:
         log_level = logging.WARNING
     elif optarg[0] in ['-v', '--verbose']:
         log_level = logging.DEBUG
-    elif optarg[0] in ['-i', '--invertlat']:
-        invertlat = True
-    elif optarg[0] in ['-n', '--no-invertlat']:
-        invertlat = False
     elif optarg[0] in ['-F', '--format']:
         filename_format = optarg[1]
+    elif optarg[0] in ['-u', '--url' ]:
+        base_url=optarg[1]
+    elif optarg[0] in ['-b', '--block-size' ]:
+        block_size=max(1,int(optarg[1]))
     elif optarg[0]=='--help':
         exit(usage())
     elif optarg[0]=='--version':
@@ -207,10 +179,15 @@ if not daylist:
     logger.warning('Nothing to do! Exiting.')
     exit(1)
 
+pick_randomly = False
 iloop = 0
 while daylist:
     iloop += 1
-    day = daylist.pop(0)
+    if pick_randomly:
+        day = daylist.pop(min(len(daylist)-1,int(random.uniform(0,len(daylist)))))
+        logger.info(f'Picked random date {day}')
+    else:
+        day = daylist.pop(0)
 
     # Turn the day string into a datetime.datetime:
     as_datetime = None
@@ -223,7 +200,7 @@ while daylist:
 
     # Download the file:
     try:
-        request(as_datetime)
+        pick_randomly = not download_one_day(as_datetime)
     except produtil.locking.LockHeld:
         logger.info(f'{day}: lock is held; move on')
         daylist.append(day)
@@ -234,7 +211,7 @@ while daylist:
             iloop=0
     except Exception as ex: # Unfortunately, cdsapi raises Exception
         happy = False
-        logger.error(f'CDSAPI failed to download day {day}: {ex}',exc_info=ex)
+        logger.error(f'Download failed for {day}: {ex}',exc_info=ex)
 
 # Exit 0 on success, 1 on failure:
 exit( 0 if happy else 1 )

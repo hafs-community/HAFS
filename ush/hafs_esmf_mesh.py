@@ -100,6 +100,9 @@ def calculate_corners(center_lat, center_lon):
 
 def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon, mask, area=None):
     """
+    Writes ESMF Mesh to file
+    dask array doesn't support order='F' for Fortran-contiguous (row-major) order
+    the workaround is to arr.T.reshape.T
     """
     # create array with unique coordinate pairs
     # remove coordinates that are shared between the elements
@@ -161,7 +164,7 @@ def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon,
     out['elementMask'] = xr.DataArray(mask.T.reshape((-1,)).T,
                                       dims=('elementCount'),
                                       attrs={'units': 'unitless'})
-    #out.elementMask.encoding = {'dtype': np.int32}
+    out.elementMask.encoding = {'dtype': np.int32}
 
     # force no '_FillValue' if not specified
     for v in out.variables:
@@ -182,6 +185,7 @@ def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon,
 
 def write_to_scrip(filename, center_lat, center_lon, corner_lat, corner_lon, mask, area=None):
     """
+    Writes SCRIP grid definition to file
     dask array doesn't support order='F' for Fortran-contiguous (row-major) order
     the workaround is to arr.T.reshape.T
     """
@@ -246,7 +250,8 @@ def file_type(x):
 
 #@profile
 def main(argv):
-    """Main driver to write SCRIP and ESMF formatted grid represenation
+    """
+    Main driver to calculate and write SCRIP and ESMF formatted grid represenation
     """
     # set defaults for command line arguments
     ifile = ''
@@ -258,6 +263,7 @@ def main(argv):
     latvar = 'lat'
     lonvar = 'lon'
     maskvar = 'mask'
+    maskcal = False
     addarea = False
     double = False
 
@@ -267,11 +273,12 @@ def main(argv):
     parser.add_argument('--ofile'    , help='Output file name', required=True)
     parser.add_argument('--oformat'  , help='Output data format [SCRIP, ESMF], defaults to ESMF', required=False, type=file_type, nargs='?', const='ESMF')
     parser.add_argument('--overwrite', help='Overwrites output file, defaults to not', required=False, action='store_true')
-    parser.add_argument('--flip'     , help='Flip mask values. SCRIP requires 0 for land and 1 for ocean', required=False, action='store_true')
+    parser.add_argument('--flip'     , help='Flip mask values. SCRIP requires 0/land and 1/ocean', required=False, action='store_true')
     parser.add_argument('--latrev'   , help='Reverse latitude axis', required=False, action='store_true')
     parser.add_argument('--latvar'   , help='Name of latitude variable, defults to ''lat''', required=False, nargs='?', const='lat')
     parser.add_argument('--lonvar'   , help='Name of longitude variable, defaults to ''lon''', nargs='?', const='lon')
     parser.add_argument('--maskvar'  , help='Name of mask variable, defaults to ''mask''', nargs='?', const='mask')
+    parser.add_argument('--maskcal'  , help='Calculate mask using fill value from variable defined in maskvar - 0/land and 1/ocean', required=False, action='store_true')
     parser.add_argument('--addarea'  , help='Add area field to output file, defaults to not', required=False, action='store_true')
     parser.add_argument('--double'   , help='Double precision output, defaults to float', required=False, action='store_true')
     args = parser.parse_args()
@@ -294,6 +301,11 @@ def main(argv):
         lonvar = args.lonvar
     if args.maskvar:
         maskvar = args.maskvar
+    if args.maskcal:
+        maskcal = args.maskcal
+        if not args.maskvar:
+            print('maskcal argument requires maskvar to calculate mask! exiting ...')
+            sys.exit()
     if args.addarea:
         addarea = args.addarea
     if args.double:
@@ -310,6 +322,7 @@ def main(argv):
     print("latvar    = {}".format(latvar))
     print("lonvar    = {}".format(lonvar))
     print("maskvar   = {}".format(maskvar))
+    print("maskcal   = {} ({})".format(maskcal, maskvar))
     print("addarea   = {}".format(addarea))
     print("double    = {}".format(double))
 
@@ -370,9 +383,20 @@ def main(argv):
         # check mask has time dimension or not
         hasTime = 'time' in ds[maskvar].dims
         if hasTime:
-            mask = da.from_array(ds[maskvar][:,:,0])
+            mask = ds[maskvar][:,:,0]
         else:
-            mask = da.from_array(ds[maskvar])
+            mask = ds[maskvar][:]
+ 
+        # use variable to construct mask information
+        if maskcal:
+            fill_value = None
+            if '_FillValue' in mask.attrs:
+                fill_value = mask._FillValue
+            elif 'missing_value' in mask.attrs:
+                fill_value = mask.missing_value
+
+            if fill_value:
+                mask = da.from_array(xr.where(mask == fill_value, 0, 1).astype(dtype=np.int8))
     else:
         print('Using artifical generated mask values, that are ones in everywhere.')
         if len(lat.dims) == 1:

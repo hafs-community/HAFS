@@ -501,7 +501,20 @@ if [ ${run_datm} = yes ];  then
 
 elif [ ${run_docn} = yes ];  then
 
-  ln -sf $DOCNdir/*.nc INPUT/
+  now=${CDATE:0:8}00
+  end=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$NHRS hours" +%Y%m%d )00
+  while (( now <= end )) ; do
+    infile="$DOCNdir/oisst-avhrr-v02r01.${now:0:8}.nc"
+    linkfile="INPUT/oisst-avhrr-v02r01.${now:0:8}.nc"
+    if [[ ! -s "$infile" ]] ; then
+        echo "Error: $infile does not exist or is zero size." 1>&2
+        exit 1
+    fi
+    ln -sf "$infile" "$linkfile"
+    now=$( "$NDATE" +24 $now )
+  done
+
+#  ln -sf $DOCNdir/*.nc INPUT/
 
   cp ${PARMhafs}/cdeps/docn_in .
   cp ${PARMhafs}/cdeps/docn.streams.xml .

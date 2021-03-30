@@ -63,4 +63,6 @@ module load rocoto/1.3.3
 
 module load intelpython3/2020
 
+# For DATM and DOCN:
 module load cdo
+module load nco
