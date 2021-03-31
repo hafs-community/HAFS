@@ -81,6 +81,8 @@ elif [ $target = wcoss_cray ]; then
     export FC=ftn
     export F90=ftn
     export CC=icc
+    export hwrf_g2_inc=/gpfs/hps3/emc/hwrf/noscrub/Bin.Liu/save/H221final/sorc/hwrf-utilities/libs/mods/g2
+    export hwrf_g2_lib=/gpfs/hps3/emc/hwrf/noscrub/Bin.Liu/save/H221final/sorc/hwrf-utilities/libs/libg2.a
 
 elif [ $target = wcoss_dell_p3 ]; then
 
@@ -145,7 +147,7 @@ elif [ $target = orion ]; then
 elif [ $target = jet ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 elif [ $target = wcoss_cray ]; then
-  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 else
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 fi
