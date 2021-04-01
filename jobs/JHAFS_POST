@@ -22,7 +22,7 @@ export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 export output_grid=${output_grid:-rotated_latlon}
 export synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
@@ -72,8 +72,17 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
+  if [ "$machine" = wcoss_cray ]; then
+    module unload zlib-intel-haswell/1.2.7
+    module unload g2-intel/2.5.0
+    module unload w3nco-intel/2.0.6
+    module unload bacio-intel/2.0.1
+    module unload sp-intel/2.0.2
+    module unload w3emc-intel/2.2.0
+    module unload nemsio-intel/2.2.2
+  fi
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
-  module load post/v8.0.0-${machine}
+  module load ${machine}
   module list
 fi
 

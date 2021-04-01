@@ -1,11 +1,9 @@
-#!/bin/ksh
-
+#!/bin/bash
 #
 # Updates:
 #  May 15, 2020  Bill Ramstrom, HRD/AOML, Added multiple nest capability 
 #
-
-set -ax
+set -eux
 
 nargv=$#
 if [ $nargv -ne 3 -a $nargv -ne 5 -a $nargv -ne 6 -a $nargv -ne 12 -a $nargv -ne 14  ]; then 

@@ -1,6 +1,6 @@
 ##@namespace hafs
 # Defines classes that know how to run all parts of the HAFS system.
-# 
+#
 # @anchor hafs_overview
 #
 # @section highlevel High-Level Packages
@@ -8,12 +8,12 @@
 # Relevant modules, in the approximate order in which they're used in
 # the workflow, are:
 # * hafs.launcher --- creates the initial HAFS working directories and
-#   important files such as the database, configuration, holdvars, 
+#   important files such as the database, configuration, holdvars,
 #   and storm information.
 # * hafs.input --- obtains input data from disk, FTP, SSH or tape to meet
 #   the input data requirements given by each tasks' inputiter() iterator.
 # * hafs.vortexinit --- relocates, resizes and modifies the intensity of
-#   the tropical cyclone vortex.  
+#   the tropical cyclone vortex.
 # * hafs.bufrprep --- converts data dumps to bufr files for input to GSI
 # * hafs.gsi --- runs the GSI data assimilation system
 # * hafs.forecast --- runs forecast

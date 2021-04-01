@@ -23,6 +23,7 @@
   trkrinfo%mslpthresh = 0.0015,
   trkrinfo%use_backup_mslp_grad_check = "y",
   trkrinfo%v850thresh = 1.5,
+  trkrinfo%v850_qwc_thresh = 1.0000,
   trkrinfo%use_backup_850_vt_check = "y",
   trkrinfo%enable_timing = 1,
   trkrinfo%gridtype = "regional",
@@ -55,6 +56,10 @@
   gmodname = "hafs",
   rundescr = "trak",
   atcfdescr = "storm",
+/
+
+&cintinfo
+  contint_grid_bound_check = 50.0
 /
 
 &waitinfo
@@ -112,9 +117,9 @@
   user_wants_to_track_mslp = "y",
   user_wants_to_track_wcircsfc = "y",
   user_wants_to_track_zetasfc = "y",
-  user_wants_to_track_thick500850 = "y",
+  user_wants_to_track_thick500850 = "n",
   user_wants_to_track_thick200500 = "n",
-  user_wants_to_track_thick200850 = "y",
+  user_wants_to_track_thick200850 = "n",
   user_wants_to_track_zeta850 = "y",
 /
 

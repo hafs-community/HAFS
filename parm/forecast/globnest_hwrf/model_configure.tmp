@@ -11,7 +11,7 @@ nhours_fcst:             NHRS
 RUN_CONTINUE:            .false.
 ENS_SPS:                 .false.
 dt_atmos:                _dt_atmos_
-cpl:                     .false.
+cpl:                     _cpl_
 calendar:                'julian'
 memuse_verbose:          .false.
 atmos_nthreads:          NTHRD
@@ -41,7 +41,7 @@ lat2:                    _LAT2_                  # latitude of upper-right
 dlon:                    _DLON_
 dlat:                    _DLAT_
 
-nfhout:                  3 
+nfhout:                  3
 nfhmax_hf:               -1
-nfhout_hf:               3 
+nfhout_hf:               3
 nsout:                   -1

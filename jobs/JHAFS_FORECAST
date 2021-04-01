@@ -21,7 +21,7 @@ export CASE=${CASE:-C768}
 export CRES=`echo $CASE | cut -c 2-`
 export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
@@ -101,6 +101,17 @@ if [ "$RUN_ENVIR" = prod ]; then
   if [ "$machine" = wcoss_dell_p3 ]; then
     module unload NetCDF
     module unload HDF5-serial
+  fi
+  if [ "$machine" = wcoss_cray ]; then
+    module unload zlib-intel-haswell/1.2.7
+  fi
+  if [ "$machine" = jet ]; then
+    module unload esmf/8.0.0
+    module unload hdf5/1.10.4
+    module unload netcdf/4.6.1
+    module unload z/v1.2.6
+    module unload png/v1.2.44
+    module unload jasper/v1.900.1
   fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
   module load fv3

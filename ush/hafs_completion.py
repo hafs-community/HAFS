@@ -4,7 +4,7 @@
 # A simple script that logs the completion of an HAFS forecast cycle.
 #
 # This script writes the message "HAFS CYCLE COMPLETED" followed by the
-# command line arguments, to the produtil.log.jlogger.  This is called by 
+# command line arguments, to the produtil.log.jlogger.  This is called by
 # the special Rocoto "completion" job that is used to tell Rocoto to stop
 # running jobs for the forecast cycle.
 

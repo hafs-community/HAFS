@@ -335,7 +335,7 @@
 "gfs_phys",    "nddsf_ave",    "nddsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "trans_ave",    "trans_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 #HWRF
-#"gfs_phys",    "cleffr",       "cleffr",        "fv3_history2d",  "all",  .false.,  "none",  2 
+#"gfs_phys",    "cleffr",       "cleffr",        "fv3_history2d",  "all",  .false.,  "none",  2
 #"gfs_phys",    "cieffr",       "cieffr",        "fv3_history2d",  "all",  .false.,  "none",  2
 #"gfs_phys",    "cseffr",       "cseffr",        "fv3_history2d",  "all",  .false.,  "none",  2
 #

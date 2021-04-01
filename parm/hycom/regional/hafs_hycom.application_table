@@ -1,0 +1,10 @@
+application table:
+
+application     source_run_modID	run_modID 	grid_id
+hat10_basin      rtofs_glo  	    hycom_hat10      	hat10_basin
+hep20_basin      rtofs_glo  	    hycom_hep20      	hep20_basin
+hwp30_basin 	 rtofs_glo	    hycom_hwp30		hwp30_basin
+hin40_basin	 rtofs_glo	    hycom_hin40		hin40_basin
+hsn50_basin	 rtofs_glo	    hycom_hsn50		hsn50_basin
+hsp60_basin	 rtofs_glo	    hycom_hsp60		hsp60_basin
+hcp70_basin	 rtofs_glo	    hycom_hcp70		hcp70_basin

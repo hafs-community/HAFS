@@ -1,0 +1,27 @@
+Starting with 2.2, the HYCOM archive files no longer include density.  This 
+is because T&S define density via the equation of state.  However, this means
+that the archive file must include information about the actual equation of
+state.  So "k  dens" for montg1 (the first record in the archive file) are
+actually sigver and thbase, where sigver is a small integer identifying the
+equation of state (taken from a parameter defined in stmt_fns.h).
+
+So far we have (odd for sigma-0, even for sigma-2, >=40 for sigma4):
+
+sigver =  1  ---  7-term sigma-0
+sigver =  2  ---  7-term sigma-2
+sigver =  3  ---  9-term sigma-0
+sigver =  4  ---  9-term sigma-2
+sigver =  5  --- 17-term sigma-0
+sigver =  6  --- 17-term sigma-2
+sigver = 46  --- 17-term sigma-4
+sigver =  7  --- 12-term sigma-0
+sigver =  8  --- 12-term sigma-2
+sigver = 48  --- 12-term sigma-4
+
+The 17-term and 12-term versions are rational function approximations, and
+are equal to the associated 25-term and 18-term sigloc evaluated at the
+fixed reference pressure (0 or 2000 or 4000 dbar).  Note that the 17-term 
+version does not have a closed form expression for tofsig or sofsig, and 
+so can't be used if potential density is a prognostic variable.  In 
+diagnostic programs, the 17-term tofsig and sofsig are calculated using 
+Newton iterations from a 12-term 1st guess.

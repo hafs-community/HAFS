@@ -99,6 +99,9 @@ def main_disk():
                           %(archive[0:4],archive))
             return
         checkrun(cmd,logger=logger)
+        donefile=path+'.done'
+        with open(donefile,'wt') as f:
+            f.write('hafs_archive disk step completed\n')
     postmsg('hafs_archive disk step completed')
 
 def main_tape():

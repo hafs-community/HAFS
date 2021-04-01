@@ -7,9 +7,9 @@ NBDYHRS=${NBDYHRS:-3}
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
 
-CDUMP=gfs		# gfs or gdas
+CDUMP=gfs                   # gfs or gdas
 LEVS=${LEVS:-65}
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
@@ -69,8 +69,18 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 
 cd ${DATA_BC}
 
+# Use gfs netcdf files from GFSv16
+if [ $bctype = "gfsnetcdf" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
+  grib2_file_input_grid=""
+  input_type="gaussian_netcdf"
+  varmap_file=""
+  fixed_files_dir_input_grid=""
+  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
+  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
-if [ $bctype = "gfsnemsio" ]; then
+elif [ $bctype = "gfsnemsio" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmf${FHR3}.nemsio
   #sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcf${FHR3}.nemsio
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
@@ -141,7 +151,7 @@ while [ $n -le 30 ]
 do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 5s
+    sleep 1s
     break
   else
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
@@ -211,12 +221,15 @@ cat>./fort.41<<EOF
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
  vcoord_file_target_grid="${vcoord_file_target_grid}"
- mosaic_file_input_grid="NULL"
- orog_dir_input_grid="NULL"
- orog_files_input_grid="NULL"
+ mosaic_file_input_grid="${mosaic_file_input_grid:-NULL}"
+ orog_dir_input_grid="${orog_dir_input_grid:-NULL}"
+ orog_files_input_grid="${orog_files_input_grid:-NULL}"
  data_dir_input_grid="${INPDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
+ atm_core_files_input_grid="${atm_core_files_input:-NULL}"
+ atm_tracer_files_input_grid="${atm_tracer_files_input:-NULL}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ nst_files_input_grid="${nst_files_input_grid:-NULL}"
  grib2_file_input_grid="${grib2_file_input_grid}"
  varmap_file="${varmap_file}"
  cycle_mon=$month
@@ -233,6 +246,7 @@ cat>./fort.41<<EOF
  halo_blend=${halo_blend}
 /
 EOF
+
 
 cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x

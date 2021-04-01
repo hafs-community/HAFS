@@ -1,0 +1,40 @@
+ 10	'iexpt ' = experiment number x10 (000=from archive file)
+  3	'yrflag' = days in year flag (0=360J16,1=366J16,2=366J01,3-actual)
+&idm    'idm   ' = longitudinal array size
+&jdm    'jdm   ' = latitudinal  array size
+&kdm    'kdm   ' = number of layers
+ 34.0	'thbase' = reference density (sigma units)
+  1     'surflg' =number of  surface heat flux fields [1,3,4]
+  1	'smooth' = smooth fields before plotting (0=F,1=T)
+  1	'mthin ' = mask thin layers from output
+  1	'iorign' = i-origin of plotted subregion
+  1	'jorign' = j-origin of plotted subregion
+  0     'idmp  ' = i-extent of plotted subregion (<=idm; 0 implies idm)
+  0     'jdmp  ' = j-extent of plotted subregion (<=jdm; 0 implies jdm)
+  0 	'botio ' = bathymetry I/O unit (0 no I/O)
+  1	'flxio ' = surf. heat  flux I/O unit (0 no I/O)
+  0	'empio ' = surf. evap-pcip I/O unit (0 no I/O)
+  0	'evpio ' = evaporative surf. flux I/O unit (0 no I/O)
+  0	'snsio ' = sensible heat flux I/O unit (0 no I/O)
+  0 	'hasio ' = assimilation heat flux I/O unit (0 no I/O)
+  0	'ttrio ' = surf. temp trend I/O unit (0 no I/O)
+  0	'strio ' = surf. saln trend I/O unit (0 no I/O)
+  0 	'icvio ' = ice coverage I/O unit (0 no I/O)
+  0 	'ithio ' = ice thickness I/O unit (0 no I/O)
+  0	'ictio ' = ice temperature I/O unit (0 no I/O)
+  1	'sshio ' = sea surf. height I/O unit (0 no I/O)
+  1	'mtgio ' = montgomery potential at the surface.  I/O unit (0 no I/O)
+  0	'bsfio ' = baro. strmfn. I/O unit (0 no I/O)
+  1 	'uvmio ' = mixed layer u-velocity I/O unit (0 no I/O)
+  1	'vvmio ' = mixed layer v-velocity I/O unit (0 no I/O)
+  0	'spmio ' = mixed layer speed I/O unit (0 no I/O)
+  0	'bltio ' = bnd. lay. thick. I/O unit (0 no I/O)
+  1	'mltio ' = mix. lay. thick. I/O unit (0 no I/O)
+  1	'mxtio ' = mix. lay. temp.  I/O unit (0 no I/O)
+  1  	'mxsio ' = mix. lay. saln.  I/O unit (0 no I/O)
+  0	'mxdio ' = mix. lay. dens.  I/O unit (0 no I/O)
+  1	'vubio ' = baro u-vel.  I/O unit (0 no I/O)
+  1	'vvbio ' = baro v-vel.  I/O unit (0 no I/O)
+  0	'kf    ' = first output layer (=0 end output; <0 label with layer #)
+  0	'kl    ' = last  output layer
+

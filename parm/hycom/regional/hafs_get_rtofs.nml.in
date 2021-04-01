@@ -1,0 +1,29 @@
+!! Input file for the get_rtofs.nml namelist, used by hafs_get_rtofs.
+!! This is passed through NamelistInserter to replace <> regions with
+!! variables from the conf files.
+
+&get_rtofs
+
+  ! Input data locations.  The [Lfn] is lead time, preceeded by an f
+  ! or n.  The [type] is restart or arch[vs] and [ext] will be a, b or a.tgz
+
+  infmt(1)='<u:INDIR1>/rtofs_glo.t[AH]z.[Lfn].[type].[ext]'
+
+  ! Output data locations.
+
+  outfmt='<u:RTOFS_STAGE>/rtofs_[FY][Fm][Fd]_[FH][FM][FS]_[type].[ext]'
+
+  ! Analysis time:
+  atime=<s:YMD>
+
+  ! Time span of interest, and timestep.  All are in hours relative to atime:
+  starthr=<i:STARTHR>
+  endhr=<i:ENDHR>
+  stephr=6
+
+  ! Last lead time allowed in the current day:
+  last_lead_time_today=<i:LAST_LEAD_TIME_TODAY>
+
+  ! Debug level:
+  debug=1
+/

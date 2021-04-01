@@ -1,0 +1,116 @@
+
+SHELL           	=       /bin/sh
+
+# Listing of options that are usually independent of machine type.
+# When necessary, these are over-ridden by each architecture.
+
+ARFLAGS			=	-X64
+
+# Ensure FFLAGS_SP exists:
+FFLAGS_SP               =     
+
+#### Architecture specific settings ####
+
+# Settings for Linux x86_64, Intel compiler w/MKL	 (dmpar)#
+LDFLAGS_GRIB2_LIB       = -L/usr/lib64 -lpng -lz -ljasper
+FFLAGS_GRIB2_INC        = -I/usr/include
+
+LDFLAGS        =  -Wl,-noinhibit-exec -i_dynamic ${ARCHINTELOPT}
+
+CFLAGS_GRIB2 = -I/usr/include
+WRF_GRIB2 = -L$(WRF_DIR)/external/io_grib2 -lio_grib2 -L/usr/lib64 -ljasper -lpng -lz
+WRF_PNETCDF = -L$(WRF_DIR)/external/io_pnetcdf -lwrfio_pnf -L/apps/pnetcdf/1.10.0/intel/16.1.150/impi/5.1.2.150/lib -lpnetcdf 
+NETCDF_INCLUDE  = -I/apps/netcdf/4.6.1/intel/16.1.150/include
+NETCDF_LDFLAGS  = -L/apps/netcdf/4.6.1/intel/16.1.150/lib -lnetcdff -lnetcdf
+
+BYTE_ORDER     =  LITTLE_ENDIAN
+SFC            =  ifort
+SF90           =  ifort -free
+SCC            =  icc
+OMP_FFLAGS     = -qopenmp
+DEBUG_FLAGS    =  -g -fpe0 -traceback 
+FFLAGS         =  -O3 -msse2 -convert big_endian -DLINUX -fp-model precise -assume byterecl ${ARCHINTELOPT} # $(DEBUG_FLAGS)
+FFLAGS_SP      =  -heap-arrays ${ARCHINTELOPT}
+FFLAGS_SHIPS   =  -O3 -msse2 -fp-model precise ${ARCHINTELOPT}
+FFLAGS_BUFR    =  -O3 -msse2 -DLINUX -fp-model precise -assume byterecl ${ARCHINTELOPT}
+CFLAGS_BUFR    =  -O3 -DUNDERSCORE ${ARCHINTELOPT}
+FFLAGS_DOUBLE2 =  -integer-size 64 -real-size 64 
+FFLAGS_DOUBLE  =  -integer-size 32 -real-size 64 
+FFLAGS_SINGLE  =  -integer-size 32 -real-size 32
+FFLAGS_TRACKER =  -O3 -msse2 -convert big_endian -DLINUX -fp-model precise -assume byterecl $(FFLAGS_DOUBLE) ${ARCHINTELOPT} # $(DEBUG_FLAGS)
+CPP            =  /lib/cpp 
+CPPFLAGS       =  -P -traditional-cpp -D$(BYTE_ORDER) -DWRF -DLINUX -I$(WRF_DIR)/inc
+FPPFLAGS       =  $(CPPFLAGS) -traditional-cpp
+FPP	       = /lib/cpp -P -traditional-cpp
+ARFLAGS        =  -ruv
+
+DM_FC         ?=  mpif90 -f90=ifort
+DM_F90        ?=  mpif90 -free -f90=ifort
+DM_CC         ?=  mpicc -cc=icc
+
+FC             =  $(DM_FC)
+F90            =  $(DM_F90)
+CC             =  $(DM_CC)
+
+CFLAGS         =  -O0 -DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long' ${ARCHINTELOPT}
+DEBUG_CFLAGS   =
+
+ESSLLIB        =  -mkl=sequential 
+MASSLIB        = 
+WRF_DIR        =  /scratch1/NCEPDEV/hwrf/save/Bin.Liu/H220baseline/sorc/hwrf-utilities/../WRFV3
+SED_FTN        =  $(WRF_DIR)/tools/standard.exe
+LIB_EXTERNAL   =  -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
+                  -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
+                  -L$(WRF_DIR)/external/atm_ocn -latm_ocn \
+                  -L$(WRF_DIR)/external/io_int -lwrfio_int \
+                  -L$(WRF_DIR)/external/esmf_time_f90 -lesmf_time \
+                  -L$(WRF_DIR)/external/RSL_LITE -lrsl_lite \
+                  -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
+                  -L$(WRF_DIR)/external/io_grib2 -lio_grib2 -L/usr/lib64 -ljasper
+
+###########################################################
+#
+#	Macros, these should be generic for all machines
+
+LN		=	ln -sf
+MAKE		=	make -i -r
+RM		=	/bin/rm -f
+CP		=	/bin/cp
+AR		=	ar 
+MKDIR		=	/bin/mkdir -p
+RANLIB		=	ranlib
+
+.IGNORE:
+.SUFFIXES: .c .f .F .F90 .f90 .o .fpp
+
+#	There is probably no reason to modify these rules
+
+.c.o:
+	$(RM) $@
+	$(CC) $(CFLAGS) -c $<	
+
+.f.o:
+	$(RM) $@ $*.mod
+	$(FC) $(FFLAGS) -c $<
+
+.fpp.o:
+	$(RM) $@ $*.mod $*.f
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f && \
+	$(FC) $(FFLAGS) -c $*.f && \
+	$(RM) $*.f
+
+.F.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90 && \
+	$(F90) $(FFLAGS) -c $*.f90 && \
+	$(RM) $*.f90
+
+.F90.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90 && \
+	$(F90) $(FFLAGS) -c $*.f90 && \
+	$(RM) $*.f90
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(F90) $(FFLAGS) -c $< 

@@ -52,7 +52,9 @@
   <!ENTITY COMhafs  "@[CDSCRUB]/&SUBEXPT;/com/@Y@m@d@H/&SID;">
   <!ENTITY LOGhafs  "@[CDSCRUB]/&SUBEXPT;/log">
 
+  <!ENTITY GFSVER   "@[GFSVER:-PROD2019]">
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
+  <!ENTITY COMrtofs "@[COMrtofs:-&WORKhafs;/hafsdata]">
 
   <!-- The output conf file for each cycle: -->
   <!ENTITY CONFhafs "&COMhafs;/&STORMLABEL;.conf">
@@ -64,6 +66,8 @@
   <!ENTITY RUN_GSI "@[RUN_GSI]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+  <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
+  <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
 
   <!ENTITY gtype "@[gtype:-regional]">
@@ -222,8 +226,14 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
         <and>
+@** if GFSVER==PROD2019
           <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio</cyclestr></datadep>
           <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.sfcanl.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="12000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmanl.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.sfcanl.nc</cyclestr></datadep>
+@** endif
         </and>
       </and>
     </dependency>
@@ -256,13 +266,103 @@
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
           <or>
+@** if GFSVER==PROD2019
             <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+            <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
+            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
+@** endif
           </or>
         </and>
       </dependency>
     </task>
   </metatask>
+
+@** if RUN_OCEAN==YES
+  <task name="hycominit1" maxtries="&MAX_TRIES;">
+    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
+    <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
+    <jobname>hafs_hycominit1_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycominit1.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &HYCOMINIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="grid"/>
+        <or>
+          <taskdep task="input"/>
+          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+        </or>
+        <!-- Second dependency: the GFS output must be available -->
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
+        <and>
+          <or>
+            <datadep age="02:00" minsize="25000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a</cyclestr></datadep>
+            <datadep age="02:00" minsize="10000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.restart.a.tgz</cyclestr></datadep>
+          </or>
+          <or>
+            <strneq><left><cyclestr>@H</cyclestr></left><right>00</right></strneq>
+            <or>
+              <datadep age="02:00" minsize="12000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.archv.a</cyclestr></datadep>
+              <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.n00.archv.a.tgz</cyclestr></datadep>
+            </or>
+          </or>
+          <or>
+            <streq><left><cyclestr>@H</cyclestr></left><right>00</right></streq>
+            <or>
+              <datadep age="02:00" minsize="12000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a</cyclestr></datadep>
+              <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a.tgz</cyclestr></datadep>
+            </or>
+          </or>
+        </and>
+      </and>
+    </dependency>
+  </task>
+
+  <task name="hycominit2" maxtries="&MAX_TRIES;">
+    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
+    <command>&PRE; &EXhafs;/exhafs_hycominit2.py</command>
+    <jobname>hafs_hycominit2_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycominit2.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &HYCOMINIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="grid"/>
+        <or>
+          <taskdep task="input"/>
+          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+        </or>
+        <!-- Second dependency: the GFS output must be available -->
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
+        <and>
+@** if GFSVER==PROD2019
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+        </and>
+      </and>
+    </dependency>
+  </task>
+
+@** endif
+
 @** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
@@ -281,6 +381,10 @@
         <taskdep task="chgres_ic"/>
 @** if gtype==regional
         <metataskdep metatask="chgres_bc"/>
+@** if RUN_OCEAN==YES
+        <taskdep task="hycominit1"/>
+        <taskdep task="hycominit2"/>
+@** endif
 @** endif
       </and>
     </dependency>
@@ -307,6 +411,30 @@
     </dependency>
   </task>
 
+@** if RUN_OCEAN==YES
+  <task name="hycompost" maxtries="&MAX_TRIES;">
+    <!--<command>&PRE; &EXhafs;/exhafs_hycompost.py</command>-->
+    <command>&JOBhafs;/JHAFS_HYCOMPOST</command>
+    <jobname>hafs_hycompost_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hycompost.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &HYCOMPOST_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the post if the forecast is running or if it has
+           already completed. -->
+      <or>
+        <taskdep task="forecast" state="RUNNING"/>
+        <taskdep task="forecast"/>
+      </or>
+    </dependency>
+  </task>
+
+@** endif
   <task name="product" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -346,6 +474,52 @@
   </task>
 @** endif
 
+  <task name="hrdgraphics" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_HRDGRAPHICS</command>
+    <jobname>hafs_hrdgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_hrdgraphics.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &HRDGRAPHICS_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the product if the product is running or if it has
+           already completed. -->
+      <or>
+        <taskdep task="product" state="RUNNING"/>
+        <taskdep task="product"/>
+      </or>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_EMCGRAPHICS==YES
+  <task name="emcgraphics" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_EMCGRAPHICS</command>
+    <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_emcgraphics.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <!--&RESERV_FCST;-->
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &EMCGRAPHICS_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the product if the product is running or if it has
+           already completed. -->
+      <or>
+        <!--<taskdep task="product" state="RUNNING"/>-->
+        <taskdep task="product"/>
+      </or>
+    </dependency>
+  </task>
+@** endif
+
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
     <command>&PRE; &EXhafs;/exhafs_archive.py</command>
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -366,9 +540,18 @@
       <and>
         <taskdep task="forecast"/>
         <taskdep task="post"/>
+@** if RUN_OCEAN==YES
+        <taskdep task="hycompost"/>
+@** endif
         <taskdep task="product"/>
 @** if gtype==nest
         <taskdep task="prodglb"/>
+@** endif
+@** if RUN_HRDGRAPHICS==YES
+        <taskdep task="hrdgraphics"/>
+@** endif
+@** if RUN_EMCGRAPHICS==YES
+        <taskdep task="emcgraphics"/>
 @** endif
       </and>
     </dependency>
@@ -394,9 +577,18 @@
       <and>
         <taskdep task="forecast"/>
         <taskdep task="post"/>
+@** if RUN_OCEAN==YES
+        <taskdep task="hycompost"/>
+@** endif
         <taskdep task="product"/>
 @** if gtype==nest
         <taskdep task="prodglb"/>
+@** endif
+@** if RUN_HRDGRAPHICS==YES
+        <taskdep task="hrdgraphics"/>
+@** endif
+@** if RUN_EMCGRAPHICS==YES
+        <taskdep task="emcgraphics"/>
 @** endif
         <taskdep task="archive_disk"/>
       </and>

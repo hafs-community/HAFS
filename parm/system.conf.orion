@@ -17,7 +17,7 @@ fcst_catalog=orion_fcst_{GFSVER}
 inputroot=/work/noaa/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
 
 [orion_fcst_PROD2019]
-inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -29,7 +29,14 @@ CDSCRUB=/work/noaa/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
-COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFS
+COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+COMINgfs={COMgfs}
+COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/btk
 
 [holdvars]
 WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)
@@ -40,5 +47,8 @@ glob_layoutx=8
 glob_layouty=10
 layoutx=40
 layouty=30
-write_groups=3
-write_tasks_per_group=40
+write_groups=1
+write_tasks_per_group=80
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

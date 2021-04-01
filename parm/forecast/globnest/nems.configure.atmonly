@@ -1,0 +1,18 @@
+EARTH_component_list: ATM
+
+ATM_model: fv3
+
+runSeq::
+  ATM
+::
+
+ATM_attributes::
+::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+ALLCOMP_attributes::
+  mediator_read_restart = false
+::

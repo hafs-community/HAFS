@@ -1,0 +1,53 @@
+## This is the system-specific configuration file for jet
+[config]
+## Project disk area
+disk_project=hwrfv3
+## Project hpss tape area
+tape_project=emc-hwrf
+## Theia CPU account name for submitting jobs to the batch system.
+cpu_account=hwrfv3
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+## Specify input sources for HISTORY mode.
+input_sources=jet_sources_{GFSVER}
+## Specify the DataCatalog for FORECAST mode runs.
+fcst_catalog=jet_fcst_{GFSVER}
+
+[hafsdata]
+#inputroot=/lfs1/HFIP/{disk_project}/{ENV[USER]}/hafsdata_{GFSVER}
+inputroot=/lfs1/HFIP/hwrf-data/hafs-input/hafsdata_{GFSVER}
+
+[jet_fcst_PROD2019]
+inputroot=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
+
+[dir]
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/hafstmp
+## Save directory.  Make sure you edit this.
+CDSAVE=/lfs4/HFIP/{disk_project}/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat=/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS
+## Input GFS data directory
+COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
+COMINgfs={COMgfs}
+COMrtofs=/lfs4/HFIP/hwrf-data/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/btk
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+[holdvars]
+WHERE_AM_I=jet    ;; Which cluster? (For setting up environment.)
+WHICH_JET=k       ;; Which part of Jet?
+
+[forecast]
+write_groups=1
+write_tasks_per_group=80
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
+

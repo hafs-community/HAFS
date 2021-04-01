@@ -5,9 +5,9 @@ set -xe
 CASE=${CASE:-C768}
 CRES=`echo $CASE | cut -c 2-`
 
-CDUMP=gfs		# gfs or gdas
+CDUMP=gfs                   # gfs or gdas
 LEVS=${LEVS:-65}
-gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
 ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 REGIONAL=${REGIONAL:-0}
@@ -50,9 +50,18 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 cd $DATA
 
 FHR3="000"
+# Use gfs netcdf files from GFSv16
+if [ $ictype = "gfsnetcdf" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
+  grib2_file_input_grid=""
+  input_type="gaussian_netcdf"
+  varmap_file=""
+  fixed_files_dir_input_grid=""
+  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
+  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
 # Use gfs nemsio files from 2019 GFS (fv3gfs)
-# Note: currently, generating IC from grib2 file is not supported yet.
-if [ $ictype = "gfsnemsio" ]; then
+elif [ $ictype = "gfsnemsio" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
   sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
   grib2_file_input_grid=""
@@ -67,7 +76,7 @@ elif [ $ictype = "gfsgrib2_master" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
@@ -77,7 +86,7 @@ elif [ $ictype = "gfsgrib2_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
@@ -87,7 +96,7 @@ elif [ $ictype = "gfsgrib2ab_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
@@ -97,7 +106,7 @@ elif [ $ictype = "gfsgrib2_0p50" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
@@ -107,7 +116,7 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/FV3GFSphys_var_map.txt"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
@@ -199,12 +208,15 @@ cat>./fort.41<<EOF
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
  vcoord_file_target_grid="${vcoord_file_target_grid}"
- mosaic_file_input_grid="NULL"
- orog_dir_input_grid="NULL"
- orog_files_input_grid="NULL"
+ mosaic_file_input_grid="${mosaic_file_input_grid:-NULL}"
+ orog_dir_input_grid="${orog_dir_input_grid:-NULL}"
+ orog_files_input_grid="${orog_files_input_grid:-NULL}"
  data_dir_input_grid="${INPDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
+ atm_core_files_input_grid="${atm_core_files_input:-NULL}"
+ atm_tracer_files_input_grid="${atm_tracer_files_input:-NULL}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ nst_files_input_grid="${nst_files_input_grid:-NULL}"
  grib2_file_input_grid="${grib2_file_input_grid}"
  varmap_file="${varmap_file}"
  cycle_mon=$month
@@ -242,8 +254,8 @@ elif [ $gtype = regional ]; then
 #
 mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
 mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
+mv out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
+mv out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
 #
 #remove the links that were set above for the halo4 files
 #
@@ -297,12 +309,15 @@ cat>./fort.41<<EOF
  orog_dir_target_grid="$FIXDIR/$CASE"
  orog_files_target_grid=${orog_files_target_grid}
  vcoord_file_target_grid="${vcoord_file_target_grid}"
- mosaic_file_input_grid="NULL"
- orog_dir_input_grid="NULL"
- orog_files_input_grid="NULL"
+ mosaic_file_input_grid="${mosaic_file_input_grid:-NULL}"
+ orog_dir_input_grid="${orog_dir_input_grid:-NULL}"
+ orog_files_input_grid="${orog_files_input_grid:-NULL}"
  data_dir_input_grid="${INPDIR}"
  atm_files_input_grid="${atm_files_input_grid}"
+ atm_core_files_input_grid="${atm_core_files_input:-NULL}"
+ atm_tracer_files_input_grid="${atm_tracer_files_input:-NULL}"
  sfc_files_input_grid="${sfc_files_input_grid}"
+ nst_files_input_grid="${nst_files_input_grid:-NULL}"
  grib2_file_input_grid="${grib2_file_input_grid}"
  varmap_file="${varmap_file}"
  cycle_mon=$month

@@ -23,7 +23,7 @@ export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, 
 export ictype=${ictype:-gfsnemsio} # gfsnemsio
 export bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2_0p50, gfsgrib2_1p00
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 if [ "${gtype}" != "regional" ]; then
   echo "INFO: ${gtype} not a regional run."
@@ -61,7 +61,9 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
-  source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  #source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
   module list
 fi
 
@@ -103,7 +105,13 @@ cd $DATA
 #export COMROOT=${COMROOT:-/gpfs/hps/nco/ops/com}
 #export COMgfs=${COMgfs:-/${COMROOT}/gfs/prod}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+if [ $GFSVER = "PROD2021" ]; then
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+elif [ $GFSVER = "PROD2019" ]; then
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+fi
 
 #####################################
 # Generate the BCs

@@ -1,0 +1,96 @@
+
+SHELL           	=       /bin/sh
+
+# Listing of options that are usually independent of machine type.
+# When necessary, these are over-ridden by each architecture.
+
+ARFLAGS			=	-X64
+
+#### Architecture specific settings ####
+
+# Settings for Linux x86_64, Intel compiler w/MKL	 (dmpar)#
+LDFLAGS        =  -Wl,-noinhibit-exec
+
+BYTE_ORDER     =  LITTLE_ENDIAN
+SFC            =  ifort
+SF90           =  ifort -free
+SCC            =  icc
+DEBUG_FLAGS    =  -g -fpe0 -traceback 
+FFLAGS         =  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl # $(DEBUG_FLAGS)
+FFLAGS_SHIPS   =  -O3 -fp-model precise
+FFLAGS_BUFR    =  -O3 -DLINUX -fp-model precise -assume byterecl
+CFLAGS_BUFR    =  -O3 -DUNDERSCORE
+FFLAGS_DOUBLE  =  -integer-size 32 -real-size 64
+FFLAGS_SINGLE  =  -integer-size 32 -real-size 32
+FFLAGS_TRACKER =  -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl $(FFLAGS_DOUBLE) # $(DEBUG_FLAGS)
+CPP            =  /lib/cpp 
+CPPFLAGS       =  -P -D$(BYTE_ORDER) -DWRF -DLINUX -DMPI -DSERIAL_IO -I$(WRF_DIR)/inc \
+		  -DNAN2003 -DTIMER -DRELO
+FPPFLAGS       =  $(CPPFLAGS) -traditional-cpp
+ARFLAGS        =  -ruv
+
+#DM_FC          =  mpiifort -fc=ifort
+DM_FC         ?=  mpiifort 
+DM_F90        ?=  mpiifort -f90=ifort
+DM_CC         ?=  mpiicc -cc=icc
+
+FC             =  $(DM_FC)
+F90            =  $(DM_F90)
+CC             =  $(DM_CC)
+
+CFLAGS         =  -O0 -DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long' 
+DEBUG_CFLAGS   =
+
+ESSLLIB        =  -mkl=sequential 
+MASSLIB        = 
+WRF_DIR        =  CONFIGURE_WRF_PATH
+SED_FTN        =  $(WRF_DIR)/tools/standard.exe
+
+###########################################################
+#
+#	Macros, these should be generic for all machines
+
+LN		=	ln -sf
+MAKE		=	make -i -r
+RM		=	/bin/rm -f
+CP		=	/bin/cp
+AR		=	ar 
+MKDIR		=	/bin/mkdir -p
+RANLIB		=	ranlib
+
+
+.IGNORE:
+.SUFFIXES: .c .f .F .F90 .f90 .o .fpp
+
+#	There is probably no reason to modify these rules
+
+.c.o:
+	$(RM) $@
+	$(CC) $(CFLAGS) -c $<	
+
+.f.o:
+	$(RM) $@ $*.mod
+	$(FC) $(FFLAGS) -c $<
+
+.fpp.o:
+	$(RM) $@ $*.mod $*.f
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f
+	$(FC) $(FFLAGS) -c $*.f
+	$(RM) $*.f
+
+.F.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.F.f
+	$(FC) $(FFLAGS) -c $*.F.f
+	$(CP) $<.o $*.o
+	$(RM) $*.F.f $<.o
+
+.F90.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90
+	$(F90) $(FFLAGS) -c $*.f90 
+	$(RM) $*.f90
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(F90) $(FFLAGS) -c $< 

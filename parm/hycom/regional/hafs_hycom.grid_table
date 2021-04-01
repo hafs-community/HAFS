@@ -1,0 +1,10 @@
+grid_table:
+
+grid_id    	src_grid_label	grid_label	grid_source	grid_size_idm_jdm_kdm	i0j0_pts	ijgrd  gridno
+hat10_basin 	navy_0.08	basin	        rtofs_glo	1135 633 41        2346 1518 1 850
+hep20_basin	navy_0.08	basin		rtofs_glo	1226 476 41	   1318 1568 1 860
+hwp30_basin	navy_0.08	basin		rtofs_glo	 989 480 41  	    311 1568 1 870
+hin40_basin	navy_0.08	basin		rtofs_glo	 712 331 41	   4113 1568 1 880
+hsn50_basin	navy_0.08	basin		rtofs_glo	1215  567 41	   3968  909 1 890
+hsp60_basin	navy_0.08	basin		rtofs_glo	1313  566 41	     11  909 1 900
+hcp70_basin	navy_0.08	basin		rtofs_glo	876   476 41	   1074 1568 1 900

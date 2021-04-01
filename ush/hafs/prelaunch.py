@@ -28,7 +28,7 @@ def prelaunch_wind(conf,logger):
 
 def prelaunch_rsmc(conf,logger,cycle):
     """!Modifies the configuration for the RSMC (JTWC, NHC, etc.)
-    
+
     Modifies the configuration to work differently for JTWC and NHC
     storms.  Searches for the rsmc_conf option in the [prelaunch]
     section for the name of a configuration file to read, and reads it
@@ -51,7 +51,7 @@ def prelaunch_rsmc(conf,logger,cycle):
 
 def prelaunch_basin(conf,logger,cycle):
     """!Modifies the configuration for the basin.
-    
+
     @anchor prelaunch_basin_main
     Modifies the configuration to work differently for each basin.
     Searches for the basin_conf option in the [prelaunch] section for

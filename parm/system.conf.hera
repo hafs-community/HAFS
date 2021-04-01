@@ -17,7 +17,7 @@ fcst_catalog=hera_fcst_{GFSVER}
 inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
 
 [hera_fcst_PROD2019]
-inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
@@ -29,7 +29,14 @@ CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
-COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFS
+COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
+COMINgfs={COMgfs}
+COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)
@@ -40,5 +47,8 @@ glob_layoutx=8
 glob_layouty=10
 layoutx=40
 layouty=30
-write_groups=3
-write_tasks_per_group=40
+write_groups=1
+write_tasks_per_group=80
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

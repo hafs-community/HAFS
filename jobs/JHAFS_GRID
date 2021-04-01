@@ -37,7 +37,7 @@ export halop1=${halop1:-4}                  # halo size that will be used for th
 export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
 
 export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+export NTRAC=7            # output all gfdl mp tracers
 
 ####################################
 # Specify Execution Areas
@@ -82,7 +82,9 @@ if [ "$RUN_ENVIR" = prod ]; then
     module unload NetCDF
     module unload HDF5-serial
   fi
-  source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  #source ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles/build.${machine}
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
   module list
 fi
 
