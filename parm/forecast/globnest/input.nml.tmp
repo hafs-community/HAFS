@@ -125,8 +125,9 @@
 
  &fv_nest_nml
        grid_pes = _glob_pes_, _nest_pes_
-       grid_coarse = 0, 1
        tile_coarse = 0, 6
+       num_tile_top = 6
+       p_split = 1
        nest_refine = 0, _refinement_
        nest_ioffsets= 1, _ioffset_
        nest_joffsets= 1, _joffset_
