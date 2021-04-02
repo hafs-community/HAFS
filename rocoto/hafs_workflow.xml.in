@@ -503,7 +503,7 @@
     <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
+    <queue>&QUEUE_FORECAST;</queue>
     &PE_EXTRA;
     &FORECAST_RESOURCES;
     &ENV_VARS;

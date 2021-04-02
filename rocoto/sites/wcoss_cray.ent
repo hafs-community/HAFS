@@ -2,6 +2,7 @@
   <!ENTITY SCHEDULER       "lsfcray">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
   <!ENTITY QUEUE_PE        "dev"> <!-- queue for PE (parallel environment) jobs -->
+  <!ENTITY QUEUE_FORECAST  "&QUEUE_PE;"> <!-- queue for the forecast job -->
   <!ENTITY PE_EXTRA        "">
   <!ENTITY QUEUE_SERIAL    "dev"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "">
