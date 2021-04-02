@@ -474,6 +474,7 @@
   </task>
 @** endif
 
+@** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_HRDGRAPHICS</command>
     <jobname>hafs_hrdgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
