@@ -87,8 +87,9 @@ $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$nozlev" --ofile "$ofile" \
     --maskvar sst --maskcal --double --overwrite
 test -s "$ofile"
 
-# Copy mesh to final destination.
+# Copy mesh and merged file to final destinations.
 $USHhafs/produtil_deliver.py -m "$ofile" "$mesh_ocn"
+$USHhafs/produtil_deliver.py -m "$nozlev" "$merged_docn_input"
 test -s "$mesh_ocn"
 
 ls -l "$mesh_ocn"

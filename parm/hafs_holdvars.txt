@@ -47,6 +47,7 @@ export mesh_atm={mesh_atm}
 export docn_download_jobs={docn_download_jobs}
 export make_mesh_ocn={make_mesh_ocn}
 export mesh_ocn={mesh_ocn}
+export merged_docn_input={merged_docn_input}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
