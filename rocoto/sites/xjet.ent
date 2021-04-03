@@ -62,7 +62,10 @@
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_45x32io3x48_omp2 "<nodes>164:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1968</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x8x8_45x32io3x72_omp2 "<nodes>170:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2040</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
+  <!ENTITY FORECAST_RESOURCES_globnest2 "<nodes>64:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>768</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!--
   <!ENTITY FORECAST_RESOURCES_globnest2 "<nodes>94:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1128</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  -->
 
   <!-- FORECAST_RESOURCES for regional HYCOM coupling -->
   <!ENTITY FORECAST_RESOURCES_regional_40x30io2x48_ocn60_omp2 "<nodes>113:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1356</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">

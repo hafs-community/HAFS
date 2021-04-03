@@ -307,6 +307,7 @@ do
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
 	input_nest.nml.tmp > input_nest0${inest}.nml
+done
 
 elif [ $gtype = regional ]; then
 
