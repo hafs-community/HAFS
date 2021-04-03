@@ -251,7 +251,7 @@ do
   istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
   jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
   ioffset="$ioffset,$(( ($istart_nest_tmp-1)/2 + 1))"
-  joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))
+  joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
 done
 
 sed -e "s/_fhmax_/${NHRS}/g" \
@@ -306,7 +306,7 @@ do
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
     -e "s/_cplflx_/${cplflx:-.false.}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
-	input_nest.nml.tmp > input_nest0${inest}.nml
+    input_nest.nml.tmp > input_nest0${inest}.nml
 done
 
 elif [ $gtype = regional ]; then
@@ -393,12 +393,12 @@ if [ ${run_ocean} = yes ];  then
 
 # Copy hycom related files
 
-cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
 export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
 
 # copy IC/BC
-cp ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
-cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
+cp ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
+cp ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
 
 # copy forcing
 cp ${WORKhafs}/intercom/hycominit/forcing* .
@@ -428,7 +428,7 @@ cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
 cp ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
 
 # copy parms
-cp ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input 
+cp ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
 cp ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
 
