@@ -465,12 +465,15 @@ if [ ${run_datm} = yes ];  then
   cp ${PARMhafs}/cdeps/datm_in .
   cp ${PARMhafs}/cdeps/datm.streams.xml .
 
-  nowdate=$CDATE
-  while (( nowdate <= enddate )) ; do
-      era5_name=ERA5_${nowdate:0:8}.nc
-      ln -sf $DATMdir/$era5_name INPUT/$era5_name
-      sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>INPUT/$era5_name<\/file>" datm.streams.xml
-      nowdate=`${NDATE} +6 $nowdate`
+  now=${CDATE:0:8}00
+  end=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$NHRS hours" +%Y%m%d )00
+  while (( now <= end )) ; do
+      if [[ -s $DATMdir/$era5_name ]] ; then
+          era5_name=ERA5_${now:0:8}.nc
+          ln -sf $DATMdir/$era5_name INPUT/$era5_name
+          sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>INPUT/$era5_name<\/file>" datm.streams.xml
+      fi
+      now=`${NDATE} +24 $now`
   done
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
