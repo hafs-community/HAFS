@@ -129,8 +129,8 @@
        num_tile_top = 6
        p_split = 1
        nest_refine = 0, _refinement_
-       nest_ioffsets= 1, _ioffset_
-       nest_joffsets= 1, _joffset_
+       nest_ioffsets= _ioffset_
+       nest_joffsets= _joffset_
 /
 
  &surf_map_nml

@@ -13,9 +13,14 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/hafs_multinests_202104
-dev="-s sites/xjet.ent -f"
-PYTHON3=/apps/intel/intelpython3/bin/python3
+#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/hafs_multinests_202104
+#dev="-s sites/xjet.ent -f"
+#PYTHON3=/apps/intel/intelpython3/bin/python3
+
+# MSU Orion
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/hafs_multinests_202104
+ dev="-s sites/orion.ent -f"
+ PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
 #HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
@@ -39,10 +44,10 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #    config.NHRS=12 ${scrubopt} \
 #    ../parm/hafs_globnest_static.conf
 
-#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2tele_C96_static \
-#    config.NHRS=12 ${scrubopt} \
-#    ../parm/hafs_globnest2tele_C96_static.conf
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2tele_C96_static \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_globnest2tele_C96_static.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2_C96_static \

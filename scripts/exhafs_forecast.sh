@@ -245,6 +245,8 @@ done
 ccpp_suite_glob_xml="${HOMEhafs}/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_${ccpp_suite_glob}.xml"
 cp ${ccpp_suite_glob_xml} .
 
+ioffset=1
+joffset=1
 for n in $(seq 1 ${nest_grids})
 do
   inest=$(( ${n} + 1 ))
