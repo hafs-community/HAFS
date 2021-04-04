@@ -28,7 +28,6 @@ $Build_forecast && {
 # install utils
 #------------------------------------
 $Build_utils && {
-  ${CP} hafs_utils.fd/exec/global_chgres             ../exec/hafs_chgres.x
   ${CP} hafs_utils.fd/exec/chgres_cube               ../exec/hafs_chgres_cube.x
   ${CP} hafs_utils.fd/exec/orog                      ../exec/hafs_orog.x
   ${CP} hafs_utils.fd/exec/sfc_climo_gen             ../exec/hafs_sfc_climo_gen.x
