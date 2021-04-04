@@ -80,6 +80,7 @@ if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
   ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_tracer
   ncks -A -v ${tracer_list} fv3sar_tile1_${ensmean}_tracer fv3sar_tile1_${ensmean}_dynvars
   mv fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_dynvartracer
+  rm -f fv3sar_tile1_${ensmean}_tracer
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.sfc_data.nc fv3_sfcdata
   cp ${RESTARTens_inp}/${memstr}/grid_spec.nc fv3sar_tile1_grid_spec.nc
@@ -97,6 +98,7 @@ set -x
     ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_tracer
     ncks -A -v $tracer_list fv3sar_tile1_${memstr}_tracer fv3sar_tile1_${memstr}_dynvars
     mv fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_dynvartracer
+    rm -f fv3sar_tile1_${memstr}_tracer
 EOFprep
     chmod +x ./prep_dynvartracer_ens${memstr}.sh
     echo "./prep_dynvartracer_ens${memstr}.sh" >> cmdfile_prep_dynvartracer_ens
