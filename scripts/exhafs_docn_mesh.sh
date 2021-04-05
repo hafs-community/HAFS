@@ -34,8 +34,10 @@ mesh_ocn="$mesh_ocn"
 mesh_dir=$( dirname "$mesh_ocn" )
 
 # Start & end times are at day precision, not hour
-now=${CDATE:0:8}
-end=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$NHRS hours" +%Y%m%d )
+m1date=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 -24 hours" +%Y%m%d )
+p1date=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$(( NHRS+24 )) hours" +%Y%m%d )
+now=$m1date
+end=$p1date
 
 set +x
 echo "Generating ESMF mesh from OISST files."
