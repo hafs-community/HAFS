@@ -465,8 +465,9 @@ if [ ${run_datm} = yes ];  then
   cp ${PARMhafs}/cdeps/datm_in .
   cp ${PARMhafs}/cdeps/datm.streams.xml .
 
+  p1date=`${NDATE} +$(( NHRS+6 )) $CDATE`
   nowdate=$CDATE
-  while (( nowdate <= enddate )) ; do
+  while (( nowdate <= p1date )) ; do
       era5_name=ERA5_${nowdate:0:8}.nc
       ln -sf $DATMdir/$era5_name INPUT/$era5_name
       sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>INPUT/$era5_name<\/file>" datm.streams.xml

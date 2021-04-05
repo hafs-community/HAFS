@@ -20,18 +20,19 @@ DOCNdir=${DOCNdir:?DOCNdir is not set}
 
 export TZ=UTC # Orion workaround
 
-EDATE=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$NHRS hours" +%Y%m%d%H )
+M1DATE=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 -24 hours" +%Y%m%d%H )
+P1DATE=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$(( NHRS+24 )) hours" +%Y%m%d%H )
 
 [ -d "$DOCNdir" ] || mkdir "$DOCNdir"
 test -d "$DOCNdir"
 cd "$DOCNdir"
 
 echo "Downloading OISST files."
-echo "Start date: ${CDATE:0:8}"
-echo "End date: ${EDATE:0:8}"
+echo "Start date: ${M1DATE:0:8}"
+echo "End date: ${P1DATE:0:8}"
 echo "Destination dir: \"$DOCNdir\""
 
-"$USHhafs/hafs_docn_download.py" ${CDATE:0:8}-${EDATE:0:8}
+"$USHhafs/hafs_docn_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
 
 echo "Successfully downloaded all OISST files."
 echo "Enjoy your files and have a nice day."
