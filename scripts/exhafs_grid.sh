@@ -82,6 +82,8 @@ elif [ $gtype = nest ] || [ $gtype = regional ]; then
   export jstart_nest=${jstart_nest:-238}
   export iend_nest=${iend_nest:-1485}
   export jend_nest=${jend_nest:-1287}
+  export add_comp_size_i=${add_comp_size_i:-400}
+  export add_comp_size_j=${add_comp_size_j:-300}
   export halo=${halo:-3}                      # halo size to be used in the atmosphere cubic sphere model for the grid tile.
   export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
   export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
@@ -172,10 +174,29 @@ elif [ $gtype = regional ]; then
   # number of parent points
   nptsx=`expr $iend_nest - $istart_nest + 1`
   nptsy=`expr $jend_nest - $jstart_nest + 1`
+ # 
+  i_center=`expr $nptsx / 2`
+  j_center=`expr $nptsy / 2`
   # number of compute grid points
   npts_cgx=`expr $nptsx  \* $refine_ratio / 2`
   npts_cgy=`expr $nptsy  \* $refine_ratio / 2`
  
+  # number of new compute grodpoints
+
+  iend_nest_new=`expr $i_center + $add_comp_size_i `
+  istart_nest_new=`expr $i_center - $add_comp_size_i ` 
+  jend_nest_new=`expr $j_center + $add_comp_size_j `
+  jstart_nest_new=`expr $j_center - $add_comp_size_j `
+
+
+  nptsx_new=`expr $iend_nest_new - $istart_nest_new + 1`
+  nptsy_new=`expr $jend_nest_new - $jstart_nest_new + 1`
+
+    npts_ncgx=`expr $nptsx_new  \* $refine_ratio / 2  `
+    npts_ncgy=`expr $nptsy_new  \* $refine_ratio / 2  `
+
+
+
   # figure out how many columns/rows to add in each direction so we have at least 5 halo points
   # for make_hgrid and the orography program
   index=0
@@ -223,6 +244,7 @@ fi
 
   echo "............ execute shave to reduce grid and orography files to required compute size .............."
   cd $filter_dir
+ 
   # shave the orography file and then the grid file, the echo creates the input file that contains the number of required points
   # in x and y and the input and output file names.This first run of shave uses a halo of 4. This is necessary so that chgres will create BC's 
   # with 4 rows/columns which is necessary for pt.
@@ -259,6 +281,54 @@ fi
   cp $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
   cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo0}.nc
 
+
+################################################################################################################################
+##################################################################################################################################
+
+
+
+
+# Shave orography and grid file for the new compute size
+    echo $npts_ncgx $npts_ncgy $halop1 \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.nshave.nc\' >input.nshave.orog
+    echo $npts_ncgx $npts_ncgy $halop1 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.nshave.nc\' >input.nshave.grid
+
+
+
+   ${APRUNS} ${SHAVEEXEC} < input.nshave.orog
+  ${APRUNS} ${SHAVEEXEC} < input.nshave.grid
+
+
+# Copy the shaved files with the halo of 4
+  cp $filter_dir/oro.${CASE}.tile${tile}.nshave.nc $out_dir/${CASE}_oro_data.tile${tile}.new_comp_halo${halop1}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.nshave.nc  $out_dir/${CASE}_grid.tile${tile}.new_comp_halo${halop1}.nc
+
+  # Now shave the orography file with no halo and then the grid file with a halo of 3 for the new compute domain size. This is necessary for running the model.
+  echo $npts_ncgx $npts_ncgy $halo \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.nshave.nc\' >input.nshave.orog.halo${halo}
+  echo $npts_ncgx $npts_ncgy $halo \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.nshave.nc\' >input.nshave.grid.halo${halo}
+
+  ${APRUNS} ${SHAVEEXEC} < input.nshave.orog.halo${halo}
+  ${APRUNS} ${SHAVEEXEC} < input.nshave.grid.halo${halo}
+
+ # Copy the shaved files with the halo of 3
+  cp $filter_dir/oro.${CASE}.tile${tile}.nshave.nc $out_dir/${CASE}_oro_data.tile${tile}.new_comp_halo${halo}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.nshave.nc  $out_dir/${CASE}_grid.tile${tile}.new_comp_halo${halo}.nc
+
+  # Now shave the orography file and then the grid file with a halo of 0. This is handy for running chgres.
+  echo $npts_ncgx $npts_ncgy $halo0 \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.nshave.nc\' >input.nshave.orog.halo${halo0}
+  echo $npts_ncgx $npts_ncgy $halo0 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.nshave.nc\' >input.nshave.grid.halo${halo0}
+
+  ${APRUNS} ${SHAVEEXEC} < input.nshave.orog.halo${halo0}
+  ${APRUNS} ${SHAVEEXEC} < input.nshave.grid.halo${halo0}
+
+  # Copy the shaved files with the halo of 0
+  cp $filter_dir/oro.${CASE}.tile${tile}.nshave.nc $out_dir/${CASE}_oro_data.tile${tile}.new_comp_halo${halo0}.nc
+  cp $filter_dir/${CASE}_grid.tile${tile}.nshave.nc  $out_dir/${CASE}_grid.tile${tile}.new_comp_halo${halo0}.nc
+
+
+
+
+
+
   echo "Grid and orography files are now prepared"
 
 fi
@@ -271,6 +341,7 @@ if [ $gtype != regional ]; then
   while [ $tile -le $ntiles ]; do
     cp $filter_dir/oro.${CASE}.tile${tile}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
     cp $grid_dir/${CASE}_grid.tile${tile}.nc  $out_dir/${CASE}_grid.tile${tile}.nc
+  
     tile=`expr $tile + 1 `
   done
 fi
