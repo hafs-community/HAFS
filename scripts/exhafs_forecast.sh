@@ -1,10 +1,11 @@
-#!/bin/ksh
+#!/bin/sh
 
 set -xe
 
 #ulimit -s 6000000 
 #unlimited
-#ulimit -a
+ulimit -s unlimited
+ulimit -a
 
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
@@ -150,16 +151,21 @@ export mountain=.true.
 export warm_start=.true.
 fi
 
+
 export stretch_fac=${stretch_fac:-1.0001}
 export target_lon=${target_lon:--62.0}
 export target_lat=${target_lat:-22.0}
 export refine_ratio=${refine_ratio:-4}
 
+export glob_k_split=${glob_k_split:-1}
+export glob_n_split=${glob_n_split:-7}
 export glob_layoutx=${glob_layoutx:-12}
 export glob_layouty=${glob_layouty:-12}
 export glob_npx=${glob_npx:-769}
 export glob_npy=${glob_npy:-769}
 
+export k_split=${k_split:-4}
+export n_split=${n_split:-5}
 export layoutx=${layoutx:-40}
 export layouty=${layouty:-30}
 export npx=${npx:-2881}
@@ -395,6 +401,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${glob_npx}/g" \
     -e "s/_npy_/${glob_npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_k_split_/${glob_k_split}/g" \
+    -e "s/_n_split_/${glob_n_split}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \
@@ -428,6 +436,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_k_split_/${k_split}/g" \
+    -e "s/_n_split_/${n_split}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \
@@ -526,6 +536,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_k_split_/${k_split}/g" \
+    -e "s/_n_split_/${n_split}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \

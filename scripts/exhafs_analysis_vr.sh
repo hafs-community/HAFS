@@ -198,14 +198,13 @@ ${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
 #---------------------------------------------- 
 # Link all the necessary fix files
 #---------------------------------------------- 
-#${NLN} ${PARMgsi}/anavinfo_hafs_L${LEVS:-65} ./anavinfo
-anavinfo=${PARMgsi}/anavinfo_hafs_tmp
+anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo
-${NLN} ${PARMgsi}/hwrf_convinfo.txt_vr ./convinfo
+${NLN} ${PARMgsi}/hafs_convinfo.txt_vr ./convinfo
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
-${NLN} ${PARMgsi}/hwrf_nam_errtable.r3dv_vr ./errtable
+${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv_vr ./errtable
 
 # Link GFS/GDAS input and observation files
 ${NLN} ./synobs_vr.prepbufr ./prepbufr

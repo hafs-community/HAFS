@@ -46,30 +46,33 @@ state_vector::
 
 control_vector_enkf::
 !var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
- u        _LEV_      0       0.5         -1.0     state    u,v
- v        _LEV_      0       0.5         -1.0     state    u,v
-!w        _LEV_      0       0.5         -1.0     state    w
-!dz       _LEV_      0       0.5         -1.0     state    dz
- ps        1      0       0.5         -1.0     state    prse
- tsen     _LEV_      0       0.5         -1.0     state    tsen
-!delp     _LEV_      0       0.70        -1.0     state    delp
- q        _LEV_      0       0.70        -1.0     state    sphum
-!liq_wat  _LEV_      0       0.70        -1.0     state    liq_wat
-!rainwat  _LEV_      0       0.70        -1.0     state    rainwat
-!ice_wat  _LEV_      0       0.70        -1.0     state    ice_wat
-!snowwat  _LEV_      0       0.70        -1.0     state    snowwat
-!graupel  _LEV_      0       0.70        -1.0     state    graupel
- oz       _LEV_      0       0.70        -1.0     state    oz
-!cld_amt  _LEV_      0       0.70        -1.0     state    cld_amt
+ u        _LEV_      0       0.20        -1.0     state    u,v
+ v        _LEV_      0       0.20        -1.0     state    u,v
+!w        _LEV_      0       0.50        -1.0     state    w
+!dz       _LEV_      0       0.50        -1.0     state    dz
+ ps        1      0       0.30        -1.0     state    prse
+ t        _LEV_      0       0.70        -1.0     state    tv
+ delp     _LEV_      0       0.70        -1.0     state    delp
+!q        _LEV_      1       0.20        -1.0     state    sphum
+ q        _LEV_      1       0.20        -1.0     state    q
+ oz       _LEV_      1       0.10        -1.0     state    oz
+!liq_wat  _LEV_      1       0.70        -1.0     state    liq_wat
+!rainwat  _LEV_      1       0.70        -1.0     state    rainwat
+!ice_wat  _LEV_      1       0.70        -1.0     state    ice_wat
+!snowwat  _LEV_      1       0.70        -1.0     state    snowwat
+!graupel  _LEV_      1       0.70        -1.0     state    graupel
+!cld_amt  _LEV_      1       0.70        -1.0     state    cld_amt
+!cw       _LEV_      1       0.70        -1.0     state    cw
 ::
 
 control_vector::
 !var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
- sf       _LEV_      0       0.5         -1.0     state    u,v
- vp       _LEV_      0       0.5         -1.0     state    u,v
- ps        1      0       0.50        -1.0     state    prse
+ sf       _LEV_      0       0.20        -1.0     state    u,v
+ vp       _LEV_      0       0.20        -1.0     state    u,v
+ ps        1      0       0.30        -1.0     state    prse
  t        _LEV_      0       0.70        -1.0     state    tv
- q        _LEV_      1       0.40        -1.0     state    q
+ q        _LEV_      1       0.20        -1.0     state    q
+ oz       _LEV_      1       0.10        -1.0     state    oz
  sst       1      0       1.00        -1.0     state    sst
  stl       1      0       1.00        -1.0     motley   sst
  sti       1      0       1.00        -1.0     motley   sst

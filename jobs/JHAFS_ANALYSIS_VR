@@ -64,8 +64,8 @@ if [ "$RUN_ENVIR" = prod ]; then
   module use ${HOMEhafs}/modulefiles
   module load modulefile.hafs.run.${machine}
   module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  #module load modulefile.ProdGSI.${machine}
-  source $HOMEhafs/sorc/hafs_gsi.fd/modulefiles/modulefile.ProdGSI.${machine}
+  module load modulefile.ProdGSI.${machine}
+  #source $HOMEhafs/sorc/hafs_gsi.fd/modulefiles/modulefile.ProdGSI.${machine}
   #env
   module list
 fi
