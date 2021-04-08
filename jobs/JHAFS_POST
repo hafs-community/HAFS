@@ -121,7 +121,7 @@ if [ ${ENSDA} = YES ]; then
   export ENSID=${ENSID:-001}
   export INPdir=${INPdir:-${WORKhafs}/forecast_ens/mem${ENSID}}
   export DATA=${WORKhafs}/post_ens/mem${ENSID}
-  export COMOUTpost=${COMhafs}/post_ens/mem${ENSDA}
+  export COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   export intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
 
 else
