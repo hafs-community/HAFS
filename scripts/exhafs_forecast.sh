@@ -12,6 +12,7 @@ mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`
 
 NDATE=${NDATE:-ndate}
+
 NCP='/bin/cp'
 NLN='ln -sf'
 

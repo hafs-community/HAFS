@@ -19,8 +19,6 @@ else
   export MOD_PATH=${cwd}/lib/modulefiles
 fi
 
-export GRIB_API_SHARED="YES"
-export JASPER_LIB_O=""
 if [ $target = wcoss ]; then
 
     echo "Does not support wcoss phase 1/2."
@@ -28,7 +26,7 @@ if [ $target = wcoss ]; then
 
 elif [ $target = hera ]; then
 
-    targetx=hera
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -41,7 +39,7 @@ elif [ $target = hera ]; then
 
 elif [ $target = orion ]; then
 
-    targetx=orion
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -50,14 +48,11 @@ elif [ $target = orion ]; then
     export FC=ifort
     export F90=ifort
     export CC=icc
-    export LIBRARY_PATH=$LIBRARY_PATH:/apps/jasper-1.900.1/lib
     export MPIFC=mpiifort
-    export GRIB_API_SHARED="NO"
-    export JASPER_LIB_O=$JASPER_LIB
 
 elif [ $target = jet ]; then
 
-    targetx=jet
+    export $target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -70,7 +65,7 @@ elif [ $target = jet ]; then
 
 elif [ $target = wcoss_cray ]; then
 
-    targetx=cray
+    export target
     if [ $USE_PREINST_LIBS = true ]; then
       #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
       module use ../modulefiles
@@ -92,7 +87,7 @@ elif [ $target = wcoss_cray ]; then
 
 elif [ $target = wcoss_dell_p3 ]; then
 
-    targetx=wcoss_dell_p3
+    export $target
     if [ $USE_PREINST_LIBS = true ]; then
       #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
       module use ../modulefiles
@@ -102,7 +97,6 @@ elif [ $target = wcoss_dell_p3 ]; then
       module use ../modulefiles
       module load modulefile.tools.${target}_userlib
     fi
-    module load cmake/3.10.0
     module list
 
     export FC=ifort
@@ -127,20 +121,33 @@ export BUFR_LDFLAGS="${BUFR_LIBd}"
 TOOLS_PATH=${cwd}/hafs_tools.fd
 
 # Build the libraries in the tools
-cd ${TOOLS_PATH}/libsrc
-./build_libs_cmake.sh
+##cd ${TOOLS_PATH}/libsrc
+##./build_libs_cmake.sh
 
 # Build the tools programs
 export TOOLS_INC=${TOOLS_PATH}/include
 export TOOLS_INCLUDE="-I${TOOLS_PATH}/include"
 export TOOLS_LIBDIR=${TOOLS_PATH}/lib
-cd ${TOOLS_PATH}/sorc
-make clean
-make
+#cd ${TOOLS_PATH}/sorc
+#make clean
+#make
+
+if [ -d "${TOOLS_PATH}/build" ]; then
+  rm -rf ${TOOLS_PATH}/build
+fi
+mkdir ${TOOLS_PATH}/build
+cd ${TOOLS_PATH}/build
+if [ $target = wcoss_cray ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+else
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+fi
+#make -j 8 
+make -j 8 VERBOSE=1
+make install
+
 
 cd ${TOOLS_PATH}/sorc
-
-./build_hafs_extlibs.sh
 
 ./build_hafs_utils.sh
 

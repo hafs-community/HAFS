@@ -1,1 +1,0 @@
-install( PROGRAMS ecbuild DESTINATION ${INSTALL_BIN_DIR} )

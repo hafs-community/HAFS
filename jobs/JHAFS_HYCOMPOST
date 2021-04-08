@@ -49,7 +49,6 @@ export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   #module purge
   #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.base.${machine}
   #module load modulefile.hafs.run.${machine}
   if [ "$machine" = wcoss_dell_p3 ]; then
     module unload NetCDF
