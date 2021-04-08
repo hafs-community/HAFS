@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/sh
 set -eux
 
 source ./machine-setup.sh > /dev/null 2>&1
