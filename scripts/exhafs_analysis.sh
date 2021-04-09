@@ -145,6 +145,7 @@ if [ ${RUN_ENVAR} = "YES" ]; then
 export L_HYB_ENS=.true.
 if [ ${RUN_ENSDA} = "YES" ]; then
   export N_ENS=${ENS_SIZE:-2}
+  export BETA_S0=${BETA_S0:-0.0}
   export GRID_RATIO_ENS=${GRID_RATIO_ENS}
   export REGIONAL_ENSEMBLE_OPTION=5
   for mem in $(seq -f '%03g' 1 ${N_ENS})
@@ -166,6 +167,7 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   done
 else
   export N_ENS=80
+  export BETA_S0=${BETA_S0:-0.2}
   export GRID_RATIO_ENS=1
   export REGIONAL_ENSEMBLE_OPTION=1
 # Link ensemble members
@@ -491,6 +493,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
     -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
