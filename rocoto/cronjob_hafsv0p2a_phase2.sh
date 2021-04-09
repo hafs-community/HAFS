@@ -19,7 +19,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/hafsv0p2a_phase2_202104
  dev="-s sites/orion.ent -f"
  PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
@@ -34,9 +34,9 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
 
- # hafsv0p2a baseline
- confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_baseline \
-     ../parm/hafsv0p2a_baseline_AL.conf \
+ # hafsv0p2a phase2
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase2 \
+     ../parm/hafsv0p2a_phase2_AL.conf \
      ../parm/hafs_hycom.conf"
 
  # Technical test for 2020082506-2020082512 13L2020
@@ -59,6 +59,10 @@ EXPT=$(basename ${HOMEhafs})
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020100212-2020101018 00L HISTORY ${confopts} # Slot 8: 25L, 26L
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020101618-2020102912 00L HISTORY ${confopts} # Slot 9: 27L, 28L
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020101618-2020102912 00L HISTORY ${confopts} # Slot 10: 29-31L # No GFSv16 version input data
+
+## 2019 NATL storm slots
+#${PYTHON3} ./run_hafs.py -t ${dev} 2019082406-2019091006 00L HISTORY ${confopts} # Slot 5: 05-08L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2019091212-2019092712 00L HISTORY ${confopts} # Slot 6: 09-12L
 
 #===============================================================================
 
