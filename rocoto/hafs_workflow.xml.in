@@ -7,7 +7,7 @@
   <!ENTITY COM_SCRUB_TIME "10800">
   <!ENTITY WORK_SCRUB_TIME "3600">
   <!ENTITY CYCLE_THROTTLE "5">
-  <!ENTITY TASK_THROTTLE "80">
+  <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
@@ -62,6 +62,7 @@
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
+  <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT:-NO]">
   <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
   <!ENTITY RUN_GSI_VR "@[RUN_GSI_VR]">
   <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
@@ -477,6 +478,30 @@
   </task>
 @** endif
 @** endif
+
+@** if RUN_ATM_INIT==YES
+  <task name="atm_init" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATMINIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="chgres_ic"/>
+@** if gtype==regional
+        <metataskdep metatask="chgres_bc"/>
+@** endif
+      </and>
+    </dependency>
+  </task>
+@** endif
+
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>

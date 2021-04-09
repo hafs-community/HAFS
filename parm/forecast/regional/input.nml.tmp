@@ -158,8 +158,8 @@
        ncld           = 5
        imp_physics    = 11
        pdfcld         = .false.
-       fhswr          = 1800.
-       fhlwr          = 1800.
+       fhswr          = 900.
+       fhlwr          = 900.
        ialb           = 1
        iems           = 1
        iaer           = 111
