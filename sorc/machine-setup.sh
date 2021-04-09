@@ -85,7 +85,7 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
 	source /usrx/local/prod/lmod/lmod/init/$__ms_shell
     fi
     target=wcoss_dell_p3
-    module purge 
+    module purge
 
 elif [[ -d /dcom && -d /hwrf ]] ; then
     # We are on NOAA Tide or Gyre
@@ -104,7 +104,7 @@ elif [[ -d /glade ]] ; then
     target=yellowstone
     module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
-    # We are on GAEA. 
+    # We are on GAEA.
     if ( ! eval module help > /dev/null 2>&1 ) ; then
         # We cannot simply load the module command.  The GAEA
         # /etc/profile modifies a number of module-related variables

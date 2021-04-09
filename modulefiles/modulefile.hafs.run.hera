@@ -1,6 +1,10 @@
 #%Module#####################################################
 ## Module file for hafs
 #############################################################
+proc ModulesHelp { } {
+    puts stderr "Set environment veriables for compiling or running HAFS"
+}
+module-whatis " HAFS model prerequisites"
 
 module use /contrib/sutils/modulefiles
 module load sutils

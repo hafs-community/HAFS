@@ -1,18 +1,11 @@
 #!/bin/sh
 set -xeu
-
-build_dir=`pwd`
+cwd=`pwd`
 
 CP='cp -rp'
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  echo "Creating ../exec folder"
-  mkdir ../exec
-fi
-
 #------------------------------------
-# INCLUDE PARTIAL BUILD 
+# INCLUDE PARTIAL BUILD
 #------------------------------------
 
 . ./partial_build.sh
@@ -102,7 +95,7 @@ $Build_gsi && {
 }
 
 #------------------------------------
-# install hycom_utils 
+# install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
@@ -119,4 +112,4 @@ $Build_hycom_utils && {
 
 echo;echo " .... Install system finished .... "
 
-exit 0
+exit

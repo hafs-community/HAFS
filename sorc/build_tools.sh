@@ -5,106 +5,36 @@ set -x
 source ./machine-setup.sh > /dev/null 2>&1
 cwd=`pwd`
 
-USE_PREINST_LIBS=${USE_PREINST_LIBS:-"true"}
-if [ $USE_PREINST_LIBS = true ]; then
-  export MOD_PATH=/scratch3/NCEPDEV/nwprod/lib/modulefiles
-else
-  export MOD_PATH=${cwd}/lib/modulefiles
-fi
-
-USE_PREINST_LIBS=${USE_PREINST_LIBS:-"true"}
-if [ $USE_PREINST_LIBS = true ]; then
-  export MOD_PATH=/scratch3/NCEPDEV/nwprod/lib/modulefiles
-else
-  export MOD_PATH=${cwd}/lib/modulefiles
-fi
-
-if [ $target = wcoss ]; then
-
-    echo "Does not support wcoss phase 1/2."
-    exit 1
-
-elif [ $target = hera ]; then
-
-    export $target
+if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
     export MPIFC=mpif90
-
-elif [ $target = orion ]; then
-
-    export $target
-    #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-    export FC=ifort
-    export F90=ifort
-    export CC=icc
-    export MPIFC=mpiifort
-
-elif [ $target = jet ]; then
-
-    export $target
-    #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
-    module use ../modulefiles
-    module load modulefile.tools.$target
-    module list
-
-    export FC=ifort
-    export F90=ifort
-    export CC=icc
-    export MPIFC=mpif90
-
 elif [ $target = wcoss_cray ]; then
-
-    export target
-    if [ $USE_PREINST_LIBS = true ]; then
-      #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.tools.$target
-    else
-      #source ../modulefiles/modulefile.tools.${target}_userlib > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.tools.${target}_userlib
-    fi
+    #source ../modulefiles/modulefile.tools.${target} > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.tools.${target}
     module load cmake/3.3.2
     module list
-
     export FC="ftn -static"
     export F90="ftn -free -static"
     export CC=icc
     export DM_FC="ftn -static"
     export DM_F90="ftn -free -static"
     export DM_CC="cc -static"
-
 elif [ $target = wcoss_dell_p3 ]; then
-
-    export $target
-    if [ $USE_PREINST_LIBS = true ]; then
-      #source ../modulefiles/modulefile.tools.$target           > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.tools.$target
-    else
-      #source ../modulefiles/modulefile.tools.${target}_userlib > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.tools.${target}_userlib
-    fi
+    #source ../modulefiles/modulefile.tools.${target} > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.tools.${target}
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
-
 else
-
     echo "Unknown machine = $target"
     exit 1
 fi
@@ -142,10 +72,9 @@ if [ $target = wcoss_cray ]; then
 else
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 fi
-#make -j 8 
+#make -j 8
 make -j 8 VERBOSE=1
 make install
-
 
 cd ${TOOLS_PATH}/sorc
 

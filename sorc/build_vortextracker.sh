@@ -1,109 +1,62 @@
-#! /bin/sh
-
+#!/bin/sh
 set -eux
-
 source ./machine-setup.sh > /dev/null 2>&1
 cwd=`pwd`
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  mkdir ../exec
-fi
-
-USE_PREINST_LIBS=${USE_PREINST_LIBS:-"true"}
-if [ $USE_PREINST_LIBS = true ]; then
-  export MOD_PATH=/scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
-else
-  export MOD_PATH=${cwd}/lib/modulefiles
-fi
-
-if [ $target = wcoss ]; then
-
-    echo "Does not support wcoss phase 1/2."
-    exit 1
-
-elif [ $target = hera ]; then
-
+if [ $target = hera ]; then
     targetx=hera
     #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.vortextracker.$target
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
     export hwrf_g2_inc=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hwrf-utilities/libs/mods/g2
     export hwrf_g2_lib=/scratch1/NCEPDEV/hwrf/save/Bin.Liu/hwrf-utilities/libs/libg2.a
-
 elif [ $target = orion ]; then
-
     targetx=orion
     #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.vortextracker.$target
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
     export hwrf_g2_inc=/work/noaa/hwrf/noscrub/bthomas/H220/sorc/hwrf-utilities/libs/mods/g2
     export hwrf_g2_lib=/work/noaa/hwrf/noscrub/bthomas/H220/sorc/hwrf-utilities/libs/libg2.a
-
 elif [ $target = jet ]; then
-
     targetx=jet
     #source ../modulefiles/modulefile.vortextracker.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.vortextracker.$target
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
     export hwrf_g2_inc=/lfs4/HFIP/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities/libs/mods/g2
     export hwrf_g2_lib=/lfs4/HFIP/hwrf-vd/Zhan.Zhang/H219_kjet/sorc/hwrf-utilities/libs/libg2.a
-
 elif [ $target = wcoss_cray ]; then
-
     targetx=cray
-    if [ $USE_PREINST_LIBS = true ]; then
-      #source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.vortextracker.$target
-    else
-      #source ../modulefiles/modulefile.vortextracker.${target}_userlib > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.vortextracker.${target}_userlib
-    fi
+    #source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.vortextracker.$target
     module list
-
     export FC=ftn
     export F90=ftn
     export CC=icc
     export hwrf_g2_inc=/gpfs/hps3/emc/hwrf/noscrub/Bin.Liu/save/H221final/sorc/hwrf-utilities/libs/mods/g2
     export hwrf_g2_lib=/gpfs/hps3/emc/hwrf/noscrub/Bin.Liu/save/H221final/sorc/hwrf-utilities/libs/libg2.a
-
 elif [ $target = wcoss_dell_p3 ]; then
-
     targetx=wcoss_dell_p3
-    if [ $USE_PREINST_LIBS = true ]; then
-      #source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.vortextracker.$target
-    else
-      #source ../modulefiles/modulefile.vortextracker.${target}_userlib > /dev/null 2>&1
-      module use ../modulefiles
-      module load modulefile.vortextracker.${target}_userlib
-    fi
+    #source ../modulefiles/modulefile.vortextracker.$target           > /dev/null 2>&1
+    module use ../modulefiles
+    module load modulefile.vortextracker.$target
     module list
-
     export FC=ifort
     export F90=ifort
     export CC=icc
-
 else
-
     echo "Unknown machine = $target"
     exit 1
 fi
