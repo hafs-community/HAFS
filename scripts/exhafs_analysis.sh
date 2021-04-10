@@ -239,7 +239,7 @@ if [ $CFP_MP = "YES" ]; then
   nm=0
 fi
 
-export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_diags}
+export DIAG_DIR=${DIAG_DIR:-./analysis_diags}
 REMOVE_DIAG_DIR=${REMOVE_DIAG_DIR:-"NO"}
 
 # Set script / GSI control parameters

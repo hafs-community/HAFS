@@ -41,6 +41,23 @@ export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
 
+if [ $GFSVER = PROD2021 ]; then
+  export atmos="atmos/"
+  export USE_GFS_NEMSIO=.false.
+  export USE_GFS_NCIO=.true.
+  GSUFFIX=${GSUFFIX:-.nc}
+elif [ $GFSVER = PROD2019 ]; then
+  export atmos=""
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+else
+  export atmos=""
+  export USE_GFS_NEMSIO=.true.
+  export USE_GFS_NCIO=.false.
+  GSUFFIX=${GSUFFIX:-.nemsio}
+fi
+
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
@@ -119,6 +136,7 @@ if [ "${ENSDA}" = "YES" ]; then
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
   ${NLN} ${COMhafsprior}/product_ens/mem${ENSID}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
+  export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}}
 else
   export RESTARTinp=${RESTARTinp:-${COMhafsprior}/RESTART}
   ${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
@@ -144,6 +162,7 @@ else
   ${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
  fi
+  export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis_vr}
 fi
 cat ./hafs.atcfunix
 
@@ -195,6 +214,51 @@ ${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
 # Run GSI to assimilate the relocated synthetic data to produce the analysis 
 #---------------------------------------------- 
 
+mkdir -p ${RESTARTanl}
+
+# Stat files
+if [ ${FGAT} = "YES" ]; then
+  RADSTAT=${RADSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.radstat}
+  GSISTAT=${GSISTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.gsistat}
+  PCPSTAT=${PCPSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.pcpstat}
+  CNVSTAT=${CNVSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.cnvstat}
+  OZNSTAT=${OZNSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.oznstat}
+  GSISOUT=${GSISOUT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.gsisout}
+else
+  RADSTAT=${RADSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.radstat}
+  GSISTAT=${GSISTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.gsistat}
+  PCPSTAT=${PCPSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.pcpstat}
+  CNVSTAT=${CNVSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.cnvstat}
+  OZNSTAT=${OZNSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.oznstat}
+  GSISOUT=${GSISOUT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.gsisout}
+fi
+
+# Obs diag
+RUN_SELECT=${RUN_SELECT:-"NO"}
+USE_SELECT=${USE_SELECT:-"NO"}
+USE_RADSTAT=${USE_RADSTAT:-"NO"}
+SELECT_OBS=${SELECT_OBS:-${COMhafs}/obsinput.tar}
+GENDIAG=${GENDIAG:-"YES"}
+DIAG_SUFFIX=${DIAG_SUFFIX:-""}
+if [ $netcdf_diag = ".true." ] ; then
+   DIAG_SUFFIX="${DIAG_SUFFIX}.nc4"
+fi
+DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
+DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
+USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
+USE_CFP=${USE_CFP:-"NO"}
+CFP_MP=${CFP_MP:-"NO"}
+nm=""
+if [ $CFP_MP = "YES" ]; then
+  nm=0
+fi
+
+export DIAG_DIR=${DIAG_DIR:-./analysis_diags}
+REMOVE_DIAG_DIR=${REMOVE_DIAG_DIR:-"NO"}
+
+# Set script / GSI control parameters
+lrun_subdirs=${lrun_subdirs:-".true."}
+
 #---------------------------------------------- 
 # Link all the necessary fix files
 #---------------------------------------------- 
@@ -211,17 +275,6 @@ ${NLN} ./synobs_vr.prepbufr ./prepbufr
 
 # Diagnostic files
 # if requested, link GSI diagnostic file directories for use later
-if [ ${ENSDA} = "YES" ]; then
- mkdir -p ${COMhafs}/analysis_vr_diags_ens
- export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_vr_diags_ens/mem${ENSID}}
-else
- if [ ${FGAT} = "YES" ]; then
-  export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_vr_diags_${FGAT_HR}}
- else
-  export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_vr_diags}
- fi
-fi
-
 if [ ${GENDIAG:-YES} = "YES" ] ; then
    if [ ${lrun_subdirs:-.true.} = ".true." ] ; then
       if [ -d $DIAG_DIR ]; then
@@ -272,35 +325,222 @@ ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
 ${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
 cat stdout
-cat fort.2*
+
+${NCP} -p ./stdout ${GSISOUT}
+
+# Cat runtime output files.
+cat fort.2* > ${GSISTAT}
+
+# If requested, create obsinput tarball from obs_input.* files
+if [ ${RUN_SELECT:-NO} = "YES" ]; then
+  echo $(date) START tar obs_input
+  rm -f ./obsinput.tar
+  ${NLN} $SELECT_OBS ./obsinput.tar
+  tar -cvf obsinput.tar obs_input.*
+  echo $(date) END tar obs_input
+fi
+
+# If requested, generate diagnostic files
+if [ $GENDIAG = "YES" ] ; then
+
+   # Set up lists and variables for various types of diagnostic files.
+   ntype=3
+
+   diagtype[0]="conv conv_gps conv_ps conv_pw conv_q conv_sst conv_t conv_tcp conv_uv conv_spd"
+   diagtype[1]="pcp_ssmi_dmsp pcp_tmi_trmm"
+   diagtype[2]="sbuv2_n16 sbuv2_n17 sbuv2_n18 sbuv2_n19 gome_metop-a gome_metop-b omi_aura mls30_aura ompsnp_npp ompstc8_npp gome_metop-c"
+   diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c"
+
+   diaglist[0]=listcnv
+   diaglist[1]=listpcp
+   diaglist[2]=listozn
+   diaglist[3]=listrad
+
+   diagfile[0]=$CNVSTAT
+   diagfile[1]=$PCPSTAT
+   diagfile[2]=$OZNSTAT
+   diagfile[3]=$RADSTAT
+
+   numfile[0]=0
+   numfile[1]=0
+   numfile[2]=0
+   numfile[3]=0
+
+   # Set diagnostic file prefix based on lrun_subdirs variable
+   if [ $lrun_subdirs = ".true." ]; then
+      prefix=" dir.*/"
+   else
+      prefix="pe*"
+   fi
+
+   if [ $USE_CFP = "YES" -o $USE_MPISERIAL = "YES" ]; then
+      [[ -f ./diag.sh ]] && rm ./diag.sh
+      [[ -f ./mp_diag.sh ]] && rm ./mp_diag.sh
+      cat > ./diag.sh << EOFdiag
+#!/bin/sh
+lrun_subdirs=\$1
+binary_diag=\$2
+type=\$3
+loop=\$4
+string=\$5
+CDATE=\$6
+DIAG_COMPRESS=\$7
+DIAG_SUFFIX=\$8
+if [ \$lrun_subdirs = ".true." ]; then
+   prefix=" dir.*/"
+else
+   prefix="pe*"
+fi
+file=diag_\${type}_\${string}.\${CDATE}\${DIAG_SUFFIX}
+if [ \$binary_diag = ".true." ]; then
+   cat \${prefix}\${type}_\${loop}* > \$file
+else
+   $CATEXEC -o \$file \${prefix}\${type}_\${loop}*
+fi
+if [ \$DIAG_COMPRESS = "YES" ]; then
+   $COMPRESS \$file
+fi
+EOFdiag
+      chmod 755 ./diag.sh
+   fi
+
+   # Collect diagnostic files as a function of loop and type.
+   # Loop over first and last outer loops to generate innovation
+   # diagnostic files for indicated observation types (groups)
+   #
+   # NOTE:  Since we set miter=2 in GSI namelist SETUP, outer
+   #        loop 03 will contain innovations with respect to
+   #        the analysis.  Creation of o-a innovation files
+   #        is triggered by write_diag(3)=.true.  The setting
+   #        write_diag(1)=.true. turns on creation of o-g
+   #        innovation files.
+
+   loops="01 03"
+   for loop in $loops; do
+      case $loop in
+         01) string=ges;;
+         03) string=anl;;
+          *) string=$loop;;
+      esac
+      echo $(date) START loop $string >&2
+      n=-1
+      while [ $((n+=1)) -le $ntype ] ;do
+         for type in $(echo ${diagtype[n]}); do
+            count=$(ls ${prefix}${type}_${loop}* 2>/dev/null | wc -l)
+            if [ $count -gt 1 ]; then
+               if [ $USE_CFP = "YES" ]; then
+                  echo "$nm ./diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a ./mp_diag.sh
+          if [ ${CFP_MP:-"NO"} = "YES" ]; then
+              nm=$((nm+1))
+          fi
+               elif [ $USE_MPISERIAL = "YES" ]; then
+                  echo "$nm ./diag.sh $lrun_subdirs $binary_diag $type $loop $string $CDATE $DIAG_COMPRESS $DIAG_SUFFIX" | tee -a ./mp_diag.sh
+               else
+                  if [ $binary_diag = ".true." ]; then
+                     cat ${prefix}${type}_${loop}* > diag_${type}_${string}.${CDATE}${DIAG_SUFFIX}
+                  else
+                     $CATEXEC -o diag_${type}_${string}.${CDATE}${DIAG_SUFFIX} ${prefix}${type}_${loop}*
+                  fi
+               fi
+               echo "diag_${type}_${string}.${CDATE}*" >> ${diaglist[n]}
+               numfile[n]=$(expr ${numfile[n]} + 1)
+            elif [ $count -eq 1 ]; then
+                cat ${prefix}${type}_${loop}* > diag_${type}_${string}.${CDATE}${DIAG_SUFFIX}
+                if [ $DIAG_COMPRESS = "YES" ]; then
+            $COMPRESS diag_${type}_${string}.${CDATE}${DIAG_SUFFIX}
+                fi
+                echo "diag_${type}_${string}.${CDATE}*" >> ${diaglist[n]}
+                numfile[n]=$(expr ${numfile[n]} + 1)
+            fi
+         done
+      done
+      echo $(date) END loop $string >&2
+   done
+
+   # We should already be in $DATA, but extra cd to be sure.
+   cd $DATA
+
+   # If requested, compress diagnostic files
+   if [ $DIAG_COMPRESS = "YES" -a $USE_CFP = "NO" -a $USE_MPISERIAL = "NO" ]; then
+      echo $(date) START $COMPRESS diagnostic files >&2
+      for file in $(ls diag_*${CDATE}${DIAG_SUFFIX}); do
+         $COMPRESS $file
+      done
+      echo $(date) END $COMPRESS diagnostic files >&2
+   fi
+
+   if [ $USE_CFP = "YES" ] ; then
+      chmod 755 ./mp_diag.sh
+      ncmd=$(cat ./mp_diag.sh | wc -l)
+      if [ $ncmd -gt 0 ]; then
+         ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+         APRUNCFP_DIAG=$(eval echo $APRUNCFP)
+         $APRUNCFP_DIAG ./mp_diag.sh
+         export ERR=$?
+         export err=$ERR
+         $ERRSCRIPT || exit 3
+      fi
+   fi
+
+   if [ $USE_MPISERIAL = "YES" ] ; then
+      chmod 755 ./mp_diag.sh
+      ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
+   fi
+
+   # If requested, create diagnostic file tarballs
+   if [ $DIAG_TARBALL = "YES" ]; then
+      echo $(date) START tar diagnostic files >&2
+      n=-1
+      while [ $((n+=1)) -le $ntype ] ;do
+         TAROPTS="-uvf"
+         if [ ! -s ${diagfile[n]} ]; then
+            TAROPTS="-cvf"
+         fi
+         if [ ${numfile[n]} -gt 0 ]; then
+            tar $TAROPTS ${diagfile[n]} $(cat ${diaglist[n]})
+            export ERR=$?
+            export err=$ERR
+            $ERRSCRIPT || exit 4
+         fi
+      done
+
+      # Restrict CNVSTAT
+      #chmod 750 $CNVSTAT
+      #${CHGRP_CMD} $CNVSTAT
+
+      # Restrict RADSTAT
+      #chmod 750 $RADSTAT
+      #${CHGRP_CMD} $RADSTAT
+
+      echo $(date) END tar diagnostic files >&2
+   fi
+fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
+
+# If no processing error, remove $DIAG_DIR
+if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
+    rm -rf $DIAG_DIR
+fi
 
 fi # end if [ -s ./synobs_vr.info ]; then
 
-if [ ${ENSDA} = "YES" ]; then
-  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}}
-else
-  export RESTARTout=${RESTARTout:-${COMhafs}/RESTART_analysis_vr}
-fi
-mkdir -p ${RESTARTout}
-
-${NCP} ./fv3_oro_data ${RESTARTout}/oro_data.nc
-${NCP} ./fv3_atmos_static ${RESTARTout}/atmos_static.nc
-${NCP} ./fv3_grid_spec ${RESTARTout}/grid_spec.nc
+${NCP} ./fv3_oro_data ${RESTARTanl}/oro_data.nc
+${NCP} ./fv3_atmos_static ${RESTARTanl}/atmos_static.nc
+${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.nc
 
 if [ ${FGAT} = "YES" ]; then
- ${NCP} ./coupler.res ${RESTARTout}/${PDYfgat}.${cycfgat}0000.coupler.res
- ${NCP} ./fv3_akbk ${RESTARTout}/${PDYfgat}.${cycfgat}0000.fv_core.res.nc
- ${NCP} ./fv3_sfcdata ${RESTARTout}/${PDYfgat}.${cycfgat}0000.sfc_data.nc
- ${NCP} ./fv3_srfwnd ${RESTARTout}/${PDYfgat}.${cycfgat}0000.fv_srf_wnd.res.tile1.nc
- ${NCP} ./fv3_dynvars ${RESTARTout}/${PDYfgat}.${cycfgat}0000.fv_core.res.tile1.nc
- ${NCP} ./fv3_tracer ${RESTARTout}/${PDYfgat}.${cycfgat}0000.fv_tracer.res.tile1.nc
+ ${NCP} ./coupler.res ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.coupler.res
+ ${NCP} ./fv3_akbk ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.fv_core.res.nc
+ ${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.sfc_data.nc
+ ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.fv_srf_wnd.res.tile1.nc
+ ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.fv_core.res.tile1.nc
+ ${NCP} ./fv3_tracer ${RESTARTanl}/${PDYfgat}.${cycfgat}0000.fv_tracer.res.tile1.nc
 else
- ${NCP} ./coupler.res ${RESTARTout}/${PDY}.${cyc}0000.coupler.res
- ${NCP} ./fv3_akbk ${RESTARTout}/${PDY}.${cyc}0000.fv_core.res.nc
- ${NCP} ./fv3_sfcdata ${RESTARTout}/${PDY}.${cyc}0000.sfc_data.nc
- ${NCP} ./fv3_srfwnd ${RESTARTout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
- ${NCP} ./fv3_dynvars ${RESTARTout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
- ${NCP} ./fv3_tracer ${RESTARTout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+ ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
+ ${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.nc
+ ${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.nc
+ ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
+ ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
+ ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
 fi
 
 exit

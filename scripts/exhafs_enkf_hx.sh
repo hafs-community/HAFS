@@ -122,14 +122,12 @@ if [ ${RUN_GSI_VR_ENS} = YES ]; then
   else
     export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
   fi
-  #export RESTARTens_anl=${COMhafs}/RESTART_analysis_vr_ens_anl/${MEMSTR}
 else
   if [ ${HX_ENS} != YES ]; then
     export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
   else
     export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
   fi
-  #export RESTARTens_anl=${COMhafs}/RESTART_ens_anl/${MEMSTR}
 fi
 
 export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
@@ -191,7 +189,7 @@ if [ $CFP_MP = "YES" ]; then
   nm=0
 fi
 
-export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_diags}
+export DIAG_DIR=${DIAG_DIR:-./analysis_diags}
 REMOVE_DIAG_DIR=${REMOVE_DIAG_DIR:-"NO"}
 
 # Set script / GSI control parameters
