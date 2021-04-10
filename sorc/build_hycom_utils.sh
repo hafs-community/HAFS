@@ -15,20 +15,20 @@ module list
 
 cd hafs_hycom_utils.fd/libs
 if [ -d "build" ]; then
-   rm -rf build
+  rm -rf build
 fi
 mkdir build
 cd build
 if [ $target = wcoss_cray ]; then
-   cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
 else
-   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 fi
 make -j 8 VERBOSE=1
 
 cd ${cwd}/hafs_hycom_utils.fd
 if [ -d "build" ]; then
-   rm -rf build
+  rm -rf build
 fi
 mkdir build
 cd build

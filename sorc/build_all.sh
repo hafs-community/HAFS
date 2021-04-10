@@ -89,7 +89,6 @@ echo " .... Building hycom_utils .... "
 ./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
 }
 
-
 echo;echo " .... Build system finished .... "
 
 exit
