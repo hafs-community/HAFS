@@ -57,6 +57,7 @@ if [ "$RUN_ENVIR" = prod ]; then
   module use ${HOMEgraph}/modulefiles
   module load modulefile.graphics.run.${machine}
   module list
+  env
 fi
 
 #####################################

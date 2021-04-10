@@ -83,11 +83,11 @@ _hafsutils_analysis_update (){
 
     # Build the analysis-update application.
 
-    make all >& ${HAFS_UTILS_SORC}/logs/make.analysis-update.log
+    make all
 
     # Move the analysis-update application executable to the HAFS
     # utility application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.analysis-update.log
+    make install
 }
 
 #----
@@ -126,11 +126,11 @@ _hafsutils_obs_preproc (){
     fi
 
     # Build the obs-preproc application.
-    make all >& ${HAFS_UTILS_SORC}/logs/make.obs-preproc.log
+    make all
 
     # Move the analysis-update application executable to the HAFS
     # utility application executables path.
-    make install >& ${HAFS_UTILS_SORC}/logs/install.obs-preproc.log
+    make install
 }
 
 #----
@@ -199,15 +199,15 @@ _extlib_fftw (){
 
 #    make clean
 
-    ./configure --prefix=${PREFIX} --disable-doc >& ${HAFS_UTILS_EXTLIBS}/logs/configure.fftw.log
+    ./configure --prefix=${PREFIX} --disable-doc
 
     # Build the FFTW application.
 
-    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.fftw.log
+    make
 
     # Install the FFTW application.
 
-    make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.fftw.log
+    make install
 }
 
 #----
@@ -241,15 +241,15 @@ _extlib_shtns (){
     # Configure the compile-time environment for the SHTNS application
     # build.
 
-    ./configure --prefix=${PREFIX} >& ${HAFS_UTILS_EXTLIBS}/logs/configure.shtns.log
+    ./configure --prefix=${PREFIX}
 
     # Build the SHTNS application.
 
-    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.shtns.log
+    make
 
     # Install the SHTNS application.
 
-    make install >& ${HAFS_UTILS_EXTLIBS}/logs/install.shtns.log
+    make install
 }
 
 #----
@@ -296,7 +296,7 @@ build_extlibs (){
     # Build all utility libraries.
 
     _setup_compiler
-    make >& ${HAFS_UTILS_EXTLIBS}/logs/make.ext-libs.log
+    make
 }
 
 #----

@@ -47,16 +47,8 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-  #module purge
-  #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.run.${machine}
-  if [ "$machine" = wcoss_dell_p3 ]; then
-    module unload NetCDF
-    module unload HDF5-serial
-  fi
-  module use ${HOMEhafs}/sorc/hafs_hycom_utils.fd/modulefiles
-  module load modulefile.hycom_utils.${machine}
   module list
+  env
 fi
 
 #####################################

@@ -167,7 +167,7 @@ export WHERE_AM_I=${target}
 moduleuse=$HOMEhafs/modulefiles
 if [[ "$moduleuse" != no ]] ; then
   module use $moduleuse 
-  module load modulefile.hafs.run.$WHERE_AM_I
+  module load modulefile.hafs.$WHERE_AM_I
 fi
 
 # Avoild "NetCDF: HDF error"

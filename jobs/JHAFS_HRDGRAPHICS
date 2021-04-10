@@ -59,6 +59,7 @@ export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
   source ${GPLOThafs}/modulefiles/modulefile.gplot.${machine}
   module list
+  env
 fi
 
 #####################################
