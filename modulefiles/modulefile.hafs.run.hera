@@ -61,7 +61,6 @@ module load nco/4.9.1
 
 module load hpss
 module load wgrib2/2.0.8
-setenv WGRIB2 /home/Wesley.Ebisuzaki/bin/wgrib.v2.0.8b3
 module use -a /scratch1/NCEPDEV/nems/emc.nemspara/soft/modulefiles
 module load rocoto/1.3.3
 module load intelpython/3.6.8

@@ -62,10 +62,7 @@ export POSTEXEC=${EXEChafs}/hafs_post.x
 
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
-#export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
-export WGRIB2=${WGRIB2:-/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9}
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
+export WGRIB2=${WGRIB2:-wgrib2}
 export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
 
 ####################################
