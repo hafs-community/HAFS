@@ -1,11 +1,10 @@
 #!/bin/sh
-#set -eux
-set -x
-
+set -eux
 source ./machine-setup.sh > /dev/null 2>&1
 cwd=`pwd`
 
 if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
+    export target
     #source ../modulefiles/modulefile.tools.$target > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.$target
@@ -15,10 +14,10 @@ if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
     export CC=icc
     export MPIFC=mpif90
 elif [ $target = wcoss_cray ]; then
+    export target
     #source ../modulefiles/modulefile.tools.${target} > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.${target}
-    module load cmake/3.3.2
     module list
     export FC="ftn -static"
     export F90="ftn -free -static"
@@ -27,6 +26,7 @@ elif [ $target = wcoss_cray ]; then
     export DM_F90="ftn -free -static"
     export DM_CC="cc -static"
 elif [ $target = wcoss_dell_p3 ]; then
+    export target
     #source ../modulefiles/modulefile.tools.${target} > /dev/null 2>&1
     module use ../modulefiles
     module load modulefile.tools.${target}

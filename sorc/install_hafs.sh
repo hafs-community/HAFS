@@ -1,7 +1,6 @@
 #!/bin/sh
-set -x
-source ./machine-setup.sh > /dev/null 2>&1
-cwd=$(pwd)
+set -eux
+cwd=`pwd`
 
 cd ${cwd}
 
