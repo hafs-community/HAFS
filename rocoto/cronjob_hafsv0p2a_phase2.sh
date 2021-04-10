@@ -19,7 +19,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/hafsv0p2a_phase2_202104
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
  dev="-s sites/orion.ent -f"
  PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
@@ -41,7 +41,7 @@ EXPT=$(basename ${HOMEhafs})
 
  # Technical test for 2020082506-2020082512 13L2020
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
-     config.run_emcgraphics=yes \
+     config.run_emcgraphics=no \
      config.scrub_work=no config.scrub_com=no
 
 ## 2020 NATL storm slots

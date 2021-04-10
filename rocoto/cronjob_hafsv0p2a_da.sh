@@ -19,7 +19,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/hafs_ensda_20210408
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
  dev="-s sites/orion.ent -f"
  PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
@@ -37,7 +37,7 @@ EXPT=$(basename ${HOMEhafs})
  dev="-s sites/orion_hafsv0p2da.ent -f"
 
  # h2db: hafsv0p2a with fgat+3denvar
- confh2db="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2db_20210408 \
+ confh2db="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2db \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -47,7 +47,7 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafs_hycom.conf"
 
  # h2dc: hafsv0p2a with fgat+3denvar+enkf
- confh2dc="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2dc_20210408 \
+ confh2dc="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2dc \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.run_ensda=yes config.ENS_SIZE=40 config.run_enkf=yes \
@@ -57,7 +57,7 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafs_hycom.conf"
 
  # h2dd: hafsv0p2a with gsi_vr+fgat+3denvar+enkf
- confh2dd="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2dd_20210408 \
+ confh2dd="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2dd \
      config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.run_ensda=yes config.ENS_SIZE=40 config.run_enkf=yes \
