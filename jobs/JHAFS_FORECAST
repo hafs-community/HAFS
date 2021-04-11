@@ -48,6 +48,11 @@ if [ "${ENSDA}" = YES ]; then
   export npx=${npx_ens:-2881}
   export npy=${npy_ens:-1921}
   export npz=${npz_ens:-64}
+
+  output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  export output_grid_dlon=${output_grid_dlon_ens}
+  export output_grid_dlat=${output_grid_dlat_ens}
 else
   export NHRS=${NHRS:-126}
   export NBDYHRS=${NBDYHRS:-3}
@@ -80,6 +85,9 @@ else
   export npx=${npx:-2881}
   export npy=${npy:-1921}
   export npz=${npz:-64}
+
+  export output_grid_dlon=${output_grid_dlon:-0.025}
+  export output_grid_dlat=${output_grid_dlon:-0.025}
 fi
 export NTRAC=7            # output all gfdl mp tracers
 
@@ -91,8 +99,6 @@ export output_grid_lon1=${output_grid_lon1:--35.0}
 export output_grid_lat1=${output_grid_lat1:--30.0}
 export output_grid_lon2=${output_grid_lon2:-35.0}
 export output_grid_lat2=${output_grid_lat2:-30.0}
-export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
 
 ####################################
 # Specify Execution Areas

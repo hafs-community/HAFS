@@ -181,7 +181,7 @@ export output_grid_lat1=${output_grid_lat1:--30.0}
 export output_grid_lon2=${output_grid_lon2:-35.0}
 export output_grid_lat2=${output_grid_lat2:-30.0}
 export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
+export output_grid_dlat=${output_grid_dlat:-0.025}
 
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
