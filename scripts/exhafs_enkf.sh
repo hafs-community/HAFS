@@ -53,12 +53,14 @@ export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
-  export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
+  #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
+  export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens
 else
   export RESTARTens_inp=${COMhafsprior}/RESTART_ens
 fi
 
-export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
+#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
+export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 mkdir -p ${RESTARTens_anl}
 
 DATA=${DATA:-${WORKhafs}/enkf_mean}

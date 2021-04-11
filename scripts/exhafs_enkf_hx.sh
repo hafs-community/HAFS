@@ -118,25 +118,27 @@ export REDUCE_DIAG=".true."
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
   if [ ${HX_ENS} != YES ]; then
-    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+    export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
   else
-    export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
+    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
+    export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/${MEMSTR}
   fi
 else
   if [ ${HX_ENS} != YES ]; then
-    export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+    export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
   else
     export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
   fi
 fi
 
-export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
+export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
 
 RESTARTinp=${RESTARTinp:-${RESTARTens_inp}}
 RESTARTanl=${RESTARTanl:-${RESTARTens_anl}}
 mkdir -p ${RESTARTanl}
-
-export DIAG_DIR=${RESTARTanl}/analysis_diags
 
 ## ObsInput file from ensemble mean
 export SELECT_OBS=${SELECT_OBS:-${RESTARTanl}/../ensmean/obsinput.tar}

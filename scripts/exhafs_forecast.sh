@@ -2,11 +2,6 @@
 
 set -xe
 
-#ulimit -s 6000000 
-#unlimited
-ulimit -s unlimited
-ulimit -a
-
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`
@@ -128,15 +123,19 @@ if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${P
   export RESTARTinp=${COMhafs}/RESTART_vi_ens/mem${ENSID}
 fi
 
-if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
-  export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
+  #export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
+  export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}
   export warm_start_opt=4
 fi
 
-if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
-  export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
+  #export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
+  export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
   export warm_start_opt=5
 fi
 
@@ -654,8 +653,7 @@ cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 cp -p ${FORECASTEXEC} ./hafs_forecast.x
 
-${APRUNC} ./hafs_forecast.x 1>out.$CRES 2>err.$CRES
-export err=$?
+${APRUNC} ./hafs_forecast.x 1>forecast.out 2>forecast.err
 
 #-------------------------------------------------------------------
 # Deliver files to COM
@@ -687,5 +685,5 @@ fi
 
 fi
 
-exit $err
+exit
 

@@ -152,6 +152,7 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   do
     #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
     #  RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
+    #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
     #else
       RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
     #fi
