@@ -406,10 +406,10 @@
 @** if RUN_GSI_VR_FGAT==YES 
   <metatask name="analysis_vr_fgat">
     <var name="FGAT_HR">03 09</var>
-    <task name="analysis_vr_fgat_#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <task name="analysis_vr_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-      <jobname>hafs_analysis_vr_fgat_#FGAT_HR#&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat_#FGAT_HR#.log</cyclestr></join>
+      <jobname>hafs_analysis_vr_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat#FGAT_HR#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
