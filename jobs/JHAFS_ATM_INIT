@@ -27,6 +27,7 @@ if [ "${ENSDA}" = YES ]; then
   export target_lon=${target_lon_ens:--62.0}
   export target_lat=${target_lat_ens:-22.0}
   export refine_ratio=${refine_ratio_ens:-4}
+  export deflate_level=${deflate_level:-1}
   export ccpp_suite_regional=${ccpp_suite_regional_ens:-HAFS_v0_gfdlmp_nocp}
   export ccpp_suite_glob=${ccpp_suite_glob_ens:-HAFS_v0_gfdlmp}
   export ccpp_suite_nest=${ccpp_suite_nest_ens:-HAFS_v0_gfdlmp_nocp}
@@ -59,6 +60,7 @@ else
   export target_lon=${target_lon:--62.0}
   export target_lat=${target_lat:-22.0}
   export refine_ratio=${refine_ratio:-4}
+  export deflate_level=${deflate_level:--1}
   export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
   export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
   export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}

@@ -616,6 +616,11 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
+        <!-- Wait until the deterministic forecast job is running or completed. -->
+        <or>
+          <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast"/>
+        </or>
       </and>
     </dependency>
   </task>
