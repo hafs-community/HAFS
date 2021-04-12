@@ -35,6 +35,31 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #===============================================================================
 
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2tele_C96_static \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest2tele_C96_static.conf
+
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2_C96_static \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest2_C96_static.conf
+
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest3_C96_static \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest3_C96_static.conf
+
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest4_C96_static \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest4_C96_static.conf
+
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest6_C96_static \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_globnest6_C96_static.conf
+
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
 #    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2_static \
 #    config.NHRS=12 ${scrubopt} \
 #    ../parm/hafs_globnest2_static.conf
@@ -43,16 +68,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest1_static \
 #    config.NHRS=12 ${scrubopt} \
 #    ../parm/hafs_globnest_static.conf
-
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2tele_C96_static \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_globnest2tele_C96_static.conf
-
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest2_C96_static \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_globnest2_C96_static.conf
 
 #===============================================================================
 
