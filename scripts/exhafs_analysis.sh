@@ -146,12 +146,14 @@ if [ ${RUN_ENVAR} = "YES" ]; then
 export L_HYB_ENS=.true.
 if [ ${RUN_ENSDA} = "YES" ]; then
   export N_ENS=${ENS_SIZE:-2}
+  export BETA_S0=${BETA_S0:-0.0}
   export GRID_RATIO_ENS=${GRID_RATIO_ENS}
   export REGIONAL_ENSEMBLE_OPTION=5
   for mem in $(seq -f '%03g' 1 ${N_ENS})
   do
     #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
     #  RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
+    #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
     #else
       RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
     #fi
@@ -167,6 +169,7 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   done
 else
   export N_ENS=80
+  export BETA_S0=${BETA_S0:-0.2}
   export GRID_RATIO_ENS=1
   export REGIONAL_ENSEMBLE_OPTION=1
 # Link ensemble members
@@ -238,7 +241,7 @@ if [ $CFP_MP = "YES" ]; then
   nm=0
 fi
 
-export DIAG_DIR=${DIAG_DIR:-${COMhafs}/analysis_diags}
+export DIAG_DIR=${DIAG_DIR:-./analysis_diags}
 REMOVE_DIAG_DIR=${REMOVE_DIAG_DIR:-"NO"}
 
 # Set script / GSI control parameters
@@ -507,6 +510,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
     -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \

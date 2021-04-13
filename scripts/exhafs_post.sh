@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/sh
 
 set -xe
 
@@ -17,8 +17,7 @@ NHRS=${NHRS:-126}
 NOUTHRS=${NOUTHRS:-3}
 
 POSTEXEC=${POSTEXEC:-${EXEChafs}/exec/hafs_post.x}
-
-MPISERIAL=${MPISERIAL:-mpiserial}
+MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 NDATE=${NDATE:-ndate}
 WGRIB2=${WGRIB2:-wgrib2}
 GRB2INDEX=${GRB2INDEX:-grb2index}
@@ -66,7 +65,6 @@ atcfdescr=storm
 hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
 hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
 
-
 # Check if post has processed this forecast hour previously
 if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMOUTpost}/${synop_grb2file} ] && [ -s ${COMOUTpost}/${synop_grb2indx} ] ; then
 
@@ -99,8 +97,7 @@ rm -rf ${DATA_POST}
 mkdir -p ${DATA_POST}
 cd ${DATA_POST}
 
-# In /bin/sh this cat part does not work
-# Need to figure it out why. Use ksh for now.
+# Preparte itag namelist input file
 cat>itag<<EOF
 ${INPdir}/dynf${FHR3}.nc
 netcdf
@@ -114,11 +111,8 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 EOF
 
 rm -f fort.*
-# Copy flat files
+# Copy fix files
 cp ${PARMhafs}/post/nam_micro_lookup.dat    ./eta_micro_lookup.dat
-# So far the postxconfig-NT.txt is a plain text file, it would be better
-# provide the actual xml file for easy configuration, while generating this
-# plain text file on the fly.
 cp ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
 cp ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
 
@@ -133,29 +127,25 @@ if [ "$output_grid" = rotated_latlon ]; then
 
 # For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
-#${APRUNS} ${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
+#${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
 # Parallelize this section to speed up wgrib2 
 #opts='-set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
 opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part00 ${BACKGROUND} >  cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"'     ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part01 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part02 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part03 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part04 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part05 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part06 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part07 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part08 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
-echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
-if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
-  echo 'wait' >> cmdfile
-fi
-chmod u+x ./cmdfile
-${APRUNF} ./cmdfile
-wait
-
+rm -f cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part00 >  cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"'     ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part01 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part02 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part03 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part04 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part05 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part06 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part07 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part08 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 >> cmdfile
+echo ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 >> cmdfile
+chmod +x cmdfile
+${APRUNC} ${MPISERIAL} -m cmdfile
 # Cat the temporary files together
 cat ${synop_grb2post}.part?? > ${synop_grb2file}
 # clean up the temporary files
@@ -168,29 +158,6 @@ mv ${synop_grb2post} ${synop_grb2file}
 
 ## Alternatively, can use wgrib2 to convert from c3 to c2 packing, which can reduce the filesize by ~30%.
 #opts='-set_grib_type c2 -grib_out'
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":2 mb:|:5 mb:|:7 mb:|:10 mb:|:20 mb:"' ${opts} ${synop_grb2post}.part00 ${BACKGROUND} >  cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":30 mb:|:50 mb:|:70 mb:|:100 mb:"'     ${opts} ${synop_grb2post}.part01 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":125 mb:|:150 mb:|:175 mb:|:200 mb:"'  ${opts} ${synop_grb2post}.part02 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":225 mb:|:250 mb:|:275 mb:|:300 mb:"'  ${opts} ${synop_grb2post}.part03 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":325 mb:|:350 mb:|:375 mb:|:400 mb:"'  ${opts} ${synop_grb2post}.part04 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":425 mb:|:450 mb:|:475 mb:|:500 mb:"'  ${opts} ${synop_grb2post}.part05 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":525 mb:|:550 mb:|:575 mb:|:600 mb:"'  ${opts} ${synop_grb2post}.part06 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":625 mb:|:650 mb:|:675 mb:|:700 mb:"'  ${opts} ${synop_grb2post}.part07 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"'  ${opts} ${synop_grb2post}.part08 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} ${synop_grb2post}.part09 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} ${synop_grb2post}.part10 ${BACKGROUND} >> cmdfile
-#echo ${APRUNO} ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} ${synop_grb2post}.part11 ${BACKGROUND} >> cmdfile
-#if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
-#  echo 'wait' >> cmdfile
-#fi
-#chmod u+x ./cmdfile
-#${APRUNF} ./cmdfile
-#wait
-#
-## Cat the temporary files together
-#cat ${synop_grb2post}.part?? > ${synop_grb2file}
-## clean up the temporary files
-#rm -f ${synop_grb2post}.part??
 
 else
 

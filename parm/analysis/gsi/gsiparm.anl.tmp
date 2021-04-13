@@ -228,7 +228,7 @@ SUPEROB_RADAR::
   l_hyb_ens=_L_HYB_ENS_,
   n_ens=_N_ENS_,
   uv_hyb_ens=T,
-  beta_s0=0.2,
+  beta_s0=_BETA_S0_,
   s_ens_h=300,
   s_ens_v=-0.5,
   readin_localization=F,

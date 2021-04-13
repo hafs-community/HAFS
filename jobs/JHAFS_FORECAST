@@ -27,6 +27,7 @@ if [ "${ENSDA}" = YES ]; then
   export target_lon=${target_lon_ens:--62.0}
   export target_lat=${target_lat_ens:-22.0}
   export refine_ratio=${refine_ratio_ens:-4}
+  export deflate_level=${deflate_level:-1}
   export ccpp_suite_regional=${ccpp_suite_regional_ens:-HAFS_v0_gfdlmp_nocp}
   export ccpp_suite_glob=${ccpp_suite_glob_ens:-HAFS_v0_gfdlmp}
   export ccpp_suite_nest=${ccpp_suite_nest_ens:-HAFS_v0_gfdlmp_nocp}
@@ -48,6 +49,11 @@ if [ "${ENSDA}" = YES ]; then
   export npx=${npx_ens:-2881}
   export npy=${npy_ens:-1921}
   export npz=${npz_ens:-64}
+
+  output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  export output_grid_dlon=${output_grid_dlon_ens}
+  export output_grid_dlat=${output_grid_dlat_ens}
 else
   export NHRS=${NHRS:-126}
   export NBDYHRS=${NBDYHRS:-3}
@@ -59,6 +65,7 @@ else
   export target_lon=${target_lon:--62.0}
   export target_lat=${target_lat:-22.0}
   export refine_ratio=${refine_ratio:-4}
+  export deflate_level=${deflate_level:--1}
   export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
   export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
   export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
@@ -80,6 +87,9 @@ else
   export npx=${npx:-2881}
   export npy=${npy:-1921}
   export npz=${npz:-64}
+
+  export output_grid_dlon=${output_grid_dlon:-0.025}
+  export output_grid_dlat=${output_grid_dlon:-0.025}
 fi
 export NTRAC=7            # output all gfdl mp tracers
 
@@ -91,8 +101,6 @@ export output_grid_lon1=${output_grid_lon1:--35.0}
 export output_grid_lat1=${output_grid_lat1:--30.0}
 export output_grid_lon2=${output_grid_lon2:-35.0}
 export output_grid_lat2=${output_grid_lat2:-30.0}
-export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
 
 ####################################
 # Specify Execution Areas
@@ -129,9 +137,6 @@ export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3,
 #export RUN_ENVIR=${RUN_ENVIR:-prod}
 export RUN_ENVIR=${envir:-prod}
 if [ "$RUN_ENVIR" = prod ]; then
-  #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.run.${machine}
-  #module purge
   if [ "$machine" = wcoss_dell_p3 ]; then
     module unload NetCDF
     module unload HDF5-serial
@@ -151,6 +156,7 @@ if [ "$RUN_ENVIR" = prod ]; then
   module load fv3
   module list
   export LD_LIBRARY_PATH="$HOMEhafs/sorc/hafs_forecast.fd/FV3/ccpp/lib::${LD_LIBRARY_PATH}"
+  env
 fi
 
 #####################################

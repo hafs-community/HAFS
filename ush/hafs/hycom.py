@@ -994,6 +994,8 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         grb2index=alias(exe(self.getexe('grb2index')))
         wgrib2loc=self.getexe('wgrib2')
         grb2indexloc=self.getexe('grb2index')
+        if os.path.isdir(grb2indexloc): 
+            grb2indexloc=grb2indexloc+"/grb2index"
 
         if mode=='anal':
             TYPEx='hour fcst'

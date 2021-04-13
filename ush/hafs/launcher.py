@@ -1394,6 +1394,40 @@ class HAFSLauncher(HAFSConfig):
             logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
 
+        # Generate synop_gridspecs_ens if needed
+        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
+        synop_gridspecs_ens=self.getstr('post_ens','synop_gridspecs_ens','auto')
+        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
+        if synop_gridspecs_ens=='auto':
+            if output_grid=='rotated_latlon':
+                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
+                latlon_lat0=output_grid_cen_lat+output_grid_lat1
+                latlon_dlon=output_grid_dlon*grid_ratio_ens
+                latlon_dlat=output_grid_dlat*grid_ratio_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+            elif output_grid=='regional_latlon':
+                latlon_lon0=output_grid_lon1
+                latlon_lat0=output_grid_lat1
+                latlon_dlon=output_grid_dlon*grid_ratio_ens
+                latlon_dlat=output_grid_dlat*grid_ratio_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
+            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
+                latlon_lon0,latlon_nlon,latlon_dlon,
+                latlon_lat0,latlon_nlat,latlon_dlat)
+            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
+        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
+
+        # Set trker_gridspecs_ens if needed
+        trker_gridspecs_ens=self.getstr('post_ens','trker_gridspecs_ens','auto')
+        if trker_gridspecs_ens=='auto':
+            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
+            trker_gridspecs_ens=synop_gridspecs_ens
+            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
+        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
+
         run_ocean=self.getbool('config','run_ocean')
 
         # Set ocean_start_dtg if needed

@@ -1,18 +1,11 @@
 #!/bin/sh
 set -xeu
-
-build_dir=`pwd`
+cwd=`pwd`
 
 CP='cp -rp'
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  echo "Creating ../exec folder"
-  mkdir ../exec
-fi
-
 #------------------------------------
-# INCLUDE PARTIAL BUILD 
+# INCLUDE PARTIAL BUILD
 #------------------------------------
 
 . ./partial_build.sh
@@ -28,7 +21,6 @@ $Build_forecast && {
 # install utils
 #------------------------------------
 $Build_utils && {
-  ${CP} hafs_utils.fd/exec/global_chgres             ../exec/hafs_chgres.x
   ${CP} hafs_utils.fd/exec/chgres_cube               ../exec/hafs_chgres_cube.x
   ${CP} hafs_utils.fd/exec/orog                      ../exec/hafs_orog.x
   ${CP} hafs_utils.fd/exec/sfc_climo_gen             ../exec/hafs_sfc_climo_gen.x
@@ -62,14 +54,8 @@ $Build_vortextracker && {
 # install tools
 #------------------------------------
 $Build_tools && {
-  ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
-  ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
   ${CP} hafs_tools.fd/exec/hafs_analysis_update.x    ../exec/hafs_analysis_update.x
-  ${CP} hafs_tools.fd/exec/hafs_da_utils.x           ../exec/hafs_da_utils.x
-  ${CP} hafs_tools.fd/exec/hafs_file_check.x         ../exec/hafs_file_check.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x        ../exec/hafs_obs_preproc.x
-  ${CP} hafs_tools.fd/exec/hafs_post_utils.x         ../exec/hafs_post_utils.x
-  ${CP} hafs_tools.fd/exec/hafs_tc_diagnostics.x     ../exec/hafs_tc_diagnostics.x
   ${CP} hafs_tools.fd/exec/mpiserial.x               ../exec/hafs_mpiserial.x
 }
 
@@ -109,7 +95,7 @@ $Build_gsi && {
 }
 
 #------------------------------------
-# install hycom_utils 
+# install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
@@ -123,7 +109,6 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing        ../exec/hafs_timeinterp_forcing.x
 }
 
-
 echo;echo " .... Install system finished .... "
 
-exit 0
+exit

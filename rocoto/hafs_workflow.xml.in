@@ -7,7 +7,7 @@
   <!ENTITY COM_SCRUB_TIME "10800">
   <!ENTITY WORK_SCRUB_TIME "3600">
   <!ENTITY CYCLE_THROTTLE "5">
-  <!ENTITY TASK_THROTTLE "80">
+  <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
@@ -62,6 +62,7 @@
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
+  <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT:-NO]">
   <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
   <!ENTITY RUN_GSI_VR "@[RUN_GSI_VR]">
   <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
@@ -405,10 +406,10 @@
 @** if RUN_GSI_VR_FGAT==YES 
   <metatask name="analysis_vr_fgat">
     <var name="FGAT_HR">03 09</var>
-    <task name="analysis_vr_fgat_#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <task name="analysis_vr_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-      <jobname>hafs_analysis_vr_fgat_#FGAT_HR#&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat_#FGAT_HR#.log</cyclestr></join>
+      <jobname>hafs_analysis_vr_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat#FGAT_HR#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
@@ -477,6 +478,30 @@
   </task>
 @** endif
 @** endif
+
+@** if RUN_ATM_INIT==YES
+  <task name="atm_init" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATMINIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="chgres_ic"/>
+@** if gtype==regional
+        <metataskdep metatask="chgres_bc"/>
+@** endif
+      </and>
+    </dependency>
+  </task>
+@** endif
+
   <task name="forecast" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -591,6 +616,11 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
+        <!-- Wait until the deterministic forecast job is running or completed. -->
+        <or>
+          <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast"/>
+        </or>
       </and>
     </dependency>
   </task>

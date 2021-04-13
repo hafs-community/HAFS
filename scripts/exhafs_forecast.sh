@@ -1,17 +1,13 @@
-#!/bin/ksh
+#!/bin/sh
 
 set -xe
-
-#ulimit -s 6000000 
-#unlimited
-ulimit -s unlimited
-ulimit -a
 
 yr=`echo $CDATE | cut -c1-4`
 mn=`echo $CDATE | cut -c5-6`
 dy=`echo $CDATE | cut -c7-8`
 
 NDATE=${NDATE:-ndate}
+
 NCP='/bin/cp'
 NLN='ln -sf'
 
@@ -127,15 +123,19 @@ if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${P
   export RESTARTinp=${COMhafs}/RESTART_vi_ens/mem${ENSID}
 fi
 
-if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
-  export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
+  #export RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
+  export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}
   export warm_start_opt=4
 fi
 
-if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   export warmstart_from_restart=yes
-  export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
+  #export RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
+  export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
   export warm_start_opt=5
 fi
 
@@ -180,10 +180,11 @@ export output_grid_lat1=${output_grid_lat1:--30.0}
 export output_grid_lon2=${output_grid_lon2:-35.0}
 export output_grid_lat2=${output_grid_lat2:-30.0}
 export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
+export output_grid_dlat=${output_grid_dlat:-0.025}
 
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
+export deflate_level=${deflate_level:--1}
 export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
 export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
 export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
@@ -395,6 +396,7 @@ joffset=$(( (jstart_nest-1)/2 + 1))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
+    -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${glob_layoutx}/g" \
     -e "s/_layouty_/${glob_layouty}/g" \
     -e "s/_npx_/${glob_npx}/g" \
@@ -430,6 +432,7 @@ cp ${ccpp_suite_nest_xml} .
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
+    -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \
@@ -530,6 +533,7 @@ cp ${ccpp_suite_regional_xml} .
 
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
+    -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
     -e "s/_layouty_/${layouty}/g" \
     -e "s/_npx_/${npx}/g" \
@@ -653,8 +657,11 @@ cp ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 cp -p ${FORECASTEXEC} ./hafs_forecast.x
 
-${APRUNC} ./hafs_forecast.x 1>out.$CRES 2>err.$CRES
-export err=$?
+${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
+
+# Cat out and err into job log
+cat ./out.forecast
+cat ./err.forecast
 
 #-------------------------------------------------------------------
 # Deliver files to COM
@@ -686,5 +693,5 @@ fi
 
 fi
 
-exit $err
+exit
 

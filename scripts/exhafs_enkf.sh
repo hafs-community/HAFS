@@ -54,12 +54,14 @@ export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
-  export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
+  #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
+  export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens
 else
   export RESTARTens_inp=${COMhafsprior}/RESTART_ens
 fi
 
-export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
+#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
+export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 mkdir -p ${RESTARTens_anl}
 
 DATA=${DATA:-${WORKhafs}/enkf_mean}
@@ -81,6 +83,7 @@ if [ $ldo_enscalc_option -ne 2 ]; then # enkf_mean or enkf_update
   ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_tracer
   ncks -A -v ${tracer_list} fv3sar_tile1_${ensmean}_tracer fv3sar_tile1_${ensmean}_dynvars
   mv fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_dynvartracer
+  rm -f fv3sar_tile1_${ensmean}_tracer
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
   cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.sfc_data.nc fv3_sfcdata
   cp ${RESTARTens_inp}/${memstr}/grid_spec.nc fv3sar_tile1_grid_spec.nc
@@ -98,6 +101,7 @@ set -x
     ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_tracer
     ncks -A -v $tracer_list fv3sar_tile1_${memstr}_tracer fv3sar_tile1_${memstr}_dynvars
     mv fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_dynvartracer
+    rm -f fv3sar_tile1_${memstr}_tracer
 EOFprep
     chmod +x ./prep_dynvartracer_ens${memstr}.sh
     echo "./prep_dynvartracer_ens${memstr}.sh" >> cmdfile_prep_dynvartracer_ens
