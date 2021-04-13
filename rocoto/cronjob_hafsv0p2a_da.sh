@@ -33,8 +33,6 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
 
- dev="-s sites/orion_hafsv0p2da.ent -f"
-
  # h2db: hafsv0p2a with fgat+3denvar
  confh2db="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2db \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
