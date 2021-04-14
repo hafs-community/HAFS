@@ -1,30 +1,3 @@
-# Workaround for misconfigured or problematic clusters.  The TMPDIR
-# variable sets the directory for temporary files.  Sometimes this is
-# set to a location that does not exist or is in memory.  The $TMPDIR
-# variable is not always passed through to batch jobs.  This
-# workaround sets it to some other specified location from the
-# $HAFS_FORCE_ALT_TMPDIR or $HAFS_FORCE_TMPDIR variables.  We use
-# $HAFS_FORCE_TMPDIR as the default for all jobs, and allow per-job
-# overrides via $HAFS_FORCE_ALT_TMPDIR.  Such overrides are needed
-# only for jobs that are scrubbing the parent of the regular tmpdir,
-# or that run after that directory is removed.
-
-if [[ "Q${HAFS_FORCE_ALT_TMPDIR:-}" != "Q" ]] ; then
-    if [[ ! -d "$HAFS_FORCE_ALT_TMPDIR" ]] ; then
-        if ( mkdir -p "$HAFS_FORCE_ALT_TMPDIR" ) ; then
-            :  # trick to avoid triggering a set -e during a race condition
-        fi
-    fi
-    export TMPDIR="$HAFS_FORCE_ALT_TMPDIR"
-elif [[ "Q${HAFS_FORCE_TMPDIR:-}" != "Q" ]] ; then
-    if [[ ! -d "$HAFS_FORCE_TMPDIR" ]] ; then
-        if ( mkdir -p "$HAFS_FORCE_TMPDIR" ) ; then
-            :  # trick to avoid triggering a set -e during a race condition
-        fi
-    fi
-    export TMPDIR="$HAFS_FORCE_TMPDIR"
-fi
-
 # Create a test function for sh vs. bash detection.  The name is
 # randomly generated to reduce the chances of name collision.
 __ms_function_name="setup__test_function__$$"
