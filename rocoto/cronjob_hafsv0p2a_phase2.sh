@@ -14,8 +14,7 @@ date
 
 # NOAA RDHPCS Jet
 #HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-##dev="-s sites/xjet.ent -f"
-#dev="-s sites/xjet_hafsv0p2a.ent -f"
+#dev="-s sites/xjet.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
@@ -39,10 +38,10 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafsv0p2a_phase2_AL.conf \
      ../parm/hafs_hycom.conf"
 
- # Technical test for 2020082506-2020082512 13L2020
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
-     config.run_emcgraphics=no \
-     config.scrub_work=no config.scrub_com=no
+## Technical test for 2020082506-2020082512 13L2020
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
+#    config.run_emcgraphics=no \
+#    config.scrub_work=no config.scrub_com=no
 
 ## 2020 NATL storm slots
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020060112-2020060812 00L HISTORY ${confopts} # Slot 1.0: 03L

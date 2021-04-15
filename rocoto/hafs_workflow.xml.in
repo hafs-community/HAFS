@@ -635,7 +635,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &CHGRES_IC_RESOURCES;
+      &CHGRES_IC_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
@@ -678,7 +678,7 @@
         &RESERVATION;
         <queue>&QUEUE_PE;</queue>
         &PE_EXTRA;
-        &CHGRES_BC_RESOURCES;
+        &CHGRES_BC_ENS_RESOURCES;
         &ENV_VARS;
         <envar><name>ENSDA</name><value>YES</value></envar>
         <envar><name>ENSID</name><value>#MEM#</value></envar>

@@ -14,8 +14,7 @@ date
 
 # NOAA RDHPCS Jet
 #HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-##dev="-s sites/xjet.ent -f"
-#dev="-s sites/xjet_hafsv0p2a.ent -f"
+#dev="-s sites/xjet.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
@@ -33,8 +32,6 @@ cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
-
- dev="-s sites/orion_hafsv0p2da.ent -f"
 
  # h2db: hafsv0p2a with fgat+3denvar
  confh2db="config.EXPT=${EXPT} config.SUBEXPT=hafs_h2db \
@@ -66,11 +63,18 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafsv0p2a_da_AL.conf \
      ../parm/hafs_hycom.conf"
 
- confopts=${confh2dc}
- # Technical test for 2020082506-2020082512 13L2020
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
-     config.run_emcgraphics=no \
-     config.scrub_work=no config.scrub_com=no
+ # On Orion use 40x30 PEs for FV3ATM to reduce the forecast job hanging while
+ # writing restart files
+ confopts="${confh2db} forecast.layoutx=40 forecast.layouty=30"
+#confopts="${confh2dc} forecast.layoutx=40 forecast.layouty=30"
+## On other platforms, use 48x30 PEs for FV3ATM
+#confopts=${confh2db}
+#confopts=${confh2dc}
+
+## Technical test for 2020082506-2020082512 13L2020
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
+#    config.run_emcgraphics=no \
+#    config.scrub_work=no config.scrub_com=no
 
 ## 2020 NATL storm slots
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020060112-2020060812 00L HISTORY ${confopts} # Slot 1.0: 03L
