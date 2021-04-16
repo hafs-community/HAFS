@@ -151,13 +151,11 @@ if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${PDY}.${cyc}0000.f
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_vi
 fi
-#if [ ${warm_start_opt} -eq 4 ] && [ ${RUN_GSI_VR} = yes ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_analysis_vr
   warm_start_opt=4
 fi
-#if [ ${warm_start_opt} -eq 5 ] && [ ${RUN_GSI} = yes ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_analysis
@@ -193,7 +191,7 @@ if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${
   warm_start_opt=5
 fi
 
-fi # ${ENSDA} != "YES" 
+fi # ${ENSDA} != "YES"
 
 # For warm start from restart files
 if [ ${warmstart_from_restart} = yes ]; then
@@ -269,33 +267,13 @@ if [ ${ENSDA} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
-else
+elif [ ${RUN_GSI} = YES -o ${RUN_GSI_VR} = YES]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
-fi
-
-# Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
-if [ ${ENSDA} = YES ]; then
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc RESTART/
-  fi
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc RESTART/
-  fi
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc RESTART/
-  fi
 else
-  if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/grid_spec.nc RESTART/
-  fi
-  if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/atmos_static.nc RESTART/
-  fi
-  if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/oro_data.nc RESTART/
-  fi
+  RESTARTout=${RESTARTout:-./RESTART}
+  mkdir -p ${RESTARTout}
 fi
 
 # Link the input IC and/or LBC files into the INPUT dir
@@ -354,7 +332,7 @@ fi
 
 if [ $gtype = nest ]; then
 
-# Copy tile data and orography
+# Copy grid and orography
 tile=1
 while [ $tile -le $ntiles ]; do
   ${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.nc INPUT/oro_data.tile${tile}.nc
@@ -583,11 +561,32 @@ if [ ${run_ocean} = yes ];  then
   ${USHhafs}/hafs_hycom_limits.py ${CDATE}
 fi #if [ ${run_ocean} = yes ];  then
 
+# Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
+if [ ${ENSDA} = YES ]; then
+  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc RESTART/
+  fi
+  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc RESTART/
+  fi
+  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc RESTART/
+  fi
+else
+  if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART/grid_spec.nc RESTART/
+  fi
+  if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART/atmos_static.nc RESTART/
+  fi
+  if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
+    ${NCP} -p ${COMhafsprior}/RESTART/oro_data.nc RESTART/
+  fi
+fi
+
 fi #if [ $gtype = nest ]; then
-  
-#-------------------------------------------------------------------
+
 # Generate diag_table, model_configure from their tempelates
-#-------------------------------------------------------------------
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
@@ -631,6 +630,8 @@ ${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
 cat ./out.forecast
 cat ./err.forecast
 
+if [ $gtype = regional ]; then
+
 # Rename the restart files with a proper convention if needed
 cd RESTART
 CDATEnhrs=`${NDATE} +${NHRS} $CDATE`
@@ -645,16 +646,16 @@ fi
 cd ${DATA}
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
-if [ $gtype = regional ]; then
-  if [ ! -s RESTART/grid_spec.nc ]; then
-    ${NCP} -p grid_spec.nc RESTART/
-  fi
-  if [ ! -s RESTART/atmos_static.nc ]; then
-    ${NCP} -p atmos_static.nc RESTART/
-  fi
-  if [ ! -s RESTART/oro_data.nc ]; then
-    ${NCP} -pL INPUT/oro_data.nc RESTART/
-  fi
+if [ ! -s RESTART/grid_spec.nc ]; then
+  ${NCP} -p grid_spec.nc RESTART/
 fi
+if [ ! -s RESTART/atmos_static.nc ]; then
+  ${NCP} -p atmos_static.nc RESTART/
+fi
+if [ ! -s RESTART/oro_data.nc ]; then
+  ${NCP} -pL INPUT/oro_data.nc RESTART/
+fi
+
+fi # if [ $gtype = regional ]; then
 
 exit
