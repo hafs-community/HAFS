@@ -874,7 +874,7 @@
   <metatask name="atm_post_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="atm_post_ens#MEM#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_POST</command>
+      <command>&JOBhafs;/JHAFS_ATM_POST</command>
       <jobname>hafs_atm_post_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
       <join><cyclestr>&WORKhafs;/hafs_atm_post_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
