@@ -267,7 +267,7 @@ if [ ${ENSDA} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
-elif [ ${RUN_GSI} = YES -o ${RUN_GSI_VR} = YES]; then
+elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
