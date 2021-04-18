@@ -16,11 +16,10 @@ source ${HOLDVARS:-storm1.holdvars.txt}
 export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "$RUN_ENVIR" != nco ]; then
-  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
-  module load fv3
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
+  module load ufs_${machine}
   module list
-  env
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
@@ -41,7 +40,7 @@ export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
 
-# Deterministic/ensemble forecast
+# Deterministic or ensemble
 if [ "${ENSDA}" != YES ]; then
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}

@@ -15,12 +15,15 @@ conf=hafs.launcher.load(environ_CONFhafs)
 logger=conf.log('hycompost')
 logger.info("hycompost started")
 
+DATA=os.environ.get('DATA',conf.getloc('WORKhafs','.')+"/ocn_post")
 fcstlen=conf.getint('config','NHRS',126)
-filename=conf.getloc('WORKhafs','NONE')+"/hycompost_state.sqlite3"
+
+filename=DATA+"/hycompost_state.sqlite3"
 remove_file(filename)
 ds=Datastore(filename,logger=logger)
 
-hycompost=hafs.hycom.HYCOMPost(dstore=ds,conf=conf,section='hycompost',fcstlen=fcstlen)
+hycompostworkdir=DATA+"/hycompost"
+hycompost=hafs.hycom.HYCOMPost(dstore=ds,conf=conf,section='hycompost',workdir=hycompostworkdir,fcstlen=fcstlen)
 hycompost.run()
 
 logger.info("hycompost done")

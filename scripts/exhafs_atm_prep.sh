@@ -2,40 +2,63 @@
 
 set -xe
 
-TOTAL_TASKS=${TOTAL_TASKS:-4}
-NCTSK=${NCTSK:-4}
+NCP=${NCP:-'/bin/cp'}
+NLN=${NLN:-'/bin/ln -sf'}
+NDATE=${NDATE:-ndate}
+
+TOTAL_TASKS=${TOTAL_TASKS:-2016}
+NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
-OMP_NUM_THREADS=${OMP_NUM_THREADS:-6}
+OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
-KMP_STACKSIZE=${KMP_STACKSIZE:-1024m}
-APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
-APRUNF=${APRUNF:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 export APRUN=time
 
 CDATE=${CDATE:-${YMDH}}
-CASE=${CASE:-C768}
-CRES=`echo $CASE | cut -c 2-`
+cyc=${cyc:-00}
+STORM=${STORM:-FAKE}
+STORMID=${STORMID:-00L}
+
+export ENSDA=${ENSDA:-NO}
+if [ ${ENSDA} != YES ]; then
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}
+  export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+  export LEVS=${LEVS:-65}
+  export istart_nest=${istart_nest:-46}
+  export jstart_nest=${jstart_nest:-238}
+  export iend_nest=${iend_nest:-1485}
+  export jend_nest=${jend_nest:-1287}
+  export stretch_fac=${stretch_fac:-1.0001}
+  export target_lon=${target_lon:--62.0}
+  export target_lat=${target_lat:-22.0}
+  export refine_ratio=${refine_ratio:-4}
+else
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}
+  export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
+  export LEVS=${LEVS_ENS:-65}
+  export istart_nest=${istart_nest_ens:-46}
+  export jstart_nest=${jstart_nest_ens:-238}
+  export iend_nest=${iend_nest_ens:-1485}
+  export jend_nest=${jend_nest_ens:-1287}
+  export stretch_fac=${stretch_fac_ens:-1.0001}
+  export target_lon=${target_lon_ens:--62.0}
+  export target_lat=${target_lat_ens:-22.0}
+  export refine_ratio=${refine_ratio_ens:-4}
+fi
 export res=${res:-$CRES}
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or stand alone regional
+export halo=${halo:-3}
+export halop1=${halop1:-4}
+export halo0=${halo0:-0}
+export NTRAC=7
 
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-COMhafs=${COMhafs:-${COMOUT}}
-USHhafs=${USHhafs:-${HOMEhafs}/ush}
-PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-
-FIXam=${FIXhafs}/fix_am
-FIXorog=${FIXhafs}/fix_orog
-FIXfv3=${FIXhafs}/fix_fv3
-FIXsfc_climo=${FIXhafs}/fix_sfc_climo
-
-export script_dir=${USHhafs}
-export exec_dir=${EXEChafs}
-export out_dir=${OUTDIR:-${WORKhafs}/intercom/grid}
-export DATA=${DATA:-${WORKhafs}/grid}
+export FIXam=${FIXhafs}/fix_am
+export FIXorog=${FIXhafs}/fix_orog
+export FIXfv3=${FIXhafs}/fix_fv3
+export FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
 export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
 export MAKEMOSAICEXEC=${EXEChafs}/hafs_make_solo_mosaic.x
@@ -49,18 +72,19 @@ export MAKEGRIDSSH=${USHhafs}/hafs_make_grid.sh
 export MAKEOROGSSH=${USHhafs}/hafs_make_orog.sh
 export FILTERTOPOSSH=${USHhafs}/hafs_filter_topo.sh
 
-machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
-
-date
-
 export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+export script_dir=${USHhafs}
+export exec_dir=${EXEChafs}
+export out_dir=${OUTDIR:-${WORKhafs}/intercom/grid}
+export DATA=${DATA:-${WORKhafs}/atm_prep}
+
 # If gridfixdir is specified and exists, use the grid fix files directly
 if [ -d $gridfixdir ]; then
   echo "$gridfixdir is specified and exists."
   echo "Copy the grid fix files directly."
   cp -rp $gridfixdir/* ${out_dir}/
   ls ${out_dir}
-  exit 0
+  exit
 fi
 
 # Otherwise, generate grid according to the following parameters

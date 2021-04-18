@@ -48,7 +48,6 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
-    #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -133,20 +132,3 @@ if [[ "$moduleuse" != no ]] ; then
   module use $moduleuse 
   module load modulefile.hafs.$WHERE_AM_I
 fi
-
-# Avoild "NetCDF: HDF error"
-export HDF5_USE_FILE_LOCKING=FALSE
-
-set +u
-if [[ "Q${utilexec:-}" != Q ]] ; then
-  export PATH=$utilexec:$PATH
-fi
-if [[ "Q${EXEChafs:-}" != Q ]] ; then
-  export PATH=$EXEChafs:$PATH
-elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
-  export PATH=$HOMEhafs/exec:$PATH
-fi
-if [[ "$target" == "wcoss_dell_p3" ]]; then
-  export PYTHONPATH=$PYTHONPATH:$HOMEhafs/ush
-fi
-set -u

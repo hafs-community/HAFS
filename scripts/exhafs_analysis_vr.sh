@@ -2,6 +2,24 @@
 
 set -xe
 
+if [ ${ENSDA} = YES ]; then
+  export NHRS=${NHRS_ENS:-126}
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export NOUTHRS=${NOUTHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NHRS=${NHRS:-126}
+  export NBDYHRS=${NBDYHRS:-3}
+  export NOUTHRS=${NOUTHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}
+  export LEVS=${LEVS:-65}
+fi
+
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}

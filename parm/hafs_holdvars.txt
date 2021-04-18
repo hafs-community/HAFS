@@ -186,7 +186,6 @@ export CENLO={domlon}
 export CENLA={domlat}
 
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
-    export NWPROD={HOMEhafs}/nwport
     export EXPT={EXPT}
     export SUBEXPT={SUBEXPT}
     export WHERE_AM_I={ENVEQUIV}

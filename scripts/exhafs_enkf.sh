@@ -14,6 +14,24 @@ NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
+if [ ${ENSDA} = YES ]; then
+  export NHRS=${NHRS_ENS:-126}
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export NOUTHRS=${NOUTHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NHRS=${NHRS:-126}
+  export NBDYHRS=${NBDYHRS:-3}
+  export NOUTHRS=${NOUTHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}
+  export LEVS=${LEVS:-65}
+fi
+
 # Utilities
 NDATE=${NDATE:-ndate}
 export NCP=${NCP:-"/bin/cp"}

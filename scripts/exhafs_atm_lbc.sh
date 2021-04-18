@@ -2,55 +2,97 @@
 
 set -xe
 
-CASE=${CASE:-C768}
-CRES=`echo $CASE | cut -c 2-`
+NCP=${NCP:-'/bin/cp'}
+NLN=${NLN:-'/bin/ln -sf'}
+NDATE=${NDATE:-ndate}
+
+TOTAL_TASKS=${TOTAL_TASKS:-2016}
+NCTSK=${NCTSK:-12}
+NCNODE=${NCNODE:-24}
+OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+
+CDATE=${CDATE:-${YMDH}}
+cyc=${cyc:-00}
+STORM=${STORM:-FAKE}
+STORMID=${STORMID:-00L}
+
+ymd=`echo $CDATE | cut -c 1-8`
+month=`echo $CDATE | cut -c 5-6`
+day=`echo $CDATE | cut -c 7-8`
+hour=`echo $CDATE | cut -c 9-10`
+CDATEprior=`${NDATE} -6 $CDATE`
+PDY_prior=`echo ${CDATEprior} | cut -c1-8`
+cyc_prior=`echo ${CDATEprior} | cut -c9-10`
+
+WGRIB2=${WGRIB2:-wgrib2}
+CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
+
+ENSDA=${ENSDA:-NO}
+
+# Set options specific to the deterministic/ensemble forecast
+if [ ${ENSDA} != YES ]; then
+  NBDYHRS=${NBDYHRS:-3}
+  CASE=${CASE:-C768}
+  CRES=`echo $CASE | cut -c 2-`
+  gtype=${gtype:-regional}
+  ictype=${ictype:-gfsnemsio}
+  bctype=${bctype:-gfsnemsio}
+  LEVS=${LEVS:-65}
+  GRID_intercom=${WORKhafs}/intercom/grid
+  FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
+  FHRI=$(( ${BC_GROUPN} * ${NBDYHRS} ))
+  FHRE=${NHRS}
+else
+  NBDYHRS=${NBDYHRS_ENS:-3}
+  CASE=${CASE_ENS:-C768}
+  CRES=`echo $CASE | cut -c 2-`
+  gtype=${gtype_ens:-regional}
+  ictype=${ictype_ens:-gfsnemsio}
+  bctype=${bctype_ens:-gfsnemsio}
+  LEVS=${LEVS_ENS:-65}
+  GRID_intercom=${WORKhafs}/intercom/grid_ens
+  FHRB=$(( ${BC_GROUPI} * ${NBDYHRS_ENS} ))
+  FHRI=$(( ${BC_GROUPN} * ${NBDYHRS_ENS} ))
+  FHRE=${NHRS_ENS}
+fi
+
+export REGIONAL=2
+
+export NTRAC=7
+halo_blend=${halo_blend:-0}
+vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
+
+if [ "${gtype}" != "regional" ]; then
+  echo "INFO: ${gtype} not a regional run."
+  echo "INFO: No need to run chgres_bc."
+  exit
+fi
 
 if [ ${ENSDA} = YES ]; then
  CDUMP=gdas                   # gfs or gdas
 else
  CDUMP=gfs                   # gfs or gdas
 fi
-LEVS=${LEVS:-65}
-gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
-ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
-bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
-REGIONAL=${REGIONAL:-0}
-halo_blend=${halo_blend:-0}
 
-if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ];  then
- echo "gtype: $gtype"
- echo "No need to run chgres_bc."
- exit
-fi
-
-CDATE=${CDATE:-${YMDH}}
-cyc=${cyc:-00}
-ymd=`echo $CDATE | cut -c 1-8`
-month=`echo $CDATE | cut -c 5-6`
-day=`echo $CDATE | cut -c 7-8`
-hour=`echo $CDATE | cut -c 9-10`
-
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-COMhafs=${COMhafs:-${COMOUT}}
-USHhafs=${USHhafs:-${HOMEhafs}/ush}
-PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-
-vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
-
-WGRIB2=${WGRIB2:-wgrib2}
-CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
-
-if [ ${ENSDA} = YES ]; then
-  GRID_intercom=${WORKhafs}/intercom/grid_ens
+if [ $GFSVER = "PROD2021" ]; then
+ if [ ${ENSDA} = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
+ else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+ fi
+elif [ $GFSVER = "PROD2019" ]; then
+ if [ ${ENSDA} = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/mem${ENSID}
+ else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+ fi
 else
-  GRID_intercom=${WORKhafs}/intercom/grid
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 fi
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-DATA=${DATA:-${WORKhafs}/chgres_bc}
+DATA=${DATA:-${WORKhafs}/atm_lbc}
 mkdir -p ${OUTDIR} ${DATA}
 
 FHRB=${FHRB:-${NBDYHRS}}

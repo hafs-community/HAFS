@@ -7,6 +7,7 @@ export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
+export LEVS=${LEVS:-65}
 export use_bufr_nr=${use_bufr_nr:-no}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 

@@ -197,15 +197,15 @@
     </dependency>
   </task>
 
-  <task name="grid" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_GRID</command>
-    <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
+  <task name="atm_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_PREP</command>
+    <jobname>hafs_atm_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &GRID_RESOURCES;
+    &ATM_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -215,20 +215,20 @@
     </dependency>
   </task>
 
-  <task name="chgres_ic" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
-    <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr></join>
+  <task name="atm_ic" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_IC</command>
+    <jobname>hafs_atm_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_ic.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &CHGRES_IC_RESOURCES;
+    &ATM_IC_RESOURCES;
     &ENV_VARS;
 
     <dependency>
       <and>
-        <taskdep task="grid"/> 
+        <taskdep task="atm_prep"/>
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -251,24 +251,24 @@
   </task>
 
 @** if gtype==regional
-  <metatask name="chgres_bc">
+  <metatask name="atm_lbc">
     <var name="group">001 002 003 004 005 006</var>
-    <task name="chgres_bc#group#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
-      <jobname>hafs_chgres_bc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_chgres_bc#group#.log</cyclestr></join>
+    <task name="atm_lbc#group#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_LBC</command>
+      <jobname>hafs_atm_lbc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &CHGRES_BC_RESOURCES;
+      &ATM_LBC_RESOURCES;
       &ENV_VARS;
       <envar><name>BC_GROUPN</name><value>6</value></envar>
       <envar><name>BC_GROUPI</name><value>#group#</value></envar>
 
       <dependency>
         <and>
-          <taskdep task="grid"/>
+          <taskdep task="atm_prep"/>
           <or>
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -292,21 +292,20 @@
   </metatask>
 
 @** if RUN_OCEAN==YES
-  <task name="hycominit1" maxtries="&MAX_TRIES;">
-    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
-    <jobname>hafs_hycominit1_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycominit1.log</cyclestr></join>
+  <task name="ocn_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_PREP</command>
+    <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &HYCOMINIT_RESOURCES;
+    &OCN_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
       <and>
-        <taskdep task="grid"/>
+        <taskdep task="atm_prep"/>
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -333,34 +332,6 @@
               <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a.tgz</cyclestr></datadep>
             </or>
           </or>
-        </and>
-      </and>
-    </dependency>
-  </task>
-
-  <task name="hycominit2" maxtries="&MAX_TRIES;">
-    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycominit2.py</command>
-    <jobname>hafs_hycominit2_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycominit2.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &HYCOMINIT_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <and>
-        <taskdep task="grid"/>
-        <or>
-          <taskdep task="input"/>
-          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
-        </or>
-        <!-- Second dependency: the GFS output must be available -->
-        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
-        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
-        <and>
 @** if GFSVER==PROD2019
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
 @** endif
@@ -371,7 +342,6 @@
       </and>
     </dependency>
   </task>
-
 @** endif
 
 @** if RUN_GSI_VR==YES
@@ -388,7 +358,7 @@
 
     <dependency>
       <and>
-        <taskdep task="chgres_ic"/>
+        <taskdep task="atm_ic"/>
 	<streq><left>&RUN_GSI_VR;</left><right>YES</right></streq>
 	<or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
@@ -420,7 +390,7 @@
       <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
       <dependency>
         <and>
-          <taskdep task="chgres_ic"/>
+          <taskdep task="atm_ic"/>
           <streq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
@@ -449,7 +419,7 @@
     &ENV_VARS;
     <dependency>
       <and>
-        <taskdep task="chgres_ic"/>
+        <taskdep task="atm_ic"/>
 	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
 @** if RUN_GSI_VR==YES
 	<or>
@@ -488,14 +458,14 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &ATMINIT_RESOURCES;
+    &ATM_INIT_RESOURCES;
     &ENV_VARS;
 
     <dependency>
       <and>
-        <taskdep task="chgres_ic"/>
+        <taskdep task="atm_ic"/>
 @** if gtype==regional
-        <metataskdep metatask="chgres_bc"/>
+        <metataskdep metatask="atm_lbc"/>
 @** endif
       </and>
     </dependency>
@@ -515,12 +485,11 @@
 
     <dependency>
       <and>
-        <taskdep task="chgres_ic"/>
+        <taskdep task="atm_ic"/>
 @** if gtype==regional
-        <metataskdep metatask="chgres_bc"/>
+        <metataskdep metatask="atm_lbc"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycominit1"/>
-        <taskdep task="hycominit2"/>
+        <taskdep task="ocn_prep"/>
 @** endif
 @** if RUN_GSI==YES
         <taskdep task="analysis"/>
@@ -534,19 +503,19 @@
     </dependency>
   </task>
 
-  <task name="post" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_POST</command>
-    <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
+  <task name="atm_post" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_POST</command>
+    <jobname>hafs_atm_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &POST_RESOURCES;
+    &ATM_POST_RESOURCES;
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the post if the forecast is running or if it has
+      <!-- Start the atm_post if the forecast is running or if it has
            already completed. -->
       <or>
         <taskdep task="forecast" state="RUNNING"/>
@@ -556,20 +525,19 @@
   </task>
 
 @** if RUN_OCEAN==YES
-  <task name="hycompost" maxtries="&MAX_TRIES;">
-    <!--<command>&PRE; &EXhafs;/exhafs_hycompost.py</command>-->
-    <command>&JOBhafs;/JHAFS_HYCOMPOST</command>
-    <jobname>hafs_hycompost_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycompost.log</cyclestr></join>
+  <task name="ocn_post" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_POST</command>
+    <jobname>hafs_ocn_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &HYCOMPOST_RESOURCES;
+    &OCN_POST_RESOURCES;
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the post if the forecast is running or if it has
+      <!-- Start the ocn_post if the forecast is running or if it has
            already completed. -->
       <or>
         <taskdep task="forecast" state="RUNNING"/>
@@ -591,25 +559,25 @@
     &ENV_VARS;
 
     <dependency>
-     <!-- Start the tracker if the post is running or if it has
+     <!-- Start the tracker if the atm_post is running or if it has
           already completed. -->
       <or>
-        <taskdep task="post" state="RUNNING"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post" state="RUNNING"/>
+        <taskdep task="atm_post"/>
       </or>
     </dependency>
   </task>
 
 @** if RUN_ENSDA==YES
-  <task name="grid_ens" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_GRID</command>
-    <jobname>hafs_grid_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_grid_ens.log</cyclestr></join>
+  <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_PREP</command>
+    <jobname>hafs_atm_prep_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_prep_ens.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &GRID_RESOURCES;
+    &ATM_PREP_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
 
@@ -625,24 +593,24 @@
     </dependency>
   </task>
 
-  <metatask name="chgres_ic_ens" mode="parallel">
+  <metatask name="atm_ic_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
-    <task name="chgres_ic_ens#MEM#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
-      <jobname>hafs_chgres_ic_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_chgres_ic_ens#MEM#.log</cyclestr></join>
+    <task name="atm_ic_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_IC</command>
+      <jobname>hafs_atm_ic_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_ic_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &CHGRES_IC_ENS_RESOURCES;
+      &ATM_IC_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
         <and>
-          <taskdep task="grid_ens"/>
+          <taskdep task="atm_prep_ens"/>
           <or>
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -666,19 +634,19 @@
   </metatask>
 
 @** if gtype==regional
-  <metatask name="chgres_bc_ens">
+  <metatask name="atm_lbc_ens">
     <var name="MEM">&ENSIDS;</var>
-    <metatask name="chgres_bcgrp_ens">
+    <metatask name="atm_lbcgrp_ens">
       <var name="group">001</var>
-      <task name="chgres_bc#group#_ens#MEM#" maxtries="&MAX_TRIES;">
-        <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
-        <jobname>hafs_chgres_bc#group#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-        <join><cyclestr>&WORKhafs;/hafs_chgres_bc#group#_ens#MEM#.log</cyclestr></join>
+      <task name="atm_lbc#group#_ens#MEM#" maxtries="&MAX_TRIES;">
+        <command>&JOBhafs;/JHAFS_ATM_LBC</command>
+        <jobname>hafs_atm_lbc#group#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+        <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#_ens#MEM#.log</cyclestr></join>
         <account>&ACCOUNT;</account>
         &RESERVATION;
         <queue>&QUEUE_PE;</queue>
         &PE_EXTRA;
-        &CHGRES_BC_ENS_RESOURCES;
+        &ATM_LBC_ENS_RESOURCES;
         &ENV_VARS;
         <envar><name>ENSDA</name><value>YES</value></envar>
         <envar><name>ENSID</name><value>#MEM#</value></envar>
@@ -687,7 +655,7 @@
 
         <dependency>
           <and>
-            <taskdep task="grid_ens"/>
+            <taskdep task="atm_prep_ens"/>
             <or>
               <taskdep task="input"/>
               <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -728,7 +696,7 @@
 
       <dependency>
         <and>
-          <taskdep task="chgres_ic_ens#MEM#"/>
+          <taskdep task="atm_ic_ens#MEM#"/>
           <streq><left>&RUN_GSI_VR_ENS;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
@@ -879,12 +847,11 @@
 
       <dependency>
         <and>
-          <metataskdep metatask="chgres_ic_ens"/>
+          <metataskdep metatask="atm_ic_ens"/>
 @** if gtype==regional
-          <metataskdep metatask="chgres_bc_ens"/>
+          <metataskdep metatask="atm_lbc_ens"/>
 @** if RUN_OCEAN==YES
-          <taskdep task="hycominit1"/>
-          <taskdep task="hycominit2"/>
+          <taskdep task="ocn_prep"/>
 @** endif
 @** if RUN_GSI_VR_ENS==YES
           <or>
@@ -904,23 +871,23 @@
     </task>
   </metatask>
 
-  <metatask name="post_ens" mode="parallel">
+  <metatask name="atm_post_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
-    <task name="post_ens#MEM#" maxtries="&MAX_TRIES;">
+    <task name="atm_post_ens#MEM#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_POST</command>
-      <jobname>hafs_post_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_post_ens#MEM#.log</cyclestr></join>
+      <jobname>hafs_atm_post_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_post_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &POST_RESOURCES;
+      &ATM_POST_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
-        <!-- Start the post if the forecast is running or if it has
+        <!-- Start the atm_post if the forecast is running or if it has
                                      already completed. -->
         <or>
           <taskdep task="forecast_ens#MEM#" state="RUNNING"/>
@@ -946,11 +913,11 @@
       <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
-       <!-- Start the tracker if the post is running or if it has
+       <!-- Start the tracker if the atm_post is running or if it has
             already completed. -->
         <or>
-          <taskdep task="post_ens#MEM#" state="RUNNING"/>
-          <taskdep task="post_ens#MEM#"/>
+          <taskdep task="atm_post_ens#MEM#" state="RUNNING"/>
+          <taskdep task="atm_post_ens#MEM#"/>
         </or>
       </dependency>
     </task>
@@ -1025,9 +992,9 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycompost"/>
+        <taskdep task="ocn_post"/>
 @** endif
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES
@@ -1062,9 +1029,9 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycompost"/>
+        <taskdep task="ocn_post"/>
 @** endif
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES
@@ -1201,7 +1168,7 @@
     <dependency>
       <or>
         <and>
-          <taskdep task="post"/>
+          <taskdep task="atm_post"/>
           <taskdep task="product"/>
         </and>
 
