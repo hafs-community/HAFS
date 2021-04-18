@@ -728,7 +728,7 @@
 
     <dependency>
       <and>
-        <taskdep task="grid_ens"/>
+        <taskdep task="atm_prep_ens"/>
         <cycleexistdep cycle_offset="-6:00:00"/>
 	<streq><left>&RUN_ENKF;</left><right>YES</right></streq>
         <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
