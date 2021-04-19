@@ -391,7 +391,7 @@ cat>./fort.41<<EOF
 /
 EOF
 
-cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+#cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
 #${APRUNC} ${CHGRESCUBEEXEC}
 

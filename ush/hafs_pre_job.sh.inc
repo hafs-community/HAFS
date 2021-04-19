@@ -81,7 +81,6 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     module use /opt/cray/ari/modulefiles
     module use /opt/modulefiles
     module load modules
-
 elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # We are on NOAA Venus or Mars
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -127,8 +126,7 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
-moduleuse=$HOMEhafs/modulefiles
-if [[ "$moduleuse" != no ]] ; then
-  module use $moduleuse 
+if [[ Q"${HOMEhafs:-}" != "Q" ]]; then
+  module use $HOMEhafs/modulefiles
   module load modulefile.hafs.$WHERE_AM_I
 fi
