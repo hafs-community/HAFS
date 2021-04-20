@@ -16,7 +16,7 @@ module load craype-haswell
 
 module load hpss/4.1.0.3
 module load cfp-intel-sandybridge/2.0.1
-#module load cray-mpich/7.2.0
+module load cray-mpich/7.2.0
 
 module load cmake/3.16.2
 module load gcc/5.3.0
