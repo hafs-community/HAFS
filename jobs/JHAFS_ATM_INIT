@@ -20,7 +20,6 @@ if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
   module load ufs_${machine}
   module list
-  env
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc

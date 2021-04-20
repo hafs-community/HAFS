@@ -1,6 +1,17 @@
 #! /usr/bin/env python3
 
 import os, sys, logging
+
+if 'USHhafs' in os.environ:
+    sys.path.append(os.environ['USHhafs'])
+elif 'HOMEhafs' in os.environ:
+    sys.path.append(os.path.join(os.environ['HOMEhafs'],'ush'))
+else:
+    guess_HOMEhafs=os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__)))
+    guess_USHhafs=os.path.join(guess_HOMEhafs,'ush')
+    sys.path.append(guess_USHhafs)
+
 import produtil.setup, produtil.datastore, produtil.fileop
 from produtil.datastore import Datastore
 from produtil.fileop import deliver_file, remove_file

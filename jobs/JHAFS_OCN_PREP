@@ -20,7 +20,6 @@ if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/modulefiles
   module load modulefile.hafs.${machine}
   module list
-  env
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc

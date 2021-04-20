@@ -20,7 +20,6 @@ if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
   module load build.${machine}.intel
   module list
-  env
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
