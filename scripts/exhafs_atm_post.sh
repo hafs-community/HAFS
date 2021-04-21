@@ -2,6 +2,28 @@
 
 set -xe
 
+if [ ${ENSDA} = YES ]; then
+  export NHRS=${NHRS_ENS:-126}
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export NOUTHRS=${NOUTHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}
+  export LEVS=${LEVS_ENS:-65}
+  export synop_gridspecs=${synop_gridspecs_ens:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+  export trker_gridspecs=${trker_gridspecs_ens:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+else
+  export NHRS=${NHRS:-126}
+  export NBDYHRS=${NBDYHRS:-3}
+  export NOUTHRS=${NOUTHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}
+  export LEVS=${LEVS:-65}
+  export synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+  export trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
+fi
+
 TOTAL_TASKS=${TOTAL_TASKS:-144}
 NCTSK=${NCTSK:-24}
 NCNODE=${NCNODE:-24}
@@ -16,7 +38,7 @@ CDATE=${CDATE:-${YMDH}}
 NHRS=${NHRS:-126}
 NOUTHRS=${NOUTHRS:-3}
 
-POSTEXEC=${POSTEXEC:-${EXEChafs}/exec/hafs_post.x}
+POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
 MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 NDATE=${NDATE:-ndate}
 WGRIB2=${WGRIB2:-wgrib2}
@@ -34,7 +56,7 @@ synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
-DATA=${DATA:-${WORKhafs}/post}
+DATA=${DATA:-${WORKhafs}/atm_post}
 
 IFHR=0
 FHR=0

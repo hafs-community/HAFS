@@ -1362,7 +1362,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
 
         # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('post','synop_gridspecs','auto')
+        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
         # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
         if synop_gridspecs=='auto':
             if output_grid=='rotated_latlon':
@@ -1387,7 +1387,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','synop_gridspecs',synop_gridspecs)
 
         # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('post','trker_gridspecs','auto')
+        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
         if trker_gridspecs=='auto':
             logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
             trker_gridspecs=synop_gridspecs
@@ -1396,7 +1396,7 @@ class HAFSLauncher(HAFSConfig):
 
         # Generate synop_gridspecs_ens if needed
         grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
-        synop_gridspecs_ens=self.getstr('post_ens','synop_gridspecs_ens','auto')
+        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
         # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
         if synop_gridspecs_ens=='auto':
             if output_grid=='rotated_latlon':
@@ -1421,7 +1421,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
 
         # Set trker_gridspecs_ens if needed
-        trker_gridspecs_ens=self.getstr('post_ens','trker_gridspecs_ens','auto')
+        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
         if trker_gridspecs_ens=='auto':
             logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
             trker_gridspecs_ens=synop_gridspecs_ens

@@ -14,7 +14,8 @@ date
 
 # NOAA RDHPCS Jet
 #HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#dev="-s sites/xjet.ent -f"
+##dev="-s sites/xjet.ent -f"
+#dev="-s sites/xjet_hafsv0p2a.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion

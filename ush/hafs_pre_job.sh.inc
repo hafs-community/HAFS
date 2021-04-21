@@ -48,7 +48,6 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
-    #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -82,7 +81,6 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     module use /opt/cray/ari/modulefiles
     module use /opt/modulefiles
     module load modules
-
 elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # We are on NOAA Venus or Mars
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -92,7 +90,6 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     target=wcoss_dell_p3
     module purge
     source /usrx/local/prod/lmod/lmod/init/$__ms_shell
-    module load EnvVars/1.0.2
 elif [[ -d /glade ]] ; then
     # We are on NCAR Yellowstone
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -128,25 +125,7 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
-moduleuse=$HOMEhafs/modulefiles
-if [[ "$moduleuse" != no ]] ; then
-  module use $moduleuse 
+if [[ Q"${HOMEhafs:-}" != "Q" ]]; then
+  module use $HOMEhafs/modulefiles
   module load modulefile.hafs.$WHERE_AM_I
 fi
-
-# Avoild "NetCDF: HDF error"
-export HDF5_USE_FILE_LOCKING=FALSE
-
-set +u
-if [[ "Q${utilexec:-}" != Q ]] ; then
-  export PATH=$utilexec:$PATH
-fi
-if [[ "Q${EXEChafs:-}" != Q ]] ; then
-  export PATH=$EXEChafs:$PATH
-elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
-  export PATH=$HOMEhafs/exec:$PATH
-fi
-if [[ "$target" == "wcoss_dell_p3" ]]; then
-  export PYTHONPATH=$PYTHONPATH:$HOMEhafs/ush
-fi
-set -u

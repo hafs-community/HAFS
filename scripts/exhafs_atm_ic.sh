@@ -2,47 +2,88 @@
 
 set -xe
 
-CASE=${CASE:-C768}
-CRES=`echo $CASE | cut -c 2-`
-gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
+NCP=${NCP:-'/bin/cp'}
+NLN=${NLN:-'/bin/ln -sf'}
+NDATE=${NDATE:-ndate}
 
-CDUMP=gfs                   # gfs or gdas
-LEVS=${LEVS:-65}
-gtype=${gtype:-regional}    # grid type = uniform, stretch, nest, or stand alone regional
-ictype=${ictype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
-bctype=${bctype:-gfsnemsio} # gfsnemsio, gfsgrib2_master, gfsgrib2_0p25, gfsgrib2ab_0p25, gfsgrib2_0p50, gfsgrib2_1p00
-REGIONAL=${REGIONAL:-0}
-halo_blend=${halo_blend:-0}
+TOTAL_TASKS=${TOTAL_TASKS:-2016}
+NCTSK=${NCTSK:-12}
+NCNODE=${NCNODE:-24}
+OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
+APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
+STORM=${STORM:-FAKE}
+STORMID=${STORMID:-00L}
+
 ymd=`echo $CDATE | cut -c 1-8`
 month=`echo $CDATE | cut -c 5-6`
 day=`echo $CDATE | cut -c 7-8`
 hour=`echo $CDATE | cut -c 9-10`
-
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-COMhafs=${COMhafs:-${COMOUT}}
-USHhafs=${USHhafs:-${HOMEhafs}/ush}
-PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-
-vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
+CDATEprior=`${NDATE} -6 $CDATE`
+PDY_prior=`echo ${CDATEprior} | cut -c1-8`
+cyc_prior=`echo ${CDATEprior} | cut -c9-10`
 
 WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
+ENSDA=${ENSDA:-NO}
+
+# Set options specific to the deterministic/ensemble forecast
+if [ ${ENSDA} != YES ]; then
+  NBDYHRS=${NBDYHRS:-3}
+  CASE=${CASE:-C768}
+  CRES=`echo $CASE | cut -c 2-`
+  gtype=${gtype:-regional}
+  ictype=${ictype:-gfsnemsio}
+  bctype=${bctype:-gfsnemsio}
+  LEVS=${LEVS:-65}
+  GRID_intercom=${WORKhafs}/intercom/grid
+else
+  NBDYHRS=${NBDYHRS_ENS:-3}
+  CASE=${CASE_ENS:-C768}
+  CRES=`echo $CASE | cut -c 2-`
+  gtype=${gtype_ens:-regional}
+  ictype=${ictype_ens:-gfsnemsio}
+  bctype=${bctype_ens:-gfsnemsio}
+  LEVS=${LEVS_ENS:-65}
+  GRID_intercom=${WORKhafs}/intercom/grid_ens
+fi
+
+# Generate the ICs and BC hour 0
+if [ $gtype = regional ] ; then
+  export REGIONAL=1
+  export HALO=4
+else
+# for gtype = uniform, stretch, or nest
+  export REGIONAL=0
+fi
+
+export NTRAC=7
+halo_blend=${halo_blend:-0}
+vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hyblev.l${LEVS}.txt}
+
+if [ $GFSVER = "PROD2021" ]; then
+ if [ ${ENSDA} = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
+ else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+ fi
+elif [ $GFSVER = "PROD2019" ]; then
+ if [ ${ENSDA} = YES ]; then
+  export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${ENSID}
+ else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+ fi
+else
+  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+fi
+
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-DATA=${DATA:-${WORKhafs}/chgres_ic}
+DATA=${DATA:-${WORKhafs}/atm_ic}
 mkdir -p ${OUTDIR} ${DATA}
 
-if [ ${ENSDA} = YES ]; then
-  GRID_intercom=${WORKhafs}/intercom/grid_ens
-else
-  GRID_intercom=${WORKhafs}/intercom/grid
-fi
 FIXDIR=${DATA}/grid
 FIXCASE=${DATA}/grid/${CASE}
 mkdir -p $DATA ${FIXDIR} ${FIXCASE}
@@ -53,6 +94,8 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 cd $DATA
 
 FHR3="000"
+CDUMP=gfs                   # gfs or gdas
+
 # Use gfs netcdf files from GFSv16
 if [ $ictype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
@@ -134,7 +177,7 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
-  echo "ERROR: unsupportted input data type yet."
+  echo "FATAL ERROR: unsupportted input data type yet."
   exit 1
 fi
 
@@ -348,7 +391,7 @@ cat>./fort.41<<EOF
 /
 EOF
 
-cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+#cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
 #${APRUNC} ${CHGRESCUBEEXEC}
 

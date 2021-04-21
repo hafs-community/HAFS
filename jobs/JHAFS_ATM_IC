@@ -17,8 +17,8 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  module load modulefile.ProdGSI.${machine}
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
   module list
 fi
 
@@ -34,24 +34,34 @@ export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
 
+export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
 
-export DATA=${WORKhafs}/analysis
+# Deterministic or ensemble
+if [ ${ENSDA} != YES ]; then
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_ic
+else
+  export ENSID=${ENSID:-001}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/atm_ic_ens/mem${ENSID}
+fi
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
 
-mkdir -p $DATA
+mkdir -p $OUTDIR $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_analysis.sh
+${HOMEhafs}/scripts/exhafs_atm_ic.sh
 export err=$?
 exit $err
 

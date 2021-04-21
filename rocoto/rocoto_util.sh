@@ -7,9 +7,9 @@ if [ $nopts -lt 1 ]; then
   echo Usage:
   echo "  ./rocoto_utils.sh [-a | -f | -r | -s] # Loop over all *.xml files"
   echo "  ./rocoto_utils.sh [-a | -f | -r | -s] hafs # Loop over hafs*.xml files"
-  echo "  -a: check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED) tasks"
-  echo "  -f: check all failed (DEAD|UNKNOWN|FAILED) tasks"
-  echo "  -r: check and rewind all failed (DEAD|UNKNOWN|FAILED) tasks"
+  echo "  -a: check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
+  echo "  -f: check all failed (DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
+  echo "  -r: check and rewind all failed (DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
   echo "  -s: check status for all tasks"
   exit 1
 fi
@@ -26,17 +26,17 @@ do
   echo ${file}
   fd=$(echo $file | rev | cut -d. -f2- | rev)
   if [ $cmdopt = '-a' ]; then
-    # Check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED) tasks
+    # Check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks
     echo $fd active tasks:
-    rocotostat -w $file -d ${fd}.db -c all | grep -E 'SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED'
+    rocotostat -w $file -d ${fd}.db -c all | grep -E 'SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED|UNAVAILABLE'
   elif [ $cmdopt = '-f' ]; then
     # Checking failed tasks
     echo $fd failed tasks:
-    rocotostat -w $file -d ${fd}.db -c all | grep -E 'DEAD|UNKNOWN|FAILED'
+    rocotostat -w $file -d ${fd}.db -c all | grep -E 'DEAD|UNKNOWN|FAILED|UNAVAILABLE'
   elif [ $cmdopt = '-r' ]; then
     # Deal with failed tasks
     >temp_deadlist.dat
-    rocotostat -w $file -d ${fd}.db -c all | grep -E 'DEAD|UNKNOWN|FAILED' > temp_deadlist.dat
+    rocotostat -w $file -d ${fd}.db -c all | grep -E 'DEAD|UNKNOWN|FAILED|UNAVAILABLE' > temp_deadlist.dat
     ll=$(cat temp_deadlist.dat |wc -l)
     if [ $ll -ne 0 ] ; then
       while read line
@@ -57,9 +57,9 @@ do
     echo "Usage:"
     echo "  ./rocoto_utils.sh [-a | -f | -r | -s] # Loop over all *.xml files"
     echo "  ./rocoto_utils.sh [-a | -f | -r | -s] hafs # Loop over hafs*.xml files"
-    echo "  -a: check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED) tasks"
-    echo "  -f: check all failed (DEAD|UNKNOWN|FAILED) tasks"
-    echo "  -r: check and rewind all failed (DEAD|UNKNOWN|FAILED) tasks"
+    echo "  -a: check all active (SUBMITTING|QUEUED|RUNNING|DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
+    echo "  -f: check all failed (DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
+    echo "  -r: check and rewind all failed (DEAD|UNKNOWN|FAILED|UNAVAILABLE) tasks"
     echo "  -s: check status for all tasks"
     exit 1
   fi

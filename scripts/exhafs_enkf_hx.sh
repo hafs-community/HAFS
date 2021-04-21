@@ -12,6 +12,24 @@ export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
+if [ ${ENSDA} = YES ]; then
+  export NHRS=${NHRS_ENS:-126}
+  export NBDYHRS=${NBDYHRS_ENS:-3}
+  export NOUTHRS=${NOUTHRS_ENS:-3}
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype_ens:-regional}
+  export LEVS=${LEVS_ENS:-65}
+else
+  export NHRS=${NHRS:-126}
+  export NBDYHRS=${NBDYHRS:-3}
+  export NOUTHRS=${NOUTHRS:-3}
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export gtype=${gtype:-regional}
+  export LEVS=${LEVS:-65}
+fi
+
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export ONLINE_SATBIAS=${ONLINE_SATBIAS:-NO}
@@ -28,6 +46,7 @@ export NCP=${NCP:-"/bin/cp"}
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
 export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
+export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-${EXEChafs}/hafs_ncdiag_cat.x}
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}

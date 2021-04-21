@@ -1,202 +1,70 @@
 #!/bin/sh
 
-set -xe
-
 date
-source ${USHhafs}/hafs_pre_job.sh.inc
-HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
-source ${HOLDVARS}
+export PS4='+ $SECONDS + '
+set -xue
 
-export EXPT=${EXPT:-HAFS}
-export SUBEXPT=${SUBEXPT:-${EXPT}}
-
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:-00}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
-
-export ENSDA=${ENSDA:-NO}
-if [ "${ENSDA}" = YES ]; then
-  export NHRS=${NHRS_ENS:-6}
-  export NBDYHRS=${NBDYHRS_ENS:-3}
-  export CASE=${CASE_ENS:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
-  export gtype=${gtype_ens:-regional}           # grid type = uniform, stretch, nest, or regional
-  export LEVS=${LEVS_ENS:-65}
-  export stretch_fac=${stretch_fac_ens:-1.0001}
-  export target_lon=${target_lon_ens:--62.0}
-  export target_lat=${target_lat_ens:-22.0}
-  export refine_ratio=${refine_ratio_ens:-4}
-  export deflate_level=${deflate_level:-1}
-  export ccpp_suite_regional=${ccpp_suite_regional_ens:-HAFS_v0_gfdlmp_nocp}
-  export ccpp_suite_glob=${ccpp_suite_glob_ens:-HAFS_v0_gfdlmp}
-  export ccpp_suite_nest=${ccpp_suite_nest_ens:-HAFS_v0_gfdlmp_nocp}
-  export dt_atmos=${dt_atmos_ens:-90}
-  export restart_interval=${restart_interval_ens:-6}
-  export quilting=${quilting_ens:-.true.}
-  export write_groups=${write_groups_ens:-3}
-  export write_tasks_per_group=${write_tasks_per_group_ens:-72}
-  export glob_k_split=${glob_k_split_ens:-1}
-  export glob_n_split=${glob_n_split_ens:-7}
-  export glob_layoutx=${glob_layoutx_ens:-12}
-  export glob_layouty=${glob_layouty_ens:-12}
-  export glob_npx=${glob_npx_ens:-769}
-  export glob_npy=${glob_npy_ens:-769}
-  export k_split=${k_split_ens:-4}
-  export n_split=${n_split_ens:-5}
-  export layoutx=${layoutx_ens:-40}
-  export layouty=${layouty_ens:-30}
-  export npx=${npx_ens:-2881}
-  export npy=${npy_ens:-1921}
-  export npz=${npz_ens:-64}
-else
-  export NHRS=${NHRS:-126}
-  export NBDYHRS=${NBDYHRS:-3}
-  export CASE=${CASE:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
-  export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-  export LEVS=${LEVS:-65}
-  export stretch_fac=${stretch_fac:-1.0001}
-  export target_lon=${target_lon:--62.0}
-  export target_lat=${target_lat:-22.0}
-  export refine_ratio=${refine_ratio:-4}
-  export deflate_level=${deflate_level:--1}
-  export ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp_nocp}
-  export ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
-  export ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp_nocp}
-  export dt_atmos=${dt_atmos:-90}
-  export restart_interval=${restart_interval:-6}
-  export quilting=${quilting:-.true.}
-  export write_groups=${write_groups:-3}
-  export write_tasks_per_group=${write_tasks_per_group:-72}
-  export glob_k_split=${glob_k_split:-1}
-  export glob_n_split=${glob_n_split:-7}
-  export glob_layoutx=${glob_layoutx:-12}
-  export glob_layouty=${glob_layouty:-12}
-  export glob_npx=${glob_npx:-769}
-  export glob_npy=${glob_npy:-769}
-  export k_split=${k_split:-4}
-  export n_split=${n_split:-5}
-  export layoutx=${layoutx:-40}
-  export layouty=${layouty:-30}
-  export npx=${npx:-2881}
-  export npy=${npy:-1921}
-  export npz=${npz:-64}
-fi
-export NTRAC=7            # output all gfdl mp tracers
-
-export app_domain=${app_domain:-regional}
-export output_grid=${output_grid:-rotated_latlon}
-export output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
-export output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
-export output_grid_lon1=${output_grid_lon1:--35.0}
-export output_grid_lat1=${output_grid_lat1:--30.0}
-export output_grid_lon2=${output_grid_lon2:-35.0}
-export output_grid_lat2=${output_grid_lat2:-30.0}
-export output_grid_dlon=${output_grid_dlon:-0.025}
-export output_grid_dlat=${output_grid_dlon:-0.025}
-
-####################################
-# Specify Execution Areas
-####################################
-export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export COMhafs=${COMhafs:-${COMOUT}}
+export HOMEhafs=${HOMEhafs:?}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
-
-export FIXam=${FIXhafs}/fix_am
-export FIXfv3=${FIXhafs}/fix_fv3
-
-export FIXnew=${FIXhafs}/fix
-export CO2DIR=${FIXam}/fix_co2_proj
-
-export FORECASTEXEC=${EXEChafs}/hafs_forecast.x
-
-####################################
-# Load Modules if Needed
-####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
-#export RUN_ENVIR=${RUN_ENVIR:-prod}
-export RUN_ENVIR=${envir:-prod}
-if [ "$RUN_ENVIR" = prod ]; then
-  if [ "$machine" = wcoss_dell_p3 ]; then
-    module unload NetCDF
-    module unload HDF5-serial
-  fi
-  if [ "$machine" = wcoss_cray ]; then
-    module unload zlib-intel-haswell/1.2.7
-  fi
-  if [ "$machine" = jet ]; then
-    module unload esmf/8.0.0
-    module unload hdf5/1.10.4
-    module unload netcdf/4.6.1
-    module unload z/v1.2.6
-    module unload png/v1.2.44
-    module unload jasper/v1.900.1
-  fi
-  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles/${machine}
-  module load fv3
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
+  module load ufs_${machine}
   module list
-  export LD_LIBRARY_PATH="$HOMEhafs/sorc/hafs_forecast.fd/FV3/ccpp/lib::${LD_LIBRARY_PATH}"
-  env
 fi
 
-#####################################
-# Set up job node/core/run environment variables
-#####################################
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-####################################
 # Run setpdy and initialize PDY variables
-####################################
 #setpdy.sh
 #. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
 
-PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
-export PDY=${PDY:-${PDYtmp}}
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
 
-#####################################
-# Working directories
-#####################################
-#export FIXgrid=${FIXhafs}/fix_fv3
-if [ "${ENSDA}" = YES ]; then
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+
+# Deterministic or ensemble
+if [ "${ENSDA}" != YES ]; then
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_init
+  export RESTARTout=${COMhafs}/RESTART_init
+else
   export ENSID=${ENSID:-001}
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}
   export RESTARTout=${COMhafs}/RESTART_init_ens/mem${ENSID}
-else
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  export DATA=${WORKhafs}/atm_init
-  export RESTARTout=${COMhafs}/RESTART_init
 fi
-#export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
-#export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
- export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
- export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
 
+#export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
+export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
+export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
 export warm_start_opt=0
-export RUN_GSI=no
-export RUN_GSI_VR=no
-export RUN_GSI_VR_ENS=no
-export RUN_ENKF=no
+export RUN_GSI=NO
+export RUN_GSI_VR=NO
+export RUN_GSI_VR_ENS=NO
+export RUN_ENKF=NO
 export run_ocean=no
 
 export SCRUBDATA=${SCRUBDATA:-YES}
-
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
@@ -204,10 +72,14 @@ fi
 mkdir -p $DATA
 cd $DATA
 
-#####################################
-# Execute the script.
+# Execute ex-script
 ${HOMEhafs}/scripts/exhafs_forecast.sh
 export err=$?
-#####################################
-
 exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date
