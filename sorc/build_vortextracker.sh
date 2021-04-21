@@ -35,6 +35,8 @@ elif [ $target = wcoss_dell_p3 ]; then
   export FC=ifort
   export F90=ifort
   export CC=icc
+  export hwrf_g2_inc=/gpfs/dell2/emc/modeling/noscrub/Biju.Thomas/save/trunk_20210420/sorc/hwrf-utilities/libs/mods/g2
+  export hwrf_g2_lib=/gpfs/dell2/emc/modeling/noscrub/Biju.Thomas/save/trunk_20210420/sorc/hwrf-utilities/libs/libg2.a
 else
   echo "Unknown machine = $target"
   exit 1
@@ -54,6 +56,8 @@ elif [ $target = jet ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 elif [ $target = wcoss_cray ]; then
   cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
+elif [ $target = wcoss_dell_p3 ]; then
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -Dhwrf_g2_lib=$hwrf_g2_lib -Dhwrf_g2_inc=$hwrf_g2_inc
 else
   cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 fi
