@@ -7,7 +7,7 @@
 # The script looks for:
 # 1. storm1.done 2. *atcfunix.all 3. hafsprs.synoptic.f012.grb2
 # 4. dynf012.nc 5. phyf012.nc 6. the number of dyn and phy files
-# 5. hycominit2.done for coupled runs 6. exit 0 in post and prod log files 
+# 5. hycominit2.done for coupled runs 6. post/product job done in post and prod log files 
 # 7. SUCCEEDED for completion task 
 
 # Author: Mrinal Biswas DTC/NCAR
@@ -78,14 +78,14 @@ echo `pwd`
 # Check the post and product log files
 
     if [[ $if_complete == "1" ]]; then
-       post_log=`cat ${HAFS_out}/${expt_name}${expts}/${storm_init}/${sid}/hafs_post.log|grep "exit 0"`
-       prod_log=`cat ${HAFS_out}/${expt_name}${expts}/${storm_init}/${sid}/hafs_product.log|grep "exit 0"`
-        if [[ $post_log == "+ exit 0" ]]; then
+       post_log=`cat ${HAFS_out}/${expt_name}${expts}/${storm_init}/${sid}/hafs_atm_post.log|grep "post job done"|tail -1`
+       prod_log=`cat ${HAFS_out}/${expt_name}${expts}/${storm_init}/${sid}/hafs_product.log|grep "product job done"|tail -1`
+        if [[ $post_log == "post job done" ]]; then
            echo "POST RAN TILL COMPLETION"
           else
            echo "POST DID NOT RAN TILL COMPLETION"
         fi
-        if [[ $prod_log == "+ exit 0" ]]; then
+        if [[ $prod_log == "product job done" ]]; then
            echo "PRODUCT RAN TILL COMPLETION"
           else
            echo "PRODUCT DID NOT RAN TILL COMPLETION"
@@ -121,8 +121,8 @@ echo `pwd`
     if [[ $if_complete == "1" ]]; then
        if [[ $dynf_files_cnt == "5" && $phyf_files_cnt == "5" ]]; then
        if [[ -e ${storm1_done} && -e ${atcfunix} && -e ${hafsprs_synoptic} ]]; then
-       if [[ $post_log == "+ exit 0" ]]; then
-       if [[ $prod_log == "+ exit 0" ]]; then
+       if [[ $post_log == "post job done" ]]; then
+       if [[ $prod_log == "product job done" ]]; then
          echo "REGRESSION TEST PASSED!! YAYYY!!"
       else
          echo "REGRESSION TEST FAILED!! IT'S NOT YOUR FAULT!!"
