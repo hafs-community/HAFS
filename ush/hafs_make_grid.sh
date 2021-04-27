@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Updates:
 #  May 15, 2020  Bill Ramstrom, HRD/AOML, Added multiple nest capability 
 #
+
 set -eux
 
 nargv=$#

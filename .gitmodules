@@ -1,7 +1,7 @@
 [submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/hafs-community/ufs-weather-model.git
-	branch = support/HAFS
+	branch = feature/multi_nests
 [submodule "EMC_post"]
 	path = sorc/hafs_post.fd
 	url = https://github.com/hafs-community/EMC_post.git
@@ -9,11 +9,11 @@
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
-	branch = support/HAFS
+	branch = feature/multi_nests
 [submodule "gfdl-tracker"]
 	path = sorc/hafs_vortextracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
-	branch = support/HAFS
+	branch = feature/multi_nests
 [submodule "NCEPLIBS-pyprodutil"]
 	path = ush/produtil_repo
 	url = https://github.com/hafs-community/NCEPLIBS-pyprodutil.git

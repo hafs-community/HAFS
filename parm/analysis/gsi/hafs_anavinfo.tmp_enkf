@@ -1,0 +1,79 @@
+met_guess::
+!var     level    crtm_use    desc              orig_name
+  ps        1      -1         surface_pressure     ps
+  z         1      -1         geopotential_height  phis
+  u        _LEV_       2         zonal_wind           u
+  v        _LEV_       2         meridional_wind      v
+  tv       _LEV_       2         virtual_temperature  t
+  q        _LEV_       2         specific_humidity    sphum
+  oz       _LEV_       2         ozone                o3mr
+  delp     _LEV_      -1         fv3 del pressure     delp
+::
+
+state_derivatives::
+!var  level  src
+ ps   1      met_guess
+ u    _LEV_     met_guess
+ v    _LEV_     met_guess
+ tv   _LEV_     met_guess
+ q    _LEV_     met_guess
+ oz   _LEV_     met_guess
+ prse _LP1_     met_guess
+::
+
+state_tendencies::
+!var  levels  source
+ u    _LEV_      met_guess
+ v    _LEV_      met_guess
+ tv   _LEV_      met_guess
+ q    _LEV_      met_guess
+ oz   _LEV_      met_guess
+ prse _LP1_      met_guess
+::
+
+state_vector::
+!var     level  itracer source     funcof
+ u        _LEV_      0     met_guess    u
+ v        _LEV_      0     met_guess    v
+ tv       _LEV_      0     met_guess    tv
+ tsen     _LEV_      0     met_guess    tv,q
+ q        _LEV_      1     met_guess    q
+ oz       _LEV_      1     met_guess    oz
+ prse     _LP1_      0     met_guess    prse
+ ps        1      0     met_guess    ps
+ sst       1      0     met_guess    sst
+::
+
+control_vector_enkf::
+!var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
+ u        _LEV_      0       0.20        -1.0     state    u,v
+ v        _LEV_      0       0.20        -1.0     state    u,v
+!w        _LEV_      0       0.50        -1.0     state    w
+!dz       _LEV_      0       0.50        -1.0     state    dz
+ ps        1      0       0.30        -1.0     state    prse
+ t        _LEV_      0       0.70        -1.0     state    tv
+ delp     _LEV_      0       0.70        -1.0     state    delp
+!q        _LEV_      1       0.20        -1.0     state    sphum
+ q        _LEV_      1       0.20        -1.0     state    q
+ oz       _LEV_      1       0.10        -1.0     state    oz
+!liq_wat  _LEV_      1       0.70        -1.0     state    liq_wat
+!rainwat  _LEV_      1       0.70        -1.0     state    rainwat
+!ice_wat  _LEV_      1       0.70        -1.0     state    ice_wat
+!snowwat  _LEV_      1       0.70        -1.0     state    snowwat
+!graupel  _LEV_      1       0.70        -1.0     state    graupel
+!cld_amt  _LEV_      1       0.70        -1.0     state    cld_amt
+!cw       _LEV_      1       0.70        -1.0     state    cw
+::
+
+control_vector::
+!var     level  itracer as/tsfc_sdv  an_amp0   source  funcof
+ sf       _LEV_      0       0.20        -1.0     state    u,v
+ vp       _LEV_      0       0.20        -1.0     state    u,v
+ ps        1      0       0.30        -1.0     state    prse
+ t        _LEV_      0       0.70        -1.0     state    tv
+ q        _LEV_      1       0.20        -1.0     state    q
+ oz       _LEV_      1       0.10        -1.0     state    oz
+ sst       1      0       1.00        -1.0     state    sst
+ stl       1      0       1.00        -1.0     motley   sst
+ sti       1      0       1.00        -1.0     motley   sst
+::

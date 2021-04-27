@@ -7,12 +7,12 @@
   <!ENTITY COM_SCRUB_TIME "10800">
   <!ENTITY WORK_SCRUB_TIME "3600">
   <!ENTITY CYCLE_THROTTLE "5">
-  <!ENTITY TASK_THROTTLE "40">
+  <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "2"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -62,16 +62,27 @@
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
+  <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT:-NO]">
   <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
+  <!ENTITY RUN_GSI_VR "@[RUN_GSI_VR]">
+  <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
+  <!ENTITY RUN_GSI_VR_ENS "@[RUN_GSI_VR_ENS]">
   <!ENTITY RUN_GSI "@[RUN_GSI]">
+  <!ENTITY RUN_FGAT "@[RUN_FGAT]">
+  <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
+  <!ENTITY RUN_ENKF "@[RUN_ENKF]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
 
+  <!ENTITY ENS_SIZE "@[ENS_SIZE]">
+  <!ENTITY ENSIDS "@[ENSIDS]">
+
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
+  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -186,15 +197,15 @@
     </dependency>
   </task>
 
-  <task name="grid" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_GRID</command>
-    <jobname>hafs_grid_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_grid.log</cyclestr></join>
+  <task name="atm_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_PREP</command>
+    <jobname>hafs_atm_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &GRID_RESOURCES;
+    &ATM_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -204,20 +215,20 @@
     </dependency>
   </task>
 
-  <task name="chgres_ic" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_CHGRES_IC</command>
-    <jobname>hafs_chgres_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_chgres_ic.log</cyclestr></join>
+  <task name="atm_ic" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_IC</command>
+    <jobname>hafs_atm_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_ic.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &CHGRES_IC_RESOURCES;
+    &ATM_IC_RESOURCES;
     &ENV_VARS;
 
     <dependency>
       <and>
-        <taskdep task="grid"/> 
+        <taskdep task="atm_prep"/>
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -240,24 +251,24 @@
   </task>
 
 @** if gtype==regional
-  <metatask name="chgres_bc">
+  <metatask name="atm_lbc">
     <var name="group">001 002 003 004 005 006</var>
-    <task name="chgres_bc#group#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_CHGRES_BC</command>
-      <jobname>hafs_chgres_bc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_chgres_bc#group#.log</cyclestr></join>
+    <task name="atm_lbc#group#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_LBC</command>
+      <jobname>hafs_atm_lbc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
-      &CHGRES_BC_RESOURCES;
+      &ATM_LBC_RESOURCES;
       &ENV_VARS;
       <envar><name>BC_GROUPN</name><value>6</value></envar>
       <envar><name>BC_GROUPI</name><value>#group#</value></envar>
 
       <dependency>
         <and>
-          <taskdep task="grid"/>
+          <taskdep task="atm_prep"/>
           <or>
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -281,21 +292,20 @@
   </metatask>
 
 @** if RUN_OCEAN==YES
-  <task name="hycominit1" maxtries="&MAX_TRIES;">
-    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycominit1.py</command>
-    <jobname>hafs_hycominit1_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycominit1.log</cyclestr></join>
+  <task name="ocn_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_PREP</command>
+    <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &HYCOMINIT_RESOURCES;
+    &OCN_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
       <and>
-        <taskdep task="grid"/>
+        <taskdep task="atm_prep"/>
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -322,34 +332,6 @@
               <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a.tgz</cyclestr></datadep>
             </or>
           </or>
-        </and>
-      </and>
-    </dependency>
-  </task>
-
-  <task name="hycominit2" maxtries="&MAX_TRIES;">
-    <!-- <command>&JOBhafs;/JHAFS_OCEAN_INIT</command> -->
-    <command>&PRE; &EXhafs;/exhafs_hycominit2.py</command>
-    <jobname>hafs_hycominit2_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycominit2.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &HYCOMINIT_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <and>
-        <taskdep task="grid"/>
-        <or>
-          <taskdep task="input"/>
-          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
-        </or>
-        <!-- Second dependency: the GFS output must be available -->
-        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
-        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
-        <and>
 @** if GFSVER==PROD2019
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
 @** endif
@@ -360,9 +342,134 @@
       </and>
     </dependency>
   </task>
-
 @** endif
 
+@** if RUN_GSI_VR==YES
+  <task name="analysis_vr" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+    <jobname>hafs_analysis_vr_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_analysis_vr.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ANALYSIS_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_ic"/>
+	<streq><left>&RUN_GSI_VR;</left><right>YES</right></streq>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+	  <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+          </and>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_GSI_VR_FGAT==YES 
+  <metatask name="analysis_vr_fgat">
+    <var name="FGAT_HR">03 09</var>
+    <task name="analysis_vr_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+      <jobname>hafs_analysis_vr_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat#FGAT_HR#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ANALYSIS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>FGAT</name><value>YES</value></envar>
+      <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+      <dependency>
+        <and>
+          <taskdep task="atm_ic"/>
+          <streq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** if RUN_GSI==YES
+  <task name="analysis" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ANALYSIS</command>
+    <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_analysis.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ANALYSIS_RESOURCES;
+    &ENV_VARS;
+    <dependency>
+      <and>
+        <taskdep task="atm_ic"/>
+	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
+@** if RUN_GSI_VR==YES
+	<or>
+          <strneq><left>&RUN_GSI_VR;</left><right>YES</right></strneq>
+          <taskdep task="analysis_vr"/>
+        </or>
+@** endif
+@** if RUN_GSI_VR_FGAT==YES
+	<or>
+          <strneq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></strneq>
+          <metataskdep metatask="analysis_vr_fgat"/>
+        </or>
+@** endif
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+	  <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+@** if RUN_ENSDA==YES
+            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
+@** endif
+          </and>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
+@** endif
+
+@** if RUN_ATM_INIT==YES
+  <task name="atm_init" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_INIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_ic"/>
+@** if gtype==regional
+        <metataskdep metatask="atm_lbc"/>
+@** endif
+      </and>
+    </dependency>
+  </task>
 @** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
@@ -378,31 +485,37 @@
 
     <dependency>
       <and>
-        <taskdep task="chgres_ic"/>
+        <taskdep task="atm_ic"/>
 @** if gtype==regional
-        <metataskdep metatask="chgres_bc"/>
+        <metataskdep metatask="atm_lbc"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycominit1"/>
-        <taskdep task="hycominit2"/>
+        <taskdep task="ocn_prep"/>
 @** endif
+@** if RUN_GSI==YES
+        <taskdep task="analysis"/>
+@** endif
+@** if RUN_GSI_VR==YES
+        <taskdep task="analysis_vr"/>
+@** endif
+
 @** endif
       </and>
     </dependency>
   </task>
 
-  <task name="post" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_POST</command>
-    <jobname>hafs_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_post.log</cyclestr></join>
+  <task name="atm_post" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_POST</command>
+    <jobname>hafs_atm_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &POST_RESOURCES;
+    &ATM_POST_RESOURCES;
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the post if the forecast is running or if it has
+      <!-- Start the atm_post if the forecast is running or if it has
            already completed. -->
       <or>
         <taskdep task="forecast" state="RUNNING"/>
@@ -412,20 +525,19 @@
   </task>
 
 @** if RUN_OCEAN==YES
-  <task name="hycompost" maxtries="&MAX_TRIES;">
-    <!--<command>&PRE; &EXhafs;/exhafs_hycompost.py</command>-->
-    <command>&JOBhafs;/JHAFS_HYCOMPOST</command>
-    <jobname>hafs_hycompost_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_hycompost.log</cyclestr></join>
+  <task name="ocn_post" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_POST</command>
+    <jobname>hafs_ocn_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &HYCOMPOST_RESOURCES;
+    &OCN_POST_RESOURCES;
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the post if the forecast is running or if it has
+      <!-- Start the ocn_post if the forecast is running or if it has
            already completed. -->
       <or>
         <taskdep task="forecast" state="RUNNING"/>
@@ -447,11 +559,11 @@
     &ENV_VARS;
 
     <dependency>
-     <!-- Start the tracker if the post is running or if it has
+     <!-- Start the tracker if the atm_post is running or if it has
           already completed. -->
       <or>
-        <taskdep task="post" state="RUNNING"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post" state="RUNNING"/>
+        <taskdep task="atm_post"/>
       </or>
     </dependency>
   </task>
@@ -461,10 +573,9 @@
     <command>&JOBhafs;/JHAFS_PRODGLB</command>
     <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_prodglb.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &RESERVATION;
     &PRODGLB_RESOURCES;
     &ENV_VARS;
 
@@ -473,6 +584,365 @@
     </dependency>
   </task>
 @** endif
+
+@** if RUN_ENSDA==YES
+  <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_PREP</command>
+    <jobname>hafs_atm_prep_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_prep_ens.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_PREP_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="launch"/>
+        <!-- Wait until the deterministic forecast job is running or completed. -->
+        <or>
+          <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast"/>
+        </or>
+      </and>
+    </dependency>
+  </task>
+
+  <metatask name="atm_ic_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="atm_ic_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_IC</command>
+      <jobname>hafs_atm_ic_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_ic_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_IC_ENS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_prep_ens"/>
+          <or>
+            <taskdep task="input"/>
+            <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+          </or>
+          <!-- Second dependency: the GFS output must be available -->
+          <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+          <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
+          <and>
+@** if GFSVER==PROD2019
+            <datadep age="02:00" minsize="3000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+            <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.sfcf006.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+@** endif
+          </and>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+
+@** if gtype==regional
+  <metatask name="atm_lbc_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <metatask name="atm_lbcgrp_ens">
+      <var name="group">001</var>
+      <task name="atm_lbc#group#_ens#MEM#" maxtries="&MAX_TRIES;">
+        <command>&JOBhafs;/JHAFS_ATM_LBC</command>
+        <jobname>hafs_atm_lbc#group#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+        <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#_ens#MEM#.log</cyclestr></join>
+        <account>&ACCOUNT;</account>
+        &RESERVATION;
+        <queue>&QUEUE_PE;</queue>
+        &PE_EXTRA;
+        &ATM_LBC_ENS_RESOURCES;
+        &ENV_VARS;
+        <envar><name>ENSDA</name><value>YES</value></envar>
+        <envar><name>ENSID</name><value>#MEM#</value></envar>
+        <envar><name>BC_GROUPN</name><value>1</value></envar>
+        <envar><name>BC_GROUPI</name><value>#group#</value></envar>
+
+        <dependency>
+          <and>
+            <taskdep task="atm_prep_ens"/>
+            <or>
+              <taskdep task="input"/>
+              <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+            </or>
+            <!-- Second dependency: the GFS output must be available -->
+            <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
+            <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
+            <and>
+@** if GFSVER==PROD2019
+              <datadep age="02:00" minsize="3000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+              <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+@** endif
+            </and>
+          </and>
+        </dependency>
+      </task>
+    </metatask>
+  </metatask>
+@** endif
+
+@** if RUN_GSI_VR_ENS==YES
+  <metatask name="analysis_vr_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="analysis_vr_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+      <jobname>hafs_analysis_vr_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ANALYSIS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_ic_ens#MEM#"/>
+          <streq><left>&RUN_GSI_VR_ENS;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
+              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** if RUN_ENKF==YES
+  <task name="enkf_mean" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENKF_MEAN</command>
+    <jobname>hafs_enkf_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_enkf_mean.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ENKF_ENKF_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+    <envar><name>ldo_enscalc_option</name><value>1</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="atm_prep_ens"/>
+        <cycleexistdep cycle_offset="-6:00:00"/>
+	<streq><left>&RUN_ENKF;</left><right>YES</right></streq>
+        <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
+@** if RUN_GSI_VR_ENS==YES
+	<or>
+          <strneq><left>&RUN_GSI_VR_ENS;</left><right>YES</right></strneq>
+          <metataskdep metatask="analysis_vr_ens"/>
+        </or>
+@** endif
+      </and>
+    </dependency>
+  </task>
+
+  <task name="enkf_hx_mean" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENKF_HX</command>
+    <jobname>hafs_enkf_hx_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_enkf_hx_mean.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ENKF_GSI_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+
+    <dependency>
+      <and>
+        <or>
+          <taskdep task="analysis" state="RUNNING"/>
+          <taskdep task="analysis"/>
+        </or>
+        <taskdep task="enkf_mean"/>
+      </and>
+    </dependency>
+  </task>
+
+  <metatask name="enkf_hx_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ENKF_HX</command>
+      <jobname>hafs_enkf_hx_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_enkf_hx_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ENKF_GSI_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>HX_ENS</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <taskdep task="enkf_hx_mean"/>
+      </dependency>
+    </task>
+  </metatask>
+
+  <task name="enkf_update" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENKF_UPDATE</command>
+    <jobname>hafs_enkf_update_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_enkf_update.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ENKF_ENKF_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+    <envar><name>ldo_enscalc_option</name><value>0</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="enkf_hx_mean"/>
+        <metataskdep metatask="enkf_hx_ens"/>
+      </and>
+    </dependency>
+  </task>
+
+  <task name="enkf_recenter" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENKF_RECENTER</command>
+    <jobname>hafs_enkf_recenter_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_enkf_recenter.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ENKF_ENKF_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+    <envar><name>ldo_enscalc_option</name><value>2</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="enkf_update"/>
+        <taskdep task="analysis"/>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+  <metatask name="forecast_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="forecast_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_FORECAST</command>
+      <jobname>hafs_forecast_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_forecast_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &FORECAST_ENS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <metataskdep metatask="atm_ic_ens"/>
+@** if gtype==regional
+          <metataskdep metatask="atm_lbc_ens"/>
+@** if RUN_OCEAN==YES
+          <taskdep task="ocn_prep"/>
+@** endif
+@** if RUN_GSI_VR_ENS==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="analysis_vr_ens#MEM#"/>
+          </or>
+@** endif
+@** if RUN_ENKF==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="enkf_recenter"/>
+          </or>
+@** endif
+@** endif
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+
+  <metatask name="atm_post_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="atm_post_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_POST</command>
+      <jobname>hafs_atm_post_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_post_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_POST_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <!-- Start the atm_post if the forecast is running or if it has
+                                     already completed. -->
+        <or>
+          <taskdep task="forecast_ens#MEM#" state="RUNNING"/>
+          <taskdep task="forecast_ens#MEM#"/>
+        </or>
+      </dependency>
+    </task>
+  </metatask>
+
+  <metatask name="product_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="product_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_PRODUCT</command>
+      <jobname>hafs_product_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_product_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &PRODUCT_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+       <!-- Start the tracker if the atm_post is running or if it has
+            already completed. -->
+        <or>
+          <taskdep task="atm_post_ens#MEM#" state="RUNNING"/>
+          <taskdep task="atm_post_ens#MEM#"/>
+        </or>
+      </dependency>
+    </task>
+  </metatask>
+
+@** endif
+
+>>>>>>> remotes/origin/feature/hafs_ensda
 
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
@@ -540,9 +1010,9 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycompost"/>
+        <taskdep task="ocn_post"/>
 @** endif
         <taskdep task="product"/>
 @** if gtype==nest
@@ -553,6 +1023,9 @@
 @** endif
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
+@** if RUN_ENSDA==YES
+        <metataskdep metatask="product_ens"/>
 @** endif
       </and>
     </dependency>
@@ -577,9 +1050,9 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="post"/>
+        <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
-        <taskdep task="hycompost"/>
+        <taskdep task="ocn_post"/>
 @** endif
         <taskdep task="product"/>
 @** if gtype==nest
@@ -590,6 +1063,9 @@
 @** endif
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
+@** if RUN_ENSDA==YES
+        <metataskdep metatask="product_ens"/>
 @** endif
         <taskdep task="archive_disk"/>
       </and>
@@ -716,7 +1192,7 @@
     <dependency>
       <or>
         <and>
-          <taskdep task="post"/>
+          <taskdep task="atm_post"/>
           <taskdep task="product"/>
 @** if gtype==nest
           <taskdep task="prodglb"/>

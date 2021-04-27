@@ -33,7 +33,7 @@ GRB2INDEX=${GRB2INDEX:-grb2index}
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 INPdir=${INPdir:-${WORKhafs}/forecast}
 DATA=${DATA:-${WORKhafs}/prodglb}
-COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+COMOUTproduct=${COMOUTproduct:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 trk_atcfunix=${out_prefix}.trak.hafs.atcfunix.glb
@@ -86,21 +86,21 @@ ${APRUNS} ./hafs_fregrid.x --input_mosaic ${input_mosaic} --nlon ${nlon} --nlat 
   --remap_file ${remap_file} --input_file ${atmos_tracker_base} --output_file "${atmos_tracker_base}_global_remapped.nc" \
   --input_dir ./ --scalar_field ${atmos_tracker_fields}
 
-# Deliver atmos_tracker*.nc to COMhafs
+# Deliver atmos_tracker*.nc to COMOUTproduct
 for itile in $(seq 1 6)
 do
-  cp -pL ./${atmos_tracker_base}.tile${itile}.nc ${COMhafs}/${out_prefix}.${atmos_tracker_base}.tile${itile}.nc
+  cp -pL ./${atmos_tracker_base}.tile${itile}.nc ${COMOUTproduct}/${out_prefix}.${atmos_tracker_base}.tile${itile}.nc
 done
 
 export ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 7 $ntiles)
 do
   inest=$(($itile - 5))
-  cp -pL ./${atmos_tracker_base}.nest0${inest}.tile${itile}.nc ${COMhafs}/${out_prefix}.${atmos_tracker_base}.nest0${inest}.tile${itile}.nc
+  cp -pL ./${atmos_tracker_base}.nest0${inest}.tile${itile}.nc ${COMOUTproduct}/${out_prefix}.${atmos_tracker_base}.nest0${inest}.tile${itile}.nc
 done
 
-# Deliver atmos_tracker_global_remapped.nc to COMhafs
-cp -pL ./${atmos_tracker_base}_global_remapped.nc ${COMhafs}/${out_prefix}.${atmos_tracker_base}_global_remapped.nc
+# Deliver atmos_tracker_global_remapped.nc to COMOUTproduct
+cp -pL ./${atmos_tracker_base}_global_remapped.nc ${COMOUTproduct}/${out_prefix}.${atmos_tracker_base}_global_remapped.nc
 
 #===============================================================================
 # Run GFDL vortextracker for the global netcdf format input file
@@ -158,8 +158,8 @@ ln -sf output.ike         fort.74
 ln -sf output.pdfwind     fort.76
 
 # The product atcf track file
-touch ${COMhafs}/${all_atcfunix}
-ln -sf ${COMhafs}/${all_atcfunix} output.atcfunix
+touch ${COMOUTproduct}/${all_atcfunix}
+ln -sf ${COMOUTproduct}/${all_atcfunix} output.atcfunix
 
 # Prepare the input namelist
 CC=`echo $CDATE | cut -c 1-2`
@@ -184,17 +184,19 @@ ${APRUNS} ./hafs_gettrk.x < namelist.gettrk
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
-cp ${COMhafs}/${all_atcfunix} ${COMhafs}/${all_atcfunix}.orig
+cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ $STORMNUM == "00" ] ; then
-norig=`cat ${COMhafs}/${all_atcfunix}.orig |wc -l `
+norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
 if [ $norig -eq 1 ] ; then
-> ${COMhafs}/${all_atcfunix}
+> ${COMOUTproduct}/${all_atcfunix}
 else
-grep -v "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix}.orig >  ${COMhafs}/${all_atcfunix}
+grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
 fi
 else
-grep "^.., ${STORMNUM}," ${COMhafs}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMhafs}/${trk_atcfunix}
+grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
 fi
+
+if [ ${ENSDA} != YES ]; then
 
 # Deliver track file to NOSCRUB:
 mkdir -p ${CDNOSCRUB}/${SUBEXPT}
@@ -204,6 +206,8 @@ cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
 fi
 if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ] ; then
 cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+fi
+
 fi
 #===============================================================================
 
