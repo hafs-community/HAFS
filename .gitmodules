@@ -21,7 +21,7 @@
 [submodule "sorc/hafs_gsi.fd"]
 	path = sorc/hafs_gsi.fd
 	url = https://github.com/hafs-community/GSI.git
-	branch = feature/regional_ensda
+	branch = support/HAFS
 [submodule "GPLOT"]
 	path = sorc/hafs_graphics.fd/hrd_gplot
 	url = https://github.com/hafs-community/GPLOT.git

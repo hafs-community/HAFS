@@ -129,3 +129,6 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]]; then
   module use $HOMEhafs/modulefiles
   module load modulefile.hafs.$WHERE_AM_I
 fi
+
+# Avoild "NetCDF: HDF error"
+export HDF5_USE_FILE_LOCKING=FALSE
