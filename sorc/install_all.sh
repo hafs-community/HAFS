@@ -1,18 +1,11 @@
 #!/bin/sh
 set -xeu
-
-build_dir=`pwd`
+cwd=`pwd`
 
 CP='cp -rp'
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  echo "Creating ../exec folder"
-  mkdir ../exec
-fi
-
 #------------------------------------
-# INCLUDE PARTIAL BUILD 
+# INCLUDE PARTIAL BUILD
 #------------------------------------
 
 . ./partial_build.sh
@@ -61,8 +54,8 @@ $Build_vortextracker && {
 # install tools
 #------------------------------------
 $Build_tools && {
-  ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
-  ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
+  ${CP} hafs_tools.fd/exec/hafs_analysis_update.x    ../exec/hafs_analysis_update.x
+  ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x        ../exec/hafs_obs_preproc.x
   ${CP} hafs_tools.fd/exec/mpiserial.x               ../exec/hafs_mpiserial.x
 }
 
@@ -70,8 +63,10 @@ $Build_tools && {
 # install gsi
 #------------------------------------
 $Build_gsi && {
-  ${CP} hafs_gsi.fd/exec/global_gsi.x                ../exec/hafs_gsi.x
-  ${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  #${CP} hafs_gsi.fd/exec/global_gsi.x                ../exec/hafs_gsi.x
+  #${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  ${CP} hafs_gsi.fd/exec/gsi.x                       ../exec/hafs_gsi.x
+  ${CP} hafs_gsi.fd/exec/enkf_fv3reg.x               ../exec/hafs_enkf.x
   ${CP} hafs_gsi.fd/exec/adderrspec.x                ../exec/hafs_adderrspec.x
   ${CP} hafs_gsi.fd/exec/adjustps.x                  ../exec/hafs_adjustps.x
   ${CP} hafs_gsi.fd/exec/calc_increment_ens_ncio.x   ../exec/hafs_calc_increment_ens_ncio.x
@@ -100,7 +95,7 @@ $Build_gsi && {
 }
 
 #------------------------------------
-# install hycom_utils 
+# install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
@@ -114,7 +109,6 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing        ../exec/hafs_timeinterp_forcing.x
 }
 
-
 echo;echo " .... Install system finished .... "
 
-exit 0
+exit
