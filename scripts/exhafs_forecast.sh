@@ -499,6 +499,7 @@ if [ ${run_datm} = yes ];  then
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
       -e "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" \
       -e "/_mesh_ocn_/d" \
+      -e "/_system_type_/d" \
       -e "s/_atm_model_/datm/g" \
       -e "s/_ocn_model_/hycom/g" \
       nems.configure.cdeps.tmp > nems.configure
@@ -541,6 +542,7 @@ elif [ ${run_docn} = yes ];  then
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
       -e "/_mesh_atm_/d" \
       -e "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" \
+      -e "s/_system_type_/ufs/g" \
       -e "s/_atm_model_/fv3/g" \
       -e "s/_ocn_model_/docn/g" \
       nems.configure.cdeps.tmp > nems.configure

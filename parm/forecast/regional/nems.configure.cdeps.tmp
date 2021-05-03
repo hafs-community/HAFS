@@ -72,7 +72,7 @@ MED_attributes::
   history_option = nhours
   history_ymd = -999
   coupling_mode = hafs
-  system_type = cdeps
+  system_type = _system_type_
 ::
 
 ALLCOMP_attributes::

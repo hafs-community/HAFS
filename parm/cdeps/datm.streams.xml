@@ -2,14 +2,14 @@
 <file id="stream" version="2.0">
 
   <stream_info name="ERA5_HOURLY">
-   <taxmode>cycle</taxmode>
+   <taxmode>limit</taxmode>
    <tInterpAlgo>linear</tInterpAlgo>
    <readMode>single</readMode>
    <mapalgo>bilinear</mapalgo>
    <dtlimit>1.5</dtlimit>
    <yearFirst>_yearFirst_</yearFirst>
    <yearLast>_yearLast_</yearLast>
-   <yearAlign>1900</yearAlign>
+   <yearAlign>_yearFirst_</yearAlign>
    <stream_vectors>u:v</stream_vectors>
    <stream_mesh_file>_mesh_atm_</stream_mesh_file>
    <stream_lev_dimname>null</stream_lev_dimname>

@@ -16,7 +16,7 @@ The following commands can be used to install required Python modules to run thi
 
     pip install xarray --user
     pip install dask --user
-    pip install "dask[array]" --upgrade —user
+    pip install "dask[array]" --upgrade --user
     pip install "dask[dataframe]" --upgrade --user
 """)
     exit(2)
