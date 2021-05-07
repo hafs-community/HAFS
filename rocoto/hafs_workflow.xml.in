@@ -638,9 +638,6 @@
             <taskdep task="atm_ic"/>
 @** if gtype==regional
             <metataskdep metatask="atm_lbc"/>
-@** if RUN_OCEAN==YES
-            <taskdep task="ocn_prep"/>
-@** endif
 @** if RUN_GSI==YES
             <taskdep task="analysis"/>
 @** endif
@@ -649,6 +646,9 @@
 @** endif
           </and>
         </or>
+@** if RUN_OCEAN==YES
+        <taskdep task="ocn_prep"/>
+@** endif
 @** endif
       </and>
     </dependency>
