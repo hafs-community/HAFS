@@ -1,96 +1,74 @@
 #!/bin/sh
 
-set -xe
-
 date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
 source ${USHhafs}/hafs_pre_job.sh.inc
-HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
-source ${HOLDVARS}
+source ${HOLDVARS:-storm1.holdvars.txt}
 
-export EXPT=${EXPT:-HAFS}
-export SUBEXPT=${SUBEXPT:-${EXPT}}
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles
+  module load modulefile.graphics.run.${machine}
+  module list
+fi
 
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:-00}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
+source ${USHhafs}/hafs_runcmd.sh.inc
 
-export NHRS=${NHRS:-126}
-export NBDYHRS=${NBDYHRS:-3}
-export NOUTHRS=${NOUTHRS:-3}
-export CASE=${CASE:-C768}
-export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export LEVS=${LEVS:-65}
-export NTRAC=7			# output all gfdl mp tracers
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
 
-####################################
-# Specify Execution Areas
-####################################
-export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
 export HOMEgraph=${HOMEgraph:-${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics}
 export USHgraph=${USHgraph:-${HOMEgraph}/ush}
 export WORKgraph=${WORKgraph:-${COMhafs}/../../../${YMDH}/${STORMID}/emc_graphics}
 export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
 
-export ADECKgraph=${ADECKhafs:-/mnt/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/aid}
-export BDECKgraph=${BDECKhafs:-/mnt/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/btk}
-export SYNDAThafs=${SYNDAThafs:-/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS}
+export ADECKgraph=${ADECKhafs:?}
+export BDECKgraph=${BDECKhafs:?}
+export SYNDAThafs=${SYNDAThafs:?}
 
-####################################
-# Load Modules if Needed
-####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
-#export RUN_ENVIR=${RUN_ENVIR:-prod}
-export RUN_ENVIR=${envir:-prod}
-if [ "$RUN_ENVIR" = prod ]; then
-  module use ${HOMEgraph}/modulefiles
-  module load modulefile.graphics.run.${machine}
-  module list
-fi
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
 
-#####################################
-# Set up job node/core/run environment variables
-#####################################
-source ${USHhafs}/hafs_runcmd.sh.inc
-
-####################################
-# Run setpdy and initialize PDY variables
-####################################
-#setpdy.sh
-#. ./PDY
-
-PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
-export PDY=${PDY:-${PDYtmp}}
-
-#####################################
-# Working directories
-#####################################
+export DATA=${WORKgraph}
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf ${WORKgraph}
+  rm -rf $DATA
 fi
 
-mkdir -p ${WORKgraph}
-cd ${WORKgraph}
+mkdir -p $DATA
+cd $DATA
 
-#####################################
-# Execute the script.
+# Execute ex-script
 ${HOMEhafs}/scripts/exhafs_emcgraphics.sh
 export err=$?
-#####################################
-
 exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

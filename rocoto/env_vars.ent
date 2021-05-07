@@ -9,10 +9,6 @@
   <value>prod</value>
 </envar>
 <envar>
-  <name>PARAFLAG</name>
-  <value>YES</value>
-</envar>
-<envar>
   <name>WHERE_AM_I</name>
   <value>&WHERE_AM_I;</value>
 </envar>
@@ -43,10 +39,6 @@
 <envar>
   <name>HOLDVARS</name>
   <value><cyclestr>&HOLDVARS;</cyclestr></value>
-</envar>
-<envar>
-  <name>HAFS_FORCE_TMPDIR</name>
-  <value><cyclestr>&WORKhafs;/tmpdir</cyclestr></value>
 </envar>
 <envar>
   <name>jlogfile</name>

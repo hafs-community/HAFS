@@ -1421,6 +1421,7 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
+        *  cap_run_gsi_vr --- capitalized version of [config] section run_gsi_vr
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1457,7 +1458,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
 
         # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('post','synop_gridspecs','auto')
+        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
         # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
         if synop_gridspecs=='auto':
             if output_grid=='rotated_latlon':
@@ -1482,12 +1483,46 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','synop_gridspecs',synop_gridspecs)
 
         # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('post','trker_gridspecs','auto')
+        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
         if trker_gridspecs=='auto':
             logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
             trker_gridspecs=synop_gridspecs
             logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
+
+        # Generate synop_gridspecs_ens if needed
+        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
+        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
+        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
+        if synop_gridspecs_ens=='auto':
+            if output_grid=='rotated_latlon':
+                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
+                latlon_lat0=output_grid_cen_lat+output_grid_lat1
+                latlon_dlon=output_grid_dlon*grid_ratio_ens
+                latlon_dlat=output_grid_dlat*grid_ratio_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+            elif output_grid=='regional_latlon':
+                latlon_lon0=output_grid_lon1
+                latlon_lat0=output_grid_lat1
+                latlon_dlon=output_grid_dlon*grid_ratio_ens
+                latlon_dlat=output_grid_dlat*grid_ratio_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
+            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
+                latlon_lon0,latlon_nlon,latlon_dlon,
+                latlon_lat0,latlon_nlat,latlon_dlat)
+            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
+        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
+
+        # Set trker_gridspecs_ens if needed
+        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
+        if trker_gridspecs_ens=='auto':
+            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
+            trker_gridspecs_ens=synop_gridspecs_ens
+            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
+        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
 
         run_ocean=self.getbool('config','run_ocean')
 
@@ -1498,8 +1533,29 @@ class HAFSLauncher(HAFSConfig):
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
 
+        gsi_vr_flag=self.getbool('config','run_gsi_vr')
+        self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
+
+        gsi_vr_fgat_flag=self.getbool('config','run_gsi_vr_fgat')
+        self.set('holdvars','cap_run_gsi_vr_fgat',('YES' if gsi_vr_fgat_flag else 'NO'))
+
+        gsi_vr_ens_flag=self.getbool('config','run_gsi_vr_ens')
+        self.set('holdvars','cap_run_gsi_vr_ens',('YES' if gsi_vr_ens_flag else 'NO'))
+
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+
+        fgat_flag=self.getbool('config','run_fgat')
+        self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
+
+        envar_flag=self.getbool('config','run_envar')
+        self.set('holdvars','cap_run_envar',('YES' if envar_flag else 'NO'))
+
+        ensda_flag=self.getbool('config','run_ensda')
+        self.set('holdvars','cap_run_ensda',('YES' if ensda_flag else 'NO'))
+
+        enkf_flag=self.getbool('config','run_enkf')
+        self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',

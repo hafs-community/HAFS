@@ -1,6 +1,7 @@
 #
 *.pyc
 *.o
+*.lo
 *.mod
 *.a
 *.exe

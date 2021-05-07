@@ -1,0 +1,12 @@
+* The following files in this directory come from ../../sorc/hafs_post.fd/parm/
+nam_micro_lookup.dat
+params_grib2_tbl_new
+postcntrl_hafs.xml
+postxconfig-NT-hafs.txt
+
+* To update postcntrl_hafs.xml and regenerate postxconfig-NT-hafs.txt
+cd ../../sorc/hafs_post.fd/parm/
+# Edit postcntrl_hafs.xml
+vi postcntrl_hafs.xml
+# Regenerate postxconfig-NT-hafs.txt
+make 
