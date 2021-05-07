@@ -62,10 +62,14 @@ hrd_multistorm_keygen=functools.cmp_to_key(hrd_multistorm_sorter)
 # through a datetime.datetime.format to get the final filename.
 vitfiles=[
     '/gpfs/dell1/nco/ops/com/gfs/prod/syndat/syndat_tcvitals.%Y',
+    '/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y']
+
+if 'SYNDAThafs' in os.environ:
+    vitfiles=os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y'
 
 def main(args):
     """!Set up logging, reads vitals, outputs storm list."""
