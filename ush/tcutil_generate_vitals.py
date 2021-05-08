@@ -104,7 +104,7 @@ def set_para_paths():
     else:
         tcvlocs.append('/gpfs/dell1/nco/ops/com/gfs/prod/syndat')
     if 'SYNDAThafs' in os.environ:
-        tcvlocs=os.environ['SYNDAThafs']
+        tcvlocs=[os.environ['SYNDAThafs'],]
 
 # END OF SECTION WITH HARD-CODED PATHS #################################
 ########################################################################

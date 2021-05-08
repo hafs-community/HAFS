@@ -69,7 +69,7 @@ vitfiles=[
     '/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y']
 
 if 'SYNDAThafs' in os.environ:
-    vitfiles=os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y'
+    vitfiles=[os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y',]
 
 def main(args):
     """!Set up logging, reads vitals, outputs storm list."""
