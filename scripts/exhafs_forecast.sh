@@ -294,6 +294,8 @@ else
   mkdir -p ${RESTARTout}
 fi
 
+mkdir -p INPUT
+
 if [ ${run_datm} = no ];  then
 
 # Link the input IC and/or LBC files into the INPUT dir
@@ -302,7 +304,6 @@ if [ ! -d $INPdir ]; then
    exit 9
 fi
 
-mkdir -p INPUT
 ${NLN} ${INPdir}/*.nc INPUT/
 
 # Copy fix files
@@ -621,6 +622,9 @@ cat > temp << EOF
 ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 $yr $mn $dy $cyc 0 0
 EOF
+
+enddate=`${NDATE} +${NHRS} $CDATE`
+endyr=`echo $enddate | cut -c1-4`
 
 if [ ${run_datm} = no ];  then
 cat temp diag_table.tmp > diag_table
