@@ -1,30 +1,3 @@
-# Workaround for misconfigured or problematic clusters.  The TMPDIR
-# variable sets the directory for temporary files.  Sometimes this is
-# set to a location that does not exist or is in memory.  The $TMPDIR
-# variable is not always passed through to batch jobs.  This
-# workaround sets it to some other specified location from the
-# $HAFS_FORCE_ALT_TMPDIR or $HAFS_FORCE_TMPDIR variables.  We use
-# $HAFS_FORCE_TMPDIR as the default for all jobs, and allow per-job
-# overrides via $HAFS_FORCE_ALT_TMPDIR.  Such overrides are needed
-# only for jobs that are scrubbing the parent of the regular tmpdir,
-# or that run after that directory is removed.
-
-if [[ "Q${HAFS_FORCE_ALT_TMPDIR:-}" != "Q" ]] ; then
-    if [[ ! -d "$HAFS_FORCE_ALT_TMPDIR" ]] ; then
-        if ( mkdir -p "$HAFS_FORCE_ALT_TMPDIR" ) ; then
-            :  # trick to avoid triggering a set -e during a race condition
-        fi
-    fi
-    export TMPDIR="$HAFS_FORCE_ALT_TMPDIR"
-elif [[ "Q${HAFS_FORCE_TMPDIR:-}" != "Q" ]] ; then
-    if [[ ! -d "$HAFS_FORCE_TMPDIR" ]] ; then
-        if ( mkdir -p "$HAFS_FORCE_TMPDIR" ) ; then
-            :  # trick to avoid triggering a set -e during a race condition
-        fi
-    fi
-    export TMPDIR="$HAFS_FORCE_TMPDIR"
-fi
-
 # Create a test function for sh vs. bash detection.  The name is
 # randomly generated to reduce the chances of name collision.
 __ms_function_name="setup__test_function__$$"
@@ -75,7 +48,6 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
     ulimit -s unlimited
-    #ulimit -a
 elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     # We are on NOAA Luna or Surge
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -109,7 +81,6 @@ elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
     module use /opt/cray/ari/modulefiles
     module use /opt/modulefiles
     module load modules
-
 elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     # We are on NOAA Venus or Mars
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -117,18 +88,8 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
         source /usrx/local/prod/lmod/lmod/init/$__ms_shell
     fi
     target=wcoss_dell_p3
-    module purge 
-    source /usrx/local/prod/lmod/lmod/init/$__ms_shell
-    module load EnvVars/1.0.2
-
-elif [[ -d /dcom && -d /hwrf ]] ; then
-    # We are on NOAA Tide or Gyre
-    if ( ! eval module help > /dev/null 2>&1 ) ; then
-        echo load the module command 1>&2
-        source /usrx/local/Modules/default/init/$__ms_shell
-    fi
-    target=wcoss
     module purge
+    source /usrx/local/prod/lmod/lmod/init/$__ms_shell
 elif [[ -d /glade ]] ; then
     # We are on NCAR Yellowstone
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -138,7 +99,7 @@ elif [[ -d /glade ]] ; then
     target=yellowstone
     module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
-    # We are on GAEA. 
+    # We are on GAEA.
     if ( ! eval module help > /dev/null 2>&1 ) ; then
         # We cannot simply load the module command.  The GAEA
         # /etc/profile modifies a number of module-related variables
@@ -164,21 +125,10 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
-moduleuse=$HOMEhafs/modulefiles
-if [[ "$moduleuse" != no ]] ; then
-  module use $moduleuse 
-  module load modulefile.hafs.run.$WHERE_AM_I
+if [[ Q"${HOMEhafs:-}" != "Q" ]]; then
+  module use $HOMEhafs/modulefiles
+  module load modulefile.hafs.$WHERE_AM_I
 fi
-set +u
-if [[ "Q${utilexec:-}" != Q ]] ; then
-  export PATH=$utilexec:$PATH
-fi
-if [[ "Q${EXEChafs:-}" != Q ]] ; then
-  export PATH=$EXEChafs:$PATH
-elif [[ "Q${HOMEhafs:-}" != Q ]] ; then
-  export PATH=$HOMEhafs/exec:$PATH
-fi
-if [[ "$target" == "wcoss_dell_p3" ]]; then
-  export PYTHONPATH=$PYTHONPATH:$HOMEhafs/ush
-fi
-set -u
+
+# Avoild "NetCDF: HDF error"
+export HDF5_USE_FILE_LOCKING=FALSE

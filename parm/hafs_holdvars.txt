@@ -8,13 +8,22 @@ export envir={ENV[envir|-prod]}
 export storm_num={storm_num}
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_VORTEXINIT={RUN_VORTEXINIT}
+export RUN_GSI_VR={RUN_GSI_VR}
+export RUN_GSI_VR_FGAT={RUN_GSI_VR_FGAT}
+export RUN_GSI_VR_ENS={RUN_GSI_VR_ENS}
 export RUN_GSI={RUN_GSI}
+export RUN_FGAT={RUN_FGAT}
+export RUN_ENVAR={RUN_ENVAR}
+export RUN_ENSDA={RUN_ENSDA}
+export RUN_ENKF={RUN_ENKF}
 export GSID01={GSID01}
 export GSID02={GSID02}
 export GSID03={GSID03}
 export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
+
+export warm_start_opt={warm_start_opt}
 
 export utilexec={utilexec}
 
@@ -49,11 +58,9 @@ export NBDYHRS={NBDYHRS}
 export GFSVER={GFSVER}
 export ictype={ictype}
 export bctype={bctype}
+export ictype_ens={ictype_ens}
+export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
-
-export ccpp_suite_regional={ccpp_suite_regional}
-export ccpp_suite_glob={ccpp_suite_glob}
-export ccpp_suite_nest={ccpp_suite_nest}
 
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
@@ -79,17 +86,27 @@ export halo0={halo0}
 
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
+export use_bufr_nr={use_bufr_nr}
+
+export ccpp_suite_regional={ccpp_suite_regional}
+export ccpp_suite_glob={ccpp_suite_glob}
+export ccpp_suite_nest={ccpp_suite_nest}
+
 export dt_atmos={dt_atmos}
 export restart_interval={restart_interval}
 export quilting={quilting}
 export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
 
+export glob_k_split={glob_k_split}
+export glob_n_split={glob_n_split}
 export glob_layoutx={glob_layoutx}
 export glob_layouty={glob_layouty}
 export glob_npx={glob_npx}
 export glob_npy={glob_npy}
 
+export k_split={k_split}
+export n_split={n_split}
 export layoutx={layoutx}
 export layouty={layouty}
 export npx={npx}
@@ -112,6 +129,45 @@ export out_prefix_nodate={out_prefix_nodate}
 export synop_gridspecs={synop_gridspecs}
 export trker_gridspecs={trker_gridspecs}
 
+# ENSDA related items
+export ENS_SIZE={ENS_SIZE}
+export GRID_RATIO_ENS={GRID_RATIO_ENS}
+export NHRS_ENS={NHRS_ENS}
+export NBDYHRS_ENS={NBDYHRS_ENS}
+export CASE_ENS={CASE_ENS}
+export LEVS_ENS={LEVS_ENS}
+export gtype_ens={gtype_ens}
+export gridfixdir_ens={gridfixdir_ens}
+export stretch_fac_ens={stretch_fac_ens}
+export target_lon_ens={target_lon_ens}
+export target_lat_ens={target_lat_ens}
+export refine_ratio_ens={refine_ratio_ens}
+export istart_nest_ens={istart_nest_ens}
+export jstart_nest_ens={jstart_nest_ens}
+export iend_nest_ens={iend_nest_ens}
+export jend_nest_ens={jend_nest_ens}
+export ccpp_suite_regional_ens={ccpp_suite_regional_ens}
+export ccpp_suite_glob_ens={ccpp_suite_glob_ens}
+export ccpp_suite_nest_ens={ccpp_suite_nest_ens}
+export dt_atmos_ens={dt_atmos_ens}
+export restart_interval_ens={restart_interval_ens}
+export quilting_ens={quilting_ens}
+export write_groups_ens={write_groups_ens}
+export write_tasks_per_group_ens={write_tasks_per_group_ens}
+export k_split_ens={k_split_ens}
+export n_split_ens={n_split_ens}
+export glob_layoutx_ens={glob_layoutx_ens}
+export glob_layouty_ens={glob_layouty_ens}
+export glob_npx_ens={glob_npx_ens}
+export glob_npy_ens={glob_npy_ens}
+export layoutx_ens={layoutx_ens}
+export layouty_ens={layouty_ens}
+export npx_ens={npx_ens}
+export npy_ens={npy_ens}
+export npz_ens={npz_ens}
+export synop_gridspecs_ens={synop_gridspecs_ens}
+export trker_gridspecs_ens={trker_gridspecs_ens}
+
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
 export cpl_dt={cpl_dt}
@@ -130,7 +186,6 @@ export CENLO={domlon}
 export CENLA={domlat}
 
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
-    export NWPROD={HOMEhafs}/nwport
     export EXPT={EXPT}
     export SUBEXPT={SUBEXPT}
     export WHERE_AM_I={ENVEQUIV}
