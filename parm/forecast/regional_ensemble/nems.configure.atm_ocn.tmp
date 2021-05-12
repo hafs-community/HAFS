@@ -1,0 +1,80 @@
+# component list
+EARTH_component_list: ATM OCN
+
+# component models
+ATM_model: fv3
+OCN_model: hycom
+
+# component petLists
+_ATM_petlist_bounds_
+_OCN_petlist_bounds_
+
+# run sequence
+runSeq::
+    @_cpl_dt_
+ _runSeq_ALL_
+    @
+::
+
+# component attributes
+
+ATM_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+::
+
+OCN_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+  cdf_impexp_freq = 3
+  cpl_hour = 0
+  cpl_min = 0
+  cpl_sec = _cpl_dt_
+  base_dtg = _base_dtg_
+  merge_import = _merge_import_
+  skip_first_import = .true.
+  hycom_arche_output = .false.
+  hyc_esmf_exp_output = .true.
+  hyc_esmf_imp_output = .true.
+  hyc_impexp_file = dummy_file
+  espc_show_impexp_minmax = .true.
+  ocean_start_dtg = _ocean_start_dtg_
+  start_hour = 0
+  start_min = 0
+  start_sec = 0
+  end_hour = _end_hour_
+  end_min = 0
+  end_sec = 0
+::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+ALLCOMP_attributes::
+  mediator_read_restart = false
+# ScalarFieldCount = 3
+# ScalarFieldIdxGridNX = 1
+# ScalarFieldIdxGridNY = 2
+# ScalarFieldIdxNextSwCday = 3
+# ScalarFieldName = cpl_scalars
+::
+
+ocn_export_fields::
+  'sst'         'sea_surface_temperature' 'K'       '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+# 'mask'        'So_omask'                '1'       '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+::
+
+ocn_import_fields::
+  'u10'    'inst_zonal_wind_height10m' 'm_s-1'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'v10'    'inst_merid_wind_height10m' 'm_s-1'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'taux10' 'mean_zonal_moment_flx_atm' 'N_m-2'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'tauy10' 'mean_merid_moment_flx_atm' 'N_m-2'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'airtmp' 'inst_temp_height2m'        'K'          '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'airhum' 'inst_spec_humid_height2m'  'kg_kg-1'    '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'prcp'   'mean_prec_rate'            'kg_m-2_s-1' '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'swflxd' 'mean_net_sw_flx'           'W_m-2'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'lwflxd' 'mean_net_lw_flx'           'W_m-2'      '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'mslprs' 'inst_pres_height_surface'  'Pa'         '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+  'gt'     'inst_temp_height_surface'  'K'          '.TRUE.' 'FLD_REMAP_BILINR' 'FLD_MASK_NNE' '1'
+::
