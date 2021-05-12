@@ -9,7 +9,7 @@
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
-	branch = support/HAFS
+	branch = feature/gefs_canopyfix
 [submodule "gfdl-tracker"]
 	path = sorc/hafs_vortextracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
