@@ -40,6 +40,12 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+export COMgfs_ocean={COMgfs_ocean}
+export ENS={ENS}
+export NOUTHRS={NOUTHRS}
+export do_sppt={do_sppt}
+export do_shum={do_shum}
+export do_skeb={do_skeb}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}

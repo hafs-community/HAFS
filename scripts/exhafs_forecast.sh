@@ -2,6 +2,8 @@
 
 set -xe
 
+ENS=${ENS:-99}
+
 NCP=${NCP:-'/bin/cp'}
 NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
@@ -364,6 +366,27 @@ nest_pes=$(( ${layoutx} * ${layouty} ))
 ioffset=$(( (istart_nest-1)/2 + 1))
 joffset=$(( (jstart_nest-1)/2 + 1))
 
+iseed1=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+3}'`
+iseed2=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+4}'`
+iseed3=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+5}'`
+iseed4=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+6}'`
+iseed5=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+7}'`
+export iseed_sppt1=$iseed1
+export iseed_sppt2=$iseed2
+export iseed_sppt3=$iseed3
+export iseed_sppt4=$iseed4
+export iseed_sppt5=$iseed5
+export iseed_skeb1=$iseed1
+export iseed_skeb2=$iseed2
+export iseed_skeb3=$iseed3
+export iseed_skeb4=$iseed4
+export iseed_skeb5=$iseed5
+export iseed_shum1=$iseed1
+export iseed_shum2=$iseed2
+export iseed_shum3=$iseed3
+export iseed_shum4=$iseed4
+export iseed_shum5=$iseed5
+
 sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
@@ -372,6 +395,24 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${glob_npx}/g" \
     -e "s/_npy_/${glob_npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_do_sppt_/${do_sppt}/g" \
+    -e "s/_do_shum_/${do_shum}/g" \
+    -e "s/_do_skeb_/${do_skeb}/g" \
+    -e "s/_iseed_sppt1_/${iseed_sppt1}/g" \
+    -e "s/_iseed_sppt2_/${iseed_sppt2}/g" \
+    -e "s/_iseed_sppt3_/${iseed_sppt3}/g" \
+    -e "s/_iseed_sppt4_/${iseed_sppt4}/g" \
+    -e "s/_iseed_sppt5_/${iseed_sppt5}/g" \
+    -e "s/_iseed_shum1_/${iseed_shum1}/g" \
+    -e "s/_iseed_shum2_/${iseed_shum2}/g" \
+    -e "s/_iseed_shum3_/${iseed_shum3}/g" \
+    -e "s/_iseed_shum4_/${iseed_shum4}/g" \
+    -e "s/_iseed_shum5_/${iseed_shum5}/g" \
+    -e "s/_iseed_skeb1_/${iseed_skeb1}/g" \
+    -e "s/_iseed_skeb2_/${iseed_skeb2}/g" \
+    -e "s/_iseed_skeb3_/${iseed_skeb3}/g" \
+    -e "s/_iseed_skeb4_/${iseed_skeb4}/g" \
+    -e "s/_iseed_skeb5_/${iseed_skeb5}/g" \
     -e "s/_k_split_/${glob_k_split}/g" \
     -e "s/_n_split_/${glob_n_split}/g" \
     -e "s/_na_init_/${na_init}/g" \
@@ -468,6 +509,27 @@ ${NCP} ${PARMforecast}/field_table .
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
 
+iseed1=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+3}'`
+iseed2=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+4}'`
+iseed3=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+5}'`
+iseed4=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+6}'`
+iseed5=`echo $CDATE $ENS |awk '{print $1*1000+$2*10+7}'`
+export iseed_sppt1=$iseed1
+export iseed_sppt2=$iseed2
+export iseed_sppt3=$iseed3
+export iseed_sppt4=$iseed4
+export iseed_sppt5=$iseed5
+export iseed_skeb1=$iseed1
+export iseed_skeb2=$iseed2
+export iseed_skeb3=$iseed3
+export iseed_skeb4=$iseed4
+export iseed_skeb5=$iseed5
+export iseed_shum1=$iseed1
+export iseed_shum2=$iseed2
+export iseed_shum3=$iseed3
+export iseed_shum4=$iseed4
+export iseed_shum5=$iseed5
+
 if [ ${run_ocean} = yes ]; then
   if [[ ${cpl_ocean} -eq 3 ]]; then
     ${NCP} ${PARMforecast}/nems.configure.atm_ocn_cmeps.tmp ./nems.configure.tmp
@@ -499,6 +561,29 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_npx_/${npx}/g" \
     -e "s/_npy_/${npy}/g" \
     -e "s/_npz_/${npz}/g" \
+    -e "s/_do_sppt_/${do_sppt}/g" \
+    -e "s/_do_shum_/${do_shum}/g" \
+    -e "s/_do_skeb_/${do_skeb}/g" \
+    -e "s/_iseed_sppt1_/${iseed_sppt1}/g" \
+    -e "s/_iseed_sppt2_/${iseed_sppt2}/g" \
+    -e "s/_iseed_sppt3_/${iseed_sppt3}/g" \
+    -e "s/_iseed_sppt4_/${iseed_sppt4}/g" \
+    -e "s/_iseed_sppt5_/${iseed_sppt5}/g" \
+    -e "s/_iseed_shum1_/${iseed_shum1}/g" \
+    -e "s/_iseed_shum2_/${iseed_shum2}/g" \
+    -e "s/_iseed_shum3_/${iseed_shum3}/g" \
+    -e "s/_iseed_shum4_/${iseed_shum4}/g" \
+    -e "s/_iseed_shum5_/${iseed_shum5}/g" \
+    -e "s/_iseed_skeb1_/${iseed_skeb1}/g" \
+    -e "s/_iseed_skeb2_/${iseed_skeb2}/g" \
+    -e "s/_iseed_skeb3_/${iseed_skeb3}/g" \
+    -e "s/_iseed_skeb4_/${iseed_skeb4}/g" \
+    -e "s/_iseed_skeb5_/${iseed_skeb5}/g" \
+    -e "s/_iseed_sppt1_/${iseed_sppt1}/g" \
+    -e "s/_iseed_sppt2_/${iseed_sppt2}/g" \
+    -e "s/_iseed_sppt3_/${iseed_sppt3}/g" \
+    -e "s/_iseed_sppt4_/${iseed_sppt4}/g" \
+    -e "s/_iseed_sppt5_/${iseed_sppt5}/g" \
     -e "s/_k_split_/${k_split}/g" \
     -e "s/_n_split_/${n_split}/g" \
     -e "s/_na_init_/${na_init}/g" \
