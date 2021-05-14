@@ -13,8 +13,7 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrf-vd/${USER}/HAFS2021_ensemble
-#dev="-s sites/xjet.ent -f"
+#HOMEhafs=/mnt/lfs4/HFIP/hwrf-vd/${USER}/H221_hafs_ensemble
 #dev="-s sites/xjet_ensemble.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
@@ -25,9 +24,9 @@ date
 # PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
-HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/H221_hafs_ensemble
-dev="-s sites/hera_ensemble.ent -f"
-PYTHON3=/apps/intel/intelpython3/bin/python3
+#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/H221_hafs_ensemble
+#dev="-s sites/hera_ensemble.ent -f"
+#PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
@@ -46,22 +45,22 @@ scrubopt="config.scrub_work=yes config.scrub_com=yes"
 #Jet
 #for ens in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 #do
-#
+
 #if [ $ens -eq 00 ] ; then
-# ${PYTHON3} ./run_hafs.py -t ${dev} 2020082112 00L HISTORY \
+# ${PYTHON3} ./run_hafs.py -t ${dev} 2020081918 00L HISTORY \
 #     ${confopts_noocean} ${scrubopt} \
 #     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_${ens} config.ENS=${ens} \
 #     config.do_sppt=.F. config.do_shum=.F. config.do_skeb=.F. \
-#     config.disk_project=hurricane forecast.layoutx=13 forecast.layouty=12 \
+#     config.disk_project=hwrf-vd forecast.layoutx=13 forecast.layouty=12 \
 #     forecast.write_tasks_per_group=12 dir.COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/GEFS
 #else
-# ${PYTHON3} ./run_hafs.py -t ${dev} 2020082112 00L HISTORY \
+# ${PYTHON3} ./run_hafs.py -t ${dev} 2020081918 00L HISTORY \
 #     ${confopts_noocean} ${scrubopt} \
 #     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_${ens} config.ENS=${ens} \
-#     config.disk_project=hurricane forecast.layoutx=13 forecast.layouty=12 \
+#     config.disk_project=hwrf-vd forecast.layoutx=13 forecast.layouty=12 \
 #     forecast.write_tasks_per_group=12 dir.COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/GEFS
 #fi
-#
+
 #done
 
 #Orion
