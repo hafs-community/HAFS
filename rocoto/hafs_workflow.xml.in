@@ -942,8 +942,6 @@
 
 @** endif
 
->>>>>>> remotes/origin/feature/hafs_ensda
-
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_HRDGRAPHICS</command>
