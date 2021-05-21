@@ -315,7 +315,7 @@ for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
 done
 
 # If needed, copy fix files needed by the hwrf ccpp physics suite
-if [[ ${ccpp_suite_regional} == *"hwrf"* ]] ||  [[ ${ccpp_suite_glob} == *"hwrf"* ]] || [[ ${ccpp_suite_nest} == *"hwrf"* ]]; then 
+if [[ ${ccpp_suite_regional} == *"hwrf"* ]] ||  [[ ${ccpp_suite_glob} == *"hwrf"* ]] || [[ ${ccpp_suite_nest} == *"hwrf"* ]]; then
   ${NCP} ${PARMhafs}/forecast/hwrf_physics_fix/* .
 fi
 
@@ -363,8 +363,10 @@ glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 nest_pes=$(( ${layoutx} * ${layouty} ))
 ioffset=$(( (istart_nest-1)/2 + 1))
 joffset=$(( (jstart_nest-1)/2 + 1))
+blocksize=$(( ${glob_npy}/${glob_layouty} ))
 
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${glob_layoutx}/g" \
@@ -388,6 +390,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_fhswr_/${fhswr:-1800.}/g" \
+    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
     -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
     -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
@@ -397,7 +401,9 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
 
+blocksize=$(( ${npy}/${layouty} ))
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
@@ -421,6 +427,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_glob_pes_/${glob_pes}/g" \
     -e "s/_nest_pes_/${nest_pes}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_fhswr_/${fhswr:-1800.}/g" \
+    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
     -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
     -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
@@ -491,7 +499,9 @@ else
   exit 9
 fi
 
+blocksize=$(( ${npy}/${layouty} ))
 sed -e "s/_fhmax_/${NHRS}/g" \
+    -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
@@ -512,6 +522,8 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_bc_update_interval_/${NBDYHRS}/g" \
     -e "s/_nrows_blend_/${halo_blend}/g" \
     -e "s/_levp_/${LEVS}/g" \
+    -e "s/_fhswr_/${fhswr:-1800.}/g" \
+    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
     -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
     -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
@@ -523,11 +535,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
 
 if [ ${run_ocean} = yes ];  then
   # Copy hycom related files
-  ${NCP} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+  ${NCP} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
   hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
   # copy IC/BC
-  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
-  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
+  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
+  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
   # copy forcing
   ${NCP} ${WORKhafs}/intercom/hycominit/forcing* .
   ${NLN} forcing.presur.a forcing.mslprs.a
@@ -554,7 +566,7 @@ if [ ${run_ocean} = yes ];  then
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
   # copy parms
-  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input 
+  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
   # create hycom limits

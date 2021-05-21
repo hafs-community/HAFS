@@ -8,7 +8,7 @@
 /
 
  &atmos_model_nml
-       blocksize = 40
+       blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
        fdiag = 3
@@ -41,7 +41,7 @@
 
  &fms_nml
        clock_grain = 'ROUTINE',
-       domains_stack_size = 12000000,
+       domains_stack_size = 30000000,
        print_memory_usage = .false.
 /
 
@@ -162,8 +162,8 @@
        ncld           = 5
        imp_physics    = 11
        pdfcld         = .false.
-       fhswr          = 900.
-       fhlwr          = 900.
+       fhswr          = _fhswr_
+       fhlwr          = _fhlwr_
        ialb           = 1
        iems           = 1
        iaer           = 111
