@@ -50,6 +50,8 @@ if [ "${ENSDA}" != YES ]; then
   quilting=${quilting:-.true.}
   write_groups=${write_groups:-3}
   write_tasks_per_group=${write_tasks_per_group:-72}
+  write_dopost=${write_dopost:-.false.}
+  output_history=${output_history:-.true.}
   glob_k_split=${glob_k_split:-1}
   glob_n_split=${glob_n_split:-7}
   glob_layoutx=${glob_layoutx:-12}
@@ -85,6 +87,8 @@ else
   quilting=${quilting_ens:-.true.}
   write_groups=${write_groups_ens:-3}
   write_tasks_per_group=${write_tasks_per_group_ens:-72}
+  write_dopost=${write_dopost_ens:-.false.}
+  output_history=${output_history_ens:-.true.}
   glob_k_split=${glob_k_split_ens:-1}
   glob_n_split=${glob_n_split_ens:-7}
   glob_layoutx=${glob_layoutx_ens:-12}
@@ -617,6 +621,8 @@ sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
     -e "s/_quilting_/${quilting}/g" \
     -e "s/_write_groups_/${write_groups}/g" \
     -e "s/_write_tasks_per_group_/${write_tasks_per_group}/g" \
+    -e "s/_write_dopost_/${write_dopost:-.false.}/g" \
+    -e "s/_output_history_/${output_history:-.true.}/g" \
     -e "s/_app_domain_/${app_domain}/g" \
     -e "s/_OUTPUT_GRID_/$output_grid/g" \
     -e "s/_CEN_LON_/$output_grid_cen_lon/g" \
@@ -629,6 +635,14 @@ sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
     -e "s/_DLAT_/$output_grid_dlat/g" \
     -e "s/_cpl_/${cplflx:-.false.}/g" \
     model_configure.tmp > model_configure
+
+# Copy fix files needed by inline_post
+if [ ${write_dopost:-.false.} = .true. ]; then
+  ${NCP} ${PARMhafs}/post/itag                    ./itag
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
+  ${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+fi
 
 # Copy the fd_nems.yaml file
 ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
