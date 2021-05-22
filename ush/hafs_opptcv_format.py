@@ -190,16 +190,21 @@ class ObsPreProcTCV(object):
         self.ncep_trkr_dict = dict()
         with open(self.ncep_trkr_filename, 'r') as f:
             data = f.read()
+        data = list(filter(None, data.split('\n')))
         event_opts = ['basin', 'tcid']
-        for item in data.split('\n'):
+        for item in data:
             kwargs = {'ncep_trkr_str': item}
             (event, basin, tcid) = self.get_tcvid(**kwargs)
-            if event is not None:
+            if event is None:
+                pass
+            elif event.lower() == 'none':
+                pass
+            else:
                 self.ncep_trkr_dict[event] = dict()
                 for opt in event_opts:
                     self.ncep_trkr_dict[event][opt] = eval(opt)
         for key in self.ncep_trkr_dict.keys():
-            for item in data.split('\n'):
+            for item in data:
                 basin = self.ncep_trkr_dict[key]['basin']
                 tcid = self.ncep_trkr_dict[key]['tcid']
                 ncep_trkr_str = '%s, %s,' % (basin, tcid)
@@ -239,8 +244,9 @@ class ObsPreProcTCV(object):
                             except IndexError:
                                 pass
                     for ncep_trkr_var in ncep_trkr_vars_dict.keys():
-                        self.ncep_trkr_dict[key][ncep_trkr_var] = eval(
-                            ncep_trkr_var)
+                        if key.lower() != 'none':
+                            self.ncep_trkr_dict[key][ncep_trkr_var] = eval(
+                                ncep_trkr_var)
                     break
 
     def read_tcv(self):
@@ -341,8 +347,8 @@ class ObsPreProcTCV(object):
         records_list = ['clat', 'clon', 'pcen', 'vmax']
         with open(self.output_filename, 'wt') as f:
             for event in self.ncep_trkr_dict.keys():
-		# Only do relocation if the storm exists in both previous
-		# forecast guess and tcvitals and the observed vmax > 17. m/s
+                # Only do relocation if the storm exists in both previous
+                # forecast guess and tcvitals and the observed vmax > 17. m/s
                 if event in self.tcv_dict.keys() and self.tcv_dict[event]['vmax'] > 17. :
                     info_str = str()
                     info_str = info_str+'%s' % event
@@ -350,8 +356,8 @@ class ObsPreProcTCV(object):
                         info_str = info_str+' %s' % self.tcv_dict[event][item]
                         info_str = info_str + \
                             ' %s' % self.ncep_trkr_dict[event][item]
-	            # Change to only write out the records if the forecasted and
-	            # observed storm centers are 0.2 degree away from each other.
+                    # Change to only write out the records if the forecasted and
+                    # observed storm centers are 0.2 degree away from each other.
                     if sqrt( (self.ncep_trkr_dict[event]['clon']-self.tcv_dict[event]['clon'])**2.
                            + (self.ncep_trkr_dict[event]['clat']-self.tcv_dict[event]['clat'])**2. ) > 0.2 :
                         f.write('%s\n' % info_str)
@@ -382,8 +388,7 @@ class ObsPreProcTCVError(Exception):
     """
     DESCRIPTION:
 
-    This is the base-class for all module raised exceptions; it is a
-    sub-class of Exceptions.
+    This is the base-class for all module raised exceptions.
 
     INPUT VARIABLES:
 
@@ -455,12 +460,12 @@ class ObsPreProcTCVOptions(object):
         for item in args_list:
             value = getattr(args, item)
             if value is None:
-                msg = ('The command-line argument %s cannot be NoneType. '
-                       'Aborting!!!' % item)
+                msg = ('The argument %s cannot be NoneType. Aborting!!!' % item)
                 raise ObsPreProcTCVError(msg=msg)
             else:
                 setattr(opts_obj, item, value)
         args_list = ['output_filename']
+        args = self.parser.parse_args()
         for item in args_list:
             value = getattr(args, item)
             setattr(opts_obj, item, value)
