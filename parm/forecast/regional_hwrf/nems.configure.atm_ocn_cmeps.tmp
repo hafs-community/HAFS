@@ -4,7 +4,7 @@ EARTH_component_list: ATM OCN MED
 # component models
 ATM_model: fv3
 OCN_model: hycom
-MED_model: nems
+MED_model: cmeps
 
 # component petLists
 _ATM_petlist_bounds_
