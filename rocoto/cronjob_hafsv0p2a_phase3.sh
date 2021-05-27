@@ -34,7 +34,7 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
 
- # hafsv0p2a phase2
+ # hafsv0p2a phase3
  confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase3 \
      ../parm/hafsv0p2a_phase3_AL.conf \
      ../parm/hafs_hycom.conf"
