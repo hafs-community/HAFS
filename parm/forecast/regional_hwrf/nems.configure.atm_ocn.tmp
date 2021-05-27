@@ -12,10 +12,7 @@ _OCN_petlist_bounds_
 # run sequence
 runSeq::
     @_cpl_dt_
-      _runSeq_OCN2ATM_
-      _runSeq_ATM2OCN_
-      _runSeq_ATM_
-      _runSeq_OCN_
+ _runSeq_ALL_
     @
 ::
 
@@ -36,10 +33,12 @@ OCN_attributes::
   base_dtg = _base_dtg_
   merge_import = _merge_import_
   skip_first_import = .true.
-  hycom_arche_output = .true.
+  hycom_arche_output = .false.
   hyc_esmf_exp_output = .true.
   hyc_esmf_imp_output = .true.
-  hyc_impexp_file = dummy_file
+  import_diagnostics = .false.
+  import_setting = flexible
+  hyc_impexp_file = nems.configure
   espc_show_impexp_minmax = .true.
   ocean_start_dtg = _ocean_start_dtg_
   start_hour = 0
@@ -49,3 +48,38 @@ OCN_attributes::
   end_min = 0
   end_sec = 0
 ::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+ALLCOMP_attributes::
+  mediator_read_restart = false
+# ScalarFieldCount = 3
+# ScalarFieldIdxGridNX = 1
+# ScalarFieldIdxGridNY = 2
+# ScalarFieldIdxNextSwCday = 3
+# ScalarFieldName = cpl_scalars
+::
+
+ocn_export_fields::
+  'sst'     'sea_surface_temperature'   'K'
+  'mask'    'ocean_mask'                '1'
+::
+
+ocn_import_fields::
+# 'u10'     'inst_zonal_wind_height10m' 'm_s-1'
+# 'v10'     'inst_merid_wind_height10m' 'm_s-1'
+  'taux10'  'mean_zonal_moment_flx_atm' 'N_m-2'
+  'tauy10'  'mean_merid_moment_flx_atm' 'N_m-2'
+# 'airtmp'  'inst_temp_height2m'        'K'
+# 'airhum'  'inst_spec_humid_height2m'  'kg_kg-1'
+  'prcp'    'mean_prec_rate'            'kg_m-2_s-1'
+  'swflxd'  'mean_net_sw_flx'           'W_m-2'
+  'lwflxd'  'mean_net_lw_flx'           'W_m-2'
+  'mslprs'  'inst_pres_height_surface'  'Pa'
+# 'gt'      'inst_temp_height_surface'  'K'
+  'sensflx' 'mean_sensi_heat_flx'       'W_m-2'
+  'latflx'  'mean_laten_heat_flx'       'W_m-2'
+::
+

@@ -1,0 +1,85 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
+
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
+  module load ufs_${machine}
+  module list
+fi
+
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+
+# Deterministic or ensemble
+if [ "${ENSDA}" != YES ]; then
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_init
+  export RESTARTout=${COMhafs}/RESTART_init
+else
+  export ENSID=${ENSID:-001}
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}
+  export RESTARTout=${COMhafs}/RESTART_init_ens/mem${ENSID}
+fi
+
+#export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
+export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
+export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
+export warm_start_opt=0
+export RUN_GSI=NO
+export RUN_GSI_VR=NO
+export RUN_GSI_VR_ENS=NO
+export RUN_ENKF=NO
+export run_ocean=no
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_forecast.sh
+export err=$?
+exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

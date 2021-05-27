@@ -1,0 +1,76 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
+
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
+  module list
+fi
+
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
+
+export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+
+export BC_GROUPN=${BC_GROUPN:-6}
+export BC_GROUPI=$( printf "%03d" "${BC_GROUPI:-001}" )
+
+# Deterministic or ensemble
+if [ ${ENSDA} != YES ]; then
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}
+else
+  export ENSID=${ENSID:-001}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}_ens/mem${ENSID}
+fi
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $OUTDIR $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_lbc.sh
+export err=$?
+exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

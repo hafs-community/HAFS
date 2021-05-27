@@ -1,93 +1,56 @@
 #!/bin/sh
 
-set -xe
-
 date
-source ${USHhafs}/hafs_pre_job.sh.inc
-HOLDVARS=${HOLDVARS:-/can/not/find/storm1.holdvars.txt}
-source ${HOLDVARS}
+export PS4='+ $SECONDS + '
+set -xue
 
-export EXPT=${EXPT:-HAFS}
-export SUBEXPT=${SUBEXPT:-${EXPT}}
-
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:-00}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
-
-export NHRS=${NHRS:-126}
-export NBDYHRS=${NBDYHRS:-3}
-export CASE=${CASE:-C768}
-export CRES=`echo $CASE | cut -c 2-`
-export gtype=${gtype:-regional}           # grid type = uniform, stretch, nest, or regional
-export LEVS=${LEVS:-65}
-export NTRAC=7            # output all gfdl mp tracers
-
-export NOUTHRS=${NOUTHRS:-3}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
-
-####################################
-# Specify Execution Areas
-####################################
-export HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-export WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
-export COMIN=${COMIN:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export COMOUT=${COMOUT:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-export COMhafs=${COMhafs:-${COMOUT}}
+export HOMEhafs=${HOMEhafs:?}
 export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export HOMEgfs=${HOMEgfs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS/fv3gfs}
-export EXECgfs=${EXECgfs:-${HOMEgfs}/exec}
-export FIXgfs=${FIXgfs:-${HOMEgfs}/fix}
-export USHgfs=${USHfv3:-${HOMEgfs}/ush}
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
 
-export GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
-export TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
-export VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
-export SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
-
-export MPISERIAL=${MPISERIAL:-/gpfs/hps/nco/ops/nwprod/mpiserial.v3.0.0/exec/mpiserial}
-export NDATE=${NDATE:-/gpfs/hps/nco/ops/nwprod/prod_util.v1.0.32/exec/ndate}
-#export WGRIB2=${WGRIB2:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/wgrib2}
-export WGRIB2=${WGRIB2:-/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9}
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8
-#export WGRIB2=/u/Wesley.Ebisuzaki/bin/wgrib2.v2.0.8b9
-export GRB2INDEX=${GRB2INDEX:-/gpfs/hps/nco/ops/nwprod/grib_util.v1.1.0/exec/grb2index}
-
-####################################
-# Load Modules if Needed
-####################################
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
-#export RUN_ENVIR=${RUN_ENVIR:-prod}
-export RUN_ENVIR=${envir:-prod}
-if [ "$RUN_ENVIR" = prod ]; then
-  #module use ${HOMEhafs}/modulefiles
-  #module load modulefile.hafs.run.${machine}
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.${machine}
   module list
 fi
 
-#####################################
-# Set up job node/core/run environment variables
-#####################################
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-####################################
 # Run setpdy and initialize PDY variables
-####################################
 #setpdy.sh
 #. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
 
-PDYtmp=$(echo ${YMDH} | cut -c 1-8 )
-export PDY=${PDY:-${PDYtmp}}
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
 
-#####################################
-# Working directories
-#####################################
-export INPdir=${INPdir:-${WORKhafs}/intercom/post}
-export DATA=${WORKhafs}/product
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+
+# Deterministic or ensemble
+if [ ${ENSDA} = YES ]; then
+  export ENSID=${ENSID:-001}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/post_ens/mem${ENSID}}
+  export DATA=${WORKhafs}/product_ens/mem${ENSID}
+  export COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
+else
+  export INPdir=${INPdir:-${WORKhafs}/intercom/post}
+  export DATA=${WORKhafs}/product
+  export COMOUTproduct=${COMhafs}
+fi
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -96,13 +59,18 @@ if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
 
+mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
-#####################################
-# Execute the script.
+# Execute ex-script
 ${HOMEhafs}/scripts/exhafs_product.sh
 export err=$?
-#####################################
-
 exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

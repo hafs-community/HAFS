@@ -1,0 +1,74 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
+
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
+  module load build.${machine}.intel
+  module list
+fi
+
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+
+# Deterministic or ensemble
+if [ "${ENSDA}" != YES ]; then
+  export CASE=${CASE:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
+  export DATA=${WORKhafs}/atm_prep
+else
+  export CASE=${CASE_ENS:-C768}
+  export CRES=`echo $CASE | cut -c 2-`
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
+  export DATA=${WORKhafs}/atm_prep_ens
+fi
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $OUTDIR $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_prep.sh
+export err=$?
+exit $err
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

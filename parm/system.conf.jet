@@ -45,7 +45,7 @@ WHERE_AM_I=jet    ;; Which cluster? (For setting up environment.)
 WHICH_JET=x       ;; Which part of Jet?
 
 [forecast]
-write_groups=2
+write_groups=1
 write_tasks_per_group=48
 
 [rocotostr]
