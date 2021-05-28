@@ -34,10 +34,43 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
 
- # hafsv0p2a phase2
- confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase2 \
-     ../parm/hafsv0p2a_phase2_AL.conf \
+ # h2db: hafsv0p2a with fgat+3denvar
+ confh2db="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase3_h2db \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
+     config.GRID_RATIO_ENS=2 \
+     gsi.use_bufr_nr=yes \
+     ../parm/hafsv0p2a_phase3_da_AL.conf \
      ../parm/hafs_hycom.conf"
+
+ # h2dc: hafsv0p2a with fgat+3denvar+enkf
+ confh2dc="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase3_h2dc \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=40 config.run_enkf=yes \
+     config.GRID_RATIO_ENS=2 \
+     gsi.use_bufr_nr=yes \
+     ../parm/hafsv0p2a_phase3_da_AL.conf \
+     ../parm/hafs_hycom.conf"
+
+ # h2dd: hafsv0p2a with gsi_vr+fgat+3denvar+enkf
+ confh2dd="config.EXPT=${EXPT} config.SUBEXPT=hafsv0p2a_phase3_h2dd \
+     config.run_gsi_vr=yes config.run_gsi_vr_fgat=yes config.run_gsi_vr_ens=yes \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.run_ensda=yes config.ENS_SIZE=40 config.run_enkf=yes \
+     config.GRID_RATIO_ENS=2 \
+     gsi.use_bufr_nr=yes \
+     ../parm/hafsv0p2a_phase3_da_AL.conf \
+     ../parm/hafs_hycom.conf"
+
+ # On Orion use 40x30 PEs for FV3ATM to reduce the forecast job hanging while
+ # writing restart files
+ confopts="${confh2db} forecast.layoutx=40 forecast.layouty=30"
+#confopts="${confh2dc} forecast.layoutx=40 forecast.layouty=30"
+## On other platforms, use 48x40 PEs for FV3ATM
+#confopts=${confh2db}
+#confopts=${confh2dc}
 
 ## Technical test for 2020082506-2020082512 13L2020
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \

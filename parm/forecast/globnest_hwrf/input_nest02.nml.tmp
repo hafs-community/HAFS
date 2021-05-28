@@ -8,7 +8,7 @@
 /
 
  &atmos_model_nml
-       blocksize = 40
+       blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
        fdiag = 3
@@ -41,7 +41,7 @@
 
  &fms_nml
        clock_grain = 'ROUTINE',
-       domains_stack_size = 12000000,
+       domains_stack_size = 30000000,
        print_memory_usage = .false.
 /
 
@@ -173,8 +173,8 @@
        hurr_pbl       = .T.        ! HWRF moninedmf
        moninq_fac     = -1.0       ! HWRF moninedmf
        pdfcld         = .false.
-       fhswr          = 900.
-       fhlwr          = 900.
+       fhswr          = _fhswr_
+       fhlwr          = _fhlwr_
        ialb           = 1
        iems           = 1
        iaer           = 111
@@ -220,6 +220,7 @@
        nst_anl        = .true.
        nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
        cplflx         = _cplflx_
+       cplice         = .false.
        cplwav         = .false.
        cplwav2atm     = .false.
        psautco        = 0.0008, 0.0005
