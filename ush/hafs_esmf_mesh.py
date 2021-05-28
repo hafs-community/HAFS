@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os, sys, getopt
 import argparse
@@ -19,6 +19,7 @@ The following commands can be used to install required Python modules to run thi
     pip install "dask[array]" --upgrade --user
     pip install "dask[dataframe]" --upgrade --user
 """)
+    sys.stderr.write(str(ie))
     exit(2)
     
 
