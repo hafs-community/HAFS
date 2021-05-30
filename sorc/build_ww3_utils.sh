@@ -8,13 +8,16 @@ if [ ! -d "../exec" ]; then
   mkdir ../exec
 fi
 
+module use ../modulefiles
+module load modulefile.hafs.${target}
+module list
+
 if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = orion ]; then target=orion.intel ; fi
 if [ $target = jet ]; then target=jet.intel ; fi
 
-module use hafs_forecast.fd/modulefiles/${target}
-module load fv3
-module list
+#module use hafs_forecast.fd/modulefiles
+#module load ufs_${target}
 
 cd hafs_forecast.fd/WW3
 
