@@ -374,7 +374,12 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-$NLN $PREPQC           prepbufr
+if [ -s $PREPQC ]; then
+  $NCP -Lp $PREPQC     prepbufr
+else
+  touch prepbufr
+fi
+#$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
 $NLN $SATWND           satwndbufr
 ##$NLN $OSCATBF          oscatbufr
@@ -435,9 +440,14 @@ $NLN $B1AVHPM          avhpmbufr
 ##[[ $DONST = "YES" ]] && $NLN $NSSTBF nsstbufr
 
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
-  $NLN ${PREPQC}.nr    prepbufr
+
+if [ -s ${PREPQC}.nr ]; then
+  $NCP -L ${PREPQC}.nr    prepbufr
+fi
+# $NLN ${PREPQC}.nr    prepbufr
   $NLN ${SAPHIRBF}.nr  saphirbufr
 ##[[ $DONST = "YES" ]] && $NLN /dev/null nsstbufr
+
 fi
 
 # HAFS specific observations
@@ -445,6 +455,10 @@ COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+#cat tempdrop.prepbufr with drifting correction into prepbufr
+if [ -s ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr ]; then
+  cat ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr >> prepbufr
+fi
 
 fi #USE_SELECT
 
