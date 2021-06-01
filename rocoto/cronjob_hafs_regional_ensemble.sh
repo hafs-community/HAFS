@@ -3,28 +3,28 @@ set -x
 date
 
 # NOAA WCOSS Dell Phase3
-#HOMEhafs=/gpfs/dell2/emc/modeling/noscrub/${USER}/save/HAFS
+#HOMEhafs=/gpfs/dell2/emc/modeling/noscrub/${USER}/save/H221_hafs_ensemble_phase3
 #dev="-s sites/wcoss_dell_p3.ent -f"
 #PYTHON3=/usrx/local/prod/packages/python/3.6.3/bin/python3
 
 # NOAA WCOSS Cray
-#HOMEhafs=/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS
+#HOMEhafs=/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/H221_hafs_ensemble_phase3
 #dev="-s sites/wcoss_cray.ent -f"
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrf-vd/${USER}/H221_hafs_ensemble
+#HOMEhafs=/mnt/lfs4/HFIP/hwrf-vd/${USER}/H221_hafs_ensemble_phase3
 #dev="-s sites/xjet_ensemble.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
 # HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
-# HOMEhafs=/work/noaa/hurricane/save/${USER}/H221_hafs_ensemble
+# HOMEhafs=/work/noaa/hurricane/save/${USER}/H221_hafs_ensemble_phase3
 # dev="-s sites/orion_ensemble.ent -f"
 # PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/H221_hafs_ensemble
+#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/H221_hafs_ensemble_phase3
 #dev="-s sites/hera_ensemble.ent -f"
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
@@ -66,7 +66,7 @@ scrubopt="config.scrub_work=yes config.scrub_com=yes"
 #Orion
 #for ens in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 #do
-#
+
 #if [ $ens -eq 00 ] ; then
 # ${PYTHON3} ./run_hafs.py -t ${dev} 2020082112 00L HISTORY \
 #     ${confopts_noocean} ${scrubopt} \
