@@ -36,11 +36,11 @@ scrubopt="config.scrub_work=yes config.scrub_com=yes"
 #===============================================================================
 
  # hafsv0p2a phase2
- confopts="config.EXPT=${EXPT} config.SUBEXPT=HAFS2021_ensemble \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=H221_hafs_ensemble_phase3 \
      ../parm/hafsv2021_ensemble_AL.conf \
      ../parm/hafs_hycom.conf"
 
- confopts_noocean="config.EXPT=${EXPT} config.SUBEXPT=HAFS2021_ensemble \
+ confopts_noocean="config.EXPT=${EXPT} config.SUBEXPT=H221_hafs_ensemble_phase3 \
      ../parm/hafsv2021_ensemble_AL.conf"
 #Jet
 #for ens in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
