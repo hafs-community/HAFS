@@ -6,6 +6,7 @@ cwd=`pwd`
 if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = orion ]; then target=orion.intel ; fi
 if [ $target = jet ]; then target=jet.intel ; fi
+if [ $target = cheyenne ]; then target=cheyenne.intel ; fi
 
 cd hafs_forecast.fd/tests
 
