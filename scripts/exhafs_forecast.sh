@@ -246,8 +246,14 @@ elif [ $gtype = nest ]; then
   else
     ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty))
   fi
+elif [ $gtype = stretch ]; then
+  if [ $quilting = .true. ]; then
+    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$write_groups*$write_tasks_per_group))
+  else
+    ATM_tasks=$((6*$glob_layoutx*$glob_layouty))
+  fi
 else
-  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
+  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest, regional, or stretch."
   exit 9
 fi
 
@@ -381,7 +387,29 @@ ${NCP} ${PARMforecast}/field_table .
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
-${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+#${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+if [ ${run_ocean} = yes ]; then
+  if [[ ${cpl_ocean} -eq 3 ]]; then
+    ${NCP} ${PARMforecast}/nems.configure.atm_ocn_cmeps.tmp ./nems.configure.tmp
+  else
+    ${NCP} ${PARMforecast}/nems.configure.atm_ocn.tmp ./nems.configure.tmp
+  fi
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.false.}/g" \
+      nems.configure.tmp > nems.configure
+elif [ ${run_ocean} = no ];  then
+  ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+else
+  echo "FATAL ERROR: Unknown run_ocean option: ${run_ocean}"
+  exit 9
+fi
 
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
@@ -439,9 +467,11 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
     -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
     -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-    -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_cplflx_/.false./g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
+    # Lew.Gramer@noaa.gov (LJG) 2021-05-21: Force global domain to run uncoupled
+    #-e "s/_cplflx_/${cplflx:-.false.}/g" \
 
 for n in $(seq 1 ${nest_grids})
 do
@@ -480,6 +510,46 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input_nest.nml.tmp > input_nest0${inest}.nml
 done
+
+if [ ${run_ocean} = yes ];  then
+  # Copy hycom related files
+  ${NCP} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings 
+  hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
+  # copy IC/BC
+  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a 
+  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b 
+  # copy forcing
+  ${NCP} ${WORKhafs}/intercom/hycominit/forcing* .
+  ${NLN} forcing.presur.a forcing.mslprs.a
+  ${NLN} forcing.presur.b forcing.mslprs.b
+  # copy fix
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
+  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
+  # copy parms
+  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input 
+  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
+  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocean_tasks} patch.input
+  # create hycom limits
+  ${USHhafs}/hafs_hycom_limits.py ${CDATE}
+fi #if [ ${run_ocean} = yes ];  then
 
 elif [ $gtype = regional ]; then
 

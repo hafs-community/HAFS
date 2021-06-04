@@ -309,8 +309,12 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         atmos_lon=(3600+int(round(atmos_lon))+180)%360-180
         basin=self.storminfo.pubbasin2
         nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
+
         Application=None
-        if basin=='AL':
+        btype=self.confstr('btype')
+        if btype=='0':
+            Application='htrop_basin'
+        elif basin=='AL':
             Application='hat10_basin'
         elif basin=='CP':
             Application='hcp70_basin'
@@ -828,7 +832,10 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         basin=self.storminfo.pubbasin2
         nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-        if basin=='AL':
+        btype=self.confstr('btype')
+        if btype=='0':
+            Application='htrop_basin'
+        elif basin=='AL':
             Application='hat10_basin'
         elif basin=='CP':
             Application='hcp70_basin'

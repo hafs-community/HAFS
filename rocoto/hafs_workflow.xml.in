@@ -73,6 +73,7 @@
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+  <!ENTITY RUN_OCN_POST "@[RUN_OCN_POST:-YES]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
@@ -203,8 +204,8 @@
     <join><cyclestr>&WORKhafs;/hafs_atm_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_PRE;</queue>
+    &PRE_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -221,8 +222,8 @@
     <join><cyclestr>&WORKhafs;/hafs_atm_ic.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_PRE;</queue>
+    &PRE_EXTRA;
     &ATM_IC_RESOURCES;
     &ENV_VARS;
 
@@ -259,8 +260,8 @@
       <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
-      <queue>&QUEUE_PE;</queue>
-      &PE_EXTRA;
+      <queue>&QUEUE_PRE;</queue>
+      &PRE_EXTRA;
       &ATM_LBC_RESOURCES;
       &ENV_VARS;
       <envar><name>BC_GROUPN</name><value>6</value></envar>
@@ -290,6 +291,7 @@
       </dependency>
     </task>
   </metatask>
+@** endif
 
 @** if RUN_OCEAN==YES
   <task name="ocn_prep" maxtries="&MAX_TRIES;">
@@ -298,8 +300,8 @@
     <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_PRE;</queue>
+    &PRE_EXTRA;
     &OCN_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -447,7 +449,6 @@
     </dependency>
   </task>
 @** endif
-@** endif
 
 @** if RUN_ATM_INIT==YES
   <task name="atm_init" maxtries="&MAX_TRIES;">
@@ -488,6 +489,7 @@
         <taskdep task="atm_ic"/>
 @** if gtype==regional
         <metataskdep metatask="atm_lbc"/>
+@** endif
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_prep"/>
 @** endif
@@ -498,7 +500,6 @@
         <taskdep task="analysis_vr"/>
 @** endif
 
-@** endif
       </and>
     </dependency>
   </task>
@@ -509,8 +510,8 @@
     <join><cyclestr>&WORKhafs;/hafs_atm_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &ATM_POST_RESOURCES;
     &ENV_VARS;
 
@@ -525,14 +526,15 @@
   </task>
 
 @** if RUN_OCEAN==YES
+@** if RUN_OCN_POST==YES
   <task name="ocn_post" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_OCN_POST</command>
     <jobname>hafs_ocn_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_ocn_post.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &OCN_POST_RESOURCES;
     &ENV_VARS;
 
@@ -545,16 +547,17 @@
       </or>
     </dependency>
   </task>
-
 @** endif
+@** endif
+
   <task name="product" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_product.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &PRODUCT_RESOURCES;
     &ENV_VARS;
 
@@ -573,8 +576,9 @@
     <command>&JOBhafs;/JHAFS_PRODGLB</command>
     <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_prodglb.log</cyclestr></join>
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <account>&ACCOUNT;</account>
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &RESERVATION;
     &PRODGLB_RESOURCES;
     &ENV_VARS;
@@ -949,8 +953,8 @@
     <join><cyclestr>&WORKhafs;/hafs_hrdgraphics.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &HRDGRAPHICS_RESOURCES;
     &ENV_VARS;
 
@@ -965,6 +969,7 @@
   </task>
 @** endif
 
+@** if RUN_OCN_POST==YES
 @** if RUN_EMCGRAPHICS==YES
   <task name="emcgraphics" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_EMCGRAPHICS</command>
@@ -973,8 +978,8 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <!--&RESERV_FCST;-->
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
+    <queue>&QUEUE_POST;</queue>
+    &POST_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;
 
@@ -987,6 +992,7 @@
       </or>
     </dependency>
   </task>
+@** endif
 @** endif
 
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
@@ -1010,7 +1016,9 @@
         <taskdep task="forecast"/>
         <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
+@** if RUN_OCN_POST==YES
         <taskdep task="ocn_post"/>
+@** endif
 @** endif
         <taskdep task="product"/>
 @** if gtype==nest
@@ -1019,8 +1027,10 @@
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
+@** if RUN_OCN_POST==YES
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
 @** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
@@ -1050,7 +1060,9 @@
         <taskdep task="forecast"/>
         <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
+@** if RUN_OCN_POST==YES
         <taskdep task="ocn_post"/>
+@** endif
 @** endif
         <taskdep task="product"/>
 @** if gtype==nest
@@ -1059,8 +1071,10 @@
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
+@** if RUN_OCN_POST==YES
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
 @** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
