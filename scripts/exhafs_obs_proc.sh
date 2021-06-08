@@ -5,6 +5,7 @@ set -xe
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export use_bufr_nr=${use_bufr_nr:-no}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 export RUN_GSI=${RUN_GSI:-NO}
@@ -55,12 +56,47 @@ DATA=${DATA:-${WORKhafs}/obs_proc}
 mkdir -p ${DATA}
 
 cd ${DATA}
+
+# Update the original prepbufr data
+# To enable assimilating METAR observations
+mkdir -p prepbufr
+cd prepbufr
+
+# Copy gfs prepbufr file
+COMIN_OBS=${COMIN_OBS:-${COMgfs}/gfs.$PDY/$cyc/${atmos}}
+if [[ ${use_bufr_nr:-no} = "yes" ]]; then
+  PREPQC=${COMIN_OBS}/gfs.t${cyc}z.prepbufr.nr
+else
+  PREPQC=${COMIN_OBS}/gfs.t${cyc}z.prepbufr
+fi
+
+${NCP} -L ${PREPQC} ./prepbufr.orig
+${NCP} -L ${PREPQC} ./prepbufr.qm_typ
+
+${NLN} -sf ./prepbufr.orig   ./fort.21
+${NLN} -sf ./prepbufr.qm_typ ./fort.51
+
+# Link and run the executable
+${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
+${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
+
+# Deliver to com
+if [ $SENDCOM = YES ]; then
+  mkdir -p ${COMhafs}
+  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.hafs.prepbufr
+fi
+
+# Deliver to intercom
+mkdir -p ${intercom}
+${NCP} -p ./prepbufr.qm_typ ${intercom}/hafs.prepbufr
+
 # Deal with tempdrop drifting
+cd ${DATA}
 mkdir -p tempdrop
 cd tempdrop
 
-COMIN_OBS=${COMIN_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-dropsondetarfile=${COMIN_OBS}/hafs.t${cyc}z.dropsonde.tar
+COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
+dropsondetarfile=${COMINhafs_OBS}/hafs.t${cyc}z.dropsonde.tar
 # Proceed if dropsondetarfile exists and non-empty
 if [ -s ${dropsondetarfile} ]; then
   ${TAR} -xvf ${dropsondetarfile}

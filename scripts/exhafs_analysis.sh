@@ -451,14 +451,18 @@ fi
 fi
 
 # HAFS specific observations
+# Use updated prepbufr if exists
+if [ -s ${WORKhafs}/intercom/obs_proc/hafs.prepbufr ]; then
+  ${NCP} ${WORKhafs}/intercom/obs_proc/hafs.prepbufr prepbufr
+fi
+# cat tempdrop.prepbufr with drifting correction into prepbufr
+if [ -s ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr ]; then
+  cat ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr >> prepbufr
+fi
 COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
-#cat tempdrop.prepbufr with drifting correction into prepbufr
-if [ -s ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr ]; then
-  cat ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr >> prepbufr
-fi
 
 fi #USE_SELECT
 
