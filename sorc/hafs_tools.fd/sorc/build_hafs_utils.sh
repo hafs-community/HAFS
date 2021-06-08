@@ -42,7 +42,7 @@
 ## Cleaning hafs_tools.fd:   Biju Thomas 2021-03-23
 ##      * Removing sources that are not needed or no longer used
 ##      * Merging internal libraries into a single folder with a single driver script
-##      * Ported hwrf_prepbufr application under hafs_tools.fd (2021-06-07)
+##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
 #################################################################################
 
 set -x -e
@@ -138,11 +138,11 @@ _hafsutils_obs_preproc (){
 
 # FUNCTION:
 
-# _hafsutils_prepbufr.sh
+# _hafsutils_change_prepbufr.sh
 
 # DESCRIPTION:
 
-# This function compiles and install the HAFS utility obs-prepbufr
+# This function compiles and install the HAFS utility change_prepbufr
 # application.
 
 # NOTE:
@@ -150,7 +150,7 @@ _hafsutils_obs_preproc (){
 # This function should never be called directly by the user and is for
 # internal use only within this script.
 
-_hafsutils_prepbufr (){
+_hafsutils_change_prepbufr (){
 
     # Remove the build dir if it exists from previous build
     if [ -d "${HAFS_UTILS_SORC}/build" ]; then
@@ -164,15 +164,15 @@ _hafsutils_prepbufr (){
 
     # Generate makefile using CMake for the application
     if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_prepbufr -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
     else
-       cmake ../hafs_prepbufr -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
     fi
 
-    # Build the prepbufr application.
+    # Build the hafs_change_prepbufr application.
     make all
 
-    # Move the prepbufr application executable to the HAFS
+    # Move the hafs_change_prepbufr application executable to the HAFS
     # utility application executables path.
     make install
 }
@@ -209,9 +209,9 @@ build_hafsutils (){
 
     _hafsutils_obs_preproc
 
-    # Build the prepbufr application.
+    # Build the change_prepbufr application.
 
-    _hafsutils_prepbufr
+    _hafsutils_change_prepbufr
 
 }
 

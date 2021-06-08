@@ -1,8 +1,8 @@
 
-       PROGRAM FLAG_PREPBUFR
+       PROGRAM CHANGE_PREPBUFR_QM_IN_CIRCLE
 
 C-----------------------------------------------------------------------
-C  MAIN PROGRAM FLAG_PREPBUFR
+C  MAIN PROGRAM CHANGE_PREPBUFR_QM_IN_CIRCLE
 C
 C   PRGMMR: M. TONG  DATE: 2012-03-13
 C   Modified subroutine EDTPRP for HWRF, but do not add BOGUS data

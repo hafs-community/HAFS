@@ -30,12 +30,12 @@ set(exec_dir ${CMAKE_SOURCE_DIR}/../../exec)
 
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -msse2 -fp-model precise -assume byterecl -convert big_endian")
 
-add_executable(hafs_rem_prepbufr_typ_in_circle.x rem_specified_TYP_in_circle_prepbufr.f)
+add_executable(hafs_change_prepbufr_rm_typ_in_circle.x change_prepbufr_rm_typ_in_circle.f)
 add_executable(hafs_change_prepbufr_qm_in_circle.x change_prepbufr_qm_in_circle.f)
 add_executable(hafs_change_prepbufr_qm_typ.x change_prepbufr_qm_typ.f)
 
 target_link_libraries(
-  hafs_rem_prepbufr_typ_in_circle.x
+  hafs_change_prepbufr_rm_typ_in_circle.x
   w3emc::w3emc_4
   w3nco::w3nco_4
   bufr::bufr_4
@@ -53,6 +53,6 @@ target_link_libraries(
   bufr::bufr_4
   MPI::MPI_Fortran)
 
-install(TARGETS hafs_rem_prepbufr_typ_in_circle.x DESTINATION ${exec_dir})
+install(TARGETS hafs_change_prepbufr_rm_typ_in_circle.x DESTINATION ${exec_dir})
 install(TARGETS hafs_change_prepbufr_qm_in_circle.x DESTINATION ${exec_dir})
 install(TARGETS hafs_change_prepbufr_qm_typ.x DESTINATION ${exec_dir})
