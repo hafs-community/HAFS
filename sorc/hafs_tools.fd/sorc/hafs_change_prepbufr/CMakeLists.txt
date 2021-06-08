@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.15)
 project( 
-  OBS_PREPROC
+  CHANGE_PREPBUFR
   LANGUAGES C Fortran)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Modules/")
