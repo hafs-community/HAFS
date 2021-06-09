@@ -13,11 +13,11 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-HOMEhafs=/mnt/lfs4/HFIP/hur-aoml/${USER}/multi_nests.20210527
-dev="-s sites/xjet.ent -f"
-## From ORION ORIGINAL CONFIG
-#dev="-s sites/xjet_hafsv0p2a.ent -f"
-PYTHON3=/apps/intel/intelpython3/bin/python3
+#HOMEhafs=/mnt/lfs4/HFIP/hur-aoml/${USER}/multi_nests.20210527
+#dev="-s sites/xjet.ent -f"
+### From ORION ORIGINAL CONFIG
+##dev="-s sites/xjet_hafsv0p2a.ent -f"
+#PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
 # HOMEhafs=/work/noaa/aoml-hafs1/${USER}/hafs_nestcpl
@@ -26,8 +26,9 @@ PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
 #HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+HOMEhafs=/scratch2/AOML/${USER}/multi_nests_nestcpl
+dev="-s sites/hera.ent -f"
+PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
@@ -47,7 +48,7 @@ EXPT=$(basename ${HOMEhafs})
 
 
 # Technical test for HYCOM coupling - Global FV3, HAFS-B nest coupled to tropical HYCOM
- confopts="config.EXPT=${EXPT} config.SUBEXPT=hafs_multi_nests.20210527_nestcpl_220nodes_trim \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafs_multi_nests_nestcpl_220nodes_trim \
      config.scrub_work=no config.scrub_com=no \
      config.NHRS=168 \
      config.run_emcgraphics=yes \
@@ -57,7 +58,7 @@ EXPT=$(basename ${HOMEhafs})
 #     config.ictype=gfsnetcdf \
 #     config.ictype=gfsnemsio \
 
-${PYTHON3} ./run_hafs.py -t ${dev} -w hafs_multi_nests.20210527_nestcpl_220nodes_trim_2021060300.xml -d hafs_multi_nests.20210527_nestcpl_220nodes_trim_2021060300.db 2021060300-2021060606 00L HISTORY ${confopts} 
+${PYTHON3} ./run_hafs.py -t ${dev} -w hafs_multi_nests_nestcpl_220nodes_trim_2021060300.xml -d hafs_multi_nests_nestcpl_220nodes_trim_2021060300.db 2021060300-2021060400 00L HISTORY ${confopts} 
 
 #===============================================================================
 

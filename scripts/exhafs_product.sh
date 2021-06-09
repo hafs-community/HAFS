@@ -147,6 +147,7 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
+if [ $STORMID == "00L" ]  &&  [ -s allvit ]  || [ $STORMID != "00L" ] ; then
 ${APRUNC} ./hafs_gettrk.x < namelist.gettrk
 
 # Extract the tracking records for tmpvit
@@ -155,7 +156,7 @@ STORMBS1=$(echo ${STORMID} | cut -c3)
 cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ $STORMNUM == "00" ] ; then
 norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
-if [ $norig -eq 1 ] ; then
+if [ $norig -le 1 ] ; then
 > ${COMOUTproduct}/${all_atcfunix}
 else
 grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
@@ -174,6 +175,8 @@ cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
 fi
 if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ] ; then 
 cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+fi
+
 fi
 
 fi
