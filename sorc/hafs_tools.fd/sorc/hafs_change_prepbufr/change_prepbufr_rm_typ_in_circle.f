@@ -1,0 +1,190 @@
+
+       PROGRAM CHANGE_PREPBUFR_RM_TYP_IN_CIRCLE
+
+C-----------------------------------------------------------------------
+C  MAIN PROGRAM CHANGE_PREPBUFR_RM_TYP_IN_CIRCLE
+C
+C  THIS CODE WILL READ THOUGH AN INPUT PREPBUFR FILE (SPECIFIED AS
+C   POSITIONAL PARAMETER 1) AND REMOVE ALL REPORTS WITH A SPECIFIED
+C   PREPBUFR REPORT TYPE (TYP) THAT ARE WITHIN A CIRCLE DEFINED AS
+C   HAVING A CENTER LAT/LON (POSITIONAL PARAMETER 3 AND 4) AND A RADIUS
+C   (POSITIONAL PARAMETER 5) (NOTE: THERE CAN BE > 1 SPECIFIED TYP)
+C  ALL OTHER REPORTS ARE COPIED BACK EXACTLY "AS IS"
+C
+C-----------------------------------------------------------------------
+ 
+      CHARACTER*8  SUBSET,SUBSET_LAST
+      CHARACTER*80 CLATC,CLONC,CRADC
+     
+      REAL*8  TYP_8,RID_8,XOB_8,YOB_8
+      CHARACTER*8 SID
+
+      EQUIVALENCE (RID_8,SID)
+
+      DATA  LUBFI/21/,LUBFJ/51/,IRECI/0/,IRECO/0/,IRECO_LAST/0/,
+     $ SUBSET_LAST/'XXXXXXXX'/,IKNTSKP/0/,IKNTKEP/0/
+
+!zhang      CALL GETENV('RLATC',VALUE=CLATC)
+      CALL GETENV('RLATC',CLATC)
+      IF(CLATC.EQ.' ') CALL ERREXIT(99)
+!zhang      CALL GETENV('RLONC',VALUE=CLONC)
+      CALL GETENV('RLONC',CLONC)
+      IF(CLONC.EQ.' ') CALL ERREXIT(99)
+!zhang      CALL GETENV('RRADC',VALUE=CRADC)
+      CALL GETENV('RRADC',CRADC)
+      IF(CRADC.EQ.' ') CALL ERREXIT(99)
+      READ(CLATC,'(F6.0)') RLATC
+      READ(CLONC,'(F6.0)') RLONC
+      READ(CRADC,'(F6.0)') RRADC
+
+      if(RLONC.lt.0)RLONC=-RLONC
+
+      print *, 'RLATC, RLONC, RRADC: ',RLATC, RLONC, RRADC
+
+      CALL DATELEN(10)
+      CALL OPENBF(LUBFI,'IN',LUBFI)
+      PRINT 100, LUBFI
+  100 FORMAT(/5X,'===> PREPBUFR DATA SET IN UNIT',I3,' SUCCESSFULLY ',
+     $ 'OPENED FOR INPUT; FIRST MESSAGES CONTAIN BUFR TABLES A,B,D'/)
+
+      CALL OPENBF(LUBFJ,'OUT',LUBFI)
+      PRINT 101, LUBFJ
+  101 FORMAT(/5X,'===> PREPBUFR DATA SET IN UNIT',I3,' SUCCESSFULLY',
+     $ ' OPENED FOR OUTPUT'/)
+
+C  READ IN NEXT INPUT BUFR MESSAGE FROM PREPBUFR FILE
+C  --------------------------------------------------
+
+      DO WHILE(IREADMG(LUBFI,SUBSET,IDATE).EQ.0)
+ 
+         CALL UFBCNT(LUBFI,IRECI,ISUB)
+         PRINT 102, IRECI,SUBSET,IDATE
+  102    FORMAT(/5X,'===> READ IN BUFR DATA MESSAGE NUMBER ',I5,' -- ',
+     $    'TABLE A ENTRY IS "',A8,'" AND DATE IS',I11/)
+
+         CALL OPENMB(LUBFJ,SUBSET,IDATE)
+         CALL UFBCNT(LUBFJ,IRECO,ISUBO)
+         SUBSET_LAST = SUBSET
+         IRECO_LAST  = IRECO
+
+C  READ A SUBSET (REPORT) IN MESSAGE
+C  ---------------------------------
+
+         DO WHILE(IREADSB(LUBFI).EQ.0)
+
+            CALL UFBINT(LUBFI,TYP_8,1,1,NLEV,'TYP')
+            TYP = TYP_8
+            CALL UFBINT(LUBFI,RID_8,1,1,NLEV,'SID')
+CCCCC            CALL UFBINT(LUBFI,UOB_8,1,255,NLEV_W,'UOB')
+CCCCC            CALL UFBINT(LUBFI,TOB_8,1,255,NLEV_M,'TOB')
+            CALL UFBINT(LUBFI,XOB_8,1,1,NLEV,'XOB')
+            XOB = XOB_8
+            CALL UFBINT(LUBFI,YOB_8,1,1,NLEV,'YOB')
+            YOB = YOB_8
+            if(nlev.ne.1)  call errexit(88)
+cppppp
+ccc         print *, 'New subset read in, TYP,XOB,YOB,SID: ',
+ccc  $       TYP,XOB,YOB,SID
+cppppp
+
+            RLAT=YOB
+            RLON=360.-XOB
+            CALL CHDIST(RLONC,RLATC,RLON,RLAT,RDIST)
+            IF(RDIST.LT.RRADC) THEN
+cppppp
+               print *, '+++ Skipping:  SID,TYP,YOB,XOB(RLON),RDIST: ',
+     $         sid,typ,yob,xob,'(',RLON,')',RDIST
+cppppp
+               IKNTSKP = IKNTSKP + 1
+               print *,'IKNTSKP=', IKNTSKP
+               print *,'mtong: TYP=', NINT(TYP)
+               CYCLE
+            ELSE
+cppppp
+ccc            print *, 'DO NOT SKIP, NOT W/I CIRCLE'
+cppppp
+            END IF
+
+            IKNTKEP = IKNTKEP + 1
+            CALL UFBCPY(LUBFI,LUBFJ)
+            CALL WRITSB(LUBFJ)
+            CALL UFBCNT(LUBFJ,IRECO,ISUBO)
+            IRECO_LAST  = IRECO
+            SUBSET_LAST = SUBSET
+         END DO
+         SUBSET_LAST = SUBSET
+         IRECO_LAST  = IRECO
+      END DO
+
+C  ALL MESSAGES IN INPUT PREPBUFR FILE HAVE BEEN READ AND PROCESSED
+C  ----------------------------------------------------------------
+
+      CALL CLOSBF(LUBFI)
+      CALL CLOSBF(LUBFJ)
+
+      print *, 'COMPLETED'
+      print *
+      print *, '    - number of reports ',
+     $ 'skipped = ',ikntskp
+      print *
+      print *, '    - number of reports ',
+     $ 'kept = ',ikntkep
+      print *
+
+      STOP
+ 
+      END
+
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: CHDIST
+C   PRGMMR: D. KEYSER        ORG: NP22       DATE: 2004-02-02
+C
+C ABSTRACT:  COMPUTES CHORD LENGTH DISTANCE FROM ONE LAT/LON POINT
+C   TO ANOTHER LAT/LON POINT USING THE FORMULA:
+C     S**2/2 = 1 - COS(Y1-Y2) + COS(Y1)*COS(Y2)*(1-COS(X1-X2)).
+C
+C PROGRAM HISTORY LOG:
+C 1990-11-06  J. WOOLLEN -- ORIGINAL AUTHOR
+C 2004-02-02  D. KEYSER  -- CORRECTED SUBROUTINE ARGUMENT MISALIGNMENT
+C    (THIS DID NOT APPEAR TO CAUSE PROBLEMS IN OUTPUT BUT COULD CAUSE
+C    MEMORY CLOBBERING DOWN THE LINE SOMEWHERE)
+C
+C USAGE:  CALL CHDIST(X1,Y1,X2,Y2,DIST)
+C   INPUT ARGUMENTS:
+C     X1         - LONGITUDE (0.-360. W) OF POINT 1
+C     Y1         - LATITUDE  (N+,S-)     OF POINT 1
+C     X2         - LONGITUDE (0.-360. W) OF POINT 2
+C     Y2         - LATITUDE  (N+,S-)     OG POINT 2
+C
+C   OUTPUT ARGUMENTS:
+C     DIST       - CHORD LENGTH DISTANCE BETWEEN POINTS (KM)
+C
+C REMARKS: NONE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C   MACHINE:  IBM SP
+C
+C$$$
+      SUBROUTINE CHDIST(X1,Y1,X2,Y2,DIST)
+
+      DATA PI180/.0174532 /,RADE/6371./
+
+      SAVE PI180,RADE
+
+C  COMPUTE THE DISTANCE
+C  --------------------
+
+      COSY1 = COS(Y1*PI180)
+      COSY2 = COS(Y2*PI180)
+      COSDX = COS((X1-X2)*PI180)
+      COSDY = COS((Y1-Y2)*PI180)
+      S = 1.0-COSDY+COSY1*COSY2*(1.0-COSDX)
+      S = SQRT(2.*S)
+      IF(S.LE..002) S = 0.
+      DIST = S*RADE
+
+      RETURN
+      END
+
