@@ -194,8 +194,8 @@
        moninq_fac     = -1.0       ! HWRF_moninedmf
        satmedmf       = .true.
        isatmedmf      = 1
-       rlmx           = 100.
-       elmx           = 100.
+       rlmx           = 300.
+       elmx           = 300.
        sfc_rlm        = 1
        random_clds    = .false.
        trans_trac     = .true.
