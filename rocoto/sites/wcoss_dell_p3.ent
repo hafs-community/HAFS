@@ -111,7 +111,7 @@
   <!ENTITY FORECAST_ENS_RESOURCES_regional_40x30io1x80_omp2 "<nodes>64:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1280</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ENS_RESOURCES_regional_40x30io1x80_ocn60_omp2 "<nodes>67:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1340</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
-  <!ENTITY ATM_POST_RESOURCES "<nodes>8:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>192</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY ATM_POST_RESOURCES "<nodes>1:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>24</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY OCN_POST_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime><memory>24G</memory>">
 
