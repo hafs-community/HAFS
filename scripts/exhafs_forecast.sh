@@ -737,6 +737,22 @@ FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
 ${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
 
+# extract some variables
+  echo $COMOUT
+ for var9 in ` seq 0 3 120`
+  do
+     hhh9=$(printf %03i $var9)
+    bigfile9=phyf${hhh9}.nc
+    smallfile9=subphyf${hhh9}.nc
+    rm -f ${smallfile9}
+    ncks -v spd10max,cprat_ave ${bigfile9} ${smallfile9}
+    ${NCP} ${smallfile9} ${COMOUT}/.
+ done
+    ${NCP} logfile.000000.out ${COMOUT}/.
+    ${NCP} input.nml ${COMOUT}/.
+    ${NCP} model_configure  ${COMOUT}/.
+
+
 # Cat out and err into job log
 cat ./out.forecast
 cat ./err.forecast

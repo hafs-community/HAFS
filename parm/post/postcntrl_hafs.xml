@@ -620,6 +620,18 @@
        <scale>6.0</scale>
        </param>
 
+       <param>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pname>APCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>WIND</pname>
+       <scale>-4.0</scale>
+       </param>
+
     </paramset>
 
    </postxml>
