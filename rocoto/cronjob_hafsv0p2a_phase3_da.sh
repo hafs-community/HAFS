@@ -64,13 +64,9 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafsv0p2a_phase3_da_AL.conf \
      ../parm/hafs_hycom.conf"
 
- # On Orion use 40x30 PEs for FV3ATM to reduce the forecast job hanging while
- # writing restart files
- confopts="${confh2db} forecast.layoutx=40 forecast.layouty=30"
-#confopts="${confh2dc} forecast.layoutx=40 forecast.layouty=30"
-## On other platforms, use 48x40 PEs for FV3ATM
-#confopts=${confh2db}
-#confopts=${confh2dc}
+ # Choose the configuration to run
+ confopts="${confh2db}"
+#confopts="${confh2dc}"
 
 ## Technical test for 2020082506-2020082512 13L2020
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY ${confopts} \
