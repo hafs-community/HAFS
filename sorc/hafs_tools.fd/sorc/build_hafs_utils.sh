@@ -42,6 +42,7 @@
 ## Cleaning hafs_tools.fd:   Biju Thomas 2021-03-23
 ##      * Removing sources that are not needed or no longer used
 ##      * Merging internal libraries into a single folder with a single driver script
+##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
 #################################################################################
 
 set -x -e
@@ -137,6 +138,50 @@ _hafsutils_obs_preproc (){
 
 # FUNCTION:
 
+# _hafsutils_change_prepbufr.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility change_prepbufr
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsutils_change_prepbufr (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    if [[ $target = "wcoss_cray" ]]; then
+       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+    else
+       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+    fi
+
+    # Build the hafs_change_prepbufr application.
+    make all
+
+    # Move the hafs_change_prepbufr application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+#----
+
+
+# FUNCTION:
+
 # build_hafsutils.sh
 
 # DESCRIPTION:
@@ -163,6 +208,10 @@ build_hafsutils (){
     # Build the obs-preproc application.
 
     _hafsutils_obs_preproc
+
+    # Build the change_prepbufr application.
+
+    _hafsutils_change_prepbufr
 
 }
 

@@ -1,4 +1,4 @@
-#!/bin/sh --login
+#!/bin/sh
 
 date
 export PS4='+ $SECONDS + '
@@ -10,9 +10,6 @@ export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
-export GPLOThafs=${GPLOThafs:-${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot}
-export GPLOT_DIR=${GPLOThafs}
-
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
@@ -20,7 +17,8 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  source ${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot/modulefiles/modulefile.gplot.${machine}
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.${machine}
   module list
 fi
 
@@ -36,32 +34,23 @@ export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
 
-export ADECKgraph=${ADECKhafs:?}
-export BDECKgraph=${BDECKhafs:?}
-export SYNDAThafs=${SYNDAThafs:?}
-
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
-export ENSDA=${ENSDA:-NO}
 
-export INPdir=${INPdir:-${WORKhafs}/forecast}
-export DATA=${WORKhafs}/hrd_graphics
+export DATA=${WORKhafs}/obs_proc
 
-export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
-
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
-  rm -f $INPdir/grapf???
 fi
 
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_hrdgraphics.sh
+${HOMEhafs}/scripts/exhafs_obs_proc.sh
 export err=$?
 exit $err
 
