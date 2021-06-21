@@ -46,7 +46,7 @@ WHICH_JET=x       ;; Which part of Jet?
 
 [forecast]
 write_groups=1
-write_tasks_per_group=48
+write_tasks_per_group=120
 
 [rocotostr]
 FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
