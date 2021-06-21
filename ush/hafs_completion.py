@@ -8,7 +8,18 @@
 # the special Rocoto "completion" job that is used to tell Rocoto to stop
 # running jobs for the forecast cycle.
 
-import sys
+import sys, os, glob
+
+if 'USHhafs' in os.environ:
+    sys.path.append(os.environ['USHhafs'])
+elif 'HOMEhafs' in os.environ:
+    sys.path.append(os.path.join(os.environ['HOMEhafs'],'ush'))
+else:
+    guess_HOMEhafs=os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__)))
+    guess_USHhafs=os.path.join(guess_HOMEhafs,'ush')
+    sys.path.append(guess_USHhafs)
+
 import produtil.setup, produtil.log
 
 def main():

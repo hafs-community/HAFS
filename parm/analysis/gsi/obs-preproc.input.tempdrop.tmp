@@ -1,0 +1,32 @@
+&share
+analdate      = "_analdate_" !"YYYY-MM-DD_HH:00:00"
+datapath      = "./"
+debug         = T
+is_sonde      = T
+/
+
+&bufrio
+bufr_filepath      = "./tempdrop.prepbufr"
+bufr_info_filepath = "./bufrinfo.json"
+bufr_tblpath       = "./prepobs_prep.bufrtable"
+/
+
+&fcst_mdl
+/
+
+&recon
+/
+
+&sonde
+is_sonde_tempdrop       = T
+sonde_filelist          = './tempdrop.filelist'
+tempdrop_compute_drift  = T
+tempdrop_write_nc_skewt = T
+/
+
+&tc
+/
+
+&wmm
+/
+

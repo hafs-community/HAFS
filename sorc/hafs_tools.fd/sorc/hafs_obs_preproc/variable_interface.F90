@@ -173,6 +173,7 @@ module variable_interface
      real(r_kind),              dimension(:),               allocatable :: lat
      real(r_kind),              dimension(:),               allocatable :: lon
      real(r_kind),              dimension(:),               allocatable :: radius
+     real(r_kind),              dimension(:),               allocatable :: rotang
      real(r_kind)                                                       :: gcdist
      real(r_kind)                                                       :: gchead
      real(r_kind)                                                       :: gclat
@@ -540,6 +541,7 @@ contains
     if(allocated(grid%lat))    deallocate(grid%lat)
     if(allocated(grid%lon))    deallocate(grid%lon)
     if(allocated(grid%radius)) deallocate(grid%radius)
+    if(allocated(grid%rotang)) deallocate(grid%rotang)
     
     !=====================================================================
 
@@ -1218,6 +1220,8 @@ contains
          & allocate(grid%lon(grid%ncoords))
     if(.not. allocated(grid%radius))                                       &
          & allocate(grid%radius(grid%ncoords))
+    if(.not. allocated(grid%rotang))                                       &
+         & allocate(grid%rotang(grid%ncoords))
     
     !=====================================================================
 

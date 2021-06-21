@@ -39,6 +39,7 @@ module grid_methods_interface
   public :: grid_methods_gcgeo
   public :: grid_methods_polarcoords
   public :: grid_methods_radialgrid
+  public :: grid_methods_rotang
 
   !-----------------------------------------------------------------------
 
@@ -307,6 +308,7 @@ contains
 
     call grid_methods_radialgrid(grid)
     call grid_methods_anglegrid(grid)
+    call grid_methods_rotang(grid)
     
     !=====================================================================
 
@@ -367,6 +369,164 @@ contains
     !=====================================================================
     
   end subroutine grid_methods_radialgrid
+
+  !=======================================================================
+
+  ! SUBROUTINE:
+
+  ! grid_methods_rotang.f90
+
+  ! DESCRIPTION:
+
+  !
+
+  ! INPUT VARIABLES:
+
+  !
+
+  ! OUTPUT VARIABLES:
+
+  !
+
+  !-----------------------------------------------------------------------
+
+  subroutine grid_methods_rotang(grid)
+
+    ! Define variables passed to routine
+
+    type(grid_struct)                                                   :: grid
+
+    ! Define variables computed within routine
+
+    real(r_kind),               dimension(:,:),             allocatable :: alpha
+    real(r_kind),               dimension(:,:),             allocatable :: lat
+    real(r_kind),               dimension(:,:),             allocatable :: lon
+    real(r_kind)                                                        :: dlon
+
+    ! Define counting variables
+
+    integer                                                             :: i, j
+
+    !=====================================================================
+
+    ! Allocate memory for local variables
+
+    if(.not. allocated(alpha)) allocate(alpha(grid%nx,grid%ny))    
+    if(.not. allocated(lat))   allocate(lat(grid%nx,grid%ny))
+    if(.not. allocated(lon))   allocate(lon(grid%nx,grid%ny))
+
+    ! Define local variables
+
+    lat = reshape(grid%lat,shape(lat))
+    lon = reshape(grid%lon,shape(lon))
+
+    ! Loop through local variable
+
+    do i = 1, grid%nx
+
+       ! Loop through local variable
+
+       do j = 2, (grid%ny - 1)
+
+          ! Compute local variables
+
+          dlon = lon(i,j+1) - lon(i,j-1)
+
+          ! Check local variable and proceed accordingly
+
+          if(dlon .gt. 180.0) then
+
+             ! Define local variables
+
+             dlon = dlon - 360.0
+
+          else if(dlon .lt. -180.0) then
+                
+             ! Define local variables
+
+             dlon = dlon + 360.0
+
+          end if ! if(dlon .gt. 180.0)
+
+          ! Compute local variables
+
+          alpha(i,j) = atan2(-cos(lat(i,j)*deg2rad)*(dlon*deg2rad),        &
+               & ((lat(i,j+1) - lat(i,j-1))*deg2rad))
+
+       end do ! do j = 2, (grid%ny - 1)
+
+    end do ! do i = 1, grid%nx
+
+    ! Loop through local variable
+
+    do i = 1, grid%nx
+
+       ! Define local variables
+
+       dlon = lon(i,2) - lon(i,1)
+
+       ! Check local variable and proceed accordingly
+       
+       if(dlon .gt. 180.0) then
+          
+          ! Define local variables
+          
+          dlon = dlon - 360.0
+          
+       else if(dlon .lt. -180.0) then
+          
+          ! Define local variables
+          
+          dlon = dlon + 360.0
+          
+       end if ! if(dlon .gt. 180.0)
+
+       ! Compute local variables
+
+       alpha(i,1) = atan2(-cos(lat(i,1)*deg2rad)*(dlon*deg2rad),           &
+            & ((lat(i,2) - lat(i,1))*deg2rad))
+
+       ! Define local variables
+
+       dlon = lon(i,grid%ny) - lon(i,(grid%ny - 1))
+
+       ! Check local variable and proceed accordingly
+       
+       if(dlon .gt. 180.0) then
+          
+          ! Define local variables
+          
+          dlon = dlon - 360.0
+          
+       else if(dlon .lt. -180.0) then
+          
+          ! Define local variables
+          
+          dlon = dlon + 360.0
+          
+       end if ! if(dlon .gt. 180.0)
+
+       ! Compute local variables
+
+       alpha(i,grid%ny) = atan2(-cos(lat(i,grid%ny)*deg2rad)*              &
+            & (dlon*deg2rad),((lat(i,grid%ny) -                            &
+            & lat(i,(grid%ny - 1)))*deg2rad))
+
+    end do ! do i = 1, grid%nx
+
+    ! Define local variables
+
+    grid%rotang = reshape(alpha,shape(grid%rotang))*rad2deg
+
+    ! Deallocate memory for local variables
+
+    if(allocated(alpha)) deallocate(alpha)
+    if(allocated(lat))   deallocate(lat)
+    if(allocated(lon))   deallocate(lon)
+
+    !=====================================================================
+
+  end subroutine grid_methods_rotang
 
   !=======================================================================
 
