@@ -87,6 +87,8 @@ atcfdescr=storm
 hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
 hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
 
+hafs_subset_grb2file=${out_prefix}.hafs_subset.0p03.f${FHR3}.grb2
+
 # Check if post has processed this forecast hour previously
 if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMOUTpost}/${synop_grb2file} ] && [ -s ${COMOUTpost}/${synop_grb2indx} ] ; then
 
@@ -245,11 +247,17 @@ ${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist}" -grib ${hafstrk_grb2f
 # Generate the index file for the tracker
 ${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
 
+#Extrack few variables for probabilistc forecast plots
+PARMlist_ens='UGRD:10 m a|VGRD:10 m a|PC'
+${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist_ens}" -grib ${hafs_subset_grb2file}
+
 # Deliver to COMOUTpost
+mkdir -p ${CDNOSCRUB}/${SUBEXPT}/GRIB2SUBSET
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMOUTpost}
   mv ${synop_grb2file} ${COMOUTpost}/
   mv ${synop_grb2indx} ${COMOUTpost}/
+  mv ${hafs_subset_grb2file} ${CDNOSCRUB}/${SUBEXPT}/GRIB2SUBSET
 fi
 
 # Deliver to intercom
