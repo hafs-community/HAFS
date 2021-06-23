@@ -248,7 +248,8 @@ ${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist}" -grib ${hafstrk_grb2f
 ${GRB2INDEX} ${hafstrk_grb2file} ${hafstrk_grb2indx}
 
 #Extrack few variables for probabilistc forecast plots
-PARMlist_ens='UGRD:10 m a|VGRD:10 m a|WIND:10 m|PC'
+#PARMlist_ens='UGRD:10 m a|VGRD:10 m a|WIND:10 m|PC'
+PARMlist_ens='WIND:10 m|PC'
 ${APRUNS} ${WGRIB2} ${synop_grb2file} -match "${PARMlist_ens}" -grib ${hafs_subset_grb2file}
 
 # Deliver to COMOUTpost
