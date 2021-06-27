@@ -987,7 +987,7 @@
       <!-- Start the product if the product is running or if it has
            already completed. -->
       <or>
-        <!--<taskdep task="product" state="RUNNING"/>-->
+        <taskdep task="product" state="RUNNING"/>
         <taskdep task="product"/>
       </or>
     </dependency>

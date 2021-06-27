@@ -10,6 +10,7 @@ export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
+export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 if [ ${ENSDA} = YES ]; then
@@ -501,7 +502,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
-    -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
+    -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
