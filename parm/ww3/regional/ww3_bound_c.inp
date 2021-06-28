@@ -1,0 +1,309 @@
+$ -------------------------------------------------------------------- $
+$ WAVEWATCH III Ascii Boundary input processing                        $
+$--------------------------------------------------------------------- $
+$ Boundary option: READ or WRITE
+$
+  WRITE 
+$
+$ Interpolation method: 1: nearest
+$                       2: linear interpolation
+  2 
+$
+$ Verbose mode [0-1]
+$
+  1
+$
+$ List of spectra files. These ASCII files use the WAVEWATCH III
+$ format as described in the ww3_outp.inp file. The files are 
+$ defined relative to the directory in which the program is run.
+$
+$ Examples of such files can be found at (for example): 
+$   ftp://polar.ncep.noaa.gov/pub/waves/develop/glw.latest_run/
+$                                              (the *.spec.gz files)
+$   http://tinyurl.com/iowagaftp/HINDCAST/GLOBAL/2009_ECMWF/SPEC
+$
+$ If data is used other than from previous WAVEWATCH III runs, then
+$ this data will need to be converted to the WAVEWATCH III format.
+$
+$ In the case of NetCDF files see ww3_bounc.inp  
+$
+$ ----------
+$gfswave.HWRF*-#.spec 
+$a 50-86
+$c 50-177
+$e 50-146
+$l 50-98
+$p 50-169
+$s 50-150
+$w 50-123
+$    =======    LIST OF BOUNDARY POINTS FOR ******* ===========
+$#incomingspectra here#
+gfswave.HWRFc-50.spec
+gfswave.HWRFc-51.spec
+gfswave.HWRFc-52.spec
+gfswave.HWRFc-53.spec
+gfswave.HWRFc-54.spec
+gfswave.HWRFc-55.spec
+gfswave.HWRFc-56.spec
+gfswave.HWRFc-57.spec
+gfswave.HWRFc-58.spec
+gfswave.HWRFc-59.spec
+gfswave.HWRFc-60.spec
+gfswave.HWRFc-61.spec
+gfswave.HWRFc-62.spec
+gfswave.HWRFc-63.spec
+gfswave.HWRFc-64.spec
+gfswave.HWRFc-65.spec
+gfswave.HWRFc-66.spec
+gfswave.HWRFc-67.spec
+gfswave.HWRFc-68.spec
+gfswave.HWRFc-69.spec
+gfswave.HWRFc-70.spec
+gfswave.HWRFc-71.spec
+gfswave.HWRFc-72.spec
+gfswave.HWRFc-73.spec
+gfswave.HWRFc-74.spec
+gfswave.HWRFc-75.spec
+gfswave.HWRFc-76.spec
+gfswave.HWRFc-77.spec
+gfswave.HWRFc-78.spec
+gfswave.HWRFc-79.spec
+gfswave.HWRFc-80.spec
+gfswave.HWRFc-81.spec
+gfswave.HWRFc-82.spec
+gfswave.HWRFc-83.spec
+gfswave.HWRFc-84.spec
+gfswave.HWRFc-85.spec
+gfswave.HWRFc-86.spec
+gfswave.HWRFc-87.spec
+gfswave.HWRFc-88.spec
+gfswave.HWRFc-89.spec
+gfswave.HWRFc-90.spec
+gfswave.HWRFc-91.spec
+gfswave.HWRFc-92.spec
+gfswave.HWRFc-93.spec
+gfswave.HWRFc-94.spec
+gfswave.HWRFc-95.spec
+gfswave.HWRFc-96.spec
+gfswave.HWRFc-97.spec
+gfswave.HWRFc-98.spec
+gfswave.HWRFc-99.spec
+gfswave.HWRFc-100.spec
+gfswave.HWRFc-101.spec
+gfswave.HWRFc-102.spec
+gfswave.HWRFc-103.spec
+gfswave.HWRFc-104.spec
+gfswave.HWRFc-105.spec
+gfswave.HWRFc-106.spec
+gfswave.HWRFc-107.spec
+gfswave.HWRFc-108.spec
+gfswave.HWRFc-109.spec
+gfswave.HWRFc-110.spec
+gfswave.HWRFc-111.spec
+gfswave.HWRFc-112.spec
+gfswave.HWRFc-113.spec
+gfswave.HWRFc-114.spec
+gfswave.HWRFc-115.spec
+gfswave.HWRFc-116.spec
+gfswave.HWRFc-117.spec
+gfswave.HWRFc-118.spec
+gfswave.HWRFc-119.spec
+gfswave.HWRFc-120.spec
+gfswave.HWRFc-121.spec
+gfswave.HWRFc-122.spec
+gfswave.HWRFc-123.spec
+gfswave.HWRFc-124.spec
+gfswave.HWRFc-125.spec
+gfswave.HWRFc-126.spec
+gfswave.HWRFc-127.spec
+gfswave.HWRFc-128.spec
+gfswave.HWRFc-129.spec
+gfswave.HWRFc-130.spec
+gfswave.HWRFc-131.spec
+gfswave.HWRFc-132.spec
+gfswave.HWRFc-133.spec
+gfswave.HWRFc-134.spec
+gfswave.HWRFc-135.spec
+gfswave.HWRFc-136.spec
+gfswave.HWRFc-137.spec
+gfswave.HWRFc-138.spec
+gfswave.HWRFc-139.spec
+gfswave.HWRFc-140.spec
+gfswave.HWRFc-141.spec
+gfswave.HWRFc-142.spec
+gfswave.HWRFc-143.spec
+gfswave.HWRFc-144.spec
+gfswave.HWRFc-145.spec
+gfswave.HWRFc-146.spec
+gfswave.HWRFc-147.spec
+gfswave.HWRFc-148.spec
+gfswave.HWRFc-149.spec
+gfswave.HWRFc-150.spec
+gfswave.HWRFc-151.spec
+gfswave.HWRFc-152.spec
+gfswave.HWRFc-153.spec
+gfswave.HWRFc-154.spec
+gfswave.HWRFc-155.spec
+gfswave.HWRFc-156.spec
+gfswave.HWRFc-157.spec
+gfswave.HWRFc-158.spec
+gfswave.HWRFc-159.spec
+gfswave.HWRFc-160.spec
+gfswave.HWRFc-161.spec
+gfswave.HWRFc-162.spec
+gfswave.HWRFc-163.spec
+gfswave.HWRFc-164.spec
+gfswave.HWRFc-165.spec
+gfswave.HWRFc-166.spec
+gfswave.HWRFc-167.spec
+gfswave.HWRFc-168.spec
+gfswave.HWRFc-169.spec
+gfswave.HWRFc-170.spec
+gfswave.HWRFc-171.spec
+gfswave.HWRFc-172.spec
+gfswave.HWRFc-173.spec
+gfswave.HWRFc-174.spec
+gfswave.HWRFc-175.spec
+gfswave.HWRFc-176.spec
+gfswave.HWRFc-177.spec
+gfswave.HWRFc-178.spec
+gfswave.HWRFc-179.spec
+gfswave.HWRFc-180.spec
+gfswave.HWRFc-181.spec
+gfswave.HWRFc-182.spec
+gfswave.HWRFc-183.spec
+gfswave.HWRFc-184.spec
+gfswave.HWRFc-185.spec
+gfswave.HWRFc-186.spec
+gfswave.HWRFc-187.spec
+gfswave.HWRFc-188.spec
+gfswave.HWRFc-189.spec
+gfswave.HWRFc-190.spec
+gfswave.HWRFc-191.spec
+gfswave.HWRFc-192.spec
+gfswave.HWRFc-193.spec
+gfswave.HWRFc-194.spec
+gfswave.HWRFc-195.spec
+gfswave.HWRFc-196.spec
+gfswave.HWRFc-197.spec
+gfswave.HWRFc-198.spec
+gfswave.HWRFc-199.spec
+gfswave.HWRFc-200.spec
+gfswave.HWRFc-201.spec
+gfswave.HWRFc-202.spec
+gfswave.HWRFc-203.spec
+gfswave.HWRFc-204.spec
+gfswave.HWRFc-205.spec
+gfswave.HWRFc-206.spec
+gfswave.HWRFc-207.spec
+gfswave.HWRFc-208.spec
+gfswave.HWRFc-209.spec
+gfswave.HWRFc-210.spec
+gfswave.HWRFc-211.spec
+gfswave.HWRFc-212.spec
+gfswave.HWRFc-213.spec
+gfswave.HWRFc-214.spec
+gfswave.HWRFc-215.spec
+gfswave.HWRFc-216.spec
+gfswave.HWRFc-217.spec
+gfswave.HWRFc-218.spec
+gfswave.HWRFc-219.spec
+gfswave.HWRFc-220.spec
+gfswave.HWRFc-221.spec
+gfswave.HWRFc-222.spec
+gfswave.HWRFc-223.spec
+gfswave.HWRFc-224.spec
+gfswave.HWRFc-225.spec
+gfswave.HWRFc-226.spec
+gfswave.HWRFc-227.spec
+gfswave.HWRFc-228.spec
+gfswave.HWRFc-229.spec
+gfswave.HWRFc-230.spec
+gfswave.HWRFc-231.spec
+gfswave.HWRFc-232.spec
+gfswave.HWRFc-233.spec
+gfswave.HWRFc-234.spec
+gfswave.HWRFc-235.spec
+gfswave.HWRFc-236.spec
+gfswave.HWRFc-237.spec
+gfswave.HWRFc-238.spec
+gfswave.HWRFc-239.spec
+gfswave.HWRFc-240.spec
+gfswave.HWRFc-241.spec
+gfswave.HWRFc-242.spec
+gfswave.HWRFc-243.spec
+gfswave.HWRFc-244.spec
+gfswave.HWRFc-245.spec
+gfswave.HWRFc-246.spec
+gfswave.HWRFc-247.spec
+gfswave.HWRFc-248.spec
+gfswave.HWRFc-249.spec
+gfswave.HWRFc-250.spec
+gfswave.HWRFc-251.spec
+gfswave.HWRFc-252.spec
+gfswave.HWRFc-253.spec
+gfswave.HWRFc-254.spec
+gfswave.HWRFc-255.spec
+gfswave.HWRFc-256.spec
+gfswave.HWRFc-257.spec
+gfswave.HWRFc-258.spec
+gfswave.HWRFc-259.spec
+gfswave.HWRFc-260.spec
+gfswave.HWRFc-261.spec
+gfswave.HWRFc-262.spec
+gfswave.HWRFc-263.spec
+gfswave.HWRFc-264.spec
+gfswave.HWRFc-265.spec
+gfswave.HWRFc-266.spec
+gfswave.HWRFc-267.spec
+gfswave.HWRFc-268.spec
+gfswave.HWRFc-269.spec
+gfswave.HWRFc-270.spec
+gfswave.HWRFc-271.spec
+gfswave.HWRFc-272.spec
+gfswave.HWRFc-273.spec
+gfswave.HWRFc-274.spec
+gfswave.HWRFc-275.spec
+gfswave.HWRFc-276.spec
+gfswave.HWRFc-277.spec
+gfswave.HWRFc-278.spec
+gfswave.HWRFc-279.spec
+gfswave.HWRFc-280.spec
+gfswave.HWRFc-281.spec
+gfswave.HWRFc-282.spec
+gfswave.HWRFc-283.spec
+gfswave.HWRFc-284.spec
+gfswave.HWRFc-285.spec
+gfswave.HWRFc-286.spec
+gfswave.HWRFc-287.spec
+gfswave.HWRFc-288.spec
+gfswave.HWRFc-289.spec
+gfswave.HWRFc-290.spec
+gfswave.HWRFc-291.spec
+gfswave.HWRFc-292.spec
+gfswave.HWRFc-293.spec
+gfswave.HWRFc-294.spec
+gfswave.HWRFc-295.spec
+gfswave.HWRFc-296.spec
+gfswave.HWRFc-297.spec
+gfswave.HWRFc-298.spec
+gfswave.HWRFc-299.spec
+gfswave.HWRFc-300.spec
+gfswave.HWRFc-301.spec
+gfswave.HWRFc-302.spec
+gfswave.HWRFc-303.spec
+gfswave.HWRFc-304.spec
+gfswave.HWRFc-305.spec
+gfswave.HWRFc-306.spec
+gfswave.HWRFc-307.spec
+gfswave.HWRFc-308.spec
+gfswave.HWRFc-309.spec
+gfswave.HWRFc-310.spec
+gfswave.HWRFc-311.spec
+$
+$
+'STOPSTRING'
+$ 
+$ -------------------------------------------------------------------- $
+$ End of input file                                                    $
+$ -------------------------------------------------------------------- $

@@ -182,6 +182,9 @@ export ocean_tasks={ocean_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
 
+export run_wave={run_wave}
+export wave_model={wave_model}
+
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec
 

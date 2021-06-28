@@ -1,0 +1,11 @@
+$ WAVEWATCH III Point output post-processing
+$ ------------------------------------------
+<u:PNT_BEG>  <i:PNT_DT>  999
+$
+<u:PNT_NUM>
+ -1
+$
+  1 
+  3 0. 0. 51 F
+$
+$ End of input file
