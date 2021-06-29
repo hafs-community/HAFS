@@ -58,7 +58,6 @@ module variable_interface
   public :: tcinfo_struct
   public :: tdr_struct
   public :: timeinfo_struct
-  public :: topogrid_struct
   public :: variable_interface_cleanup_struct
   public :: variable_interface_setup_struct
   public :: varinfo_struct
@@ -78,7 +77,6 @@ module variable_interface
      module procedure finalize_sonde_struct
      module procedure finalize_statgrid_struct
      module procedure finalize_tdr_struct
-     module procedure finalize_topogrid_struct
      module procedure finalize_varinfo_struct
      module procedure finalize_vdm_struct
   end interface variable_interface_cleanup_struct
@@ -96,7 +94,6 @@ module variable_interface
      module procedure initialize_sonde_struct
      module procedure initialize_statgrid_struct
      module procedure initialize_tdr_struct
-     module procedure initialize_topogrid_struct
      module procedure initialize_varinfo_struct
      module procedure initialize_vdm_struct
   end interface variable_interface_setup_struct
@@ -137,6 +134,7 @@ module variable_interface
      integer                                                            :: nrecs     
   end type bufrhdr_struct         ! type bufrhdr_struct
   type fcstmdl_struct
+     logical,                   dimension(:,:),             allocatable :: usage
      real(r_kind),              dimension(:,:),             allocatable :: p
      real(r_kind),              dimension(:,:),             allocatable :: q
      real(r_kind),              dimension(:,:),             allocatable :: t
@@ -144,6 +142,7 @@ module variable_interface
      real(r_kind),              dimension(:,:),             allocatable :: v
      real(r_kind),              dimension(:),               allocatable :: lat
      real(r_kind),              dimension(:),               allocatable :: lon
+     real(r_kind),              dimension(:),               allocatable :: orog
      real(r_kind),              dimension(:),               allocatable :: slmsk     
      real(r_kind),              dimension(:),               allocatable :: idx
      real(r_kind)                                                       :: clat
@@ -161,6 +160,7 @@ module variable_interface
      real(r_kind),              dimension(:,:),             allocatable :: va
      real(r_kind),              dimension(:),               allocatable :: lat
      real(r_kind),              dimension(:),               allocatable :: lon
+     real(r_kind),              dimension(:),               allocatable :: orog
      real(r_kind),              dimension(:),               allocatable :: psfc
      real(r_kind),              dimension(:),               allocatable :: slmsk
      integer                                                            :: ncoords
@@ -310,14 +310,6 @@ module variable_interface
      real(r_double)                                                     :: minjday
      integer                                                            :: idate
   end type timeinfo_struct        ! type timeinfo_struct
-  type topogrid_struct
-     real(r_kind),              dimension(:),               allocatable :: lat
-     real(r_kind),              dimension(:),               allocatable :: lon
-     real(r_kind),              dimension(:),               allocatable :: topo
-     integer                                                            :: ncoords
-     integer                                                            :: nx
-     integer                                                            :: ny
-  end type topogrid_struct        ! type topogrid_struct  
   type varinfo_struct
      character(len=500),        dimension(:,:,:),           allocatable :: varattrs
      character(len=25),         dimension(:),               allocatable :: varname
@@ -453,6 +445,7 @@ contains
 
     ! Deallocate memory for local variables
 
+    if(allocated(grid%usage)) deallocate(grid%usage)
     if(allocated(grid%p))     deallocate(grid%p)
     if(allocated(grid%q))     deallocate(grid%q)
     if(allocated(grid%t))     deallocate(grid%t)
@@ -460,6 +453,7 @@ contains
     if(allocated(grid%v))     deallocate(grid%v)
     if(allocated(grid%lat))   deallocate(grid%lat)
     if(allocated(grid%lon))   deallocate(grid%lon)
+    if(allocated(grid%orog))  deallocate(grid%orog)
     if(allocated(grid%slmsk)) deallocate(grid%slmsk)
     if(allocated(grid%idx))   deallocate(grid%idx)
     
@@ -503,6 +497,7 @@ contains
     if(allocated(grid%va))    deallocate(grid%va)
     if(allocated(grid%lat))   deallocate(grid%lat)
     if(allocated(grid%lon))   deallocate(grid%lon)
+    if(allocated(grid%orog))  deallocate(grid%orog)
     if(allocated(grid%psfc))  deallocate(grid%psfc)
     if(allocated(grid%slmsk)) deallocate(grid%slmsk)
      
@@ -847,41 +842,6 @@ contains
     !=====================================================================
 
   end subroutine finalize_tdr_struct
-  
-  !=======================================================================
-
-  ! SUBROUTINE:
-
-  ! finalize_topogrid_struct.f90
-
-  ! DESCRIPTION:
-
-  ! This subroutine deallocates memory for all arrays within the
-  ! topogrid_struct FORTRAN structure.
-
-  ! INPUT VARIABLES:
-
-  ! * grid; a FORTRAN topogrid_struct variable.
-
-  !-----------------------------------------------------------------------
-
-  subroutine finalize_topogrid_struct(grid)
-
-    ! Define variables passed routine
-
-    type(topogrid_struct)                                               :: grid
-
-    !=====================================================================
-
-    ! Deallocate memory for local variables
-
-    if(allocated(grid%lat))  deallocate(grid%lat)
-    if(allocated(grid%lon))  deallocate(grid%lon)
-    if(allocated(grid%topo)) deallocate(grid%topo)
-
-    !=====================================================================
-
-  end subroutine finalize_topogrid_struct  
 
   !=======================================================================
 
@@ -1099,15 +1059,32 @@ contains
 
     ! Deallocate memory for local variables
 
-    if(.not. allocated(grid%p))     allocate(grid%p(grid%nobs,grid%nz))
-    if(.not. allocated(grid%q))     allocate(grid%q(grid%nobs,grid%nz))
-    if(.not. allocated(grid%t))     allocate(grid%t(grid%nobs,grid%nz))
-    if(.not. allocated(grid%u))     allocate(grid%u(grid%nobs,grid%nz))
-    if(.not. allocated(grid%v))     allocate(grid%v(grid%nobs,grid%nz))
-    if(.not. allocated(grid%lat))   allocate(grid%lat(grid%nobs))
-    if(.not. allocated(grid%lon))   allocate(grid%lon(grid%nobs))
-    if(.not. allocated(grid%slmsk)) allocate(grid%slmsk(grid%nobs))
-    if(.not. allocated(grid%idx))   allocate(grid%idx(grid%nobs))
+    if(.not. allocated(grid%usage))                                        &
+         allocate(grid%usage(grid%nobs,grid%nz))
+    if(.not. allocated(grid%p))                                            &
+         & allocate(grid%p(grid%nobs,grid%nz))
+    if(.not. allocated(grid%q))                                            &
+         & allocate(grid%q(grid%nobs,grid%nz))
+    if(.not. allocated(grid%t))                                            &
+         & allocate(grid%t(grid%nobs,grid%nz))
+    if(.not. allocated(grid%u))                                            &
+         & allocate(grid%u(grid%nobs,grid%nz))
+    if(.not. allocated(grid%v))                                            &
+         & allocate(grid%v(grid%nobs,grid%nz))
+    if(.not. allocated(grid%lat))                                          &
+         & allocate(grid%lat(grid%nobs))
+    if(.not. allocated(grid%lon))                                          &
+         & allocate(grid%lon(grid%nobs))
+    if(.not. allocated(grid%orog))                                         &
+         & allocate(grid%orog(grid%nobs))
+    if(.not. allocated(grid%slmsk))                                        &
+         & allocate(grid%slmsk(grid%nobs))
+    if(.not. allocated(grid%idx))                                          &
+         & allocate(grid%idx(grid%nobs))
+
+    ! Initialize local variables
+
+    grid%usage = .false.
     
     !=====================================================================    
 
@@ -1167,6 +1144,8 @@ contains
          & allocate(grid%lat(grid%ncoords))
     if(.not. allocated(grid%lon))                                          &
          & allocate(grid%lon(grid%ncoords))
+    if(.not. allocated(grid%orog))                                         &
+         & allocate(grid%orog(grid%ncoords))
     if(.not. allocated(grid%psfc))                                         &
          & allocate(grid%psfc(grid%ncoords))
     if(.not. allocated(grid%slmsk))                                        &
@@ -1599,52 +1578,6 @@ contains
     !=====================================================================
     
   end subroutine initialize_tdr_struct
-
-  !=======================================================================
-
-  ! SUBROUTINE:
-
-  ! initialize_topogrid_struct.f90
-
-  ! DESCRIPTION:
-
-  ! This subroutine allocates memory for all arrays within the
-  ! topogrid_struct FORTRAN structure.
-
-  ! INPUT VARIABLES:
-
-  ! * grid; a FORTRAN topogrid_struct variable containing the
-  !   variables necessary to allocate and initialize the respective
-  !   variable arrays.
-
-  ! OUTPUT VARIABLES:
-
-  ! * grid; a FORTRAN topogrid_struct variable containing allocated
-  !   and initialized variable arrays.
-
-  !-----------------------------------------------------------------------
-
-  subroutine initialize_topogrid_struct(grid)
-
-    ! Define variables passed routine
-
-    type(topogrid_struct)                                               :: grid
-
-    !=====================================================================
-
-    ! Define local variables
-
-    grid%ncoords = (grid%nx*grid%ny)
-
-    ! Allocate memory for local variables
-
-    if(.not. allocated(grid%lat))  allocate(grid%lat(grid%ncoords))
-    if(.not. allocated(grid%lon))  allocate(grid%lon(grid%ncoords))
-    if(.not. allocated(grid%topo)) allocate(grid%topo(grid%ncoords))
-
-    !=====================================================================
-
-  end subroutine initialize_topogrid_struct  
 
   !=======================================================================
 

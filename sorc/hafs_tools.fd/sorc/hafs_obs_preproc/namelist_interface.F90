@@ -210,11 +210,6 @@ module namelist_interface
   !   occuring over non-zero topography are masked out -- not written
   !   as a BUFR record).
 
-  ! * mask_ocean; a FORTRAN logical value specifying whether to apply
-  !   a ocean-mask for observation values (i.e., all observations
-  !   occuring over ocean are masked out -- not written as a BUFR
-  !   record).
-
   ! * recon_filelist; a FORTRAN character string specifying the
   !   full-path to the external file containing a list of files
   !   containing aircraft reconnissance derived observations to be
@@ -227,9 +222,6 @@ module namelist_interface
   ! * sample_radius; a FORTRAN 4-byte float value specifying the
   !   thinning radius for forecast model derived observations; units
   !   are meters.
-
-  ! * sample_nindex; a FORTRAN integer value specifying the
-  !   thinning index for forecast model derived observations.
   
   ! * sonde_filelist; a FORTRAN character string specifying the
   !   full-path to the external file containing a list of TEMPDROP
@@ -361,8 +353,6 @@ module namelist_interface
   logical                                                               :: &
        & mask_land = .false.
   logical                                                               :: &
-       & mask_ocean = .false.
-  logical                                                               :: &
        & tempdrop_compute_drift = .false.
   logical                                                               :: &
        & tempdrop_normalize = .false.
@@ -371,9 +361,9 @@ module namelist_interface
   real(r_kind)                                                          :: &
        & grid_ratio = 1.0
   real(r_kind)                                                          :: &
+       & max_orog_hght = spval
+  real(r_kind)                                                          :: &
        & sample_radius = spval
-  integer                                                               :: &
-       & sample_nindex = 1
   real(r_kind)                                                          :: &
        & tc_radius = 600000.0
   real(r_kind)                                                          :: &
@@ -389,11 +379,11 @@ module namelist_interface
   namelist /bufrio/     bufr_filepath, bufr_info_filepath,                 &
        & bufr_obs_filename, bufr_obs_maxdate, bufr_obs_mindate,            &
        & bufr_tblpath, is_gpsrobufr, is_prepbufr, is_satbufr, mask_land,   &
-       & mask_ocean
+       & max_orog_hght
   namelist /fcst_mdl/   fv3_dyns_filename, fv3_gridspec_filename,          &
        & fv3_orog_filename, fv3_static_filename, fv3_tracer_filename,      &
        & grid_ratio, is_fv3, is_global, is_regional, is_rotate_winds,      &
-       & sample_radius, sample_nindex
+       & sample_radius
   namelist /recon/      is_recon_tdr, is_recon_vdm, recon_filelist,        &
        & recon_tdr_filepath, tdr_min_offset_seconds,                       &
        & tdr_max_offset_seconds, tdr_offset_dseconds
@@ -526,7 +516,7 @@ contains
     write(6,*) 'IS_PREPBUFR                   = ', is_prepbufr
     write(6,*) 'IS_SATBUFR                    = ', is_satbufr    
     write(6,*) 'MASK_LAND                     = ', mask_land
-    write(6,*) 'MASK_OCEAN                    = ', mask_ocean    
+    write(6,*) 'MAX_OROG_HGHT                 = ', max_orog_hght
     write(6,*) '/'
     write(6,*) '&FCST_MDL'
 
@@ -610,7 +600,6 @@ contains
     write(6,*) 'IS_REGIONAL                   = ', is_regional
     write(6,*) 'IS_ROTATE_WINDS               = ', is_rotate_winds
     write(6,*) 'SAMPLE_RADIUS                 = ', sample_radius
-    write(6,*) 'SAMPLE_NINDEX                 = ', sample_nindex
     write(6,*) '/'
     write(6,*) '&RECON'
     write(6,*) 'IS_RECON_TDR                  = ', is_recon_tdr

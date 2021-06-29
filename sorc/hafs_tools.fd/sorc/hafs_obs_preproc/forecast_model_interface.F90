@@ -88,6 +88,7 @@ contains
     type(fv3_struct)                                                    :: fv3
     type(grid_struct)                                                   :: grid
     type(windrotate_struct)                                             :: windrotate
+    character(len=500)                                                  :: filename
     
     ! Define counting variables
 
@@ -106,12 +107,12 @@ contains
     if(is_regional) grid%ncoords = (fv3%nx*fv3%ny)
 
     ! Define local variables
-    
+
     call variable_interface_setup_struct(grid)
    
     ! Check local variable and proceed accordingly
     
-    if(is_rotate_winds) call rotate_winds(fv3,windrotate)
+    if(is_rotate_winds .and. is_regional) call rotate_winds(fv3,windrotate)
 
     ! Deallocate memory for local variables
 
@@ -303,6 +304,7 @@ contains
     type(grid_struct)                                                   :: src_grid    
     type(kdtree_struct)                                                 :: kdtree
     character(len=500)                                                  :: lbufr_filepath
+    character(len=500)                                                  :: filename
     integer                                                             :: nobs
 
     ! Define counting variables
@@ -327,27 +329,14 @@ contains
     call bufrio_interface_open(lbufr_filepath,bufr_tblpath,bufr,.false.,   &
          & .false.,.true.)    
     nobs               = 0
-
-    ! Check local variable and proceed accordingly
-
-    if(mask_ocean .or. mask_land) then
-
-       ! Define local variables
-       
-       dst_grid%ncoords = fv3%ncoords
-       call variable_interface_setup_struct(dst_grid)
-       dst_grid%lat     = fv3%lat
-       dst_grid%lon     = fv3%lon
-
-    end if ! if(mask_ocean .or. mask_land)
-       
+    
     ! Loop through local variable
 
     do i = 1, size(fcstmdl)
-           
+       
        ! Check local variable and proceed accordingly
 
-       if((.not. mask_ocean) .and. (.not. mask_land)) then
+       if(.not. mask_land) then
 
           ! Loop through local variable
 
@@ -361,26 +350,35 @@ contains
 
                 nobs = nobs + 1
                 call bufr_record(fcstmdl(i),j,k,bufr_info,bufr,nobs)
+                fcstmdl(i)%usage(j,k) = .true.
 
              end do ! do k = 1, fcstmdl(i)%nz
 
           end do ! do j = 1, fcstmdl(i)%nobs
 
-       end if ! if((.not. mask_ocean) .and. (.not. mask_land))
+       end if ! if(.not. mask_land)
 
        ! Check local variable and proceed accordingly
        
-       if(mask_ocean .or. mask_land) then
-          
+       if(mask_land) then
+
           ! Define local variables
 
-          src_grid%ncoords = fcstmdl(i)%nobs
+          src_grid%ncoords = fv3%ncoords
           call variable_interface_setup_struct(src_grid)
-          src_grid%lat     = fcstmdl(i)%lat
-          src_grid%lon     = fcstmdl(i)%lon
-          kdtree%ncoords   = dst_grid%ncoords
+          src_grid%lat     = fv3%lat 
+          src_grid%lon     = fv3%lon          
+          dst_grid%ncoords = fcstmdl(i)%nobs
+          call variable_interface_setup_struct(dst_grid)
+          dst_grid%lat     = fcstmdl(i)%lat 
+          dst_grid%lon     = fcstmdl(i)%lon
+          kdtree%ncoords   = src_grid%ncoords
           kdtree%nn        = 1
           call variable_interface_setup_struct(kdtree)
+
+          ! Check local variable and proceed accordingly
+
+          if(max_orog_hght .eq. spval) max_orog_hght = 0.0
 
           ! Compute local variables
 
@@ -393,59 +391,45 @@ contains
              ! Loop through local variable
 
              do k = 1, fcstmdl(i)%nz
-
-                ! Define local variables
-
-                nobs = nobs + 1
-
+                
                 ! Check local variable and proceed accordingly
 
-                if(fcstmdl(i)%slmsk(j) .eq. fv3%slmsk(kdtree%idx(j,1)))    &
-                     & then
-                
-                   ! Check local variable and proceed accordingly
-
-                   if(mask_ocean .and. (fv3%slmsk(kdtree%idx(j,1)) .ge.    &
-                        & 1.0) .and. (.not. mask_land)) then
-
-                      ! Define local variables
-
-                      call bufr_record(fcstmdl(i),j,k,bufr_info,bufr,      &
-                           & nobs)
-                  
-                   end if ! if(mask_ocean
-                          ! .and. (fv3%slmsk(kdtree%idx(j,1))
-                          ! .ge. 1.0))
+                if(mask_land) then                
 
                    ! Check local variable and proceed accordingly
 
-                   if(mask_land .and. (fv3%slmsk(kdtree%idx(j,1)) .le.     &
-                        & 0.0) .and. (.not. mask_ocean)) then
+                   if((fv3%orog(kdtree%idx(j,1)) .le. max_orog_hght) .and. &
+                        & (fcstmdl(i)%orog(j) .le. max_orog_hght)) then
 
                       ! Define local variables
 
-                      call bufr_record(fcstmdl(i),j,k,bufr_info,bufr,      &
-                           & nobs)                   
+                      nobs                  = nobs + 1
+                      call bufr_record(fcstmdl(i),j,k,bufr_info,bufr,nobs)
+                      fcstmdl(i)%usage(j,k) = .true.
+                      
+                   end if ! if((fv3%orog(kdtree%idx(j,1))
+                          ! .le. max_orog_hght)
+                          ! .and. (fcstmdl(i)%orog(j)
+                          ! .le. max_orog_hght))
 
-                   end if ! if(mask_land
-                          ! .and. (fv3%slmsk(kdtree%idx(j,1))
-                          ! .le. 0.0))
-                
-                end if ! if(fcstmdl(i)%slmsk(j)
-                       ! .eq. fv3%slmsk(kdtree%idx(j,1)))
+                end if ! if(mask_land)
 
              end do ! do k = 1, fcstmdl(i)%nz
-             if (debug) write(6,601) 'i,j,Lev1:',i,j, &
-                fcstmdl(i)%lon(j),fcstmdl(i)%lat(j),fcstmdl(i)%p(j,1),fcstmdl(i)%t(j,1),fcstmdl(i)%q(j,1), &
-                fcstmdl(i)%u(j,1),fcstmdl(i)%v(j,1)
+                
           end do ! do j = 1, fcstmdl(i)%nobs
+                       
+       end if ! if(mask_land)
 
-       end if ! if(mask_ocean .or. mask_land)
+       ! Define local variables
+
+       write(filename,500) trim(adjustl(datapath)), i
+       call fileio_interface_write(fcstmdl(i),filename)
           
        ! Deallocate memory for local variables
 
        call variable_interface_cleanup_struct(fcstmdl(i))
        call variable_interface_cleanup_struct(src_grid)
+       call variable_interface_cleanup_struct(dst_grid)
        call variable_interface_cleanup_struct(kdtree)
        
     end do ! do i = 1, size(fcstmdl)
@@ -454,10 +438,10 @@ contains
 
     call bufrio_interface_close(.false.,.true.)
 
-    ! Deallocate memory for local variables
+    ! Define local variables
 
-    call variable_interface_cleanup_struct(dst_grid)
-601 format(a10,i3,i12,7f15.6)
+500 format(a,'bufr_obs_locations','_',i2.2,'.nc')
+ 
     !=====================================================================
     
   end subroutine fv3_bufr
@@ -709,7 +693,6 @@ contains
     type(kdtree_struct)                                                 :: kdtree
     real(r_kind)                                                        :: radius_max
     real(r_kind)                                                        :: radius_min
-    real(r_kind)                                                        :: sample_radius_threshold
 
     ! Define counting variables
 
@@ -729,22 +712,17 @@ contains
 
     call math_methods_kdtree_r2(grid,grid,kdtree)
     
-    if(debug) write(6,*) 'kdtree%nfound=', kdtree%nfound
-
     ! Check local variable and proceed accordingly
 
     if(sample_radius .eq. spval) then
 
        ! Define local variables
 
-       fcstmdl%nobs = kdtree%nfound / sample_nindex
+       fcstmdl%nobs = kdtree%nfound
        call variable_interface_setup_struct(fcstmdl)
-       fcstmdl%idx  = kdtree%idx(1,1:kdtree%nfound:sample_nindex)
+       fcstmdl%idx  = kdtree%idx(1,1:kdtree%nfound)
 
     else   ! if(sample_radius .eq. spval)
-
-       sample_radius_threshold = sqrt(kdtree%r2dist(1,2))
-       if(debug) write(6,*) 'sample_radius_threshold=', sample_radius_threshold
 
        ! Define local variables
 
@@ -767,9 +745,7 @@ contains
 
                 ! Define local variables
 
-                if(abs(sqrt(kdtree%r2dist(1,i)) - 0.5*(radius_min+radius_max)) .lt. sample_radius_threshold ) then
                 fcstmdl%nobs = fcstmdl%nobs + 1
-                end if
 
              end if ! if((sqrt(kdtree%r2dist(1,i)) .ge. radius_min)
                     ! .and. (sqrt(kdtree%r2dist(1,i))
@@ -805,11 +781,9 @@ contains
                   & (sqrt(kdtree%r2dist(1,i)) .lt. radius_max)) then
 
                 ! Define local variables
-                if(abs(sqrt(kdtree%r2dist(1,i)) - 0.5*(radius_min+radius_max)) .lt. sample_radius_threshold ) then
-                !if(debug) write(6,*) 'i,radius_min,radius_max,sqrt(kdtree%r2dist(1,i)=',i,radius_min,radius_max,sqrt(kdtree%r2dist(1,i))
+
                 fcstmdl%nobs              = fcstmdl%nobs + 1
                 fcstmdl%idx(fcstmdl%nobs) = kdtree%idx(1,i)
-                end if
 
              end if ! if((sqrt(kdtree%r2dist(1,i)) .ge. radius_min)
                     ! .and. (sqrt(kdtree%r2dist(1,i))
@@ -825,9 +799,7 @@ contains
        end do ! do while(radius .le. tc_radius)       
        
     end if ! if(sample_radius .eq. spval)
-
-    if(debug) write(6,*) 'fcstmdl%nobs=', fcstmdl%nobs
-
+    
     ! Deallocate memory for local variables
 
     call variable_interface_cleanup_struct(kdtree)    

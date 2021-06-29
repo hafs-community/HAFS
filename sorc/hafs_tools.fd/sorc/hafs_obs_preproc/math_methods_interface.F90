@@ -178,7 +178,7 @@ contains
 
     ! Compute local variables
 
-    kdtree2 => kdtree2_create(src_grdloc,sort=.true.,rearrange=.true.)
+    kdtree2 => kdtree2_create(src_grdloc,sort=.false.,rearrange=.false.)
 
     ! Loop through local variables
 
