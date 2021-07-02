@@ -98,6 +98,29 @@ echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run post for this forecast hour
 else
 
+if [ ${write_dopost:-.false.} = .true. ]; then
+
+# Wait for model output
+n=1
+while [ $n -le 600 ]
+do
+  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS.GrbF${FHR2} ]; then
+    echo "${INPdir}/logf${FHR3} not ready, sleep 60"
+    sleep 60s
+  else
+    echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS.GrbF${FHR2} ready, continue"
+    sleep 3s
+    break
+  fi
+  if [ $n -ge 600 ]; then
+    echo "ERROR: waited too many times: $n. exitting"
+    exit 1
+  fi
+  n=$(( n+1 ))
+done
+
+else
+
 # Wait for model output
 n=1
 while [ $n -le 600 ]
@@ -110,14 +133,26 @@ do
     sleep 3s
     break
   fi
+  if [ $n -ge 600 ]; then
+    echo "ERROR: waited too many times: $n. exitting"
+    exit 1
+  fi
   n=$(( n+1 ))
 done
+
+fi #if [ ${write_dopost:-.false.} = .true. ]
 
 # Create the post working dir for the time level
 DATA_POST=${DATA}/post_${NEWDATE}
 rm -rf ${DATA_POST}
 mkdir -p ${DATA_POST}
 cd ${DATA_POST}
+
+if [ ${write_dopost:-.false.} = .true. ]; then
+
+cp -p ${INPdir}/HURPRS.GrbF${FHR2} ${synop_grb2post}
+
+else
 
 # Preparte itag namelist input file
 cat>itag<<EOF
@@ -143,14 +178,16 @@ cp -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
 ${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
 
-mv HURPRS.GrbF${FHR2} ${synop_grb2post} 
+mv HURPRS.GrbF${FHR2} ${synop_grb2post}
+
+fi #if [ ${write_dopost:-.false.} = .true. ]
 
 if [ "$output_grid" = rotated_latlon ]; then
 
 # For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
 #${WGRIB2} ${synop_grb2post} -set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor -new_grid ${synop_gridspecs} ${synop_grb2file}
-# Parallelize this section to speed up wgrib2 
+# Parallelize this section to speed up wgrib2
 #opts='-set_bitmap 1 -set_grib_type c3 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
 opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
 rm -f cmdfile
@@ -183,8 +220,8 @@ mv ${synop_grb2post} ${synop_grb2file}
 
 else
 
-  echo "ERROR: output grid: ${output_grid} not supported exitting"
-  exit 1
+echo "ERROR: output grid: ${output_grid} not supported exitting"
+exit 1
 
 fi
 

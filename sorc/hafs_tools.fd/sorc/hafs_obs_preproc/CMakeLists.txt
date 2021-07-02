@@ -24,27 +24,27 @@ find_package(bufr REQUIRED)
 find_package(MPI REQUIRED)
 
 set(fortran_srcs
-  kinds_interface.F90 
-  constants_interface.F90 
-  variable_interface.F90 
-  namelist_interface.F90 
-  diagnostics_interface.F90 
-  math_methods_interface.F90 
-  grid_methods_interface.F90 
-  meteo_methods_interface.F90 
-  bufrio_interface.F90 
-  json_interface.F90 
-  netcdf_interface.F90 
-  fileio_interface.F90 
-  time_methods_interface.F90 
-  bufr_obs_interface.F90 
-  forecast_model_interface.F90 
-  recon_tdr_interface.F90 
-  recon_vdm_interface.F90 
-  sonde_tempdrop_interface.F90 
-  observations_interface.F90 
-  obs_preproc_interface.F90
-  main.F90)
+  obs_preproc/src/kinds_interface.F90
+  obs_preproc/src/constants_interface.F90
+  obs_preproc/src/variable_interface.F90
+  obs_preproc/src/namelist_interface.F90
+  obs_preproc/src/diagnostics_interface.F90
+  obs_preproc/src/math_methods_interface.F90
+  obs_preproc/src/grid_methods_interface.F90
+  obs_preproc/src/meteo_methods_interface.F90
+  obs_preproc/src/bufrio_interface.F90
+  obs_preproc/src/json_interface.F90
+  obs_preproc/src/netcdf_interface.F90
+  obs_preproc/src/fileio_interface.F90
+  obs_preproc/src/time_methods_interface.F90
+  obs_preproc/src/bufr_obs_interface.F90
+  obs_preproc/src/forecast_model_interface.F90
+  obs_preproc/src/recon_tdr_interface.F90
+  obs_preproc/src/recon_vdm_interface.F90
+  obs_preproc/src/sonde_tempdrop_interface.F90
+  obs_preproc/src/observations_interface.F90
+  obs_preproc/src/obs_preproc_interface.F90
+  obs_preproc/src/main.F90)
 
 set(exe_name hafs_obs_preproc.x)
 message("TYPE CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
