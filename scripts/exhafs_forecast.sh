@@ -276,12 +276,10 @@ if [ ${run_datm} = yes ];  then
   cplflx=.true.
   OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
-  runSeq_ALL="MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n OCN\n ATM\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_aofluxes_run\n MED med_phases_prep_ocn_accum\n OCN -> MED :remapMethod=redist:ignoreUnmatchedIndices=true\n MED med_phases_post_ocn\n MED med_phases_history_write\n MED med_phases_restart_write"
 elif [ ${run_docn} = yes ]; then
   cplflx=.true.
   OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
   MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
-  runSeq_ALL="MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_restart_write\n MED med_phases_history_write"
 fi
 
 # Prepare the output RESTART dir
@@ -653,7 +651,7 @@ if [ ${run_datm} = yes ];  then
 #---------------------------------------------- 
   ${NCP} ${PARMforecast}/model_configure.tmp .
   ${NCP} ${PARMhafs}/cdeps/datm_in .
-  ${NCP} ${PARMhafs}/cdeps/datm.streams.xml .
+  ${NCP} ${PARMhafs}/cdeps/datm.streams .
 
   m1date=`${NDATE} -24 $CDATE`
   p1date=`${NDATE} +$(( NHRS+6 )) $CDATE`
@@ -662,18 +660,18 @@ if [ ${run_datm} = yes ];  then
       era5_name=ERA5_${nowdate:0:8}.nc
       if [[ -s $DATMdir/$era5_name ]] ; then
           ${NLN} $DATMdir/$era5_name INPUT/$era5_name
-          sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>INPUT/$era5_name<\/file>" datm.streams.xml
+          sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$era5_name/" datm.streams
       fi
       nowdate=`${NDATE} +24 $nowdate`
   done
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
 
-  sed -i "s/_yearFirst_/$yr/g" datm.streams.xml
+  sed -i "s/_yearFirst_/$yr/g" datm.streams
 
-  sed -i "s/_yearLast_/$endyr/g" datm.streams.xml
+  sed -i "s/_yearLast_/$endyr/g" datm.streams
 
-  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams.xml
+  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams
 
   ${NLN} ${mesh_atm} INPUT/
 
@@ -682,7 +680,6 @@ if [ ${run_datm} = yes ];  then
       -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
       -e "s/_cpl_dt_/${cpl_dt}/g" \
-      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
       -e "s/_base_dtg_/${CDATE}/g" \
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
@@ -703,18 +700,18 @@ elif [ ${run_docn} = yes ];  then
   fi
 
   ${NCP} ${PARMhafs}/cdeps/docn_in .
-  ${NCP} ${PARMhafs}/cdeps/docn.streams.xml .
+  ${NCP} ${PARMhafs}/cdeps/docn.streams .
 
   sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn_in
 
-  sed -i "s/_yearFirst_/$yr/g" docn.streams.xml
+  sed -i "s/_yearFirst_/$yr/g" docn.streams
 
-  sed -i "s/_yearLast_/$endyr/g" docn.streams.xml
+  sed -i "s/_yearLast_/$endyr/g" docn.streams
 
-  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams.xml
+  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams
   for file in INPUT/oisst*.nc INPUT/sst*.nc ; do
     if [[ -s "$file" ]] ; then
-      sed -i "/<\/stream_data_files>/i \ \ \ \ \ \ <file>$file<\/file>" docn.streams.xml
+      sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$(basename $file)/" docn.streams
     fi
   done
 
@@ -725,7 +722,6 @@ elif [ ${run_docn} = yes ];  then
       -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
       -e "s/_cpl_dt_/${cpl_dt}/g" \
-      -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
       -e "s/_base_dtg_/${CDATE}/g" \
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
@@ -783,7 +779,7 @@ ${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
 cat ./out.forecast
 cat ./err.forecast
 
-if [ $gtype = regional ]; then
+if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 # Rename the restart files with a proper convention if needed
 cd RESTART
@@ -809,6 +805,6 @@ if [ ! -s RESTART/oro_data.nc ]; then
   ${NCP} -pL INPUT/oro_data.nc RESTART/
 fi
 
-fi # if [ $gtype = regional ]; then
+fi # if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 exit
