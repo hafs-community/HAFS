@@ -382,7 +382,8 @@ else
 fi
 #$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
-$NLN $SATWND           satwndbufr
+#$NLN $SATWND           satwndbufr
+$NCP $SATWND           satwndbufr
 ##$NLN $OSCATBF          oscatbufr
 ##$NLN $RAPIDSCATBF      rapidscatbufr
 ##$NLN $GSNDBF           gsndrbufr
@@ -464,6 +465,10 @@ COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+# cat enhanced goes 16 AMV into satwndbufr
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.satwnd.tm00.bufr_d ]; then
+  cat ${COMINhafs_obs}/hafs.t${cyc}z.satwnd.tm00.bufr_d >> satwndbufr
+fi
 
 fi #USE_SELECT
 
