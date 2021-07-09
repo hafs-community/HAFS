@@ -699,15 +699,25 @@ elif [ ${run_docn} = yes ];  then
       ${NLN} "$DOCNdir"/*.nc INPUT/
   fi
 
-  ${NCP} ${PARMhafs}/cdeps/docn_in .
-  ${NCP} ${PARMhafs}/cdeps/docn.streams .
+  #${NCP} ${PARMhafs}/cdeps/docn_in .
+  #${NCP} ${PARMhafs}/cdeps/docn.streams .
+  docn_source=${DOCN_SOURCE:-OISST}
 
-  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn_in
+  # Generate docn_in from template:
+  ${NCP} ${PARMhafs}/cdeps/docn_in docn_in_template
+  sed -e "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" \
+      -e "s/_nx_global_/$docn_mesh_nx_global/g" \
+      -e "s/_ny_global_/$docn_mesh_ny_global/g" \
+      < docn_in_template > docn_in
 
+  if [ "$docn_source" == GHRSST ] ; then
+      ${NLN} "$merged_docn_input" docn/ghrsst_v1.nc
+  fi
+
+  # Generate docn_streams from template specific to the model:
+  ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn_streams
   sed -i "s/_yearFirst_/$yr/g" docn.streams
-
   sed -i "s/_yearLast_/$endyr/g" docn.streams
-
   sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams
   for file in INPUT/oisst*.nc INPUT/sst*.nc ; do
     if [[ -s "$file" ]] ; then

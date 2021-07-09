@@ -7,17 +7,7 @@ if [[ "$make_mesh_ocn" != yes || "$run_docn" != yes ]] ; then
     echo "Beware! You may anger Poseidon by misusing this script. Avoid coastlines."
     echo " -> SCRIPT IS EXITING BECAUSE THIS JOB SHOULD NOT BE RUN <- "
     exit 0
-fi
-
-if ( ! which cdo ) ; then
-    echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
-    exit 1
-fi
-
-if ( ! which ncwa ) ; then
-    echo "The \"ncwa\" command from the NetCDF Data Operators (nco) is not in your path! Go find the nco and rerun this job." 1>&2
-    exit 1
-fi
+fi  
 
 set -xe
 
@@ -27,77 +17,59 @@ USHhafs=${USHhafs:-${HOMEhafs}/ush}
 CDATE=${CDATE:-${YMDH}}
 APRUNS=${APRUNS:-"aprun -b -j1 -n1 -N1 -d1 -cc depth"}
 
-merged=oisst-avhrr-v02r01.merged.nc
-nozlev=oisst-avhrr-v02r01.merged_nozlev.nc
+merged=merged.nc
 ofile=ofile.nc
 mesh_ocn="$mesh_ocn"
 mesh_dir=$( dirname "$mesh_ocn" )
+docn_source=${DOCN_SOURCE:-OISST}
 
-# Start & end times are at day precision, not hour
-m1date=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 -24 hours" +%Y%m%d )
-p1date=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$(( NHRS+24 )) hours" +%Y%m%d )
-now=$m1date
-end=$p1date
-
-set +x
-echo "Generating ESMF mesh from OISST files."
-echo "Running in dir \"$PWD\""
-echo "OISST Date range is $now to $end"
-set -x
-
-# Generate the filenames.
-mergefiles=''
-itry=0
-itrytoohard=99 # infinite loop guard
-while (( now <= end && itry <= itrytoohard )) ; do
-    mergefiles="$mergefiles $DOCNdir/oisst-avhrr-v02r01.${now:0:8}.nc"
-    now=$( date -d "${now:0:4}-${now:4:2}-${now:6:2}t00:00:00+00 +24 hours" +%Y%m%d )
-    itry=$(( itry+1 ))
-done
-if (( itry > itrytoohard )) ; then
-    echo "Infinite loop detected! The \"date\" command did not behave as expected. Aborting!" 1>&2
-    exit 1
-fi
-
-set +x
-echo "OISST input files are:"
-for f in $mergefiles ; do
-    echo "  - $f"
-done
-echo "Will merge oisst files into $merged"
-echo "Will remove z levels into $nozlev"
-echo "Temporary output mesh is $ofile"
-echo "Will deliver to \"$mesh_ocn\""
-set -x
-
-# Merge all oisst files into one, as expected by hafs_esmf_mesh.py
-cdo mergetime $mergefiles "$merged"
-test -s "$merged"
-test -r "$merged"
-
-# Remove z dimension
-ncwa -O -a zlev "$merged" "$nozlev"
-test -s "$nozlev"
-test -r "$nozlev"
-
-[ -d "$mesh_dir" ] || mkdir "$mesh_dir"
+[ -d "$mesh_dir" ] || mkdir "$mesh_dir"   
 rm -f "$mesh_ocn"
 test -e "$ofile" -o -L "$ofile"  && rm -f "$ofile"
 
-# Generate the mesh from the merged oisst file.
-$APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$nozlev" --ofile "$ofile" \
-    --maskvar sst --maskcal --double --overwrite
+if [[ "$docn_source" == OISST ]] ; then   
+    "$USHhafs/hafs_oisst_prep_mesh.sh" "$merged"
+elif [[ "${docn_source}" == RTOFS ]] ; then
+    "$USHhafs/hafs_rtofs_prep_mesh.sh" "$merged"
+elif [[ "${docn_source}" == GHRSST ]] ; then
+    "$USHhafs/hafs_ghrsst_prep_mesh.sh" "$merged"
+else
+    echo "ERROR: Unknown data ocean source $docn_source. Giving up." 2>&1
+    echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DOCN_SOURCE VALUE <- "
+    exit 1
+fi
+
+test -s "$merged"
+test -r "$merged"
+
+set +x
+echo "Subprocess successfully merged ocean input files."
+echo "Will now generate mesh in \"$ofile\""
+echo "Will deliver to \"$mesh_ocn\""
+set -x
+
+# Generate the mesh from the merged file. 
+if [[ "$docn_source" == OISST ]] ; then   
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+        --maskvar sst --maskcal --double --overwrite
+elif [[ "${docn_source}" == RTOFS ]] ; then
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+        --overwrite --latvar Latitude --lonvar Longitude \
+        --maskvar sst --maskcal —double   
+elif [[ "${docn_source}" == GHRSST ]] ; then
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+        --maskvar analysed_sst --maskcal --overwrite --double
+fi
 test -s "$ofile"
 
 # Copy mesh and merged file to final destinations.
 $USHhafs/produtil_deliver.py -m "$ofile" "$mesh_ocn"
-$USHhafs/produtil_deliver.py -m "$nozlev" "$merged_docn_input"
+$USHhafs/produtil_deliver.py -m "$merged" "$merged_docn_input"
 test -s "$mesh_ocn"
 
 ls -l "$mesh_ocn"
 
 # Rejoice.
 set +x
-echo "OISST files successfully merged."
 echo "DOCN mesh was successfully generated."
 echo "Enjoy your mesh and have a nice day."

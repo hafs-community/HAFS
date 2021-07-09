@@ -32,7 +32,19 @@ echo "Start date: ${M1DATE:0:8}"
 echo "End date: ${P1DATE:0:8}"
 echo "Destination dir: \"$DOCNdir\""
 
-"$USHhafs/hafs_docn_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
+docn_source=${DOCN_SOURCE:-OISST}
 
-echo "Successfully downloaded all OISST files."
+if [[ "$docn_source" == OISST ]] ; then
+    "$USHhafs/hafs_oisst_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
+elif [[ "${docn_source}" == RTOFS ]] ; then
+    "$USHhafs/hafs_rtofs_download.py" ${CDATE:0:8}
+elif [[ "${docn_source}" == GHRSST ]] ; then
+    "$USHhafs/hafs_ghrsst_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
+else
+    echo "ERROR: Unknown data ocean source $docn_source. Giving up." 2>&1
+    echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DOCN_SOURCE VALUE <- "
+    exit 1
+fi
+
+echo "Successfully downloaded all DOCN $docn_source files."
 echo "Enjoy your files and have a nice day."

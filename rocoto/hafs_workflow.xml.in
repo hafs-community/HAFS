@@ -257,7 +257,7 @@
       &CORES_EXTRA;
       <envar><name>TOTAL_TASKS</name><value>1</value></envar>
       <walltime>06:00:00</walltime>
-      &MEMORY;
+      &MORE_MEMORY;
       &ENV_VARS;
       
       <dependency>

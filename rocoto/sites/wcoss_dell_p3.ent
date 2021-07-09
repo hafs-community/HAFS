@@ -14,6 +14,7 @@
   <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>1G</memory>">
+  <!ENTITY MORE_MEMORY     "<memory>5G</memory>">
 
   <!-- Note: on wcoss_dell_p3, omp is not controlled by the nodes tpp option. -->
   <!ENTITY MAKE_ESMF_MESH_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime><memory>24G</memory>">
