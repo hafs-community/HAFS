@@ -11,6 +11,8 @@ export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
 export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
+export s_ens_h=${s_ens_h:-150}
+export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 if [ ${ENSDA} = YES ]; then
@@ -483,6 +485,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
     -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_S_ENS_H_/${s_ens_h:-150}/g" \
+    -e "s/_S_ENS_V_/${s_ens_v:--0.5}/g" \
     -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
