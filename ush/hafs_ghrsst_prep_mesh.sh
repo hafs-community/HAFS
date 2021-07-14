@@ -2,26 +2,23 @@
 
 set -xe
 
-nozlev="${1:-oisst-avhrr-v02r01.merged_nozlev.nc}"
+subset="${1:-ghrsst_subset.nc}"
+merged=ghrsst_merged.nc
 
 if ( ! which cdo ) ; then
     echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
     exit 1
-fi  
+fi
 
-if ( ! which ncwa ) ; then
-    echo "The \"ncwa\" command from the NetCDF Data Operators (nco) is not in your path! Go find the nco and rerun this job." 1>&2
+if ( ! which ncks ) ; then
+    echo "The \"ncks\" command from the NetCDF Data Operators (nco) is not in your path! Go find the nco and rerun this job." 1>&2
     exit 1
-fi  
+fi
 
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
+HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS} 
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 USHhafs=${USHhafs:-${HOMEhafs}/ush}
 CDATE=${CDATE:-${YMDH}}
-
-merged=oisst-avhrr-v02r01.merged.nc
-mesh_ocn="$mesh_ocn"
-mesh_dir=$( dirname "$mesh_ocn" )
 
 # Start & end times are at day precision, not hour
 m1date=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 -24 hours" +%Y%m%d )
@@ -30,20 +27,21 @@ now=$m1date
 end=$p1date
 
 set +x
-echo "Generating ESMF mesh from OISST files."
+echo "Generating ESMF mesh from GHRSST files."
 echo "Running in dir \"$PWD\""
-echo "OISST Date range is $now to $end" 
+echo "Using files from \"$DOCNdir\""
+echo "GHRSST Date range is $now to $end"
 set -x
 
 # Generate the filenames.
-mergefiles=''
 missing=''
+mergefiles=''
 itry=0
 itrytoohard=99 # infinite loop guard
 while (( now <= end && itry <= itrytoohard )) ; do
-    infile="$DOCNdir/oisst-avhrr-v02r01.${now:0:8}.nc"
+    infile="$DOCNdir/JPL-L4_GHRSST-SSTfnd-MUR-GLOB-${now:0:8}.nc"
     if [[ ! -s "$infile" || ! -r "$infile" ]] ; then
-        echo "OISST input file is missing: $infile" 2>&1
+        echo "GHRSST input file is missing: $infile" 2>&1
         missing="$missing $infile"
     else
         mergefiles="$mergefiles $infile"
@@ -67,24 +65,24 @@ if [[ "${missing:-}Q" != Q ]] ; then
 fi
 
 set +x
-echo "OISST input files are:"
+echo "GHRSST input files are:"
 for f in $mergefiles ; do
     echo "  - $f"
 done
-echo "Will merge oisst files into $merged"
-echo "Will remove z levels into $nozlev"
+echo "Will merge ghrsst files into $merged"
+       echo "Will subset data over HAFS region into $subset"
 set -x
 
-# Merge all oisst files into one, as expected by hafs_esmf_mesh.py
+# Merge all ghrsst files into one, as expected by hafs_esmf_mesh.py 
 cdo mergetime $mergefiles "$merged"
 test -s "$merged"
 test -r "$merged"
 
-# Remove z dimension
-ncwa -O -a zlev "$merged" "$nozlev"
-test -s "$nozlev"
-test -r "$nozlev"
+# Subset data over HAFS region (lat, 250 to 355 and lon, 0 to 50)   
+ncks -O -d lon,6999,17499 -d lat,8999,13999 "$merged" "$subset"
+test -s "$subset"
+test -r "$subset"
 
 # Rejoice.
 set +x
-echo "Successfully merged OISST files and removed z dimension."
+echo "Successfully merged GHRSST files and subsetted area."

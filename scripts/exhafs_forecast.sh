@@ -711,15 +711,16 @@ elif [ ${run_docn} = yes ];  then
       < docn_in_template > docn_in
 
   if [ "$docn_source" == GHRSST ] ; then
+      [ -d docn ] || mkdir docn
       ${NLN} "$merged_docn_input" docn/ghrsst_v1.nc
   fi
 
   # Generate docn_streams from template specific to the model:
-  ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn_streams
+  ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
   sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams
-  for file in INPUT/oisst*.nc INPUT/sst*.nc ; do
+  for file in INPUT/oisst*.nc INPUT/sst*.nc INPUT/DOCN_input_merged.nc ; do
     if [[ -s "$file" ]] ; then
       sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$(basename $file)/" docn.streams
     fi
