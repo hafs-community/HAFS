@@ -18,9 +18,9 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/zrtrr/strahan/HAFSTwoDOCN
+ HOMEhafs=/work/noaa/zrtrr/strahan/HAFSOtherPython
  dev="-s sites/orion.ent -f"
- PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
+ PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
 
 # NOAA RDHPCS Hera
 #HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
@@ -41,7 +41,7 @@ EXPT=$(basename ${HOMEhafs})
  #     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
-     config.SUBEXPT=${EXPT}_oisst \
+     config.SUBEXPT=${EXPT}_py \
      forecast.output_history=.true. \
      ../parm/hafs_regional_static.conf \
      ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
