@@ -23,7 +23,7 @@
   <!ENTITY OCN_PREP_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY WAV_PREP_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ANALYSIS_RESOURCES "<nodes>40:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>800</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>03:00:00</walltime>">
-  <!ENTITY ENKF_ENKF_RESOURCES "<nodes>40:ppn=1:tpp=40</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>40</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ENKF_ENKF_RESOURCES "<nodes>41:ppn=1:tpp=40</nodes><envar><name>TOTAL_TASKS</name><value>41</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>40</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ENKF_GSI_RESOURCES "<nodes>1:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>20</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
 
   <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">

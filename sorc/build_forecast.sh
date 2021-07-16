@@ -9,6 +9,6 @@ if [ $target = jet ]; then target=jet.intel ; fi
 
 cd hafs_forecast.fd/tests
 
-./compile.sh "$target" "APP=HAFSW CCPP=Y STATIC=Y SUITES=HAFS_v0_gfdlmp_tedmf_nonsst,HAFS_v0_gfdlmp_tedmf,HAFS_v0_gfdlmp_nocpnsst,HAFS_v0_gfdlmp_nonsst,HAFS_v0_gfdlmp_nocp,HAFS_v0_gfdlmp,HAFS_v0_hwrf_thompson,HAFS_v0_hwrf 32BIT=Y" 32bit YES NO
+./compile.sh "$target" "-DAPP=HAFSW -DCCPP_SUITES=HAFS_v0_gfdlmp_tedmf_nonsst,HAFS_v0_gfdlmp_tedmf,HAFS_v0_hwrf_thompson,HAFS_v0_hwrf -D32BIT=ON" 32bit YES NO
 
 exit

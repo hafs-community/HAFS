@@ -22,7 +22,6 @@ is_fv3                = T
 is_regional           = T
 is_rotate_winds       = T
 sample_radius         = 9000.0
-sample_nindex         = 1
 /
 &recon
 /

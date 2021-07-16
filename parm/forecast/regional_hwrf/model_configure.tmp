@@ -27,7 +27,7 @@ write_tasks_per_group:   _write_tasks_per_group_
 write_dopost:            _write_dopost_
 output_history:          _output_history_
 num_files:               2
-filename_base:           'dyn' 'phy'
+filename_base:           'atm' 'sfc'
 output_file:             'netcdf_parallel' 'netcdf_parallel'
 ichunk2d:                -1
 jchunk2d:                -1
