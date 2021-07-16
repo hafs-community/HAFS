@@ -29,7 +29,7 @@ license agreement, get a key, and put the key in your ~/.cdsapi file.
 import produtil.setup, produtil.fileop, produtil.locking
 
 # Constants
-UTILITY_NAME = 'era5_downloader'
+UTILITY_NAME = 'hafs_era5_download'
 VERSION_STRING = '0.0.1'
 LOGGING_DOMAIN = UTILITY_NAME
 DATASET = 'reanalysis-era5-single-levels'

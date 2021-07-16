@@ -39,7 +39,16 @@ echo "Start date: ${M1DATE:0:8}"
 echo "End date: ${P1DATE:0:8}"
 echo "Destination dir: \"$DATMdir\""
 
-"$USHhafs/hafs_datm_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
+datm_source=${DATM_SOURCE:-ERA5}
 
-echo "Successfully downloaded all ERA5 files and reversed their latitudes."
+if [[ "$datm_source" == ERA5 ]] ; then
+    "$USHhafs/hafs_era5_download.py" ${M1DATE:0:8}-${P1DATE:0:8}
+else
+    echo "ERROR: Unknown data atmosphere source $datm_source. Giving up." 2>&1
+    echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DATM_SOURCE VALUE <- "
+    exit 1
+fi
+
+
+echo "Successfully downloaded all DATM $datm_source files."
 echo "Enjoy your files and have a nice day."

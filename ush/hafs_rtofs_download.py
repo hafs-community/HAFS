@@ -18,7 +18,7 @@ import random
 try:
     import requests
 except ImportError as ie:
-    sys.stderr.write("""You are missing the request module!
+    sys.stderr.write("""You are missing the "request" module!
 You must install it to run this script. 
 
   pip install request --user
@@ -27,7 +27,7 @@ You must install it to run this script.
 import produtil.setup, produtil.fileop, produtil.locking
 
 # Constants
-UTILITY_NAME = 'rtofs_downloader'
+UTILITY_NAME = 'hafs_rtofs_download'
 VERSION_STRING = '0.0.1'
 LOGGING_DOMAIN = UTILITY_NAME
 CYCLING_INTERVAL = datetime.timedelta(seconds=3600*24)

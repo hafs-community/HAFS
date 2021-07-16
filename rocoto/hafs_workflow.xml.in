@@ -603,6 +603,10 @@
     <command>&JOBhafs;/JHAFS_DATM_MESH</command>
     <jobname>hafs_datm_mesh_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_datm_mesh.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
     &MAKE_ESMF_MESH_RESOURCES;
     &ENV_VARS;
 

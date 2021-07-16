@@ -60,6 +60,7 @@ export make_mesh_ocn={make_mesh_ocn}
 export mesh_ocn={mesh_ocn}
 export merged_docn_input={merged_docn_input}
 export DOCN_SOURCE={DOCN_SOURCE}
+export DATM_SOURCE={DATM_SOURCE}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}

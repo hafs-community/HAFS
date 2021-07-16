@@ -35,16 +35,23 @@ rm -f "$mesh_atm"
 [ -e "$ofile" -o -L "$ofile" ]] && rm -f "$ofile"
 
 set +x
-echo "Generating ESMF mesh from ERA5 files."
+echo "Generating ESMF mesh from $datm_source files."
 echo "Running in dir \"$PWD\""
 echo "ERA5 grid generation input file is \"$ifile\""
 echo "Temporary output mesh is $ofile"
 echo "Will deliver to \"$mesh_atm\""
 set -x
 
-# Generate the mesh from the ERA5 file:
-$APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$ifile" --ofile "$ofile" \
-    --overwrite --latvar latitude --lonvar longitude --double
+# Generate the mesh from the merged file:
+datm_source=${DATM_SOURCE:-ERA5}
+if [[ "$datm_source" == ERA5 ]] ; then
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$ifile" --ofile "$ofile" \
+        --overwrite --latvar latitude --lonvar longitude --double
+else
+    echo "ERROR: Unknown data atmosphere source $datm_source. Giving up." 2>&1
+    echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DATM_SOURCE VALUE <- "
+    exit 1
+fi
 test -s "$ofile"
 
 # Copy mesh to final destination.
@@ -55,5 +62,5 @@ ls -l "$mesh_atm"
 
 # Rejoice.
 set +x
-echo "DATM mesh was successfully generated."
+echo "DATM $datm_source mesh was successfully generated."
 echo "Enjoy your mesh and have a nice day."
