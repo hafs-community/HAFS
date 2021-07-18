@@ -6,9 +6,8 @@
 # the different configuration names.
 # The script looks for:
 # 1. storm1.done 2. *atcfunix.all 3. hafsprs.synoptic.f012.grb2
-# 4. dynf012.nc 5. phyf012.nc 6. the number of dyn and phy files
-# 5. hycominit2.done for coupled runs 6. post/product job done in post and prod log files
-# 7. SUCCEEDED for completion task
+# 4. hycominit2.done for coupled runs 5. post/product job done in post and prod log files
+# 6. SUCCEEDED for completion task
 
 # Author: Mrinal Biswas DTC/NCAR
 # Do not contact: biswas@ucar.edu
@@ -40,12 +39,7 @@ for file in *.xml; do
   storm1_done=${HAFS_out}/${subexpt}/com/${storm_init}/${sid}/storm1.done
   atcfunix=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*atcfunix.all")
   hafsprs_synoptic=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*.hafsprs.synoptic.0p03.f012.grb2")
-  dynf_files=$(/usr/bin/find ${HAFS_out}/${subexpt}/${storm_init}/${sid}/forecast -type f -name "dynf012.nc")
-  phyf_files=$(/usr/bin/find ${HAFS_out}/${subexpt}/${storm_init}/${sid}/forecast -type f -name "phyf012.nc")
   hafs_hycom=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*hafs_hycom*")
-
-  dynf_files_cnt="`ls ${HAFS_out}/${subexpt}/${storm_init}/${sid}/forecast/dynf*.nc|wc -l`"
-  phyf_files_cnt="`ls ${HAFS_out}/${subexpt}/${storm_init}/${sid}/forecast/phyf*.nc|wc -l`"
 
   # Check if HYCOM init ran successfully or not
 
@@ -92,14 +86,6 @@ for file in *.xml; do
     fi
   fi
 
-  # Count the number of dyn and phy files
-
-  if [[ $dynf_files_cnt == "5" && $phyf_files_cnt == "5" ]]; then
-    echo "ALL DYN AND PHY FILES PRESENT"
-  else
-    echo "ALL DYN AND PHY FILES NOT PRESENT"
-  fi
-
   # Check storm1.done atcfunix and hafsprs.synoptic files
 
   if [[ -e ${storm1_done} && -e ${atcfunix} && -e ${hafsprs_synoptic} ]]; then
@@ -108,25 +94,15 @@ for file in *.xml; do
     echo "STORM1.DONE, TRACKER OUTPUT, HAFSPRS.SYNOPTIC FILES DO NOT EXIST"
   fi
 
-  # Check to see if dyn and phy files are present
-
-  if [[ -f "${dynf_files}" && -f "${phyf_files}" ]]; then
-    echo "FOUND ALL DYN AND PHY FILES IN THE FORECAST DIRECTORY"
-  else
-    echo "DID NOT FIND ALL THE DYN AND PHY FILES IN THE FORECAST DIRECTORY"
-  fi
-
   # Check if everything passed
 
   if [[ $if_complete == "1" ]]; then
-    if [[ $dynf_files_cnt == "5" && $phyf_files_cnt == "5" ]]; then
     if [[ -e ${storm1_done} && -e ${atcfunix} && -e ${hafsprs_synoptic} ]]; then
     if [[ $post_log == "post job done" ]]; then
     if [[ $prod_log == "product job done" ]]; then
       echo "REGRESSION TEST PASSED!! YAYYY!!"
     else
       echo "REGRESSION TEST FAILED!! IT'S NOT YOUR FAULT!!"
-    fi
     fi
     fi
     fi

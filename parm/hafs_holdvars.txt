@@ -62,12 +62,6 @@ export ictype_ens={ictype_ens}
 export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
 
-export nstf_n1={nstf_n1}
-export nstf_n2={nstf_n2}
-export nstf_n3={nstf_n3}
-export nstf_n4={nstf_n4}
-export nstf_n5={nstf_n5}
-
 export CASE={CASE}
 export LEVS={LEVS}
 export gtype={gtype}
@@ -87,6 +81,11 @@ export halo0={halo0}
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
 export use_bufr_nr={use_bufr_nr}
+export grid_ratio_fv3_regional={grid_ratio_fv3_regional}
+export s_ens_h={s_ens_h}
+export s_ens_v={s_ens_v}
+export corrlength={corrlength}
+export lnsigcutoff={lnsigcutoff}
 
 export ccpp_suite_regional={ccpp_suite_regional}
 export ccpp_suite_glob={ccpp_suite_glob}
@@ -97,6 +96,8 @@ export restart_interval={restart_interval}
 export quilting={quilting}
 export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
+export write_dopost={write_dopost}
+export output_history={output_history}
 
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}
@@ -112,6 +113,14 @@ export layouty={layouty}
 export npx={npx}
 export npy={npy}
 export npz={npz}
+
+export fhswr={fhswr}
+export fhlwr={fhlwr}
+export nstf_n1={nstf_n1}
+export nstf_n2={nstf_n2}
+export nstf_n3={nstf_n3}
+export nstf_n4={nstf_n4}
+export nstf_n5={nstf_n5}
 
 export app_domain={app_domain}
 export output_grid={output_grid}
@@ -154,6 +163,8 @@ export restart_interval_ens={restart_interval_ens}
 export quilting_ens={quilting_ens}
 export write_groups_ens={write_groups_ens}
 export write_tasks_per_group_ens={write_tasks_per_group_ens}
+export write_dopost_ens={write_dopost_ens}
+export output_history_ens={output_history_ens}
 export k_split_ens={k_split_ens}
 export n_split_ens={n_split_ens}
 export glob_layoutx_ens={glob_layoutx_ens}
