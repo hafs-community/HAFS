@@ -17,6 +17,9 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
+  if [ "${machine}" = "hera" ]; then 
+    module unload intelpython 
+  fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
   module load ufs_${machine}
   module list

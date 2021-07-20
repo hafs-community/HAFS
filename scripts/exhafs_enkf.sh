@@ -50,6 +50,8 @@ fi
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export ldo_enscalc_option=${ldo_enscalc_option:-1}
 export nens=${ENS_SIZE:-40}
+export corrlength=${corrlength:-500}
+export lnsigcutoff=${lnsigcutoff:-1.3}
 
 # Diagnostic files options
 netcdf_diag=${netcdf_diag:-".true."}
@@ -233,6 +235,8 @@ ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc   
 ${NCP} ${PARMgsi}/enkf.nml.tmp ./
 
 sed -e "s/_datestring_/${CDATE}/g" \
+    -e "s/_corrlength_/${corrlength:-500}/g" \
+    -e "s/_lnsigcutoff_/${lnsigcutoff:-1.3}/g" \
     -e "s/_nlons_/$((${npx_ens:-$npx}-1))/g" \
     -e "s/_nlats_/$((${npy_ens:-$npy}-1))/g" \
     -e "s/_nlevs_/${npz_ens:-$npz}/g" \

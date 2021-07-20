@@ -779,7 +779,7 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 fi
 
 # Copy the fd_nems.yaml file
-${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/CMEPS-interface/CMEPS/mediator/fd_nems.yaml ./
+${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
 
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
