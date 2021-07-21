@@ -57,6 +57,8 @@ sed -i 's/^EXPT =.*/EXPT = '"${SUBEXPT}"'/g' ${NML}
 sed -i 's/^IDATE =.*/IDATE = '"${CDATE}"'/g' ${NML}
 sed -i 's/^INIT_HR =.*/INIT_HR = 0/g' ${NML}
 sed -i 's/^FNL_HR =.*/FNL_HR = '"${NHRS}"'/g' ${NML}
+sed -i 's/^FMT_HR =.*/FMT_HR = '"${NOUTHRS}"'/g' ${NML}
+sed -i 's/^DT =.*/DT = '"${NOUTHRS}"'/g' ${NML}
 sed -i 's@^IDIR =.*@IDIR = '"${COMhafs}"'@g' ${NML}
 sed -i 's@^ODIR =.*@ODIR = '"${WORKgplot}"'@g' ${NML}
 sed -i 's@^ATCF1_DIR =.*@ATCF1_DIR = '"${COMhafs}"'@g' ${NML}
