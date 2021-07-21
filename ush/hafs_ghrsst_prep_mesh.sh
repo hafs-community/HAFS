@@ -3,7 +3,6 @@
 set -xe
 
 subset="${1:-ghrsst_subset.nc}"
-merged=ghrsst_merged.nc
 
 if ( ! which cdo ) ; then
     echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
@@ -74,14 +73,23 @@ echo "Will merge ghrsst files into $merged"
 set -x
 
 # Merge all ghrsst files into one, as expected by hafs_esmf_mesh.py 
-cdo mergetime $mergefiles "$merged"
-test -s "$merged"
-test -r "$merged"
+cdo mergetime $mergefiles ghrsst_v1.nc
 
 # Subset data over HAFS region (lat, 250 to 355 and lon, 0 to 50)   
-ncks -O -d lon,6999,17499 -d lat,8999,13999 "$merged" "$subset"
+cdo -sellonlatbox,-118,-5,-15.0,60.0 ghrsst_v1.nc ghrsst_v2.nc
+
+# Convert temperature units:
+aos_old=`ncdump -c ghrsst_v2.nc | grep add_offset | grep analysed_sst | awk '{print $3}'`
+aos_new=$(echo "scale=3; $aos_old-273.15" | bc)
+ncatted -O -a add_offset,analysed_sst,o,f,"$aos_new" ghrsst_v2.nc
+
+# Deliver file:
+rm -f "$subset"
+cp -fp ghrsst_v2.nc "$subset"
 test -s "$subset"
 test -r "$subset"
+
+#ncks -O -d lon,6999,17499 -d lat,8999,13999 "$merged" ghrsst_v1.nc
 
 # Rejoice.
 set +x

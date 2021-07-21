@@ -18,7 +18,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/zrtrr/strahan/HAFSOtherPython
+ HOMEhafs=/work/noaa/zrtrr/${USER}/HAFS
  dev="-s sites/orion.ent -f"
  PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
 
@@ -34,17 +34,19 @@ EXPT=$(basename ${HOMEhafs})
 #===============================================================================
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
- # ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
- #     config.SUBEXPT=${EXPT}_ghrsst \
- #     forecast.output_history=.true. \
- #     ../parm/hafs_regional_static.conf \
- #     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
+# Run data ocean with OISST
+# ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
+#     config.SUBEXPT=${EXPT}_oisst \
+#     forecast.output_history=.true. \
+#     ../parm/hafs_regional_static.conf \
+#     ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
 
+# Run data ocean with GHRSST
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
-     config.SUBEXPT=${EXPT}_py \
+     config.SUBEXPT=${EXPT}_ghrsst \
      forecast.output_history=.true. \
      ../parm/hafs_regional_static.conf \
-     ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
+     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
 
 # Run all cycles of a storm
 #${PYTHON3} ./run_hafs.py ${dev} 2020 13L HISTORY config.EXPT=${EXPT} # Laura
