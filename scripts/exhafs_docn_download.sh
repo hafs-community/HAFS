@@ -23,7 +23,7 @@ export TZ=UTC # Orion workaround
 M1DATE=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 -24 hours" +%Y%m%d%H )
 P1DATE=$( date -d "${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}t${CDATE:8:2}:00:00+00 +$(( NHRS+24 )) hours" +%Y%m%d%H )
 
-[ -d "$DOCNdir" ] || mkdir "$DOCNdir"
+[ -d "$DOCNdir" ] || mkdir -p "$DOCNdir"
 test -d "$DOCNdir"
 cd "$DOCNdir"
 
