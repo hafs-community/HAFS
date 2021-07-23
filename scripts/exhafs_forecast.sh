@@ -745,7 +745,7 @@ ${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
     bigfile9=phyf${hhh9}.nc
     smallfile9=subphyf${hhh9}.nc
     rm -f ${smallfile9}
-    ncks -v spd10max,prat_ave ${bigfile9} ${smallfile9}
+    ncks -v spd10max,prate_ave ${bigfile9} ${smallfile9}
     ${NCP} ${smallfile9} ${COMOUT}/.
  done
     ${NCP} logfile.000000.out ${COMOUT}/.
