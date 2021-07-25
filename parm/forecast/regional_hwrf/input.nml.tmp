@@ -164,7 +164,6 @@
        fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
-       ncld           = 5
        imp_physics    = 15         ! F-A MP scheme
        RHGRD          = 1.0        ! F-A
        spec_adv       = .true.     ! F-A
