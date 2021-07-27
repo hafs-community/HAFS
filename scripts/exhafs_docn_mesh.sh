@@ -1,8 +1,7 @@
 #!/bin/bash
 
-if [[ "$make_mesh_ocn" != yes || "$run_docn" != yes ]] ; then
-    echo "This job should only be run if \$run_docn and \$make_mesh_ocn are both yes."
-    echo "  \$make_mesh_ocn=\"$make_mesh_ocn\""
+if [[ "$run_docn" != yes ]] ; then
+    echo "This job should only be run if \$run_docn=yes"
     echo "  \$run_docn=\"$run_docn\""
     echo "Beware! You may anger Poseidon by misusing this script. Avoid coastlines."
     echo " -> SCRIPT IS EXITING BECAUSE THIS JOB SHOULD NOT BE RUN <- "
@@ -24,8 +23,11 @@ mesh_dir=$( dirname "$mesh_ocn" )
 docn_source=${DOCN_SOURCE:-OISST}
 
 [ -d "$mesh_dir" ] || mkdir "$mesh_dir"   
-rm -f "$mesh_ocn"
 test -e "$ofile" -o -L "$ofile"  && rm -f "$ofile"
+
+if [[ "$make_mesh_ocn" == yes ]] ; then
+    rm -f "$mesh_ocn"
+fi
 
 if [[ "$docn_source" == OISST ]] ; then   
     "$USHhafs/hafs_oisst_prep_mesh.sh" "$merged"
@@ -41,6 +43,18 @@ fi
 
 test -s "$merged"
 test -r "$merged"
+$USHhafs/produtil_deliver.py -m "$merged" "$merged_docn_input"
+test -s "$merged_docn_input"
+test -r "$merged_docn_input"
+
+if [[ "$make_mesh_ocn" != yes ]] ; then
+    set +x
+    echo "Delivered merged file to $merged"
+    echo "Will use a premade mesh."
+    echo "Please enjoy your merged files and have a nice day."
+    set -x
+    exit 0
+fi
 
 set +x
 echo "Subprocess successfully merged ocean input files."
@@ -64,7 +78,6 @@ test -s "$ofile"
 
 # Copy mesh and merged file to final destinations.
 $USHhafs/produtil_deliver.py -m "$ofile" "$mesh_ocn"
-$USHhafs/produtil_deliver.py -m "$merged" "$merged_docn_input"
 test -s "$mesh_ocn"
 
 ls -l "$mesh_ocn"

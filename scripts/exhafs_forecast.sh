@@ -673,7 +673,7 @@ if [ ${run_datm} = yes ];  then
 
   sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams
 
-  ${NLN} ${mesh_atm} INPUT/
+  ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
 
   ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
@@ -684,7 +684,7 @@ if [ ${run_datm} = yes ];  then
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${NHRS}/g" \
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
-      -e "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" \
+      -e "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" \
       -e "/_mesh_ocn_/d" \
       -e "/_system_type_/d" \
       -e "s/_atm_model_/datm/g" \
@@ -693,11 +693,7 @@ if [ ${run_datm} = yes ];  then
 
 elif [ ${run_docn} = yes ];  then
   MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
-  if [[ "$MAKE_MESH_OCN" == YES ]] ; then
-      ${NLN} "$merged_docn_input" INPUT/
-  else
-      ${NLN} "$DOCNdir"/*.nc INPUT/
-  fi
+  ${NLN} "$merged_docn_input" INPUT/
 
   #${NCP} ${PARMhafs}/cdeps/docn_in .
   #${NCP} ${PARMhafs}/cdeps/docn.streams .
@@ -705,7 +701,7 @@ elif [ ${run_docn} = yes ];  then
 
   # Generate docn_in from template:
   ${NCP} ${PARMhafs}/cdeps/docn_in docn_in_template
-  sed -e "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" \
+  sed -e "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" \
       -e "s/_nx_global_/$docn_mesh_nx_global/g" \
       -e "s/_ny_global_/$docn_mesh_ny_global/g" \
       < docn_in_template > docn_in
@@ -719,14 +715,14 @@ elif [ ${run_docn} = yes ];  then
   ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
-  sed -i "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" docn.streams
+  sed -i "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" docn.streams
   for file in INPUT/oisst*.nc INPUT/sst*.nc INPUT/DOCN_input_merged.nc ; do
     if [[ -s "$file" ]] ; then
       sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$(basename $file)/" docn.streams
     fi
   done
 
-  ${NLN} "${mesh_ocn}" INPUT/
+  ${NLN} "${mesh_ocn}" INPUT/DOCN_ESMF_mesh.nc
 
   ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
@@ -738,7 +734,7 @@ elif [ ${run_docn} = yes ];  then
       -e "s/_end_hour_/${NHRS}/g" \
       -e "s/_merge_import_/${merge_import:-.true.}/g" \
       -e "/_mesh_atm_/d" \
-      -e "s/_mesh_ocn_/INPUT\/$(basename $mesh_ocn)/g" \
+      -e "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" \
       -e "s/_system_type_/ufs/g" \
       -e "s/_atm_model_/fv3/g" \
       -e "s/_ocn_model_/docn/g" \

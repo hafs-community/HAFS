@@ -385,7 +385,6 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
-        <streq><left>&MAKE_MESH_OCN;</left><right>YES</right></streq>
         <or>
           <strneq><left>&DOWNLOAD_DOCN;</left><right>YES</right></strneq>
           <metataskdep metatask="download_docn" threshold="&DOWNLOAD_DOCN_THRESHOLD;"/>
@@ -675,10 +674,7 @@
           <strneq><left>&DOWNLOAD_DOCN;</left><right>YES</right></strneq>
           <metataskdep metatask="download_docn" threshold="0.2"/>
         </or>
-        <or>
-          <strneq><left>&MAKE_MESH_OCN;</left><right>YES</right></strneq>
-          <taskdep task="docn_mesh"/>
-        </or>
+        <taskdep task="docn_mesh"/>
 @**   endif
         <or>
           <streq><left>&RUN_DATM;</left><right>YES</right></streq>
