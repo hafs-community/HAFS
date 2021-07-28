@@ -665,13 +665,13 @@ if [ ${run_datm} = yes ];  then
       nowdate=`${NDATE} +24 $nowdate`
   done
 
-  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm_in
+  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm_in
 
   sed -i "s/_yearFirst_/$yr/g" datm.streams
 
   sed -i "s/_yearLast_/$endyr/g" datm.streams
 
-  sed -i "s/_mesh_atm_/INPUT\/$(basename $mesh_atm)/g" datm.streams
+  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
 
   ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
 
