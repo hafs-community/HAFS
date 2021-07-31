@@ -11,12 +11,7 @@
        blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
-       fdiag = 3
        avg_max_length = 3600.
-       fhmax = _fhmax_
-       fhout = 3
-       fhmaxhf = 0
-       fhouthf = 3
        ccpp_suite = '_ccpp_suite_'
        merge_import = _merge_import_
 /

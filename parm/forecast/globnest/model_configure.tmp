@@ -1,6 +1,4 @@
 print_esmf:              .false.
-total_member:            1
-PE_MEMBER01:             NTASKS
 start_year:              YR
 start_month:             MN
 start_day:               DY
@@ -11,7 +9,6 @@ nhours_fcst:             NHRS
 RUN_CONTINUE:            .false.
 ENS_SPS:                 .false.
 dt_atmos:                _dt_atmos_
-cpl:                     _cpl_
 calendar:                'julian'
 memuse_verbose:          .false.
 atmos_nthreads:          NTHRD
@@ -54,3 +51,4 @@ nfhout:                  3
 nfhmax_hf:               -1
 nfhout_hf:               3
 nsout:                   -1
+output_fh:               -1
