@@ -13,7 +13,6 @@
        dycore_only = .false.
        avg_max_length = 3600.
        ccpp_suite = '_ccpp_suite_'
-       merge_import = _merge_import_
 /
 
  &diag_manager_nml
@@ -217,6 +216,7 @@
        cplice         = .false.
        cplwav         = .false.
        cplwav2atm     = .false.
+       cpl_imp_mrg    = _merge_import_
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
