@@ -371,15 +371,15 @@
   </metatask>
 
 @**   if RUN_DOCN==YES
-  <task name="docn_mesh" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_DOCN_MESH</command>
-    <jobname>hafs_docn_mesh_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_docn_mesh.log</cyclestr></join>
+  <task name="docn_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_DOCN_PREP</command>
+    <jobname>hafs_docn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_docn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &MAKE_ESMF_MESH_RESOURCES;
+    &DOCN_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -598,15 +598,15 @@
 
 @**     if RUN_DATM==YES
 
-  <task name="datm_mesh" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_DATM_MESH</command>
-    <jobname>hafs_datm_mesh_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_datm_mesh.log</cyclestr></join>
+  <task name="datm_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_DATM_PREP</command>
+    <jobname>hafs_datm_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_datm_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &MAKE_ESMF_MESH_RESOURCES;
+    &DATM_PREP_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -666,7 +666,7 @@
         </or>
         <or>
           <strneq><left>&MAKE_MESH_ATM;</left><right>YES</right></strneq>
-          <taskdep task="datm_mesh"/>
+          <taskdep task="datm_prep"/>
         </or>
 @**   endif
 @**   if RUN_DOCN==YES
@@ -674,7 +674,7 @@
           <strneq><left>&DOWNLOAD_DOCN;</left><right>YES</right></strneq>
           <metataskdep metatask="download_docn" threshold="0.2"/>
         </or>
-        <taskdep task="docn_mesh"/>
+        <taskdep task="docn_prep"/>
 @**   endif
         <or>
           <streq><left>&RUN_DATM;</left><right>YES</right></streq>

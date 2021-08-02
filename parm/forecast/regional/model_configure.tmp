@@ -1,4 +1,4 @@
-print_esmf:              .false.
+print_esmf:              _print_esmf_
 total_member:            1
 PE_MEMBER01:             NTASKS
 start_year:              YR

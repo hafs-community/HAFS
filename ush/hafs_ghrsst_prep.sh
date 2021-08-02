@@ -2,7 +2,9 @@
 
 set -xe
 
-subset="${1:-ghrsst_subset.nc}"
+set -u
+output_path="$1"
+set +u
 
 if ( ! which cdo ) ; then
     echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
@@ -34,21 +36,33 @@ set -x
 
 # Generate the filenames.
 missing=''
-mergefiles=''
-itry=0
-itrytoohard=99 # infinite loop guard
-while (( now <= end && itry <= itrytoohard )) ; do
+usefiles=''
+itime=0
+infinity=9999 # infinite loop guard
+while (( now <= end && itime < infinity )) ; do
     infile="$DOCNdir/JPL-L4_GHRSST-SSTfnd-MUR-GLOB-${now:0:8}.nc"
     if [[ ! -s "$infile" || ! -r "$infile" ]] ; then
         echo "GHRSST input file is missing: $infile" 2>&1
         missing="$missing $infile"
     else
-        mergefiles="$mergefiles $infile"
+        usefiles="$mergefiles $infile"
+
+        rm -f subset.nc
+        # Subset data over HAFS region (lat, 250 to 355 and lon, 0 to 50)
+        cdo -sellonlatbox,-118,-5,-15.0,60.0 "$infile" subset.nc
+
+        # Convert temperature units:
+        aos_old=`ncdump -c subset.nc | grep add_offset | grep analysed_sst | awk '{print $3}'`
+        aos_new=$(echo "scale=3; $aos_old-273.15" | bc)
+        ncatted -O -a add_offset,analysed_sst,o,f,"$aos_new" subset.nc
+
+        outfile=$( printf "%s/DOCN_input_%05d.nc" "$output_path" $itime )
+        $USHhafs/produtil_deliver.py -m subset.nc "$outfile"
     fi
     now=$( date -d "${now:0:4}-${now:4:2}-${now:6:2}t00:00:00+00 +24 hours" +%Y%m%d )
-    itry=$(( itry+1 ))
+    itime=$(( itime+1 ))
 done
-if (( itry > itrytoohard )) ; then
+if (( itime >= infinity )) ; then
     echo "Infinite loop detected! The \"date\" command did not behave as expected. Aborting!" 1>&2
     exit 1
 fi
@@ -63,34 +77,9 @@ if [[ "${missing:-}Q" != Q ]] ; then
     exit 1
 fi
 
-set +x
-echo "GHRSST input files are:"
-for f in $mergefiles ; do
-    echo "  - $f"
-done
-echo "Will merge ghrsst files into $merged"
-       echo "Will subset data over HAFS region into $subset"
-set -x
-
-# Merge all ghrsst files into one, as expected by hafs_esmf_mesh.py 
-cdo mergetime $mergefiles ghrsst_v1.nc
-
-# Subset data over HAFS region (lat, 250 to 355 and lon, 0 to 50)   
-cdo -sellonlatbox,-118,-5,-15.0,60.0 ghrsst_v1.nc ghrsst_v2.nc
-
-# Convert temperature units:
-aos_old=`ncdump -c ghrsst_v2.nc | grep add_offset | grep analysed_sst | awk '{print $3}'`
-aos_new=$(echo "scale=3; $aos_old-273.15" | bc)
-ncatted -O -a add_offset,analysed_sst,o,f,"$aos_new" ghrsst_v2.nc
-
-# Deliver file:
-rm -f "$subset"
-cp -fp ghrsst_v2.nc "$subset"
-test -s "$subset"
-test -r "$subset"
-
 #ncks -O -d lon,6999,17499 -d lat,8999,13999 "$merged" ghrsst_v1.nc
 
 # Rejoice.
 set +x
-echo "Successfully merged GHRSST files and subsetted area."
+echo "Successfully subsetted and corrected units of GHRSST files."
+echo "Please enjoy your files and have a nice day."

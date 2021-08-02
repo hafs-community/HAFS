@@ -693,7 +693,7 @@ if [ ${run_datm} = yes ];  then
 
 elif [ ${run_docn} = yes ];  then
   MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
-  ${NLN} "$merged_docn_input" INPUT/
+  ${NLN} "$docn_input_path"/DOCN_input*nc INPUT/
 
   #${NCP} ${PARMhafs}/cdeps/docn_in .
   #${NCP} ${PARMhafs}/cdeps/docn.streams .
@@ -706,21 +706,18 @@ elif [ ${run_docn} = yes ];  then
       -e "s/_ny_global_/$docn_mesh_ny_global/g" \
       < docn_in_template > docn_in
 
-  if [ "$docn_source" == GHRSST ] ; then
-      [ -d docn ] || mkdir docn
-      ${NLN} "$merged_docn_input" docn/ghrsst_v1.nc
-  fi
-
   # Generate docn_streams from template specific to the model:
   ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
   sed -i "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" docn.streams
-  for file in INPUT/oisst*.nc INPUT/sst*.nc INPUT/DOCN_input_merged.nc ; do
+  for file in INPUT/oisst*.nc INPUT/sst*.nc INPUT/DOCN_input*.nc ; do
     if [[ -s "$file" ]] ; then
-      sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$(basename $file)/" docn.streams
+      sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" docn.streams
     fi
   done
+
+#  sed -i 's/\(stream_data_files01: *\)\(.*\)$/\1 \2"/g' docn.streams
 
   ${NLN} "${mesh_ocn}" INPUT/DOCN_ESMF_mesh.nc
 
@@ -764,6 +761,7 @@ sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
     -e "s/_DLON_/$output_grid_dlon/g" \
     -e "s/_DLAT_/$output_grid_dlat/g" \
     -e "s/_cpl_/${cplflx:-.false.}/g" \
+    -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
     model_configure.tmp > model_configure
 
 # Copy fix files needed by inline_post

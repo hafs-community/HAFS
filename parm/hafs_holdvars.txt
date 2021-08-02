@@ -58,7 +58,8 @@ export docn_mesh_ny_global={docn_mesh_ny_global}
 export docn_download_jobs={docn_download_jobs}
 export make_mesh_ocn={make_mesh_ocn}
 export mesh_ocn={mesh_ocn}
-export merged_docn_input={merged_docn_input}
+export docn_input_path={docn_input_path}
+export datm_input_path={datm_input_path}
 export DOCN_SOURCE={DOCN_SOURCE}
 export DATM_SOURCE={DATM_SOURCE}
 
@@ -119,6 +120,8 @@ export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
 export write_dopost={write_dopost}
 export output_history={output_history}
+
+export print_esmf={print_esmf}
 
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}

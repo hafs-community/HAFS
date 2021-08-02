@@ -22,6 +22,7 @@ mesh_ocn="$mesh_ocn"
 mesh_dir=$( dirname "$mesh_ocn" )
 docn_source=${DOCN_SOURCE:-OISST}
 
+[ -d "$docn_input_path" ] || mkdir -p "$docn_input_path"
 [ -d "$mesh_dir" ] || mkdir "$mesh_dir"   
 test -e "$ofile" -o -L "$ofile"  && rm -f "$ofile"
 
@@ -30,48 +31,44 @@ if [[ "$make_mesh_ocn" == yes ]] ; then
 fi
 
 if [[ "$docn_source" == OISST ]] ; then   
-    "$USHhafs/hafs_oisst_prep_mesh.sh" "$merged"
+    "$USHhafs/hafs_oisst_prep.sh" "$docn_input_path"
 elif [[ "${docn_source}" == RTOFS ]] ; then
-    "$USHhafs/hafs_rtofs_prep_mesh.sh" "$merged"
+    "$USHhafs/hafs_rtofs_prep.sh" "$docn_input_path"
 elif [[ "${docn_source}" == GHRSST ]] ; then
-    "$USHhafs/hafs_ghrsst_prep_mesh.sh" "$merged"
+    "$USHhafs/hafs_ghrsst_prep.sh" "$docn_input_path"
 else
     echo "ERROR: Unknown data ocean source $docn_source. Giving up." 2>&1
     echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DOCN_SOURCE VALUE <- "
     exit 1
 fi
 
-test -s "$merged"
-test -r "$merged"
-$USHhafs/produtil_deliver.py -m "$merged" "$merged_docn_input"
-test -s "$merged_docn_input"
-test -r "$merged_docn_input"
-
 if [[ "$make_mesh_ocn" != yes ]] ; then
     set +x
-    echo "Delivered merged file to $merged"
+    echo "Delivered processed ocean files to $docn_input_path"
     echo "Will use a premade mesh."
-    echo "Please enjoy your merged files and have a nice day."
+    echo "Please enjoy your files and have a nice day."
     set -x
     exit 0
 fi
 
 set +x
-echo "Subprocess successfully merged ocean input files."
+echo "Delivered processed ocean files to $docn_input_path"
 echo "Will now generate mesh in \"$ofile\""
 echo "Will deliver to \"$mesh_ocn\""
 set -x
 
+file0=$docn_input_path/DOCN_input_00000.nc
+
 # Generate the mesh from the merged file. 
 if [[ "$docn_source" == OISST ]] ; then   
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --maskvar sst --maskcal --double --overwrite
 elif [[ "${docn_source}" == RTOFS ]] ; then
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --overwrite --latvar Latitude --lonvar Longitude \
         --maskvar sst --maskcal —double   
 elif [[ "${docn_source}" == GHRSST ]] ; then
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$merged" --ofile "$ofile" \
+    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --maskvar analysed_sst --maskcal --overwrite --double
 fi
 test -s "$ofile"

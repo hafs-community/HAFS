@@ -58,7 +58,7 @@ export PDY=${PDY:-${PDYtmp}}
 #####################################
 # Working directories
 #####################################
-export DATA=${WORKhafs}/datm_mesh
+export DATA=${WORKhafs}/docn_mesh
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 
@@ -71,7 +71,7 @@ cd $DATA
 
 #####################################
 # Execute the script.
-${HOMEhafs}/scripts/exhafs_datm_mesh.sh
+${HOMEhafs}/scripts/exhafs_docn_prep.sh
 export err=$?
 #####################################
 

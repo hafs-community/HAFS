@@ -17,7 +17,8 @@
   <!ENTITY MORE_MEMORY     "<memory>5G</memory>">
 
   <!-- Note: on wcoss_dell_p3, omp is not controlled by the nodes tpp option. -->
-  <!ENTITY MAKE_ESMF_MESH_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:15:00</walltime><memory>24G</memory>">
+  <!ENTITY DOCN_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:15:00</walltime><memory>24G</memory>">
+  <!ENTITY DATM_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:15:00</walltime><memory>24G</memory>">
   <!ENTITY ATM_PREP_RESOURCES "<nodes>1:ppn=6:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>4</value></envar><native>-R affinity[core\(4\):distribute=balance]</native><walltime>00:30:00</walltime>">
   <!ENTITY OBS_PROC_RESOURCES "<nodes>1:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>24</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_IC_RESOURCES "<nodes>8:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>192</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:30:00</walltime>">
