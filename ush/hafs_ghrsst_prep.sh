@@ -47,9 +47,13 @@ while (( now <= end && itime < infinity )) ; do
     else
         usefiles="$mergefiles $infile"
 
-        rm -f subset.nc
+        # Discard all vars except what we need; convert to NetCDF3:
+        rm -f vars.nc
+        ncks -v time,lat,lon,analysed_sst -6 "$infile" vars.nc
+
         # Subset data over HAFS region (lat, 250 to 355 and lon, 0 to 50)
-        cdo -sellonlatbox,-118,-5,-15.0,60.0 "$infile" subset.nc
+        rm -f subset.nc
+        cdo -sellonlatbox,-118,-5,-15.0,60.0 vars.nc subset.nc
 
         # Convert temperature units:
         aos_old=`ncdump -c subset.nc | grep add_offset | grep analysed_sst | awk '{print $3}'`
