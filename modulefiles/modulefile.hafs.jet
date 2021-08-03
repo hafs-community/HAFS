@@ -66,4 +66,10 @@ setenv WGRIB2 /lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-18.0.5.274/impi-201
 module load nco/4.9.1
 module load rocoto/1.3.3
 
-module load intelpython/3.6.5
+#module load intelpython/3.6.5
+# Alternative python with prerequisites for DATM and DOCN:
+module use /lfs4/BMC/wrfruc/Samuel.Trahan/HAFS/modulefiles
+module load python/3.7.10-hafs
+
+# For CDEPS data models:
+module load cdo
