@@ -13,14 +13,14 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#dev="-s sites/xjet.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+# HOMEhafs=/lfs4/BMC/wrfruc/${USER}/HAFS/HAFS
+# dev="-s sites/xjet.ent -f"
+# PYTHON3=/lfs4/BMC/wrfruc/Samuel.Trahan/HAFS/python-3.7.10/bin/python
 
 # MSU Orion
- HOMEhafs=/work/noaa/zrtrr/${USER}/HAFS
- dev="-s sites/orion.ent -f"
- PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
+HOMEhafs=/work/noaa/zrtrr/${USER}/HAFS
+dev="-s sites/orion.ent -f"
+PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
 
 # NOAA RDHPCS Hera
 #HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
@@ -35,11 +35,11 @@ EXPT=$(basename ${HOMEhafs})
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
 # Run data ocean with OISST
-# ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
-#     config.SUBEXPT=${EXPT}_oisst \
-#     forecast.output_history=.true. \
-#     ../parm/hafs_regional_static.conf \
-#     ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
+${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
+    config.SUBEXPT=${EXPT}_oisst \
+    forecast.output_history=.true. \
+    ../parm/hafs_regional_static.conf \
+    ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
 
 # Run data ocean with GHRSST
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
