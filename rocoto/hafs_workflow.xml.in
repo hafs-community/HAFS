@@ -612,7 +612,6 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
-        <streq><left>&MAKE_MESH_ATM;</left><right>YES</right></streq>
         <or>
           <strneq><left>&DOWNLOAD_DATM;</left><right>YES</right></strneq>
           <metataskdep metatask="download_datm" threshold="&DOWNLOAD_DATM_THRESHOLD;"/>
@@ -664,10 +663,7 @@
           <strneq><left>&DOWNLOAD_DATM;</left><right>YES</right></strneq>
           <metataskdep metatask="download_datm" threshold="0.2"/>
         </or>
-        <or>
-          <strneq><left>&MAKE_MESH_ATM;</left><right>YES</right></strneq>
-          <taskdep task="datm_prep"/>
-        </or>
+        <taskdep task="datm_prep"/>
 @**   endif
 @**   if RUN_DOCN==YES
         <or>

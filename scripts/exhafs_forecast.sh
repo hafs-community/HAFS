@@ -644,36 +644,30 @@ if [ ${run_datm} = no ];  then
 cat temp diag_table.tmp > diag_table
 fi
 
+#---------------------------------------------------
+# Copy CDEPS input, parm, and fix files if required.
+#---------------------------------------------------
+
 if [ ${run_datm} = yes ];  then
-
-#---------------------------------------------- 
-# Copy CDEPS parm files if required.
-#---------------------------------------------- 
+  datm_source=${DATM_SOURCE:-ERA5}
   ${NCP} ${PARMforecast}/model_configure.tmp .
-  ${NCP} ${PARMhafs}/cdeps/datm_in .
-  ${NCP} ${PARMhafs}/cdeps/datm.streams .
+  ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
+  ${NLN} "$datm_input_path"/DATM_input*nc INPUT/
 
-  m1date=`${NDATE} -24 $CDATE`
-  p1date=`${NDATE} +$(( NHRS+6 )) $CDATE`
-  nowdate=$m1date
-  while (( nowdate <= p1date )) ; do
-      era5_name=ERA5_${nowdate:0:8}.nc
-      if [[ -s $DATMdir/$era5_name ]] ; then
-          ${NLN} $DATMdir/$era5_name INPUT/$era5_name
-          sed -i "/^stream_data_files01:/ s/$/\ INPUT\/$era5_name/" datm.streams
+  # Generate docn.streams from template specific to the model:
+  ${NCP} ${PARMhafs}/cdeps/datm_$( echo "$datm_source" | tr A-Z a-z ).streams datm.streams
+  for file in INPUT/DATM_input*nc ; do
+      if [[ -s "$file" ]] ; then
+      sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" datm.streams
       fi
-      nowdate=`${NDATE} +24 $nowdate`
   done
-
-  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm_in
-
   sed -i "s/_yearFirst_/$yr/g" datm.streams
-
   sed -i "s/_yearLast_/$endyr/g" datm.streams
-
   sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
 
-  ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
+  # Generate datm_in and nems.configure from model-independent templates:
+  ${NCP} ${PARMhafs}/cdeps/datm_in .
+  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm_in
 
   ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
@@ -706,7 +700,7 @@ elif [ ${run_docn} = yes ];  then
       -e "s/_ny_global_/$docn_mesh_ny_global/g" \
       < docn_in_template > docn_in
 
-  # Generate docn_streams from template specific to the model:
+  # Generate docn.streams from template specific to the model:
   ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
@@ -716,8 +710,6 @@ elif [ ${run_docn} = yes ];  then
       sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" docn.streams
     fi
   done
-
-#  sed -i 's/\(stream_data_files01: *\)\(.*\)$/\1 \2"/g' docn.streams
 
   ${NLN} "${mesh_ocn}" INPUT/DOCN_ESMF_mesh.nc
 
