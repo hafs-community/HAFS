@@ -12,7 +12,7 @@
 	branch = support/HAFS
 [submodule "gfdl-tracker"]
 	path = sorc/hafs_vortextracker.fd
-	url = https://github.com/hafs-community/gfdl-tracker.git
+    url = https://github.com/BijuThomas-NOAA/gfdl-tracker.git
 	branch = support/HAFS
 [submodule "NCEPLIBS-pyprodutil"]
 	path = ush/produtil_repo
