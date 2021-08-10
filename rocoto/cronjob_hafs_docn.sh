@@ -23,9 +23,9 @@ dev="-s sites/orion.ent -f"
 PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+# HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+# dev="-s sites/hera.ent -f"
+# PYTHON3=/scratch2/BMC/wrfruc/Samuel.Trahan/HAFS/python-3.7.10/bin/python
 
 cd ${HOMEhafs}/rocoto
 

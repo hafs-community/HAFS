@@ -13,9 +13,9 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#dev="-s sites/xjet.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+# HOMEhafs=/lfs4/BMC/wrfruc/${USER}/HAFS/HAFS
+# dev="-s sites/xjet.ent -f"
+# PYTHON3=/lfs4/BMC/wrfruc/Samuel.Trahan/HAFS/python-3.7.10/bin/python
 
 # MSU Orion
  HOMEhafs=/work/noaa/zrtrr/${USER}/HAFS
@@ -23,9 +23,9 @@ date
  PYTHON3=/work/noaa/zrtrr/strahan/python-3.7.10/bin/python
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+# HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+# dev="-s sites/hera.ent -f"
+# PYTHON3=/scratch2/BMC/wrfruc/Samuel.Trahan/HAFS/python-3.7.10/bin/python
 
 cd ${HOMEhafs}/rocoto
 
