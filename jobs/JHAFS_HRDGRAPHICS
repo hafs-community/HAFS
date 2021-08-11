@@ -47,7 +47,7 @@ export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
 
 export INPdir=${INPdir:-${WORKhafs}/forecast}
-export DATA=${WORKhafs}/hrd_graphics
+export DATA=${WORKhafs}/hrdgraphics
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}
