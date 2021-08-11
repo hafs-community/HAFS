@@ -611,8 +611,6 @@ cat temp diag_table.tmp > diag_table
 
 sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
     -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
-    -e "s/NTHRD/$OMP_NUM_THREADS/g" \
-    -e "s/NCNODE/$NCNODE/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
     -e "s/_quilting_/${quilting}/g" \

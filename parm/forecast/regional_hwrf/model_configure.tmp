@@ -6,15 +6,8 @@ start_hour:              H_R
 start_minute:            0
 start_second:            0
 nhours_fcst:             NHRS
-RUN_CONTINUE:            .false.
-ENS_SPS:                 .false.
 dt_atmos:                _dt_atmos_
 calendar:                'julian'
-memuse_verbose:          .false.
-atmos_nthreads:          NTHRD
-use_hyper_thread:        .false.
-ncores_per_node:         NCNODE
-debug_affinity:          .true.
 restart_interval:        _restart_interval_
 output_1st_tstep_rst:    .false.
 
@@ -33,8 +26,6 @@ jchunk3d:                -1
 kchunk3d:                -1
 ideflate:                1
 nbits:                   0
-write_nemsioflip:        .false.
-write_fsyncflag:         .false.
 
 app_domain:              '_app_domain_'
 output_grid:             '_OUTPUT_GRID_'
