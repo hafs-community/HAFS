@@ -21,7 +21,7 @@ else
 fi
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
+export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}

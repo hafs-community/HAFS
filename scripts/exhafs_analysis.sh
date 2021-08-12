@@ -3,7 +3,7 @@
 set -xe
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
+export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
@@ -275,8 +275,8 @@ ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr
 
 # Link CRTM coefficient files based on entries in satinfo file
 for file in `awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq` ;do
-  ${NLN} ${FIXcrtm}/fix-4-hwrf/${file}.SpcCoeff.bin ./
-  ${NLN} ${FIXcrtm}/fix-4-hwrf/${file}.TauCoeff.bin ./
+  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
 done
 
 ${NLN} ${FIXcrtm}/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
