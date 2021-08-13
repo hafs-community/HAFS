@@ -1,24 +1,9 @@
- &amip_interp_nml
-       interp_oi_sst = .true.
-       use_ncep_sst = .true.
-       use_ncep_ice = .false.
-       no_anom_sst = .false.
-       data_set = 'reynolds_oi'
-       date_out_of_range = 'climo'
-/
-
  &atmos_model_nml
        blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
-       fdiag = 3
        avg_max_length = 3600.
-       fhmax = _fhmax_
-       fhout = 3
-       fhmaxhf = 0
-       fhouthf = 3
        ccpp_suite = '_ccpp_suite_'
-       merge_import = _merge_import_
 /
 
  &diag_manager_nml
@@ -164,7 +149,6 @@
        fhcyc          = 24.
        use_ufo        = .true.
        pre_rad        = .false.
-       ncld           = 5
        imp_physics    = 11
        pdfcld         = .false.
        fhswr          = _fhswr_
@@ -223,6 +207,7 @@
        cplice         = .false.
        cplwav         = .false.
        cplwav2atm     = .false.
+       cpl_imp_mrg    = _merge_import_
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
