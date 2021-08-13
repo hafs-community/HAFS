@@ -42,9 +42,9 @@ if [ "${ENSDA}" != YES ]; then
   target_lat=${target_lat:-22.0}
   refine_ratio=${refine_ratio:-4}
   deflate_level=${deflate_level:--1}
-  ccpp_suite_regional=${ccpp_suite_regional:-HAFS_v0_gfdlmp}
-  ccpp_suite_glob=${ccpp_suite_glob:-HAFS_v0_gfdlmp}
-  ccpp_suite_nest=${ccpp_suite_nest:-HAFS_v0_gfdlmp}
+  ccpp_suite_regional=${ccpp_suite_regional:-FV3_HAFS_v1}
+  ccpp_suite_glob=${ccpp_suite_glob:-FV3_HAFS_v1}
+  ccpp_suite_nest=${ccpp_suite_nest:-FV3_HAFS_v1}
   dt_atmos=${dt_atmos:-90}
   restart_interval=${restart_interval:-6}
   quilting=${quilting:-.true.}
@@ -79,9 +79,9 @@ else
   target_lat=${target_lat_ens:-22.0}
   refine_ratio=${refine_ratio_ens:-4}
   deflate_level=${deflate_level:-1}
-  ccpp_suite_regional=${ccpp_suite_regional_ens:-HAFS_v0_gfdlmp}
-  ccpp_suite_glob=${ccpp_suite_glob_ens:-HAFS_v0_gfdlmp}
-  ccpp_suite_nest=${ccpp_suite_nest_ens:-HAFS_v0_gfdlmp}
+  ccpp_suite_regional=${ccpp_suite_regional_ens:-FV3_HAFS_v1}
+  ccpp_suite_glob=${ccpp_suite_glob_ens:-FV3_HAFS_v1}
+  ccpp_suite_nest=${ccpp_suite_nest_ens:-FV3_HAFS_v1}
   dt_atmos=${dt_atmos_ens:-90}
   restart_interval=${restart_interval_ens:-6}
   quilting=${quilting_ens:-.true.}
@@ -375,7 +375,7 @@ cd ..
 
 # Prepare data_table, diag_table, field_table, input.nml, input_nest02.nml,
 # model_configure, and nems.configure
-${NCP} ${PARMforecast}/data_table .
+#${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
 ${NCP} ${PARMforecast}/field_table .
 ${NCP} ${PARMforecast}/input.nml.tmp .
@@ -389,8 +389,7 @@ ioffset=$(( (istart_nest-1)/2 + 1))
 joffset=$(( (jstart_nest-1)/2 + 1))
 blocksize=$(( ${glob_npy}/${glob_layouty} ))
 
-sed -e "s/_fhmax_/${NHRS}/g" \
-    -e "s/_blocksize_/${blocksize:-64}/g" \
+sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${glob_layoutx}/g" \
@@ -426,8 +425,7 @@ sed -e "s/_fhmax_/${NHRS}/g" \
     input.nml.tmp > input.nml
 
 blocksize=$(( ${npy}/${layouty} ))
-sed -e "s/_fhmax_/${NHRS}/g" \
-    -e "s/_blocksize_/${blocksize:-64}/g" \
+sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
@@ -494,7 +492,7 @@ cd ..
 
 # Prepare data_table, diag_table, field_table, input.nml, input_nest02.nml,
 # model_configure, and nems.configure
-${NCP} ${PARMforecast}/data_table .
+#${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
 ${NCP} ${PARMforecast}/field_table .
 ${NCP} ${PARMforecast}/input.nml.tmp .
@@ -524,8 +522,7 @@ else
 fi
 
 blocksize=$(( ${npy}/${layouty} ))
-sed -e "s/_fhmax_/${NHRS}/g" \
-    -e "s/_blocksize_/${blocksize:-64}/g" \
+sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
     -e "s/_layoutx_/${layoutx}/g" \
@@ -731,10 +728,8 @@ elif [ ${run_docn} = yes ];  then
 
 fi
 
-sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
-    -e "s/MN/$mn/g" -e "s/DY/$dy/g" -e "s/H_R/$cyc/g" \
-    -e "s/NHRS/$NHRS/g" -e "s/NTHRD/$OMP_NUM_THREADS/g" \
-    -e "s/NCNODE/$NCNODE/g" \
+sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
+    -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
     -e "s/_quilting_/${quilting}/g" \
@@ -752,7 +747,6 @@ sed -e "s/NTASKS/${TOTAL_TASKS}/g" -e "s/YR/$yr/g" \
     -e "s/_LAT2_/$output_grid_lat2/g" \
     -e "s/_DLON_/$output_grid_dlon/g" \
     -e "s/_DLAT_/$output_grid_dlat/g" \
-    -e "s/_cpl_/${cplflx:-.false.}/g" \
     -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
     model_configure.tmp > model_configure
 

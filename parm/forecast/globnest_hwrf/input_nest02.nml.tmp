@@ -1,22 +1,8 @@
- &amip_interp_nml
-       interp_oi_sst = .true.
-       use_ncep_sst = .true.
-       use_ncep_ice = .false.
-       no_anom_sst = .false.
-       data_set = 'reynolds_oi'
-       date_out_of_range = 'climo'
-/
-
  &atmos_model_nml
        blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
-       fdiag = 3
        avg_max_length = 3600.
-       fhmax = _fhmax_
-       fhout = 3
-       fhmaxhf = 0
-       fhouthf = 3
        ccpp_suite = '_ccpp_suite_'
 /
 
@@ -159,7 +145,6 @@
        fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
-       ncld           = 5
        imp_physics    = 15         ! F-A MP scheme
        RHGRD          = 1.0        ! F-A
        spec_adv       = .true.     ! F-A

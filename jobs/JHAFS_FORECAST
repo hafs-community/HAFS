@@ -21,7 +21,12 @@ if [ "${RUN_ENVIR^^}" != NCO ]; then
     module unload intelpython 
   fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
-  module load ufs_${machine}
+  module unload intelpython 
+  if [ "${machine}" = "wcoss_cray" ] || [ "${machine}" = "wcoss_dell_p3" ]; then 
+    module load ufs_${machine}
+  else
+    module load ufs_${machine}.intel
+  fi
   module list
 fi
 
