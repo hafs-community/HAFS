@@ -464,11 +464,11 @@ ww3postprodnames={
 
 class WW3Post(hafs.hafstask.HAFSTask):
     """Run WW3 post-process."""
-    def __init__(self,ds,conf,section,outstep,pntstep,ww3,**kwargs):
-        super(WW3Post,self).__init__(ds,conf,section,**kwargs)
-        self.outstep=outstep
-        self.pntstep=pntstep
-        self.ww3=ww3 # the WW3-coupled subclass of WRFAtmos
+    def __init__(self,dstore,conf,section,fcstlen=126,outstep=10800,pntstep=10800,**kwargs):
+        super(WW3Post,self).__init__(dstore,conf,section,**kwargs)
+        self.fcstlen=float(fcstlen)
+        self.outstep=int(outstep)
+        self.pntstep=int(pntstep)
         self._make_products()
         self._ncks_path=False
 
@@ -525,30 +525,27 @@ class WW3Post(hafs.hafstask.HAFSTask):
         try:
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
-                mdprod=[ p for p in self.ww3.products(stream='ww3moddef') ] [0]
-                mdprod.check()
-                if not mdprod or not mdprod.available or not mdprod.location:
+                ww3moddef=self.icstr('{com}/{out_prefix}.mod_def.ww3')
+                if not os.path.exists(ww3moddef):
                     logger.error('%s: mod_def.ww3 not yet available from forecast'%(
-                            repr(mdprod),))
-                deliver_file(mdprod.location,'mod_def.ww3',force=True,logger=logger)
+                            ww3moddef,))
+                deliver_file(ww3moddef,'mod_def.ww3',force=True,logger=logger)
                 # Prepare and deliver out_grd.ww3
                 if self.outstep>0:
-                    ogprod=[ p for p in self.ww3.products(stream='ww3out') ] [0]
-                    ogprod.check()
-                    if not ogprod or not ogprod.available or not ogprod.location:
+                    ww3out=self.icstr('{WORKhafs}/forecast/out_grd.ww3')
+                    if not os.path.exists(ww3out):
                         logger.error('%s: out_grd.ww3 not yet available from forecast'%(
-                                repr(ogprod),))
-                    deliver_file(ogprod.location,'out_grd.ww3',force=True,logger=logger)
+                                ww3out,))
+                    deliver_file(ww3out,'out_grd.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outgrd']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                 # Prepare and deliver out_pnt.ww3
                 if self.pntstep>0:
-                    opprod=[ p for p in self.ww3.products(stream='ww3pnt') ] [0]
-                    opprod.check()
-                    if not opprod or not opprod.available or not opprod.location:
+                    ww3pnt=self.icstr('{WORKhafs}/forecast/out_pnt.ww3')
+                    if not os.path.exists(ww3pnt):
                         logger.error('%s: out_pnt.ww3 not yet available from forecast'%(
-                                repr(opprod),))
-                    deliver_file(opprod.location,'out_pnt.ww3',force=True,logger=logger)
+                                ww3pnt,))
+                    deliver_file(ww3pnt,'out_pnt.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outpnt']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                 # For field output in grib2 format

@@ -52,7 +52,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_cplocean2 \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_hycom.conf \
-     forecast.cpl_ocean=2
+     forecast.cpl_atm_ocn=nuopc_bilinear
 
  # Regional storm-focused configuration with GFS grib2ab format IC/BC
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \

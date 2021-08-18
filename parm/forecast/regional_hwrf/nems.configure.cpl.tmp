@@ -1,21 +1,69 @@
 # component list
-EARTH_component_list: ATM OCN MED
+_EARTH_component_list_
 
 # component models
-ATM_model: fv3
-OCN_model: hycom
-MED_model: cmeps
+_ATM_model_component_
+_OCN_model_component_
+_WAV_model_component_
+_MED_model_component_
 
 # component petLists
 _ATM_petlist_bounds_
 _OCN_petlist_bounds_
 _MED_petlist_bounds_
+_WAV_petlist_bounds_
 
 # run sequence
 runSeq::
     @_cpl_dt_
  _runSeq_ALL_
     @
+::
+
+DRIVER_attributes::
+  start_type = startup
+::
+
+MED_attributes::
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
+  history_n = 1
+  history_option = nhours
+  history_ymd = -999
+  coupling_mode = hafs
+  system_type = ufs
+  normalization = none
+  merge_type = copy
+::
+
+ALLCOMP_attributes::
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
+  ScalarFieldCount = 3
+  ScalarFieldIdxGridNX = 1
+  ScalarFieldIdxGridNY = 2
+  ScalarFieldIdxNextSwCday = 3
+  ScalarFieldName = cpl_scalars
+  start_type = startup
+  case_name = ufs.hafs
+  restart_n = 1
+  restart_option = nhours
+  restart_ymd = -999
+  dbug_flag = 1
+  use_coldstart = true
+  # orb_* for cdeps coupling with data atmosphere
+  orb_eccen = 1.e36
+  orb_iyear = 2000
+  orb_iyear_align = 2000
+  orb_mode = fixed_year
+  orb_mvelp = 1.e36
+  orb_obliq = 1.e36
+  mediator_read_restart = false
+  mediator_present = true
 ::
 
 # component attributes
@@ -51,33 +99,11 @@ OCN_attributes::
   end_sec = 0
 ::
 
-MED_attributes::
+WAV_attributes::
   Verbosity = 1
   Diagnostic = 0
-  coupling_mode = hafs
-  system_type = ufs
-  normalization = none
-  merge_type = copy
-  ATM_model = fv3
-  OCN_model = hycom
-  history_ymd = -999
-  ScalarFieldCount = 0
-  ScalarFieldIdxGridNX = 0
-  ScalarFieldIdxGridNY = 0
-  ScalarFieldName = cpl_scalars
-::
-
-DRIVER_attributes::
-  start_type = startup
-::
-
-ALLCOMP_attributes::
-  mediator_read_restart = false
-# ScalarFieldCount = 3
-# ScalarFieldIdxGridNX = 1
-# ScalarFieldIdxGridNY = 2
-# ScalarFieldIdxNextSwCday = 3
-# ScalarFieldName = cpl_scalars
+  OverwriteSlice = false
+  merge_import = .true.
 ::
 
 ocn_export_fields::
