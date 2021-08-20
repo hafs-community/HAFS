@@ -14,6 +14,7 @@ export MP_LABELIO=yes
 
 CDATE=${CDATE:-${YMDH}}
 NHRS=${NHRS:-126}
+NHR3=$( printf "%03d" "$NHRS" )
 NOUTHRS=${NOUTHRS:-3}
 machine=${machine:-jet}
 
@@ -41,7 +42,7 @@ BDECKhafs=${BDECKhafs:-/lfs1/HFIP/hur-aoml/Ghassan.Alaka/bdeck}
 SYNDAThafs=${SYNDAThafs:-/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS}
 
 # Setup the working directory and change into it
-COMgplot=${COMgplot:-${COMhafs}/hrdgraphics/}
+COMgplot=${COMgplot:-${COMhafs}/hrdgraphics}
 WORKgplot=${WORKgplot:-${WORKhafs}/hrdgraphics}
 mkdir -p ${COMgplot}
 mkdir -p ${WORKgplot}
@@ -51,7 +52,12 @@ cd ${WORKgplot}
 NML=${WORKgplot}/namelist.master.${SUBEXPT}
 if [ ! -f ${NML} ];
 then
-    cp -p ${GPLOThafs}/nmlist/namelist.master.HAFS_Default ${NML}
+    if [ -f ${GPLOThafs}/nmlist/namelist.master.${SUBEXPT} ];
+    then
+        cp -p ${GPLOThafs}/nmlist/namelist.master.${SUBEXPT} ${NML}
+    else
+        cp -p ${GPLOThafs}/nmlist/namelist.master.HAFS_Default ${NML}
+    fi
 fi
 sed -i 's/^EXPT =.*/EXPT = '"${SUBEXPT}"'/g' ${NML}
 sed -i 's/^IDATE =.*/IDATE = '"${CDATE}"'/g' ${NML}
@@ -61,7 +67,7 @@ sed -i 's@^IDIR =.*@IDIR = '"${COMhafs}"'@g' ${NML}
 sed -i 's@^ODIR =.*@ODIR = '"${WORKgplot}"'@g' ${NML}
 sed -i 's@^ATCF1_DIR =.*@ATCF1_DIR = '"${COMhafs}"'@g' ${NML}
 sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${CDNOSCRUB}/${SUBEXPT}"'@g' ${NML}
-sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}/${SUBEXPT}"'@g' ${NML}
+sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}"'@g' ${NML}
 sed -i 's@^BDECK_DIR =.*@BDECK_DIR = '"${BDECKhafs}"'@g' ${NML}
 sed -i 's/^SYS_ENV =.*/SYS_ENV = '"$( echo ${machine} | tr "[a-z]" "[A-Z]")"'/g' ${NML}
 sed -i 's/^BATCH_MODE =.*/BATCH_MODE = Background/g' ${NML}
@@ -69,7 +75,7 @@ sed -i 's/^BATCH_MODE =.*/BATCH_MODE = Background/g' ${NML}
 # Initialize ALL_COMPLETE as false
 ALL_COMPLETE=0
 
-# Loop for forecast hours
+# Loop until everything is complete (ALL_COMPLETE=1)
 while [[ ${ALL_COMPLETE} -eq 0 ]];
 do
     echo "Top of loop"
@@ -79,7 +85,8 @@ do
     ${GPLOT_PARSE} HAFS ${COMhafs} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} 4
     ${GPLOT_PARSE} HAFS ${CDNOSCRUB}/${SUBEXPT} ${CDNOSCRUB}/${SUBEXPT} ${BDECKhafs} ${SYNDAThafs} 0 "*${DATE}*.atcfunix.all"
 
-    # Check the status files for all GPLOT components.
+    # Check the status logs for all GPLOT components.
+    # If every log doesn't say "complete", set ALL_COMPLETE=0
     GPLOT_STATUS=( `find ${WORKgplot} -name "status.*" -exec cat {} \;` )
     ALL_COMPLETE=1
     if [ ! -z "${GPLOT_STATUS[*]}" ];
@@ -94,20 +101,28 @@ do
         ALL_COMPLETE=0
     fi
 
+    # Check that the final HAFS output has been post-processed by atm_post.
+    # If not, set ALL_COMPLETE=0
+    if [ ! -f ${WORKhafs}/forecast/postf${NHR3} ];
+    then
+        ALL_COMPLETE=0
+        echo "This file doesn't exist --> ${WORKhafs}/forecast/postf${NHR3}"
+        echo "That means the final HAFS output has not been post-processed by atm_post."
+    fi
+
     # Deliver all new and modified graphics to COMhafs/graphics
-    # Note: a fatal error (24) occurs when a file staged for transfer vanishes.
-    #cp -rup ${WORKgplot} ${COMgplot}
-    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --include="*dat" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
     rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 
-    # If all are complete, then exit with success!
+    # If all status logs are complete and the final output has been processed
+    # by atm_post, then exit with success!
     # If not, submit the GPLOT wrapper again.
     if [[ ${ALL_COMPLETE} -eq 1 ]];
     then
-        echo "All status files were found to read 'complete.' That means we're done!"
+        echo "All status logs say 'complete' and the final output has been processed by atm_post (fhr=${NHRS}). That means we're done!"
         break
     else
-        echo "Waiting for all status files to read 'complete'. Trying again..."
+        echo "Waiting for all status logs to say 'complete' and for atm_post to process the final output (fhr=${NHRS}). Trying again..."
     fi
 
     # Call the GPLOT wrapper
@@ -122,7 +137,7 @@ done
 # Now that everything is complete, move all graphics to the $COMhafs directory.
 if [ "${SENDCOM}" == "YES" ]; then
     #cp -rup ${WORKgplot} ${COMgplot}
-    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+    ${USHhafs}/rsync-no-vanished.sh -av --include="*/" --include="*gif" --include="*dat" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
     rsync -av --include="*.atcfunix*" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 fi
 
