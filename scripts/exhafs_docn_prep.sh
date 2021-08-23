@@ -31,11 +31,11 @@ if [[ "$make_mesh_ocn" == yes ]] ; then
 fi
 
 if [[ "$docn_source" == OISST ]] ; then   
-    "$USHhafs/hafs_oisst_prep.sh" "$docn_input_path"
+    $APRUNS "$USHhafs/cdeps_utils/hafs_oisst_prep.sh" "$docn_input_path"
 elif [[ "${docn_source}" == RTOFS ]] ; then
-    "$USHhafs/hafs_rtofs_prep.sh" "$docn_input_path"
+    $APRUNS "$USHhafs/cdeps_utils/hafs_rtofs_prep.sh" "$docn_input_path"
 elif [[ "${docn_source}" == GHRSST ]] ; then
-    "$USHhafs/hafs_ghrsst_prep.sh" "$docn_input_path"
+    $APRUNS "$USHhafs/cdeps_utils/hafs_ghrsst_prep.sh" "$docn_input_path"
 else
     echo "ERROR: Unknown data ocean source $docn_source. Giving up." 2>&1
     echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DOCN_SOURCE VALUE <- "
@@ -61,14 +61,14 @@ file0=$docn_input_path/DOCN_input_00000.nc
 
 # Generate the mesh from the merged file. 
 if [[ "$docn_source" == OISST ]] ; then   
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
+    $APRUNS $USHhafs/cdeps_utils/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --maskvar sst --maskcal --double --overwrite
 elif [[ "${docn_source}" == RTOFS ]] ; then
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
+    $APRUNS $USHhafs/cdeps_utils/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --overwrite --latvar Latitude --lonvar Longitude \
         --maskvar sst --maskcal —double   
 elif [[ "${docn_source}" == GHRSST ]] ; then
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
+    $APRUNS $USHhafs/cdeps_utils/hafs_esmf_mesh.py --ifile "$file0" --ofile "$ofile" \
         --maskvar analysed_sst --maskcal --overwrite --double
 fi
 test -s "$ofile"

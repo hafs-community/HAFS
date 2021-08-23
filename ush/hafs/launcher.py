@@ -853,34 +853,16 @@ class HAFSLauncher(HAFSConfig):
                 self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_gen'))
             else:
                 self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_in'))
-            datm_download_jobs=max(0,self.getint('config','datm_download_jobs',0))
-            download_datm_list=" ".join(["%02d"%x for x in range(max(1,datm_download_jobs))])
-            download_datm_threshold="%7.5f"%(1.0/(max(1,datm_download_jobs)),)
-            self.set('config','download_datm',datm_download_jobs>0)
-            self.set('config','download_datm_list',download_datm_list)
-            self.set('config','download_datm_threshold',download_datm_threshold)
         else:
             self.set('forecast','mesh_atm','dummy.nc')
-            self.set('config','download_datm',False)
-            self.set('config','download_datm_list','0')
-            self.set('config','download_datm_threshold','1.0')
         if run_docn:
             make_mesh_ocn=self.getbool('config','make_mesh_ocn',True)
             if make_mesh_ocn:
                 self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_gen'))
             else:
                 self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_in'))
-            docn_download_jobs=max(0,self.getint('config','docn_download_jobs',0))
-            download_docn_list=" ".join(["%02d"%x for x in range(max(1,docn_download_jobs))])
-            download_docn_threshold="%7.5f"%(1.0/(max(1,docn_download_jobs)),)
-            self.set('config','download_docn',docn_download_jobs>0)
-            self.set('config','download_docn_list',download_docn_list)
-            self.set('config','download_docn_threshold',download_docn_threshold)
         else:
             self.set('forecast','mesh_ocn','dummy.nc')
-            self.set('config','download_docn',False)
-            self.set('config','download_docn_list','0')
-            self.set('config','download_docn_threshold','1.0')
 
     def set_storm(self,syndat,oldsyndat):
         """!Sets the storm that is to be run.

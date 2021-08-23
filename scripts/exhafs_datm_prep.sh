@@ -31,7 +31,7 @@ if [[ "$make_mesh_ocn" == yes ]] ; then
 fi
 
 if [[ "$datm_source" == ERA5 ]] ; then
-    "$USHhafs/hafs_era5_prep.sh" "$datm_input_path"
+    $APRUNS "$USHhafs/cdeps_utils/hafs_era5_prep.sh" "$datm_input_path"
 else
     echo "ERROR: Unknown data atmosphere source $datm_source. Giving up." 2>&1
     echo " -> SCRIPT IS FAILING BECAUSE OF INVALID \$DATM_SOURCE VALUE <- "
@@ -63,7 +63,7 @@ set -x
 
 # Generate the mesh.
 if [[ "$datm_source" == ERA5 ]] ; then
-    $APRUNS $USHhafs/hafs_esmf_mesh.py --ifile "$ifile" --ofile "$ofile" \
+    $APRUNS $USHhafs/cdeps_utils/hafs_esmf_mesh.py --ifile "$ifile" --ofile "$ofile" \
         --overwrite --latvar latitude --lonvar longitude --double
 else
     echo "ERROR: Unknown data atmosphere source $datm_source. Giving up." 2>&1

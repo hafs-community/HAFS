@@ -62,8 +62,13 @@ mkdir -p $OUTDIR $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_prep.sh
-export err=$?
+if [[ "${run_datm:-no}" == yes ]] ; then
+    ${HOMEhafs}/scripts/exhafs_datm_prep.sh
+    export err=$?
+else
+    ${HOMEhafs}/scripts/exhafs_atm_prep.sh
+    export err=$?
+fi
 exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
