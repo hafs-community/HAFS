@@ -10,10 +10,6 @@ if [ $target = cheyenne ]; then target=cheyenne.intel ; fi
 
 cd hafs_forecast.fd/tests
 
-# For normal HAFS:
-#./compile.sh "$target" "-DAPP=HAFS -DCCPP_SUITES=FV3_HAFS_v0_gfdlmp_tedmf_nonsst,FV3_HAFS_v0_gfdlmp_tedmf,FV3_HAFS_v0_hwrf_thompson,FV3_HAFS_v0_hwrf -D32BIT=ON" 32bit YES NO
-
-# For normal HAFS + HAFS with data models:
-./compile.sh "$target" "-DAPP=HAFS-ALL -DCCPP_SUITES=FV3_HAFS_v0_gfdlmp_tedmf_nonsst,FV3_HAFS_v0_gfdlmp_tedmf,FV3_HAFS_v0_hwrf_thompson,FV3_HAFS_v0_hwrf -D32BIT=ON" 32bit YES NO
+./compile.sh "$target" "-DAPP=HAFS -DCCPP_SUITES=FV3_HAFS_v0_gfdlmp_tedmf_nonsst,FV3_HAFS_v0_gfdlmp_tedmf,FV3_HAFS_v0_hwrf_thompson,FV3_HAFS_v0_hwrf -D32BIT=ON" 32bit YES NO
 
 exit
