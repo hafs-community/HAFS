@@ -1,6 +1,6 @@
 stream_info:               PRESCRIBED01
 taxmode01:                 limit
-mapalgo01:                 bilinear
+mapalgo01:                 redist
 tInterpAlgo01:             linear
 readMode01:                single
 dtlimit01:                 1.5
