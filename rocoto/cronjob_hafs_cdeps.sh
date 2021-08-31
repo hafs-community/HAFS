@@ -49,11 +49,11 @@ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
     ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
 
 # Run data ocean with GHRSST
- ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
-     config.SUBEXPT=${EXPT}_ghrsst \
-     forecast.output_history=.true. \
-     ../parm/hafs_regional_static.conf \
-     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
+${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
+    config.SUBEXPT=${EXPT}_ghrsst \
+    forecast.output_history=.true. \
+    ../parm/hafs_regional_static.conf \
+    ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
 
 #===============================================================================
 
