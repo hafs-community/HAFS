@@ -34,27 +34,26 @@ EXPT=$(basename ${HOMEhafs})
 #===============================================================================
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
- # ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
- #     config.SUBEXPT=${EXPT}_ghrsst \
- #     forecast.output_history=.true. \
- #     ../parm/hafs_regional_static.conf \
- #     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
+# Run data atmosphere with ERA5
+${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
+    config.SUBEXPT=${EXPT}_era5 \
+    forecast.output_history=.true. \
+    ../parm/hafs_regional_static.conf ../parm/hafs_hycom.conf \
+    ../parm/hafs_datm.conf ../parm/hafs_datm_era5.conf
 
+# Run data ocean with OISST
+${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
+    config.SUBEXPT=${EXPT}_oisst \
+    forecast.output_history=.true. \
+    ../parm/hafs_regional_static.conf \
+    ../parm/hafs_docn.conf ../parm/hafs_docn_oisst.conf
+
+# Run data ocean with GHRSST
  ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY config.EXPT=${EXPT} \
-     config.SUBEXPT=${EXPT}_era5 \
+     config.SUBEXPT=${EXPT}_ghrsst \
      forecast.output_history=.true. \
-     ../parm/hafs_regional_static.conf ../parm/hafs_hycom.conf \
-     ../parm/hafs_datm.conf ../parm/hafs_datm_era5.conf
-
-# Run all cycles of a storm
-#${PYTHON3} ./run_hafs.py ${dev} 2020 13L HISTORY config.EXPT=${EXPT} # Laura
-
-# Run specified cycles of a storm
-#${PYTHON3} ./run_hafs.py ${dev} 2020082506-2020082512 13L HISTORY \
-#   config.EXPT=${EXPT} config.SUBEXPT=${EXPT} # Laura
-
-# Run one cycle of a storm
-# ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY config.EXPT=${EXPT}
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_docn.conf ../parm/hafs_docn_ghrsst.conf
 
 #===============================================================================
 

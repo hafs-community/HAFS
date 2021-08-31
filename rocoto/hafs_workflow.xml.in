@@ -233,7 +233,7 @@
 
     <dependency>
       <and>
-        <taskdep task="atm_prep"/> 
+        <taskdep task="atm_prep"/>
         <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
           <taskdep task="input"/>
@@ -284,14 +284,14 @@
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
           <or>
-@**   if GFSVER==PROD2019
+@** if GFSVER==PROD2019
             <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-@**   endif
-@**   if GFSVER==PROD2021
+@** endif
+@** if GFSVER==PROD2021
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
             <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
-@**   endif
+@** endif
           </or>
         </and>
       </dependency>
