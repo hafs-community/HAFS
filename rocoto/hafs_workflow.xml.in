@@ -570,11 +570,11 @@
 @** if RUN_GSI_VR==YES
             <taskdep task="analysis_vr"/>
 @** endif
+@** endif
           </and>
         </or>
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_prep"/>
-@** endif
 @** endif
       </and>
     </dependency>
