@@ -73,3 +73,6 @@ setenv CMAKE_Platform wcoss_dell_p3
 module use /usrx/local/dev/emc_rocoto/modulefiles
 module load ruby/2.5.1
 module load rocoto/1.3.0rc2
+
+# For CDEPS data models:
+module load cdo
