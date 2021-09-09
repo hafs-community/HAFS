@@ -29,7 +29,7 @@
 # * -n --- disable renumbering of invests into non-invests
 # * -W N --- discard invests weaker than N m/s before renumbering
 #
-# Conf opitons:
+# Conf options:
 # * ../parm/hafs_more.conf --- read this configuration file
 # * config.run_gsi=yes --- specify the value of one configuration option
 
@@ -418,6 +418,9 @@ try:
     conf.timeless_sanity_check(enset,logger)
 except Exception as e:
     tcutil.rocoto.sanity_check_failed(logger,e)
+    logger.error("HAFS Sanity Checker Designation: INSANE!")
+    logger.error("Check your configuration for errors.")
+    logger.error("See earlier messages for clues.")
     sys.exit(1)
 logger.info("I think I'm sane.")
 

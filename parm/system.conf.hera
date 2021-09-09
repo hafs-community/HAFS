@@ -22,6 +22,8 @@ inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+DOCNdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DOCN
+DATMdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DATM
 ## Save directory.  Make sure you edit this.
 CDSAVE=/scratch1/NCEPDEV/{disk_project}/save/{ENV[USER]}
 ## Scrubbed directory for large work files.  Make sure you edit this.
