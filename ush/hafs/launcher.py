@@ -1475,22 +1475,25 @@ class HAFSLauncher(HAFSConfig):
         # Generate synop_gridspecs_ens if needed
         grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
         synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
+        output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
+        output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
+
         # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
         if synop_gridspecs_ens=='auto':
             if output_grid=='rotated_latlon':
                 latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
                 latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon*grid_ratio_ens
-                latlon_dlat=output_grid_dlat*grid_ratio_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+                latlon_dlon=output_grid_dlon_ens
+                latlon_dlat=output_grid_dlat_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon_ens
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
             elif output_grid=='regional_latlon':
                 latlon_lon0=output_grid_lon1
                 latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon*grid_ratio_ens
-                latlon_dlat=output_grid_dlat*grid_ratio_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
+                latlon_dlon=output_grid_dlon_ens
+                latlon_dlat=output_grid_dlat_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
             logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
             synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
                 latlon_lon0,latlon_nlon,latlon_dlon,

@@ -24,7 +24,7 @@ else
   exit 1
 fi
 
-for subdir in fix_am fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_hycom hwrf-crtm-2.2.6 fix_cdeps;
+for subdir in fix_am fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_hycom hafs-crtm-2.3.0 fix_cdeps;
 do
   ln -sf ${FIXROOT}/${subdir} ./
 done
