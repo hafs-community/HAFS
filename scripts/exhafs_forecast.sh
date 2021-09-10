@@ -24,8 +24,11 @@ WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
 PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
+FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
+
+satpost=${satpost:-.false.}
 
 ENSDA=${ENSDA:-NO}
 
@@ -752,10 +755,33 @@ sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
 
 # Copy fix files needed by inline_post
 if [ ${write_dopost:-.false.} = .true. ]; then
+
   ${NCP} ${PARMhafs}/post/itag                    ./itag
+  ${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+
+if [ ${satpost} = .true. ]; then
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
-  ${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+  # Link crtm fix files
+  for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+  done
+  for file in "Aerosol" "Cloud" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}Coeff.bin ./
+  done
+  for file in ${FIXcrtm}/fix-4-hafs/*Emis* ; do
+    ${NLN} ${file} ./
+  done
+else
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT_FH00.txt
+fi
+
 fi
 
 # Copy the fd_nems.yaml file
