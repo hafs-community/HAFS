@@ -3,6 +3,8 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
+export TZ=UTC # Orion workaround
+
 export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
@@ -40,6 +42,24 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+export DATMdir={DATMdir}
+export DOCNdir={DOCNdir}
+
+export run_datm={run_datm}
+export run_docn={run_docn}
+export run_dwav={run_dwav}
+
+export make_mesh_atm={make_mesh_atm}
+export mesh_atm={mesh_atm}
+
+export docn_mesh_nx_global={docn_mesh_nx_global}
+export docn_mesh_ny_global={docn_mesh_ny_global}
+export make_mesh_ocn={make_mesh_ocn}
+export mesh_ocn={mesh_ocn}
+export docn_input_path={docn_input_path}
+export datm_input_path={datm_input_path}
+export DOCN_SOURCE={DOCN_SOURCE}
+export DATM_SOURCE={DATM_SOURCE}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
@@ -99,6 +119,8 @@ export write_tasks_per_group={write_tasks_per_group}
 export write_dopost={write_dopost}
 export output_history={output_history}
 
+export print_esmf={print_esmf}
+
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}
 export glob_layoutx={glob_layoutx}
@@ -131,7 +153,7 @@ export output_grid_lat1={output_grid_lat1}
 export output_grid_lon2={output_grid_lon2}
 export output_grid_lat2={output_grid_lat2}
 export output_grid_dlon={output_grid_dlon}
-export output_grid_dlat={output_grid_dlon}
+export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
@@ -176,6 +198,8 @@ export layouty_ens={layouty_ens}
 export npx_ens={npx_ens}
 export npy_ens={npy_ens}
 export npz_ens={npz_ens}
+export output_grid_dlon_ens={output_grid_dlon_ens}
+export output_grid_dlat_ens={output_grid_dlat_ens}
 export synop_gridspecs_ens={synop_gridspecs_ens}
 export trker_gridspecs_ens={trker_gridspecs_ens}
 

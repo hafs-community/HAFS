@@ -68,6 +68,8 @@
   <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
   <!ENTITY RUN_GSI_VR_ENS "@[RUN_GSI_VR_ENS]">
   <!ENTITY RUN_GSI "@[RUN_GSI]">
+  <!ENTITY RUN_DATM "@[RUN_DATM]">
+  <!ENTITY RUN_DOCN "@[RUN_DOCN]">
   <!ENTITY RUN_FGAT "@[RUN_FGAT]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
@@ -76,6 +78,8 @@
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
+  <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
+  <!ENTITY MAKE_MESH_OCN "@[MAKE_MESH_OCN]">
 
   <!ENTITY ENS_SIZE "@[ENS_SIZE]">
   <!ENTITY ENSIDS "@[ENSIDS]">
@@ -193,6 +197,7 @@
       <and>
         <taskdep task="launch"/>
         <streq><left>&FETCH_INPUT;</left><right>YES</right></streq>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
       </and>
     </dependency>
   </task>
@@ -229,6 +234,7 @@
     <dependency>
       <and>
         <taskdep task="atm_prep"/>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
           <taskdep task="input"/>
           <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -269,6 +275,7 @@
       <dependency>
         <and>
           <taskdep task="atm_prep"/>
+          <streq><left>&RUN_DATM;</left><right>NO</right></streq>
           <or>
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
@@ -291,7 +298,23 @@
     </task>
   </metatask>
 
-@** if RUN_OCEAN==YES
+@**   if RUN_DOCN==YES
+  <task name="ocn_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_PREP</command>
+    <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &DOCN_PREP_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <taskdep task="launch"/>
+    </dependency>
+  </task>
+@**    elseif RUN_OCEAN==YES
   <task name="ocn_prep" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_OCN_PREP</command>
     <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -528,15 +551,16 @@
 @** endif
 @** endif
 
-  <task name="forecast" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_FORECAST</command>
-    <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
+@** if RUN_ATM_INIT==YES
+  <task name="atm_init" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &FORECAST_RESOURCES;
+    &ATM_INIT_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -544,19 +568,51 @@
         <taskdep task="atm_ic"/>
 @** if gtype==regional
         <metataskdep metatask="atm_lbc"/>
-@** if RUN_OCEAN==YES
+@** endif
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+  <task name="forecast" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_FORECAST</command>
+    <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_FORECAST;</queue>
+    &PE_EXTRA;
+    &FORECAST_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+@**   if RUN_DATM==YES
+        <taskdep task="atm_prep"/>
+@**   endif
+@**   if RUN_DOCN==YES
         <taskdep task="ocn_prep"/>
 @** endif
 @** if RUN_WAVE==YES
         <taskdep task="wav_prep"/>
 @** endif
+        <or>
+          <streq><left>&RUN_DATM;</left><right>YES</right></streq>
+          <and>
+            <taskdep task="atm_ic"/>
+@** if gtype==regional
+            <metataskdep metatask="atm_lbc"/>
 @** if RUN_GSI==YES
-        <taskdep task="analysis"/>
+            <taskdep task="analysis"/>
 @** endif
 @** if RUN_GSI_VR==YES
-        <taskdep task="analysis_vr"/>
+            <taskdep task="analysis_vr"/>
 @** endif
-
+@** endif
+          </and>
+        </or>
+@** if RUN_OCEAN==YES
+        <taskdep task="ocn_prep"/>
 @** endif
       </and>
     </dependency>
@@ -575,11 +631,14 @@
 
     <dependency>
       <!-- Start the atm_post if the forecast is running or if it has
-           already completed. -->
-      <or>
-        <taskdep task="forecast" state="RUNNING"/>
-        <taskdep task="forecast"/>
-      </or>
+           already completed and we are not using a data atmosphere. -->
+      <and>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <or>
+          <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast"/>
+        </or>
+      </and>
     </dependency>
   </task>
 
@@ -641,11 +700,14 @@
 
     <dependency>
      <!-- Start the tracker if the atm_post is running or if it has
-          already completed. -->
-      <or>
-        <taskdep task="atm_post" state="RUNNING"/>
-        <taskdep task="atm_post"/>
-      </or>
+          already completed and we are not using a data atmosphere. -->
+      <and>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <or>
+          <taskdep task="atm_post" state="RUNNING"/>
+          <taskdep task="atm_post"/>
+        </or>
+      </and>
     </dependency>
   </task>
 

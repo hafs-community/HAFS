@@ -1,4 +1,4 @@
-print_esmf:              .true.
+print_esmf:              _print_esmf_
 start_year:              YR
 start_month:             MN
 start_day:               DY

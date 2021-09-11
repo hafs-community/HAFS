@@ -1,10 +1,10 @@
 [submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/hafs-community/ufs-weather-model.git
-	branch = feature/hafs_coupleww3
-[submodule "EMC_post"]
+	branch = support/HAFS
+[submodule "UPP"]
 	path = sorc/hafs_post.fd
-	url = https://github.com/hafs-community/EMC_post.git
+	url = https://github.com/hafs-community/UPP.git
 	branch = support/HAFS
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd

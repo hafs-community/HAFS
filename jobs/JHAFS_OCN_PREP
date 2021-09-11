@@ -51,8 +51,13 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_ocn_prep.py
-export err=$?
+if [[ "${run_docn:-no}" == yes ]] ; then
+    ${HOMEhafs}/scripts/exhafs_docn_prep.sh
+    export err=$?
+else
+    ${HOMEhafs}/scripts/exhafs_ocn_prep.py
+    export err=$?
+fi
 exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}

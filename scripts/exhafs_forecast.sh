@@ -25,10 +25,12 @@ PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
 PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
+FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+satpost=${satpost:-.false.}
 
 ENSDA=${ENSDA:-NO}
 
@@ -242,6 +244,12 @@ OCN_model_attribute=${OCN_model_attribute:-""}
 WAV_model_attribute=${WAV_model_attribute:-""}
 MED_model_attribute=${MED_model_attribute:-""}
 
+# CDEPS related settings
+run_datm=${run_datm:-no}
+run_docn=${run_docn:-no}
+mesh_atm=${mesh_atm:-''}
+mesh_ocn=${mesh_ocn:-''}
+
 if [ $gtype = regional ]; then
   if [ $quilting = .true. ]; then
     ATM_tasks=$(($layoutx*$layouty+$write_groups*$write_tasks_per_group))
@@ -454,6 +462,27 @@ fi
 
 fi #if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
 
+# CDEPS data models
+if [ ${run_datm} = yes ];  then
+  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
+  cplflx=.true.
+  cplocn2atm=.false.
+  cplwav=.false.
+  cplwav2atm=.false.
+  CPL_WND="native"
+  runSeq_ALL="" # not used yet
+elif [ ${run_docn} = yes ]; then
+  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  cplflx=.true.
+  cplocn2atm=.true.
+  cplwav=.false.
+  cplwav2atm=.false.
+  CPL_WND="native"
+  runSeq_ALL="" # not used yet
+fi
+
 # Prepare the output RESTART dir
 if [ ${ENSDA} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
@@ -468,12 +497,16 @@ else
   mkdir -p ${RESTARTout}
 fi
 
+mkdir -p INPUT
+
+if [ ${run_datm} = no ];  then
+
 # Link the input IC and/or LBC files into the INPUT dir
 if [ ! -d $INPdir ]; then
    echo "FATAL ERROR: Input data dir does not exist: $INPdir"
    exit 9
 fi
-mkdir -p INPUT
+
 ${NLN} ${INPdir}/*.nc INPUT/
 
 # Copy fix files
@@ -735,7 +768,13 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
 
-if [ ${run_ocean} = yes ]; then
+fi # if regional
+
+fi # if not cdeps datm
+
+if [ $gtype = regional ]; then
+
+if [ ${run_ocean} = yes ];  then
   # Copy hycom related files
   ${NCP} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
   hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
@@ -852,9 +891,103 @@ cat > temp << EOF
 ${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
 $yr $mn $dy $cyc 0 0
 EOF
-cat temp diag_table.tmp > diag_table
 
-sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
+enddate=`${NDATE} +${NHRS} $CDATE`
+endyr=`echo $enddate | cut -c1-4`
+
+if [ ${run_datm} = no ];  then
+cat temp diag_table.tmp > diag_table
+fi
+
+#---------------------------------------------------
+# Copy CDEPS input, parm, and fix files if required.
+#---------------------------------------------------
+
+if [ ${run_datm} = yes ];  then
+  datm_source=${DATM_SOURCE:-ERA5}
+  ${NCP} ${PARMforecast}/model_configure.tmp .
+  ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
+  ${NLN} "$datm_input_path"/DATM_input*nc INPUT/
+
+  # Generate docn.streams from template specific to the model:
+  ${NCP} ${PARMhafs}/cdeps/datm_$( echo "$datm_source" | tr A-Z a-z ).streams datm.streams
+  for file in INPUT/DATM_input*nc ; do
+      if [[ -s "$file" ]] ; then
+      sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" datm.streams
+      fi
+  done
+  sed -i "s/_yearFirst_/$yr/g" datm.streams
+  sed -i "s/_yearLast_/$endyr/g" datm.streams
+  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
+
+  # Generate datm_in and nems.configure from model-independent templates:
+  ${NCP} ${PARMhafs}/cdeps/datm_in .
+  sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm_in
+
+  ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.true.}/g" \
+      -e "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" \
+      -e "/_mesh_ocn_/d" \
+      -e "/_system_type_/d" \
+      -e "s/_atm_model_/datm/g" \
+      -e "s/_ocn_model_/hycom/g" \
+      nems.configure.cdeps.tmp > nems.configure
+
+elif [ ${run_docn} = yes ];  then
+  MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
+  ${NLN} "$docn_input_path"/DOCN_input*nc INPUT/
+
+  #${NCP} ${PARMhafs}/cdeps/docn_in .
+  #${NCP} ${PARMhafs}/cdeps/docn.streams .
+  docn_source=${DOCN_SOURCE:-OISST}
+
+  # Generate docn_in from template:
+  ${NCP} ${PARMhafs}/cdeps/docn_in docn_in_template
+  sed -e "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" \
+      -e "s/_nx_global_/$docn_mesh_nx_global/g" \
+      -e "s/_ny_global_/$docn_mesh_ny_global/g" \
+      < docn_in_template > docn_in
+
+  # Generate docn.streams from template specific to the model:
+  ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
+  sed -i "s/_yearFirst_/$yr/g" docn.streams
+  sed -i "s/_yearLast_/$endyr/g" docn.streams
+  sed -i "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" docn.streams
+  for file in INPUT/oisst*.nc INPUT/sst*.nc INPUT/DOCN_input*.nc ; do
+    if [[ -s "$file" ]] ; then
+      sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" docn.streams
+    fi
+  done
+
+  ${NLN} "${mesh_ocn}" INPUT/DOCN_ESMF_mesh.nc
+
+  ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
+  sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+      -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+      -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
+      -e "s/_cpl_dt_/${cpl_dt}/g" \
+      -e "s/_base_dtg_/${CDATE}/g" \
+      -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
+      -e "s/_end_hour_/${NHRS}/g" \
+      -e "s/_merge_import_/${merge_import:-.true.}/g" \
+      -e "/_mesh_atm_/d" \
+      -e "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" \
+      -e "s/_system_type_/ufs/g" \
+      -e "s/_atm_model_/fv3/g" \
+      -e "s/_ocn_model_/docn/g" \
+      nems.configure.cdeps.tmp > nems.configure
+
+fi
+
+sed -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
+    -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
     -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
@@ -877,10 +1010,33 @@ sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
 
 # Copy fix files needed by inline_post
 if [ ${write_dopost:-.false.} = .true. ]; then
+
   ${NCP} ${PARMhafs}/post/itag                    ./itag
+  ${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+
+if [ ${satpost} = .true. ]; then
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
-  ${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+  # Link crtm fix files
+  for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+  done
+  for file in "Aerosol" "Cloud" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}Coeff.bin ./
+  done
+  for file in ${FIXcrtm}/fix-4-hafs/*Emis* ; do
+    ${NLN} ${file} ./
+  done
+else
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT_FH00.txt
+fi
+
 fi
 
 # Copy the fd_nems.yaml file
@@ -895,7 +1051,7 @@ ${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
 cat ./out.forecast
 cat ./err.forecast
 
-if [ $gtype = regional ]; then
+if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 # Rename the restart files with a proper convention if needed
 cd RESTART
@@ -921,6 +1077,6 @@ if [ ! -s RESTART/oro_data.nc ]; then
   ${NCP} -pL INPUT/oro_data.nc RESTART/
 fi
 
-fi # if [ $gtype = regional ]; then
+fi # if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 exit
