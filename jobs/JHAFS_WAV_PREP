@@ -20,6 +20,11 @@ if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/modulefiles
   module load modulefile.hafs.${machine}
   module list
+  # A temporary workaround due to the hpc-stack version of wgrib2 does not work
+  # on Orion to convert grib2 files into netcdf format.
+  if [ ${machine} = orion ]; then 
+    export WGRIB2=/apps/wgrib-2.0.8/wgrib2/wgrib2 
+  fi
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
