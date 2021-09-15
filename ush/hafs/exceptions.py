@@ -122,6 +122,9 @@ class HAFSFixInsane(HAFSSanityError):
 class HAFSArchiveInsane(HAFSSanityError):
     """!Raised when the sanity check of the HAFS archiving settings
     fails."""
+class HAFSDataModelInsane(HAFSSanityError):
+    """!Raised when the sanity check of the HAFS data model settings
+    fails."""
 
 ########################################################################
 # OCEAN AND WAVE EXCEPTIONS

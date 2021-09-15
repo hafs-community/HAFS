@@ -1,6 +1,4 @@
-print_esmf:              .false.
-total_member:            1
-PE_MEMBER01:             NTASKS
+print_esmf:              _print_esmf_
 start_year:              YR
 start_month:             MN
 start_day:               DY
@@ -8,16 +6,8 @@ start_hour:              H_R
 start_minute:            0
 start_second:            0
 nhours_fcst:             NHRS
-RUN_CONTINUE:            .false.
-ENS_SPS:                 .false.
 dt_atmos:                _dt_atmos_
-cpl:                     _cpl_
 calendar:                'julian'
-memuse_verbose:          .false.
-atmos_nthreads:          NTHRD
-use_hyper_thread:        .false.
-ncores_per_node:         NCNODE
-debug_affinity:          .true.
 restart_interval:        _restart_interval_
 output_1st_tstep_rst:    .false.
 
@@ -27,7 +17,7 @@ write_tasks_per_group:   _write_tasks_per_group_
 write_dopost:            _write_dopost_
 output_history:          _output_history_
 num_files:               2
-filename_base:           'dyn' 'phy'
+filename_base:           'atm' 'sfc'
 output_file:             'netcdf_parallel' 'netcdf_parallel'
 ichunk2d:                -1
 jchunk2d:                -1
@@ -36,8 +26,6 @@ jchunk3d:                -1
 kchunk3d:                -1
 ideflate:                1
 nbits:                   0
-write_nemsioflip:        .false.
-write_fsyncflag:         .false.
 
 app_domain:              '_app_domain_'
 output_grid:             '_OUTPUT_GRID_'
@@ -54,3 +42,4 @@ nfhout:                  3
 nfhmax_hf:               -1
 nfhout_hf:               3
 nsout:                   -1
+output_fh:               -1

@@ -2,6 +2,10 @@
 
 set -xe
 
+NCP=${NCP:-'/bin/cp'}
+NLN=${NLN:-'/bin/ln -sf'}
+NDATE=${NDATE:-ndate}
+
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
@@ -40,17 +44,18 @@ NOUTHRS=${NOUTHRS:-3}
 
 POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
 MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-NDATE=${NDATE:-ndate}
 WGRIB2=${WGRIB2:-wgrib2}
 GRB2INDEX=${GRB2INDEX:-grb2index}
 
 WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
 COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
+FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 intercom=${intercom:-${WORKhafs}/intercom/post}
 SENDCOM=${SENDCOM:-YES}
 
 COMOUTpost=${COMOUTpost:-${COMhafs}}
 
+satpost=${satpost:-.false.}
 output_grid=${output_grid:-rotated_latlon}
 synop_gridspecs=${synop_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 trker_gridspecs=${trker_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
@@ -81,6 +86,9 @@ minstr=$( printf "%5.5d" "$FMIN" )
 synop_grb2post=hafsprs.${CDATE}.f${FHR3}.grb2
 synop_grb2file=${out_prefix}.hafsprs.synoptic.0p03.f${FHR3}.grb2
 synop_grb2indx=${out_prefix}.hafsprs.synoptic.0p03.f${FHR3}.grb2.idx
+synop_sat_grb2post=hafssat.${CDATE}.f${FHR3}.grb2
+synop_sat_grb2file=${out_prefix}.hafssat.synoptic.0p03.f${FHR3}.grb2
+synop_sat_grb2indx=${out_prefix}.hafssat.synoptic.0p03.f${FHR3}.grb2.idx
 gmodname=hafs
 rundescr=trak
 atcfdescr=storm
@@ -88,7 +96,9 @@ hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
 hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
 
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/postf${FHR3} ] && [ -s ${COMOUTpost}/${synop_grb2file} ] && [ -s ${COMOUTpost}/${synop_grb2indx} ] ; then
+if [ -s ${INPdir}/postf${FHR3} ] && \
+   [ -s ${COMOUTpost}/${synop_grb2file} ] && \
+   [ -s ${COMOUTpost}/${synop_grb2indx} ] ; then
 
 echo "post message ${INPdir}/postf${FHR3} exist"
 echo "product ${COMOUTpost}/${synop_grb2file} exist"
@@ -125,11 +135,11 @@ else
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/dynf${FHR3}.nc ] || [ ! -s ${INPdir}/phyf${FHR3}.nc ]; then
+  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/atmf${FHR3}.nc ] || [ ! -s ${INPdir}/sfcf${FHR3}.nc ]; then
     echo "${INPdir}/logf${FHR3} not ready, sleep 60"
     sleep 60s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/dynf${FHR3}.nc ${INPdir}/phyf${FHR3}.nc ready, do post"
+    echo "${INPdir}/logf${FHR3}, ${INPdir}/atmf${FHR3}.nc ${INPdir}/sfcf${FHR3}.nc ready, do post"
     sleep 3s
     break
   fi
@@ -151,17 +161,20 @@ cd ${DATA_POST}
 if [ ${write_dopost:-.false.} = .true. ]; then
 
 cp -p ${INPdir}/HURPRS.GrbF${FHR2} ${synop_grb2post}
+if [ ${satpost} = .true. ]; then
+cp -p ${INPdir}/HURSAT.GrbF${FHR2} ${synop_sat_grb2post}
+fi
 
 else
 
 # Preparte itag namelist input file
 cat>itag<<EOF
-${INPdir}/dynf${FHR3}.nc
+${INPdir}/atmf${FHR3}.nc
 netcdf
 grib2
 ${YYYY}-${MM}-${DD}_${HH}:00:00
 FV3R
-${INPdir}/phyf${FHR3}.nc
+${INPdir}/sfcf${FHR3}.nc
 &NAMPGB
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
 /
@@ -170,8 +183,28 @@ EOF
 rm -f fort.*
 # Copy fix files
 cp ${PARMhafs}/post/nam_micro_lookup.dat    ./eta_micro_lookup.dat
-cp ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
 cp ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+
+if [ ${satpost} = .true. ]; then
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
+  # Link crtm fix files
+  for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+  done
+  for file in "Aerosol" "Cloud" ; do
+    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}Coeff.bin ./
+  done
+  for file in ${FIXcrtm}/fix-4-hafs/*Emis* ; do
+    ${NLN} ${file} ./
+  done
+else
+  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+fi
 
 # Run the post
 cp -p  ${POSTEXEC} ./hafs_post.x
@@ -179,6 +212,9 @@ cp -p  ${POSTEXEC} ./hafs_post.x
 ${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
 
 mv HURPRS.GrbF${FHR2} ${synop_grb2post}
+if [ ${satpost} = .true. ]; then
+  mv HURSAT.GrbF${FHR2} ${synop_sat_grb2post}
+fi
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
 
@@ -203,6 +239,9 @@ echo ${WGRIB2} ${synop_grb2post} -match '":725 mb:|:750 mb:|:775 mb:|:800 mb:"' 
 echo ${WGRIB2} ${synop_grb2post} -match '":825 mb:|:850 mb:|:875 mb:|:900 mb:"'  ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part09 >> cmdfile
 echo ${WGRIB2} ${synop_grb2post} -match '":925 mb:|:950 mb:|:975 mb:|:1000 mb:"' ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part10 >> cmdfile
 echo ${WGRIB2} ${synop_grb2post} -not '" mb:"'                                   ${opts} -new_grid ${synop_gridspecs} ${synop_grb2post}.part11 >> cmdfile
+if [ ${satpost} = .true. ]; then
+echo ${WGRIB2} ${synop_sat_grb2post}                                             ${opts} -new_grid ${synop_gridspecs} ${synop_sat_grb2file} >> cmdfile
+fi
 chmod +x cmdfile
 ${APRUNC} ${MPISERIAL} -m cmdfile
 # Cat the temporary files together
@@ -214,6 +253,9 @@ elif [ "$output_grid" = regional_latlon ]; then
 
 # For regional_latlon output grid, no need to convert
 mv ${synop_grb2post} ${synop_grb2file}
+if [ ${satpost} = .true. ]; then
+mv ${synop_sat_grb2post} ${synop_sat_grb2file}
+fi
 
 ## Alternatively, can use wgrib2 to convert from c3 to c2 packing, which can reduce the filesize by ~30%.
 #opts='-set_grib_type c2 -grib_out'
@@ -227,6 +269,9 @@ fi
 
 # Generate the grib2 index file
 ${WGRIB2} -s ${synop_grb2file} > ${synop_grb2indx}
+if [ ${satpost} = .true. ]; then
+${WGRIB2} -s ${synop_sat_grb2file} > ${synop_sat_grb2indx}
+fi
 
 # Extract hafstrk grib2 files for the tracker
 # From HMON
@@ -250,6 +295,10 @@ if [ $SENDCOM = YES ]; then
   mkdir -p ${COMOUTpost}
   mv ${synop_grb2file} ${COMOUTpost}/
   mv ${synop_grb2indx} ${COMOUTpost}/
+if [ ${satpost} = .true. ]; then
+  mv ${synop_sat_grb2file} ${COMOUTpost}/
+  mv ${synop_sat_grb2indx} ${COMOUTpost}/
+fi
 fi
 
 # Deliver to intercom

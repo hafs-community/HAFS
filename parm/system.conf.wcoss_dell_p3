@@ -22,6 +22,8 @@ inputroot=/gpfs/dell1/nco/ops/com/gfs/prod
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+DATMdir=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/gpfs/dell2/emc/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/gpfs/dell2/ptmp/{ENV[USER]}
 ## Save directory.  Make sure you edit this.
