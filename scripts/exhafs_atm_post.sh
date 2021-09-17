@@ -125,11 +125,11 @@ else
 n=1
 while [ $n -le 600 ]
 do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/dynf${FHR3}.nc ] || [ ! -s ${INPdir}/phyf${FHR3}.nc ]; then
+  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/atmf${FHR3}.nc ] || [ ! -s ${INPdir}/sfcf${FHR3}.nc ]; then
     echo "${INPdir}/logf${FHR3} not ready, sleep 60"
     sleep 60s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/dynf${FHR3}.nc ${INPdir}/phyf${FHR3}.nc ready, do post"
+    echo "${INPdir}/logf${FHR3}, ${INPdir}/atmf${FHR3}.nc ${INPdir}/sfcf${FHR3}.nc ready, do post"
     sleep 3s
     break
   fi
@@ -156,12 +156,12 @@ else
 
 # Preparte itag namelist input file
 cat>itag<<EOF
-${INPdir}/dynf${FHR3}.nc
+${INPdir}/atmf${FHR3}.nc
 netcdf
 grib2
 ${YYYY}-${MM}-${DD}_${HH}:00:00
 FV3R
-${INPdir}/phyf${FHR3}.nc
+${INPdir}/sfcf${FHR3}.nc
 &NAMPGB
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
 /

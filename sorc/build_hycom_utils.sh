@@ -20,10 +20,13 @@ fi
 mkdir build
 cd build
 if [ $target = wcoss_cray ]; then
-  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+  CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER:-ftn}
+  CMAKE_C_COMPILER=${CMAKE_C_COMPILER:-cc}
 else
-  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+  CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER:-ifort}
+  CMAKE_C_COMPILER=${CMAKE_C_COMPILER:-icc}
 fi
+cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 make -j 8 VERBOSE=1
 
 cd ${cwd}/hafs_hycom_utils.fd
@@ -33,10 +36,13 @@ fi
 mkdir build
 cd build
 if [ $target = wcoss_cray ]; then
-  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+  CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER:-ftn}
+  CMAKE_C_COMPILER=${CMAKE_C_COMPILER:-cc}
 else
-  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+  CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER:-ifort}
+  CMAKE_C_COMPILER=${CMAKE_C_COMPILER:-icc}
 fi
+cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 make -j 8 VERBOSE=1
 make install
 
