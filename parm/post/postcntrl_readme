@@ -1,4 +1,4 @@
-* The following files in this directory come from ../../sorc/hafs_post.fd/parm/
+* The following files in this directory are linked from ../../sorc/hafs_post.fd/parm/
 nam_micro_lookup.dat
 params_grib2_tbl_new
 postcntrl_hafs.xml
