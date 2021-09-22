@@ -287,7 +287,7 @@ if [[ $cpl_atm_ocn = "nuopc"* ]]; then
   MED_petlist_bounds=""
   # NUOPC based atm-ocn side by side run (no coupling)
   if [ $cpl_atm_ocn = nuopc_sidebyside ]; then
-    cplflx=.false.
+    cplflx=.true.
     cplocn2atm=.false.
     runSeq_ALL="ATM\n OCN"
   # direct coupling through the nearest point regridding method
@@ -358,7 +358,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
   WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$med_tasks)) $(($ATM_tasks+$med_tasks+$wav_tasks-1)))
   # CMEPS based two-way atm-wav coupling
   if [ $cpl_atm_wav = cmeps_2way ]; then
-    cplflx=.false.
+    cplflx=.true.
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
@@ -366,7 +366,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
   # CMEPS based one-way atm-wav coupling from atm to wav only
   elif [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
-    cplflx=.false.
+    cplflx=.true.
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
@@ -374,7 +374,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
   # CMEPS based one-way atm-wav coupling from wav to atm only
   elif [ $cpl_atm_wav = cmeps_1way_2to1 ]; then
-    cplflx=.false.
+    cplflx=.true.
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
@@ -382,7 +382,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
   # CMEPS based atm-wav side by side run (no coupling)
   elif [ $cpl_atm_wav = cmeps_sidebyside ]; then
-    cplflx=.false.
+    cplflx=.true.
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
@@ -398,7 +398,7 @@ fi
 fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 
 if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
-# Currently, only support CMEPS based coupling at the application/workflow level
+
 EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
 ATM_model_component="ATM_model: fv3"
 OCN_model_component="OCN_model: hycom"
@@ -413,8 +413,22 @@ OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_t
 MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
 WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$ocn_tasks)) $(($ATM_tasks+$ocn_tasks+$wav_tasks-1)))
 
+# NUOPC based atm-ocn-wav side by side run
+# Currently, this is the only supported non-CMEPS based configuration for the three component system.
+# And this configuration can bitwisely reproduce the CMEPS based sidebyside configuration result (cpl_atm_ocn = cmeps_sidebyside and cpl_atm_wav = cmeps_sidebyside)
+if [ $cpl_atm_ocn = nuopc_sidebyside ] && [ $cpl_atm_wav = nuopc_sidebyside ]; then
+  EARTH_component_list="EARTH_component_list: ATM OCN WAV"
+  MED_model_component=""
+  MED_model_attribute=""
+  MED_petlist_bounds=""
+  cplflx=.true.
+  cplocn2atm=.false.
+  cplwav=.true.
+  cplwav2atm=.false.
+  CPL_WND="native"
+  runSeq_ALL="ATM\n OCN\n WAV"
 # CMEPS based two-way atm-ocn and atm-wav coupling
-if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
+elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
   cplocn2atm=.true.
   cplwav=.true.
@@ -843,11 +857,6 @@ if [ ${run_wave} = yes ]; then
   FLD_DT=$((3600*${NOUTHRS}))
   PNT_DT=$((3600*${NOUTHRS}))
   RST_DT=$((3600*6))
-  if [[ ${cpl_atm_wave} == *"sidebyside" ]]; then
-    CPL_WND="native"
-  else
-    CPL_WND="CPL:native"
-  fi
 
   sed -e "s/<u:CPL_WND>/${CPL_WND}/g" \
       -e "s/<u:RUN_BEG>/${RUN_BEG}/g" \
