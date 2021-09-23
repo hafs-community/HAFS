@@ -476,9 +476,12 @@ if [ ${ONLINE_SATBIAS} = "YES" ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  else
+  if [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
     ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
     ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  else
+    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    exit 2
   fi
 else
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
@@ -486,8 +489,6 @@ else
 fi
 
 #
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
@@ -755,8 +756,10 @@ EOFdiag
 fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
-${NCP} satbias_out  $RESTARTanl/satbias_hafs_out
-${NCP} satbias_pc.out  $RESTARTanl/satbias_hafs_pc.out
+if [ ${ONLINE_SATBIAS} = "YES" ]; then
+  ${NCP} satbias_out  $RESTARTanl/satbias_hafs_out
+  ${NCP} satbias_pc.out  $RESTARTanl/satbias_hafs_pc.out
+fi
 
 # If no processing error, remove $DIAG_DIR
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
