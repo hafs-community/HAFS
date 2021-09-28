@@ -9,7 +9,7 @@ if [ $target = jet ]; then target=jet.intel ; fi
 if [ $target = cheyenne ]; then target=cheyenne.intel ; fi
 
 if [ $target = wcoss_cray ]; then 
-  app=HAFS
+  app=HAFSW
 else
   app=HAFS-ALL
 fi

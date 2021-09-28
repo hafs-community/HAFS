@@ -5,7 +5,7 @@
 # The script lists the *.xml files under $HAFS_dir/rocoto directory and gets
 # the different configuration names.
 # The script looks for:
-# 1. storm1.done 2. *atcfunix.all 3. hafsprs.synoptic.f012.grb2
+# 1. storm1.done 2. *atcfunix.all 3. hafsprs.synoptic.*.f006.grb2
 # 4. hycominit2.done for coupled runs 5. post/product job done in post and prod log files
 # 6. SUCCEEDED for completion task
 
@@ -38,7 +38,7 @@ for file in *.xml; do
   if_complete=`rocotostat -d hafs-${subexpt}-${sid}-${storm_init}.db -w hafs-${subexpt}-${sid}-${storm_init}.xml|grep -e completion |grep -e SUCCEEDED|wc -l`
   storm1_done=${HAFS_out}/${subexpt}/com/${storm_init}/${sid}/storm1.done
   atcfunix=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*atcfunix.all")
-  hafsprs_synoptic=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*.hafsprs.synoptic.0p03.f012.grb2")
+  hafsprs_synoptic=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*.hafsprs.synoptic.*.f006.grb2")
   hafs_hycom=$(/usr/bin/find ${HAFS_out}/${subexpt}/com/${storm_init}/${sid} -type f -name "*hafs_hycom*")
 
   # Check if HYCOM init ran successfully or not

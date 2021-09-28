@@ -367,6 +367,41 @@
   </task>
 @** endif
 
+@** if RUN_WAVE==YES
+  <task name="wav_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_WAV_PREP</command>
+    <jobname>hafs_wav_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_wav_prep.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &WAV_PREP_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_prep"/>
+        <or>
+          <taskdep task="input"/>
+          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+        </or>
+        <!-- Second dependency: the GFS output must be available -->
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
+        <and>
+@** if GFSVER==PROD2019
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+        </and>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
 @** if RUN_GSI_VR==YES
   <task name="analysis_vr" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
@@ -557,7 +592,10 @@
 @**   endif
 @**   if RUN_DOCN==YES
         <taskdep task="ocn_prep"/>
-@**   endif
+@** endif
+@** if RUN_WAVE==YES
+        <taskdep task="wav_prep"/>
+@** endif
         <or>
           <streq><left>&RUN_DATM;</left><right>YES</right></streq>
           <and>
@@ -625,8 +663,30 @@
       </or>
     </dependency>
   </task>
-
 @** endif
+
+@** if RUN_WAVE==YES
+  <task name="wav_post" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_WAV_POST</command>
+    <jobname>hafs_wav_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_wav_post.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &WAV_POST_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the wav_post if the forecast is running or if it has
+           already completed. -->
+      <or>
+        <taskdep task="forecast"/>
+      </or>
+    </dependency>
+  </task>
+@** endif
+
   <task name="product" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODUCT</command>
     <jobname>hafs_product_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -936,6 +996,12 @@
 @** if RUN_OCEAN==YES
           <taskdep task="ocn_prep"/>
 @** endif
+@** if RUN_WAVE==YES
+          <taskdep task="wav_prep"/>
+@** endif
+@** if RUN_WAVE==YES
+          <taskdep task="wav_prep"/>
+@** endif
 @** if RUN_GSI_VR_ENS==YES
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
@@ -1079,6 +1145,9 @@
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_post"/>
 @** endif
+@** if RUN_WAVE==YES
+        <taskdep task="wav_post"/>
+@** endif
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
@@ -1115,6 +1184,9 @@
         <taskdep task="atm_post"/>
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_post"/>
+@** endif
+@** if RUN_WAVE==YES
+        <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
 @** if RUN_HRDGRAPHICS==YES

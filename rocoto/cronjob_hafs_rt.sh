@@ -34,45 +34,66 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
 
- # Regional static NATL basin-focused configuration with cmeps-based ocean coupling
+ # Regional static NATL basin-focused configuration with atm-ocn coupling
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_cplocean3 \
-     config.NHRS=12 ${scrubopt} \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn \
+     config.NHRS=6 ${scrubopt} \
      ../parm/hafs_regional_static.conf \
      ../parm/hafs_hycom.conf
 
- # Regional static NATL basin-focused configuration
+ # Regional static NATL basin-focused configuration with atm-wav coupling
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_regional_static.conf
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_wav \
+     config.NHRS=6 ${scrubopt} \
+     ../parm/hafs_regional_static.conf \
+     ../parm/hafs_ww3.conf \
+     forecast.cpl_atm_wav=cmeps_2way
 
- # Regional storm-focused configuration with direct ocean coupling
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_cplocean2 \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_hycom.conf \
-     forecast.cpl_ocean=2
+## Regional static NATL basin-focused configuration with atm-ocn-wav coupling
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn_wav \
+#    config.NHRS=6 ${scrubopt} \
+#    ../parm/hafs_regional_static.conf \
+#    ../parm/hafs_hycom_ww3.conf \
+#    forecast.cpl_atm_ocn=cmeps_2way \
+#    forecast.cpl_atm_wav=cmeps_2way
 
- # Regional storm-focused configuration with GFS grib2ab format IC/BC
+ # Regional low-resolution static NATL basin-focused configuration with atm-ocn-wav coupling
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2019082900 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_ocn_wav \
+     config.NHRS=24 ${scrubopt} \
+     ../parm/hafs_regional_static_C192s1n4.conf \
+     ../parm/hafs_hycom_ww3.conf \
+     forecast.cpl_atm_ocn=cmeps_2way \
+     forecast.cpl_atm_wav=cmeps_2way
+
+ # Regional storm-focused configuration with atm-ocn-wav coupling
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm_ocn_wav \
+     config.NHRS=6 ${scrubopt} \
+     ../parm/hafs_hycom_ww3.conf \
+     forecast.cpl_atm_ocn=cmeps_2way \
+     forecast.cpl_atm_wav=cmeps_2way
+
+ # Regional storm-focused configuration (atm-only) with GFS grib2ab format IC/BC
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm_only \
      config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
-     config.NHRS=12 ${scrubopt}
+     config.NHRS=6 ${scrubopt}
 
 #===============================================================================
 
- # Global-nesting static NATL basin-focused configuration
+ # Global-nesting static NATL basin-focused configuration (atm-only)
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static \
-     config.NHRS=12 ${scrubopt} \
+     config.NHRS=6 ${scrubopt} \
      ../parm/hafs_globnest_static.conf
 
- # Global-nesting storm-focused configuration with GFS grib2ab format IC/BC
+ # Global-nesting storm-focused configuration (atm-only) with GFS grib2ab format IC/BC
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_grib2ab \
      config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
-     config.NHRS=12 ${scrubopt} \
+     config.NHRS=6 ${scrubopt} \
      ../parm/hafs_globnest.conf
 
 #===============================================================================

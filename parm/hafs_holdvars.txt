@@ -206,10 +206,17 @@ export trker_gridspecs_ens={trker_gridspecs_ens}
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
 export cpl_dt={cpl_dt}
-export cpl_ocean={cpl_ocean}
-export ocean_tasks={ocean_tasks}
+export cpl_atm_ocn={cpl_atm_ocn}
+export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
+
+export run_wave={run_wave}
+export wave_model={wave_model}
+export cpl_atm_wav={cpl_atm_wav}
+export cpl_wav_ocn={cpl_wav_ocn}
+export wav_tasks={wav_tasks}
+export med_tasks={med_tasks}
 
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec

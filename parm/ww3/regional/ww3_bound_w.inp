@@ -1,0 +1,121 @@
+$ -------------------------------------------------------------------- $
+$ WAVEWATCH III Ascii Boundary input processing                        $
+$--------------------------------------------------------------------- $
+$ Boundary option: READ or WRITE
+$
+  WRITE 
+$
+$ Interpolation method: 1: nearest
+$                       2: linear interpolation
+  2 
+$
+$ Verbose mode [0-1]
+$
+  1
+$
+$ List of spectra files. These ASCII files use the WAVEWATCH III
+$ format as described in the ww3_outp.inp file. The files are 
+$ defined relative to the directory in which the program is run.
+$
+$ Examples of such files can be found at (for example): 
+$   ftp://polar.ncep.noaa.gov/pub/waves/develop/glw.latest_run/
+$                                              (the *.spec.gz files)
+$   http://tinyurl.com/iowagaftp/HINDCAST/GLOBAL/2009_ECMWF/SPEC
+$
+$ If data is used other than from previous WAVEWATCH III runs, then
+$ this data will need to be converted to the WAVEWATCH III format.
+$
+$ In the case of NetCDF files see ww3_bounc.inp  
+$
+$ ----------
+$gfswave.HWRF*-#.spec 
+$a 50-86
+$c 50-177
+$e 50-146
+$l 50-98
+$p 50-169
+$s 50-150
+$w 50-123
+$    =======    LIST OF BOUNDARY POINTS FOR ******* ===========
+$#incomingspectra here#
+gfswave.HWRFw-50.spec
+gfswave.HWRFw-51.spec
+gfswave.HWRFw-52.spec
+gfswave.HWRFw-53.spec
+gfswave.HWRFw-54.spec
+gfswave.HWRFw-55.spec
+gfswave.HWRFw-56.spec
+gfswave.HWRFw-57.spec
+gfswave.HWRFw-58.spec
+gfswave.HWRFw-59.spec
+gfswave.HWRFw-60.spec
+gfswave.HWRFw-61.spec
+gfswave.HWRFw-62.spec
+gfswave.HWRFw-63.spec
+gfswave.HWRFw-64.spec
+gfswave.HWRFw-65.spec
+gfswave.HWRFw-66.spec
+gfswave.HWRFw-67.spec
+gfswave.HWRFw-68.spec
+gfswave.HWRFw-69.spec
+gfswave.HWRFw-70.spec
+gfswave.HWRFw-71.spec
+gfswave.HWRFw-72.spec
+gfswave.HWRFw-73.spec
+gfswave.HWRFw-74.spec
+gfswave.HWRFw-75.spec
+gfswave.HWRFw-76.spec
+gfswave.HWRFw-77.spec
+gfswave.HWRFw-78.spec
+gfswave.HWRFw-79.spec
+gfswave.HWRFw-80.spec
+gfswave.HWRFw-81.spec
+gfswave.HWRFw-82.spec
+gfswave.HWRFw-83.spec
+gfswave.HWRFw-84.spec
+gfswave.HWRFw-85.spec
+gfswave.HWRFw-86.spec
+gfswave.HWRFw-87.spec
+gfswave.HWRFw-88.spec
+gfswave.HWRFw-89.spec
+gfswave.HWRFw-90.spec
+gfswave.HWRFw-91.spec
+gfswave.HWRFw-92.spec
+gfswave.HWRFw-93.spec
+gfswave.HWRFw-94.spec
+gfswave.HWRFw-95.spec
+gfswave.HWRFw-96.spec
+gfswave.HWRFw-97.spec
+gfswave.HWRFw-98.spec
+gfswave.HWRFw-99.spec
+gfswave.HWRFw-100.spec
+gfswave.HWRFw-101.spec
+gfswave.HWRFw-102.spec
+gfswave.HWRFw-103.spec
+gfswave.HWRFw-104.spec
+gfswave.HWRFw-105.spec
+gfswave.HWRFw-106.spec
+gfswave.HWRFw-107.spec
+gfswave.HWRFw-108.spec
+gfswave.HWRFw-109.spec
+gfswave.HWRFw-110.spec
+gfswave.HWRFw-111.spec
+gfswave.HWRFw-112.spec
+gfswave.HWRFw-113.spec
+gfswave.HWRFw-114.spec
+gfswave.HWRFw-115.spec
+gfswave.HWRFw-116.spec
+gfswave.HWRFw-117.spec
+gfswave.HWRFw-118.spec
+gfswave.HWRFw-119.spec
+gfswave.HWRFw-120.spec
+gfswave.HWRFw-121.spec
+gfswave.HWRFw-122.spec
+gfswave.HWRFw-123.spec
+$
+$
+'STOPSTRING'
+$ 
+$ -------------------------------------------------------------------- $
+$ End of input file                                                    $
+$ -------------------------------------------------------------------- $
