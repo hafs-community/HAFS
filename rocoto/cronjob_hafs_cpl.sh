@@ -87,11 +87,22 @@ confopts="forecast.write_dopost=.true. \
      forecast.cpl_atm_wav=cmeps_sidebyside \
      ${confopts}"
 
+ # hafs_nupoc_abo_abw
+ conf_nuopc_abo_abw="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_nuopc_abo_abw \
+     ../parm/hafsv0p2aL91_AL.conf \
+     ../parm/hafs_hycom_ww3.conf \
+     forecast.cpl_atm_ocn=nuopc_sidebyside \
+     forecast.nstf_n1=2 forecast.nstf_n2=0 \
+     forecast.ccpp_suite_regional=FV3_HAFS_v0_gfdlmp_tedmf \
+     forecast.cpl_atm_wav=nuopc_sidebyside \
+     ${confopts}"
+
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_a2o2a_a2w2a}
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_a2o2a_a2w}
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_a2o_a2w2a}
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_a2o_a2w}
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_abo_abw}
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506 00L HISTORY ${conf_nuopc_abo_abw}
 
 #===============================================================================
 # atm-ocn coupling
