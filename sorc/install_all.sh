@@ -1,18 +1,11 @@
 #!/bin/sh
 set -xeu
-
-build_dir=`pwd`
+cwd=`pwd`
 
 CP='cp -rp'
 
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  echo "Creating ../exec folder"
-  mkdir ../exec
-fi
-
 #------------------------------------
-# INCLUDE PARTIAL BUILD 
+# INCLUDE PARTIAL BUILD
 #------------------------------------
 
 . ./partial_build.sh
@@ -61,17 +54,22 @@ $Build_vortextracker && {
 # install tools
 #------------------------------------
 $Build_tools && {
-  ${CP} hafs_tools.fd/exec/tempdrop_sonde.x          ../exec/hafs_tempdrop_sonde.x
-  ${CP} hafs_tools.fd/exec/obs_to_bufr.x             ../exec/hafs_obs_to_bufr.x
-  ${CP} hafs_tools.fd/exec/mpiserial.x               ../exec/hafs_mpiserial.x
+  ${CP} hafs_tools.fd/exec/hafs_analysis_update.x                  ../exec/hafs_analysis_update.x
+  ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x                      ../exec/hafs_obs_preproc.x
+  ${CP} hafs_tools.fd/exec/mpiserial.x                             ../exec/hafs_mpiserial.x
+  ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_typ.x           ../exec/hafs_change_prepbufr_qm_typ.x
+  ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_in_circle.x     ../exec/hafs_change_prepbufr_qm_in_circle.x
+  ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_rm_typ_in_circle.x ../exec/hafs_change_prepbufr_rm_typ_in_circle.x
 }
 
 #------------------------------------
 # install gsi
 #------------------------------------
 $Build_gsi && {
-  ${CP} hafs_gsi.fd/exec/global_gsi.x                ../exec/hafs_gsi.x
-  ${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  #${CP} hafs_gsi.fd/exec/global_gsi.x                ../exec/hafs_gsi.x
+  #${CP} hafs_gsi.fd/exec/global_enkf.x               ../exec/hafs_enkf.x
+  ${CP} hafs_gsi.fd/exec/gsi.x                       ../exec/hafs_gsi.x
+  ${CP} hafs_gsi.fd/exec/enkf_fv3reg.x               ../exec/hafs_enkf.x
   ${CP} hafs_gsi.fd/exec/adderrspec.x                ../exec/hafs_adderrspec.x
   ${CP} hafs_gsi.fd/exec/adjustps.x                  ../exec/hafs_adjustps.x
   ${CP} hafs_gsi.fd/exec/calc_increment_ens_ncio.x   ../exec/hafs_calc_increment_ens_ncio.x
@@ -100,7 +98,7 @@ $Build_gsi && {
 }
 
 #------------------------------------
-# install hycom_utils 
+# install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                 ../exec/hafs_get_rtofs.x
@@ -114,7 +112,33 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing        ../exec/hafs_timeinterp_forcing.x
 }
 
+#------------------------------------
+# install ww3_utils 
+#------------------------------------
+$Build_ww3_utils && {
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grid                ../exec/hafs_ww3_grid.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_strt                ../exec/hafs_ww3_strt.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prep                ../exec/hafs_ww3_prep.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outf                ../exec/hafs_ww3_outf.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outp                ../exec/hafs_ww3_outp.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_trck                ../exec/hafs_ww3_trck.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grib                ../exec/hafs_ww3_grib.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gspl                ../exec/hafs_ww3_gspl.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gint                ../exec/hafs_ww3_gint.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outf                 ../exec/hafs_gx_outf.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outp                 ../exec/hafs_gx_outp.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_systrk              ../exec/hafs_ww3_systrk.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bound               ../exec/hafs_ww3_bound.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_shel                ../exec/hafs_ww3_shel.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_multi               ../exec/hafs_ww3_multi.x
+# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_sbs1                ../exec/hafs_ww3_sbs1.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prnc                ../exec/hafs_ww3_prnc.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounf                ../exec/hafs_ww3_ounf.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounp                ../exec/hafs_ww3_ounp.x
+  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bounc               ../exec/hafs_ww3_bounc.x
+}
+
 
 echo;echo " .... Install system finished .... "
 
-exit 0
+exit

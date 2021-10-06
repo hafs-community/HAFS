@@ -1,0 +1,38 @@
+&share
+analdate      = "_analdate_" !"YYYY-MM-DD_HH:00:00"
+datapath      = "./"
+debug         = T
+is_fcst_model = T
+/
+&bufrio
+bufr_filepath      = "synobs_vr.prepbufr"
+bufr_info_filepath = "bufrinfo.json"
+bufr_tblpath       = "prepobs_prep.bufrtable"
+mask_land          = T
+mask_ocean         = F
+/
+&fcst_mdl
+fv3_dyns_filename     = "fv3_dynvars"
+fv3_gridspec_filename = "fv3_grid_spec"
+fv3_orog_filename     = "fv3_oro_data"
+fv3_static_filename   = "fv3_atmos_static"
+fv3_tracer_filename   = "fv3_tracer"
+grid_ratio            = _grid_ratio_
+is_fv3                = T
+is_regional           = T
+is_rotate_winds       = T
+sample_radius         = 9000.0
+/
+&recon
+/
+&sonde
+tempdrop_normalize      = F
+tempdrop_write_nc_skewt = T
+/
+&tc
+is_relocate     = T
+tc_radius = 600000.0
+tcinfo_filename = "synobs_vr.info"
+/
+&wmm
+/

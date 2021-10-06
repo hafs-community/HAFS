@@ -23,6 +23,8 @@ inputroot=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+DATMdir=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/DATM
+DOCNdir=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/DOCN
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/hafstmp
 ## Save directory.  Make sure you edit this.
@@ -45,8 +47,8 @@ WHERE_AM_I=jet    ;; Which cluster? (For setting up environment.)
 WHICH_JET=x       ;; Which part of Jet?
 
 [forecast]
-write_groups=2
-write_tasks_per_group=48
+write_groups=1
+write_tasks_per_group=120
 
 [rocotostr]
 FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

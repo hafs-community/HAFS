@@ -1,17 +1,18 @@
 #==============================================================================
-# This script sets up job node/core, mpi/omp envionment, and run commands.
+# This script sets job node/core, mpi/omp envionment, and run commands.
 #==============================================================================
 
-# Set up job node/core,  mpi/omp environment
+# Set job node/core, mpi/omp environment
 export TOTAL_TASKS=${TOTAL_TASKS:-1}
 export NCTSK=${NCTSK:-1}
 export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-24}}
 export PURE_OMP_THREADS=${PURE_OMP_THREADS:-${OMP_NUM_THREADS:-24}}
 export NCNODE=${NCNODE:-$(($NCTSK * $OMP_NUM_THREADS))}
-export KMP_STACKSIZE=1024m
 export KMP_AFFINITY=disabled
+export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
+#export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
 
-# Set up job run commands
+# Set job run commands
 # APRUNS: command to run serial jobs
 # APRUNO: command to run pure openmp jobs
 # APRUNC: command to run pure mpi or mpi+omp jobs

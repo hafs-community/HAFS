@@ -29,7 +29,7 @@
 # * -n --- disable renumbering of invests into non-invests
 # * -W N --- discard invests weaker than N m/s before renumbering
 #
-# Conf opitons:
+# Conf options:
 # * ../parm/hafs_more.conf --- read this configuration file
 # * config.run_gsi=yes --- specify the value of one configuration option
 
@@ -418,6 +418,9 @@ try:
     conf.timeless_sanity_check(enset,logger)
 except Exception as e:
     tcutil.rocoto.sanity_check_failed(logger,e)
+    logger.error("HAFS Sanity Checker Designation: INSANE!")
+    logger.error("Check your configuration for errors.")
+    logger.error("See earlier messages for clues.")
     sys.exit(1)
 logger.info("I think I'm sane.")
 
@@ -503,6 +506,7 @@ if parse_tcvitals:
 # Create the list of variables to send to the ATParser
 
 VARS=dict(os.environ)
+
 if cycleset:
     VARS['CYCLE_LIST']=tcutil.rocoto.cycles_as_entity(cycleset)
     for line in VARS['CYCLE_LIST'].splitlines():
@@ -552,6 +556,14 @@ for (key,val) in conf.items('rocotostr'):
     VARS[key]=str(val)
 for (key,val) in conf.items('rocotobool'):
     VARS[key]=yesno(conf.getbool('rocotobool',key))
+
+if conf.getbool('config','run_ensda',False):
+    ens_size=conf.getint('config','ENS_SIZE',40)
+    assert(ens_size>=1)
+    ensids=' '.join([ '%03d'%(i+1) for i in range(ens_size) ])
+    VARS.update(ENS_SIZE='%d'%ens_size,ENSIDS=ensids)
+else:
+    VARS.update(ENS_SIZE='000',ENSIDS='000')
 
 bad=False
 for k,v in VARS.items():

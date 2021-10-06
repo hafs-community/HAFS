@@ -1,0 +1,167 @@
+$ -------------------------------------------------------------------- $
+$ WAVEWATCH III Ascii Boundary input processing                        $
+$--------------------------------------------------------------------- $
+$ Boundary option: READ or WRITE
+$
+  WRITE 
+$
+$ Interpolation method: 1: nearest
+$                       2: linear interpolation
+  2 
+$
+$ Verbose mode [0-1]
+$
+  1
+$
+$ List of spectra files. These ASCII files use the WAVEWATCH III
+$ format as described in the ww3_outp.inp file. The files are 
+$ defined relative to the directory in which the program is run.
+$
+$ Examples of such files can be found at (for example): 
+$   ftp://polar.ncep.noaa.gov/pub/waves/develop/glw.latest_run/
+$                                              (the *.spec.gz files)
+$   http://tinyurl.com/iowagaftp/HINDCAST/GLOBAL/2009_ECMWF/SPEC
+$
+$ If data is used other than from previous WAVEWATCH III runs, then
+$ this data will need to be converted to the WAVEWATCH III format.
+$
+$ In the case of NetCDF files see ww3_bounc.inp  
+$
+$ ----------
+$gfswave.HWRF*-#.spec 
+$a 50-86
+$c 50-177
+$e 50-146
+$l 50-98
+$p 50-169
+$s 50-150
+$w 50-123
+$    =======    LIST OF BOUNDARY POINTS FOR ******* ===========
+$#incomingspectra here#
+gfswave.HWRFp-50.spec
+gfswave.HWRFp-51.spec
+gfswave.HWRFp-52.spec
+gfswave.HWRFp-53.spec
+gfswave.HWRFp-54.spec
+gfswave.HWRFp-55.spec
+gfswave.HWRFp-56.spec
+gfswave.HWRFp-57.spec
+gfswave.HWRFp-58.spec
+gfswave.HWRFp-59.spec
+gfswave.HWRFp-60.spec
+gfswave.HWRFp-61.spec
+gfswave.HWRFp-62.spec
+gfswave.HWRFp-63.spec
+gfswave.HWRFp-64.spec
+gfswave.HWRFp-65.spec
+gfswave.HWRFp-66.spec
+gfswave.HWRFp-67.spec
+gfswave.HWRFp-68.spec
+gfswave.HWRFp-69.spec
+gfswave.HWRFp-70.spec
+gfswave.HWRFp-71.spec
+gfswave.HWRFp-72.spec
+gfswave.HWRFp-73.spec
+gfswave.HWRFp-74.spec
+gfswave.HWRFp-75.spec
+gfswave.HWRFp-76.spec
+gfswave.HWRFp-77.spec
+gfswave.HWRFp-78.spec
+gfswave.HWRFp-79.spec
+gfswave.HWRFp-80.spec
+gfswave.HWRFp-81.spec
+gfswave.HWRFp-82.spec
+gfswave.HWRFp-83.spec
+gfswave.HWRFp-84.spec
+gfswave.HWRFp-85.spec
+gfswave.HWRFp-86.spec
+gfswave.HWRFp-87.spec
+gfswave.HWRFp-88.spec
+gfswave.HWRFp-89.spec
+gfswave.HWRFp-90.spec
+gfswave.HWRFp-91.spec
+gfswave.HWRFp-92.spec
+gfswave.HWRFp-93.spec
+gfswave.HWRFp-94.spec
+gfswave.HWRFp-95.spec
+gfswave.HWRFp-96.spec
+gfswave.HWRFp-97.spec
+gfswave.HWRFp-98.spec
+gfswave.HWRFp-99.spec
+gfswave.HWRFp-100.spec
+gfswave.HWRFp-101.spec
+gfswave.HWRFp-102.spec
+gfswave.HWRFp-103.spec
+gfswave.HWRFp-104.spec
+gfswave.HWRFp-105.spec
+gfswave.HWRFp-106.spec
+gfswave.HWRFp-107.spec
+gfswave.HWRFp-108.spec
+gfswave.HWRFp-109.spec
+gfswave.HWRFp-110.spec
+gfswave.HWRFp-111.spec
+gfswave.HWRFp-112.spec
+gfswave.HWRFp-113.spec
+gfswave.HWRFp-114.spec
+gfswave.HWRFp-115.spec
+gfswave.HWRFp-116.spec
+gfswave.HWRFp-117.spec
+gfswave.HWRFp-118.spec
+gfswave.HWRFp-119.spec
+gfswave.HWRFp-120.spec
+gfswave.HWRFp-121.spec
+gfswave.HWRFp-122.spec
+gfswave.HWRFp-123.spec
+gfswave.HWRFp-124.spec
+gfswave.HWRFp-125.spec
+gfswave.HWRFp-126.spec
+gfswave.HWRFp-127.spec
+gfswave.HWRFp-128.spec
+gfswave.HWRFp-129.spec
+gfswave.HWRFp-130.spec
+gfswave.HWRFp-131.spec
+gfswave.HWRFp-132.spec
+gfswave.HWRFp-133.spec
+gfswave.HWRFp-134.spec
+gfswave.HWRFp-135.spec
+gfswave.HWRFp-136.spec
+gfswave.HWRFp-137.spec
+gfswave.HWRFp-138.spec
+gfswave.HWRFp-139.spec
+gfswave.HWRFp-140.spec
+gfswave.HWRFp-141.spec
+gfswave.HWRFp-142.spec
+gfswave.HWRFp-143.spec
+gfswave.HWRFp-144.spec
+gfswave.HWRFp-145.spec
+gfswave.HWRFp-146.spec
+gfswave.HWRFp-147.spec
+gfswave.HWRFp-148.spec
+gfswave.HWRFp-149.spec
+gfswave.HWRFp-150.spec
+gfswave.HWRFp-151.spec
+gfswave.HWRFp-152.spec
+gfswave.HWRFp-153.spec
+gfswave.HWRFp-154.spec
+gfswave.HWRFp-155.spec
+gfswave.HWRFp-156.spec
+gfswave.HWRFp-157.spec
+gfswave.HWRFp-158.spec
+gfswave.HWRFp-159.spec
+gfswave.HWRFp-160.spec
+gfswave.HWRFp-161.spec
+gfswave.HWRFp-162.spec
+gfswave.HWRFp-163.spec
+gfswave.HWRFp-164.spec
+gfswave.HWRFp-165.spec
+gfswave.HWRFp-166.spec
+gfswave.HWRFp-167.spec
+gfswave.HWRFp-168.spec
+gfswave.HWRFp-169.spec
+$
+$
+'STOPSTRING'
+$ 
+$ -------------------------------------------------------------------- $
+$ End of input file                                                    $
+$ -------------------------------------------------------------------- $

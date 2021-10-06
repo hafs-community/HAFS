@@ -558,6 +558,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
                             %(section,option,repr(value)))
                 conf.set(section,option,value)
     conf.guess_default_values()
+    conf.set_data_model_variables()
     cycling_interval=conf.getfloat('config','cycling_interval',6.0)
     cycling_interval=-abs(cycling_interval*3600.0)
     if cycle is not None:
@@ -787,6 +788,81 @@ class HAFSLauncher(HAFSConfig):
         revital=tcutil.revital.Revital(logger=logger)
         revital.readfiles(inputs,raise_all=False)
         return revital
+
+    def timeless_sanity_check_data_models(self,logger):
+        """!In the hafs_launcher job, this checks the data model variables and
+        files for obvious errors on the command line, before submitting jobs."""
+        run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
+        run_ocean=self.getbool('config','run_ocean',False)
+        if run_datm and run_docn:
+            msg='run_datm and run_docn cannot both be set to yes'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+        if run_docn and run_ocean:
+            msg='run_docn and run_ocean cannot both be set to yes'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+        if run_datm and not run_ocean:
+            msg='run_datm is useless without run_ocean'
+            logger.error(msg)
+            raise HAFSDataModelInsane(msg)
+
+    def sanity_check_data_models(self,logger):
+        """!In the hafs_launcher job, this checks the data model variables and
+        files for obvious errors before starting the rest of the workflow."""
+        run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
+        run_ocean=self.getbool('config','run_ocean',False)
+        if run_datm:
+            if run_docn:
+              msg='run_datm and run_docn cannot both be set to yes'
+              logger.error(msg)
+              raise HAFSDataModelInsane(msg)
+            make_mesh_atm=self.getbool('config','make_mesh_atm',True)
+            if not make_mesh_atm:
+                mesh_atm=self.getstr('forecast','mesh_atm')
+                if not os.path.exists(mesh_atm):
+                    msg='%s: mesh_atm file does not exist'%(mesh_atm,)
+                    logger.error(msg)
+                    raise HAFSDataModelInsane(msg)
+                else:
+                    logger.info("%s: will use this pre-made datm esmf mesh (mesh_atm)."%(mesh_atm,))
+        if run_docn:
+            make_mesh_ocn=self.getbool('config','make_mesh_ocn',True)
+            if not make_mesh_ocn:
+                mesh_ocn=self.getstr('forecast','mesh_ocn')
+                if not os.path.exists(mesh_ocn):
+                    msg='%s: mesh_ocn file does not exist'%(mesh_ocn,)
+                    logger.error(msg)
+                    raise HAFSDataModelInsane(msg)
+                else:
+                    logger.info("%s: will use this pre-made docn esmf mesh (mesh_ocn)."%(mesh_ocn,))
+            if run_ocean:
+                msg='run_ocean=yes and run_docn=yes are incompatible.'
+                logger.error(msg)
+                raise HAFSDataModelInsane(msg)
+
+    def set_data_model_variables(self):
+        """!Sets conf variables for the data models."""
+        run_datm=self.getbool('config','run_datm',False)
+        run_docn=self.getbool('config','run_docn',False)
+        if run_datm:
+            make_mesh_atm=self.getbool('config','make_mesh_atm',True)
+            if make_mesh_atm:
+                self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_gen'))
+            else:
+                self.set('forecast','mesh_atm',self.getraw('forecast','mesh_atm_in'))
+        else:
+            self.set('forecast','mesh_atm','dummy.nc')
+        if run_docn:
+            make_mesh_ocn=self.getbool('config','make_mesh_ocn',True)
+            if make_mesh_ocn:
+                self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_gen'))
+            else:
+                self.set('forecast','mesh_ocn',self.getraw('forecast','mesh_ocn_in'))
+        else:
+            self.set('forecast','mesh_ocn','dummy.nc')
 
     def set_storm(self,syndat,oldsyndat):
         """!Sets the storm that is to be run.
@@ -1117,6 +1193,7 @@ class HAFSLauncher(HAFSConfig):
                 '%s: not the same as the launcher.py that is running now '
                 '(%s) -- check your paths and EXPT.'%(checkme,myfile))
         self.sanity_check_forecast_length(logger)
+        self.timeless_sanity_check_data_models(logger)
 
     def sanity_check_forecast_length(self,logger=None):
         """!Ensures the forecast length is valid.
@@ -1204,6 +1281,7 @@ class HAFSLauncher(HAFSConfig):
                 %(repr(case_root),))
 
         self.sanity_check_archive(logger)
+        self.sanity_check_data_models(logger)
 
     def guess_default_values(self):
         """!Tries to guess default values for many configuration settings.
@@ -1325,6 +1403,7 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
+        *  cap_run_gsi_vr --- capitalized version of [config] section run_gsi_vr
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1361,7 +1440,7 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
 
         # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('post','synop_gridspecs','auto')
+        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
         # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
         if synop_gridspecs=='auto':
             if output_grid=='rotated_latlon':
@@ -1386,12 +1465,49 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','synop_gridspecs',synop_gridspecs)
 
         # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('post','trker_gridspecs','auto')
+        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
         if trker_gridspecs=='auto':
             logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
             trker_gridspecs=synop_gridspecs
             logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
         self.set('holdvars','trker_gridspecs',trker_gridspecs)
+
+        # Generate synop_gridspecs_ens if needed
+        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
+        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
+        output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
+        output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
+
+        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
+        if synop_gridspecs_ens=='auto':
+            if output_grid=='rotated_latlon':
+                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
+                latlon_lat0=output_grid_cen_lat+output_grid_lat1
+                latlon_dlon=output_grid_dlon_ens
+                latlon_dlat=output_grid_dlat_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon_ens
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
+            elif output_grid=='regional_latlon':
+                latlon_lon0=output_grid_lon1
+                latlon_lat0=output_grid_lat1
+                latlon_dlon=output_grid_dlon_ens
+                latlon_dlat=output_grid_dlat_ens
+                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
+                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
+            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
+            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
+                latlon_lon0,latlon_nlon,latlon_dlon,
+                latlon_lat0,latlon_nlat,latlon_dlat)
+            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
+        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
+
+        # Set trker_gridspecs_ens if needed
+        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
+        if trker_gridspecs_ens=='auto':
+            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
+            trker_gridspecs_ens=synop_gridspecs_ens
+            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
+        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
 
         run_ocean=self.getbool('config','run_ocean')
 
@@ -1402,8 +1518,29 @@ class HAFSLauncher(HAFSConfig):
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
 
+        gsi_vr_flag=self.getbool('config','run_gsi_vr')
+        self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
+
+        gsi_vr_fgat_flag=self.getbool('config','run_gsi_vr_fgat')
+        self.set('holdvars','cap_run_gsi_vr_fgat',('YES' if gsi_vr_fgat_flag else 'NO'))
+
+        gsi_vr_ens_flag=self.getbool('config','run_gsi_vr_ens')
+        self.set('holdvars','cap_run_gsi_vr_ens',('YES' if gsi_vr_ens_flag else 'NO'))
+
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+
+        fgat_flag=self.getbool('config','run_fgat')
+        self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
+
+        envar_flag=self.getbool('config','run_envar')
+        self.set('holdvars','cap_run_envar',('YES' if envar_flag else 'NO'))
+
+        ensda_flag=self.getbool('config','run_ensda')
+        self.set('holdvars','cap_run_ensda',('YES' if ensda_flag else 'NO'))
+
+        enkf_flag=self.getbool('config','run_enkf')
+        self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',

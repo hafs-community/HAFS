@@ -1,8 +1,15 @@
 #
 *.pyc
 *.o
+*.lo
 *.mod
 *.a
 *.exe
 *.x
 *.log
+*~
+*.db
+*.db.bak
+system.conf
+fix/
+rocoto/*.xml

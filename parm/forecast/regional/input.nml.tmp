@@ -1,28 +1,22 @@
- &amip_interp_nml
-     interp_oi_sst = .true.
-     use_ncep_sst = .true.
-     use_ncep_ice = .false.
-     no_anom_sst = .false.
-     data_set = 'reynolds_oi'
-     date_out_of_range = 'climo'
-/
-
  &atmos_model_nml
-     blocksize = 60
-     chksum_debug = .false.
-     dycore_only = .false.
-     fdiag = 3
-     avg_max_length = 3600.
-     fhmax = _fhmax_
-     fhout = 3
-     fhmaxhf = 0
-     fhouthf = 3
-     ccpp_suite = '_ccpp_suite_'
-     merge_import = _merge_import_
+       blocksize = _blocksize_
+       chksum_debug = .false.
+       dycore_only = .false.
+       avg_max_length = 3600.
+       ccpp_suite = '_ccpp_suite_'
 /
 
-&diag_manager_nml
-     prepend_date = .false.
+ &diag_manager_nml
+       prepend_date = .false.
+/
+
+ &mpp_io_nml
+       header_buffer_val = 16384,
+       global_field_on_root_pe = .true.,
+       io_clocks_on = .false.,
+       shuffle = 0,
+       deflate_level = _deflate_level_,
+       cf_compliance = .false.
 /
 
  &fms_io_nml
@@ -33,7 +27,7 @@
 
  &fms_nml
        clock_grain = 'ROUTINE',
-       domains_stack_size = 12000000,
+       domains_stack_size = 30000000,
        print_memory_usage = .false.
 /
 
@@ -72,10 +66,10 @@
        beta = 0.
        a_imp = 1.
        p_fac = 0.1
-       k_split  = 4
-       n_split  = 5
+       k_split  = _k_split_
+       n_split  = _n_split_
        nwat = 6
-       na_init = 1
+       na_init = _na_init_
        d_ext = 0.0
        dnats = 1
        fv_sg_adj = 300
@@ -87,11 +81,11 @@
        delt_max = 0.008
        ke_bg = 0.
        do_vort_damp = .T.
-       external_ic = .T.
+       external_ic = _external_ic_
        external_eta = .T.
        gfs_phil = .false.
-       nggps_ic = .T.
-       mountain = .F.
+       nggps_ic = _nggps_ic_
+       mountain = _mountain_
        ncep_ic = .F.
        d_con = 1.0
        hord_mt = 6
@@ -106,7 +100,7 @@
        fill = .T.
        dwind_2d = .F.
        print_freq = 3
-       warm_start = .F.
+       warm_start = _warm_start_
        no_dycore = .false.
        z_tracer = .T.
        agrid_vel_rst = .true.
@@ -155,11 +149,10 @@
        fhcyc          = 24.
        use_ufo        = .true.
        pre_rad        = .false.
-       ncld           = 5
        imp_physics    = 11
        pdfcld         = .false.
-       fhswr          = 1800.
-       fhlwr          = 1800.
+       fhswr          = _fhswr_
+       fhlwr          = _fhlwr_
        ialb           = 1
        iems           = 1
        iaer           = 111
@@ -174,10 +167,14 @@
        cal_pre        = .false.
        redrag         = .true.
        dspheat        = .true.
-       hybedmf        = .true.
+       hybedmf        = .false.
        hurr_pbl       = .T.        ! HWRF moninedmf
        moninq_fac     = -1.0       ! HWRF_moninedmf
-       satmedmf       = .false.
+       satmedmf       = .true.
+       isatmedmf      = 1
+       rlmx           = 300.
+       elmx           = 300.
+       sfc_rlm        = 1
        random_clds    = .false.
        trans_trac     = .true.
        cnvcld         = .true.
@@ -207,8 +204,11 @@
        nst_anl        = .true.
        nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
        cplflx         = _cplflx_
-       cplwav         = .false.
-       cplwav2atm     = .false.
+       cplice         = .false.
+       cplocn2atm     = _cplocn2atm_
+       cplwav         = _cplwav_
+       cplwav2atm     = _cplwav2atm_
+       cpl_imp_mrg    = _merge_import_
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
@@ -226,13 +226,12 @@
        do_ca          = .false.
        ca_sgs         = .false.
        nca            = 1
-       ncells         = 5
-       nlives         = 30
-       nseed          = 1000000
+       scells         = 2600
+       tlives         = 1800
+       nseed          = 1
        nfracseed      = 0.5
-       nthresh        = 0.
-       ca_trigger     = .true.
-       ca_entr       = .false.
+       ca_trigger     = .false.
+       ca_entr        = .false.
        ca_closure     = .false.
        ca_global      = .false.
        nca_g          = 1
@@ -240,10 +239,10 @@
        nlives_g       = 100
        nseed_g        = 100
        ca_smooth      = .false.
-       nspinup        = 100
+       nspinup        = 1
        iseed_ca       = 1
-       nsmooth        = 1
-       ca_amplitude   = 0.5
+       nsmooth        = 100
+       ca_amplitude   = 0.35
 /
 
  &gfdl_cloud_microphysics_nml
@@ -341,9 +340,11 @@
        FSNOS    = 99999,
        FSICS    = 99999,
 /
-&nam_stochy
+
+ &nam_stochy
 /
-&nam_sfcperts
+
+ &nam_sfcperts
 /
 
  &cires_ugwp_nml

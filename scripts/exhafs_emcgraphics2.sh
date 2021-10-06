@@ -10,6 +10,7 @@ storm=${STORM,,}
 STORMID=${STORMID:-00L}
 stormid=${STORMID,,}
 
+export NOUTHRS=${NOUTHRS:-3}
 export run_ocean=${run_ocean:-no}
 
 stormModel=${stormModel:-HAFS}

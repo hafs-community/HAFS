@@ -994,6 +994,8 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         grb2index=alias(exe(self.getexe('grb2index')))
         wgrib2loc=self.getexe('wgrib2')
         grb2indexloc=self.getexe('grb2index')
+        if os.path.isdir(grb2indexloc): 
+            grb2indexloc=grb2indexloc+"/grb2index"
 
         if mode=='anal':
             TYPEx='hour fcst'
@@ -1416,7 +1418,7 @@ NetCDF
                 timesslept=0
                 sleepmax=180
                 while timesslept<sleepmax:
-                    if os.path.exists("../forecast/"+logfile):
+                    if os.path.exists("../../forecast/"+logfile):
                         break
                     else:
                         timesslept=timesslept+1
@@ -1426,8 +1428,8 @@ NetCDF
                     logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
                     raise
                 logger.info('Will create ocean products for %s '%( repr(notabin)))
-                afile=''.join(['../forecast/'+notabin,'.a'])
-                bfile=''.join(['../forecast/'+notabin,'.b'])
+                afile=''.join(['../../forecast/'+notabin,'.a'])
+                bfile=''.join(['../../forecast/'+notabin,'.b'])
                 archxa='archv.a'
                 archxb='archv.b'
                 produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)
@@ -1465,8 +1467,8 @@ NetCDF
                 deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
                 # deliver ab files to comout
                 notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
-                deliver_file('../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
-                deliver_file('../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
+                deliver_file('../../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
+                deliver_file('../../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
 
             # convert 3-hrly archs.[ab] to .nc
             notabin='archs.%s'%(archtimestring)
@@ -1474,7 +1476,7 @@ NetCDF
             timesslept=0
             sleepmax=180
             while timesslept<sleepmax:
-               if os.path.exists("../forecast/"+logfile):
+               if os.path.exists("../../forecast/"+logfile):
                   break
                else:
                   timesslept=timesslept+1
@@ -1484,8 +1486,8 @@ NetCDF
                logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
                raise
             logger.info('Will create ocean products for %s '%( repr(notabin)))
-            afile=''.join(['../forecast/'+notabin,'.a'])
-            bfile=''.join(['../forecast/'+notabin,'.b'])
+            afile=''.join(['../../forecast/'+notabin,'.a'])
+            bfile=''.join(['../../forecast/'+notabin,'.b'])
             archxa='archs.a'
             archxb='archs.b'
             produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)

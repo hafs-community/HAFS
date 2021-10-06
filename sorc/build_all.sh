@@ -4,7 +4,7 @@ set -eux
 # USER DEFINED STUFF:
 #
 # USE_PREINST_LIBS: set to "true" to use preinstalled libraries.
-#                   Anything other than "true"  will use libraries locally.
+#                   Anything other than "true" will use libraries locally.
 #------------------------------------
 
 export USE_PREINST_LIBS="true"
@@ -15,19 +15,11 @@ export USE_PREINST_LIBS="true"
 
 build_dir=`pwd`
 logs_dir=$build_dir/logs
-if [ ! -d $logs_dir  ]; then
-  echo "Creating logs folder"
-  mkdir $logs_dir
-fi
-
-# Check final exec folder exists
-if [ ! -d "../exec" ]; then
-  echo "Creating ../exec folder"
-  mkdir ../exec
-fi
+mkdir -p $logs_dir
+mkdir -p ../exec
 
 #------------------------------------
-# INCLUDE PARTIAL BUILD 
+# INCLUDE PARTIAL BUILD
 #------------------------------------
 
 . ./partial_build.sh
@@ -74,7 +66,7 @@ echo " .... Building utils .... "
 }
 
 #------------------------------------
-# build tools 
+# build tools
 #------------------------------------
 $Build_tools && {
 echo " .... Building tools .... "
@@ -90,14 +82,21 @@ echo " .... Building gsi .... "
 }
 
 #------------------------------------
-# build hycom_utils 
+# build hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
 echo " .... Building hycom_utils .... "
 ./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
 }
 
+#------------------------------------
+# build ww3_utils 
+#------------------------------------
+$Build_ww3_utils && {
+echo " .... Building ww3_utils .... "
+./build_ww3_utils.sh > $logs_dir/build_ww3_utils.log 2>&1
+}
 
 echo;echo " .... Build system finished .... "
 
-exit 0
+exit

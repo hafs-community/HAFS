@@ -7,7 +7,8 @@ tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
 cpu_account=HUR-T2O
 ## Archive path
-archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+archive=disk:/gpfs/hps3/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar
 ## Specify input sources for HISTORY mode.
 input_sources=wcoss_sources_{GFSVER}
 ## Specify the DataCatalog for FORECAST mode runs.
@@ -22,6 +23,8 @@ inputroot=/gpfs/dell1/nco/ops/com/gfs/prod
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+DATMdir=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/gpfs/hps3/emc/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/gpfs/hps3/ptmp/{ENV[USER]}
 ## Save directory.  Make sure you edit this.
@@ -46,8 +49,8 @@ WHERE_AM_I=wcoss_cray    ;; Which cluster? (For setting up environment.)
 WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.
 
 [forecast]
-write_groups=2
-write_tasks_per_group=48
+write_groups=1
+write_tasks_per_group=96
 
 [rocotostr]
 FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

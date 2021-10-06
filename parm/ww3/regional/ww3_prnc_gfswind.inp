@@ -1,0 +1,12 @@
+$ WAVEWATCH-III field preprocessor input file
+$ ------------------------------------------
+  'WND' 'LL' T T
+$
+$ Name of dimensions
+longitude latitude
+$ Variables to use
+UGRD_10maboveground VGRD_10maboveground
+'gfs.uvgrd10m.nc'
+$
+$ End of input file
+
