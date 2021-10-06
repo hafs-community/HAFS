@@ -130,7 +130,7 @@ if [ ! -s $executable ]; then
   exit 1 
 fi
 
-if [ $ntiles -eq 6 ]; then
+if [ $gtype = uniform -o $gtype = stretch ] && [ $ntiles -eq 6 ]; then
   $APRUN $executable --num_tiles $ntiles --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile1.nc,C${res}_grid.tile2.nc,C${res}_grid.tile3.nc,C${res}_grid.tile4.nc,C${res}_grid.tile5.nc,C${res}_grid.tile6.nc
 
 elif [ $gtype = nest -a $ntiles -ge 7 ]; then
@@ -141,7 +141,7 @@ elif [ $gtype = nest -a $ntiles -ge 7 ]; then
     file_list="${file_list},C${res}_grid.tile${itile}.nc"
   done
 
-  # mosaic file for globe and nests
+  # mosaic file for global and nests
   $APRUN $executable --num_tiles $ntiles --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile1.nc,C${res}_grid.tile2.nc,C${res}_grid.tile3.nc,C${res}_grid.tile4.nc,C${res}_grid.tile5.nc,C${res}_grid.tile6.nc,${file_list}
 
   # mosaic file for coarse grids only
@@ -151,14 +151,39 @@ elif [ $gtype = nest -a $ntiles -ge 7 ]; then
   for itile in $(seq 7 $ntiles)
   do
     file_list="C${res}_grid.tile${itile}.nc"
-	inest=$(($itile - 5))
+    inest=$(($itile - 5))
     $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_nested0${inest}_mosaic --tile_file ${file_list}
   done
-#
-#special case for the regional grid. For now we have only 1 tile and it is tile 7
-#
-elif [ $gtype = regional ]; then
+
+# regional grid without nests
+elif [ $gtype = regional -a $nest_grids -eq 1 ]; then
+
   $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile7.nc
+
+# regional grid with nests
+elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
+
+  ntiles=$(( 6+$nest_grids ))
+  file_list="C${res}_grid.tile7.nc"
+  for itile in $(seq 8 $ntiles)
+  do
+    file_list="${file_list},C${res}_grid.tile${itile}.nc"
+  done
+
+  # create mosaic for regional and nests
+  $APRUN $executable --num_tiles $nest_grids --dir $outdir --mosaic C${res}_all_mosaic --tile_file ${file_list}
+
+  # mosaic file for coarse grids only
+  $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_coarse_mosaic --tile_file C${res}_grid.tile7.nc
+
+  # mosaic file for nested grids only
+  for itile in $(seq 8 $ntiles)
+  do
+    file_list="C${res}_grid.tile${itile}.nc"
+    inest=$(($itile - 6))
+    $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_nested0${inest}_mosaic --tile_file ${file_list}
+  done
+
 fi
 
 exit

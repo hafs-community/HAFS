@@ -238,6 +238,9 @@ elif [ $gtype = regional ]; then
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
 
+ if [ $nest_grids -gt 1 ]; then
+   ln -sf $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+ fi
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
  orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
  convert_atm=.true.
@@ -338,20 +341,26 @@ else
   exit 9
 fi
 
-# For the global-nesting configuration, run for the 7+th tiles
-if [ $gtype = nest ];  then
+# For the global-nesting or regional-nesting configurations, run for the nested tile(s)
+if [ $gtype = nest -o $nest_grids -gt 1 ];  then
 
 ntiles=$(( ${nest_grids} + 6 ))
-for itile in $(seq 7 $ntiles)
+
+if [ $gtype = regional ]; then
+  stile=8
+else
+  stile=7
+fi
+
+for itile in $(seq $stile $ntiles)
 do
 
- inest=$(($itile - 5))
+ inest=$(($itile + 2 - $stile))
 
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
-
  ln -sf $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
  export GRIDTYPE=nest
- HALO=${HALO:-0}
+ HALO=0
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
  orog_files_target_grid='"'${CASE}'_oro_data.tile'${itile}'.nc"'
  convert_atm=.true.

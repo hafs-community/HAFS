@@ -575,28 +575,19 @@ if [[ ${ccpp_suite_regional} == *"hwrf"* ]] ||  [[ ${ccpp_suite_glob} == *"hwrf"
 fi
 
 if [ $gtype = nest ]; then
-  #ntiles=7
-  export ntiles=$((6 + ${nest_grids}))
-elif [ $gtype = regional ]; then
-  ntiles=1
-elif [ $gtype = uniform ] || [ $gtype = stretch ]; then
-  ntiles=6
-else
-  echo "FATAL ERROR: Unsupported gtype of ${gtype}."
-  exit 9
-fi
 
-if [ $gtype = nest ]; then
+cd ./INPUT
+
+ntiles=$((6 + ${nest_grids}))
 
 # Copy grid and orography
 for itile in $(seq 1 ${ntiles})
 do
-  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc INPUT/oro_data.tile${itile}.nc
-  cp $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc INPUT/${CASE}_grid.tile${itile}.nc
+  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  cp $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
-${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc INPUT/grid_spec.nc
+${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./grid_spec.nc
 
-cd ./INPUT
 for itile in $(seq 7 ${ntiles})
 do
   inest=$(($itile - 5))
@@ -621,6 +612,8 @@ ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 grid_pes="${glob_pes}"
+parent_tile_tmp="0,${parent_tile}"
+refine_ratio_tmp="0,${refine_ratio}"
 for n in $(seq 1 ${nest_grids})
 do
   layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -661,8 +654,8 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
     -e "s/_grid_pes_/${grid_pes}/g" \
     -e "s/_parent_grid_num_/${parent_grid_num}/g" \
-    -e "s/_parent_tile_/${parent_tile}/g" \
-    -e "s/_refinement_/${refine_ratio}/g" \
+    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
+    -e "s/_refinement_/${refine_ratio_tmp}/g" \
     -e "s/_ioffset_/${ioffset}/g" \
     -e "s/_joffset_/${joffset}/g" \
     -e "s/_levp_/${LEVS}/g" \
@@ -722,14 +715,15 @@ done
 
 elif [ $gtype = regional ]; then
 
+cd INPUT
+
 # Prepare tile data and orography for regional
 tile=7
 # Copy grid and orog files (halo[034])
-${NCP} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc INPUT/.
-${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc INPUT/.
-${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc INPUT/.
+${NCP} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
+${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
+${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./
 
-cd INPUT
 ${NLN} ${CASE}_mosaic.nc grid_spec.nc
 ${NLN} ${CASE}_grid.tile7.halo0.nc grid.tile7.halo0.nc
 ${NLN} ${CASE}_grid.tile7.halo3.nc ${CASE}_grid.tile7.nc
@@ -738,6 +732,27 @@ ${NLN} ${CASE}_oro_data.tile7.halo0.nc oro_data.nc
 ${NLN} ${CASE}_oro_data.tile7.halo4.nc oro_data.tile7.halo4.nc
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
+
+# regional with nests
+if [ $nest_grids -gt 1 ]; then
+
+ntiles=$((6 + ${nest_grids}))
+for itile in $(seq 8 ${ntiles})
+do
+  ${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  ${NCP} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
+done
+
+for itile in $(seq 8 ${ntiles})
+do
+  inest=$(($itile - 6))
+  ${NLN} ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${inest}.nc
+  ${NLN} oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${inest}.nc
+  ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
+  ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
+done
+
+fi
 
 # For warm start from restart files (either before or after analysis)
 if [ ${warmstart_from_restart} = yes ]; then
@@ -762,6 +777,7 @@ cd ..
 ${NCP} ${PARMforecast}/diag_table.tmp .
 ${NCP} ${PARMforecast}/field_table .
 ${NCP} ${PARMforecast}/input.nml.tmp .
+${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
 
 if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
@@ -791,14 +807,44 @@ fi
       -e "s/_merge_import_/${merge_import:-.false.}/g" \
       nems.configure.tmp > nems.configure
 
+ngrids=${nest_grids}
+n=1
+layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+grid_pes="$(( $layoutx_tmp * $layouty_tmp ))"
+parent_tile_tmp=0
+refine_ratio_tmp=0
+ioffset=999
+joffset=999
+
+for n in $(seq 2 ${nest_grids})
+do
+  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+  grid_pes="${grid_pes},$(( $layoutx_tmp * $layouty_tmp ))"
+  ptile_tmp=$( echo ${parent_tile} | cut -d , -f ${n} )
+  parent_tile_tmp="${parent_tile_tmp},$(( $ptile_tmp - 6 ))"
+  refine_ratio_tmp="$refine_ratio_tmp,$( echo ${refine_ratio} | cut -d , -f ${n} )"
+  istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
+  jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
+  ioffset="$ioffset,$(( ($istart_nest_tmp-1)/2 + 1))"
+  joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
+done
+
+n=1
+layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
+npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+
 blocksize=$(( ${npy}/${layouty} ))
 sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
     -e "s/_deflate_level_/${deflate_level:--1}/g" \
-    -e "s/_layoutx_/${layoutx}/g" \
-    -e "s/_layouty_/${layouty}/g" \
-    -e "s/_npx_/${npx}/g" \
-    -e "s/_npy_/${npy}/g" \
+    -e "s/_layoutx_/${layoutx_tmp}/g" \
+    -e "s/_layouty_/${layouty_tmp}/g" \
+    -e "s/_npx_/${npx_tmp}/g" \
+    -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
     -e "s/_k_split_/${k_split}/g" \
     -e "s/_n_split_/${n_split}/g" \
@@ -812,6 +858,12 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_stretch_fac_/${stretch_fac}/g" \
     -e "s/_bc_update_interval_/${NBDYHRS}/g" \
     -e "s/_nrows_blend_/${halo_blend}/g" \
+    -e "s/_grid_pes_/${grid_pes}/g" \
+    -e "s/_parent_grid_num_/${parent_grid_num}/g" \
+    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
+    -e "s/_refinement_/${refine_ratio_tmp}/g" \
+    -e "s/_ioffset_/${ioffset}/g" \
+    -e "s/_joffset_/${joffset}/g" \
     -e "s/_levp_/${LEVS}/g" \
     -e "s/_fhswr_/${fhswr:-1800.}/g" \
     -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
@@ -826,6 +878,46 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     input.nml.tmp > input.nml
+
+for n in $(seq 2 ${nest_grids})
+do
+  inest=$(( ${n} ))
+  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+  npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
+  npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+
+  blocksize=$(( ${npy_tmp}/${layouty_tmp} ))
+sed -e "s/_blocksize_/${blocksize:-64}/g" \
+    -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
+    -e "s/_deflate_level_/${deflate_level:--1}/g" \
+    -e "s/_layoutx_/${layoutx_tmp}/g" \
+    -e "s/_layouty_/${layouty_tmp}/g" \
+    -e "s/_npx_/${npx_tmp}/g" \
+    -e "s/_npy_/${npy_tmp}/g" \
+    -e "s/_npz_/${npz}/g" \
+    -e "s/_k_split_/${k_split}/g" \
+    -e "s/_n_split_/${n_split}/g" \
+    -e "s/_na_init_/${na_init}/g" \
+    -e "s/_external_ic_/${external_ic}/g" \
+    -e "s/_nggps_ic_/${nggps_ic}/g" \
+    -e "s/_mountain_/${mountain}/g" \
+    -e "s/_warm_start_/${warm_start}/g" \
+    -e "s/_levp_/${LEVS}/g" \
+    -e "s/_fhswr_/${fhswr:-1800.}/g" \
+    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
+    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
+    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
+    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
+    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
+    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
+    -e "s/_cplflx_/${cplflx:-.false.}/g" \
+    -e "s/_cplocn2atm_/${cplocn2atm}/g" \
+    -e "s/_cplwav_/${cplwav:-.false.}/g" \
+    -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
+    -e "s/_merge_import_/${merge_import:-.false.}/g" \
+    input_nest.nml.tmp > input_nest0${inest}.nml
+done
 
 fi # if regional
 
@@ -1113,7 +1205,7 @@ CDATEnhrs=`${NDATE} +${NHRS} $CDATE`
 PDYnhrs=`echo ${CDATEnhrs} | cut -c1-8`
 cycnhrs=`echo ${CDATEnhrs} | cut -c9-10`
 if [ -s fv_core.res.nc ]; then
-  for file in $(/bin/ls -1 fv*.nc phy_data.nc sfc_data.nc coupler.res)
+  for file in $(/bin/ls -1 fv*.nc phy_data*.nc sfc_data*.nc coupler.res)
   do
     mv ${file} ${PDYnhrs}.${cycnhrs}0000.${file}
   done
@@ -1122,13 +1214,16 @@ cd ${DATA}
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ ! -s RESTART/grid_spec.nc ]; then
-  ${NCP} -p grid_spec.nc RESTART/
+  ${NCP} -p grid_spec*.nc RESTART/
 fi
 if [ ! -s RESTART/atmos_static.nc ]; then
-  ${NCP} -p atmos_static.nc RESTART/
+  ${NCP} -p atmos_static*.nc RESTART/
 fi
 if [ ! -s RESTART/oro_data.nc ]; then
-  ${NCP} -pL INPUT/oro_data.nc RESTART/
+  for file in $(/bin/ls -1 INPUT/oro_data.nc INPUT/oro_data.nest*.nc)
+  do
+    ${NCP} -pL ${file} RESTART/
+  done
 fi
 
 fi # if [ $gtype = regional ] && [ ${run_datm} = no ]; then

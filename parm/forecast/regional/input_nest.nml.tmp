@@ -32,7 +32,7 @@
 /
 
  &fv_grid_nml
-       grid_file = 'INPUT/grid_spec.nc'
+       !grid_file = 'INPUT/grid_spec.nc'
 /
 
  &fv_core_nml
@@ -108,27 +108,13 @@
        res_latlon_dynamics = "fv3_increment.nc"
        write_3d_diags = .true.
 
-       do_schmidt = .true.
-       target_lat = _target_lat_
-       target_lon = _target_lon_
-       stretch_fac = _stretch_fac_
-       regional = .true.
-       bc_update_interval = _bc_update_interval_
-       nrows_blend = _nrows_blend_
+       nested = .true.
+       twowaynest = .true.
+       nestupdate = 7
 
        full_zs_filter = .F. !unreleased feature
-       n_zs_filter = 0 ! safety
+       n_zs_filter = 1
        nord_zs_filter = 4
-/
-
- &fv_nest_nml
-       grid_pes = _grid_pes_
-       tile_coarse = _parent_tile_
-       num_tile_top = 1
-       p_split = 1
-       nest_refine = _refinement_
-       nest_ioffsets= _ioffset_
-       nest_joffsets= _joffset_
 /
 
  &surf_map_nml
