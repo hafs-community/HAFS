@@ -129,8 +129,13 @@
 /
 
  &fv_moving_nest_nml
+      !surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x_Laural13L2021082512/"
        surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x/"
        is_moving_nest = .F., .T.
+       vortex_tracker = 0, 7
+       ntrack = 0, 2
+       move_cd_x=0, 0
+       move_cd_y=0, 0
 /
 
  &surf_map_nml
