@@ -90,12 +90,12 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     module purge
     source /usrx/local/prod/lmod/lmod/init/$__ms_shell
 elif [[ -d /glade ]] ; then
-    # We are on NCAR Yellowstone
+    # We are on NCAR Cheyenne
     if ( ! eval module help > /dev/null 2>&1 ) ; then
         echo load the module command 1>&2
         . /usr/share/Modules/init/$__ms_shell
     fi
-    target=yellowstone
+    target=cheyenne
     module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
     # We are on GAEA.

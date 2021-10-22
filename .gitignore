@@ -7,3 +7,9 @@
 *.exe
 *.x
 *.log
+*~
+*.db
+*.db.bak
+system.conf
+fix/
+rocoto/*.xml
