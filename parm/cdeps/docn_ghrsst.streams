@@ -1,0 +1,15 @@
+stream_info:               PRESCRIBED01
+taxmode01:                 limit
+mapalgo01:                 redist
+tInterpAlgo01:             linear
+readMode01:                single
+dtlimit01:                 1.5
+stream_offset01:           0
+yearFirst01:               _yearFirst_
+yearLast01:                _yearLast_
+yearAlign01:               _yearFirst_
+stream_vectors01:          "null"
+stream_mesh_file01:        "INPUT/DOCN_ESMF_mesh.nc"
+stream_lev_dimname01:      null
+stream_data_files01:       
+stream_data_variables01:   "analysed_sst So_t"

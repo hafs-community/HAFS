@@ -23,6 +23,8 @@ inputroot=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/hafstrak
+DATMdir=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/DATM
+DOCNdir=/lfs4/HFIP/{disk_project}/{ENV[USER]}/noscrub/DOCN
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/lfs4/HFIP/{disk_project}/{ENV[USER]}/hafstmp
 ## Save directory.  Make sure you edit this.
