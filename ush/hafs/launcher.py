@@ -1463,9 +1463,6 @@ class HAFSLauncher(HAFSConfig):
 
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
-        
-        online_satbias_flag=self.getbool('config','online_satbias')
-        self.set('holdvars','cap_online_satbias',('YES' if online_satbias_flag else 'NO'))
 
         reloc_flag=self.getbool('config','run_vortexinit')
         self.set('holdvars','cap_run_vortexinit',

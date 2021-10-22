@@ -35,7 +35,8 @@ fi
 
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
-export ONLINE_SATBIAS=${ONLINE_SATBIAS:-NO}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
+export online_satbias=${online_satbias:-no}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -439,8 +440,8 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 
 fi #USE_SELECT
 
-# Workflow will read from previous cycles for satbias predictors if ONLINE_SATBIAS is set to yes
-if [ ${ONLINE_SATBIAS} = "YES" ]; then
+# Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ ${online_satbias} = "no" ] && [ ${RUN_ENVAR} = "YES" ]; then
   if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
@@ -452,6 +453,9 @@ if [ ${ONLINE_SATBIAS} = "YES" ]; then
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
   fi
+elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
+  echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
+  exit 2
 else
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
