@@ -146,7 +146,7 @@
        lradar         = .true.
        avg_max_length = 3600.
        h2o_phys       = .true.
-       fhcyc          = 24.
+       fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
        imp_physics    = 11
