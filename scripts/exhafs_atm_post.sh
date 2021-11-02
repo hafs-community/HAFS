@@ -169,12 +169,14 @@ else
 
 # Preparte itag namelist input file
 cat>itag<<EOF
-${INPdir}/atmf${FHR3}.nc
-netcdf
-grib2
-${YYYY}-${MM}-${DD}_${HH}:00:00
-FV3R
-${INPdir}/sfcf${FHR3}.nc
+&model_inputs
+fileName='${INPdir}/atmf${FHR3}.nc'
+IOFORM=netcdf
+grib='grib2'
+DateStr='${YYYY}-${MM}-${DD}_${HH}:00:00'
+MODELNAME='FV3R'
+fileNameFlux='${INPdir}/sfcf${FHR3}.nc'
+/
 &NAMPGB
 KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
 /
