@@ -519,6 +519,23 @@ fi
 #---------------------------------------------- 
 ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
+if [ ${online_satbias} = "yes" ]; then
+   sed -i -e "s/upd_pred(1)=0/upd_pred(1)=1/" \
+       -e "s/upd_pred(2)=0/upd_pred(2)=1/" \
+       -e "s/upd_pred(3)=0/upd_pred(3)=1/" \
+       -e "s/upd_pred(4)=0/upd_pred(4)=1/" \
+       -e "s/upd_pred(5)=0/upd_pred(5)=1/" \
+       -e "s/upd_pred(6)=0/upd_pred(6)=1/" \
+       -e "s/upd_pred(7)=0/upd_pred(7)=1/" \
+       -e "s/upd_pred(8)=0/upd_pred(8)=1/" \
+       -e "s/upd_pred(9)=0/upd_pred(9)=1/" \
+       -e "s/upd_pred(10)=0/upd_pred(10)=1/" \
+       -e "s/upd_pred(11)=0/upd_pred(11)=1/" \
+       -e "s/upd_pred(12)=0/upd_pred(12)=1/" \
+       -e "s/passive_bc=.false./passive_bc=.true./" \
+       gsiparm.anl.tmp
+fi
+
 sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NITER_/${NITER:-50}/g" \
     -e "s/_USE_GFS_NEMSIO_/${USE_GFS_NEMSIO:-.true.}/g" \
