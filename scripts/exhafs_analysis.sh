@@ -472,6 +472,8 @@ fi #USE_SELECT
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
 if [ ${online_satbias} = "yes" ]; then
+  PASSIVE_BC=.true.
+  UPD_PRED=1
   if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
@@ -484,6 +486,8 @@ if [ ${online_satbias} = "yes" ]; then
     exit 2
   fi
 else
+  PASSIVE_BC=.false.
+  UPD_PRED=0
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
@@ -519,29 +523,14 @@ fi
 #---------------------------------------------- 
 ${NCP} ${PARMgsi}/gsiparm.anl.tmp ./
 
-if [ ${online_satbias} = "yes" ]; then
-   sed -i -e "s/upd_pred(1)=0/upd_pred(1)=1/" \
-       -e "s/upd_pred(2)=0/upd_pred(2)=1/" \
-       -e "s/upd_pred(3)=0/upd_pred(3)=1/" \
-       -e "s/upd_pred(4)=0/upd_pred(4)=1/" \
-       -e "s/upd_pred(5)=0/upd_pred(5)=1/" \
-       -e "s/upd_pred(6)=0/upd_pred(6)=1/" \
-       -e "s/upd_pred(7)=0/upd_pred(7)=1/" \
-       -e "s/upd_pred(8)=0/upd_pred(8)=1/" \
-       -e "s/upd_pred(9)=0/upd_pred(9)=1/" \
-       -e "s/upd_pred(10)=0/upd_pred(10)=1/" \
-       -e "s/upd_pred(11)=0/upd_pred(11)=1/" \
-       -e "s/upd_pred(12)=0/upd_pred(12)=1/" \
-       -e "s/passive_bc=.false./passive_bc=.true./" \
-       gsiparm.anl.tmp
-fi
-
 sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NITER_/${NITER:-50}/g" \
     -e "s/_USE_GFS_NEMSIO_/${USE_GFS_NEMSIO:-.true.}/g" \
     -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_PASSIVE_BC_/${PASSIVE_BC:-.false.}/g" \
+    -e "s/_UPD_PRED_/${UPD_PRED:-0}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
