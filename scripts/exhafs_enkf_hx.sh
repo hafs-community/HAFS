@@ -441,7 +441,7 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 fi #USE_SELECT
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
-if [ ${online_satbias} = "no" ] && [ ${RUN_ENVAR} = "YES" ]; then
+if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
   if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in

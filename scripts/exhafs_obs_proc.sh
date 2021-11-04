@@ -100,8 +100,6 @@ dropsondetarfile=${COMINhafs_OBS}/hafs.t${cyc}z.dropsonde.tar
 # Proceed if dropsondetarfile exists and non-empty
 if [ -s ${dropsondetarfile} ]; then
   ${TAR} -xvf ${dropsondetarfile}
-  #Remove bad data (not containing REL or SPG)
-  grep -lLE --null 'REL|SPG' ./*.mod | xargs -0 rm
   #Genereate the tempdrop.filelist
   /bin/ls -1 ./*.mod | sed -e 's/^/"/g' -e 's/$/"/g' > ./tempdrop.filelist
 fi
