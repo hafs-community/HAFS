@@ -35,6 +35,8 @@ fi
 
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
+export online_satbias=${online_satbias:-no}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -438,9 +440,28 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 
 fi #USE_SELECT
 
+# Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
+  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  else
+    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    exit 2
+  fi
+elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
+  echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
+  exit 2
+else
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+fi
+
 #
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
@@ -477,6 +498,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_PASSIVE_BC_/${PASSIVE_BC:-.false.}/g" \
+    -e "s/_UPD_PRED_/${UPD_PRED:-0}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
