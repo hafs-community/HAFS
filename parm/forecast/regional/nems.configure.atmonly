@@ -10,9 +10,7 @@ ATM_attributes::
 ::
 
 DRIVER_attributes::
-  start_type = startup
 ::
 
 ALLCOMP_attributes::
-  mediator_read_restart = false
 ::

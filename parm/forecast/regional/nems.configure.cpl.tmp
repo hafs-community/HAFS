@@ -21,7 +21,6 @@ runSeq::
 ::
 
 DRIVER_attributes::
-  start_type = startup
 ::
 
 MED_attributes::
@@ -33,7 +32,6 @@ MED_attributes::
   history_option = nhours
   history_ymd = -999
   coupling_mode = hafs
-  system_type = ufs
   normalization = none
   merge_type = copy
 ::
@@ -62,8 +60,10 @@ ALLCOMP_attributes::
   orb_mode = fixed_year
   orb_mvelp = 1.e36
   orb_obliq = 1.e36
-  mediator_read_restart = false
   mediator_present = true
+  stop_n = _end_hour_
+  stop_option = nhours
+  stop_ymd = -999
 ::
 
 # component attributes
@@ -71,6 +71,10 @@ ALLCOMP_attributes::
 ATM_attributes::
   Verbosity = 1
   Diagnostic = 0
+  stop_n = _end_hour_
+  stop_option = nhours
+  stop_ymd = -999
+  write_restart_at_endofrun = .true.
 ::
 
 OCN_attributes::
@@ -106,23 +110,26 @@ WAV_attributes::
   merge_import = .true.
 ::
 
+# The following are only used by the hycom ocean model. #
 ocn_export_fields::
-  'sst'     'sea_surface_temperature'   'K'
-  'mask'    'ocean_mask'                '1'
+  'sst'         'sea_surface_temperature'   'K'
+  'mask'        'ocean_mask'                '1'
+  'cpl_scalars' 'cpl_scalars'               '1'
 ::
 
+# The following are only used by the hycom ocean model. #
 ocn_import_fields::
-# 'u10'     'inst_zonal_wind_height10m' 'm_s-1'
-# 'v10'     'inst_merid_wind_height10m' 'm_s-1'
-  'taux10'  'mean_zonal_moment_flx_atm' 'N_m-2'
-  'tauy10'  'mean_merid_moment_flx_atm' 'N_m-2'
-# 'airtmp'  'inst_temp_height2m'        'K'
-# 'airhum'  'inst_spec_humid_height2m'  'kg_kg-1'
-  'prcp'    'mean_prec_rate'            'kg_m-2_s-1'
-  'swflxd'  'mean_net_sw_flx'           'W_m-2'
-  'lwflxd'  'mean_net_lw_flx'           'W_m-2'
-  'mslprs'  'inst_pres_height_surface'  'Pa'
-# 'gt'      'inst_temp_height_surface'  'K'
-  'sensflx' 'mean_sensi_heat_flx'       'W_m-2'
-  'latflx'  'mean_laten_heat_flx'       'W_m-2'
+# 'u10'         'inst_zonal_wind_height10m' 'm_s-1'
+# 'v10'         'inst_merid_wind_height10m' 'm_s-1'
+  'taux10'      'mean_zonal_moment_flx_atm' 'N_m-2'
+  'tauy10'      'mean_merid_moment_flx_atm' 'N_m-2'
+# 'airtmp'      'inst_temp_height2m'        'K'
+# 'airhum'      'inst_spec_humid_height2m'  'kg_kg-1'
+  'prcp'        'mean_prec_rate'            'kg_m-2_s-1'
+  'swflxd'      'mean_net_sw_flx'           'W_m-2'
+  'lwflxd'      'mean_net_lw_flx'           'W_m-2'
+  'mslprs'      'inst_pres_height_surface'  'Pa'
+# 'gt'          'inst_temp_height_surface'  'K'
+  'sensflx'     'mean_sensi_heat_flx'       'W_m-2'
+  'latflx'      'mean_laten_heat_flx'       'W_m-2'
 ::
