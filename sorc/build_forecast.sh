@@ -15,6 +15,6 @@ else
 fi
 cd hafs_forecast.fd/tests
 
-./compile.sh "$target" "-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v0_gfdlmp_tedmf_nonsst,FV3_HAFS_v0_gfdlmp_tedmf,FV3_HAFS_v0_hwrf_thompson,FV3_HAFS_v0_hwrf -D32BIT=ON" 32bit YES NO
+./compile.sh "$target" "-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v0_gfdlmp_tedmf_nonsst,FV3_HAFS_v0_gfdlmp_tedmf,FV3_HAFS_v0_hwrf_thompson -D32BIT=ON" 32bit YES NO
 
 exit

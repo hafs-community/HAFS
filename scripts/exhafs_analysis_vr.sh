@@ -325,6 +325,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_PASSIVE_BC_/${PASSIVE_BC:-.false.}/g" \
+    -e "s/_UPD_PRED_/${UPD_PRED:-0}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \

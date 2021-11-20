@@ -478,7 +478,7 @@ fi #if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
 
 # CDEPS data models
 if [ ${run_datm} = yes ];  then
-  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
   MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
   cplflx=.true.
   cplocn2atm=.false.
@@ -487,8 +487,8 @@ if [ ${run_datm} = yes ];  then
   CPL_WND="native"
   runSeq_ALL="" # not used yet
 elif [ ${run_docn} = yes ]; then
-  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
-  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocean_tasks-1)))
+  OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
+  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
   cplflx=.true.
   cplocn2atm=.true.
   cplwav=.false.
