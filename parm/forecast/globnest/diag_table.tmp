@@ -3,7 +3,8 @@
 #"atmos_4xdaily",  1,  "hours",   1,  "days",   "time"
 "atmos_static",  -1,  "hours",   1,  "hours",  "time"
 # GFDL tracker needed variables
-"atmos_tracker",  3,  "hours",   1,  "hours",  "time"
+#"atmos_tracker%4yr%2mo%2dy%2hr",  3,  "hours",   1,  "hours",  "time",   3, "hours",  "2020 08 25 12 00 00" 
+"atmos_tracker%4yr%2mo%2dy%2hr",  3,  "hours",   1,  "hours",  "time",   3, "hours"
 "fv3_history",    0,  "hours",   1,  "hours",  "time"
 "fv3_history2d",  0,  "hours",   1,  "hours",  "time"
 #"ref3D",          0,  "hours",   1,  "hours",  "time"
@@ -108,30 +109,30 @@
 ###
 # GFDL tracker needed variables
 ###
- "dynamics",      "grid_lont",   "grid_lont",    "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "grid_latt",   "grid_latt",    "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vort850",     "vort850",      "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vort700",     "vort700",      "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "us",          "us",           "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u850",        "u850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u700",        "u700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "u500",        "u500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "vs",          "vs",           "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v850",        "v850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v700",        "v700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "v500",        "v500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t850",        "t850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t500",        "t500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "t300",        "t300",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "slp",         "slp",          "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z850",        "z850",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z700",        "z700",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z500",        "z500",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "z200",        "z200",         "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "rh850",       "rh850",        "atmos_tracker",     "all", .false.,  "none", 2
- "dynamics",      "rh500",       "rh500",        "atmos_tracker",     "all", .false.,  "none", 2
-#"gfs_phys",      "u10m",        "u10m",         "atmos_tracker",     "all", .false.,  "none", 2
-#"gfs_phys",      "v10m",        "v10m",         "atmos_tracker",     "all", .false.,  "none", 2
+ "dynamics",      "grid_lont",   "grid_lont",    "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "grid_latt",   "grid_latt",    "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "vort850",     "vort850",      "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "vort700",     "vort700",      "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "us",          "us",           "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "u850",        "u850",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "u700",        "u700",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "u500",        "u500",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "vs",          "vs",           "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "v850",        "v850",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "v700",        "v700",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "v500",        "v500",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "t850",        "t850",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "t500",        "t500",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "t300",        "t300",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "slp",         "slp",          "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "z850",        "z850",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "z700",        "z700",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "z500",        "z500",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "z200",        "z200",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "rh850",       "rh850",        "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+ "dynamics",      "rh500",       "rh500",        "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+#"gfs_phys",      "u10m",        "u10m",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
+#"gfs_phys",      "v10m",        "v10m",         "atmos_tracker%4yr%2mo%2dy%2hr",     "all", .false.,  "none", 2
 ###
 # FV3 variabls needed for NGGPS evaluation
 ###
