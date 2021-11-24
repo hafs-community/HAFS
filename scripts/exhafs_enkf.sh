@@ -48,8 +48,10 @@ else
 fi
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
 export ldo_enscalc_option=${ldo_enscalc_option:-1}
 export nens=${ENS_SIZE:-40}
+export online_satbias=${online_satbias:-no}
 export corrlength=${corrlength:-500}
 export lnsigcutoff=${lnsigcutoff:-1.3}
 
@@ -227,8 +229,28 @@ ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+# Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
+  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  else
+    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    exit 2
+  fi
+elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
+  echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
+  exit 2
+else
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+fi
+
+#
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 # Make enkf namelist

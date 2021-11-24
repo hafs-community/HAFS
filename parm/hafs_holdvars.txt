@@ -107,6 +107,7 @@ export use_bufr_nr={use_bufr_nr}
 export grid_ratio_fv3_regional={grid_ratio_fv3_regional}
 export s_ens_h={s_ens_h}
 export s_ens_v={s_ens_v}
+export online_satbias={online_satbias}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 

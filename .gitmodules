@@ -1,7 +1,7 @@
 [submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
-	url = https://github.com/hafs-community/ufs-weather-model.git
-	branch = feature/regional_nest
+	url = https://github.com/ufs-community/ufs-weather-model.git
+	branch = develop
 [submodule "UPP"]
 	path = sorc/hafs_post.fd
 	url = https://github.com/hafs-community/UPP.git
