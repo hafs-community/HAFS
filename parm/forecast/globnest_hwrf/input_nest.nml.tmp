@@ -244,6 +244,7 @@
        iseed_ca       = 1
        nsmooth        = 100
        ca_amplitude   = 0.35
+       print_diff_pgr = .true.
 /
 
  &gfdl_cloud_microphysics_nml
