@@ -90,7 +90,7 @@ cp ${indir}/landcover30.fixed .
 #  uncomment next line to use the old gtopo30 data.
 #   cp ${indir}/gtopo30_gg.fine.nh  fort.235
 #  use gmted2020 data.
-cp ${indir}/gmted2010.30sec.int  fort.235
+cp -f ${indir}/gmted2010.30sec.int  fort.235
 if [ $inorogexist -eq 1 ]; then
    cp $inputorog .
 fi   

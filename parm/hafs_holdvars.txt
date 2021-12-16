@@ -89,6 +89,9 @@ export gridfixdir={gridfixdir}
 export stretch_fac={stretch_fac}
 export target_lon={target_lon}
 export target_lat={target_lat}
+export nest_grids={nest_grids}
+export parent_grid_num={parent_grid_num}
+export parent_tile={parent_tile}
 export refine_ratio={refine_ratio}
 export istart_nest={istart_nest}
 export jstart_nest={jstart_nest}
@@ -160,6 +163,11 @@ export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
 export synop_gridspecs={synop_gridspecs}
 export trker_gridspecs={trker_gridspecs}
+
+export prodglb_nlon={prodglb_nlon}
+export prodglb_nlat={prodglb_nlat}
+export atmos_tracker_base={atmos_tracker_base}
+export atmos_tracker_remap_weight={atmos_tracker_remap_weight}
 
 # ENSDA related items
 export ENS_SIZE={ENS_SIZE}

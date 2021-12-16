@@ -121,6 +121,16 @@
        nord_zs_filter = 4
 /
 
+ &fv_nest_nml
+       grid_pes = _grid_pes_
+       tile_coarse = _parent_tile_
+       num_tile_top = 1
+       p_split = 1
+       nest_refine = _refinement_
+       nest_ioffsets= _ioffset_
+       nest_joffsets= _joffset_
+/
+
  &surf_map_nml
        zero_ocean = .F.
        cd4 = 0.15

@@ -711,6 +711,23 @@
     </dependency>
   </task>
 
+@** if gtype==nest
+  <task name="prodglb" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_PRODGLB</command>
+    <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_prodglb.log</cyclestr></join>
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &RESERVATION;
+    &PRODGLB_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <taskdep task="forecast"/>
+    </dependency>
+  </task>
+@** endif
+
 @** if RUN_ENSDA==YES
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_PREP</command>
@@ -1074,7 +1091,6 @@
 
 @** endif
 
-
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_HRDGRAPHICS</command>
@@ -1149,6 +1165,9 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
+@** if gtype==nest
+        <taskdep task="prodglb"/>
+@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1189,6 +1208,9 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
+@** if gtype==nest
+        <taskdep task="prodglb"/>
+@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1325,6 +1347,9 @@
         <and>
           <taskdep task="atm_post"/>
           <taskdep task="product"/>
+@** if gtype==nest
+          <taskdep task="prodglb"/>
+@** endif
         </and>
 
         <!-- Allow a scrubbed cycle to complete.  This is needed to

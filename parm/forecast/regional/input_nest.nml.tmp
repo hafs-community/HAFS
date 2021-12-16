@@ -21,8 +21,8 @@
 
  &fms_io_nml
        checksum_required   = .false.
-       max_files_r = 1000,
-       max_files_w = 1000,
+       max_files_r = 100,
+       max_files_w = 100,
 /
 
  &fms_nml
@@ -36,13 +36,13 @@
 /
 
  &fv_core_nml
-       !layout   =  12,12
-       !layout   =  8,8
+       !layout   = 64,30
+       !layout   = 40,30
        layout   = _layoutx_,_layouty_
        io_layout = 1,1
        npx = _npx_
        npy = _npy_
-       ntiles   = 6
+       ntiles   = 1
        npz    = _npz_
        !grid_type = -1
        make_nh = .F.
@@ -53,13 +53,13 @@
        nudge_qv = .F.
        nudge_dz = .F.
        tau = 5.
-       rf_cutoff = 30.e2
-       d2_bg_k1 = 0.16
-       d2_bg_k2 = 0.05
-       kord_tm = -9
-       kord_mt =  9
-       kord_wz =  9
-       kord_tr =  9
+       rf_cutoff = 50.e2
+       d2_bg_k1 = 0.20
+       d2_bg_k2 = 0.15
+       kord_tm = -11
+       kord_mt =  11
+       kord_wz =  11
+       kord_tr =  11
        hydrostatic = .F.
        phys_hydrostatic = .F.
        use_hydro_pressure = .F.
@@ -78,7 +78,7 @@
        dddmp = 0.1
        d4_bg = 0.15
        vtdm4 = 0.04
-       delt_max = 0.002
+       delt_max = 0.008
        ke_bg = 0.
        do_vort_damp = .T.
        external_ic = _external_ic_
@@ -88,13 +88,13 @@
        mountain = _mountain_
        ncep_ic = .F.
        d_con = 1.0
-       hord_mt = 5
-       hord_vt = 5
-       hord_tm = 5
-       hord_dp = -5
+       hord_mt = 6
+       hord_vt = 6
+       hord_tm = 6
+       hord_dp = -6
        hord_tr = 8
        adjust_dry_mass = .F.
-       consv_te = 1.
+       consv_te = 0.
        do_sat_adj = .T.
        consv_am = .F.
        fill = .T.
@@ -108,34 +108,13 @@
        res_latlon_dynamics = "fv3_increment.nc"
        write_3d_diags = .true.
 
-       do_schmidt = .true.
-       target_lat = _target_lat_
-       target_lon = _target_lon_
-       stretch_fac = _stretch_fac_
+       nested = .true.
+       twowaynest = .true.
+       nestupdate = 7
 
        full_zs_filter = .F. !unreleased feature
-       n_zs_filter = 0
+       n_zs_filter = 1
        nord_zs_filter = 4
-/
-
- &fv_nest_nml
-       grid_pes = _grid_pes_
-       tile_coarse = _parent_tile_
-       num_tile_top = 6
-       p_split = 1
-       nest_refine = _refinement_
-       nest_ioffsets= _ioffset_
-       nest_joffsets= _joffset_
-/
-
- &fv_moving_nest_nml
-      !surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x_Laural13L2021082512/"
-       surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x/"
-       is_moving_nest = .F., .T.
-       vortex_tracker = 0, 7
-       ntrack = 0, 2
-       move_cd_x=0, 0
-       move_cd_y=0, 0
 /
 
  &surf_map_nml
@@ -179,7 +158,7 @@
        isol           = 2
        lwhtr          = .true.
        swhtr          = .true.
-       cnvgwd         = .true.
+       cnvgwd         = .false.
        shal_cnv       = .true. !Shallow convection
        cal_pre        = .false.
        redrag         = .true.
@@ -197,7 +176,7 @@
        cnvcld         = .true.
        imfshalcnv     = 2
        imfdeepcnv     = 2
-       cdmbgwd        = 3.5, 0.25       ! NCEP default
+       cdmbgwd        = 0.88, 0.04
        sfc_z0_type    = 6
        prslrd0        = 0.
        ivegsrc        = 1
@@ -264,7 +243,7 @@
 /
 
  &gfdl_cloud_microphysics_nml
-       sedi_transport = .true.
+       sedi_transport = .false.
        do_sedi_heat = .false.
        rad_snow = .true.
        rad_graupel = .true.

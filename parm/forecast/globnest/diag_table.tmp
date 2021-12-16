@@ -3,6 +3,7 @@
 #"atmos_4xdaily",  1,  "hours",   1,  "days",   "time"
 "atmos_static",  -1,  "hours",   1,  "hours",  "time"
 # GFDL tracker needed variables
+#"atmos_tracker",  3,  "hours",   1,  "hours",  "time"
 #"atmos_tracker%4yr%2mo%2dy%2hr",  3,  "hours",   1,  "hours",  "time",   3, "hours",  "2020 08 25 12 00 00" 
 "atmos_tracker%4yr%2mo%2dy%2hr",  3,  "hours",   1,  "hours",  "time",   3, "hours"
 "fv3_history",    0,  "hours",   1,  "hours",  "time"

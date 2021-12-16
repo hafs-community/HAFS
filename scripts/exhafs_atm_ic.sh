@@ -12,6 +12,8 @@ NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
+nest_grids=${nest_grids:-1}
+
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
 STORM=${STORM:-FAKE}
@@ -236,6 +238,9 @@ elif [ $gtype = regional ]; then
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
 
+ if [ $nest_grids -gt 1 ]; then
+   ln -sf $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+ fi
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
  orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
  convert_atm=.true.
@@ -336,16 +341,28 @@ else
   exit 9
 fi
 
-# For the global-nesting configuration, run for the 7th tile
-if [ $gtype = nest ];  then
+# For the global-nesting or regional-nesting configurations, run for the nested tile(s)
+if [ $gtype = nest -o $nest_grids -gt 1 ];  then
+
+ntiles=$(( ${nest_grids} + 6 ))
+
+if [ $gtype = regional ]; then
+  stile=8
+else
+  stile=7
+fi
+
+for itile in $(seq $stile $ntiles)
+do
+
+ inest=$(($itile + 2 - $stile))
 
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
-
- ln -sf $FIXDIR/$CASE/${CASE}_nested_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+ ln -sf $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
  export GRIDTYPE=nest
- HALO=${HALO:-0}
+ HALO=0
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
- orog_files_target_grid='"'${CASE}'_oro_data.tile7.nc"'
+ orog_files_target_grid='"'${CASE}'_oro_data.tile'${itile}'.nc"'
  convert_atm=.true.
  convert_sfc=.true.
  if [ $input_type = "grib2" ]; then
@@ -395,8 +412,10 @@ EOF
 ${APRUNC} ./hafs_chgres_cube.x
 #${APRUNC} ${CHGRESCUBEEXEC}
 
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
+mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
+mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
+
+done
 
 fi
 
