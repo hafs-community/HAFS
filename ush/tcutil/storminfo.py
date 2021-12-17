@@ -547,9 +547,9 @@ class StormInfo(object):
         #logging.debug('vmag=%s dt=%s dx=%s dy=%s dlat=%s dlon=%s'%(
         #        repr(vmag),repr(dt),repr(dx),repr(dy),repr(dlat),repr(dlon)))
         return copy
+
     def tcutil_domain_center(self,logger=None):
-        """!Decide domain center based on the storm location, basin,
-        and, if available, the 72hr forecast location.  Returns a tuple
+        """!Decide domain center based on the storm location.  Returns a tuple
         containing a pair of floats (cenlo, cenla) which are the
         domain center longitude and latitude, respectively.  Results
         are cached internally so future calls will not have to
@@ -562,63 +562,87 @@ class StormInfo(object):
         storm_lon=self.lon
         assert(storm_lon is not None)
         storm_lat=self.lat
-        if self.havefcstloc:
-            assert(self.flon is not None)
-            avglon=self.flon
-        else:
-            avglon=storm_lon-20.0
-        assert(avglon is not None)
-
-        # Decide center latitude.
+        cenlo=storm_lon
         cenla=storm_lat
-        if storm_lat<0: cenla=-cenla
-        ilat=math.floor(cenla)
-        if ilat <  15: cenla=15.0
-        if ilat >  25: cenla=25.0
-        if ilat >= 35: cenla=30.0
-        if ilat >= 40: cenla=35.0
-        if ilat >= 44: cenla=40.0
-        if ilat >= 50: cenla=45.0
-        if ilat >= 55: cenla=50.0
-        if storm_lat<0: cenla=-cenla
-
-        # Decide the center longitude.
-        if logger is not None:
-            logger.info('Averaging storm_lon=%f and avglon=%f'%(storm_lon,avglon))
-        diff=storm_lon-avglon
-        if(diff> 360.):  storm_lon -= 360.0
-        if(diff<-360.):  avglon -= 360.0
-        result=int((10.0*storm_lon + 10.0*avglon)/2.0)/10.0
-        if(result >  180.0): result-=360.0
-        if(result < -180.0): result+=360.0
-        cenlo=result
         if logger is not None:
             logger.info('Decided cenlo=%f cenla=%f'%(cenlo,cenla))
             logger.info('Storm is at lon=%f lat=%f'%(storm_lon,storm_lat))
-        # Lastly, some sanity checks to avoid outer domain centers too
-        # far from storm centers:
-        moved=False
-        if(int(cenlo)>int(storm_lon)+5):
-            cenlo=storm_lon+5.0
-            if logger is not None:
-                logger.info(
-                    'Center is too far east of storm.  Moving it to %f'
-                    %(cenlo,))
-            moved=True
-        if(int(cenlo)<int(storm_lon)-5):
-            cenlo=storm_lon-5.0
-            if logger is not None:
-                logger.info(
-                    'Center is too far west of storm.  Moving it to %f'
-                    %(cenlo,))
-            moved=True
-        if logger is not None and not moved:
-            logger.info('Center is within +/- 5 degrees longitude of storm.')
-        logger.info('Final outer domain center is lon=%f lat=%f'
-                    %(cenlo,cenla))
         # Return results as a tuple:
         ( self._cenlo, self._cenla ) = ( cenlo, cenla )
         return ( cenlo, cenla )
+
+#   def tcutil_domain_center(self,logger=None):
+#       """!Decide domain center based on the storm location, basin,
+#       and, if available, the 72hr forecast location.  Returns a tuple
+#       containing a pair of floats (cenlo, cenla) which are the
+#       domain center longitude and latitude, respectively.  Results
+#       are cached internally so future calls will not have to
+#       recompute the center location.
+#       @param logger a logging.Logger for log messages"""
+
+#       if self._cenlo is not None and self._cenla is not None:
+#           return (self._cenlo,self._cenla)
+
+#       storm_lon=self.lon
+#       assert(storm_lon is not None)
+#       storm_lat=self.lat
+#       if self.havefcstloc:
+#           assert(self.flon is not None)
+#           avglon=self.flon
+#       else:
+#           avglon=storm_lon-20.0
+#       assert(avglon is not None)
+
+#       # Decide center latitude.
+#       cenla=storm_lat
+#       if storm_lat<0: cenla=-cenla
+#       ilat=math.floor(cenla)
+#       if ilat <  15: cenla=15.0
+#       if ilat >  25: cenla=25.0
+#       if ilat >= 35: cenla=30.0
+#       if ilat >= 40: cenla=35.0
+#       if ilat >= 44: cenla=40.0
+#       if ilat >= 50: cenla=45.0
+#       if ilat >= 55: cenla=50.0
+#       if storm_lat<0: cenla=-cenla
+
+#       # Decide the center longitude.
+#       if logger is not None:
+#           logger.info('Averaging storm_lon=%f and avglon=%f'%(storm_lon,avglon))
+#       diff=storm_lon-avglon
+#       if(diff> 360.):  storm_lon -= 360.0
+#       if(diff<-360.):  avglon -= 360.0
+#       result=int((10.0*storm_lon + 10.0*avglon)/2.0)/10.0
+#       if(result >  180.0): result-=360.0
+#       if(result < -180.0): result+=360.0
+#       cenlo=result
+#       if logger is not None:
+#           logger.info('Decided cenlo=%f cenla=%f'%(cenlo,cenla))
+#           logger.info('Storm is at lon=%f lat=%f'%(storm_lon,storm_lat))
+#       # Lastly, some sanity checks to avoid outer domain centers too
+#       # far from storm centers:
+#       moved=False
+#       if(int(cenlo)>int(storm_lon)+5):
+#           cenlo=storm_lon+5.0
+#           if logger is not None:
+#               logger.info(
+#                   'Center is too far east of storm.  Moving it to %f'
+#                   %(cenlo,))
+#           moved=True
+#       if(int(cenlo)<int(storm_lon)-5):
+#           cenlo=storm_lon-5.0
+#           if logger is not None:
+#               logger.info(
+#                   'Center is too far west of storm.  Moving it to %f'
+#                   %(cenlo,))
+#           moved=True
+#       if logger is not None and not moved:
+#           logger.info('Center is within +/- 5 degrees longitude of storm.')
+#       logger.info('Final outer domain center is lon=%f lat=%f'
+#                   %(cenlo,cenla))
+#       # Return results as a tuple:
+#       ( self._cenlo, self._cenla ) = ( cenlo, cenla )
+#       return ( cenlo, cenla )
 
     def _parse_carq(self,lines,tech="CARQ",logger=None,raise_all=True):
         """!Given an array of lines from a CARQ entry in an ATCF Aid
