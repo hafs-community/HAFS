@@ -124,18 +124,17 @@
        num_tile_top = 6
        p_split = 1
        nest_refine = _refinement_
-       nest_ioffsets= _ioffset_
-       nest_joffsets= _joffset_
+       nest_ioffsets = _ioffset_
+       nest_joffsets = _joffset_
 /
 
  &fv_moving_nest_nml
-      !surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x_Laural13L2021082512/"
-       surface_dir = "/work/noaa/hwrf/scrub/bliu/movingnest_grid3x/"
-       is_moving_nest = .F., .T.
-       vortex_tracker = 0, 7
-       ntrack = 0, 2
-       move_cd_x=0, 0
-       move_cd_y=0, 0
+       surface_dir = "INPUT/moving_nest"
+       is_moving_nest = _is_moving_nest_
+       vortex_tracker = _vortex_tracker_
+       ntrack = _ntrack_
+       move_cd_x = _move_cd_x_
+       move_cd_y = _move_cd_y_
 /
 
  &surf_map_nml
