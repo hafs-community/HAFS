@@ -75,6 +75,7 @@
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+  <!ENTITY RUN_PRODGLB "NO">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
@@ -711,7 +712,7 @@
     </dependency>
   </task>
 
-@** if gtype==nest
+@** if RUN_PRODGLB==YES
   <task name="prodglb" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_PRODGLB</command>
     <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1165,7 +1166,7 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
-@** if gtype==nest
+@** if RUN_PRODGLB==YES
         <taskdep task="prodglb"/>
 @** endif
 @** if RUN_HRDGRAPHICS==YES
@@ -1208,7 +1209,7 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
-@** if gtype==nest
+@** if RUN_PRODGLB==YES
         <taskdep task="prodglb"/>
 @** endif
 @** if RUN_HRDGRAPHICS==YES
@@ -1347,7 +1348,7 @@
         <and>
           <taskdep task="atm_post"/>
           <taskdep task="product"/>
-@** if gtype==nest
+@** if RUN_PRODGLB==YES
           <taskdep task="prodglb"/>
 @** endif
         </and>
