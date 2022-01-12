@@ -17,8 +17,16 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
+  if [ "${machine}" = "hera" ]; then 
+    module unload intelpython 
+  fi
   module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
-  module load ufs_${machine}
+  module unload intelpython
+  if [ "${machine}" = "wcoss_cray" ] || [ "${machine}" = "wcoss_dell_p3" ]; then
+    module load ufs_${machine}
+  else
+    module load ufs_${machine}.intel
+  fi
   module list
 fi
 
@@ -39,30 +47,47 @@ export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
 
 # Deterministic or ensemble
-if [ "${ENSDA}" != YES ]; then
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  export DATA=${WORKhafs}/atm_init
-  export RESTARTout=${COMhafs}/RESTART_init
-else
+if [ "${ENSDA}" = YES ]; then
   export ENSID=${ENSID:-001}
   export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}
   export RESTARTout=${COMhafs}/RESTART_init_ens/mem${ENSID}
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}
+  export RESTARTout=${COMhafs}/RESTART_init_fgat${FGAT_HR}
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+else
+  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_init
+  export RESTARTout=${COMhafs}/RESTART_init
 fi
 
 #export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
-export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
+#export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
+export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
+#export NBDYHRS=0
 export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
 export warm_start_opt=0
-export RUN_GSI=NO
+export RUN_ATM_VI=NO
+export RUN_ATM_VI_FGAT=NO
+export RUN_ATM_VI_ENS=NO
 export RUN_GSI_VR=NO
+export RUN_GSI_VR_FGAT=NO
 export RUN_GSI_VR_ENS=NO
+export RUN_GSI=NO
 export RUN_ENKF=NO
 export run_ocean=no
+export run_wave=no
+export layoutx=12
+export layouty=10
 
 export SCRUBDATA=${SCRUBDATA:-YES}
 if [ "${SCRUBDATA}" = YES ]; then

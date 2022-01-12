@@ -13,7 +13,11 @@ OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
 CDATE=${CDATE:-${YMDH}}
-cyc=${cyc:-00}
+YMD=$(echo ${CDATE} | cut -c1-8)
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+hh=$(echo ${CDATE} | cut -c9-10)
 STORM=${STORM:-FAKE}
 STORMID=${STORMID:-00L}
 
@@ -166,56 +170,74 @@ fi
 # Different warm_start_opt options for determinist/ensemble forecast
 if [ ${ENSDA} != "YES" ]; then # for deterministic forecast
 
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_init
-fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${COMhafs}/RESTART_init
+fi
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafs}/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${COMhafs}/RESTART_merge
+fi
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_vi
 fi
-if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_analysis_vr
-  warm_start_opt=4
+  #warm_start_opt=4
 fi
-if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_analysis
-  warm_start_opt=5
+  #warm_start_opt=5
+fi
+if [ ${RUN_ANALYSIS_MERGE} = YES ] && [ -s ${COMhafs}/RESTART_analysis_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${COMhafs}/RESTART_analysis_merge
+  #warm_start_opt=6
 fi
 
 else # for ENSDA member forecast
 
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_init_ens/mem${ENSID}
-fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${COMhafs}/RESTART_init_ens/mem${ENSID}
+fi
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafs}/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${COMhafsprior}/RESTART_merge_ens/mem${ENSID}
+fi
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${COMhafs}/RESTART_vi_ens/mem${ENSID}
 fi
-#if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   #RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}
-  warm_start_opt=4
+  #warm_start_opt=4
 fi
-#if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+#if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   #RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
-  warm_start_opt=5
+  #warm_start_opt=5
+fi
+if [ ${RUN_ANALYSIS_MERGE_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  #warm_start_opt=6
 fi
 
 fi # ${ENSDA} != "YES"
@@ -525,6 +547,9 @@ elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ]; then
 else
   RESTARTout=${RESTARTout:-./RESTART}
   mkdir -p ${RESTARTout}
+  if [ ! -e ./RESTART ]; then
+    ${NLN} ${RESTARTout} RESTART
+  fi
 fi
 
 mkdir -p INPUT
@@ -538,6 +563,12 @@ if [ ! -d $INPdir ]; then
 fi
 
 ${NLN} ${INPdir}/*.nc INPUT/
+
+if [ ${FGAT_MODEL} = gdas ]; then
+  cd INPUT/
+  ${NLN} gfs_bndy.tile7.000.nc gfs_bndy.tile7.003.nc
+  cd ../
+fi
 
 # Copy fix files
 ${NCP} $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
@@ -756,17 +787,18 @@ fi
 
 # For warm start from restart files (either before or after analysis)
 if [ ${warmstart_from_restart} = yes ]; then
-  ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
-  ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv_core.res.nc
-  ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
-# ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
-# ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.coupler.res ./coupler.res
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nc ./fv_core.res.nc
+# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
+# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
+# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
   # Remove the checksum attribute for all restart variables, so that the
   # forecast executable will not compare the checksum attribute against the
   # checksum calculated from the actual data. This is because the DA/GSI
   # currently only update the variable itself but not its checksum attribute.
-  ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
-  ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+  ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
+  ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
+  ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
 fi
 
 cd ..
@@ -1030,16 +1062,10 @@ fi
 fi #if [ $gtype = nest ]; then
 
 # Generate diag_table, model_configure from their tempelates
-yr=$(echo $CDATE | cut -c1-4)
-mn=$(echo $CDATE | cut -c5-6)
-dy=$(echo $CDATE | cut -c7-8)
 cat > temp << EOF
-${yr}${mn}${dy}.${cyc}Z.${CASE}.32bit.non-hydro
-$yr $mn $dy $cyc 0 0
+${yr}${mn}${dy}.${hh}Z.${CASE}.32bit.non-hydro
+$yr $mn $dy $hh 0 0
 EOF
-
-enddate=`${NDATE} +${NHRS} $CDATE`
-endyr=`echo $enddate | cut -c1-4`
 
 if [ ${run_datm} = no ];  then
 cat temp diag_table.tmp > diag_table
@@ -1062,6 +1088,7 @@ if [ ${run_datm} = yes ];  then
       sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" datm.streams
       fi
   done
+  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
   sed -i "s/_yearFirst_/$yr/g" datm.streams
   sed -i "s/_yearLast_/$endyr/g" datm.streams
   sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
@@ -1103,6 +1130,7 @@ elif [ ${run_docn} = yes ];  then
 
   # Generate docn.streams from template specific to the model:
   ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
+  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
   sed -i "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" docn.streams
@@ -1134,7 +1162,7 @@ fi
 
 sed -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
     -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
-    -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
+    -e "s/H_R/$hh/g" -e "s/NHRS/$NHRS/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
     -e "s/_quilting_/${quilting}/g" \
@@ -1201,14 +1229,19 @@ if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 # Rename the restart files with a proper convention if needed
 cd RESTART
-CDATEnhrs=`${NDATE} +${NHRS} $CDATE`
-PDYnhrs=`echo ${CDATEnhrs} | cut -c1-8`
-cycnhrs=`echo ${CDATEnhrs} | cut -c9-10`
+NHRStmp=$(printf "%.0f" ${NHRS})
+CDATEnhrs=`${NDATE} ${NHRStmp} $CDATE`
+YMDnhrs=`echo ${CDATEnhrs} | cut -c1-8`
+yrnhrs=$(echo $CDATEnhrs | cut -c1-4)
+mnnhrs=$(echo $CDATEnhrs | cut -c5-6)
+dynhrs=$(echo $CDATEnhrs | cut -c7-8)
+hhnhrs=$(echo ${CDATEnhrs} | cut -c9-10)
 if [ -s fv_core.res.nc ]; then
   for file in $(/bin/ls -1 fv*.nc phy_data*.nc sfc_data*.nc coupler.res)
   do
-    mv ${file} ${PDYnhrs}.${cycnhrs}0000.${file}
+    mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file}
   done
+  sed -i -e "3s/.*/  ${yrnhrs}    $(echo ${mnnhrs}|sed 's/^0/ /')    $(echo ${dynhrs}|sed 's/^0/ /')    $(echo ${hhnhrs}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ${YMDnhrs}.${hhnhrs}0000.coupler.res
 fi
 cd ${DATA}
 

@@ -116,7 +116,7 @@
        bc_update_interval = _bc_update_interval_
        nrows_blend = _nrows_blend_
 
-       full_zs_filter = .F. !unreleased feature
+       full_zs_filter = .T. !unreleased feature
        n_zs_filter = 0 ! safety
        nord_zs_filter = 4
 /

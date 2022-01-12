@@ -1119,6 +1119,18 @@ class HAFSLauncher(HAFSConfig):
         with open(filename,'wt') as tmpvit:
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
 
+        tm03syndat=syndat-3 # vitals at tm03
+        filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
+        logger.info(filename+': write tm03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tm03syndat.as_tcvitals(), file=tmpvit)
+
+        tp03syndat=syndat+3 # vitals at tp03
+        filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
+        logger.info(filename+': write tp03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tp03syndat.as_tcvitals(), file=tmpvit)
+
     def sanity_check_archive(self,logger=None):
         """!Runs a sanity check on the archiving settings.
         @param logger a logging.Logger for log messages"""
@@ -1542,9 +1554,38 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
-        reloc_flag=self.getbool('config','run_vortexinit')
-        self.set('holdvars','cap_run_vortexinit',
-                 ('YES' if reloc_flag else 'NO'))
+        atm_init_flag=self.getbool('config','run_atm_init')
+        self.set('holdvars','cap_run_atm_init',('YES' if atm_init_flag else 'NO'))
+
+        atm_init_fgat_flag=self.getbool('config','run_atm_init_fgat')
+        self.set('holdvars','cap_run_atm_init_fgat',('YES' if atm_init_fgat_flag else 'NO'))
+
+        atm_init_ens_flag=self.getbool('config','run_atm_init_ens')
+        self.set('holdvars','cap_run_atm_init_ens',('YES' if atm_init_ens_flag else 'NO'))
+
+        atm_vi_flag=self.getbool('config','run_atm_vi')
+        self.set('holdvars','cap_run_atm_vi',('YES' if atm_vi_flag else 'NO'))
+
+        atm_vi_fgat_flag=self.getbool('config','run_atm_vi_fgat')
+        self.set('holdvars','cap_run_atm_vi_fgat',('YES' if atm_vi_fgat_flag else 'NO'))
+
+        atm_vi_ens_flag=self.getbool('config','run_atm_vi_ens')
+        self.set('holdvars','cap_run_atm_vi_ens',('YES' if atm_vi_ens_flag else 'NO'))
+
+        atm_merge_flag=self.getbool('config','run_atm_merge')
+        self.set('holdvars','cap_run_atm_merge',('YES' if atm_merge_flag else 'NO'))
+
+        atm_merge_fgat_flag=self.getbool('config','run_atm_merge_fgat')
+        self.set('holdvars','cap_run_atm_merge_fgat',('YES' if atm_merge_fgat_flag else 'NO'))
+
+        atm_merge_ens_flag=self.getbool('config','run_atm_merge_ens')
+        self.set('holdvars','cap_run_atm_merge_ens',('YES' if atm_merge_ens_flag else 'NO'))
+
+        analysis_merge_flag=self.getbool('config','run_analysis_merge')
+        self.set('holdvars','cap_run_analysis_merge',('YES' if analysis_merge_flag else 'NO'))
+
+        analysis_merge_ens_flag=self.getbool('config','run_analysis_merge_ens')
+        self.set('holdvars','cap_run_analysis_merge_ens',('YES' if analysis_merge_ens_flag else 'NO'))
 
         gplot_flag=self.getbool('config','run_hrdgraphics')
         self.set('holdvars','cap_run_hrdgraphics',

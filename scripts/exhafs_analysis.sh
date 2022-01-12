@@ -38,6 +38,7 @@ export NCP=${NCP:-"/bin/cp"}
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
 export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
+export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-${EXEChafs}/hafs_ncdiag_cat.x}
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
@@ -76,26 +77,25 @@ hhprior=`echo ${CDATEprior} | cut -c9-10`
 cycprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
-if [ ${RUN_FGAT} = YES ]; then
- CDATEtm03=`${NDATE} -3 $CDATE`
- PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
- cyctm03=`echo ${CDATEtm03} | cut -c9-10`
- CDATEtm02=`${NDATE} -2 $CDATE`
- PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
- cyctm02=`echo ${CDATEtm02} | cut -c9-10`
- CDATEtm01=`${NDATE} -1 $CDATE`
- PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
- cyctm01=`echo ${CDATEtm01} | cut -c9-10`
- CDATEtp03=`${NDATE} +3 $CDATE`
- PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
- cyctp03=`echo ${CDATEtp03} | cut -c9-10`
- CDATEtp02=`${NDATE} +2 $CDATE`
- PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
- cyctp02=`echo ${CDATEtp02} | cut -c9-10`
- CDATEtp01=`${NDATE} +1 $CDATE`
- PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
- cyctp01=`echo ${CDATEtp01} | cut -c9-10`
-fi
+CDATEtm03=`${NDATE} -3 $CDATE`
+PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
+cyctm03=`echo ${CDATEtm03} | cut -c9-10`
+CDATEtm02=`${NDATE} -2 $CDATE`
+PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
+cyctm02=`echo ${CDATEtm02} | cut -c9-10`
+CDATEtm01=`${NDATE} -1 $CDATE`
+PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
+cyctm01=`echo ${CDATEtm01} | cut -c9-10`
+
+CDATEtp03=`${NDATE} +3 $CDATE`
+PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
+cyctp03=`echo ${CDATEtp03} | cut -c9-10`
+CDATEtp02=`${NDATE} +2 $CDATE`
+PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
+cyctp02=`echo ${CDATEtp02} | cut -c9-10`
+CDATEtp01=`${NDATE} +1 $CDATE`
+PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
+cyctp01=`echo ${CDATEtp01} | cut -c9-10`
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
@@ -106,44 +106,86 @@ if [ ! ${RUN_GSI} = "YES" ]; then
   exit
 fi
 
-if [ ! -s ${COMhafsprior}/storm1.holdvars.txt ] && [ ! -s ${COMhafsprior}/RESTART/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
-  echo "Prior cycle does not exist. No need to run gsi for the first cycle."
-  echo "Do nothing. Exiting"
-  exit
-fi
-
-# Copy the first guess files
-if [ ${RUN_GSI_VR} = "YES" ]; then
-  RESTARTinp=${COMhafs}/RESTART_analysis_vr
-else
-  RESTARTinp=${COMhafsprior}/RESTART
-fi
-
 export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis}
 mkdir -p ${RESTARTanl}
 
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
 
-if [ ${RUN_FGAT} = "YES" ]; then
-  if [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
-    RESTARTinp_fgat=${COMhafs}/RESTART_analysis_vr
+# Copy the first guess or fgat files
+if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${COMhafs}/RESTART_vi_fgat03
+  RESTARTinp_fgat06=${COMhafs}/RESTART_vi_fgat06
+  RESTARTinp_fgat09=${COMhafs}/RESTART_vi_fgat09
+elif [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${COMhafs}/RESTART_analysis_vr_fgat03
+  RESTARTinp_fgat06=${COMhafs}/RESTART_analysis_vr_fgat06
+  RESTARTinp_fgat09=${COMhafs}/RESTART_analysis_vr_fgat09
+elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${COMhafs}/RESTART_merge_fgat03
+  RESTARTinp_fgat06=${COMhafs}/RESTART_merge_fgat06
+  RESTARTinp_fgat09=${COMhafs}/RESTART_merge_fgat09
+elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${COMhafs}/RESTART_init_fgat03
+  RESTARTinp_fgat06=${COMhafs}/RESTART_init_fgat06
+  RESTARTinp_fgat09=${COMhafs}/RESTART_init_fgat09
+else
+  if [ ${RUN_ATM_VI} = "YES" ]; then
+    RESTARTinp_fgat03=${COMhafs}/RESTART_vi
+    RESTARTinp_fgat06=${COMhafs}/RESTART_vi
+    RESTARTinp_fgat09=${COMhafs}/RESTART_vi
+  elif [ ${RUN_GSI_VR} = "YES" ]; then
+    RESTARTinp_fgat03=${COMhafs}/RESTART_analysis_vr
+    RESTARTinp_fgat06=${COMhafs}/RESTART_analysis_vr
+    RESTARTinp_fgat09=${COMhafs}/RESTART_analysis_vr
+  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+    RESTARTinp_fgat03=${COMhafs}/RESTART_merge
+    RESTARTinp_fgat06=${COMhafs}/RESTART_merge
+    RESTARTinp_fgat09=${COMhafs}/RESTART_merge
+  elif [ ${RUN_ATM_INIT} = "YES" ]; then
+    RESTARTinp_fgat03=${COMhafs}/RESTART_init
+    RESTARTinp_fgat06=${COMhafs}/RESTART_init
+    RESTARTinp_fgat09=${COMhafs}/RESTART_init
   else
-    RESTARTinp_fgat=${COMhafsprior}/RESTART
+    RESTARTinp_fgat03=${COMhafsprior}/RESTART
+    RESTARTinp_fgat06=${COMhafsprior}/RESTART
+    RESTARTinp_fgat09=${COMhafsprior}/RESTART
   fi
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3_akbk_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3_sfcdata_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3_akbk_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3_sfcdata_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
-  ${NLN} ${RESTARTinp_fgat}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
 fi
+RESTARTinp=${RESTARTinp_fgat06}
+
+if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  echo "Warning: First guess for DA/Analysis missing"
+  echo "Warning: Do nothing, Exiting"
+  exit
+fi
+
+if [ ${RUN_FGAT} = "YES" ]; then
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3_akbk_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3_sfcdata_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3_dynvars_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_03
+
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3_akbk_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3_sfcdata_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3_dynvars_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3_tracer_09
+fi
+
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
+
+${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
+${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
+${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
 
 if [ ${RUN_ENVAR} = "YES" ]; then
 
@@ -205,17 +247,6 @@ fi
 
 fi # endif ${RUN_ENVAR}
 
-# Copy first guess files
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
-
-${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
-${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
-${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
 
 # Stat files
 RADSTAT=${RADSTAT:-${RESTARTanl}/analysis.radstat}

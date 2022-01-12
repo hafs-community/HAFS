@@ -9,7 +9,15 @@ export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
-export RUN_VORTEXINIT={RUN_VORTEXINIT}
+export RUN_ATM_INIT={RUN_ATM_INIT}
+export RUN_ATM_INIT_FGAT={RUN_ATM_INIT_FGAT}
+export RUN_ATM_INIT_ENS={RUN_ATM_INIT_ENS}
+export RUN_ATM_MERGE={RUN_ATM_MERGE}
+export RUN_ATM_MERGE_FGAT={RUN_ATM_MERGE_FGAT}
+export RUN_ATM_MERGE_ENS={RUN_ATM_MERGE_ENS}
+export RUN_ATM_VI={RUN_ATM_VI}
+export RUN_ATM_VI_FGAT={RUN_ATM_VI_FGAT}
+export RUN_ATM_VI_ENS={RUN_ATM_VI_ENS}
 export RUN_GSI_VR={RUN_GSI_VR}
 export RUN_GSI_VR_FGAT={RUN_GSI_VR_FGAT}
 export RUN_GSI_VR_ENS={RUN_GSI_VR_ENS}
@@ -18,6 +26,8 @@ export RUN_FGAT={RUN_FGAT}
 export RUN_ENVAR={RUN_ENVAR}
 export RUN_ENSDA={RUN_ENSDA}
 export RUN_ENKF={RUN_ENKF}
+export RUN_ANALYSIS_MERGE={RUN_ANALYSIS_MERGE}
+export RUN_ANALYSIS_MERGE_ENS={RUN_ANALYSIS_MERGE_ENS}
 export GSID01={GSID01}
 export GSID02={GSID02}
 export GSID03={GSID03}
@@ -25,6 +35,8 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
+export atm_merge_method={atm_merge_method}
+export analysis_merge_method={analysis_merge_method}
 export warm_start_opt={warm_start_opt}
 
 export utilexec={utilexec}

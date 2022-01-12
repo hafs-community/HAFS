@@ -112,7 +112,7 @@
        twowaynest = .true.
        nestupdate = 7
 
-       full_zs_filter = .F. !unreleased feature
+       full_zs_filter = .T. !unreleased feature
        n_zs_filter = 1
        nord_zs_filter = 4
 /

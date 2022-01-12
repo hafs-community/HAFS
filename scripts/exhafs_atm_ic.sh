@@ -31,6 +31,8 @@ WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
+FGAT_MODEL=${FGAT_MODEL:-gfs}
+FGAT_HR=${FGAT_HR:-00}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
@@ -69,12 +71,16 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
+ elif [ ${FGAT_MODEL} = gdas ]; then
+  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}/atmos
  else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
  fi
 elif [ $GFSVER = "PROD2019" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${ENSID}
+ elif [ ${FGAT_MODEL} = gdas ]; then
+  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}
  else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc
  fi
@@ -103,6 +109,9 @@ if [ $ictype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nc
+  elif [ ${FGAT_MODEL} = gdas ]; then
+    atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
+    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nc
   else
     atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
     sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
@@ -118,6 +127,9 @@ elif [ $ictype = "gfsnemsio" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nemsio
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nemsio
+  elif [ ${FGAT_MODEL} = gdas ]; then
+    atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nemsio
+    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nemsio
   else
     atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
     sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
@@ -196,6 +208,10 @@ if [ $input_type = "grib2" ]; then
   INPDIR="./"
 else
   if [ ${ENSDA} = YES ]; then
+   ln -sf ${INIDIR}/${atm_files_input_grid} ./
+   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
+   INPDIR="./"
+  elif [ ${FGAT_MODEL} = gdas ]; then
    ln -sf ${INIDIR}/${atm_files_input_grid} ./
    ln -sf ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"

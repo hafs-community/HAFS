@@ -34,8 +34,8 @@ else
 fi
 
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
-export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
+export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
@@ -89,26 +89,25 @@ hhprior=`echo ${CDATEprior} | cut -c9-10`
 cycprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
-if [ ${RUN_FGAT} = YES ]; then
- CDATEtm03=`${NDATE} -3 $CDATE`
- PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
- cyctm03=`echo ${CDATEtm03} | cut -c9-10`
- CDATEtm02=`${NDATE} -2 $CDATE`
- PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
- cyctm02=`echo ${CDATEtm02} | cut -c9-10`
- CDATEtm01=`${NDATE} -1 $CDATE`
- PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
- cyctm01=`echo ${CDATEtm01} | cut -c9-10`
- CDATEtp03=`${NDATE} +3 $CDATE`
- PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
- cyctp03=`echo ${CDATEtp03} | cut -c9-10`
- CDATEtp02=`${NDATE} +2 $CDATE`
- PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
- cyctp02=`echo ${CDATEtp02} | cut -c9-10`
- CDATEtp01=`${NDATE} +1 $CDATE`
- PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
- cyctp01=`echo ${CDATEtp01} | cut -c9-10`
-fi
+CDATEtm03=`${NDATE} -3 $CDATE`
+PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
+cyctm03=`echo ${CDATEtm03} | cut -c9-10`
+CDATEtm02=`${NDATE} -2 $CDATE`
+PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
+cyctm02=`echo ${CDATEtm02} | cut -c9-10`
+CDATEtm01=`${NDATE} -1 $CDATE`
+PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
+cyctm01=`echo ${CDATEtm01} | cut -c9-10`
+
+CDATEtp03=`${NDATE} +3 $CDATE`
+PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
+cyctp03=`echo ${CDATEtp03} | cut -c9-10`
+CDATEtp02=`${NDATE} +2 $CDATE`
+PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
+cyctp02=`echo ${CDATEtp02} | cut -c9-10`
+CDATEtp01=`${NDATE} +1 $CDATE`
+PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
+cyctp01=`echo ${CDATEtp01} | cut -c9-10`
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
