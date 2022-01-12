@@ -289,16 +289,26 @@ mesh_atm=${mesh_atm:-''}
 mesh_ocn=${mesh_ocn:-''}
 
 if [ $gtype = regional ]; then
+  ATM_tasks=0
+  for n in $(seq 1 ${nest_grids})
+  do
+    layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+    layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+    ATM_tasks=$(($ATM_tasks+$layoutx_tmp*$layouty_tmp ))
+  done
   if [ $quilting = .true. ]; then
-    ATM_tasks=$(($layoutx*$layouty+$write_groups*$write_tasks_per_group))
-  else
-    ATM_tasks=$(($layoutx*$layouty))
+    ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
 elif [ $gtype = nest ]; then
+  ATM_tasks=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
+  for n in $(seq 1 ${nest_grids})
+  do
+    layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+    layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+    ATM_tasks=$(($ATM_tasks+$layoutx_tmp*$layouty_tmp ))
+  done
   if [ $quilting = .true. ]; then
-    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty+$write_groups*$write_tasks_per_group))
-  else
-    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty))
+    ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
@@ -628,6 +638,21 @@ do
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
 done
 
+# moving nest
+if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]] ; then
+  mkdir -p moving_nest
+  cd moving_nest
+  rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
+  ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile6.nc grid.tile6.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile6.nc oro_data.tile6.nc
+  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
+  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
+  for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
+  done
+  cd ..
+fi
+
 cd ..
 
 # Prepare data_table, diag_table, field_table, input.nml, input_nest02.nml,
@@ -689,6 +714,11 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_refinement_/${refine_ratio_tmp}/g" \
     -e "s/_ioffset_/${ioffset}/g" \
     -e "s/_joffset_/${joffset}/g" \
+    -e "s/_is_moving_nest_/${is_moving_nest}/g" \
+    -e "s/_vortex_tracker_/${vortex_tracker}/g" \
+    -e "s/_ntrack_/${ntrack}/g" \
+    -e "s/_move_cd_x_/${move_cd_x}/g" \
+    -e "s/_move_cd_y_/${move_cd_y}/g" \
     -e "s/_levp_/${LEVS}/g" \
     -e "s/_fhswr_/${fhswr:-1800.}/g" \
     -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
@@ -711,6 +741,8 @@ do
   layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
   npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
   npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+  k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
+  n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
 
   blocksize=$(( ${npy_tmp}/${layouty_tmp} ))
 sed -e "s/_blocksize_/${blocksize:-64}/g" \
@@ -721,8 +753,8 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_npx_/${npx_tmp}/g" \
     -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split}/g" \
-    -e "s/_n_split_/${n_split}/g" \
+    -e "s/_k_split_/${k_split_tmp}/g" \
+    -e "s/_n_split_/${n_split_tmp}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \
@@ -783,6 +815,21 @@ do
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
 done
 
+fi
+
+# moving nest
+if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]] ; then
+  mkdir -p moving_nest
+  cd moving_nest
+  rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
+  ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
+  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
+  for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
+  done
+  cd ..
 fi
 
 # For warm start from restart files (either before or after analysis)
@@ -868,6 +915,8 @@ layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
 layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
 npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
 npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
+n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
 
 blocksize=$(( ${npy}/${layouty} ))
 sed -e "s/_blocksize_/${blocksize:-64}/g" \
@@ -878,8 +927,8 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_npx_/${npx_tmp}/g" \
     -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split}/g" \
-    -e "s/_n_split_/${n_split}/g" \
+    -e "s/_k_split_/${k_split_tmp}/g" \
+    -e "s/_n_split_/${n_split_tmp}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \
@@ -896,6 +945,11 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_refinement_/${refine_ratio_tmp}/g" \
     -e "s/_ioffset_/${ioffset}/g" \
     -e "s/_joffset_/${joffset}/g" \
+    -e "s/_is_moving_nest_/${is_moving_nest}/g" \
+    -e "s/_vortex_tracker_/${vortex_tracker}/g" \
+    -e "s/_ntrack_/${ntrack}/g" \
+    -e "s/_move_cd_x_/${move_cd_x}/g" \
+    -e "s/_move_cd_y_/${move_cd_y}/g" \
     -e "s/_levp_/${LEVS}/g" \
     -e "s/_fhswr_/${fhswr:-1800.}/g" \
     -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
@@ -918,6 +972,8 @@ do
   layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
   npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
   npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
+  k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
+  n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
 
   blocksize=$(( ${npy_tmp}/${layouty_tmp} ))
 sed -e "s/_blocksize_/${blocksize:-64}/g" \
@@ -928,8 +984,8 @@ sed -e "s/_blocksize_/${blocksize:-64}/g" \
     -e "s/_npx_/${npx_tmp}/g" \
     -e "s/_npy_/${npy_tmp}/g" \
     -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split}/g" \
-    -e "s/_n_split_/${n_split}/g" \
+    -e "s/_k_split_/${k_split_tmp}/g" \
+    -e "s/_n_split_/${n_split_tmp}/g" \
     -e "s/_na_init_/${na_init}/g" \
     -e "s/_external_ic_/${external_ic}/g" \
     -e "s/_nggps_ic_/${nggps_ic}/g" \

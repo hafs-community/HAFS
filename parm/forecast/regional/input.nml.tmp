@@ -127,8 +127,17 @@
        num_tile_top = 1
        p_split = 1
        nest_refine = _refinement_
-       nest_ioffsets= _ioffset_
-       nest_joffsets= _joffset_
+       nest_ioffsets = _ioffset_
+       nest_joffsets = _joffset_
+/
+
+ &fv_moving_nest_nml
+       surface_dir = "INPUT/moving_nest"
+       is_moving_nest = _is_moving_nest_
+       vortex_tracker = _vortex_tracker_
+       ntrack = _ntrack_
+       move_cd_x = _move_cd_x_
+       move_cd_y = _move_cd_y_
 /
 
  &surf_map_nml

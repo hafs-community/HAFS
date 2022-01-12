@@ -113,6 +113,28 @@ export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
 
+export CASE_mvnest1res={CASE_mvnest1res}
+export LEVS_mvnest1res={LEVS_mvnest1res}
+export gtype_mvnest1res={gtype_mvnest1res}
+export gridfixdir_mvnest1res={gridfixdir_mvnest1res}
+export stretch_fac_mvnest1res={stretch_fac_mvnest1res}
+export target_lon_mvnest1res={target_lon_mvnest1res}
+export target_lat_mvnest1res={target_lat_mvnest1res}
+export nest_grids_mvnest1res={nest_grids_mvnest1res}
+export parent_grid_num_mvnest1res={parent_grid_num_mvnest1res}
+export parent_tile_mvnest1res={parent_tile_mvnest1res}
+export refine_ratio_mvnest1res={refine_ratio_mvnest1res}
+export istart_nest_mvnest1res={istart_nest_mvnest1res}
+export jstart_nest_mvnest1res={jstart_nest_mvnest1res}
+export iend_nest_mvnest1res={iend_nest_mvnest1res}
+export jend_nest_mvnest1res={jend_nest_mvnest1res}
+
+export is_moving_nest={is_moving_nest}
+export vortex_tracker={vortex_tracker}
+export ntrack={ntrack}
+export move_cd_x={move_cd_x}
+export move_cd_y={move_cd_y}
+
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
 export use_bufr_nr={use_bufr_nr}
