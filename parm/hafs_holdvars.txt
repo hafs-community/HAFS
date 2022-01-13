@@ -203,6 +203,20 @@ export prodglb_nlat={prodglb_nlat}
 export atmos_tracker_base={atmos_tracker_base}
 export atmos_tracker_remap_weight={atmos_tracker_remap_weight}
 
+# atm_init related items
+export ccpp_suite_regional_init={ccpp_suite_regional_init}
+export ccpp_suite_glob_init={ccpp_suite_glob_init}
+export ccpp_suite_nest_init={ccpp_suite_nest_init}
+export nstf_n1_init={nstf_n1_init}
+export nstf_n2_init={nstf_n2_init}
+export nstf_n3_init={nstf_n3_init}
+export nstf_n4_init={nstf_n4_init}
+export nstf_n5_init={nstf_n5_init}
+export glob_layoutx_init={glob_layoutx_init}
+export glob_layouty_init={glob_layouty_init}
+export layoutx_init={layoutx_init}
+export layouty_init={layouty_init}
+
 # ENSDA related items
 export ENS_SIZE={ENS_SIZE}
 export GRID_RATIO_ENS={GRID_RATIO_ENS}

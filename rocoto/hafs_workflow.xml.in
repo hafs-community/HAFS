@@ -785,14 +785,23 @@
             <taskdep task="atm_ic"/>
 @** if gtype==regional
             <metataskdep metatask="atm_lbc"/>
+@** if RUN_ATM_INIT==YES
+            <taskdep task="atm_init"/>
+@** endif
+@** if RUN_ATM_MERGE==YES
+            <taskdep task="atm_merge"/>
+@** endif
+@** if RUN_ATM_VI==YES
+            <taskdep task="atm_vi"/>
+@** endif
+@** if RUN_GSI_VR==YES
+            <taskdep task="analysis_vr"/>
+@** endif
 @** if RUN_GSI==YES
             <taskdep task="analysis"/>
 @** endif
 @** if RUN_ANALYSIS_MERGE==YES
             <taskdep task="analysis_merge"/>
-@** endif
-@** if RUN_GSI_VR==YES
-            <taskdep task="analysis_vr"/>
 @** endif
 @** endif
           </and>
