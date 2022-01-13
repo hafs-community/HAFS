@@ -60,6 +60,7 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_typ.x           ../exec/hafs_change_prepbufr_qm_typ.x
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_in_circle.x     ../exec/hafs_change_prepbufr_qm_in_circle.x
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_rm_typ_in_circle.x ../exec/hafs_change_prepbufr_rm_typ_in_circle.x
+  ${CP} hafs_tools.fd/exec/hafs_datool.x                           ../exec/hafs_datool.x
 }
 
 #------------------------------------
