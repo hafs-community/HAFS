@@ -47,7 +47,7 @@ else
 fi
 if [ ${merge_method} = vortexreplace ]; then
   MERGE_CMD="${DATOOL} vortexreplace --tcvital=${tcvital} --vortexradius=800:900"
-elif [ ${merge_method} = domainmerge ]; then
+elif [ ${merge_method} = mergedomain ]; then
   MERGE_CMD="${DATOOL} remap"
 else
   echo "Error: unsupported merge_method: ${merge_method}"
