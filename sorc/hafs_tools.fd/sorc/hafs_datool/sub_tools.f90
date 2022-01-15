@@ -491,6 +491,14 @@
   !---define serach bins
   max_points=500  !each bin maximul points
   d_ll = 0.2   !each bin is 0.2 degx0.2 deg
+  i1=int(src_ix/2); j1=int(src_jx/2);
+  dis=sqrt((src_lon(i1,j1)-src_lon(i1+1,j1+1))**2.0+(src_lat(i1,j1)-src_lat(i1+1,j1+1))**2.0)
+  dis=int(dis*100.)/100.
+  d_ll=max(dis,d_ll)
+  i1=int(dst_ix/2); j1=int(dst_jx/2);
+  dis=sqrt((dst_lon(i1,j1)-dst_lon(i1+1,j1+1))**2.0+(dst_lat(i1,j1)-dst_lat(i1+1,j1+1))**2.0)
+  dis=int(dis*100.)/100.
+  d_ll=max(dis,d_ll)
 
   min_lon = min(minval(src_lon), minval(dst_lon)) - 5.*d_ll
   min_lat = min(minval(src_lat), minval(dst_lat)) - 5.*d_ll
@@ -503,10 +511,10 @@
  
   ll_ix = int((max_lon - min_lon)/d_ll) + 1
   ll_jx = int((max_lat - min_lat)/d_ll) + 1
-  write(*,'(a,3f10.3   )')'min lon for src dst min:', minval(src_lon), minval(dst_lon), min_lon
-  write(*,'(a,3f10.3,i8)')'max lon for src dst max:', maxval(src_lon), maxval(dst_lon), max_lon, ll_ix
-  write(*,'(a,3f10.3   )')'min lat for src dst min:', minval(src_lat), minval(dst_lat), min_lat
-  write(*,'(a,3f10.3,i8)')'max lat for src dst max:', maxval(src_lat), maxval(dst_lat), max_lat, ll_jx
+  write(*,'(a,3f  )')'min lon for src dst min:', minval(src_lon), minval(dst_lon), min_lon
+  write(*,'(a,3f,i)')'max lon for src dst max:', maxval(src_lon), maxval(dst_lon), max_lon, ll_ix
+  write(*,'(a,3f  )')'min lat for src dst min:', minval(src_lat), minval(dst_lat), min_lat
+  write(*,'(a,3f,i)')'max lat for src dst max:', maxval(src_lat), maxval(dst_lat), max_lat, ll_jx
   allocate ( ll_lon(ll_ix), ll_lat(ll_jx))
   do i = 1, ll_ix
      ll_lon(i) = min_lon + (i-1)*d_ll
@@ -786,16 +794,17 @@
      if (ncount < 1 ) fdat_out(i,j,k,n)=missing
 
      !---debug
-     if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
-          (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
+     !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
+     !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
+     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
         write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
         write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
-        write(*,'(a,90f10.4)')'--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
-        write(*,'(a,90f10.4)')'--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
+        write(*,'(a,90f)')'--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
+        write(*,'(a,90f)')'--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         write(*,'(a,  90i10)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
         write(*,'(a,90f10.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-        write(*,'(a,90f10.4)')'--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
-        write(*,'(a,  f20.8)')'--          remaped value: ', fdat_out(i,j,k,n) 
+        write(*,'(a,90f)')'--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+        write(*,'(a,  f)')'--          remaped value: ', fdat_out(i,j,k,n) 
      endif 
     
   enddo; enddo; enddo; enddo

@@ -322,6 +322,7 @@
         do k = iz, 1, -1
            dat41(:,:,k,1)=dat41(:,:,k+1,1)-dat4(:,:,k,1)
         enddo
+        !write(*,'(a,200f)')'z1: ',dat41(int(ix/2),int(iy/2),:,1)
         deallocate(dat4)
      endif
 
@@ -373,7 +374,7 @@
         infile=trim(indir)//'/'//trim(in_date)//'.fv_core.res.nc'
         allocate(dat4(iz+1,1,1,1))
         call get_var_data(trim(infile), 'ak', iz+1, 1, 1, 1, dat4)
-        write(*,'(a,20f8.3)')'=== record13: ', (dat4(k,1,1,1),k=1,iz+1)
+        write(*,'(a,200f12.1)')'=== record13: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
@@ -384,7 +385,7 @@
         infile=trim(indir)//'/'//trim(in_date)//'.fv_core.res.nc'
         allocate(dat4(iz+1,1,1,1))
         call get_var_data(trim(infile), 'bk', iz+1, 1, 1, 1, dat4)
-        write(*,'(a,20f8.3)')'=== record14: ', (dat4(k,1,1,1),k=1,iz+1)
+        write(*,'(a,200f10.3)')'=== record14: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
@@ -448,7 +449,7 @@
         !--- output
         write(*,'(a,i3)')' --- output record ', nrecord
         if ( filetype == 1) then
-           write(*,'(a,i2.2,a,f10.3)')'=== record',nrecord,': ', dat42(1,1,1,1)
+           write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
            write(flid) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
         endif
         deallocate(dat41,dat42)

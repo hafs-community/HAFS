@@ -273,7 +273,7 @@
         if ( u_stag == 0 .and. v_stag == 0 ) then
            call combine_grids_for_remap(ixi, jxi, kxi, txi, fdat_src, ixo, jxo, kxo, txo, fdat_dst, &
                                         gwt%gwt_t, fdat_out)
-           i=200; j=200
+           i=2; j=2
            write(*,'(a,30i6)')'    gwt%gwt_t @ ', i, j, gwt%gwt_t(i,j)%src_points, gwt%gwt_t(i,j)%src_x(1:gwt%gwt_t(i,j)%src_points), &
                   gwt%gwt_t(i,j)%src_y(1:gwt%gwt_t(i,j)%src_points)
            write(*,'(a,3f10.2)')'src,dst,out =', fdat_src(gwt%gwt_t(i,j)%src_x(1),gwt%gwt_t(i,j)%src_y(1),1,1), &
@@ -355,12 +355,13 @@
 ! 1 --- T-grid position in nearest source grid
   write(*,'(a,i0,a,i0)')'---- processing t-cell: ', grid_dst%grid_xt,':',grid_dst%grid_yt
   allocate(x_oini(grid_dst%grid_xt, grid_dst%grid_yt), y_oini(grid_dst%grid_xt, grid_dst%grid_yt))
+  !i=min(int(grid_dst%grid_xt/2), int(grid_dst%grid_xt/2)); j=min(int(grid_dst%grid_yt/2),int(grid_dst%grid_yt/2))
+  i=2;j=2
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
                           grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
                           x_oini, y_oini)
 
   write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
-  i=200; j=200
   write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
      grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
   !do j1=1,grid_dst%grid_yt; do i1=1,grid_dst%grid_xt
@@ -397,7 +398,7 @@
   !write(*,'(15f8.2)')grid_src%grid_lat(488:grid_src%grid_xt,grid_src%grid_y-1)
 
   allocate(lon_dst(grid_dst%grid_xt, grid_dst%grid_y), lat_dst(grid_dst%grid_xt, grid_dst%grid_y))
-  if ( grid_src%grid_x-grid_src%grid_xt >= 1 ) then
+  if ( grid_dst%grid_x-grid_dst%grid_xt >= 1 ) then
      lon_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = (grid_dst%grid_lon(1:grid_dst%grid_xt,1:grid_dst%grid_y) + &
                                                       grid_dst%grid_lon(2:grid_dst%grid_x ,1:grid_dst%grid_y))/2.0
      lat_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = (grid_dst%grid_lat(1:grid_dst%grid_xt,1:grid_dst%grid_y) + &
@@ -449,7 +450,7 @@
   endif
 
   allocate(lon_dst(grid_dst%grid_x, grid_dst%grid_yt), lat_dst(grid_dst%grid_x , grid_dst%grid_yt))
-  if ( grid_src%grid_y-grid_src%grid_yt >= 1 ) then
+  if ( grid_dst%grid_y-grid_dst%grid_yt >= 1 ) then
      lon_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = (grid_dst%grid_lon(1:grid_dst%grid_x,1:grid_dst%grid_yt) + &
                                                       grid_dst%grid_lon(1:grid_dst%grid_x,2:grid_dst%grid_y))/2.0
      lat_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = (grid_dst%grid_lat(1:grid_dst%grid_x,1:grid_dst%grid_yt) + &
