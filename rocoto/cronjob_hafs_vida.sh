@@ -43,7 +43,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
-     merge.merge_method=vortexreplace analysis_merge.merge_method=vortexreplace \
+     atm_merge.atm_merge_method=vortexreplace analysis_merge.analysis_merge_method=vortexreplace \
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
@@ -59,7 +59,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
-     merge.merge_method=mergedomain analysis_merge.merge_method=domainmerge \
+     atm_merge.atm_merge_method=mergedomain analysis_merge.analysis_merge_method=domainmerge \
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
