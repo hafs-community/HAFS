@@ -154,7 +154,7 @@ else
 fi
 RESTARTinp=${RESTARTinp_fgat06}
 
-if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
   echo "Warning: First guess for DA/Analysis missing"
   echo "Warning: Do nothing, Exiting"
   exit
