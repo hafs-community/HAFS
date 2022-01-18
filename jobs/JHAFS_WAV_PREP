@@ -57,8 +57,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_wav_prep.py
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

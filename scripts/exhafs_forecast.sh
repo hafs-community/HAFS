@@ -167,6 +167,8 @@ if [ ${warm_start_opt} -eq 0 ]; then
   RESTARTinp="UNNEEDED"
 fi
 
+if [ ${run_init:-no} = no ]; then
+
 # Different warm_start_opt options for determinist/ensemble forecast
 if [ ${ENSDA} != "YES" ]; then # for deterministic forecast
 
@@ -174,31 +176,31 @@ if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART/${YMD}.${hh}0000
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART
 fi
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_init
+  RESTARTinp=${WORKhafs}/intercom/RESTART_init
 fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafs}/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${WORKhafs}/intercom/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_merge
+  RESTARTinp=${WORKhafs}/intercom/RESTART_merge
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_vi
+  RESTARTinp=${WORKhafs}/intercom/RESTART_vi
 fi
-if [ ${RUN_GSI_VR} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI_VR} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_analysis_vr
+  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr
   #warm_start_opt=4
 fi
-if [ ${RUN_GSI} = YES ] && [ -s ${COMhafs}/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_GSI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_analysis
+  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis
   #warm_start_opt=5
 fi
-if [ ${RUN_ANALYSIS_MERGE} = YES ] && [ -s ${COMhafs}/RESTART_analysis_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ANALYSIS_MERGE} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_analysis_merge
+  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_merge
   #warm_start_opt=6
 fi
 
@@ -208,29 +210,25 @@ if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
 fi
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${COMhafs}/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 1 ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_init_ens/mem${ENSID}
+  RESTARTinp=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
 fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${COMhafs}/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 2 ] && [ -s ${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafsprior}/RESTART_merge_ens/mem${ENSID}
+  RESTARTinp=${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${COMhafs}/RESTART_vi_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq 3 ] && [ -s ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafs}/RESTART_vi_ens/mem${ENSID}
+  RESTARTinp=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
 fi
-#if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  #RESTARTinp=${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}
   #warm_start_opt=4
 fi
-#if [ ${RUN_ENKF} = YES ] && [ -s ${COMhafs}/RESTART_analysis_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
 if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  #RESTARTinp=${COMhafs}/RESTART_analysis_ens/mem${ENSID}
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
   #warm_start_opt=5
 fi
@@ -241,6 +239,8 @@ if [ ${RUN_ANALYSIS_MERGE_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_anal
 fi
 
 fi # ${ENSDA} != "YES"
+
+fi # ${run_init} = "no"
 
 # For warm start from restart files
 if [ ${warmstart_from_restart} = yes ]; then
@@ -1092,27 +1092,31 @@ if [ ${run_wave} = yes ]; then
     ./ww3_multi.inp_tmpl > ./ww3_multi.inp
 fi #if [ ${run_wave} = yes ]; then
 
-# Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc from the prior cycle if exist
+if [ ${run_init:-no} = no ]; then
+
+# Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc
 if [ ${ENSDA} = YES ]; then
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/grid_spec.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/grid_spec.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/grid_spec*.nc RESTART/
   fi
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/atmos_static.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/atmos_static.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/atmos_static*.nc RESTART/
   fi
-  if [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART_ens/mem${ENSID}/oro_data.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.n*c RESTART/
   fi
 else
-  if [ -s ${COMhafsprior}/RESTART/grid_spec.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/grid_spec.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init/grid_spec.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/grid_spec*.nc RESTART/
   fi
-  if [ -s ${COMhafsprior}/RESTART/atmos_static.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/atmos_static.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init/atmos_static.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/atmos_static*.nc RESTART/
   fi
-  if [ -s ${COMhafsprior}/RESTART/oro_data.nc ]; then
-    ${NCP} -p ${COMhafsprior}/RESTART/oro_data.nc RESTART/
+  if [ -s ${WORKhafs}/intercom/RESTART_init/oro_data.nc ]; then
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/oro_data.n*c RESTART/
   fi
+fi
+
 fi
 
 fi #if [ $gtype = nest ]; then
@@ -1297,7 +1301,9 @@ if [ -s fv_core.res.nc ]; then
   do
     mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file}
   done
-  sed -i -e "3s/.*/  ${yrnhrs}    $(echo ${mnnhrs}|sed 's/^0/ /')    $(echo ${dynhrs}|sed 's/^0/ /')    $(echo ${hhnhrs}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ${YMDnhrs}.${hhnhrs}0000.coupler.res
+  if [ ${run_init:-no} = yes ]; then
+    sed -i -e "3s/.*/  ${yrnhrs}    $(echo ${mnnhrs}|sed 's/^0/ /')    $(echo ${dynhrs}|sed 's/^0/ /')    $(echo ${hhnhrs}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ${YMDnhrs}.${hhnhrs}0000.coupler.res
+  fi
 fi
 cd ${DATA}
 
@@ -1309,10 +1315,7 @@ if [ ! -s RESTART/atmos_static.nc ]; then
   ${NCP} -p atmos_static*.nc RESTART/
 fi
 if [ ! -s RESTART/oro_data.nc ]; then
-  for file in $(/bin/ls -1 INPUT/oro_data.nc INPUT/oro_data.nest*.nc)
-  do
-    ${NCP} -pL ${file} RESTART/
-  done
+  ${NCP} -pL INPUT/oro_data.n*c RESTART/
 fi
 
 fi # if [ $gtype = regional ] && [ ${run_datm} = no ]; then

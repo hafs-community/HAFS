@@ -157,7 +157,8 @@ if [ "${ENSDA}" = "YES" ]; then
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
   ${NLN} ${COMhafsprior}/product_ens/mem${ENSID}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
-  export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis_vr_ens/mem${ENSID}}
+  export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}}
+  export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis_vr_ens/mem${ENSID}}
 else
   export RESTARTinp=${RESTARTinp:-${COMhafsprior}/RESTART}
   ${NCP} ${RESTARTinp}/oro_data.nc ./fv3_oro_data
@@ -183,7 +184,8 @@ else
   ${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
  fi
-  export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis_vr}
+  export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis_vr}
+  export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis_vr}
 fi
 cat ./hafs.atcfunix
 
@@ -236,22 +238,23 @@ ${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
 #---------------------------------------------- 
 
 mkdir -p ${RESTARTanl}
+mkdir -p ${DIAGanl}
 
 # Stat files
 if [ ${FGAT} = "YES" ]; then
-  RADSTAT=${RADSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.radstat}
-  GSISTAT=${GSISTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.gsistat}
-  PCPSTAT=${PCPSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.pcpstat}
-  CNVSTAT=${CNVSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.cnvstat}
-  OZNSTAT=${OZNSTAT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.oznstat}
-  GSISOUT=${GSISOUT:-${RESTARTanl}/${PDYfgat}.${cycfgat}0000.analysis.gsisout}
+  RADSTAT=${RADSTAT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.radstat}
+  GSISTAT=${GSISTAT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.gsistat}
+  PCPSTAT=${PCPSTAT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.pcpstat}
+  CNVSTAT=${CNVSTAT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.cnvstat}
+  OZNSTAT=${OZNSTAT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.oznstat}
+  GSISOUT=${GSISOUT:-${DIAGanl}/${PDYfgat}.${cycfgat}0000.analysis.gsisout}
 else
-  RADSTAT=${RADSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.radstat}
-  GSISTAT=${GSISTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.gsistat}
-  PCPSTAT=${PCPSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.pcpstat}
-  CNVSTAT=${CNVSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.cnvstat}
-  OZNSTAT=${OZNSTAT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.oznstat}
-  GSISOUT=${GSISOUT:-${RESTARTanl}/${PDY}.${cyc}0000.analysis.gsisout}
+  RADSTAT=${RADSTAT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.radstat}
+  GSISTAT=${GSISTAT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.gsistat}
+  PCPSTAT=${PCPSTAT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.pcpstat}
+  CNVSTAT=${CNVSTAT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.cnvstat}
+  OZNSTAT=${OZNSTAT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.oznstat}
+  GSISOUT=${GSISOUT:-${DIAGanl}/${PDY}.${cyc}0000.analysis.gsisout}
 fi
 
 # Obs diag

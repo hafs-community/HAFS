@@ -47,7 +47,7 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')}
 trk_atcfunix=${out_prefix}.trak.hafs.atcfunix
 all_atcfunix=${out_prefix}.trak.hafs.atcfunix.all
 
@@ -100,11 +100,13 @@ rm -f fort.*
 # *** Currently, tcutil_multistorm_sort.py searches the tcvitals files
 # specified in the script. Need to modify it to be able to deal with storm
 # message files/dirs, as well as passing in tcvitals files.
-${USHhafs}/tcutil_multistorm_sort.py ${CDATE} | cut -c1-96 > allvit
+${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
 
 # Prepare the input/output files
-cat ${tmp_vital} allvit > input.vitals
-#cat ${tmp_vital} > input.vitals
+rm -f input.vitals
+vitmsg=$(cat ${tmp_vital} | cut -c1-95)
+echo "${vitmsg}" > input.vitals
+grep -v "${vitmsg}" allvit >> input.vitals
 
 cp input.vitals tcvit_rsmc_storms.txt
 ln -sf input.vitals       fort.12
@@ -154,17 +156,17 @@ STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
 cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ $STORMNUM == "00" ] ; then
-norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
-if [ $norig -eq 1 ] ; then
-> ${COMOUTproduct}/${all_atcfunix}
+  norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
+  if [ $norig -eq 1 ] ; then
+    > ${COMOUTproduct}/${all_atcfunix}
+  else
+    grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
+  fi
 else
-grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
-fi
-else
-grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
+  grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
 fi
 
-if [ ${ENSDA} != YES ]; then
+if [ ${COMOUTproduct} = ${COMhafs} ]; then
 
 # Deliver track file to NOSCRUB:
 mkdir -p ${CDNOSCRUB}/${SUBEXPT}

@@ -61,14 +61,14 @@ if [ "${ENSDA}" = YES ]; then
   export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}
 elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTenv=${COMhafs}/RESTART_init_fgat${FGAT_HR}
-  export RESTARTout=${COMhafs}/RESTART_vi_fgat${FGAT_HR}
+  export RESTARTenv=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 else
   export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTenv=${COMhafs}/RESTART_init
-  export RESTARTout=${COMhafs}/RESTART_vi
+  export RESTARTenv=${WORKhafs}/intercom/RESTART_init
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi
   export DATA=${WORKhafs}/atm_vi
 fi
 
@@ -82,8 +82,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_vi.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

@@ -118,7 +118,6 @@ mkdir -p $OUTDIR $DATA
 cd $DATA
 
 ${HOMEhafs}/scripts/exhafs_atm_prep.sh
-export err=$?
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

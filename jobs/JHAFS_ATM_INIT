@@ -50,32 +50,44 @@ export ENSDA=${ENSDA:-NO}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
-# Deterministic or ensemble
+export run_init=yes
+if [ ${FGAT_MODEL} = gdas ]; then
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+  export out_prefix=$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')
+fi
+
+#===============================================================================
+# forecast
+
 if [ "${ENSDA}" = YES ]; then
   export ENSID=${ENSID:-001}
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}
-  export RESTARTout=${COMhafs}/RESTART_init_ens/mem${ENSID}
+  export FIXgrid=${WORKhafs}/intercom/grid_ens
+  export INPdir=${WORKhafs}/intercom/chgres_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  export RESTARTout=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}
-  export RESTARTout=${COMhafs}/RESTART_init_fgat${FGAT_HR}
-  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+  export FIXgrid=${WORKhafs}/intercom/grid
+  export INPdir=${WORKhafs}/intercom/chgres_fgat${FGAT_HR}
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  export RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
 else
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  export DATA=${WORKhafs}/atm_init
-  export RESTARTout=${COMhafs}/RESTART_init
+  export FIXgrid=${WORKhafs}/intercom/grid
+  export INPdir=${WORKhafs}/intercom/chgres
+  export DATA=${WORKhafs}/atm_init/forecast
+  export RESTARTout=${WORKhafs}/intercom/RESTART_init
 fi
 
 #export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
 #export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
 export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
+export NHRS_ENS=$(awk "BEGIN {print ${dt_atmos}/3600}")
 #export NBDYHRS=0
 export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
 export warm_start_opt=0
+
+export RUN_ATM_MERGE=NO
+export RUN_ATM_MERGE_FGAT=NO
+export RUN_ATM_MERGE_ENS=NO
 export RUN_ATM_VI=NO
 export RUN_ATM_VI_FGAT=NO
 export RUN_ATM_VI_ENS=NO
@@ -84,6 +96,8 @@ export RUN_GSI_VR_FGAT=NO
 export RUN_GSI_VR_ENS=NO
 export RUN_GSI=NO
 export RUN_ENKF=NO
+export RUN_ANALYSIS_MERGE=NO
+export RUN_ANALYSIS_MERGE_ENS=NO
 export run_ocean=no
 export run_wave=no
 export ccpp_suite_regional=${ccpp_suite_regional_init:-$ccpp_suite_regional}
@@ -109,8 +123,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_forecast.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
@@ -118,3 +130,99 @@ if [ "${KEEPDATA^^}" != YES ]; then
 fi
 
 date
+
+#===============================================================================
+# post
+
+if [ ${ENSDA} = YES ]; then
+  export ENSID=${ENSID:-001}
+  export INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+  export COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  export intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  export NHRS_ENS=0
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export INPdir=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/post
+  export COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  export intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  export NHRS=0
+else
+  export INPdir=${WORKhafs}/atm_init/forecast
+  export DATA=${WORKhafs}/atm_init/post
+  export COMOUTpost=${WORKhafs}/intercom/atm_init
+  export intercom=${WORKhafs}/intercom/atm_init/post
+  export NHRS=0
+fi
+
+export SENDCOM=${SENDCOM:-YES}
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+  rm -f $INPdir/postf???
+  rm -rf ${intercom}
+fi
+mkdir -p ${COMOUTpost}
+mkdir -p ${intercom}
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_post.sh
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date
+
+#===============================================================================
+# product
+
+export OMP_NUM_THREADS=1
+export APRUNC=${APRUNS}
+
+if [ ${ENSDA} = YES ]; then
+  export ENSID=${ENSID:-001}
+  export INPdir=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/product
+  export COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  export NHRS_ENS=0
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/product
+  export COMOUTproduct=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  export NHRS=0
+else
+  export INPdir=${WORKhafs}/intercom/atm_init/post
+  export DATA=${WORKhafs}/atm_init/product
+  export COMOUTproduct=${WORKhafs}/intercom/atm_init
+  export NHRS=0
+fi
+
+export SENDCOM=${SENDCOM:-YES}
+export SCRUBDATA=${SCRUBDATA:-YES}
+
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p ${COMOUTproduct}
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_product.sh
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date
+
+#===============================================================================
+
+exit

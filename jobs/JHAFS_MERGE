@@ -64,9 +64,9 @@ if [ "${ENSDA}" = YES ]; then
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
   export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}
 else
-  export RESTARTsrc=${COMhafs}/RESTART_analysis
-  export RESTARTdst=${COMhafs}/RESTART_init
-  export RESTARTmrg=${COMhafs}/RESTART_analysis_merge
+  export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
   export DATA=${WORKhafs}/analysis_merge
 fi
 
@@ -75,14 +75,14 @@ elif [ ${MERGE_TYPE} = init ]; then
 export merge_method=${atm_merge_method:-vortexreplace}
 if [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTsrc=${COMhafsprior}/RESTART
-  export RESTARTdst=${COMhafs}/RESTART_init_fgat${FGAT_HR}
-  export RESTARTmrg=${COMhafs}/RESTART_merge_fgat${FGAT_HR}
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
   export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 else
   export RESTARTsrc=${COMhafsprior}/RESTART
-  export RESTARTdst=${COMhafs}/RESTART_init
-  export RESTARTmrg=${COMhafs}/RESTART_merge
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
   export DATA=${WORKhafs}/atm_merge
 fi
 
@@ -101,8 +101,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_merge.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

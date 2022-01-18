@@ -75,15 +75,15 @@ export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
-  #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
   export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens
 else
   export RESTARTens_inp=${COMhafsprior}/RESTART_ens
 fi
 
-#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
+export DIAGens_anl=${COMhafs}/DIAG_analysis_ens
 mkdir -p ${RESTARTens_anl}
+mkdir -p ${DIAGens_anl}
 
 DATA=${DATA:-${WORKhafs}/enkf_mean}
 mkdir -p ${DATA}
@@ -137,8 +137,8 @@ else # enkf_recenter
   ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc fv3sar_tile1_grid_spec.nc
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res coupler.res
-  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3_dynvars
-  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3_tracer
+  ${NCP} ${WORKhafs}/intercom/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3_dynvars
+  ${NCP} ${WORKhafs}/intercom/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3_tracer
   #dynvar_list="delp,DZ,phis,T,u,ua,v,va,W"
   dynvar_list=$(ncks --trd -m fv3_dynvars | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort | grep -v 'Time' | grep -v 'axis' | paste -sd "," -)
   #tracer_list="cld_amt,graupel,ice_wat,liq_wat,o3mr,rainwat,snowwat,sphum"
@@ -178,15 +178,15 @@ fi
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile
   memstr="ensmean"
-  RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
-  CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
+  RADSTAT=${DIAGens_anl}/${memstr}/analysis.radstat
+  CNVSTAT=${DIAGens_anl}/${memstr}/analysis.cnvstat
   echo "tar -xvf $RADSTAT" >> cmdfile
   echo "tar -xvf $CNVSTAT" >> cmdfile
 
   for memstr in $(seq -f "mem%03g" 1 $nens)
   do
-    RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
-    CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
+    RADSTAT=${DIAGens_anl}/${memstr}/analysis.radstat
+    CNVSTAT=${DIAGens_anl}/${memstr}/analysis.cnvstat
     echo "tar -xvf $RADSTAT" >> cmdfile
     echo "tar -xvf $CNVSTAT" >> cmdfile
   done
@@ -231,13 +231,13 @@ ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
-  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+  if [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  elif [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
+    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -349,7 +349,6 @@ set -x
     cp ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
     ncks -A -v $tracer_list fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
     ncks --no_abc -O -x -v yaxis_2 ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-    #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/${memout}/
     ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/
     ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/
     ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/${memout}/

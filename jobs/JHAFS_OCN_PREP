@@ -53,12 +53,9 @@ cd $DATA
 # Execute ex-script
 if [[ "${run_docn:-no}" == yes ]] ; then
     ${HOMEhafs}/scripts/exhafs_docn_prep.sh
-    export err=$?
 else
     ${HOMEhafs}/scripts/exhafs_ocn_prep.py
-    export err=$?
 fi
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

@@ -106,46 +106,48 @@ if [ ! ${RUN_GSI} = "YES" ]; then
   exit
 fi
 
-export RESTARTanl=${RESTARTanl:-${COMhafs}/RESTART_analysis}
+export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
+export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis}
 mkdir -p ${RESTARTanl}
+mkdir -p ${DIAGanl}
 
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
 
 # Copy the first guess or fgat files
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${COMhafs}/RESTART_vi_fgat03
-  RESTARTinp_fgat06=${COMhafs}/RESTART_vi_fgat06
-  RESTARTinp_fgat09=${COMhafs}/RESTART_vi_fgat09
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi_fgat09
 elif [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${COMhafs}/RESTART_analysis_vr_fgat03
-  RESTARTinp_fgat06=${COMhafs}/RESTART_analysis_vr_fgat06
-  RESTARTinp_fgat09=${COMhafs}/RESTART_analysis_vr_fgat09
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_analysis_vr_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_analysis_vr_fgat09
 elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${COMhafs}/RESTART_merge_fgat03
-  RESTARTinp_fgat06=${COMhafs}/RESTART_merge_fgat06
-  RESTARTinp_fgat09=${COMhafs}/RESTART_merge_fgat09
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge_fgat09
 elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${COMhafs}/RESTART_init_fgat03
-  RESTARTinp_fgat06=${COMhafs}/RESTART_init_fgat06
-  RESTARTinp_fgat09=${COMhafs}/RESTART_init_fgat09
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init_fgat09
 else
   if [ ${RUN_ATM_VI} = "YES" ]; then
-    RESTARTinp_fgat03=${COMhafs}/RESTART_vi
-    RESTARTinp_fgat06=${COMhafs}/RESTART_vi
-    RESTARTinp_fgat09=${COMhafs}/RESTART_vi
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi
   elif [ ${RUN_GSI_VR} = "YES" ]; then
-    RESTARTinp_fgat03=${COMhafs}/RESTART_analysis_vr
-    RESTARTinp_fgat06=${COMhafs}/RESTART_analysis_vr
-    RESTARTinp_fgat09=${COMhafs}/RESTART_analysis_vr
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_analysis_vr
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_analysis_vr
   elif [ ${RUN_ATM_MERGE} = "YES" ]; then
-    RESTARTinp_fgat03=${COMhafs}/RESTART_merge
-    RESTARTinp_fgat06=${COMhafs}/RESTART_merge
-    RESTARTinp_fgat09=${COMhafs}/RESTART_merge
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge
   elif [ ${RUN_ATM_INIT} = "YES" ]; then
-    RESTARTinp_fgat03=${COMhafs}/RESTART_init
-    RESTARTinp_fgat06=${COMhafs}/RESTART_init
-    RESTARTinp_fgat09=${COMhafs}/RESTART_init
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
   else
     RESTARTinp_fgat03=${COMhafsprior}/RESTART
     RESTARTinp_fgat06=${COMhafsprior}/RESTART
@@ -198,7 +200,6 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   for mem in $(seq -f '%03g' 1 ${N_ENS})
   do
     #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
-    #  RESTARTens=${COMhafs}/RESTART_analysis_vr_ens/mem${mem}
     #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
     #else
       RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
@@ -249,12 +250,12 @@ fi # endif ${RUN_ENVAR}
 
 
 # Stat files
-RADSTAT=${RADSTAT:-${RESTARTanl}/analysis.radstat}
-GSISTAT=${GSISTAT:-${RESTARTanl}/analysis.gsistat}
-PCPSTAT=${PCPSTAT:-${RESTARTanl}/analysis.pcpstat}
-CNVSTAT=${CNVSTAT:-${RESTARTanl}/analysis.cnvstat}
-OZNSTAT=${OZNSTAT:-${RESTARTanl}/analysis.oznstat}
-GSISOUT=${GSISOUT:-${RESTARTanl}/analysis.gsisout}
+RADSTAT=${RADSTAT:-${DIAGanl}/analysis.radstat}
+GSISTAT=${GSISTAT:-${DIAGanl}/analysis.gsistat}
+PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis.pcpstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis.cnvstat}
+OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis.oznstat}
+GSISOUT=${GSISOUT:-${DIAGanl}/analysis.gsisout}
 
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
@@ -794,8 +795,8 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out  $RESTARTanl/satbias_hafs_out
-  ${NCP} satbias_pc.out  $RESTARTanl/satbias_hafs_pc.out
+  ${NCP} satbias_out  $DIAGanl/satbias_hafs_out
+  ${NCP} satbias_pc.out  $DIAGanl/satbias_hafs_pc.out
 fi
 
 # If no processing error, remove $DIAG_DIR
