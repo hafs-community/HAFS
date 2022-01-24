@@ -61,6 +61,13 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_in_circle.x     ../exec/hafs_change_prepbufr_qm_in_circle.x
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_rm_typ_in_circle.x ../exec/hafs_change_prepbufr_rm_typ_in_circle.x
   ${CP} hafs_tools.fd/exec/hafs_datool.x                           ../exec/hafs_datool.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_create_trak_guess.x             ../exec/hafs_vi_create_trak_guess.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_create_trak_init.x              ../exec/hafs_vi_create_trak_init.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_split.x                         ../exec/hafs_vi_split.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_anl_pert.x                      ../exec/hafs_vi_anl_pert.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                   ../exec/hafs_vi_anl_combine.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                   ../exec/hafs_vi_anl_enhance.x
+  ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                     ../exec/hafs_vi_anl_bogus.x
 }
 
 #------------------------------------

@@ -65,4 +65,7 @@ cd ${TOOLS_PATH}/sorc
 cd ${TOOLS_PATH}/sorc/hafs_datool
 ./build_hafs_datool.sh
 
+cd ${TOOLS_PATH}/sorc/hafs_vi
+make
+
 exit
