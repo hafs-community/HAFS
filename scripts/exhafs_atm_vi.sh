@@ -52,13 +52,15 @@ export DATA=${DATA:-${WORKhafs}/atm_vi}
 cd $DATA
 
 if [ ${FGAT_HR} = 03 ]; then
-  cp ${WORKhafs}/tm03vit tcvitals.vi
+# cp ${WORKhafs}/tm03vit tcvitals.vi
+  cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=3
 elif [ ${FGAT_HR} = 06 ]; then
   cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
-  cp ${WORKhafs}/tp03vit tcvitals.vi
+# cp ${WORKhafs}/tp03vit tcvitals.vi
+  cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=9
 else
   cp ${WORKhafs}/tmpvit tcvitals.vi
