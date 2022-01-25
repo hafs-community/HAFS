@@ -425,6 +425,10 @@
     <dependency>
       <and>
         <taskdep task="atm_init"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+        </or>
       </and>
     </dependency>
   </task>
@@ -449,6 +453,10 @@
     <dependency>
       <and>
         <taskdep task="atm_init_fgat#FGAT_HR#"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+        </or>
       </and>
     </dependency>
   </task>
@@ -701,6 +709,12 @@
         <taskdep task="atm_ic"/>
         <taskdep task="obs_proc"/>
 	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
+@** if RUN_ATM_VI_FGAT==YES
+	<or>
+          <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
+          <metataskdep metatask="atm_vi_fgat"/>
+        </or>
+@** endif
 @** if RUN_ATM_MERGE_FGAT==YES
 	<or>
           <strneq><left>&RUN_ATM_MERGE_FGAT;</left><right>YES</right></strneq>

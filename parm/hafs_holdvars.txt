@@ -7,7 +7,6 @@ export TZ=UTC # Orion workaround
 
 export envir={ENV[envir|-prod]}
 
-export storm_num={storm_num}
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_ATM_INIT={RUN_ATM_INIT}
 export RUN_ATM_INIT_FGAT={RUN_ATM_INIT_FGAT}
@@ -81,9 +80,11 @@ export PARMforecast={PARMforecast}
 
 export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
 
+export storm_num={storm_num}
 export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
+export pubbasin2={vit[pubbasin2]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}

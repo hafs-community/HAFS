@@ -43,31 +43,28 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 NDATE=${NDATE:-ndate}
-CDATEprior=`${NDATE} -6 $CDATE`
-PDYprior=`echo ${CDATEprior} | cut -c1-8`
-cycprior=`echo ${CDATEprior} | cut -c9-10`
-yrprior=`echo ${CDATEprior} | cut -c1-4`
-mnprior=`echo ${CDATEprior} | cut -c5-6`
-dyprior=`echo ${CDATEprior} | cut -c7-8`
-hhprior=`echo ${CDATEprior} | cut -c9-10`
+export CDATEprior=`${NDATE} -6 $CDATE`
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 
 # Deterministic or ensemble
 if [ "${ENSDA}" = YES ]; then
   export ENSID=${ENSID:-001}
   export RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
-  export RESTARTenv=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
   export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}
 elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTenv=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 else
   export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTenv=${WORKhafs}/intercom/RESTART_init
+  export INTCOMinit=${WORKhafs}/intercom/atm_init
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi
   export DATA=${WORKhafs}/atm_vi
 fi
