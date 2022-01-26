@@ -41,13 +41,13 @@ $Build_post && {
 }
 
 #------------------------------------
-# install vortextracker
+# install tracker
 #------------------------------------
-$Build_vortextracker && {
-  ${CP} hafs_vortextracker.fd/exec/gettrk.x          ../exec/hafs_gettrk.x
-  ${CP} hafs_vortextracker.fd/exec/tave.x            ../exec/hafs_tave.x
-  ${CP} hafs_vortextracker.fd/exec/vint.x            ../exec/hafs_vint.x
-  ${CP} hafs_vortextracker.fd/exec/supvit.x          ../exec/hafs_supvit.x
+$Build_tracker && {
+  ${CP} hafs_tracker.fd/exec/gettrk.x          ../exec/hafs_gettrk.x
+  ${CP} hafs_tracker.fd/exec/tave.x            ../exec/hafs_tave.x
+  ${CP} hafs_tracker.fd/exec/vint.x            ../exec/hafs_vint.x
+  ${CP} hafs_tracker.fd/exec/supvit.x          ../exec/hafs_supvit.x
 }
 
 #------------------------------------

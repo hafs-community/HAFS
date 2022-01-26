@@ -7,7 +7,7 @@
 	url = https://github.com/hafs-community/UFS_UTILS.git
 	branch = support/HAFS
 [submodule "gfdl-tracker"]
-	path = sorc/hafs_vortextracker.fd
+	path = sorc/hafs_tracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
 	branch = support/HAFS
 [submodule "NCEPLIBS-pyprodutil"]
