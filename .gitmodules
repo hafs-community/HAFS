@@ -2,16 +2,12 @@
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/ufs-community/ufs-weather-model.git
 	branch = develop
-[submodule "UPP"]
-	path = sorc/hafs_post.fd
-	url = https://github.com/NOAA-EMC/UPP.git
-	branch = develop
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
 	branch = support/HAFS
 [submodule "gfdl-tracker"]
-	path = sorc/hafs_vortextracker.fd
+	path = sorc/hafs_tracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
 	branch = support/HAFS
 [submodule "NCEPLIBS-pyprodutil"]

@@ -50,11 +50,11 @@ echo " .... Building post .... "
 }
 
 #------------------------------------
-# build vortextracker
+# build tracker
 #------------------------------------
-$Build_vortextracker && {
-echo " .... Building vortextracker .... "
-./build_vortextracker.sh > $logs_dir/build_vortextracker.log 2>&1
+$Build_tracker && {
+echo " .... Building tracker .... "
+./build_tracker.sh > $logs_dir/build_tracker.log 2>&1
 }
 
 #------------------------------------
