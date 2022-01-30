@@ -267,16 +267,26 @@ mesh_atm=${mesh_atm:-''}
 mesh_ocn=${mesh_ocn:-''}
 
 if [ $gtype = regional ]; then
+  ATM_tasks=0
+  for n in $(seq 1 ${nest_grids})
+  do
+    layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+    layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+    ATM_tasks=$(($ATM_tasks+$layoutx_tmp*$layouty_tmp ))
+  done
   if [ $quilting = .true. ]; then
-    ATM_tasks=$(($layoutx*$layouty+$write_groups*$write_tasks_per_group))
-  else
-    ATM_tasks=$(($layoutx*$layouty))
+    ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
 elif [ $gtype = nest ]; then
+  ATM_tasks=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
+  for n in $(seq 1 ${nest_grids})
+  do
+    layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
+    layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
+    ATM_tasks=$(($ATM_tasks+$layoutx_tmp*$layouty_tmp ))
+  done
   if [ $quilting = .true. ]; then
-    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty+$write_groups*$write_tasks_per_group))
-  else
-    ATM_tasks=$((6*$glob_layoutx*$glob_layouty+$layoutx*$layouty))
+    ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
@@ -606,12 +616,10 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile6.nc oro_data.tile6.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
-  mkdir -p fix_sfc
-  cd fix_sfc
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
   done
-  cd ../../
+  cd ..
 fi
 
 cd ..
@@ -787,12 +795,10 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
-  mkdir -p fix_sfc
-  cd fix_sfc
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
   done
-  cd ../../
+  cd ..
 fi
 
 # For warm start from restart files (either before or after analysis)
