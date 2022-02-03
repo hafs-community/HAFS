@@ -1,3 +1,5 @@
+logKindFlag:            ESMF_LOGKIND_MULTI_ON_ERROR
+
 # component list
 _EARTH_component_list_
 

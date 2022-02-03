@@ -131,7 +131,6 @@ else
   output_grid_dlat=${output_grid_dlat_ens}
 fi
 
-app_domain=${app_domain:-regional}
 output_grid=${output_grid:-rotated_latlon}
 output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
 output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
@@ -1188,8 +1187,7 @@ elif [ ${run_docn} = yes ];  then
 
 fi
 
-sed -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
-    -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
+sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
     -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
@@ -1198,7 +1196,6 @@ sed -e "s/_print_esmf_/${print_esmf:-.false.}/g" \
     -e "s/_write_tasks_per_group_/${write_tasks_per_group}/g" \
     -e "s/_write_dopost_/${write_dopost:-.false.}/g" \
     -e "s/_output_history_/${output_history:-.true.}/g" \
-    -e "s/_app_domain_/${app_domain}/g" \
     -e "s/_OUTPUT_GRID_/$output_grid/g" \
     -e "s/_CEN_LON_/$output_grid_cen_lon/g" \
     -e "s/_CEN_LAT_/$output_grid_cen_lat/g" \
