@@ -55,6 +55,16 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_C768_global_1mvnest_storm.conf
 
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96_regional_1mvnest_atm_ocn \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/hafs_C96_regional_1mvnest_storm_hycom.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C512_regional_1mvnest_atm_ocn \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_C512_regional_1mvnest_storm_hycom.conf
+
 #===============================================================================
 
 date

@@ -1,4 +1,3 @@
-print_esmf:              _print_esmf_
 start_year:              YR
 start_month:             MN
 start_day:               DY
@@ -18,7 +17,7 @@ write_dopost:            _write_dopost_
 output_history:          _output_history_
 num_files:               2
 filename_base:           'atm' 'sfc'
-output_file:             'netcdf_parallel' 'netcdf_parallel'
+output_file:             'netcdf_parallel' 'netcdf'
 ichunk2d:                -1
 jchunk2d:                -1
 ichunk3d:                -1
@@ -27,7 +26,15 @@ kchunk3d:                -1
 ideflate:                1
 nbits:                   0
 
-app_domain:              '_app_domain_'
+output_grid:             global_latlon           # gaussian_grid or global_latlon
+imo:                     1440
+jmo:                     721
+
+<output_grid_02>
+<output_grid_03>
+<output_grid_04>
+<output_grid_05>
+
 output_grid:             '_OUTPUT_GRID_'
 cen_lon:                 _CEN_LON_               # central longitude
 cen_lat:                 _CEN_LAT_               # central latitude
@@ -37,6 +44,11 @@ lon2:                    _LON2_                  # longitude of upper-right
 lat2:                    _LAT2_                  # latitude of upper-right
 dlon:                    _DLON_
 dlat:                    _DLAT_
+
+</output_grid_02>
+</output_grid_03>
+</output_grid_04>
+</output_grid_05>
 
 nfhout:                  3
 nfhmax_hf:               -1
