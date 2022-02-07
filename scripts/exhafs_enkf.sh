@@ -54,6 +54,7 @@ export nens=${ENS_SIZE:-40}
 export online_satbias=${online_satbias:-no}
 export corrlength=${corrlength:-500}
 export lnsigcutoff=${lnsigcutoff:-1.3}
+export nesttilestr=${nesttilestr:-""}
 
 # Diagnostic files options
 netcdf_diag=${netcdf_diag:-".true."}
@@ -231,13 +232,13 @@ ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
-  if [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
+  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
-    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_out            satbias_in
-    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out         satbias_pc
+  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
+    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias            satbias_in
+    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2

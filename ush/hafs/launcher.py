@@ -1542,6 +1542,15 @@ class HAFSLauncher(HAFSConfig):
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
 
+        gsi_flag=self.getbool('config','gsi_d01')
+        self.set('holdvars','cap_gsi_d01',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d02')
+        self.set('holdvars','cap_gsi_d02',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d03')
+        self.set('holdvars','cap_gsi_d03',('YES' if gsi_flag else 'NO'))
+
         fgat_flag=self.getbool('config','run_fgat')
         self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
 

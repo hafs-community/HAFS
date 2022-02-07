@@ -39,6 +39,11 @@ export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
+export GSI_D01=${GSI_D01:-NO}
+export GSI_D02=${GSI_D02:-NO}
+
+# analysis for d01
+if [ ${GSI_D01} = YES ]; then
 
 export DATA=${WORKhafs}/analysis
 
@@ -56,6 +61,34 @@ ${HOMEhafs}/scripts/exhafs_analysis.sh
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
+fi
+
+fi
+
+# analysis for d02
+if [ ${GSI_D02} = YES ]; then
+
+export neststr="nest02."
+export tilestr="tile2."
+export nesttilestr="nest02.tile2."
+export DATA=${WORKhafs}/analysis_d02
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_analysis.sh
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
 fi
 
 date
