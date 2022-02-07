@@ -200,6 +200,7 @@
         if ( filetype == 1) then
            write(*,'(a,3i6)')'=== record1: ',nx, ny, nz
            write(flid) nx, ny, nz 
+           write(flid+nrecord) nx, ny, nz 
         endif
      endif
 
@@ -208,6 +209,7 @@
      if ( nrecord == 2 ) then
         write(*,'(a,6f8.3)')'=== record2: ',lon1,lat1,lon2,lat2,cen_lon,cen_lat
         write(flid) lon1,lat1,lon2,lat2,cen_lon,cen_lat
+        write(flid+nrecord) lon1,lat1,lon2,lat2,cen_lon,cen_lat
      endif   
 
      !-----------------------------
@@ -332,6 +334,7 @@
      if ( nrecord == 10 ) then
         write(*,'(a,4f8.3)')'=== record10: ',glon(1,1), glat(1,1), glon(ix,iy), glat(ix,iy)
         write(flid) glon,glat,glon,glat 
+        write(flid+nrecord) glon,glat,glon,glat 
      endif
    
      !-----------------------------
@@ -376,6 +379,7 @@
         call get_var_data(trim(infile), 'ak', iz+1, 1, 1, 1, dat4)
         write(*,'(a,200f12.1)')'=== record13: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
+        write(flid+nrecord) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
    
@@ -387,6 +391,7 @@
         call get_var_data(trim(infile), 'bk', iz+1, 1, 1, 1, dat4)
         write(*,'(a,200f10.3)')'=== record14: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
+        write(flid+nrecord) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
    
@@ -451,6 +456,7 @@
         if ( filetype == 1) then
            write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
            write(flid) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
+           write(flid+nrecord) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
         endif
         deallocate(dat41,dat42)
      endif 
@@ -461,4 +467,285 @@
   end subroutine hafsvi_preproc
 
 !========================================================================================
+  subroutine hafsvi_postproc(in_file, in_date, out_dir)
 
+!-----------------------------------------------------------------------------
+! HAFS DA tool - hafsvi_postproc
+! Yonghui Weng, 20220121
+!
+! This subroutine reads hafs_vi binary output file and merge it to hafs restart files.
+! hafs_vi binary output:
+!      WRITE(IUNIT) NX,NY,NZ,I360
+!      WRITE(IUNIT) LON1,LAT1,LON2,LAT2,CENTRAL_LON,CENTRAL_LAT
+!      WRITE(IUNIT) PMID1   
+!      WRITE(IUNIT) T1
+!      WRITE(IUNIT) Q1
+!      WRITE(IUNIT) U1
+!      WRITE(IUNIT) V1
+!      WRITE(IUNIT) DZDT
+!      WRITE(IUNIT) Z1
+!!     WRITE(IUNIT) GLON,GLAT
+!      WRITE(IUNIT) HLON,HLAT,VLON,VLAT
+!      WRITE(IUNIT) P1
+!      WRITE(IUNIT) PD1
+!      WRITE(IUNIT) ETA1
+!      WRITE(IUNIT) ETA2
+!
+!      ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
+!      ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
+!      ALLOCATE ( Z1(NX,NY,NZ+1),P1(NX,NY,NZ+1) )
+!      ALLOCATE ( GLON(NX,NY),GLAT(NX,NY) )
+!      ALLOCATE ( PD1(NX,NY),ETA1(NZ+1),ETA2(NZ+1) )
+!      ALLOCATE ( USCM(NX,NY),VSCM(NX,NY) )          ! Env. wind at new grids
+!      ALLOCATE ( HLON(NX,NY),HLAT(NX,NY) )
+!      ALLOCATE ( VLON(NX,NY),VLAT(NX,NY) )
+!      ALLOCATE ( PMID1(NX,NY,NZ),ZMID1(NX,NY,NZ) )
+
+!-----------------------------------------------------------------------------
+
+  use netcdf
+  use module_mpi
+  use var_type
+
+  implicit none
+
+  character (len=*), intent(in) :: in_file,  & ! The VI output binary file on 30x30degree
+                                   in_date,  & ! HAFS_restart file date, like 20200825.120000
+                                   out_dir     ! HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
+                                               ! fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
+
+  type(grid2d_info)             :: ingrid   ! hafs restart grid
+  type(grid2d_info)             :: dstgrid  ! rot-ll grid for output
+
+!----for hafs restart
+  integer  :: ix, iy, iz, kz
+  character(len=2500)     :: ncfile
+
+!----for hafsvi
+  integer  :: nx, ny, nz, i360, filetype  ! filetype: 1=bin, 2=nc
+  real     :: lon1,lat1,lon2,lat2,cen_lat,cen_lon,dlat,dlon
+  real, allocatable, dimension(:,:) :: hlon, hlat, vlon, vlat
+
+  integer  :: i, j, k, n, flid, ncid, ndims, nrecord, iunit
+  real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, phis1, phis2, sfcp1, sfcp2
+  real, allocatable, dimension(:,:,:)   :: dat3, dat31
+  real, allocatable, dimension(:,:)     :: dat2
+  real, allocatable, dimension(:)       :: dat1
+  real     :: ptop
+
+!------------------------------------------------------------------------------
+! 1 --- arg process
+!   nothing is needed here
+
+!------------------------------------------------------------------------------
+! 2 --- input grid info
+
+  !-----------------------------
+  !---2.1 get input grid info from binary file
+  iunit=36
+  open(iunit, file=trim(in_file), form='unformatted')
+  read(iunit) nx, ny, nz, i360 
+  write(*,'(a,4i5)')'nx, ny, nz, i360 = ',nx, ny, nz, i360
+  read(iunit) lon1,lat1,lon2,lat2,cen_lon,cen_lat
+  write(*,'(a,6f10.3)')'lon1,lat1,lon2,lat2,cen_lon,cen_lat =', lon1,lat1,lon2,lat2,cen_lon,cen_lat
+
+  !!---add to test vortex-replacement
+  !tc%vortexrep=1
+  !tc%lat=cen_lat
+  !tc%lon=cen_lon
+  !!---add to test vortex-replacement
+
+  do i = 1, 7
+     read(iunit)
+  enddo
+  allocate(hlon(nx,ny), hlat(nx,ny), vlon(nx,ny), vlat(nx,ny))
+  read(iunit)hlon, hlat, vlon, vlat
+  write(*, '(a,8f10.3)')' hlon,hlat(1,1; nx,1; nx,ny; 1,ny) =', &
+                        hlon(1,1), hlat(1,1), hlon(nx,1), hlat(nx,1), hlon(nx,ny), hlat(nx,ny), hlon(1,ny), hlat(1,ny) 
+  write(*, '(a,8f10.3)')' vlon,vlat(1,1; nx,1; nx,ny; 1,ny) =', &
+                        vlon(1,1), vlat(1,1), vlon(nx,1), vlat(nx,1), vlon(nx,ny), vlat(nx,ny), vlon(1,ny), vlat(1,ny) 
+
+  !-----------------------------
+  !---2.2 define input rot-ll grids
+  ingrid%grid_x = nx
+  ingrid%grid_y = ny
+  ingrid%ntime  = 1
+  ingrid%grid_xt = nx
+  ingrid%grid_yt = ny
+  allocate(ingrid%grid_lon (ingrid%grid_x,ingrid%grid_y))
+  allocate(ingrid%grid_lont(ingrid%grid_x,ingrid%grid_y))
+  ingrid%grid_lon  = hlon
+  ingrid%grid_lont = vlon
+  allocate(ingrid%grid_lat (ingrid%grid_x,ingrid%grid_y))
+  allocate(ingrid%grid_latt(ingrid%grid_x,ingrid%grid_y))
+  ingrid%grid_lat  = hlat
+  ingrid%grid_latt = vlat
+
+  !-----------------------------
+  !---2.3 dstgrid from restart file
+  call rd_grid_spec_data(trim(out_dir)//'/grid_spec.nc', dstgrid)
+  ix = dstgrid%grid_xt
+  iy = dstgrid%grid_yt
+
+  !-----------------------------
+  !---2.4 calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
+  gwt%max_points=3
+  call cal_src_dst_grid_weight(ingrid, dstgrid)
+ 
+!------------------------------------------------------------------------------
+! 3 --- process record one-by-one
+  rewind(iunit)
+  do_record_loop: do nrecord = 1, 14 
+
+     !-----------------------------
+     !---3.1 read data and derive out the var for restart
+     iz=-99
+
+     if ( nrecord == 1 .or. nrecord == 2 .or. nrecord == 3 .or. nrecord == 10 .or. &
+          nrecord == 12 .or. nrecord == 13 .or. nrecord == 14 ) then
+        !---ignore these records
+        !---record 1 : nx, ny, nz, i360
+        !---record 2 : lon1,lat1,lon2,lat2,cen_lon,cen_lat
+        !---record 3 : pmid1(nx,ny,nz): pressure on full level
+        !---                ignore, we use p1 to derive delp.
+        !---record 10: hlon, hlat, vlon, vlat 
+        !---record 12: pd1,  PD1(NX,NY): surface pressure
+        !---record 13: eta1, ETA1(NZ+1)
+        !---record 14: eta2, ETA2(NZ+1)
+        if ( nrecord == 12 ) then
+           allocate(dat2(nx,ny))
+           read(iunit)dat2
+           write(*,'(a,200f10.1)')'pd1: ',dat2(int(nx/2),int(ny/2))
+        elseif ( nrecord == 13 .or. nrecord == 14 ) then
+           allocate(dat1(nz+1))
+           read(iunit)dat1
+           if ( nrecord == 13 ) write(*,'(a3,i1,a,200f10.1)')'eta',nrecord-12,': ',dat1
+           if ( nrecord == 14 ) write(*,'(a3,i1,a,200f10.6)')'eta',nrecord-12,': ',dat1
+           deallocate(dat1) 
+        else
+           read(iunit)
+        endif
+     endif  
+  
+     !  ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
+     !  ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
+     !  ALLOCATE ( Z1(NX,NY,NZ+1),P1(NX,NY,NZ+1) )
+     if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 6 .or. nrecord == 7 .or. nrecord == 8 .or. &
+          nrecord == 9 .or. nrecord == 11 ) then
+        !---record 4 : t1-->T
+        !---record 5 : Q1
+        !---record 6 : U1
+        !---record 7 : V1
+        !---record 8 : DZDT
+        !---record 9 : z1 --> DZ
+        !---record 11: p1-->delp, p1(nx,ny,nz+1): (((p1(i,j,k),i=1,nx),j=1,ny),k=nz+1,1,-1)
+        !---           p1-->ps
+        iz=nz
+        if ( nrecord == 9 .or. nrecord == 11 ) then
+           allocate(dat3(nx,ny,iz+1))
+        else
+           allocate(dat3(nx,ny,iz))
+        endif
+        read(iunit) dat3
+        allocate(dat41(nx,ny,iz,1)) 
+           
+        if ( nrecord == 9 .or. nrecord == 11 ) then  ! z1 to dz; p1 to delp
+           !---back pressure to delp on fv_core.res.tile1.nc
+           do k = 1, nz
+              dat41(:,:,nz-k+1,1)=dat3(:,:,k)-dat3(:,:,k+1)
+           enddo
+           !---debug: compare delp
+           allocate(dat4(ix, iy, iz, 1))
+           if ( nrecord == 9 ) then
+              call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'DZ', ix, iy, iz,1, dat4)
+              write(*,'(a,200f10.1)')'z1(1:nz+1):', dat3(int(nx/2),int(ny/2),1:nz+1)
+              write(*,'(a,200f10.3)')'restart DZ: ', dat4(int(ix/2),int(iy/2),1:nz,1)
+              write(*,'(a,200f10.3)')'derived DZ: ', dat41(int(nx/2),int(ny/2),1:nz,1)
+           elseif ( nrecord == 11 ) then
+              call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'delp', ix, iy, iz,1, dat4)
+              write(*,'(a,200f10.1)')'p1(1:nz+1)  :', dat3(int(nx/2),int(ny/2),1:nz+1)
+              write(*,'(a,200f10.3)')'restart delp: ', dat4(int(ix/2),int(iy/2),1:nz,1)
+              write(*,'(a,200f10.3)')'derived delp: ', dat41(int(nx/2),int(ny/2),1:nz,1)
+           endif
+           
+           !---phis
+           if ( nrecord == 9 ) then
+              allocate(phis1(nx,ny,1,1))
+              phis1(:,:,1,1)=dat3(:,:,1)
+           endif
+
+           deallocate(dat4)
+        else
+           do k = 1, iz
+              dat41(:,:,iz-k+1,1)=dat3(:,:,k)
+           enddo
+        endif
+        deallocate(dat3)
+     endif 
+
+     !-----------------------------
+     !---3.2 merge hafs restart and update restart files
+     !---    note: need to change nesting domain's filenames
+     if ( nrecord == 4) then  !T
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'T', ix, iy, iz,1, dat42) 
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'T', ix, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     elseif ( nrecord == 5 ) then  !sphum
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_tracer.res.tile1.nc'
+        allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'sphum', ix, iy, iz,1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'sphum', ix, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     elseif ( nrecord == 6 ) then  !u
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix, iy+1, iz, 1), dat43(ix, iy+1, iz, 1))
+        call get_var_data(trim(ncfile), 'u', ix, iy+1, iz,1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_u,dat43)
+        call update_hafs_restart(trim(ncfile), 'u', ix, iy+1, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     elseif ( nrecord == 7 ) then  !v
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix+1, iy, iz, 1), dat43(ix+1, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'v', ix+1, iy, iz, 1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix+1,iy,iz,1,dat42,gwt%gwt_v,dat43)
+        call update_hafs_restart(trim(ncfile), 'v', ix+1, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     elseif ( nrecord == 8 ) then  !W
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'W', ix, iy, iz,1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'W', ix, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     elseif ( nrecord == 9 ) then  !DZ, phis
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'DZ', ix, iy, iz,1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'DZ', ix, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+        allocate(phis2(ix, iy, 1, 1), dat43(ix, iy, 1, 1))
+        call get_var_data(trim(ncfile), 'phis', ix, iy, 1, 1, phis2)
+        call combine_grids_for_remap(nx,ny,1,1,phis1,ix,iy,1,1,phis2,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'phis', ix, iy, 1, 1, dat43)
+        deallocate(phis1, phis2, dat43)
+     elseif ( nrecord == 11 ) then  !delp
+        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
+        allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'delp', ix, iy, iz,1, dat42)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
+        call update_hafs_restart(trim(ncfile), 'delp', ix, iy, iz, 1, dat43)
+        deallocate(dat41, dat42, dat43)
+     endif
+        
+  enddo do_record_loop
+  close(iunit)
+
+  return
+  end subroutine hafsvi_postproc
+
+!========================================================================================

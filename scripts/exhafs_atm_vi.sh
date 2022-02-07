@@ -44,6 +44,7 @@ dy=`echo $CDATE | cut -c7-8`
 hh=`echo $CDATE | cut -c9-10`
 
 export RESTARTinp=${RESTARTinp:-${COMhafsprior}/RESTART}
+export RESTARTmrg=${RESTARTmrg:-${WORKhafs}/intercom/RESTART_merge}
 export INTCOMinit=${INTCOMinit:-${WORKhafs}/intercom/atm_init}
 export RESTARTinit=${RESTARTinit:-${WORKhafs}/intercom/RESTART_init}
 export RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART_vi}
@@ -380,17 +381,23 @@ fi
 # Interpolate storm_anl back to HAFS restart files
 cd $DATA
 
-# # post
-# work_dir=${DATA}/post
-# mkdir -p ${work_dir}
-# cd ${work_dir}
-# vortexradius=30
-# res=0.02
-# time ${HAFS_DATOOL} hafsvi_postproc --in_dir=${RESTARTinit} \
-#                                    --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-#                                    --tcvital=${tcvital} \
-#                                    --vortexradius=${vortexradius} --res=${res} \
-#                                    --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+# post
+mkdir -p ${RESTARTout}
+if [ $senv = init ] ; then
+  RESTARTdst=${RESTARTinit}
+elif [ -d ${RESTARTmrg} ] ; then
+  RESTARTdst=${RESTARTmrg}
+else
+  RESTARTdst=${RESTARTinp}
+fi
+${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+
+time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+                               --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                               --out_dir=${RESTARTdst}/
 
 #===============================================================================
 

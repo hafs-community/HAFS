@@ -58,6 +58,10 @@
 !                                 [ --tc_date=tcvital_date] [--res=deg ] \
 !                                 [--out_file=output_bin_file]
 !
+!    3.4) vi_postproc
+!       * hafs_datool.x hafsvi_postproc --in_file=[hafs_vi rot-ll bin file] \
+!                                       --out_dir=[hafs-restart subfolder]  \
+!                                       --infile_date=20200825.180000
 !=========================================================================
   use module_mpi
   use var_type
@@ -181,8 +185,8 @@
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
-     write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_grid)
-     !call hafsvi_postproc(trim(in_dir), trim(infile_date), trim(vortexradius), trim(out_file))
+     write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
+     call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir))
   endif
 
 !----------------------------------------------------------------

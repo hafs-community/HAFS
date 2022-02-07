@@ -694,7 +694,7 @@
 
      if ( ixs>=1 .and. ixs<=src_ix .and. jxs>=1 .and. jxs<=src_jx) then  !inside src-domain
         dst_weight=0.0
-        if ( gwt%relaxzone < 0 ) gwt%relaxzone = max(30, int(min(src_ix, src_jx, dst_ix, dst_jx)/10))
+        if ( gwt%relaxzone < 0 ) gwt%relaxzone = min(30, int(min(src_ix, src_jx, dst_ix, dst_jx)/10))
         !--- find relaxzone: min (i,j) or max (i,j) grids to src (1,1) and src(ix,jx)
         !  ixs, jxs  
         min_ij_src = min(ixs, jxs, src_ix-ixs, src_jx-jxs) ! shortest distance (grid not earth-distance) from SRC domain edge 
@@ -796,15 +796,15 @@
      !---debug
      !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
      !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
-     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
+     if ( i == int(ixo/4) .and.j == int(jxo/4) .and. k==1 .and. n==1 ) then
         write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
         write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
-        write(*,'(a,90f)')'--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
-        write(*,'(a,90f)')'--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
+        write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
+        write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         write(*,'(a,  90i10)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
         write(*,'(a,90f10.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-        write(*,'(a,90f)')'--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
-        write(*,'(a,  f)')'--          remaped value: ', fdat_out(i,j,k,n) 
+        write(*,'(a,  f)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+        write(*,'(a,  f)')    '--          remaped value: ', fdat_out(i,j,k,n) 
      endif 
     
   enddo; enddo; enddo; enddo

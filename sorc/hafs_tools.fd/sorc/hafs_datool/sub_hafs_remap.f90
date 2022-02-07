@@ -356,14 +356,13 @@
   write(*,'(a,i0,a,i0)')'---- processing t-cell: ', grid_dst%grid_xt,':',grid_dst%grid_yt
   allocate(x_oini(grid_dst%grid_xt, grid_dst%grid_yt), y_oini(grid_dst%grid_xt, grid_dst%grid_yt))
   !i=min(int(grid_dst%grid_xt/2), int(grid_dst%grid_xt/2)); j=min(int(grid_dst%grid_yt/2),int(grid_dst%grid_yt/2))
-  i=2;j=2
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
                           grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
                           x_oini, y_oini)
-
-  write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
-  write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
-     grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
+  i=2;j=2
+ !write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
+ !write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
+ !   grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
   !do j1=1,grid_dst%grid_yt; do i1=1,grid_dst%grid_xt
   !   write(98,'(4i6)')i1,j1,x_oini(i1,j1),y_oini(i1,j1)
   !enddo;enddo
