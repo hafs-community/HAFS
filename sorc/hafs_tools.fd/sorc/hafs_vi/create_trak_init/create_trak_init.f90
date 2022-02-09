@@ -1,75 +1,84 @@
+!---------------------------------------------------------------------------------------------------------
+! This code is designed to replace create_trak_fnl.f90 of HWRF: 2022 JungHoon Shin
+! Usage example:
+!   ./hafs_vi_create_trak_init.x storm_id
+!   e.g., ./hafs_vi_create_trak_init.x 13L
+! Input:
+!   fort.11: tcvitals message for the current forecast cycle
+!   fort.12: ATCF track file tracked from GFS and GDAS at FGAT time
+! Output:
+!   fort.30: contains TC center of GFS and GDAS at FGAT time, needed for splitting or merging GFS/GDAS vortex
+!
+! Output (fort.30) has the format as shown in below
+! AAA&BBB (lat/lon) is the TC center from atcfunix file. It REPEATS same storm center information
+! 72HDAS[cycle]  AAA BBB AAA BBB AAA BBB AAA BBB AAA BBB AAA BBB AAA BBB 0   0   0   0   0   0 [storm ID]
+! For example, for the Laura 13L at 2020081918 at FGAT-3 looks like this..
+! 72HDAS20081915 124 443 124 443 124 443 124 443 124 443 124 443 124 443 0   0   0   0   0   0 13L
+!---------------------------------------------------------------------------------------------------------
+program create_trak_init
+  implicit none
+  character(len=2)      :: part1,num,basin
+  character(len=3)      :: part2,storm_id
+  character(len=1)      :: ns,ew
+  integer               :: ihour,idat,ifh,lat,lon,stat
 
+  integer               :: iargc
 
-        CHARACTER PART1*2,storm_id*3,basin*2,NS*1,EW*1,NUM*2,PART2*3
+  if (iargc() .lt. 1) then
+     write(*,*)' usage: ./hafs_vi_create_trak_init.x storm_id'
+     write(*,*)' example: ./hafs_vi_create_trak_init.x 13L'
+     stop
+  else
+     call getarg(1, storm_id)
+  endif
 
-        READ(5,*)storm_id,IYEAR
+  if(storm_id(3:3).eq.'L') basin='AL'
+  if(storm_id(3:3).eq.'W') basin='WP'
+  if(storm_id(3:3).eq.'E') basin='EP'
+  if(storm_id(3:3).eq.'C') basin='CP'
+  if(storm_id(3:3).eq.'A') basin='AA'
+  if(storm_id(3:3).eq.'B') basin='BB'
+  if(storm_id(3:3).eq.'P') basin='SP'
+  if(storm_id(3:3).eq.'S') basin='SI'
 
-        IF(storm_id(3:3).eq.'L') basin='AL'
-        IF(storm_id(3:3).eq.'W') basin='WP'
-        IF(storm_id(3:3).eq.'E') basin='EP'
-        IF(storm_id(3:3).eq.'C') basin='CP'
-!zhang: for india ocean:
-        IF(storm_id(3:3).eq.'A') basin='AA'
-        IF(storm_id(3:3).eq.'B') basin='BB'
-!Chanh: for Southern hemisphere and Southern India Ocean
-        IF(storm_id(3:3).eq.'P') basin='SP'
-        IF(storm_id(3:3).eq.'S') basin='SI'
+  ifh=-1
+  ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
+  do
+    read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+    ! If we find the correct information, finish the do loop, with stat=0
+    if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
+    ! exit the do loop if stat is NOT 0
+    if( stat /= 0 ) exit
+  enddo
 
-        REWIND(12)
+  ! Checking the status of fort.12.
+  ! If lat & lon values are good (i.e., stat=0), which is normal case, we use the fort.12 as is.
+  ! If lat & lon are odd in the fort.12 (as shown in below if statement),
+  ! OR fort.12 (atcfunix) does not have correct information (i.e., stat is NOT 0)
+  ! this code read and output lat & lon values from tcvitals (fort.11) for trak.fnl.all_gfs (fort.30).
+  ! But don't worry. Normally fort.12 are good & below part will not be used in most or normal case
 
-        IFH=-1
+  if(abs(lat).lt.0.01 .or. abs(lon).lt.0.01 .or. stat /= 0) then
+    read(11,13) part2,idat,ihour,lat,ns,lon,ew
+    if(part2.ne.storm_id) then !Just checking whether tcvitals is correct one
+      print*,'Storm ID in the tcvital does not match with input, stop'
+      stop
+    endif
+    if( stat /= 0 )then
+      print*, 'Using tcvital information because atcfunix does not have correct information'
+    else
+      print*, 'Using tcvital information because lat and lon values of atcfunix is odd'
+    endif
+  endif
 
-        IF(IYEAR.LE.2005)THEN
+  if(ns.eq.'S')lat=-lat
+  if(ew.eq.'E')lon=3600-lon
 
-        DO I=1,1000
-          READ(12,65,end=104)PART1,NUM,IDAT,IHOUR,IFH,LAT,NS,LON,EW
-          IF(PART1.eq.basin.and.NUM.eq.storm_id(1:2).and.IFH.eq.0)then
-            if(abs(LAT).LT.0.01.or.abs(LON).lt.0.01)go to 104
-            if(NS.eq.'S')LAT=-LAT
-            if(EW.eq.'E')LON=3600-LON
-            go to 105
-          END IF
-        END DO
+  print*,part1,num,idat,lat,ns,lon,ew
+  write(30,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
 
- 65     FORMAT(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)
+  13 format(5x,A3,13x,I6,1x,I2,3x,I3,A1,1x,I4,A1)                 ! Input fort.11(tcvital) format
+  65 format(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)           ! Input fort.12(ATCF) format
+  15 format('72HDAS',I6,I2,14I4,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all_gfs) format
 
-        ELSE
-
-        DO I=1,1000
-!          READ(12,75,end=104)PART1,NUM,IDAT,IHOUR,IFH,LAT,NS,LON,EW
-          READ(12,65,end=104)PART1,NUM,IDAT,IHOUR,IFH,LAT,NS,LON,EW
-          IF(PART1.eq.basin.and.NUM.eq.storm_id(1:2).and.IFH.eq.0)then
-            if(abs(LAT).LT.0.01.or.abs(LON).lt.0.01)go to 104
-            if(NS.eq.'S')LAT=-LAT
-            if(EW.eq.'E')LON=3600-LON
-            go to 105
-          END IF
-        END DO
-
- 75     FORMAT(A2,1x,A2,1x,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)
-
-        ENDIF
-
- 104    CONTINUE
-
-        READ(11,13)PART2,IDAT,IHOUR,LAT,NS,LON,EW
- 13     FORMAT(5x,A3,13x,I6,1x,I2,3x,I3,A1,1x,I4,A1)
-        if(NS.eq.'S')LAT=-LAT
-        if(EW.eq.'E')LON=3600-LON
-
-        IF(PART2.ne.storm_id)then
-          print*,'can not find storm center in model guess, stop'
-          stop
-        end if
-
- 105    CONTINUE
-
-!CWH        print*,PART1,NUM,IDAT,IFH,LAT,NS,LON,EW
-        print*,PART1,NUM,IDAT,LAT,NS,LON,EW
-
-
-        WRITE(30,15)IDAT,IHOUR,LAT,LON,LAT,LON,LAT,LON,LAT,LON, &
-                    LAT,LON,LAT,LON,LAT,LON,storm_id
- 15     FORMAT('72HDAS',I6,I2,14I4,'   0   0   0   0   0   0',1x,3A)
-
-        END
+end program create_trak_init
