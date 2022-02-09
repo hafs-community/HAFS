@@ -1,4 +1,3 @@
-print_esmf:              _print_esmf_
 start_year:              YR
 start_month:             MN
 start_day:               DY
@@ -27,7 +26,6 @@ kchunk3d:                -1
 ideflate:                1
 nbits:                   0
 
-app_domain:              '_app_domain_'
 output_grid:             '_OUTPUT_GRID_'
 cen_lon:                 _CEN_LON_               # central longitude
 cen_lat:                 _CEN_LAT_               # central latitude
