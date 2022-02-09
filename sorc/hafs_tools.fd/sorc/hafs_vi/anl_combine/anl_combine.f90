@@ -1169,20 +1169,20 @@
 
 ! scale the coordinate
 
-      IF(ITIM /= 6)THEN
-        READ(30,442)(MLAT(J),MLON(J),J=1,7)
- 442    FORMAT(14x,14i4)
-        CLAT_NEW_6H=MLAT(4)*0.1
-        CLON_NEW_6H=-MLON(4)*0.1
-        if(I360.eq.180)then
-          IF(CLON_NEW_6H.LT.-180.)CLON_NEW_6H=360.+CLON_NEW_6H
-        end if
-        print *,'mtong CLAT_NEW_6H, CLON_NEW_6H=', CLAT_NEW_6H, CLON_NEW_6H
-        print *,'mtong CLAT_NHC, CLON_NHC=', CLAT_NHC, CLON_NHC
-        CLAT_NHC=CLAT_NHC-CLAT_NEW_6H+CLAT_NEW
-        CLON_NHC=CLON_NHC-CLON_NEW_6H+CLON_NEW
-        print *,'mtong new CLAT_NHC, CLON_NHC=', CLAT_NHC, CLON_NHC
-      END IF
+!     IF(ITIM /= 6)THEN
+!       READ(30,442)(MLAT(J),MLON(J),J=1,7)
+!442    FORMAT(14x,14i4)
+!       CLAT_NEW_6H=MLAT(4)*0.1
+!       CLON_NEW_6H=-MLON(4)*0.1
+!       if(I360.eq.180)then
+!         IF(CLON_NEW_6H.LT.-180.)CLON_NEW_6H=360.+CLON_NEW_6H
+!       end if
+!       print *,'mtong CLAT_NEW_6H, CLON_NEW_6H=', CLAT_NEW_6H, CLON_NEW_6H
+!       print *,'mtong CLAT_NHC, CLON_NHC=', CLAT_NHC, CLON_NHC
+!       CLAT_NHC=CLAT_NHC-CLAT_NEW_6H+CLAT_NEW
+!       CLON_NHC=CLON_NHC-CLON_NEW_6H+CLON_NEW
+!       print *,'mtong new CLAT_NHC, CLON_NHC=', CLAT_NHC, CLON_NHC
+!     END IF
 
       IF ( iparam == 1 ) THEN !* ---------------------------------------
 

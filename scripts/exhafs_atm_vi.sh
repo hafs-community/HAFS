@@ -53,15 +53,15 @@ export DATA=${DATA:-${WORKhafs}/atm_vi}
 cd $DATA
 
 if [ ${FGAT_HR} = 03 ]; then
-# cp ${WORKhafs}/tm03vit tcvitals.vi
-  cp ${WORKhafs}/tmpvit tcvitals.vi
+  cp ${WORKhafs}/tm03vit tcvitals.vi
+# cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=3
 elif [ ${FGAT_HR} = 06 ]; then
   cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
-# cp ${WORKhafs}/tp03vit tcvitals.vi
-  cp ${WORKhafs}/tmpvit tcvitals.vi
+  cp ${WORKhafs}/tp03vit tcvitals.vi
+# cp ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=9
 else
   cp ${WORKhafs}/tmpvit tcvitals.vi
@@ -84,13 +84,18 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   vortexradius=30
   res=0.02
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+                                     --debug_level=1 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+#                                    [--vortexposition=vortex_position ]
+#                                    [--debug_level=10 (default is 1) ]
+#                                    [--interpolation_points=5 (default is 4, range 1-500) ]
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+                                     --debug_level=1 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -171,6 +176,7 @@ cd $DATA
   vortexradius=30
   res=0.02
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+                                     --debug_level=1 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -178,6 +184,7 @@ cd $DATA
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+                                     --debug_level=1 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -396,8 +403,13 @@ ${NCP} -rp ${RESTARTdst}/grid_spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+                               --debug_level=1 --interpolation_points=4 \
+                               --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                --out_dir=${RESTARTdst}/
+#                              [--relaxzone=50 (grids, default is 30) ]
+#                              [--debug_level=10 (default is 1) ]
+#                              [--interpolation_points=5 (default is 4, range 1-500) ]
 
 #===============================================================================
 
