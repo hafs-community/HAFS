@@ -251,131 +251,6 @@
   end function
 
 !-----------------------------------------------------------------------+
-  subroutine typhoon_intensity_scale(windspeed, intensity_scale_en, intensity_scale_ch)
-
-  real, intent(in) :: windspeed   !m/s
-  character (len=40), intent(out) :: intensity_scale_en, intensity_scale_ch
-
-  intensity_scale_en = ' '
-  intensity_scale_ch = ' '
-
-  if ( windspeed > 10.7 .and. windspeed <= 17.1 ) then
-     intensity_scale_en = 'TD'
-     intensity_scale_ch = '热带低压'
-  else if ( windspeed > 17.1 .and. windspeed <= 24.4 ) then
-     intensity_scale_en = 'TS'
-     intensity_scale_ch = '热带风暴'
-  else if ( windspeed > 24.4 .and. windspeed <= 32.6 ) then
-     intensity_scale_en = 'STS'
-     intensity_scale_ch = '强热带风暴'
-  else if ( windspeed > 32.6 .and. windspeed <= 41.4 ) then
-     intensity_scale_en = 'TY'
-     intensity_scale_ch = '台风'
-  else if ( windspeed > 41.4 .and. windspeed <= 50.9 ) then
-     intensity_scale_en = 'STY'
-     intensity_scale_ch = '强台风'
-  else if ( windspeed > 50.9 ) then
-     intensity_scale_en = 'SuperTY'
-     intensity_scale_ch = '超强台风'
-  endif
-
-  return
-  end subroutine typhoon_intensity_scale
-
-!-----------------------------------------------------------------------+
-  subroutine typhoon_moving_direction(movedir, movedirection)
-  real, intent(in) :: movedir
-  character (len=40), intent(out) :: movedirection
-
-  integer, parameter  :: ndir=16
-  real             :: ddeg
-  character(len=3), dimension(ndir)  :: movediren
-  character(len=40),dimension(ndir)  :: movedirch
-  integer          :: nd
-  data movediren /'N  ','NNE','NE ','NEE','E  ','EES','ES ','ESS','S  ','SSW','SW ','SWW','W  ','WWN','WN ','WNN'/
-  data movedirch /'北  ','东北北','东北 ','东东北','东  ','东东南','东南 ','东南南','南  ','南南西','西南 ','西西南','西  ','西西北','西北','西北北'/ 
-
-  ddeg = 360./ndir
-  nd = int((movedir+ddeg/2.0)/ddeg)+1
-  
-  if ( nd > 0 .and. nd <= ndir) then
-     movedirection = movedirch(nd)
-  else
-     movedirection = '   '
-  endif 
-  
-  return
-  end subroutine typhoon_moving_direction
-
-!-----------------------------------------------------------------------+
-  subroutine tc_warning_area(lon, lat, warn)
-
-  real, intent(in)     :: lon, lat
-  integer, intent(out) :: warn
-
-!  real, dimension(2,4) :: line_warn_48h
-!  real, dimension(2,6) :: line_warn_24h
-!
-!  data line_warn_48h /132.0, 34.0, 132.0, 15.0, 120.0,  0.0, 105.0,  0.0/
-!  data line_warn_24h /127.0, 34.0, 127.0, 22.0, 119.0, 18.0, 119.0, 11.0, 113.0, 4.5, 105.0,  0.0/
-
-!                              |(127.0,34.0)   |(132.0,34.0)
-!                              |               |
-!                              |               |
-!                              |               |
-!                              |               |
-!                              |               |
-!                              /(127.0,22.0)   |
-!                             /                |
-!                            /                 |
-!                            |(119.0,18.0)     |
-!                            |                 |
-!                            |                /(132.0,15.0)
-!                            |               /
-!                            |              /
-!                            /(119.0,11.0) /
-!                           /             /
-!                          /             /
-!                         -(113.0,4.5)  /
-!                       /              /
-!                     /               /
-!                   -(105.0,0.0)    --(120.0,0.0)
-
-! every 0.1 lat deg
-  real, dimension(341)  :: lon_warn_24h, lon_warn_48h
-  integer               :: n
-  
-  do n = 1, 341
-     if ( n >= 1 .and. n < 46 ) then
-        lon_warn_24h(n) = (113.0-105.0)/(46-1)*(n-1) + 105.0
-     else if ( n >= 46 .and. n < 111 ) then
-        lon_warn_24h(n) = (119.0-113.0)/(111-46)*(n-46) + 113.0
-     else if ( n >= 111 .and. n < 181 ) then
-        lon_warn_24h(n) = 119.0
-     else if ( n >= 181 .and. n < 221 ) then
-        lon_warn_24h(n) = (127.0-119.0)/(221-181)*(n-181) + 119.0
-     else if ( n >= 221 .and. n <= 341) then
-        lon_warn_24h(n) = 127.0
-     endif
-
-     if ( n >= 1 .and. n < 151 ) then
-        lon_warn_48h(n) = (132.0-120.0)/(151-1)*(n-1) + 120.0
-     else if ( n >= 151 ) then
-        lon_warn_48h(n) = 132.0
-     endif 
-  enddo
-
-  warn = 0
-  n = int(lat/0.1)
-  if ( n >0 .and. n<=341) then
-     if ( lon <= lon_warn_48h(n) ) warn = 48
-     if ( lon <= lon_warn_24h(n) ) warn = 24
-  endif
-  
-  return
-  end subroutine tc_warning_area
-
-!-----------------------------------------------------------------------+
   subroutine interp_fill_nan_1d(nlen, dat, radius, value_min, value_max)
 
   integer, intent(in)                  :: nlen, radius
@@ -796,7 +671,7 @@
      !---debug
      !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
      !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
-     if ( i == int(ixo/4) .and.j == int(jxo/4) .and. k==1 .and. n==1 ) then
+     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==kxo .and. n==1 ) then
         write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
         write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
         write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)

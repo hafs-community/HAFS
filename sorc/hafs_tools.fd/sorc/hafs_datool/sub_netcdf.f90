@@ -189,18 +189,16 @@
   integer, intent ( in)           :: ix, jx, kx, tx  ! -1=no-this-dim
   real, dimension(abs(ix), abs(jx), abs(kx), abs(tx)), intent(in) :: dat4
 
-  integer :: ncid, varid, ndims, xtype
+  integer :: ncid, varid, ndims, xtype, rcode
   
- 
   call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile), .true.)
-  call nccheck(nf90_inq_varid(ncid, trim(varname), varid), 'wrong in inq_varid '//trim(varname), .true.)
   !---check variable's type: nf90_real, nf90_double
+  call nccheck(nf90_inq_varid(ncid, trim(varname), varid), 'wrong in inq_varid '//trim(varname), .true.)
   call nccheck(nf90_inquire_variable(ncid, varid, xtype=xtype, ndims=ndims), 'wrong in inquire '//trim(varname)//' xtype', .false.)
- 
   if ( xtype == nf90_float .or. xtype == nf90_real .or. xtype == nf90_real4 ) then
-        call nccheck(nf90_put_var(ncid, varid, dat4), 'wrong in write '//trim(varname), .false.)
+     call nccheck(nf90_put_var(ncid, varid, dat4), 'wrong in write '//trim(varname), .false.)
   else if ( xtype == nf90_double .or. xtype == nf90_real8 ) then
-        call nccheck(nf90_put_var(ncid, varid, dble(dat4)), 'wrong in write '//trim(varname), .false.)
+     call nccheck(nf90_put_var(ncid, varid, dble(dat4)), 'wrong in write '//trim(varname), .false.)
   endif
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
 
@@ -221,4 +219,3 @@
   end if
   end subroutine nccheck
 !=======================================================================================
-

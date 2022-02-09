@@ -146,7 +146,6 @@
 
 !------------------------------------------------------------------------------
 ! 4 --- calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
-  gwt%max_points=9 
   call cal_src_dst_grid_weight(grid_src, grid_dst)
 
 !------------------------------------------------------------------------------
@@ -359,10 +358,10 @@
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
                           grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
                           x_oini, y_oini)
-  i=2;j=2
- !write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
- !write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
- !   grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
+  i=int(grid_dst%grid_xt/2);j=int(grid_dst%grid_yt/2)
+  write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
+  write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
+     grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
   !do j1=1,grid_dst%grid_yt; do i1=1,grid_dst%grid_xt
   !   write(98,'(4i6)')i1,j1,x_oini(i1,j1),y_oini(i1,j1)
   !enddo;enddo
@@ -406,6 +405,8 @@
      lon_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = grid_dst%grid_lon(1:grid_dst%grid_xt,1:grid_dst%grid_y)
      lat_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = grid_dst%grid_lat(1:grid_dst%grid_xt,1:grid_dst%grid_y)
   endif
+
+  !if (debug) then
   write(*,'(a,2i8,4f10.3)')'src grid_lat: ', grid_src%grid_x , grid_src%grid_y, grid_src%grid_lat(1,1), &
                            grid_src%grid_lat(grid_src%grid_x,1), grid_src%grid_lat(grid_src%grid_x,grid_src%grid_y), &
                            grid_src%grid_lat(1,grid_src%grid_y)
@@ -422,6 +423,7 @@
   write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst  grid range:',minval(grid_dst%grid_lon),':',maxval(grid_dst%grid_lon), &
                            '; ',minval(grid_dst%grid_lat),':',maxval(grid_dst%grid_lat)
   write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst u-grid range:',minval(lon_dst),':',maxval(lon_dst),'; ',minval(lat_dst),':',maxval(lat_dst)
+  !endif !if (debug) then
 
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
                           grid_dst%grid_xt, grid_dst%grid_y, lat_dst, lon_dst, x_oini, y_oini)

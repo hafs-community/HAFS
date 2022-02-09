@@ -59,5 +59,8 @@ module var_type
  end type tc_track_info
  type(tc_track_info)    :: tc
 
+ integer                :: debug_level  ! default is 1, only print basic information
+                                        !            2-9: 
+
 end module var_type
  

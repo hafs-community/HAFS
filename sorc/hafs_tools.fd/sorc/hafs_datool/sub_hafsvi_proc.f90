@@ -168,7 +168,6 @@
    
 !------------------------------------------------------------------------------
 ! 5 --- calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
-  gwt%max_points=3
   call cal_src_dst_grid_weight(ingrid, dstgrid)
 
 !------------------------------------------------------------------------------
@@ -589,7 +588,6 @@
 
   !-----------------------------
   !---2.4 calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
-  gwt%max_points=3
   call cal_src_dst_grid_weight(ingrid, dstgrid)
  
 !------------------------------------------------------------------------------
@@ -615,12 +613,12 @@
         if ( nrecord == 12 ) then
            allocate(dat2(nx,ny))
            read(iunit)dat2
-           write(*,'(a,200f10.1)')'pd1: ',dat2(int(nx/2),int(ny/2))
+           !write(*,'(a,200f10.1)')'pd1: ',dat2(int(nx/2),int(ny/2))
         elseif ( nrecord == 13 .or. nrecord == 14 ) then
            allocate(dat1(nz+1))
            read(iunit)dat1
-           if ( nrecord == 13 ) write(*,'(a3,i1,a,200f10.1)')'eta',nrecord-12,': ',dat1
-           if ( nrecord == 14 ) write(*,'(a3,i1,a,200f10.6)')'eta',nrecord-12,': ',dat1
+           !if ( nrecord == 13 ) write(*,'(a3,i1,a,200f10.1)')'eta',nrecord-12,': ',dat1
+           !if ( nrecord == 14 ) write(*,'(a3,i1,a,200f10.6)')'eta',nrecord-12,': ',dat1
            deallocate(dat1) 
         else
            read(iunit)
@@ -655,26 +653,25 @@
               dat41(:,:,nz-k+1,1)=dat3(:,:,k)-dat3(:,:,k+1)
            enddo
            !---debug: compare delp
-           allocate(dat4(ix, iy, iz, 1))
-           if ( nrecord == 9 ) then
-              call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'DZ', ix, iy, iz,1, dat4)
-              write(*,'(a,200f10.1)')'z1(1:nz+1):', dat3(int(nx/2),int(ny/2),1:nz+1)
-              write(*,'(a,200f10.3)')'restart DZ: ', dat4(int(ix/2),int(iy/2),1:nz,1)
-              write(*,'(a,200f10.3)')'derived DZ: ', dat41(int(nx/2),int(ny/2),1:nz,1)
-           elseif ( nrecord == 11 ) then
-              call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'delp', ix, iy, iz,1, dat4)
-              write(*,'(a,200f10.1)')'p1(1:nz+1)  :', dat3(int(nx/2),int(ny/2),1:nz+1)
-              write(*,'(a,200f10.3)')'restart delp: ', dat4(int(ix/2),int(iy/2),1:nz,1)
-              write(*,'(a,200f10.3)')'derived delp: ', dat41(int(nx/2),int(ny/2),1:nz,1)
-           endif
+           !allocate(dat4(ix, iy, iz, 1))
+           !if ( nrecord == 9 ) then
+           !   call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'DZ', ix, iy, iz,1, dat4)
+           !   write(*,'(a,200f10.1)')'z1(1:nz+1):', dat3(int(nx/2),int(ny/2),1:nz+1)
+           !   write(*,'(a,200f10.3)')'restart DZ: ', dat4(int(ix/2),int(iy/2),1:nz,1)
+           !   write(*,'(a,200f10.3)')'derived DZ: ', dat41(int(nx/2),int(ny/2),1:nz,1)
+           !elseif ( nrecord == 11 ) then
+           !   call get_var_data(trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc', 'delp', ix, iy, iz,1, dat4)
+           !   write(*,'(a,200f10.1)')'p1(1:nz+1)  :', dat3(int(nx/2),int(ny/2),1:nz+1)
+           !   write(*,'(a,200f10.3)')'restart delp: ', dat4(int(ix/2),int(iy/2),1:nz,1)
+           !   write(*,'(a,200f10.3)')'derived delp: ', dat41(int(nx/2),int(ny/2),1:nz,1)
+           !endif
+           !deallocate(dat4)
            
            !---phis
            if ( nrecord == 9 ) then
               allocate(phis1(nx,ny,1,1))
               phis1(:,:,1,1)=dat3(:,:,1)
            endif
-
-           deallocate(dat4)
         else
            do k = 1, iz
               dat41(:,:,iz-k+1,1)=dat3(:,:,k)
@@ -704,8 +701,16 @@
         ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
         allocate(dat42(ix, iy+1, iz, 1), dat43(ix, iy+1, iz, 1))
         call get_var_data(trim(ncfile), 'u', ix, iy+1, iz,1, dat42)
-        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_u,dat43)
+        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy+1,iz,1,dat42,gwt%gwt_u,dat43)
         call update_hafs_restart(trim(ncfile), 'u', ix, iy+1, iz, 1, dat43)
+
+        write(*,'(a,3f)')'vi dat41:', hlon(int(nx/2),int(ny/2)), hlat(int(nx/2),int(ny/2)), dat41(int(nx/2),int(ny/2), iz,1) 
+        write(*,'(a,3f)')'nc dat42:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat42(int(ix/2), int(iy/2),iz,1)
+        write(*,'(a,3f)')'an dat43:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat43(int(ix/2), int(iy/2),iz,1)
+        write(*,'(a,3f)')'vi  749:748  = ', hlon(749,748), hlat(749,748), dat41(749,748,iz,1)
+        write(*,'(a,3f)')'ing 749:748  = ', ingrid%grid_lont(749,748), ingrid%grid_latt(749,748), dat41(749,748,iz,1)
+        write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat42(1260,1200,iz,1)
+        write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat43(1260,1200,iz,1) 
         deallocate(dat41, dat42, dat43)
      elseif ( nrecord == 7 ) then  !v
         ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
@@ -744,6 +749,7 @@
         
   enddo do_record_loop
   close(iunit)
+  write(*,*)'--- hafsvi_postproc completed ---'
 
   return
   end subroutine hafsvi_postproc

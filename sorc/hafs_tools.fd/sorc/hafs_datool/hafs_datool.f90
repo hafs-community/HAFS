@@ -76,7 +76,7 @@
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
                           out_dir='w', out_grid='w', out_data='w', out_file='w',  &
                           vortexradius='w', infile_date='w', relaxzone='',        &
-                          tc_date='w', res='w'
+                          tc_date='w', res='w', debug_levelc='w', interpolation_pointsc='w'
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
@@ -113,6 +113,8 @@
                case ('--relaxzone');      relaxzone=arg(j+1:n)
                case ('--tc_date');        tc_date=arg(j+1:n)  !20210312.0930  
                case ('--res');            res=arg(j+1:n)  !0.02
+               case ('--debug_level');    debug_levelc=arg(j+1:n)  !
+               case ('--interpolation_points'); interpolation_pointsc=arg(j+1:n)  !
         end select
      enddo
   endif
@@ -121,12 +123,14 @@
 ! 2 --- process args and initialization
   tc%lat=-9999.0; tc%lon=-9999.0; tc%pmin=-9999.0; tc%vmax=-9999.0; tc%vortexreplace_r(1:2)=-9999.0
 
-! 2.1 --- relaxzone
-  if (len_trim(relaxzone) > 0 ) then
-     read(relaxzone,*)gwt%relaxzone
-  else
-     gwt%relaxzone=-99
-  endif
+! 2.1 --- relaxzone, debug_level, interpolation_points
+  gwt%relaxzone=-99; if (len_trim(relaxzone) > 0 ) read(relaxzone,*)gwt%relaxzone
+
+  if (len_trim(debug_levelc) > 0 ) read(debug_levelc,*)debug_level
+  if ( debug_level < 0 .or. debug_level > 999999 ) debug_level = 1
+
+  if (len_trim(interpolation_pointsc) > 0 ) read(interpolation_pointsc,*)gwt%max_points
+  if ( gwt%max_points > 9999 .or. gwt%max_points < 1 ) gwt%max_points=4
 
 ! 2.2 --- tc info requirement
   if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
