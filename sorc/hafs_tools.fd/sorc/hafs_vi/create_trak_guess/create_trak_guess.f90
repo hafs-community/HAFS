@@ -17,8 +17,8 @@
 !---------------------------------------------------------------------------------------------------------
 program create_trak_guess
   implicit none
-  character(len=2)      :: part1,num
-  character(len=3)      :: storm_id
+  character(len=2)      :: part1,num,basin
+  character(len=3)      :: part2,storm_id
   character(len=1)      :: ns,ew
   integer               :: idat,ihour,ifh,lat,lon,ih,j,stat
   integer,dimension(7)  :: lathr,lonhr
@@ -32,6 +32,15 @@ program create_trak_guess
   else
      call getarg(1, storm_id)
   endif
+
+  if(storm_id(3:3).eq.'L') basin='AL'
+  if(storm_id(3:3).eq.'W') basin='WP'
+  if(storm_id(3:3).eq.'E') basin='EP'
+  if(storm_id(3:3).eq.'C') basin='CP'
+  if(storm_id(3:3).eq.'A') basin='AA'
+  if(storm_id(3:3).eq.'B') basin='BB'
+  if(storm_id(3:3).eq.'P') basin='SP'
+  if(storm_id(3:3).eq.'S') basin='SI'
 
   ! Set null vaules for the output (fort.30)
   lathr=9999
@@ -50,25 +59,26 @@ program create_trak_guess
     if(stat /= 0 .or. ifh.eq.9) exit 
   enddo
 
-  ! If there is no 9-h data in the ATCF file, we need to make sure 6-h position is avaliable in
-  ! the previous HAFS forecast ATCF file. But Normally 6-h position exist, so don't worry
-
-  if(stat /= 0) then
-    if(lathr(4).eq.9999 .or. lonhr(4).eq.9999) then
-      print*,'There is no 6 hour storm position in the previous HAFS cycle'
-      stop
-    else if(lathr(4).eq.0 .and. lathr(4).eq.0) then
-      print*,'There is no 6 hour storm position in the previous HAFS cycle'
-      stop
+  ! If there are no valid lat/lon locations from fort.12, then using the lat/lon
+  ! values from fort.11 to fill the FGAT hours
+  read(11,13) part2,idat,ihour,lat,ns,lon,ew
+  if(ns.eq.'S')lat=-lat
+  if(ew.eq.'E')lon=3600-lon
+  do ih=1,7,3
+    if(abs(lathr(ih)).eq.9999 .or. abs(lonhr(ih)).eq.9999) then
+      print*, 'ih,lathr(ih),lonhr(ih)=',ih,lathr(ih),lonhr(ih)
+      print*, 'Using lat/lon from tcvitals to overwrite'
+      lathr(ih)=lat
+      lonhr(ih)=lon
     endif
-  endif
+  enddo
 
-  print*, part1,num,idat,ifh,lat,ns,lon,ew,storm_id
+  write(*,15) idat,ihour,(lathr(j),lonhr(j),j=1,7),storm_id
   write(30,15) idat,ihour,(lathr(j),lonhr(j),j=1,7),storm_id
 
   13 format(5x,A3,13x,I6,1x,I2,3x,I3,A1,1x,I4,A1)                 ! Input fort.11 (tcvital) format
   65 format(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)           ! Input fort.12 (ATCF) format
-  15 format('72HDAS',I6,I2,14I4,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all) format
+  15 format('72HDAS',I6,I2,14I5,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all) format
 
 end program create_trak_guess 
 

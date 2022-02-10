@@ -41,10 +41,16 @@ program create_trak_init
   if(storm_id(3:3).eq.'P') basin='SP'
   if(storm_id(3:3).eq.'S') basin='SI'
 
+  ! Set null vaules for the output (fort.30)
+  lat=9999
+  lon=9999
   ifh=-1
+
   ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+    if(ns.eq.'S')lat=-lat
+    if(ew.eq.'E')lon=3600-lon
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
     ! exit the do loop if stat is NOT 0
@@ -58,27 +64,22 @@ program create_trak_init
   ! this code read and output lat & lon values from tcvitals (fort.11) for trak.fnl.all_gfs (fort.30).
   ! But don't worry. Normally fort.12 are good & below part will not be used in most or normal case
 
-  if(abs(lat).lt.0.01 .or. abs(lon).lt.0.01 .or. stat /= 0) then
-    read(11,13) part2,idat,ihour,lat,ns,lon,ew
-    if(part2.ne.storm_id) then !Just checking whether tcvitals is correct one
-      print*,'Storm ID in the tcvital does not match with input, stop'
-      stop
-    endif
+  if(abs(lat).eq.9999 .or. abs(lon).eq.9999 .or. stat /= 0) then
     if( stat /= 0 )then
       print*, 'Using tcvital information because atcfunix does not have correct information'
     else
       print*, 'Using tcvital information because lat and lon values of atcfunix is odd'
     endif
+    read(11,13) part2,idat,ihour,lat,ns,lon,ew
+    if(ns.eq.'S')lat=-lat
+    if(ew.eq.'E')lon=3600-lon
   endif
 
-  if(ns.eq.'S')lat=-lat
-  if(ew.eq.'E')lon=3600-lon
-
-  print*,part1,num,idat,lat,ns,lon,ew
+  write(*,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
   write(30,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
 
   13 format(5x,A3,13x,I6,1x,I2,3x,I3,A1,1x,I4,A1)                 ! Input fort.11(tcvital) format
   65 format(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)           ! Input fort.12(ATCF) format
-  15 format('72HDAS',I6,I2,14I4,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all_gfs) format
+  15 format('72HDAS',I6,I2,14I5,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all_gfs) format
 
 end program create_trak_init

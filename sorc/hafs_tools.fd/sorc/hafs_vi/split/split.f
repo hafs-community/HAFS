@@ -846,7 +846,7 @@
         PRINT*,' CT STORM Model CENTER at ',ITIM,'h = ',
      &          STMNAME(I),STMCX(I),STMCY(I)
       END DO
- 442  FORMAT(14x,14i4,25x,A3)
+ 442  FORMAT(14x,14i5,25x,A3)
  436  CONTINUE
 
       REWIND 30
@@ -1977,7 +1977,7 @@
         K1STM=K1STM+1
         PRINT*,'QLIU test=',STMNAME(I),STMCX(I),STMCY(I)
       END DO
- 442  FORMAT(14x,14i4,25x,A3)
+ 442  FORMAT(14x,14i5,25x,A3)
  436  CONTINUE
 
 !.. READ U, V at ~850 mb
@@ -2397,7 +2397,7 @@
           IF(STMNAME(I).EQ.ST_NAME(KST))THEN
             IFWRT=0
             DO J=1,7
-        IF(ISTMCY1(J,I).EQ.0.and.ISTMCX1(J,I).EQ.0)THEN
+            IF(ISTMCY1(J,I).EQ.0.and.ISTMCX1(J,I).EQ.0)THEN
               IFWRT=1
             END IF
             END DO
