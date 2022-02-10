@@ -26,7 +26,7 @@
 /
 
  &fms2_io_nml
-netcdf_default_format="netcdf4"
+       netcdf_default_format="netcdf4"
 /
 
  &fms_nml
@@ -116,7 +116,7 @@ netcdf_default_format="netcdf4"
        twowaynest = .true.
        nestupdate = 7
 
-       full_zs_filter = .F. !unreleased feature
+       full_zs_filter = .T. !unreleased feature
        n_zs_filter = 1
        nord_zs_filter = 4
 /
@@ -126,9 +126,9 @@ netcdf_default_format="netcdf4"
        cd4 = 0.15
        cd2 = -1
        n_del2_strong = 0
-       n_del2_weak = 15
+       n_del2_weak = 24
        n_del4 = 2
-       max_slope = 0.4
+       max_slope = 0.3
        peak_fac = 1.
 /
 

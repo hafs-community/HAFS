@@ -25,6 +25,10 @@
        max_files_w = 1000,
 /
 
+ &fms2_io_nml
+       netcdf_default_format="netcdf4"
+/
+
  &fms_nml
        clock_grain = 'ROUTINE',
        domains_stack_size = 30000000,
@@ -112,7 +116,7 @@
        twowaynest = .true.
        nestupdate = 7
 
-       full_zs_filter = .F. !unreleased feature
+       full_zs_filter = .T. !unreleased feature
        n_zs_filter = 1
        nord_zs_filter = 4
 /
@@ -122,9 +126,9 @@
        cd4 = 0.15
        cd2 = -1
        n_del2_strong = 0
-       n_del2_weak = 15
+       n_del2_weak = 20
        n_del4 = 2
-       max_slope = 0.4
+       max_slope = 0.15
        peak_fac = 1.
 /
 
