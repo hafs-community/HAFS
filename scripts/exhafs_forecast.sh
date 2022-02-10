@@ -1233,7 +1233,7 @@ elif [ ${run_docn} = yes ];  then
 fi
 
 sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
-    -e "s/H_R/$cyc/g" -e "s/NHRS/$NHRS/g" \
+    -e "s/H_R/$hh/g" -e "s/NHRS/$NHRS/g" \
     -e "s/_dt_atmos_/${dt_atmos}/g" \
     -e "s/_restart_interval_/${restart_interval}/g" \
     -e "s/_quilting_/${quilting}/g" \
