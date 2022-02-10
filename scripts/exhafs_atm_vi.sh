@@ -121,7 +121,7 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   ln -sf ./trak.fnl.all fort.30
 
   ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_create_trak_guess.x ./
-  echo ${STORMID} ${CDATE:8:2} | ./hafs_vi_create_trak_guess.x
+  time ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
   # input
@@ -210,7 +210,7 @@ cd $DATA
   ln -sf ./trak.fnl.all fort.30
 
   ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_create_trak_init.x ./
-  echo ${STORMID} ${CDATE:8:2} | ./hafs_vi_create_trak_init.x
+  time ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
   # input
