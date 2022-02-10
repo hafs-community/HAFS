@@ -406,7 +406,7 @@ time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
                                --debug_level=1 --interpolation_points=4 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                               --out_dir=${RESTARTdst}/
+                               --out_dir=${RESTARTout}/
 #                              [--relaxzone=50 (grids, default is 30) ]
 #                              [--debug_level=10 (default is 1) ]
 #                              [--interpolation_points=5 (default is 4, range 1-500) ]

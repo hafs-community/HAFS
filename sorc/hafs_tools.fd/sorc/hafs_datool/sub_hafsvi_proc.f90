@@ -621,6 +621,7 @@
      !  ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
      !  ALLOCATE ( Z1(NX,NY,NZ+1),P1(NX,NY,NZ+1) )
      if ( nrecord == 6 ) then   !u,v - 6,7
+        iz=nz
         allocate(dat3(nx,ny,iz), u1(nx,ny,iz,1), v1(nx,ny,iz,1))
         read(iunit) dat3
         do k = 1, nz
