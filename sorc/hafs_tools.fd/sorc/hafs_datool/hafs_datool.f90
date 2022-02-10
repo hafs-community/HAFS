@@ -76,7 +76,7 @@
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
                           out_dir='w', out_grid='w', out_data='w', out_file='w',  &
                           vortexradius='w', infile_date='w', relaxzone='',        &
-                          tc_date='w', res='w', debug_levelc='w', interpolation_pointsc='w'
+                          tc_date='w', res='w', debug_levelc='', interpolation_pointsc=''
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
@@ -126,10 +126,10 @@
 ! 2.1 --- relaxzone, debug_level, interpolation_points
   gwt%relaxzone=-99; if (len_trim(relaxzone) > 0 ) read(relaxzone,*)gwt%relaxzone
 
-  if (len_trim(debug_levelc) > 0 ) read(debug_levelc,*)debug_level
+  if (len_trim(debug_levelc) > 1 .and. trim(debug_levelc) .ne. "w") read(debug_levelc,*)debug_level
   if ( debug_level < 0 .or. debug_level > 999999 ) debug_level = 1
 
-  if (len_trim(interpolation_pointsc) > 0 ) read(interpolation_pointsc,*)gwt%max_points
+  if (len_trim(interpolation_pointsc) > 1 .and. trim(interpolation_pointsc) .ne. "w") read(interpolation_pointsc,*)gwt%max_points
   if ( gwt%max_points > 9999 .or. gwt%max_points < 1 ) gwt%max_points=4
 
 ! 2.2 --- tc info requirement

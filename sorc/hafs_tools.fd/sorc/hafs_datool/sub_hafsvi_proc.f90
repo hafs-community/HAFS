@@ -58,12 +58,13 @@
   integer  :: i, j, k, flid, ncid, ndims, nrecord
   real     :: rot_lon, rot_lat, ptop
   integer, dimension(nf90_max_var_dims) :: dims
-  real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43
+  real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, u, v
   real, allocatable, dimension(:,:,:)   :: dat3, dat31
-  real, allocatable, dimension(:,:)     :: dat2, sfcp
+  real, allocatable, dimension(:,:)     :: dat2, dat21, sfcp
   real, allocatable, dimension(:)       :: dat1
 
   !real, allocatable, dimension(:)       :: pfull, phalf
+  real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
  
   
 !------------------------------------------------------------------------------
@@ -104,18 +105,12 @@
   ix=ingrid%grid_xt
   iy=ingrid%grid_yt
 
+!       call FV3-grid cos and sin
+  allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) ) 
+  call cal_uv_coeff_fv3(ix, iy, ingrid%grid_lat, ingrid%grid_lon, cangu, sangu, cangv, sangv) 
+
 !------------------------------------------------------------------------------
 ! 3 --- define rot-ll grid
-!-- hafs restart grid
-!--   ( 1,ix)  ( 1, 1)
-!--   (jx,ix)  (jx, 1)
-
-  !dlon = abs(ingrid%grid_lon(int(iy/2),int(ix/2)) - ingrid%grid_lon(int(iy/2),int(ix/2)+1))   !-- 0.0321
-  !dlon = int((dlon+0.0035)*100)/100. 
-  !dlat = abs(ingrid%grid_lat(int(iy/2),int(ix/2)) - ingrid%grid_lat(int(iy/2)+1,int(ix/2)))
-  !dlat = int((dlat+0.0035)*100)/100. 
-  !write(*,'(a,2i5,4f10.5)')'---ingrid: ',ix, iy, ingrid%grid_lon(int(iy/2),int(ix/2)), &
-  !     ingrid%grid_lon(int(iy/2),int(ix/2)+1), ingrid%grid_lat(int(iy/2),int(ix/2)), ingrid%grid_lat(int(iy/2)+1,int(ix/2))
   cen_lat = tc%lat
   cen_lon = tc%lon
   nx = int(radiusf/2.0/dlon+0.5)*2+1 
@@ -127,28 +122,14 @@
   !!--- get rot-ll grid
   allocate(glon(nx,ny), glat(nx,ny))
   do j = 1, ny; do i = 1, nx
-     !rot_lon = lon1 + dlon*(i-1)
-     !rot_lat = lat1 + dlat*(j-1)
      rot_lon = lon2 - dlon*(i-1)
      rot_lat = lat2 - dlat*(j-1)
      call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
-     !write(*,*)rot_lon,rot_lat,glon(i,j), glat(i,j)
-     !pause
-  !   glon(i,j)=rot_lon
-  !   glat(i,j)=rot_lat
-  !   !call ijll_rotlatlon(real(i), real(j), radiusf/2.0, radiusf/2.0, nx, ny, lat1, lon1, 'T', glat(i,j), glon(i,j))
-  !   call ijll_rotlatlon(real(i), real(j), radiusf/2.0, radiusf/2.0, nx, ny, cen_lat, cen_lon, 'T', glat(i,j), glon(i,j))
-  !   !write(*,'(a,2i5,2f10.4)')'---ijll_rotlatlon ', i, j, glat(i,j), glon(i,j)
   enddo; enddo
-  !lon1 = glon(1, 1)
-  !lat1 = glat(1, 1) 
-  !lon2 = glon(nx, ny)
-  !lat2 = glat(nx, ny)
   write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
-
-  write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1) 
-  write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1) 
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1) 
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1) 
 
 !------------------------------------------------------------------------------
 ! 4 --- set dstgrid
@@ -199,7 +180,6 @@
         if ( filetype == 1) then
            write(*,'(a,3i6)')'=== record1: ',nx, ny, nz
            write(flid) nx, ny, nz 
-           write(flid+nrecord) nx, ny, nz 
         endif
      endif
 
@@ -208,7 +188,6 @@
      if ( nrecord == 2 ) then
         write(*,'(a,6f8.3)')'=== record2: ',lon1,lat1,lon2,lat2,cen_lon,cen_lat
         write(flid) lon1,lat1,lon2,lat2,cen_lon,cen_lat
-        write(flid+nrecord) lon1,lat1,lon2,lat2,cen_lon,cen_lat
      endif   
 
      !-----------------------------
@@ -269,28 +248,27 @@
   
      !-----------------------------
      !---7.6 record 6: (((ugrd(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+     !---7.7 record 7: (((vgrd(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
      if ( nrecord == 6 ) then
+        !---get u,v from restart
         infile=trim(indir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
-        allocate(dat4(ix, iy+1, iz,1))
-        call get_var_data(trim(infile), 'u', ix, iy+1, iz, 1, dat4)
-        !-- processing: destage + north-wind?
-        allocate(dat41(ix, iy, iz,1))
-        dat41(:,:,:,1)=(dat4(:,1:iy,:,1)+dat4(:,2:iy+1,:,1))/2.0
-        deallocate(dat4)
+        allocate(dat41(ix, iy+1, iz,1), dat42(ix+1, iy, iz, 1))
+        call get_var_data(trim(infile), 'u', ix, iy+1, iz, 1, dat41)
+        call get_var_data(trim(infile), 'v', ix+1, iy, iz, 1, dat42)
+
+        !---convert u,v from fv3grid to earth
+        allocate(u(ix, iy, iz,1), v(ix, iy, iz, 1))
+        allocate(dat2(ix, iy+1), dat21(ix+1, iy))
+        do k = 1, iz
+           call fv3uv2earth(ix, iy, dat41(:,:,k,1), dat42(:,:,k,1), cangu, sangu, cangv, sangv, dat2, dat21)
+           !---destage: C-/D- grid to A-grid
+           u(:,:,k,1) = (dat2 (:,1:iy)+dat2 (:,2:iy+1))/2.0
+           v(:,:,k,1) = (dat21(1:ix,:)+dat21(2:ix+1,:))/2.0
+        enddo
+
+        deallocate(dat41, dat42, dat2, dat21, cangu, sangu, cangv, sangv)
      endif  
  
-     !-----------------------------
-     !---7.7 record 7: (((vgrd(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
-     if ( nrecord == 7 ) then
-        infile=trim(indir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
-        allocate(dat4(ix+1, iy, iz,1))
-        call get_var_data(trim(infile), 'v', ix+1, iy, iz, 1, dat4)
-        !-- processing: destage + north-wind?
-        allocate(dat41(ix, iy, iz,1))
-        dat41(:,:,:,1)=(dat4(1:ix,:,:,1)+dat4(2:ix+1,:,:,1))/2.0
-        deallocate(dat4)
-     endif
-
      !-----------------------------
      !---7.8 record 8: (((dzdt(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
      if ( nrecord == 8 ) then
@@ -333,7 +311,6 @@
      if ( nrecord == 10 ) then
         write(*,'(a,4f8.3)')'=== record10: ',glon(1,1), glat(1,1), glon(ix,iy), glat(ix,iy)
         write(flid) glon,glat,glon,glat 
-        write(flid+nrecord) glon,glat,glon,glat 
      endif
    
      !-----------------------------
@@ -378,7 +355,6 @@
         call get_var_data(trim(infile), 'ak', iz+1, 1, 1, 1, dat4)
         write(*,'(a,200f12.1)')'=== record13: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
-        write(flid+nrecord) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
    
@@ -390,7 +366,6 @@
         call get_var_data(trim(infile), 'bk', iz+1, 1, 1, 1, dat4)
         write(*,'(a,200f10.3)')'=== record14: ', (dat4(k,1,1,1),k=1,iz+1)
         write(flid) (dat4(k,1,1,1),k=1,iz+1)
-        write(flid+nrecord) (dat4(k,1,1,1),k=1,iz+1)
         deallocate(dat4) 
      endif
    
@@ -435,8 +410,8 @@
    
      !-----------------------------
      !---7.18 output 3d
-     if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. nrecord == 6 .or. &
-          nrecord == 7 .or. nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 .or. &
+     if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. &
+          nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 .or. &
           nrecord ==12 .or. nrecord ==15 .or. nrecord ==16 .or. nrecord ==17 ) then
         kz=nz
         if ( nrecord == 12 .or. nrecord == 15 .or. nrecord == 16 .or. nrecord ==17 ) then
@@ -446,18 +421,28 @@
            kz=nz+1
         endif
         !--- map fv3 grid to rot-ll grid: ingrid-->dstgrid
-        allocate(dat42(nx,ny,kz,1))
-        dat42=-9999999.
-        call combine_grids_for_remap(ix,iy,kz,1,dat41,nx,ny,kz,1,dat42,gwt%gwt_t,dat42)
+        allocate(dat42(nx,ny,kz,1), dat43(nx,ny,kz,1))
+        dat42=-9999999.; 
+        call combine_grids_for_remap(ix,iy,kz,1,dat41,nx,ny,kz,1,dat42,gwt%gwt_t,dat43)
   
         !--- output
         write(*,'(a,i3)')' --- output record ', nrecord
         if ( filetype == 1) then
-           write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
-           write(flid) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-           write(flid+nrecord) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
+           write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat43(int(nx/2),int(ny/2),:,1)
+           write(flid) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
         endif
-        deallocate(dat41,dat42)
+        deallocate(dat41, dat42, dat43)
+     else if ( nrecord == 6 ) then  !---u,v
+        kz=nz
+        !--- map u to rot-ll grid: ingrid-->dstgrid
+        allocate(dat42(nx,ny,kz,1), dat43(nx,ny,kz,1))
+        dat42=-9999999.; dat43=0.0
+        call combine_grids_for_remap(ix,iy,kz,1,u,nx,ny,kz,1,dat42,gwt%gwt_t,dat43)
+        write(flid) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
+        dat42=-9999999.; dat43=0.0
+        call combine_grids_for_remap(ix,iy,kz,1,v,nx,ny,kz,1,dat42,gwt%gwt_t,dat43)
+        write(flid) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
+        deallocate(u, v, dat42, dat43)
      endif 
 
   enddo do_out_var_loop !: for nrecord = 1, 17
@@ -526,11 +511,13 @@
   real, allocatable, dimension(:,:) :: hlon, hlat, vlon, vlat
 
   integer  :: i, j, k, n, flid, ncid, ndims, nrecord, iunit
-  real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, phis1, phis2, sfcp1, sfcp2
+  real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, phis1, phis2, sfcp1, sfcp2, u1, v1, u, v
   real, allocatable, dimension(:,:,:)   :: dat3, dat31
-  real, allocatable, dimension(:,:)     :: dat2
+  real, allocatable, dimension(:,:)     :: dat2, dat21
   real, allocatable, dimension(:)       :: dat1
   real     :: ptop
+
+  real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
 
 !------------------------------------------------------------------------------
 ! 1 --- arg process
@@ -587,7 +574,12 @@
   iy = dstgrid%grid_yt
 
   !-----------------------------
-  !---2.4 calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
+  !---2.4 call FV3-grid cos and sin
+  allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) )
+  call cal_uv_coeff_fv3(ix, iy, dstgrid%grid_lat, dstgrid%grid_lon, cangu, sangu, cangv, sangv)
+
+  !-----------------------------
+  !---2.5 calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
   call cal_src_dst_grid_weight(ingrid, dstgrid)
  
 !------------------------------------------------------------------------------
@@ -628,7 +620,20 @@
      !  ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
      !  ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
      !  ALLOCATE ( Z1(NX,NY,NZ+1),P1(NX,NY,NZ+1) )
-     if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 6 .or. nrecord == 7 .or. nrecord == 8 .or. &
+     if ( nrecord == 6 ) then   !u,v - 6,7
+        allocate(dat3(nx,ny,iz), u1(nx,ny,iz,1), v1(nx,ny,iz,1))
+        read(iunit) dat3
+        do k = 1, nz
+           u1(:,:,nz-k+1,1)=dat3(:,:,k)
+        enddo
+        read(iunit) dat3
+        do k = 1, nz
+           v1(:,:,nz-k+1,1)=dat3(:,:,k)
+        enddo
+        deallocate(dat3)
+     endif  !if ( nrecord == 6 ) then   !u,v - 6,7
+
+     if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8 .or. &
           nrecord == 9 .or. nrecord == 11 ) then
         !---record 4 : t1-->T
         !---record 5 : Q1
@@ -697,28 +702,43 @@
         call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy,iz,1,dat42,gwt%gwt_t,dat43)
         call update_hafs_restart(trim(ncfile), 'sphum', ix, iy, iz, 1, dat43)
         deallocate(dat41, dat42, dat43)
-     elseif ( nrecord == 6 ) then  !u
+     elseif ( nrecord == 6 ) then  !u and v
+        !---get u,v
         ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
-        allocate(dat42(ix, iy+1, iz, 1), dat43(ix, iy+1, iz, 1))
-        call get_var_data(trim(ncfile), 'u', ix, iy+1, iz,1, dat42)
-        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix,iy+1,iz,1,dat42,gwt%gwt_u,dat43)
-        call update_hafs_restart(trim(ncfile), 'u', ix, iy+1, iz, 1, dat43)
+        allocate(u(ix, iy+1, iz, 1), v(ix+1, iy, iz, 1))
+        call get_var_data(trim(ncfile), 'u', ix, iy+1, iz,1, u)
+        call get_var_data(trim(ncfile), 'v', ix+1, iy, iz,1, v)
 
-        write(*,'(a,3f)')'vi dat41:', hlon(int(nx/2),int(ny/2)), hlat(int(nx/2),int(ny/2)), dat41(int(nx/2),int(ny/2), iz,1) 
-        write(*,'(a,3f)')'nc dat42:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat42(int(ix/2), int(iy/2),iz,1)
-        write(*,'(a,3f)')'an dat43:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat43(int(ix/2), int(iy/2),iz,1)
-        write(*,'(a,3f)')'vi  749:748  = ', hlon(749,748), hlat(749,748), dat41(749,748,iz,1)
-        write(*,'(a,3f)')'ing 749:748  = ', ingrid%grid_lont(749,748), ingrid%grid_latt(749,748), dat41(749,748,iz,1)
-        write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat42(1260,1200,iz,1)
-        write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat43(1260,1200,iz,1) 
-        deallocate(dat41, dat42, dat43)
-     elseif ( nrecord == 7 ) then  !v
-        ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
-        allocate(dat42(ix+1, iy, iz, 1), dat43(ix+1, iy, iz, 1))
-        call get_var_data(trim(ncfile), 'v', ix+1, iy, iz, 1, dat42)
-        call combine_grids_for_remap(nx,ny,nz,1,dat41,ix+1,iy,iz,1,dat42,gwt%gwt_v,dat43)
+        !---convert fv3grid to earth
+        allocate(dat42(ix, iy+1, iz, 1), dat43(ix+1, iy, iz, 1))
+        do k = 1, iz
+           call fv3uv2earth(ix, iy, u(:,:,k,1), v(:,:,k,1), cangu, sangu, cangv, sangv, dat42(:,:,k,1), dat43(:,:,k,1))
+        enddo
+
+        !---merge
+        u=0.; v=0.
+        call combine_grids_for_remap(nx,ny,nz,1,u1,ix,iy+1,iz,1,dat42,gwt%gwt_u,u)
+        call combine_grids_for_remap(nx,ny,nz,1,v1,ix+1,iy,iz,1,dat43,gwt%gwt_v,v)
+
+        !---convert earth wind to fv3grid wind
+        dat42=-999999.; dat43=-99999999.;
+        do k = 1, iz
+           call earthuv2fv3(ix, iy, u(:,:,k,1), v(:,:,k,1), cangu, sangu, cangv, sangv, dat42(:,:,k,1), dat43(:,:,k,1))
+        enddo
+
+        !---output
+        call update_hafs_restart(trim(ncfile), 'u', ix, iy+1, iz, 1, dat42)
         call update_hafs_restart(trim(ncfile), 'v', ix+1, iy, iz, 1, dat43)
-        deallocate(dat41, dat42, dat43)
+
+        !write(*,'(a,3f)')'vi dat41:', hlon(int(nx/2),int(ny/2)), hlat(int(nx/2),int(ny/2)), dat41(int(nx/2),int(ny/2), iz,1) 
+        !write(*,'(a,3f)')'nc dat42:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat42(int(ix/2), int(iy/2),iz,1)
+        !write(*,'(a,3f)')'an dat43:', dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2)), dat43(int(ix/2), int(iy/2),iz,1)
+        !write(*,'(a,3f)')'vi  749:748  = ', hlon(749,748), hlat(749,748), dat41(749,748,iz,1)
+        !write(*,'(a,3f)')'ing 749:748  = ', ingrid%grid_lont(749,748), ingrid%grid_latt(749,748), dat41(749,748,iz,1)
+        !write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat42(1260,1200,iz,1)
+        !write(*,'(a,3f)')'nc 1260:1200 = ', dstgrid%grid_lont(1260,1200), dstgrid%grid_latt(1260,1200), dat43(1260,1200,iz,1) 
+        deallocate(u1, v1, u, v, dat42, dat43)
+
      elseif ( nrecord == 8 ) then  !W
         ncfile=trim(out_dir)//'/'//trim(in_date)//'.fv_core.res.tile1.nc'
         allocate(dat42(ix, iy, iz, 1), dat43(ix, iy, iz, 1))

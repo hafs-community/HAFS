@@ -10,7 +10,9 @@
 
   integer, intent(in) :: nx, ny
   real,dimension(nx+1,ny+1), intent(in) :: grid_lat, grid_lon ! FV3 
-  real, allocatable, dimension(:,:), intent(out) :: cangu, sangu, cangv, sangv
+!  real, allocatable, dimension(:,:), intent(out) :: cangu, sangu, cangv, sangv
+  real, dimension(nx,ny+1), intent(out) :: cangu, sangu
+  real, dimension(nx+1,ny), intent(out) :: cangv, sangv 
 
   real, allocatable, dimension(:,:)  :: x, y, z
   integer      :: i, j
@@ -21,7 +23,7 @@
 !!! find coefficients for wind conversion btw FV3 & earth
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  allocate  (   cangu(nx,ny+1),sangu(nx,ny+1),cangv(nx+1,ny),sangv(nx+1,ny) )
+!  allocate  (   cangu(nx,ny+1),sangu(nx,ny+1),cangv(nx+1,ny),sangv(nx+1,ny) )
 
 !   1.  compute x,y,z at cell cornor from grid_lon, grid_lat
 
@@ -222,4 +224,6 @@
 
   return
   end subroutine fv3uv2earth
+!========================================================================================
+! /work2/noaa/hwrf/noscrub/yweng/hafs_test/hafs_20211112/sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
 !========================================================================================

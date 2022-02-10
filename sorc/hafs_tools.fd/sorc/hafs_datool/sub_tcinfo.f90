@@ -124,7 +124,7 @@
   subroutine rd_interp_besttrack ( times, filename, center )
 
   implicit none
-  character (len=80), intent(in)        :: times  !20210312.0900
+  character (len=*), intent(in)        :: times  !20210312.0900
   character (len=*), intent(in)         :: filename
   real, dimension(4), intent(out)       :: center
 
