@@ -50,6 +50,7 @@ COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')}
 trk_atcfunix=${out_prefix}.trak.hafs.atcfunix
 all_atcfunix=${out_prefix}.trak.hafs.atcfunix.all
+f12_atcfunix=${STORMID,,}.${CDATE}.trak.hafs.atcfunix.f12
 
 tmp_vital=${WORKhafs}/tmpvit
 old_vital=${WORKhafs}/oldvit
@@ -130,6 +131,8 @@ ln -sf output.pdfwind     fort.76
 # The product atcf track file
 touch ${COMOUTproduct}/${all_atcfunix}
 ln -sf ${COMOUTproduct}/${all_atcfunix} output.atcfunix
+touch ${COMOUTproduct}/${f12_atcfunix}
+ln -sf ${COMOUTproduct}/${f12_atcfunix} output.atcfunix.f12
 
 # Prepare the input namelist
 CC=`echo $CDATE | cut -c 1-2`

@@ -68,8 +68,8 @@
   wait_min_size = 100,
   wait_max_wait = 3600,
   wait_sleeptime = 5,
-  use_per_fcst_command = "n",
-  per_fcst_command = "",
+  use_per_fcst_command = "y",
+  per_fcst_command = "cp output.atcfunix ./output.atcfunix.f%[FHOUR]",
 /
 
 &netcdflist
