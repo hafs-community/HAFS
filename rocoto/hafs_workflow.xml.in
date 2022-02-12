@@ -432,7 +432,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f12</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -463,7 +463,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f12</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -493,7 +493,7 @@
 	  <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -525,7 +525,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
             </and>
           </or>
         </and>
@@ -1062,7 +1062,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1095,7 +1095,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1129,7 +1129,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
