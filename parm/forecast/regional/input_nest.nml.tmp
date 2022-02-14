@@ -128,7 +128,7 @@
        n_del2_strong = 0
        n_del2_weak = 24
        n_del4 = 2
-       max_slope = 0.3
+       max_slope = 0.25
        peak_fac = 1.
 /
 
