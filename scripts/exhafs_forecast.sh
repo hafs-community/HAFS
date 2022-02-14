@@ -388,7 +388,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplwav=.true.
     cplwav2atm=.true.
     CPL_WND="CPL:native"
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
+    runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from atm to wav only
   elif [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
     cplflx=.true.
@@ -396,7 +396,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplwav=.true.
     cplwav2atm=.false.
     CPL_WND="CPL:native"
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
+    runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from wav to atm only
   elif [ $cpl_atm_wav = cmeps_1way_2to1 ]; then
     cplflx=.true.
@@ -404,7 +404,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplwav=.true.
     cplwav2atm=.true.
     CPL_WND="native"
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
+    runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based atm-wav side by side run (no coupling)
   elif [ $cpl_atm_wav = cmeps_sidebyside ]; then
     cplflx=.true.
@@ -412,7 +412,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplwav=.true.
     cplwav2atm=.false.
     CPL_WND="native"
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n WAV"
+    runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   fi
 # Currently unsupported coupling option combinations
 else
@@ -459,7 +459,7 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   CPL_WND="CPL:native"
-  runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -467,8 +467,7 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplwav=.true.
   cplwav2atm=.false.
   CPL_WND="CPL:native"
-  #runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
-  runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -476,7 +475,7 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   CPL_WND="CPL:native"
-  runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -484,7 +483,7 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; t
   cplwav=.true.
   cplwav2atm=.false.
   CPL_WND="CPL:native"
-  runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based atm-ocn-wav side by side run
 elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ]; then
   cplflx=.true.
@@ -492,7 +491,7 @@ elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ];
   cplwav=.true.
   cplwav2atm=.false.
   CPL_WND="native"
-  runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n WAV -> MED :remapMethod=redist\n MED med_phases_post_wav\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n MED med_phases_prep_wav\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
