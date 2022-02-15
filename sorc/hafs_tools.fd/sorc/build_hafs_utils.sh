@@ -43,6 +43,7 @@
 ##      * Removing sources that are not needed or no longer used
 ##      * Merging internal libraries into a single folder with a single driver script
 ##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
+## Added hafs_datool to CMake based build: Biju Thomas 2022-01-25
 #################################################################################
 
 set -x -e
@@ -177,6 +178,95 @@ _hafsutils_change_prepbufr (){
     make install
 }
 
+
+#----
+
+# FUNCTION:
+
+# _hafsutils_datool.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility datool
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsutils_datool (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    # BUILD_TYPE supports RELEASE OR DEBUG MODE
+    if [[ $target = "wcoss_cray" ]]; then
+       cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -DBUILD_TYPE=RELEASE
+    else
+       cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
+    fi
+
+    # Build the hafs_datool application.
+    make all VERBOSE=3
+
+    # Move the hafs_datool application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+#----
+
+# FUNCTION:
+
+# _hafsutils_vi.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility datool
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsutils_vi (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    # BUILD_TYPE supports RELEASE OR DEBUG MODE
+    if [[ $target = "wcoss_cray" ]]; then
+       cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -DBUILD_TYPE=RELEASE
+    else
+       cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
+    fi
+
+    # Build the hafs_datool application.
+    make all VERBOSE=3
+
+    # Move the hafs_datool application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
 #----
 
 
@@ -212,6 +302,14 @@ build_hafsutils (){
     # Build the change_prepbufr application.
 
     _hafsutils_change_prepbufr
+  
+     # Build the datool application.
+
+    _hafsutils_datool
+
+     # Build the vi application.
+   
+    _hafsutils_vi
 
 }
 
