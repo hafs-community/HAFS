@@ -44,6 +44,18 @@ EXPT=$(basename ${HOMEhafs})
 #    config.run_emcgraphics=no \
 #    config.scrub_work=no config.scrub_com=no
 
+## 2021 NATL storm slots
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021052000-2021052400 00L HISTORY ${confopts} # Slot 1: 01L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021061406-2021061600 00L HISTORY ${confopts} # Slot 2: 02L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021061712-2021062200 00L HISTORY ${confopts} # Slot 3: 03L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021062712-2021062906 00L HISTORY ${confopts} # Slot 4: 04L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021063006-2021070918 00L HISTORY ${confopts} # Slot 5: 05L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021080912-2021082406 00L HISTORY ${confopts} # Slot 6: 06-08L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021082512-2021091112 00L HISTORY ${confopts} # Slot 7: 09-13L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021091200-2021092200 00L HISTORY ${confopts} # Slot 8.1: 14-20L
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092206-2021100506 00L HISTORY ${confopts} # Slot 8.2:
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021103012-2021110712 00L HISTORY ${confopts} # Slot 9: 21L
+
 ## 2020 NATL storm slots
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020060112-2020060812 00L HISTORY ${confopts} # Slot 1.0: 03L
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020062112-2020062406 00L HISTORY ${confopts} # Slot 1.1: 04L
