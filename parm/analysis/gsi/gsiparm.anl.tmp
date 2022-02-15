@@ -18,7 +18,7 @@
   netcdf_diag=_NETCDF_DIAG_,binary_diag=_BINARY_DIAG_,
   newpc4pred=.true., adp_anglebc=.true., angord=4,
   passive_bc=_PASSIVE_BC_, use_edges=.false., emiss_bc=.true.,
-  diag_precon=.true., step_start=1.e-3, upd_pred(1)=0,
+  diag_precon=.true., step_start=1.e-3, upd_pred(1)=_UPD_PRED_,
   upd_pred(2)=_UPD_PRED_,upd_pred(3)=_UPD_PRED_,upd_pred(4)=_UPD_PRED_,
   upd_pred(5)=_UPD_PRED_,upd_pred(6)=_UPD_PRED_,upd_pred(7)=_UPD_PRED_,
   upd_pred(8)=_UPD_PRED_,upd_pred(9)=_UPD_PRED_,upd_pred(10)=_UPD_PRED_,
