@@ -43,7 +43,7 @@
 ##      * Removing sources that are not needed or no longer used
 ##      * Merging internal libraries into a single folder with a single driver script
 ##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
-## Added hafs_datool to CMake based build: Biju Thomas 2022-01-25
+## Added hafs_datool & hafs_vi to CMake based build: Biju Thomas 2022-01-25
 #################################################################################
 
 set -x -e
@@ -231,7 +231,7 @@ _hafsutils_datool (){
 
 # DESCRIPTION:
 
-# This function compiles and install the HAFS utility datool
+# This function compiles and install the HAFS utility vi
 # application.
 
 # NOTE:
@@ -259,10 +259,10 @@ _hafsutils_vi (){
        cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
     fi
 
-    # Build the hafs_datool application.
+    # Build the hafs_vi application.
     make all VERBOSE=3
 
-    # Move the hafs_datool application executable to the HAFS
+    # Move the hafs_vi application executable to the HAFS
     # utility application executables path.
     make install
 }
@@ -306,9 +306,8 @@ build_hafsutils (){
      # Build the datool application.
 
     _hafsutils_datool
-
-     # Build the vi application.
-   
+    
+     # Build the vi application
     _hafsutils_vi
 
 }
