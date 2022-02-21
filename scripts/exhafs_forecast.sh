@@ -33,6 +33,8 @@ FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
+ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
+
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 satpost=${satpost:-.false.}
 
@@ -1133,13 +1135,25 @@ fi
 fi #if [ $gtype = nest ]; then
 
 # Generate diag_table, model_configure from their tempelates
-cat > temp << EOF
-${yr}${mn}${dy}.${hh}Z.${CASE}.32bit.non-hydro
-$yr $mn $dy $hh 0 0
-EOF
-
 if [ ${run_datm} = no ];  then
-cat temp diag_table.tmp > diag_table
+
+SYEAR=${yr} SMONTH=${mn} SDAY=${dy} SHOUR=${hh}
+if [ ${run_init:-no} = yes ]; then
+  GRID_MSPEC_INT=-1
+  ATMOS_DIAG_INT=-1
+else
+  GRID_MSPEC_INT=${GRID_MSPEC_INT:-3}
+  ATMOS_DIAG_INT=${ATMOS_DIAG_INT:-3}
+fi
+source ${ATPARSE}
+atparse < diag_table.tmp > diag_table
+
+#sed -e "s/@\[SYEAR\]/${SYEAR}/g" -e "s/@\[SMONTH\]/${SMONTH}/g" \
+#    -e "s/@\[SDAY\]/${SDAY}/g" -e "s/@\[SHOUR\]/${SHOUR}/g" \
+#    -e "s/@\[GRID_MSPEC_INT\]/${GRID_MSPEC_INT}/g" \
+#    -e "s/@\[ATMOS_DIAG_INT\]/${ATMOS_DIAG_INT}/g" \
+#    diag_table.tmp > diag_table
+
 fi
 
 #---------------------------------------------------

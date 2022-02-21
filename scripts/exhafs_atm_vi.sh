@@ -84,10 +84,11 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   vortexradius=30
   res=0.02
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=1 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
+                                     --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
 #                                    [--vortexposition=vortex_position ]
 #                                    [--debug_level=10 (default is 1) ]
@@ -95,10 +96,11 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=1 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
+                                     --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
 
   # create_trak and split
@@ -176,18 +178,20 @@ cd $DATA
   vortexradius=30
   res=0.02
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=1 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
+                                     --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=1 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
+                                     --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
 
   # create_trak and split
@@ -399,18 +403,23 @@ else
 fi
 ${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/grid_spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
+for nd in $(seq 1 ${nest_grids})
+do
+
 time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
-                               --debug_level=1 --interpolation_points=4 \
+                               --debug_level=11 --interpolation_points=4 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                               --nestdoms=${nd}
                                --out_dir=${RESTARTout}/
 #                              [--relaxzone=50 (grids, default is 30) ]
 #                              [--debug_level=10 (default is 1) ]
 #                              [--interpolation_points=5 (default is 4, range 1-500) ]
 
+done
 #===============================================================================
 
 exit

@@ -160,9 +160,9 @@ cd ${DATA_POST}
 
 if [ ${write_dopost:-.false.} = .true. ]; then
 
-cp -p ${INPdir}/HURPRS.GrbF${FHR2} ${synop_grb2post}
+${NCP} -p ${INPdir}/HURPRS.GrbF${FHR2} ${synop_grb2post}
 if [ ${satpost} = .true. ]; then
-cp -p ${INPdir}/HURSAT.GrbF${FHR2} ${synop_sat_grb2post}
+${NCP} -p ${INPdir}/HURSAT.GrbF${FHR2} ${synop_sat_grb2post}
 fi
 
 else
@@ -184,8 +184,8 @@ EOF
 
 rm -f fort.*
 # Copy fix files
-cp ${PARMhafs}/post/nam_micro_lookup.dat    ./eta_micro_lookup.dat
-cp ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
+${NCP} ${PARMhafs}/post/nam_micro_lookup.dat    ./eta_micro_lookup.dat
+${NCP} ${PARMhafs}/post/params_grib2_tbl_new    ./params_grib2_tbl_new
 
 if [ ${satpost} = .true. ]; then
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
@@ -209,7 +209,7 @@ else
 fi
 
 # Run the post
-cp -p  ${POSTEXEC} ./hafs_post.x
+${NCP} -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
 ${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
 
@@ -307,6 +307,13 @@ fi
 mkdir -p ${intercom}
 mv ${hafstrk_grb2file} ${intercom}/
 mv ${hafstrk_grb2indx} ${intercom}/
+
+# Pass over the grid_mspec files for moving nest (useful for storm cycling)
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  if [ $FHR -lt 12 ] && [ -s ${INPdir}/grid_mspec_${YYYY}_${MM}_${DD}_${HH}.nc ]; then
+    ${NCP} -p ${INPdir}/grid_mspec_${YYYY}_${MM}_${DD}_${HH}.nc ${INPdir}/RESTART/
+  fi
+fi
 
 # Write out the postdone message file
 echo 'done' > ${INPdir}/postf${FHR3}
