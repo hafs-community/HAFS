@@ -55,6 +55,7 @@
 !       * hafs_datool.x hafsvi_preproc --in_dir=HAFS_restart_folder --infile_date=20200825.180000 \
 !                                 [--vortexposition=user_define_vortex_file --tcvital=tcvitalfile \
 !                                  --besttrack=bdeckfile ] [--vortexradius=deg ] \
+!                                 [--nestdoms=nestdoms ] \ 
 !                                 [ --tc_date=tcvital_date] [--res=deg ] \
 !                                 [--out_file=output_bin_file]
 !
@@ -70,13 +71,20 @@
   implicit none
 
   !----parameter define
-  integer              :: i, j, k, n, iind, iargc, rcode, ks, ke
+  integer              :: i, j, k, n, iind, iargc, rcode, ks, ke, nestdoms
   character (len=2500) :: actions, arg, arg1
   character (len=2500) :: in_dir='w', in_file='w', in_grid='w', &
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
-                          out_dir='w', out_grid='w', out_data='w', out_file='w',  &
-                          vortexradius='w', infile_date='w', relaxzone='',        &
-                          tc_date='w', res='w', debug_levelc='', interpolation_pointsc=''
+                          out_dir='w', out_grid='w', out_data='w', out_file='w', infile_date='w'
+  character (len=50  ) :: vortexradius='w'  ! for vortexreplace, vortexradius=600:900 km 
+                                            ! for hafsvi_preproc, vortexradius=30 deg or 45 deg
+  character (len=50  ) :: relaxzone=''      ! 
+  character (len=50  ) :: tc_date='w'       !
+  character (len=50  ) :: res='w'           !
+  character (len=50  ) :: debug_levelc=''   !
+  character (len=50  ) :: interpolation_pointsc='' !
+  character (len=50  ) :: nestdomsc=''      ! number for nest domains, 1-30, 1=nest02.tile2 
+                                            ! in vi_preproc, combine all domains and output to one rot-ll grid.
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
@@ -115,6 +123,7 @@
                case ('--res');            res=arg(j+1:n)  !0.02
                case ('--debug_level');    debug_levelc=arg(j+1:n)  !
                case ('--interpolation_points'); interpolation_pointsc=arg(j+1:n)  !
+               case ('--nestdoms');       nestdomsc=arg(j+1:n)  !
         end select
      enddo
   endif
@@ -131,6 +140,9 @@
 
   if (len_trim(interpolation_pointsc) > 1 .and. trim(interpolation_pointsc) .ne. "w") read(interpolation_pointsc,*)gwt%max_points
   if ( gwt%max_points > 9999 .or. gwt%max_points < 1 ) gwt%max_points=4
+
+  nestdoms=0; if (len_trim(nestdomsc) > 0 ) read(nestdomsc,*)nestdoms
+  if ( nestdoms > 30 .or. nestdoms < 0 ) nestdoms=0
 
 ! 2.2 --- tc info requirement
   if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
@@ -185,12 +197,12 @@
 ! 4.0 --- HAFS VI
   if ( trim(actions) == "hafsvi_preproc" ) then
      write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
-     call hafsvi_preproc(trim(in_dir), trim(infile_date), trim(vortexradius), trim(res), trim(out_file))
+     call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
      write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
-     call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir))
+     call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir), nestdoms)
   endif
 
 !----------------------------------------------------------------

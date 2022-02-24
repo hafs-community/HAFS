@@ -289,6 +289,150 @@
   return
   end subroutine interp_fill_nan_1d
 
+!========================================================================================
+  subroutine cal_src_dst_grid_weight(grid_src, grid_dst)
+
+  use module_mpi
+  use var_type
+
+  implicit none
+
+  type(grid2d_info), intent(in) :: grid_src, grid_dst
+  integer, allocatable, dimension(:,:) :: x_oini, y_oini
+  real, allocatable, dimension(:,:)     :: lat_src, lon_src, lat_dst, lon_dst
+  integer   :: i, j
+
+!------------------------------------------------------------------------------
+! 1 --- T-grid position in nearest source grid
+  i=int(grid_dst%grid_xt/2);j=int(grid_dst%grid_yt/2)
+  if ( debug_level > 10 ) then
+     write(*,'(a,i0,a,i0)')'---- processing t-cell: ', grid_dst%grid_xt,':',grid_dst%grid_yt
+     write(*,'(a)')' ---    i     j        lon        lat'
+     write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j)
+  endif
+
+  allocate(x_oini(grid_dst%grid_xt, grid_dst%grid_yt), y_oini(grid_dst%grid_xt, grid_dst%grid_yt))
+  call search_nearst_grid(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
+                          grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
+                          x_oini, y_oini)
+  if ( debug_level > 10 ) then
+     write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
+     write(*,'(a3,2i6)')' t:', i, j
+     write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
+        grid_src%grid_lont(x_oini(i,j),y_oini(i,j)), grid_src%grid_latt(x_oini(i,j),y_oini(i,j))
+  endif
+  !do j1=1,grid_dst%grid_yt; do i1=1,grid_dst%grid_xt
+  !   write(98,'(4i6)')i1,j1,x_oini(i1,j1),y_oini(i1,j1)
+  !enddo;enddo
+
+  !---find (x_oini(i,j), y_oini(i,j)) and its neighboring 8 points, and calculate distance and then weights
+  allocate(gwt%gwt_t(grid_dst%grid_xt, grid_dst%grid_yt))  !grid_weight_info
+  call cal_grid_weight(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
+                       grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
+                       x_oini, y_oini, gwt%max_points, gwt%gwt_t)
+  deallocate(x_oini, y_oini)
+  write(*,'(a,30i6)')'    gwt%gwt_t @ ', i, j, gwt%gwt_t(i,j)%src_points, gwt%gwt_t(i,j)%src_x(1:gwt%gwt_t(i,j)%src_points), &
+                     gwt%gwt_t(i,j)%src_y(1:gwt%gwt_t(i,j)%src_points)
+
+  !---so for T-grid variables:
+  ! merged-grid = (1.0-dst_weight)*sum(gwt%gwt_t(i,j)%src_weight(:)*SRCVAR(gwt%gwt_t(i,j)%src_x(:), gwt%gwt_t(i,j)%src_y(:))) +
+  !               dst_weight*sum(gwt%gwt_t(i,j)%dst_weight(:)*DSTVAR(gwt%gwt_t(i,j)%dst_x(:),gwt%gwt_t(i,j)%dst_y(:)))
+
+  !---4.2, U-grid (grid_dst%grid_xt, grid_dst%grid_y)
+  write(*,'(a)')'---- processing u-cell ----'
+  allocate(x_oini(grid_dst%grid_xt, grid_dst%grid_y), y_oini(grid_dst%grid_xt, grid_dst%grid_y))
+  allocate(lon_src(grid_src%grid_xt, grid_src%grid_y), lat_src(grid_src%grid_xt, grid_src%grid_y))
+  if ( grid_src%grid_x-grid_src%grid_xt >= 1 ) then
+     lon_src(1:grid_src%grid_xt,1:grid_src%grid_y) = (grid_src%grid_lon(1:grid_src%grid_xt,1:grid_src%grid_y) + &
+                                                      grid_src%grid_lon(2:grid_src%grid_x ,1:grid_src%grid_y))/2.0
+     lat_src(1:grid_src%grid_xt,1:grid_src%grid_y) = (grid_src%grid_lat(1:grid_src%grid_xt,1:grid_src%grid_y) + &
+                                                      grid_src%grid_lat(2:grid_src%grid_x ,1:grid_src%grid_y))/2.0
+  else
+     lon_src(1:grid_src%grid_xt,1:grid_src%grid_y) = grid_src%grid_lon(1:grid_src%grid_xt,1:grid_src%grid_y)
+     lat_src(1:grid_src%grid_xt,1:grid_src%grid_y) = grid_src%grid_lat(1:grid_src%grid_xt,1:grid_src%grid_y)
+  endif
+  !write(*,'(a)')'last row src lat before: ------------------'
+  !write(*,'(15f8.2)')grid_src%grid_lat(488:grid_src%grid_xt,grid_src%grid_y-1)
+
+  allocate(lon_dst(grid_dst%grid_xt, grid_dst%grid_y), lat_dst(grid_dst%grid_xt, grid_dst%grid_y))
+  if ( grid_dst%grid_x-grid_dst%grid_xt >= 1 ) then
+     lon_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = (grid_dst%grid_lon(1:grid_dst%grid_xt,1:grid_dst%grid_y) + &
+                                                      grid_dst%grid_lon(2:grid_dst%grid_x ,1:grid_dst%grid_y))/2.0
+     lat_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = (grid_dst%grid_lat(1:grid_dst%grid_xt,1:grid_dst%grid_y) + &
+                                                      grid_dst%grid_lat(2:grid_dst%grid_x ,1:grid_dst%grid_y))/2.0
+  else
+     lon_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = grid_dst%grid_lon(1:grid_dst%grid_xt,1:grid_dst%grid_y)
+     lat_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = grid_dst%grid_lat(1:grid_dst%grid_xt,1:grid_dst%grid_y)
+  endif
+
+  !if (debug) then
+  write(*,'(a,2i8,4f10.3)')'src grid_lat: ', grid_src%grid_x , grid_src%grid_y, grid_src%grid_lat(1,1), &
+                           grid_src%grid_lat(grid_src%grid_x,1), grid_src%grid_lat(grid_src%grid_x,grid_src%grid_y), &
+                           grid_src%grid_lat(1,grid_src%grid_y)
+  write(*,'(a,2i8,4f10.3)')'src    u lat: ', grid_src%grid_xt, grid_src%grid_y, lat_src(1,1),lat_src(grid_src%grid_xt,1), &
+                           lat_src(grid_src%grid_xt,grid_src%grid_y), lat_src(1,grid_src%grid_y)
+  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src  grid range:',minval(grid_src%grid_lon),':',maxval(grid_src%grid_lon), &
+                           '; ',minval(grid_src%grid_lat),':',maxval(grid_src%grid_lat)
+  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src u-grid range:',minval(lon_src),':',maxval(lon_src),'; ',minval(lat_src),':',maxval(lat_src)
+  write(*,'(a,2i8,4f10.3)')'dst grid_lat: ', grid_dst%grid_x , grid_dst%grid_y, grid_dst%grid_lat(1,1), &
+                           grid_dst%grid_lat(grid_dst%grid_x,1), grid_dst%grid_lat(grid_dst%grid_x,grid_dst%grid_y), &
+                           grid_dst%grid_lat(1,grid_dst%grid_y)
+  write(*,'(a,2i8,4f10.3)')'dst    u lat: ', grid_dst%grid_xt, grid_dst%grid_y, lat_dst(1,1),lat_dst(grid_dst%grid_xt,1),&
+                           lat_dst(grid_dst%grid_xt,grid_dst%grid_y), lat_dst(1,grid_dst%grid_y)
+  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst  grid range:',minval(grid_dst%grid_lon),':',maxval(grid_dst%grid_lon), &
+                           '; ',minval(grid_dst%grid_lat),':',maxval(grid_dst%grid_lat)
+  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst u-grid range:',minval(lon_dst),':',maxval(lon_dst),'; ',minval(lat_dst),':',maxval(lat_dst)
+  !endif !if (debug) then
+
+  call search_nearst_grid(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
+                          grid_dst%grid_xt, grid_dst%grid_y, lat_dst, lon_dst, x_oini, y_oini)
+
+  write(*,'(a3, 2i6, 2f11.2,2i11, 2f11.2)')' u:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j), &
+     lon_src(x_oini(i,j),y_oini(i,j)), lat_src(x_oini(i,j),y_oini(i,j))
+
+  allocate(gwt%gwt_u(grid_dst%grid_xt, grid_dst%grid_y))  !grid_weight_info
+  call cal_grid_weight(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
+                       grid_dst%grid_xt, grid_dst%grid_y, lat_dst, lon_dst, x_oini, y_oini, gwt%max_points, gwt%gwt_u)
+  deallocate(x_oini, y_oini, lon_src, lat_src, lon_dst, lat_dst)
+
+  !---4.3, V-grid
+  write(*,'(a)')'---- processing v-cell ----'
+  allocate(x_oini(grid_dst%grid_x, grid_dst%grid_yt), y_oini(grid_dst%grid_x, grid_dst%grid_yt))
+  allocate(lon_src(grid_src%grid_x, grid_src%grid_yt), lat_src(grid_src%grid_x , grid_src%grid_yt))
+  if ( grid_src%grid_y-grid_src%grid_yt >= 1 ) then
+     lon_src(1:grid_src%grid_x,1:grid_src%grid_yt) = (grid_src%grid_lon(1:grid_src%grid_x,1:grid_src%grid_yt) + &
+                                                      grid_src%grid_lon(1:grid_src%grid_x,2:grid_src%grid_y))/2.0
+     lat_src(1:grid_src%grid_x,1:grid_src%grid_yt) = (grid_src%grid_lat(1:grid_src%grid_x,1:grid_src%grid_yt) + &
+                                                      grid_src%grid_lat(1:grid_src%grid_x,2:grid_src%grid_y))/2.0
+  else
+     lon_src(1:grid_src%grid_x,1:grid_src%grid_yt) = grid_src%grid_lon(1:grid_src%grid_x,1:grid_src%grid_yt)
+     lat_src(1:grid_src%grid_x,1:grid_src%grid_yt) = grid_src%grid_lat(1:grid_src%grid_x,1:grid_src%grid_yt)
+  endif
+
+  allocate(lon_dst(grid_dst%grid_x, grid_dst%grid_yt), lat_dst(grid_dst%grid_x , grid_dst%grid_yt))
+  if ( grid_dst%grid_y-grid_dst%grid_yt >= 1 ) then
+     lon_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = (grid_dst%grid_lon(1:grid_dst%grid_x,1:grid_dst%grid_yt) + &
+                                                      grid_dst%grid_lon(1:grid_dst%grid_x,2:grid_dst%grid_y))/2.0
+     lat_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = (grid_dst%grid_lat(1:grid_dst%grid_x,1:grid_dst%grid_yt) + &
+                                                      grid_dst%grid_lat(1:grid_dst%grid_x,2:grid_dst%grid_y))/2.0
+  else
+     lon_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = grid_dst%grid_lon(1:grid_dst%grid_x,1:grid_dst%grid_yt)
+     lat_dst(1:grid_dst%grid_x,1:grid_dst%grid_yt) = grid_dst%grid_lat(1:grid_dst%grid_x,1:grid_dst%grid_yt)
+  endif
+  call search_nearst_grid(grid_src%grid_x, grid_src%grid_yt, lat_src, lon_src, &
+                          grid_dst%grid_x, grid_dst%grid_yt, lat_dst, lon_dst, x_oini, y_oini)
+
+  write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' v:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j), &
+     lon_src(x_oini(i,j),y_oini(i,j)), lat_src(x_oini(i,j),y_oini(i,j))
+
+  allocate(gwt%gwt_v(grid_dst%grid_x, grid_dst%grid_yt))  !grid_weight_info
+  call cal_grid_weight(grid_src%grid_x, grid_src%grid_yt, lat_src, lon_src, &
+                       grid_dst%grid_x, grid_dst%grid_yt, lat_dst, lon_dst, x_oini, y_oini, gwt%max_points, gwt%gwt_v)
+  deallocate(x_oini, y_oini, lon_src, lat_src, lon_dst, lat_dst)
+
+  return
+  end subroutine cal_src_dst_grid_weight
+!========================================================================================
 !-----------------------------------------------------------------------+  
   subroutine search_nearst_grid0(src_ix, src_jx, src_lat, src_lon, dst_ix, dst_jx, &
              dst_lat, dst_lon, dst_in_src_x, dst_in_src_y)
@@ -630,6 +774,9 @@
 !-----------------------------------------------------------------------+
   subroutine combine_grids_for_remap(ixi, jxi, kxi, txi, fdat_src, ixo, jxo, kxo, txo, fdat_dst, gw, fdat_out)
 
+! --- remap: (src U dst) --> src
+! --- merge: (src U dst) --> dst
+
   use constants
   use var_type
   implicit none
@@ -671,7 +818,7 @@
      !---debug
      !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
      !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
-     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==kxo .and. n==1 ) then
+     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
         write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
         write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
         write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
@@ -679,7 +826,7 @@
         if ( gw(i,j)%dst_points > 0 ) then
            write(*,'(a,  90i10)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
            write(*,'(a,90f10.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-           write(*,'(a,  f)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+           write(*,'(a,  e)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
         else
            write(*,'(a)')     '--             no dst point'
         endif
@@ -690,6 +837,76 @@
 
   return
   end subroutine combine_grids_for_remap
+
+!-----------------------------------------------------------------------+
+  subroutine combine_grids_for_merge(ixi, jxi, kxi, txi, fdat_src, ixo, jxo, kxo, txo, fdat_dst, gw, fdat_out)
+
+! --- remap: (src U dst) --> src
+! --- merge: (src U dst) --> dst
+
+  use constants
+  use var_type
+  implicit none
+  integer, intent(in)                  :: ixi, jxi, kxi, txi, ixo, jxo, kxo, txo
+  real, dimension(ixi, jxi, kxi, txi), intent(in) :: fdat_src
+  real, dimension(ixo, jxo, kxo, txo), intent(in) :: fdat_dst
+  type(gridmap_info), dimension(ixo, jxo), intent(in) :: gw
+  real, dimension(ixo, jxo, kxo, txo), intent(out) :: fdat_out
+
+  integer   :: i, j, k, n, i1, j1, k1, n1, ncount
+
+  do n = 1, txo; do k = 1, kxo; do j = 1, jxo; do i = 1, ixo
+     fdat_out(i,j,k,n)=0.0
+     ncount=0
+     if ( gw(i,j)%dst_points > 0 ) then
+        do_dst_points_loop: do n1 = 1, gw(i,j)%dst_points
+           i1=gw(i,j)%dst_x(n1)
+           j1=gw(i,j)%dst_y(n1)
+           if ( i1 < 1 .or. i1 > ixo .or. j1 < 1 .or. j1 > jxo ) cycle do_dst_points_loop
+           !if ( gw(i,j)%dst_weight(n1) <= 0. .or. gw(i,j)%dst_weight(n1) > 1.0 ) cycle do_dst_points_loop
+           if ( fdat_dst(i1,j1,k,n) < -99999. .or. fdat_dst(i1,j1,k,n) > 90000000. ) cycle do_dst_points_loop
+           !fdat_out(i,j,k,n)=fdat_out(i,j,k,n)+gw(i,j)%dst_weight(n1)*fdat_dst(i1,j1,k,n)
+           fdat_out(i,j,k,n)=fdat_out(i,j,k,n)+fdat_dst(i1,j1,k,n)
+           ncount=ncount+1
+        enddo do_dst_points_loop
+     endif
+     if ( ncount > 0 ) then
+        fdat_out(i,j,k,n)=fdat_out(i,j,k,n)/real(ncount)
+     else
+        if ( gw(i,j)%src_points > 0 ) then
+           do_src_points_loop: do n1 = 1, gw(i,j)%src_points
+              i1=gw(i,j)%src_x(n1)
+              j1=gw(i,j)%src_y(n1)
+              if ( i1 < 1 .or. i1 > ixi .or. j1 < 1 .or. j1 > jxi ) cycle do_src_points_loop
+              if ( gw(i,j)%src_weight(n1) <= 0. .or. gw(i,j)%src_weight(n1) > 1.0 ) cycle do_src_points_loop
+              if ( fdat_src(i1,j1,k,n) < -99999. .or. fdat_src(i1,j1,k,n) > 90000000. ) cycle do_src_points_loop
+              fdat_out(i,j,k,n)=fdat_out(i,j,k,n)+gw(i,j)%src_weight(n1)*fdat_src(i1,j1,k,n)
+              ncount=ncount+1
+           enddo do_src_points_loop
+        endif
+     endif
+     if (ncount < 1 ) fdat_out(i,j,k,n)=missing
+
+     !---debug
+     !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
+     !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
+     if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
+        write(*,'(a,   5i10)')'--combine_grids_for_merge: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount
+        write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
+        write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
+        if ( gw(i,j)%dst_points > 0 ) then
+           write(*,'(a,  90i10)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
+           write(*,'(a,  e)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+        else
+           write(*,'(a)')     '--             no dst point'
+        endif
+        write(*,'(a,  f)')    '--          remaped value: ', fdat_out(i,j,k,n)
+     endif
+
+  enddo; enddo; enddo; enddo
+
+  return
+  end subroutine combine_grids_for_merge
 
 !-----------------------------------------------------------------------+             
   function uppercase (cs)
