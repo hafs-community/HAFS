@@ -34,6 +34,7 @@ FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
+source ${ATPARSE}
 
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 satpost=${satpost:-.false.}
@@ -1134,32 +1135,7 @@ fi
 
 fi #if [ $gtype = nest ]; then
 
-# Generate diag_table, model_configure from their tempelates
-if [ ${run_datm} = no ];  then
-
-SYEAR=${yr} SMONTH=${mn} SDAY=${dy} SHOUR=${hh}
-if [ ${run_init:-no} = yes ]; then
-  GRID_MSPEC_INT=-1
-  ATMOS_DIAG_INT=-1
-else
-  GRID_MSPEC_INT=${GRID_MSPEC_INT:-3}
-  ATMOS_DIAG_INT=${ATMOS_DIAG_INT:-3}
-fi
-source ${ATPARSE}
-atparse < diag_table.tmp > diag_table
-
-#sed -e "s/@\[SYEAR\]/${SYEAR}/g" -e "s/@\[SMONTH\]/${SMONTH}/g" \
-#    -e "s/@\[SDAY\]/${SDAY}/g" -e "s/@\[SHOUR\]/${SHOUR}/g" \
-#    -e "s/@\[GRID_MSPEC_INT\]/${GRID_MSPEC_INT}/g" \
-#    -e "s/@\[ATMOS_DIAG_INT\]/${ATMOS_DIAG_INT}/g" \
-#    diag_table.tmp > diag_table
-
-fi
-
-#---------------------------------------------------
 # Copy CDEPS input, parm, and fix files if required.
-#---------------------------------------------------
-
 if [ ${run_datm} = yes ];  then
   datm_source=${DATM_SOURCE:-ERA5}
   ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -1199,6 +1175,7 @@ if [ ${run_datm} = yes ];  then
       nems.configure.cdeps.tmp > nems.configure
 
 elif [ ${run_docn} = yes ];  then
+
   MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
   ${NLN} "$docn_input_path"/DOCN_input*nc INPUT/
 
@@ -1245,25 +1222,109 @@ elif [ ${run_docn} = yes ];  then
 
 fi
 
-sed -e "s/YR/$yr/g" -e "s/MN/$mn/g" -e "s/DY/$dy/g" \
-    -e "s/H_R/$hh/g" -e "s/NHRS/$NHRS/g" \
-    -e "s/_dt_atmos_/${dt_atmos}/g" \
-    -e "s/_restart_interval_/${restart_interval}/g" \
-    -e "s/_quilting_/${quilting}/g" \
-    -e "s/_write_groups_/${write_groups}/g" \
-    -e "s/_write_tasks_per_group_/${write_tasks_per_group}/g" \
-    -e "s/_write_dopost_/${write_dopost:-.false.}/g" \
-    -e "s/_output_history_/${output_history:-.true.}/g" \
-    -e "s/_OUTPUT_GRID_/$output_grid/g" \
-    -e "s/_CEN_LON_/$output_grid_cen_lon/g" \
-    -e "s/_CEN_LAT_/$output_grid_cen_lat/g" \
-    -e "s/_LON1_/$output_grid_lon1/g" \
-    -e "s/_LAT1_/$output_grid_lat1/g" \
-    -e "s/_LON2_/$output_grid_lon2/g" \
-    -e "s/_LAT2_/$output_grid_lat2/g" \
-    -e "s/_DLON_/$output_grid_dlon/g" \
-    -e "s/_DLAT_/$output_grid_dlat/g" \
-    model_configure.tmp > model_configure
+# Generate model_configure
+SYEAR=${yr} SMONTH=${mn} SDAY=${dy} SHOUR=${hh}
+FHMAX=${NHRS} DT_ATMOS=${dt_atmos}
+RESTART_INTERVAL=${restart_interval}
+QUILTING=${quilting} WRITE_GROUP=${write_groups} WRTTASK_PER_GROUP=${write_tasks_per_group}
+WRITE_DOPOST=${write_dopost:-.false.} OUTPUT_HISTORY=${output_history:-.true.}
+NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
+IDEFLATE=1 NBITS=0
+NFHOUT=3 NFHMAX_HF=-1 NFHOUT_HF=3 NSOUT=-1 OUTPUT_FH=-1
+
+OUTPUT_GRID=${output_grid:-""}
+IMO=${output_grid_imo:-""} JMO=${output_grid_jmo:-""}
+CEN_LON=${output_grid_cen_lon:-""} CEN_LAT=${output_grid_cen_lat:-""}
+LON1=${output_grid_lon1:-""} LAT1=${output_grid_lat1:-""}
+LON2=${output_grid_lon2:-""} LAT2=${output_grid_lat2:-""}
+DLON=${output_grid_dlon:-""} DLAT=${output_grid_dlat:-""}
+STDLAT1=${output_grid_stdlat1:-""} STDLAT2=${output_grid_stdlat2:-""}
+NX=${output_grid_nx:-""} NY=${output_grid_ny:-""} DX=${output_grid_dx:-""} DY=${output_grid_dy:-""}
+if [ $nest_grids -ge 2 ]; then
+  OUTPUT_GRID_2=${OUTPUT_GRID_2:-$OUTPUT_GRID}
+  IMO_2=${IMO_2:-$IMO} JMO_2=${JMO_2:-$JMO}
+  CEN_LON_2=${CEN_LON_2:-$CEN_LON} CEN_LAT_2=${CEN_LAT_2:-$CEN_LAT}
+# LON1_2=${LON1_2:-$LON1} LAT1_2=${LAT1_2:-$LAT1}
+# LON2_2=${LON2_2:-$LON2} LAT2_2=${LAT2_2:-$LAT2}
+# DLON_2=${DLON_2:-$DLON} DLAT_2=${DLAT_2:-$DLAT}
+  LON1_2=$( printf "%.6f" $(bc <<< "scale=6; $LON1+10.5") )
+  LAT1_2=$( printf "%.6f" $(bc <<< "scale=6; $LAT1+10.5") )
+  LON2_2=$( printf "%.6f" $(bc <<< "scale=6; $LON2-10.5") )
+  LAT2_2=$( printf "%.6f" $(bc <<< "scale=6; $LAT2-10.5") )
+  DLON_2=$( printf "%.6f" $(bc <<< "scale=6; ${DLON}/$( echo ${refine_ratio} | cut -d , -f 2 )") )
+  DLAT_2=$( printf "%.6f" $(bc <<< "scale=6; ${DLAT}/$( echo ${refine_ratio} | cut -d , -f 2 )") )
+  STDLAT1_2=${STDLAT1_2:-$STDLAT1} STDLAT2_2=${STDLAT2_2:-$STDLAT2}
+  NX_2=${NX_2:-$NX} NY_2=${NY_2:-$NY} DX_2=${DY_2:-$DX} DY_2=${DY_2:-$DY}
+else
+  sed -i -e "/<output_grid_02>/,/<\/output_grid_02>/d" model_configure.tmp
+fi
+if [ $nest_grids -ge 3 ]; then
+  OUTPUT_GRID_3=${OUTPUT_GRID_3:-$OUTPUT_GRID_2}
+  IMO_3=${IMO_3:-$IMO_2} JMO_3=${JMO_3:-$JMO_2}
+  CEN_LON_3=${CEN_LON_3:-$CEN_LON_2} CEN_LAT_3=${CEN_LAT_3:-$CEN_LAT_2}
+  LON1_3=${LON1_3:-$LON1_2} LAT1_3=${LAT1_3:-$LAT1_2}
+  LON2_3=${LON2_3:-$LON2_2} LAT2_3=${LAT2_3:-$LAT2_2}
+  DLON_3=${DLON_3:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_2}/$( echo ${refine_ratio} | cut -d , -f 3 )") )}
+  DLAT_3=${DLAT_3:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_2}/$( echo ${refine_ratio} | cut -d , -f 3 )") )}
+  STDLAT1_3=${STDLAT1_3:-$STDLAT1_2} STDLAT2_3=${STDLAT2_3:-$STDLAT2_2}
+  NX_3=${NX_3:-$NX_2} NY_3=${NY_3:-$NY_2} DX_3=${DY_3:-$DX} DY_3=${DY_3:-$DY_2}
+else
+  sed -i -e "/<output_grid_03>/,/<\/output_grid_03>/d" model_configure.tmp
+fi
+if [ $nest_grids -ge 4 ]; then
+  OUTPUT_GRID_4=${OUTPUT_GRID_4:-$OUTPUT_GRID_3}
+  IMO_4=${IMO_4:-$IMO_3} JMO_4=${JMO_4:-$JMO_3}
+  CEN_LON_4=${CEN_LON_4:-$CEN_LON_3} CEN_LAT_4=${CEN_LAT_4:-$CEN_LAT_3}
+  LON1_4=${LON1_4:-$LON1_3} LAT1_4=${LAT1_4:-$LAT1_3}
+  LON2_4=${LON2_4:-$LON2_3} LAT2_4=${LAT2_4:-$LAT2_3}
+  DLON_4=${DLON_4:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_3}/$( echo ${refine_ratio} | cut -d , -f 4 )") )}
+  DLAT_4=${DLAT_4:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_3}/$( echo ${refine_ratio} | cut -d , -f 4 )") )}
+  STDLAT1_4=${STDLAT1_4:-$STDLAT1_3} STDLAT2_4=${STDLAT2_4:-$STDLAT2_3}
+  NX_4=${NX_4:-$NX_3} NY_4=${NY_4:-$NY_3} DX_4=${DY_4:-$DX} DY_4=${DY_4:-$DY_3}
+else
+  sed -i -e "/<output_grid_04>/,/<\/output_grid_04>/d" model_configure.tmp
+fi
+if [ $nest_grids -ge 5 ]; then
+  OUTPUT_GRID_5=${OUTPUT_GRID_5:-$OUTPUT_GRID_4}
+  IMO_5=${IMO_5:-$IMO_4} JMO_5=${JMO_5:-$JMO_4}
+  CEN_LON_5=${CEN_LON_5:-$CEN_LON_4} CEN_LAT_5=${CEN_LAT_5:-$CEN_LAT_4}
+  LON1_5=${LON1_5:-$LON1_4} LAT1_5=${LAT1_5:-$LAT1_4}
+  LON2_5=${LON2_5:-$LON2_4} LAT2_5=${LAT2_5:-$LAT2_4}
+  DLON_5=${DLON_5:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_4}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
+  DLAT_5=${DLAT_5:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_4}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
+  STDLAT1_5=${STDLAT1_5:-$STDLAT1_4} STDLAT2_5=${STDLAT2_5:-$STDLAT2_4}
+  NX_5=${NX_5:-$NX_4} NY_5=${NY_5:-$NY_4} DX_5=${DY_5:-$DX} DY_5=${DY_5:-$DY_4}
+else
+  sed -i -e "/<output_grid_05>/,/<\/output_grid_05>/d" model_configure.tmp
+fi
+if [ $nest_grids -ge 6 ]; then
+  OUTPUT_GRID_6=${OUTPUT_GRID_6:-$OUTPUT_GRID_5}
+  IMO_6=${IMO_6:-$IMO_5} JMO_6=${JMO_6:-$JMO_5}
+  CEN_LON_6=${CEN_LON_6:-$CEN_LON_5} CEN_LAT_6=${CEN_LAT_6:-$CEN_LAT_5}
+  LON1_6=${LON1_6:-$LON1_5} LAT1_6=${LAT1_6:-$LAT1_5}
+  LON2_6=${LON2_6:-$LON2_5} LAT2_6=${LAT2_6:-$LAT2_5}
+  DLON_6=${DLON_6:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_5}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
+  DLAT_6=${DLAT_6:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_5}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
+  STDLAT1_6=${STDLAT1_6:-$STDLAT1_5} STDLAT2_6=${STDLAT2_6:-$STDLAT2_5}
+  NX_6=${NX_6:-$NX_5} NY_6=${NY_6:-$NY_5} DX_6=${DY_6:-$DX} DY_6=${DY_6:-$DY_5}
+else
+  sed -i -e "/<output_grid_06>/,/<\/output_grid_06>/d" model_configure.tmp
+fi
+
+atparse < model_configure.tmp > model_configure
+
+# Generate diag_table
+if [ ${run_init:-no} = yes ]; then
+  GRID_MSPEC_INT=-1
+  ATMOS_DIAG_INT=-1
+else
+  GRID_MSPEC_INT=${GRID_MSPEC_INT:-3}
+  ATMOS_DIAG_INT=${ATMOS_DIAG_INT:-3}
+fi
+
+if [ ${run_datm} = no ];  then
+  atparse < diag_table.tmp > diag_table
+fi
 
 # Copy fix files needed by inline_post
 if [ ${write_dopost:-.false.} = .true. ]; then

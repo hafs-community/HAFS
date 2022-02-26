@@ -29,9 +29,9 @@ export online_satbias=${online_satbias:-no}
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
 
-export neststr=${neststr:-""} # "nest02." for domain 02
-export tilestr=${tilestr:-"tile1."} # "tile2." for domain 02
-export nesttilestr=${nesttilestr:-""} # "nest02.tile2." for domain 02
+export neststr=${neststr:-""} # ".nest02" for domain 02
+export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
+export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -163,7 +163,7 @@ else
 fi
 RESTARTinp=${RESTARTinp_fgat06}
 
-if [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.${neststr}${tilestr}nc ]; then
+if [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   echo "Warning: First guess for DA/Analysis missing"
   echo "Warning: Do nothing, Exiting"
   exit
@@ -171,30 +171,30 @@ fi
 
 if [ ${RUN_FGAT} = "YES" ]; then
   ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res.${neststr}nc ./fv3_akbk_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.sfc_data.${nesttilestr}nc ./fv3_sfcdata_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.${neststr}${tilestr}nc ./fv3_srfwnd_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res.${neststr}${tilestr}nc ./fv3_dynvars_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.${neststr}${tilestr}nc ./fv3_tracer_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res${neststr}.nc ./fv3_akbk_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_03
+  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_03
 
   ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res.${neststr}nc ./fv3_akbk_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.sfc_data.${nesttilestr}nc ./fv3_sfcdata_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.${neststr}${tilestr}nc ./fv3_srfwnd_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res.${neststr}${tilestr}nc ./fv3_dynvars_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.${neststr}${tilestr}nc ./fv3_tracer_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res${neststr}.nc ./fv3_akbk_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_09
+  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_09
 fi
 
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.${neststr}nc ./fv3_akbk
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.${nesttilestr}nc ./fv3_sfcdata
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.${neststr}${tilestr}nc ./fv3_srfwnd
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.${neststr}${tilestr}nc ./fv3_dynvars
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.${neststr}${tilestr}nc ./fv3_tracer
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ./fv3_akbk
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer
 
-${NCP} ${RESTARTinp}/oro_data.${nesttilestr}nc ./fv3_oro_data
-${NCP} ${RESTARTinp}/atmos_static.${nesttilestr}nc ./fv3_atmos_static
-${NCP} ${RESTARTinp}/grid_spec.${nesttilestr}nc ./fv3_grid_spec
+${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ./fv3_oro_data
+${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ./fv3_atmos_static
+${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ./fv3_grid_spec
 
 if [ ${RUN_ENVAR} = "YES" ]; then
 
@@ -256,18 +256,18 @@ fi
 fi # endif ${RUN_ENVAR}
 
 # Stat files
-RADSTAT=${RADSTAT:-${DIAGanl}/analysis.${nesttilestr}radstat}
-GSISTAT=${GSISTAT:-${DIAGanl}/analysis.${nesttilestr}gsistat}
-PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis.${nesttilestr}pcpstat}
-CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis.${nesttilestr}cnvstat}
-OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis.${nesttilestr}oznstat}
-GSISOUT=${GSISOUT:-${DIAGanl}/analysis.${nesttilestr}gsisout}
+RADSTAT=${RADSTAT:-${DIAGanl}/analysis${nesttilestr}.radstat}
+GSISTAT=${GSISTAT:-${DIAGanl}/analysis${nesttilestr}.gsistat}
+PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis${nesttilestr}.pcpstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis${nesttilestr}.cnvstat}
+OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis${nesttilestr}.oznstat}
+GSISOUT=${GSISOUT:-${DIAGanl}/analysis${nesttilestr}.gsisout}
 
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
 USE_SELECT=${USE_SELECT:-"NO"}
 USE_RADSTAT=${USE_RADSTAT:-"NO"}
-SELECT_OBS=${SELECT_OBS:-${COMhafs}/obsinput.${nesttilestr}tar}
+SELECT_OBS=${SELECT_OBS:-${COMhafs}/obsinput${nesttilestr}.tar}
 GENDIAG=${GENDIAG:-"YES"}
 DIAG_SUFFIX=${DIAG_SUFFIX:-""}
 if [ $netcdf_diag = ".true." ] ; then
@@ -512,13 +512,13 @@ fi #USE_SELECT
 if [ ${online_satbias} = "yes" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
-  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
+  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias            satbias_in
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc         satbias_pc
+  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
+    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias            satbias_in
+    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -610,23 +610,34 @@ fi
 
 if [ ${HX_ONLY:-NO} != "YES" ]; then
 
-${NCP} ./fv3_oro_data ${RESTARTanl}/oro_data.${nesttilestr}nc
-${NCP} ./fv3_atmos_static ${RESTARTanl}/atmos_static.${nesttilestr}nc
-${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.${nesttilestr}nc
+${NCP} ./fv3_oro_data ${RESTARTanl}/oro_data${nesttilestr}.nc
+${NCP} ./fv3_atmos_static ${RESTARTanl}/atmos_static${nesttilestr}.nc
+${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec${nesttilestr}.nc
 
 ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
-${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.${neststr}nc
-${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.${nesttilestr}nc
-${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.${neststr}${tilestr}nc
-${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.${neststr}${tilestr}nc
-${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.${neststr}${tilestr}nc
+${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc
+${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc
+${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc
+${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
 
 # pass over phy_data as well
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data.${nesttilestr}nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data.${nesttilestr}nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
 
 if [[ ! -z "$neststr" ]] ; then
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res.${neststr}nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res.${neststr}nc
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res.${neststr}nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res.${neststr}nc
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+fi
+
+# Pass over the grid_mspec files for moving nest
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+    # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
+  else
+    # "grid_mspec.nest02_${yr}_${mn}_${dy}_${cyc}.tile2.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec${neststr}_${yr}_${mn}_${dy}_${cyc}${tilestr}.nc ${RESTARTanl}/
+  fi
 fi
 
 fi
@@ -809,8 +820,8 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out  $DIAGanl/hafs.${nesttilestr}abias
-  ${NCP} satbias_pc.out  $DIAGanl/hafs.${nesttilestr}abias_pc
+  ${NCP} satbias_out  $DIAGanl/hafs${nesttilestr}.abias
+  ${NCP} satbias_pc.out  $DIAGanl/hafs${nesttilestr}.abias_pc
 fi
 
 # If no processing error, remove $DIAG_DIR

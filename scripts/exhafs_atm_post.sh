@@ -311,7 +311,7 @@ mv ${hafstrk_grb2indx} ${intercom}/
 # Pass over the grid_mspec files for moving nest (useful for storm cycling)
 if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/grid_mspec_${YYYY}_${MM}_${DD}_${HH}.nc ]; then
-    ${NCP} -p ${INPdir}/grid_mspec_${YYYY}_${MM}_${DD}_${HH}.nc ${INPdir}/RESTART/
+    ${NCP} -p ${INPdir}/grid_mspec*_${YYYY}_${MM}_${DD}_${HH}.nc ${INPdir}/RESTART/
   fi
 fi
 

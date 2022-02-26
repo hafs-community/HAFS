@@ -93,6 +93,11 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
 #                                    [--vortexposition=vortex_position ]
 #                                    [--debug_level=10 (default is 1) ]
 #                                    [--interpolation_points=5 (default is 4, range 1-500) ]
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
+
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
@@ -102,6 +107,10 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
                                      --vortexradius=${vortexradius} --res=${res} \
                                      --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
 
   # create_trak and split
   work_dir=${DATA}/split_guess
@@ -184,6 +193,10 @@ cd $DATA
                                      --vortexradius=${vortexradius} --res=${res} \
                                      --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
   vortexradius=45
   res=0.20
   time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
@@ -193,6 +206,10 @@ cd $DATA
                                      --vortexradius=${vortexradius} --res=${res} \
                                      --nestdoms=$((${nest_grids:-1}-1)) \
                                      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
 
   # create_trak and split
   work_dir=${DATA}/split_init
@@ -413,8 +430,8 @@ time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
                                --debug_level=11 --interpolation_points=4 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                               --nestdoms=${nd}
-                               --out_dir=${RESTARTout}/
+                               --nestdoms=$((${nd}-1)) \
+                               --out_dir=${RESTARTout}
 #                              [--relaxzone=50 (grids, default is 30) ]
 #                              [--debug_level=10 (default is 1) ]
 #                              [--interpolation_points=5 (default is 4, range 1-500) ]

@@ -68,9 +68,9 @@ fi
 # analysis for d02
 if [ ${GSI_D02} = YES ]; then
 
-export neststr="nest02."
-export tilestr="tile2."
-export nesttilestr="nest02.tile2."
+export neststr=".nest02"
+export tilestr=".tile2"
+export nesttilestr=".nest02.tile2"
 export DATA=${WORKhafs}/analysis_d02
 
 export SCRUBDATA=${SCRUBDATA:-YES}
