@@ -34,6 +34,8 @@ export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
 
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
@@ -63,8 +65,28 @@ mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
-# Execute ex-script
-${HOMEhafs}/scripts/exhafs_product.sh
+rm -f cmdfile_product
+# Loop for grids/domains to prepare the cmdfile
+for ng in $(seq 1 ${nest_grids});
+do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+  tilestr=".tile1"
+  gridstr=".grid$(printf "%02d" ${ng})"
+else
+  neststr=".nest$(printf "%02d" ${ng})"
+  tilestr=".tile$(printf "%d" ${ng})"
+  gridstr=".grid$(printf "%02d" ${ng})"
+fi
+
+echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
+
+done
+
+${APRUNC} ${MPISERIAL} -m cmdfile_product
+
+cat run_product*.log
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

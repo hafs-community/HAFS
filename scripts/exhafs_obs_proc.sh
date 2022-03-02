@@ -125,12 +125,12 @@ ${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.tempdrop.prepbufr
+  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.hafs.tempdrop.prepbufr
 fi
 
 # Deliver to intercom
 mkdir -p ${intercom}
-${NCP} -p ./tempdrop.prepbufr ${intercom}/tempdrop.prepbufr
+${NCP} -p ./tempdrop.prepbufr ${intercom}/hafs.tempdrop.prepbufr
 
 fi # end if [ -s ./tempdrop.filelist ]; then
 

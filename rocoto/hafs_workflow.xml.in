@@ -87,7 +87,6 @@
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY RUN_DATM "@[RUN_DATM]">
   <!ENTITY RUN_DOCN "@[RUN_DOCN]">
-  <!ENTITY RUN_PRODGLB "NO">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
@@ -432,7 +431,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -463,7 +462,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -493,7 +492,7 @@
 	  <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -525,7 +524,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f012</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
             </and>
           </or>
         </and>
@@ -929,23 +928,6 @@
     </dependency>
   </task>
 
-@** if RUN_PRODGLB==YES
-  <task name="prodglb" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_PRODGLB</command>
-    <jobname>hafs_prodglb_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_prodglb.log</cyclestr></join>
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &RESERVATION;
-    &PRODGLB_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <taskdep task="forecast"/>
-    </dependency>
-  </task>
-@** endif
-
 @** if RUN_ENSDA==YES
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_PREP</command>
@@ -1062,7 +1044,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1095,7 +1077,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1129,7 +1111,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.trak.hafs.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1508,9 +1490,6 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
-@** if RUN_PRODGLB==YES
-        <taskdep task="prodglb"/>
-@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1551,9 +1530,6 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
-@** if RUN_PRODGLB==YES
-        <taskdep task="prodglb"/>
-@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1690,9 +1666,6 @@
         <and>
           <taskdep task="atm_post"/>
           <taskdep task="product"/>
-@** if RUN_PRODGLB==YES
-          <taskdep task="prodglb"/>
-@** endif
         </and>
 
         <!-- Allow a scrubbed cycle to complete.  This is needed to

@@ -1451,10 +1451,12 @@ class HAFSLauncher(HAFSConfig):
         self.set('holdvars','output_grid_lon2','%.6f'%(output_grid_lon2))
         self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
 
-        # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
-        # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
-        if synop_gridspecs=='auto':
+        # Generate post_gridspecs if needed
+        nest_grids=self.getint('grid','nest_grids',1)
+        refine_ratio=self.getstr('grid','refine_ratio',3)
+        post_gridspecs=self.getstr('atm_post','post_gridspecs','auto')
+        # if post_gridspecs=auto, then post_gridspecs will be automatically generated based on the output grid
+        if post_gridspecs=='auto':
             if output_grid=='rotated_latlon':
                 latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
                 latlon_lat0=output_grid_cen_lat+output_grid_lat1
@@ -1469,29 +1471,39 @@ class HAFSLauncher(HAFSConfig):
                 latlon_dlat=output_grid_dlat
                 latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
                 latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            logger.info('since synop_gridspecs is %s' %(synop_gridspecs))
-            synop_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
+            logger.info('since post_gridspecs is %s'%(post_gridspecs))
+            post_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
                 latlon_lon0,latlon_nlon,latlon_dlon,
                 latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs: %s' %(synop_gridspecs))
-        self.set('holdvars','synop_gridspecs',synop_gridspecs)
+            for igrid in range(2, nest_grids+1):
+                latlon_dlon=output_grid_dlon/int(refine_ratio[igrid])
+                latlon_dlat=output_grid_dlat/int(refine_ratio[igrid])
+                latlon_nlon=latlon_nlon*int(refine_ratio[igrid])
+                latlon_nlat=latlon_nlat*int(refine_ratio[igrid])
+                post_gridspecs=",".join([post_gridspecs,'"latlon %f:%d:%f %f:%d:%f"'%(
+                    latlon_lon0,latlon_nlon,latlon_dlon,
+                    latlon_lat0,latlon_nlat,latlon_dlat)])
+            logger.info('automatically generated post_gridspecs: %s' %(post_gridspecs))
+        self.set('holdvars','post_gridspecs',post_gridspecs)
 
-        # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
-        if trker_gridspecs=='auto':
-            logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
-            trker_gridspecs=synop_gridspecs
-            logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
-        self.set('holdvars','trker_gridspecs',trker_gridspecs)
+        # Set trak_gridspecs if needed
+        trak_gridspecs=self.getstr('atm_post','trak_gridspecs','auto')
+        if trak_gridspecs=='auto':
+            logger.info('since trak_gridspecs is %s' %(trak_gridspecs))
+            trak_gridspecs=post_gridspecs
+            logger.info('automatically generated trak_gridspecs: %s' %(trak_gridspecs))
+        self.set('holdvars','trak_gridspecs',trak_gridspecs)
 
-        # Generate synop_gridspecs_ens if needed
+        # Generate post_gridspecs_ens if needed
+        nest_grids_ens=self.getint('grid_ens','nest_grids_ens',1)
+        refine_ratio_ens=self.getstr('grid_ens','refine_ratio_ens',3)
         grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
-        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
+        post_gridspecs_ens=self.getstr('atm_post_ens','post_gridspecs_ens','auto')
         output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
         output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
 
-        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
-        if synop_gridspecs_ens=='auto':
+        # if post_gridspecs_ens=auto, then post_gridspecs_ens will be automatically generated based on the output grid
+        if post_gridspecs_ens=='auto':
             if output_grid=='rotated_latlon':
                 latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
                 latlon_lat0=output_grid_cen_lat+output_grid_lat1
@@ -1506,20 +1518,28 @@ class HAFSLauncher(HAFSConfig):
                 latlon_dlat=output_grid_dlat_ens
                 latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
                 latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
-            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
+            logger.info('since post_gridspecs_ens is %s' %(post_gridspecs_ens))
+            post_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
                 latlon_lon0,latlon_nlon,latlon_dlon,
                 latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
-        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
+            for igrid in range(2, nest_grids_ens+1):
+                latlon_dlon=output_grid_dlon/int(refine_ratio_ens[igrid])
+                latlon_dlat=output_grid_dlat/int(refine_ratio_ens[igrid])
+                latlon_nlon=latlon_nlon*int(refine_ratio_ens[igrid])
+                latlon_nlat=latlon_nlat*int(refine_ratio_ens[igrid])
+                post_gridspecs_ens=",".join([post_gridspecs_ens,'"latlon %f:%d:%f %f:%d:%f"'%(
+                    latlon_lon0,latlon_nlon,latlon_dlon,
+                    latlon_lat0,latlon_nlat,latlon_dlat)])
+            logger.info('automatically generated post_gridspecs_ens: %s' %(post_gridspecs_ens))
+        self.set('holdvars','post_gridspecs_ens',post_gridspecs_ens)
 
-        # Set trker_gridspecs_ens if needed
-        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
-        if trker_gridspecs_ens=='auto':
-            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
-            trker_gridspecs_ens=synop_gridspecs_ens
-            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
-        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
+        # Set trak_gridspecs_ens if needed
+        trak_gridspecs_ens=self.getstr('atm_post_ens','trak_gridspecs_ens','auto')
+        if trak_gridspecs_ens=='auto':
+            logger.info('since trak_gridspecs_ens is %s' %(trak_gridspecs_ens))
+            trak_gridspecs_ens=post_gridspecs_ens
+            logger.info('automatically generated trak_gridspecs_ens: %s' %(trak_gridspecs_ens))
+        self.set('holdvars','trak_gridspecs_ens',trak_gridspecs_ens)
 
         run_ocean=self.getbool('config','run_ocean')
 

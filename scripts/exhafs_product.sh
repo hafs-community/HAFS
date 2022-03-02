@@ -20,6 +20,20 @@ else
   export LEVS=${LEVS:-65}
 fi
 
+out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')}
+
+neststr=${neststr:-""} #".nest02"
+tilestr=${tilestr:-".tile1"} #".tile2"
+gridstr=${gridstr:-".grid01"} #".grid02"
+
+trk_atcfunix=${out_prefix}.hafs.trak.atcfunix
+all_atcfunix=${out_prefix}.hafs.trak.atcfunix.all
+fhr_atcfunix=${STORMID,,}.${CDATE}.hafs.trak.atcfunix.f
+
+trk_atcfunix_grid=${out_prefix}.hafs${gridstr}.trak.atcfunix
+all_atcfunix_grid=${out_prefix}.hafs${gridstr}.trak.atcfunix.all
+fhr_atcfunix_grid=${STORMID,,}.${CDATE}.hafs${gridstr}.trak.atcfunix.f
+
 TOTAL_TASKS=${TOTAL_TASKS:-1}
 NCTSK=${NCTSK:-1}
 NCNODE=${NCNODE:-24}
@@ -47,20 +61,15 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 
 COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')}
-trk_atcfunix=${out_prefix}.trak.hafs.atcfunix
-all_atcfunix=${out_prefix}.trak.hafs.atcfunix.all
-fhr_atcfunix=${STORMID,,}.${CDATE}.trak.hafs.atcfunix
-
 tmp_vital=${WORKhafs}/tmpvit
 old_vital=${WORKhafs}/oldvit
 
 #===============================================================================
-# Run GFDL vortextracker  
+# Run GFDL vortextracker
 # *** Currently, the tave step is skipped (same as HMON). Need add it and make it the same as HWRF.
 # *** Need add the capability of TC genesis tracking.
 
-DATA_tracker=${DATA}/tracker
+DATA_tracker=${DATA}/tracker${neststr}
 mkdir -p ${DATA_tracker}
 
 cd ${DATA_tracker}
@@ -79,13 +88,15 @@ FHR=0
 FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le $NHRS ]
 do
-  echo "FHR3="${FHR3}   
-  FMIN=$(( ${FHR} * 60 )) 
+  echo "FHR3="${FHR3}
+  FMIN=$(( ${FHR} * 60 ))
   minstr=$( printf "%5.5d" "$FMIN" )
-  hafstrk_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
-  hafstrk_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
-  ln -sf ${INPdir}/${hafstrk_grb2file} .
-  ln -sf ${INPdir}/${hafstrk_grb2indx} .
+  trk_grb2file=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2
+  trk_grb2indx=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2.ix
+  tracker_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
+  tracker_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
+  ln -sf ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
+  ln -sf ${INPdir}/${trk_grb2indx} ./${tracker_grb2indx}
   IFHR=`expr $IFHR + 1`
   LINE=$( printf "%4d %5d" "$IFHR" "$FMIN" )
   echo "$LINE" >> input.fcst_minutes
@@ -96,7 +107,7 @@ done
 rm -f fort.*
 
 # Find and sort active storms for this cycle from known tcvitals file
-# This can potentially provide multiple tcvital messages to the tracker, 
+# This can potentially provide multiple tcvital messages to the tracker,
 # so that it can track multiple storms simultaneously.
 # *** Currently, tcutil_multistorm_sort.py searches the tcvitals files
 # specified in the script. Need to modify it to be able to deal with storm
@@ -131,14 +142,31 @@ ln -sf output.pdfwind     fort.76
 # Prepare ./deliver.sh, which will used in gettrk.x to deliver the atcfunix
 # track file to COMhafs as soon as it becomes available. It also delivers
 # atcfunix before forecast hour 12 into COMhafs for storm cycling.
+if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+
 cat > ./deliver.sh<<EOF
 #!/bin/sh
 set -x
+cp output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
 cp output.atcfunix ${COMOUTproduct}/${all_atcfunix}
 if [[ \${1:-''} -le 12 ]]; then
-  cp output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}.f\$(printf "%03d" "\${1:-''}")
+  cp output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+  cp output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
 fi
 EOF
+
+else
+
+cat > ./deliver.sh<<EOF
+#!/bin/sh
+set -x
+cp output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
+if [[ \${1:-''} -le 12 ]]; then
+  cp output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+fi
+EOF
+
+fi
 
 chmod +x ./deliver.sh
 
@@ -160,15 +188,32 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
-${APRUNC} ./hafs_gettrk.x < namelist.gettrk
+#${APRUNS} ./hafs_gettrk.x < namelist.gettrk
+time ./hafs_gettrk.x < namelist.gettrk
 
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
+cp ${COMOUTproduct}/${all_atcfunix_grid} ${COMOUTproduct}/${all_atcfunix_grid}.orig
+if [ $STORMNUM == "00" ] ; then
+  norig=`cat ${COMOUTproduct}/${all_atcfunix_grid}.orig |wc -l `
+  if [ $norig -eq 1 ] ; then
+    # Generate an empty track file
+    > ${COMOUTproduct}/${all_atcfunix_grid}
+  else
+    grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid}.orig >  ${COMOUTproduct}/${all_atcfunix_grid}
+  fi
+else
+  grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix_grid}
+fi
+
+if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+
 cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ $STORMNUM == "00" ] ; then
   norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
   if [ $norig -eq 1 ] ; then
+    # Generate an empty track file
     > ${COMOUTproduct}/${all_atcfunix}
   else
     grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
@@ -178,15 +223,15 @@ else
 fi
 
 if [ ${COMOUTproduct} = ${COMhafs} ]; then
-
-# Deliver track file to NOSCRUB:
-mkdir -p ${CDNOSCRUB}/${SUBEXPT}
-cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
-if [ -s ${COMhafs}/${all_atcfunix} ] ; then 
-cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
-fi
-if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ] ; then 
-cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+  # Deliver track file to NOSCRUB:
+  mkdir -p ${CDNOSCRUB}/${SUBEXPT}
+  cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
+  if [ -s ${COMhafs}/${all_atcfunix} ]; then
+    cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
+  if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ]; then
+    cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
 fi
 
 fi

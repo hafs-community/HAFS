@@ -79,12 +79,24 @@ if [ "${ENSDA}" != YES ]; then
   glob_layouty=${glob_layouty:-12}
   glob_npx=${glob_npx:-769}
   glob_npy=${glob_npy:-769}
+  glob_io_layoutx=${glob_io_layoutx:-1}
+  glob_io_layouty=${glob_io_layouty:-10}
+  glob_full_zs_filter=${glob_full_zs_filter:-.true.}
+  glob_n_zs_filter=${glob_n_zs_filter:-1}
+  glob_n_del2_weak=${glob_n_del2_weak:-20}
+  glob_max_slope=${glob_max_slope:-0.25}
   k_split=${k_split:-4}
   n_split=${n_split:-5}
   layoutx=${layoutx:-40}
   layouty=${layouty:-30}
   npx=${npx:-2881}
   npy=${npy:-1921}
+  io_layoutx=${io_layoutx:-1}
+  io_layouty=${io_layouty:-10}
+  full_zs_filter=${full_zs_filter:-.true.}
+  n_zs_filter=${n_zs_filter:-1}
+  n_del2_weak=${n_del2_weak:-20}
+  max_slope=${max_slope:-0.25}
   npz=${npz:-64}
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
@@ -125,12 +137,24 @@ else
   glob_layouty=${glob_layouty_ens:-12}
   glob_npx=${glob_npx_ens:-769}
   glob_npy=${glob_npy_ens:-769}
+  glob_io_layoutx=${glob_io_layoutx_ens:-1}
+  glob_io_layouty=${glob_io_layouty_ens:-10}
+  glob_full_zs_filter=${glob_full_zs_filter_ens:-.true.}
+  glob_n_zs_filter=${glob_n_zs_filter_ens:-1}
+  glob_n_del2_weak=${glob_n_del2_weak_ens:-20}
+  glob_max_slope=${glob_max_slope_ens:-0.25}
   k_split=${k_split_ens:-4}
   n_split=${n_split_ens:-5}
   layoutx=${layoutx_ens:-40}
   layouty=${layouty_ens:-30}
   npx=${npx_ens:-2881}
   npy=${npy_ens:-1921}
+  io_layoutx=${io_layoutx_ens:-1}
+  io_layouty=${io_layouty_ens:-10}
+  full_zs_filter=${full_zs_filter_ens:-.true.}
+  n_zs_filter=${n_zs_filter_ens:-1}
+  n_del2_weak=${n_del2_weak_ens:-20}
+  max_slope=${max_slope_ens:-0.25}
   npz=${npz_ens:-64}
   output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
@@ -152,6 +176,8 @@ nstf_n2=${nstf_n2:-0}
 nstf_n3=${nstf_n3:-0}
 nstf_n4=${nstf_n4:-0}
 nstf_n5=${nstf_n5:-0}
+
+levp=${LEVS}
 
 # Set options for cold-start or warm-start
 # Default is cold start from chgres_ic generated ic/bc
@@ -562,6 +588,8 @@ else
     ${NLN} ${RESTARTout} RESTART
   fi
 fi
+# Clean up old RESTART files if exist
+rm -f RESTART/*
 
 mkdir -p INPUT
 
@@ -575,7 +603,7 @@ fi
 
 ${NLN} ${INPdir}/*.nc INPUT/
 
-if [ ${FGAT_MODEL} = gdas ]; then
+if [ ${run_init:-no} = yes ]; then
   cd INPUT/
   ${NLN} gfs_bndy.tile7.000.nc gfs_bndy.tile7.003.nc
   cd ../
@@ -610,11 +638,6 @@ ${NCP} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NCP} $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
-
-# If needed, copy fix files needed by the hwrf ccpp physics suite
-if [[ ${ccpp_suite_regional} == *"hwrf"* ]] ||  [[ ${ccpp_suite_glob} == *"hwrf"* ]] || [[ ${ccpp_suite_nest} == *"hwrf"* ]]; then
-  ${NCP} ${PARMhafs}/forecast/hwrf_physics_fix/* .
-fi
 
 if [ $gtype = nest ]; then
 
@@ -669,8 +692,8 @@ ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 grid_pes="${glob_pes}"
-parent_tile_tmp="0,${parent_tile}"
-refine_ratio_tmp="0,${refine_ratio}"
+tile_coarse="0,${parent_tile}"
+refine="0,${refine_ratio}"
 for n in $(seq 1 ${nest_grids})
 do
   layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -689,92 +712,44 @@ do
   joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
 done
 
-blocksize=$(( ${glob_npy}/${glob_layouty} ))
+ccpp_suite_nml=${ccpp_suite_glob}
+layoutx_nml=${glob_layoutx}
+layouty_nml=${glob_layouty}
+io_layoutx_nml=${glob_io_layoutx:-$layoutx_nml}
+io_layouty_nml=${glob_io_layouty:-$layouty_nml}
+npx_nml=${glob_npx}
+npy_nml=${glob_npy}
+k_split_nml=${glob_k_split}
+n_split_nml=${glob_n_split}
+full_zs_filter_nml=${glob_full_zs_filter:-.true.}
+n_zs_filter_nml=${glob_n_zs_filter:-1}
+n_del2_weak_nml=${glob_n_del2_weak:-20}
+max_slope_nml=${glob_max_slope:-0.25}
 
-sed -e "s/_blocksize_/${blocksize:-64}/g" \
-    -e "s/_ccpp_suite_/${ccpp_suite_glob}/g" \
-    -e "s/_deflate_level_/${deflate_level:--1}/g" \
-    -e "s/_layoutx_/${glob_layoutx}/g" \
-    -e "s/_layouty_/${glob_layouty}/g" \
-    -e "s/_npx_/${glob_npx}/g" \
-    -e "s/_npy_/${glob_npy}/g" \
-    -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${glob_k_split}/g" \
-    -e "s/_n_split_/${glob_n_split}/g" \
-    -e "s/_na_init_/${na_init}/g" \
-    -e "s/_external_ic_/${external_ic}/g" \
-    -e "s/_nggps_ic_/${nggps_ic}/g" \
-    -e "s/_mountain_/${mountain}/g" \
-    -e "s/_warm_start_/${warm_start}/g" \
-    -e "s/_target_lat_/${target_lat}/g" \
-    -e "s/_target_lon_/${target_lon}/g" \
-    -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_grid_pes_/${grid_pes}/g" \
-    -e "s/_parent_grid_num_/${parent_grid_num}/g" \
-    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
-    -e "s/_refinement_/${refine_ratio_tmp}/g" \
-    -e "s/_ioffset_/${ioffset}/g" \
-    -e "s/_joffset_/${joffset}/g" \
-    -e "s/_is_moving_nest_/${is_moving_nest}/g" \
-    -e "s/_vortex_tracker_/${vortex_tracker}/g" \
-    -e "s/_ntrack_/${ntrack}/g" \
-    -e "s/_move_cd_x_/${move_cd_x}/g" \
-    -e "s/_move_cd_y_/${move_cd_y}/g" \
-    -e "s/_levp_/${LEVS}/g" \
-    -e "s/_fhswr_/${fhswr:-1800.}/g" \
-    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
-    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
-    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
-    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
-    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
-    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-    -e "s/_cplflx_/${cplflx:-.false.}/g" \
-    -e "s/_cplocn2atm_/${cplocn2atm}/g" \
-    -e "s/_cplwav_/${cplwav:-.false.}/g" \
-    -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
-    -e "s/_merge_import_/${merge_import:-.false.}/g" \
-    input.nml.tmp > input.nml
+blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+atparse < input.nml.tmp > input.nml
 
 for n in $(seq 1 ${nest_grids})
 do
   inest=$(( ${n} + 1 ))
-  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
-  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
-  npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
-  npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
-  k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
-  n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
+  ccpp_suite_nml=${ccpp_suite_nest}
+  layoutx_nml=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_nml=$( echo ${layouty} | cut -d , -f ${n} )
+  io_layoutx_nml=$( echo ${io_layoutx} | cut -d , -f ${n} )
+  io_layouty_nml=$( echo ${io_layouty} | cut -d , -f ${n} )
+  npx_nml=$( echo ${npx} | cut -d , -f ${n} )
+  npy_nml=$( echo ${npy} | cut -d , -f ${n} )
+  k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
+  n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+  full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
+  n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
+  n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
+  max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
 
-  blocksize=$(( ${npy_tmp}/${layouty_tmp} ))
-sed -e "s/_blocksize_/${blocksize:-64}/g" \
-    -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
-    -e "s/_deflate_level_/${deflate_level:--1}/g" \
-    -e "s/_layoutx_/${layoutx_tmp}/g" \
-    -e "s/_layouty_/${layouty_tmp}/g" \
-    -e "s/_npx_/${npx_tmp}/g" \
-    -e "s/_npy_/${npy_tmp}/g" \
-    -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split_tmp}/g" \
-    -e "s/_n_split_/${n_split_tmp}/g" \
-    -e "s/_na_init_/${na_init}/g" \
-    -e "s/_external_ic_/${external_ic}/g" \
-    -e "s/_nggps_ic_/${nggps_ic}/g" \
-    -e "s/_mountain_/${mountain}/g" \
-    -e "s/_warm_start_/${warm_start}/g" \
-    -e "s/_levp_/${LEVS}/g" \
-    -e "s/_fhswr_/${fhswr:-1800.}/g" \
-    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
-    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
-    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
-    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
-    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
-    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-    -e "s/_cplflx_/${cplflx:-.false.}/g" \
-    -e "s/_cplocn2atm_/${cplocn2atm}/g" \
-    -e "s/_cplwav_/${cplwav:-.false.}/g" \
-    -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
-    -e "s/_merge_import_/${merge_import:-.false.}/g" \
-    input_nest.nml.tmp > input_nest0${inest}.nml
+  blocksize=$(( ${npy_nml}/${layouty_nml} ))
+  atparse < input_nest.nml.tmp > input_nest0${inest}.nml
+
 done
 
 elif [ $gtype = regional ]; then
@@ -905,8 +880,8 @@ n=1
 layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
 layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
 grid_pes="$(( $layoutx_tmp * $layouty_tmp ))"
-parent_tile_tmp=0
-refine_ratio_tmp=0
+tile_coarse=0
+refine=0
 ioffset=999
 joffset=999
 
@@ -916,8 +891,8 @@ do
   layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
   grid_pes="${grid_pes},$(( $layoutx_tmp * $layouty_tmp ))"
   ptile_tmp=$( echo ${parent_tile} | cut -d , -f ${n} )
-  parent_tile_tmp="${parent_tile_tmp},$(( $ptile_tmp - 6 ))"
-  refine_ratio_tmp="$refine_ratio_tmp,$( echo ${refine_ratio} | cut -d , -f ${n} )"
+  tile_coarse="${tile_coarse},$(( $ptile_tmp - 6 ))"
+  refine="$refine,$( echo ${refine_ratio} | cut -d , -f ${n} )"
   istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
   jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
   ioffset="$ioffset,$(( ($istart_nest_tmp-1)/2 + 1))"
@@ -925,100 +900,46 @@ do
 done
 
 n=1
-layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
-layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
-npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
-npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
-k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
-n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
+ccpp_suite_nml=${ccpp_suite_regional}
+layoutx_nml=$( echo ${layoutx} | cut -d , -f ${n} )
+layouty_nml=$( echo ${layouty} | cut -d , -f ${n} )
+io_layoutx_nml=$( echo ${io_layoutx} | cut -d , -f ${n} )
+io_layouty_nml=$( echo ${io_layouty} | cut -d , -f ${n} )
+npx_nml=$( echo ${npx} | cut -d , -f ${n} )
+npy_nml=$( echo ${npy} | cut -d , -f ${n} )
+k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
+n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
+n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
+n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
+max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
 
-blocksize=$(( ${npy}/${layouty} ))
-sed -e "s/_blocksize_/${blocksize:-64}/g" \
-    -e "s/_ccpp_suite_/${ccpp_suite_regional}/g" \
-    -e "s/_deflate_level_/${deflate_level:--1}/g" \
-    -e "s/_layoutx_/${layoutx_tmp}/g" \
-    -e "s/_layouty_/${layouty_tmp}/g" \
-    -e "s/_npx_/${npx_tmp}/g" \
-    -e "s/_npy_/${npy_tmp}/g" \
-    -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split_tmp}/g" \
-    -e "s/_n_split_/${n_split_tmp}/g" \
-    -e "s/_na_init_/${na_init}/g" \
-    -e "s/_external_ic_/${external_ic}/g" \
-    -e "s/_nggps_ic_/${nggps_ic}/g" \
-    -e "s/_mountain_/${mountain}/g" \
-    -e "s/_warm_start_/${warm_start}/g" \
-    -e "s/_target_lat_/${target_lat}/g" \
-    -e "s/_target_lon_/${target_lon}/g" \
-    -e "s/_stretch_fac_/${stretch_fac}/g" \
-    -e "s/_bc_update_interval_/${NBDYHRS}/g" \
-    -e "s/_nrows_blend_/${halo_blend}/g" \
-    -e "s/_grid_pes_/${grid_pes}/g" \
-    -e "s/_parent_grid_num_/${parent_grid_num}/g" \
-    -e "s/_parent_tile_/${parent_tile_tmp}/g" \
-    -e "s/_refinement_/${refine_ratio_tmp}/g" \
-    -e "s/_ioffset_/${ioffset}/g" \
-    -e "s/_joffset_/${joffset}/g" \
-    -e "s/_is_moving_nest_/${is_moving_nest}/g" \
-    -e "s/_vortex_tracker_/${vortex_tracker}/g" \
-    -e "s/_ntrack_/${ntrack}/g" \
-    -e "s/_move_cd_x_/${move_cd_x}/g" \
-    -e "s/_move_cd_y_/${move_cd_y}/g" \
-    -e "s/_levp_/${LEVS}/g" \
-    -e "s/_fhswr_/${fhswr:-1800.}/g" \
-    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
-    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
-    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
-    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
-    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
-    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-    -e "s/_cplflx_/${cplflx:-.false.}/g" \
-    -e "s/_cplocn2atm_/${cplocn2atm}/g" \
-    -e "s/_cplwav_/${cplwav:-.false.}/g" \
-    -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
-    -e "s/_merge_import_/${merge_import:-.false.}/g" \
-    input.nml.tmp > input.nml
+bc_update_interval=${NBDYHRS}
+nrows_blend=${halo_blend}
+
+blocksize=$(( ${npy_nml}/${layouty_nml} ))
+atparse < input.nml.tmp > input.nml
 
 for n in $(seq 2 ${nest_grids})
 do
   inest=$(( ${n} ))
-  layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
-  layouty_tmp=$( echo ${layouty} | cut -d , -f ${n} )
-  npx_tmp=$( echo ${npx} | cut -d , -f ${n} )
-  npy_tmp=$( echo ${npy} | cut -d , -f ${n} )
-  k_split_tmp=$( echo ${k_split} | cut -d , -f ${n} )
-  n_split_tmp=$( echo ${n_split} | cut -d , -f ${n} )
+  ccpp_suite_nml=${ccpp_suite_nest}
+  layoutx_nml=$( echo ${layoutx} | cut -d , -f ${n} )
+  layouty_nml=$( echo ${layouty} | cut -d , -f ${n} )
+  io_layoutx_nml=$( echo ${io_layoutx} | cut -d , -f ${n} )
+  io_layouty_nml=$( echo ${io_layouty} | cut -d , -f ${n} )
+  npx_nml=$( echo ${npx} | cut -d , -f ${n} )
+  npy_nml=$( echo ${npy} | cut -d , -f ${n} )
+  k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
+  n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+  full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
+  n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
+  n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
+  max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
 
-  blocksize=$(( ${npy_tmp}/${layouty_tmp} ))
-sed -e "s/_blocksize_/${blocksize:-64}/g" \
-    -e "s/_ccpp_suite_/${ccpp_suite_nest}/g" \
-    -e "s/_deflate_level_/${deflate_level:--1}/g" \
-    -e "s/_layoutx_/${layoutx_tmp}/g" \
-    -e "s/_layouty_/${layouty_tmp}/g" \
-    -e "s/_npx_/${npx_tmp}/g" \
-    -e "s/_npy_/${npy_tmp}/g" \
-    -e "s/_npz_/${npz}/g" \
-    -e "s/_k_split_/${k_split_tmp}/g" \
-    -e "s/_n_split_/${n_split_tmp}/g" \
-    -e "s/_na_init_/${na_init}/g" \
-    -e "s/_external_ic_/${external_ic}/g" \
-    -e "s/_nggps_ic_/${nggps_ic}/g" \
-    -e "s/_mountain_/${mountain}/g" \
-    -e "s/_warm_start_/${warm_start}/g" \
-    -e "s/_levp_/${LEVS}/g" \
-    -e "s/_fhswr_/${fhswr:-1800.}/g" \
-    -e "s/_fhlwr_/${fhlwr:-1800.}/g" \
-    -e "s/_nstf_n1_/${nstf_n1:-2}/g" \
-    -e "s/_nstf_n2_/${nstf_n2:-0}/g" \
-    -e "s/_nstf_n3_/${nstf_n3:-0}/g" \
-    -e "s/_nstf_n4_/${nstf_n4:-0}/g" \
-    -e "s/_nstf_n5_/${nstf_n5:-0}/g" \
-    -e "s/_cplflx_/${cplflx:-.false.}/g" \
-    -e "s/_cplocn2atm_/${cplocn2atm}/g" \
-    -e "s/_cplwav_/${cplwav:-.false.}/g" \
-    -e "s/_cplwav2atm_/${cplwav2atm:-.false.}/g" \
-    -e "s/_merge_import_/${merge_import:-.false.}/g" \
-    input_nest.nml.tmp > input_nest0${inest}.nml
+  blocksize=$(( ${npy_nml}/${layouty_nml} ))
+  atparse < input_nest.nml.tmp > input_nest0${inest}.nml
+
 done
 
 fi # if regional
@@ -1381,7 +1302,7 @@ mnnhrs=$(echo $CDATEnhrs | cut -c5-6)
 dynhrs=$(echo $CDATEnhrs | cut -c7-8)
 hhnhrs=$(echo ${CDATEnhrs} | cut -c9-10)
 if [ -s fv_core.res.nc ]; then
-  for file in $(/bin/ls -1 fv*.nc phy_data*.nc sfc_data*.nc coupler.res)
+  for file in $(/bin/ls -1 fv*.nc* phy_data*.nc* sfc_data*.nc* coupler.res)
   do
     mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file}
   done
@@ -1390,17 +1311,6 @@ if [ -s fv_core.res.nc ]; then
   fi
 fi
 cd ${DATA}
-
-# Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
-if [ ! -s RESTART/grid_spec.nc ]; then
-  ${NCP} -p grid_spec*.nc RESTART/
-fi
-if [ ! -s RESTART/atmos_static.nc ]; then
-  ${NCP} -p atmos_static*.nc RESTART/
-fi
-if [ ! -s RESTART/oro_data.nc ]; then
-  ${NCP} -pL INPUT/oro_data.n*c RESTART/
-fi
 
 fi # if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

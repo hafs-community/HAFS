@@ -155,7 +155,7 @@ if [ "${ENSDA}" = "YES" ]; then
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
-  ${NLN} ${COMhafsprior}/product_ens/mem${ENSID}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
+  ${NLN} ${COMhafsprior}/product_ens/mem${ENSID}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
   export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}}
   export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis_vr_ens/mem${ENSID}}
@@ -171,7 +171,7 @@ else
   ${NCP} ${RESTARTinp}/${PDYfgat}.${cycfgat}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
   ${NCP} ${RESTARTinp}/${PDYfgat}.${cycfgat}0000.fv_core.res.tile1.nc ./fv3_dynvars
   ${NCP} ${RESTARTinp}/${PDYfgat}.${cycfgat}0000.fv_tracer.res.tile1.nc ./fv3_tracer
-  ${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
+  ${NLN} ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 0${FGAT_HR}," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
  else
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
@@ -181,7 +181,7 @@ else
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 # Extract the 6-hr forecast atcf records from the prior cycle
-  ${NLN} ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./hafs.atcfunix_prior
+  ${NLN} ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./hafs.atcfunix_prior
   grep ", HAFS, 006," ./hafs.atcfunix_prior | grep ",  34, NEQ," > ./hafs.atcfunix
  fi
   export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis_vr}

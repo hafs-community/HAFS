@@ -118,8 +118,8 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   cd ${work_dir}
   # input
   ln -sf ${tcvital} fort.11
-  if [ -e ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ]; then
-    ln -sf ${COMhafsprior}/${STORM,,}${STORMID,,}.${CDATEprior}.trak.hafs.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ]; then
+    ln -sf ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./trak.atcfunix.all
     grep "^.., ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
@@ -217,8 +217,8 @@ cd $DATA
   cd ${work_dir}
   # input
   ln -sf ${tcvital} fort.11
-  if [ -e ${INTCOMinit}/${STORM,,}${STORMID,,}.${CDATE}.trak.hafs.atcfunix.all ]; then
-    ln -sf ${INTCOMinit}/${STORM,,}${STORMID,,}.${CDATE}.trak.hafs.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ]; then
+    ln -sf ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ./trak.atcfunix.all
     grep "^.., ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \

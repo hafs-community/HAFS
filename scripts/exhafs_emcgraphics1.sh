@@ -68,7 +68,7 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run graphics for this forecast hour
 else
 
-atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
 prodlog=${WORKhafs}/hafs_product.log
 FHRN=`expr $FHR + $NOUTHRS`
 STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
@@ -107,9 +107,9 @@ touch $cmdfile
 #==============================================================================
 
 # Produce these figures only if product job is still running (not done yet).
-if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig ]; then
+if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all.orig ]; then
 
-atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
 
 cd ${WORKgraph}
 
@@ -176,7 +176,7 @@ fi
 
   archbase="${COMgraph}/figures"
   archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
-  storm_atcfFile=${WORKgraph}/${stormnm}${stid}.${YMDH}.trak.hafs.atcfunix
+  storm_atcfFile=${WORKgraph}/${stid}.${YMDH}.hafs.trak.atcfunix
   grep "^${BASIN2C}, ${STORMNUM}," ${atcfFile} > ${storm_atcfFile}
 
   if [ -s ${storm_atcfFile} ]; then
@@ -342,7 +342,7 @@ done
 # Plot ATCF track and intensity figures after the product job is done
 #==============================================================================
 
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all.orig
 
 # Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
 n=1
@@ -361,7 +361,7 @@ done
 
 cd ${WORKgraph}
 
-atcfFile=${COMhafs}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
 
 if [ -f ${atcfFile} ]; then
   atcfFile=${atcfFile}
@@ -425,7 +425,7 @@ fi
 
   archbase="${COMgraph}/figures"
   archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
-  storm_atcfFile=${WORKgraph}/${stormnm}${stid}.${YMDH}.trak.hafs.atcfunix
+  storm_atcfFile=${WORKgraph}/${stid}.${YMDH}.hafs.trak.atcfunix
   grep "^${BASIN2C}, ${STORMNUM}," ${atcfFile} > ${storm_atcfFile}
 
   if [ -s ${storm_atcfFile} ]; then
@@ -451,7 +451,7 @@ cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
 export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
 
 # Wait for hycompost and product output
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${storm}${stormid}.${YMDH}.trak.hafs.atcfunix.all.orig
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all.orig
 n=1
 while [ $n -le 600 ]
 do

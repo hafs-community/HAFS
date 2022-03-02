@@ -1,9 +1,9 @@
  &atmos_model_nml
-       blocksize = _blocksize_
+       blocksize = @[blocksize]
        chksum_debug = .false.
        dycore_only = .false.
        avg_max_length = 3600.
-       ccpp_suite = '_ccpp_suite_'
+       ccpp_suite = '@[ccpp_suite_nml]'
 /
 
  &diag_manager_nml
@@ -15,14 +15,14 @@
        global_field_on_root_pe = .true.,
        io_clocks_on = .false.,
        shuffle = 0,
-       deflate_level = _deflate_level_,
+       deflate_level = @[deflate_level],
        cf_compliance = .false.
 /
 
  &fms_io_nml
        checksum_required   = .false.
-       max_files_r = 100,
-       max_files_w = 100,
+       max_files_r = 1000,
+       max_files_w = 1000,
 /
 
  &fms2_io_nml
@@ -40,14 +40,12 @@
 /
 
  &fv_core_nml
-       !layout   = 64,30
-       !layout   = 40,30
-       layout   = _layoutx_,_layouty_
-       io_layout = 1,1
-       npx = _npx_
-       npy = _npy_
-       ntiles   = 1
-       npz    = _npz_
+       layout = @[layoutx_nml],@[layouty_nml]
+       io_layout = @[io_layoutx_nml],@[io_layouty_nml]
+       npx = @[npx_nml]
+       npy = @[npy_nml]
+       ntiles = 1
+       npz = @[npz]
        !grid_type = -1
        make_nh = .F.
        fv_debug = .F.
@@ -70,10 +68,10 @@
        beta = 0.
        a_imp = 1.
        p_fac = 0.1
-       k_split  = _k_split_
-       n_split  = _n_split_
+       k_split  = @[k_split_nml]
+       n_split  = @[n_split_nml]
        nwat = 6
-       na_init = _na_init_
+       na_init = @[na_init]
        d_ext = 0.0
        dnats = 1
        fv_sg_adj = 300
@@ -85,11 +83,11 @@
        delt_max = 0.008
        ke_bg = 0.
        do_vort_damp = .T.
-       external_ic = _external_ic_
+       external_ic = @[external_ic]
        external_eta = .T.
        gfs_phil = .false.
-       nggps_ic = _nggps_ic_
-       mountain = _mountain_
+       nggps_ic = @[nggps_ic]
+       mountain = @[mountain]
        ncep_ic = .F.
        d_con = 1.0
        hord_mt = 6
@@ -104,7 +102,7 @@
        fill = .T.
        dwind_2d = .F.
        print_freq = 3
-       warm_start = _warm_start_
+       warm_start = @[warm_start]
        no_dycore = .false.
        z_tracer = .T.
        agrid_vel_rst = .true.
@@ -113,35 +111,35 @@
        write_3d_diags = .true.
 
        do_schmidt = .true.
-       target_lat = _target_lat_
-       target_lon = _target_lon_
-       stretch_fac = _stretch_fac_
+       target_lat = @[target_lat]
+       target_lon = @[target_lon]
+       stretch_fac = @[stretch_fac]
        regional = .true.
-       bc_update_interval = _bc_update_interval_
-       nrows_blend = _nrows_blend_
+       bc_update_interval = @[bc_update_interval]
+       nrows_blend = @[nrows_blend]
 
-       full_zs_filter = .T. !unreleased feature
-       n_zs_filter = 0 ! safety
+       full_zs_filter = @[full_zs_filter_nml]
+       n_zs_filter = @[n_zs_filter_nml]
        nord_zs_filter = 4
 /
 
  &fv_nest_nml
-       grid_pes = _grid_pes_
-       tile_coarse = _parent_tile_
+       grid_pes = @[grid_pes]
+       tile_coarse = @[tile_coarse]
        num_tile_top = 1
        p_split = 1
-       nest_refine = _refinement_
-       nest_ioffsets = _ioffset_
-       nest_joffsets = _joffset_
+       nest_refine = @[refine]
+       nest_ioffsets = @[ioffset]
+       nest_joffsets = @[joffset]
 /
 
  &fv_moving_nest_nml
        surface_dir = "INPUT/moving_nest"
-       is_moving_nest = _is_moving_nest_
-       vortex_tracker = _vortex_tracker_
-       ntrack = _ntrack_
-       move_cd_x = _move_cd_x_
-       move_cd_y = _move_cd_y_
+       is_moving_nest = @[is_moving_nest]
+       vortex_tracker = @[vortex_tracker]
+       ntrack = @[ntrack]
+       move_cd_x = @[move_cd_x]
+       move_cd_y = @[move_cd_y]
 /
 
  &surf_map_nml
@@ -149,15 +147,15 @@
        cd4 = 0.15
        cd2 = -1
        n_del2_strong = 0
-       n_del2_weak = 15
+       n_del2_weak = @[n_del2_weak_nml]
        n_del4 = 2
-       max_slope = 0.25
+       max_slope = @[max_slope_nml]
        peak_fac = 1.
 /
 
  &external_ic_nml
        filtered_terrain = .true.
-       levp = _levp_
+       levp = @[levp]
        gfs_dwinds = .true.
        checker_tr = .F.
        nt_checker = 0
@@ -174,8 +172,8 @@
        pre_rad        = .false.
        imp_physics    = 11
        pdfcld         = .false.
-       fhswr          = _fhswr_
-       fhlwr          = _fhlwr_
+       fhswr          = @[fhswr]
+       fhlwr          = @[fhlwr]
        ialb           = 1
        iems           = 1
        iaer           = 111
@@ -225,13 +223,13 @@
        oz_phys        = .F.
        oz_phys_2015   = .T.
        nst_anl        = .true.
-       nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
-       cplflx         = _cplflx_
+       nstf_name      = @[nstf_n1],@[nstf_n2],@[nstf_n3],@[nstf_n4],@[nstf_n5]
+       cplflx         = @[cplflx]
        cplice         = .false.
-       cplocn2atm     = _cplocn2atm_
-       cplwav         = _cplwav_
-       cplwav2atm     = _cplwav2atm_
-       cpl_imp_mrg    = _merge_import_
+       cplocn2atm     = @[cplocn2atm]
+       cplwav         = @[cplwav]
+       cplwav2atm     = @[cplwav2atm]
+       cpl_imp_mrg    = @[merge_import]
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
