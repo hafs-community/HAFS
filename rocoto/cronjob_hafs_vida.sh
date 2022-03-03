@@ -47,8 +47,8 @@ EXPT=$(basename ${HOMEhafs})
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/hafsv0p3_regional_storm.conf \
+     ../parm/hafsv0p3_hycom.conf"
 
  # h3db_cycst: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling storm region only
  confh3db_cycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_cycst \
@@ -63,8 +63,8 @@ EXPT=$(basename ${HOMEhafs})
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/hafsv0p3_regional_storm.conf \
+     ../parm/hafsv0p3_hycom.conf"
 
  # h3db_cycdm: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling whole domain
  confh3db_cycdm="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_cycdm \
@@ -79,11 +79,11 @@ EXPT=$(basename ${HOMEhafs})
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/hafsv0p3_regional_storm.conf \
+     ../parm/hafsv0p3_hycom.conf"
 
  # h3db_vi: atm_init+atm_vi and cycling storm region only
- confh3db_vida="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vida_test \
+ confh3db_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vi \
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
@@ -96,8 +96,8 @@ EXPT=$(basename ${HOMEhafs})
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/hafsv0p3_regional_storm.conf \
+     ../parm/hafsv0p3_hycom.conf"
 
  # h3da_init: warmstart from the coldstart atm_init (initialized from gfs analysis)
  confh3da_init="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3da_init \
@@ -125,10 +125,11 @@ EXPT=$(basename ${HOMEhafs})
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=no config.run_analysis_merge_ens=no \
      config.NHRS=126 \
+     forecast.restart_interval=240 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/hafsv0p3_regional_storm.conf \
+     ../parm/hafsv0p3_hycom.conf"
 
  # Choose the configuration to run
 #confopts="${confh3db_vida}"
@@ -140,8 +141,7 @@ EXPT=$(basename ${HOMEhafs})
 
  confopts="${confh3db_vida}"
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 13L HISTORY ${confopts} \
-     config.NHRS=12 \
-     config.scrub_work=no config.scrub_com=no
+     config.NHRS=12 config.scrub_work=no config.scrub_com=no
 
  # Storms to run: Laura13L2020, Ida09L2021, Sam18L2021
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts}

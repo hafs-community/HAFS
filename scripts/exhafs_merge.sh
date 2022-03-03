@@ -48,7 +48,7 @@ else
   tcvital=${WORKhafs}/tmpvit
 fi
 if [ ${merge_method} = vortexreplace ]; then
-  MERGE_CMD="${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${PDY}.${cyc}0000 --vortexradius=800:900"
+  MERGE_CMD="${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${PDY}.${cyc}0000 --vortexradius=650:700"
 elif [ ${merge_method} = domainmerge ]; then
   MERGE_CMD="${DATOOL} remap"
 else
