@@ -85,6 +85,8 @@ if [ "${ENSDA}" != YES ]; then
   glob_n_zs_filter=${glob_n_zs_filter:-1}
   glob_n_del2_weak=${glob_n_del2_weak:-20}
   glob_max_slope=${glob_max_slope:-0.25}
+  glob_shal_cnv=${glob_shal_cnv:-.true.}
+  glob_do_deep=${glob_do_deep:-.true.}
   k_split=${k_split:-4}
   n_split=${n_split:-5}
   layoutx=${layoutx:-40}
@@ -97,6 +99,8 @@ if [ "${ENSDA}" != YES ]; then
   n_zs_filter=${n_zs_filter:-1}
   n_del2_weak=${n_del2_weak:-20}
   max_slope=${max_slope:-0.25}
+  shal_cnv=${shal_cnv:-.true.}
+  do_deep=${do_deep:-.true.}
   npz=${npz:-64}
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
@@ -143,6 +147,8 @@ else
   glob_n_zs_filter=${glob_n_zs_filter_ens:-1}
   glob_n_del2_weak=${glob_n_del2_weak_ens:-20}
   glob_max_slope=${glob_max_slope_ens:-0.25}
+  glob_shal_cnv=${glob_shal_cnv_ens:-.true.}
+  glob_do_deep=${glob_do_deep_ens:-.true.}
   k_split=${k_split_ens:-4}
   n_split=${n_split_ens:-5}
   layoutx=${layoutx_ens:-40}
@@ -155,6 +161,8 @@ else
   n_zs_filter=${n_zs_filter_ens:-1}
   n_del2_weak=${n_del2_weak_ens:-20}
   max_slope=${max_slope_ens:-0.25}
+  shal_cnv=${shal_cnv_ens:-.true.}
+  do_deep=${do_deep_ens:-.true.}
   npz=${npz_ens:-64}
   output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
@@ -725,6 +733,8 @@ full_zs_filter_nml=${glob_full_zs_filter:-.true.}
 n_zs_filter_nml=${glob_n_zs_filter:-1}
 n_del2_weak_nml=${glob_n_del2_weak:-20}
 max_slope_nml=${glob_max_slope:-0.25}
+shal_cnv_nml=${glob_shal_cnv:-.true.}
+do_deep_nml=${glob_do_deep:-.true.}
 
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
@@ -913,6 +923,8 @@ full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
 n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
 n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
 max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
+do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
 bc_update_interval=${NBDYHRS}
 nrows_blend=${halo_blend}
@@ -936,6 +948,8 @@ do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+  shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
+  do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
