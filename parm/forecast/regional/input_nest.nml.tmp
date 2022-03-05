@@ -59,9 +59,9 @@
   d2_bg_k1 = 0.20
   d2_bg_k2 = 0.15
   kord_tm = -11
-  kord_mt =  11
-  kord_wz =  11
-  kord_tr =  11
+  kord_mt = 11
+  kord_wz = 11
+  kord_tr = 11
   hydrostatic = .false.
   phys_hydrostatic = .false.
   use_hydro_pressure = .false.
@@ -76,7 +76,7 @@
   dnats = 1
   fv_sg_adj = 300
   d2_bg = 0.
-  nord =  2
+  nord = 2
   dddmp = 0.1
   d4_bg = 0.15
   vtdm4 = 0.04
@@ -170,8 +170,8 @@
   moninq_fac     = -1.0   ! HWRF_moninedmf
   satmedmf       = .true.
   isatmedmf      = 1
-  rlmx           = 100.
-  elmx           = 100.
+  rlmx           = 300.
+  elmx           = 300.
   sfc_rlm        = 1
   random_clds    = .false.
   trans_trac     = .true.

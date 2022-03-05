@@ -59,9 +59,9 @@
   d2_bg_k1 = 0.16
   d2_bg_k2 = 0.05
   kord_tm = -9
-  kord_mt =  9
-  kord_wz =  9
-  kord_tr =  9
+  kord_mt = 9
+  kord_wz = 9
+  kord_tr = 9
   hydrostatic = .false.
   phys_hydrostatic = .false.
   use_hydro_pressure = .false.
@@ -76,7 +76,7 @@
   dnats = 1
   fv_sg_adj = 300
   d2_bg = 0.
-  nord =  2
+  nord = 2
   dddmp = 0.1
   d4_bg = 0.15
   vtdm4 = 0.04
@@ -94,7 +94,7 @@
   hord_vt = 5
   hord_tm = 5
   hord_dp = -5
-  hord_tr = 8
+  hord_tr = -5
   adjust_dry_mass = .false.
   consv_te = 1.
   do_sat_adj = .true.
