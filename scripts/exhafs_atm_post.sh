@@ -365,6 +365,7 @@ for file in ${INPdir}/${grid_spec} \
             ${INPdir}/RESTART/${phy_data};
 do
   if [[ -s ${file}.0000 ]]; then
+    rm -f ${file}
     echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
   fi
 done
