@@ -121,8 +121,7 @@ if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ] ; then
 
-echo "post message ${INPdir}/postf${FHR3} exist"
-echo "post done file ${INPdir}/postf${FHR3} is newer than exist"
+echo "post done file ${INPdir}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -366,7 +365,8 @@ for file in ${INPdir}/${grid_spec} \
 do
   if [[ -s ${file}.0000 ]]; then
     rm -f ${file}
-    echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
+   #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
+    echo ${MPPNCCOMBINE} -64 -r ${file} >> cmdfile_mppnccombine
   fi
 done
 ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
