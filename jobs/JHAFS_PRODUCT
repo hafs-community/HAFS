@@ -84,8 +84,8 @@ echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}
 
 done
 
+chmod +x cmdfile_product
 ${APRUNC} ${MPISERIAL} -m cmdfile_product
-
 cat run_product*.log
 
 export KEEPDATA=${KEEPDATA:-YES}

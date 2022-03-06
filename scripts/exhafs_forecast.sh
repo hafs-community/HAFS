@@ -1256,9 +1256,14 @@ else
   GRID_MSPEC_INT=${GRID_MSPEC_INT:-3}
   ATMOS_DIAG_INT=${ATMOS_DIAG_INT:-3}
 fi
-
 if [ ${run_datm} = no ];  then
   atparse < diag_table.tmp > diag_table
+fi
+# Remove the grid_mspec lines if it is not a moving nesting configuration
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  echo "This is a moving nesting configuration"
+else
+  sed -i -e "/grid_mspec/d" diag_table
 fi
 
 # Copy fix files needed by inline_post

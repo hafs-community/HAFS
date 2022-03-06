@@ -366,20 +366,21 @@ do
   if [[ -s ${file}.0000 ]]; then
     rm -f ${file}
    #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-    echo ${MPPNCCOMBINE} -64 -r ${file} >> cmdfile_mppnccombine
+    echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
   fi
 done
+chmod +x cmdfile_mppnccombine
 ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
-if [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
+if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
   ${NCP} -p ${INPdir}/${grid_spec} ${INPdir}/RESTART/
 fi
-if [ ! -s ${INPdir}/RESTART/${atmos_static} ]; then
+if [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -p ${INPdir}/${atmos_static} ${INPdir}/RESTART/
 fi
 oro_data=oro_data${nesttilestr}.nc
-if [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
+if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 
