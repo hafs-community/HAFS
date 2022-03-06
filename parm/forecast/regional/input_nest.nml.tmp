@@ -161,7 +161,6 @@
   lwhtr          = .true.
   swhtr          = .true.
   cnvgwd         = .false.
-  shal_cnv       = @[shal_cnv_nml] !Shallow convection
   cal_pre        = .false.
   redrag         = .true.
   dspheat        = .true.
@@ -176,8 +175,13 @@
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
+  shal_cnv       = @[shal_cnv_nml] !Shallow convection
+  do_deep        = @[do_deep_nml]
   imfshalcnv     = 2
   imfdeepcnv     = 2
+  clam_deep      = 0.1
+  betal_deep     = 0.05
+  betas_deep     = 0.05
   cdmbgwd        = 0.88, 0.04
   sfc_z0_type    = 6
   prslrd0        = 0.
@@ -213,7 +217,6 @@
   iaufhrs        = 30
   iau_inc_files  = ''
   iau_drymassfixer = .false.
-  do_deep        = @[do_deep_nml]
   lgfdlmprad     = .true.
   effr_in        = .true.
   do_sppt        = .false.

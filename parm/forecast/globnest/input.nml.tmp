@@ -181,7 +181,6 @@
   lwhtr          = .true.
   swhtr          = .true.
   cnvgwd         = .true.
-  shal_cnv       = @[shal_cnv_nml] !Shallow convection
   cal_pre        = .false.
   redrag         = .true.
   dspheat        = .true.
@@ -196,6 +195,8 @@
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
+  shal_cnv       = @[shal_cnv_nml] !Shallow convection
+  do_deep        = @[do_deep_nml]
   imfshalcnv     = 2
   imfdeepcnv     = 2
   cdmbgwd        = 3.5, 0.25 ! NCEP default
@@ -233,7 +234,6 @@
   iaufhrs        = 30
   iau_inc_files  = ''
   iau_drymassfixer = .false.
-  do_deep        = @[do_deep_nml]
   lgfdlmprad     = .true.
   effr_in        = .true.
   do_sppt        = .false.
