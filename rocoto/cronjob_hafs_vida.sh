@@ -57,6 +57,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
      atm_merge.atm_merge_method=vortexreplace analysis_merge.analysis_merge_method=vortexreplace \
@@ -73,6 +74,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
      atm_merge.atm_merge_method=domainmerge analysis_merge.analysis_merge_method=domainmerge \
@@ -106,6 +108,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
+     config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=no config.run_analysis_merge_ens=no \
      config.warm_start_opt=1 \
@@ -122,6 +125,7 @@ EXPT=$(basename ${HOMEhafs})
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
+     config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=no config.run_analysis_merge_ens=no \
      config.NHRS=126 \
@@ -145,7 +149,7 @@ EXPT=$(basename ${HOMEhafs})
 
  # Storms to run: Laura13L2020, Ida09L2021, Sam18L2021
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021082512-2021083012 09L HISTORY ${confopts}
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021082612-2021083012 09L HISTORY ${confopts}
 #${PYTHON3} ./run_hafs.py -t ${dev} 2021092206-2021100500 18L HISTORY ${confopts}
 
 #===============================================================================
