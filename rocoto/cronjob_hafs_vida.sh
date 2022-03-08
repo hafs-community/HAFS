@@ -88,7 +88,7 @@ EXPT=$(basename ${HOMEhafs})
  confh3db_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vi \
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
-     config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
+     config.run_atm_vi=yes config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=yes \
      config.gsi_d01=no config.gsi_d02=no \
