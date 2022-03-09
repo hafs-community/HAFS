@@ -131,7 +131,7 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   # output
   ln -sf ./trak.fnl.all fort.30
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_create_trak_guess.x ./
+  ln -sf ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   time ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
@@ -147,7 +147,7 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   ln -sf storm_pert                    fort.71
   ln -sf storm_radius                  fort.85
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_split.x ./
+  ln -sf ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
@@ -169,7 +169,7 @@ if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
   ln -sf storm_size_p fort.14
   ln -sf storm_sym fort.23
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_anl_pert.x ./
+  ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
   basin=${pubbasin2:-AL}
   initopt=${initopt:-0}
   echo 6 ${basin} ${initopt} | ./hafs_vi_anl_pert.x
@@ -230,7 +230,7 @@ cd $DATA
   # output
   ln -sf ./trak.fnl.all fort.30
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_create_trak_init.x ./
+  ln -sf ${EXEChafs}/hafs_vi_create_trak_init.x ./
   time ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
@@ -249,7 +249,7 @@ cd $DATA
   ln -sf storm_pert                    fort.71
   ln -sf storm_radius                  fort.85
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_split.x ./
+  ln -sf ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -276,7 +276,7 @@ cd $DATA
   ln -sf storm_size_p fort.14
   ln -sf storm_sym fort.23
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_anl_pert.x ./
+  ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
   basin=${pubbasin2:-AL}
   initopt=${initopt:-0}
   echo 6 ${basin} ${initopt} | ./hafs_vi_anl_pert.x
@@ -292,14 +292,16 @@ cd $DATA
 if [ $vmax_vit -ge $vi_bogus_vmax_threshold ] && [ ! -s ../anl_pert_guess/storm_pert_new ] ; then
   # Bogus a storm if prior cycle does not exist and tcvital intensity >= vi_bogus_vmax_threshold (e.g., 33 m/s)
 
+  pert=init
+  senv=$pert
   # anl_bogus
   # input
   ln -sf ${tcvital} fort.11
-  ln -sf ../split_init/storm_env fort.26
-  ln -sf ../prep_init/vi_inp_30deg0p02.bin ./fort.36
-  ln -sf ../prep_init/vi_inp_30deg0p02.bin ./fort.46 #roughness
-  ln -sf ../split_init/storm_pert fort.61
-  ln -sf ../split_init/storm_radius fort.85
+  ln -sf ../split_${senv}/storm_env fort.26
+  ln -sf ../prep_${pert}/vi_inp_30deg0p02.bin ./fort.36
+  ln -sf ../prep_${pert}/vi_inp_30deg0p02.bin ./fort.46 #roughness
+  ln -sf ../split_${pert}/storm_pert fort.61
+  ln -sf ../split_${pert}/storm_radius fort.85
 
   ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
   ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
@@ -313,7 +315,7 @@ if [ $vmax_vit -ge $vi_bogus_vmax_threshold ] && [ ! -s ../anl_pert_guess/storm_
   # output
   ln -sf storm_anl_bogus                        fort.56
 
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_anl_bogus.x ./
+  ln -sf ${EXEChafs}/hafs_vi_anl_bogus.x ./
   basin=${pubbasin2:-AL}
   echo 6 ${basin} | ./hafs_vi_anl_bogus.x
   cp -p storm_anl_bogus storm_anl
@@ -360,7 +362,7 @@ else
   basin=${pubbasin2:-AL}
   gfs_flag=${gfs_flag:-6}
   initopt=${initopt:-0}
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_anl_combine.x ./
+  ln -sf ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
     cp -p storm_anl_combine storm_anl
@@ -393,7 +395,7 @@ else
 
   basin=${pubbasin2:-AL}
   iflag_cold=${iflag_cold:-0}
-  ln -sf ${HOMEhafs}/sorc/hafs_tools.fd/exec/hafs_vi_anl_enhance.x ./
+  ln -sf ${EXEChafs}/hafs_vi_anl_enhance.x ./
   echo 6 ${basin} ${iflag_cold} | ./hafs_vi_anl_enhance.x
   cp -p storm_anl_enhance storm_anl
 
