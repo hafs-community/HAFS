@@ -868,10 +868,10 @@
 
       ALLOCATE ( RADUS(IR1),ANGL(IT2) )
       ALLOCATE ( GLON1(IR1,IT1),GLAT1(IR1,IT1) )
-      ALLOCATE ( INDX1(IR1,IT1,25),INDY1(IR1,IT1,25) )    ! for H grid
-      ALLOCATE ( WTXY1(IR1,IT1,25),WTSM1(IR1,IT1) )       ! for H grid
-      ALLOCATE ( INDX2(IR1,IT1,25),INDY2(IR1,IT1,25) )    ! for V grid
-      ALLOCATE ( WTXY2(IR1,IT1,25),WTSM2(IR1,IT1) )       ! for V grid
+      ALLOCATE ( INDX1(IR1,IT1,50),INDY1(IR1,IT1,50) )    ! for H grid
+      ALLOCATE ( WTXY1(IR1,IT1,50),WTSM1(IR1,IT1) )       ! for H grid
+      ALLOCATE ( INDX2(IR1,IT1,50),INDY2(IR1,IT1,50) )    ! for V grid
+      ALLOCATE ( WTXY2(IR1,IT1,50),WTSM2(IR1,IT1) )       ! for V grid
 
       ALLOCATE ( IJ_COUNT1(IR1,IT1),IJ_COUNT2(IR1,IT1) )
 
