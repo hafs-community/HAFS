@@ -211,6 +211,7 @@ export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
+export satpost={satpost}
 
 # atm_init related items
 export ccpp_suite_regional_init={ccpp_suite_regional_init}
@@ -286,6 +287,7 @@ export output_grid_dlon_ens={output_grid_dlon_ens}
 export output_grid_dlat_ens={output_grid_dlat_ens}
 export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
+export satpost_ens={satpost_ens}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
