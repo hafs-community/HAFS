@@ -204,17 +204,20 @@ if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART/${YMD}.${hh}0000
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART
 fi
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_init
+  #warm_start_opt=1
 fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${WORKhafs}/intercom/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_MERGE} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_merge
+  #warm_start_opt=2
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_VI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi
+  #warm_start_opt=3
 fi
 if [ ${RUN_GSI_VR} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
@@ -238,17 +241,20 @@ if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/
   warmstart_from_restart=yes
   RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
 fi
-if [ ${warm_start_opt} -eq 1 ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  #warm_start_opt=1
 fi
-if [ ${warm_start_opt} -eq 2 ] && [ -s ${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_MERGE_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}
+  #warm_start_opt=2
 fi
-if [ ${warm_start_opt} -eq 3 ] && [ -s ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ATM_VI_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
+  #warm_start_opt=3
 fi
 if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
@@ -577,7 +583,7 @@ if [ ${ENSDA} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
-elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ] || [ ${RUN_ATM_VI} = YES ]; then
+elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ] || [ ${RUN_ATM_VI} = YES ] || [ ${RUN_ATM_MERGE} = YES ]; then
   RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
@@ -1159,7 +1165,16 @@ NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
 IDEFLATE=1 NBITS=0
 NFHOUT=3 NFHMAX_HF=-1 NFHOUT_HF=3 NSOUT=-1 OUTPUT_FH=-1
 
-for n in $(seq 1 ${nest_grids})
+if [ $gtype = regional ]; then
+  ngrids=${nest_grids}
+elif [ $gtype = nest ]; then
+  ngrids=$(( ${nest_grids} + 1 ))
+else
+  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
+  exit 9
+fi
+
+for n in $(seq 1 ${ngrids})
 do
   if [ $n -eq 1 ]; then
     nstr=""
@@ -1203,7 +1218,7 @@ do
   eval DY${nstr}=$(echo ${output_grid_dy:-""} | cut -d , -f ${n})
 done
 
-for n in $(seq $((${nest_grids}+1)) 6)
+for n in $(seq $((${ngrids}+1)) 6)
 do
   nstr=$(printf "_%0.2d" $n)
   sed -i -e "/<output_grid${nstr}>/,/<\/output_grid${nstr}>/d" model_configure.tmp

@@ -86,7 +86,7 @@ EXPT=$(basename ${HOMEhafs})
 
  # h3db_vi: atm_init+atm_vi and cycling storm region only
  confh3db_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vi \
-     config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
+     config.run_atm_init=yes config.run_atm_init_fgat=no config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
      config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
@@ -111,11 +111,10 @@ EXPT=$(basename ${HOMEhafs})
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      config.run_analysis_merge=no config.run_analysis_merge_ens=no \
-     config.warm_start_opt=1 \
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafs_C512_regional_3kmL81.conf \
+     ../parm/hafsv0p3_regional_storm.conf \
      ../parm/hafs_hycom.conf"
 
  # h3da: coldstart from gfs analysis directly
