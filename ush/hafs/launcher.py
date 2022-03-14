@@ -1082,7 +1082,6 @@ class HAFSLauncher(HAFSConfig):
         vitbase=self.choose_vitbase(storm_num)
 
         vitbasedir=os.path.dirname(vitbase)
-        print("vitbasedir",vitbasedir)
         produtil.fileop.makedirs(vitbasedir,logger=logger)
 
         logger.info('Reformat vitals...')
@@ -1423,123 +1422,6 @@ class HAFSLauncher(HAFSConfig):
         assert(isinstance(part1,str))
         out=list()
         logger=self.log()
-
-        # Generate the output grid for the write grid component of the forecast job
-        output_grid=self.getstr('forecast','output_grid','rotated_latlon')
-        logger.info('output_grid is: %s'%(output_grid))
-        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0)
-        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0)
-        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0)
-        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0)
-        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025)
-        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025)
-        if output_grid=='rotated_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0)
-        elif output_grid=='regional_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0)
-        else:
-            logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
-            sys.exit(2)
-        self.set('holdvars','output_grid_lon1','%.6f'%(output_grid_lon1))
-        self.set('holdvars','output_grid_lat1','%.6f'%(output_grid_lat1))
-        self.set('holdvars','output_grid_lon2','%.6f'%(output_grid_lon2))
-        self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
-
-        # Generate post_gridspecs if needed
-        nest_grids=self.getint('grid','nest_grids',1)
-        refine_ratio=self.getstr('grid','refine_ratio',3)
-        post_gridspecs=self.getstr('atm_post','post_gridspecs','auto')
-        # if post_gridspecs=auto, then post_gridspecs will be automatically generated based on the output grid
-        if post_gridspecs=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            logger.info('since post_gridspecs is %s'%(post_gridspecs))
-            post_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            for igrid in range(2, nest_grids+1):
-                latlon_dlon=output_grid_dlon/int(refine_ratio[igrid])
-                latlon_dlat=output_grid_dlat/int(refine_ratio[igrid])
-                latlon_nlon=latlon_nlon*int(refine_ratio[igrid])
-                latlon_nlat=latlon_nlat*int(refine_ratio[igrid])
-                post_gridspecs=",".join([post_gridspecs,'"latlon %f:%d:%f %f:%d:%f"'%(
-                    latlon_lon0,latlon_nlon,latlon_dlon,
-                    latlon_lat0,latlon_nlat,latlon_dlat)])
-            logger.info('automatically generated post_gridspecs: %s' %(post_gridspecs))
-        self.set('holdvars','post_gridspecs',post_gridspecs)
-
-        # Set trak_gridspecs if needed
-        trak_gridspecs=self.getstr('atm_post','trak_gridspecs','auto')
-        if trak_gridspecs=='auto':
-            logger.info('since trak_gridspecs is %s' %(trak_gridspecs))
-            trak_gridspecs=post_gridspecs
-            logger.info('automatically generated trak_gridspecs: %s' %(trak_gridspecs))
-        self.set('holdvars','trak_gridspecs',trak_gridspecs)
-
-        # Generate post_gridspecs_ens if needed
-        nest_grids_ens=self.getint('grid_ens','nest_grids_ens',1)
-        refine_ratio_ens=self.getstr('grid_ens','refine_ratio_ens',3)
-        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
-        post_gridspecs_ens=self.getstr('atm_post_ens','post_gridspecs_ens','auto')
-        output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
-        output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
-
-        # if post_gridspecs_ens=auto, then post_gridspecs_ens will be automatically generated based on the output grid
-        if post_gridspecs_ens=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            logger.info('since post_gridspecs_ens is %s' %(post_gridspecs_ens))
-            post_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            for igrid in range(2, nest_grids_ens+1):
-                latlon_dlon=output_grid_dlon/int(refine_ratio_ens[igrid])
-                latlon_dlat=output_grid_dlat/int(refine_ratio_ens[igrid])
-                latlon_nlon=latlon_nlon*int(refine_ratio_ens[igrid])
-                latlon_nlat=latlon_nlat*int(refine_ratio_ens[igrid])
-                post_gridspecs_ens=",".join([post_gridspecs_ens,'"latlon %f:%d:%f %f:%d:%f"'%(
-                    latlon_lon0,latlon_nlon,latlon_dlon,
-                    latlon_lat0,latlon_nlat,latlon_dlat)])
-            logger.info('automatically generated post_gridspecs_ens: %s' %(post_gridspecs_ens))
-        self.set('holdvars','post_gridspecs_ens',post_gridspecs_ens)
-
-        # Set trak_gridspecs_ens if needed
-        trak_gridspecs_ens=self.getstr('atm_post_ens','trak_gridspecs_ens','auto')
-        if trak_gridspecs_ens=='auto':
-            logger.info('since trak_gridspecs_ens is %s' %(trak_gridspecs_ens))
-            trak_gridspecs_ens=post_gridspecs_ens
-            logger.info('automatically generated trak_gridspecs_ens: %s' %(trak_gridspecs_ens))
-        self.set('holdvars','trak_gridspecs_ens',trak_gridspecs_ens)
 
         run_ocean=self.getbool('config','run_ocean')
 

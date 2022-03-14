@@ -28,9 +28,6 @@ COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
 SENDCOM=${SENDCOM:-YES}
 CDNOSCRUB="${CDNOSCRUB}"
 
-output_grid=${output_grid:-rotated_latlon}
-post_gridspecs=${post_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
-trak_gridspecs=${trak_gridspecs:-"latlon 246.6:4112:0.025 -2.4:1976:0.025"}
 out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 # GPLOT-specific variables (might go elsewhere)

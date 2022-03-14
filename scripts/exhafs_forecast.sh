@@ -170,14 +170,6 @@ else
   output_grid_dlat=${output_grid_dlat_ens}
 fi
 
-output_grid=${output_grid:-rotated_latlon}
-output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
-output_grid_cen_lat=${output_grid_cen_lat:-${domlat}}
-output_grid_lon1=${output_grid_lon1:--35.0}
-output_grid_lat1=${output_grid_lat1:--30.0}
-output_grid_lon2=${output_grid_lon2:-35.0}
-output_grid_lat2=${output_grid_lat2:-30.0}
-
 halo_blend=${halo_blend:-0}
 nstf_n1=${nstf_n1:-2}
 nstf_n2=${nstf_n2:-0}
@@ -1167,84 +1159,55 @@ NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
 IDEFLATE=1 NBITS=0
 NFHOUT=3 NFHMAX_HF=-1 NFHOUT_HF=3 NSOUT=-1 OUTPUT_FH=-1
 
-OUTPUT_GRID=${output_grid:-""}
-IMO=${output_grid_imo:-""} JMO=${output_grid_jmo:-""}
-CEN_LON=${output_grid_cen_lon:-""} CEN_LAT=${output_grid_cen_lat:-""}
-LON1=${output_grid_lon1:-""} LAT1=${output_grid_lat1:-""}
-LON2=${output_grid_lon2:-""} LAT2=${output_grid_lat2:-""}
-DLON=${output_grid_dlon:-""} DLAT=${output_grid_dlat:-""}
-STDLAT1=${output_grid_stdlat1:-""} STDLAT2=${output_grid_stdlat2:-""}
-NX=${output_grid_nx:-""} NY=${output_grid_ny:-""} DX=${output_grid_dx:-""} DY=${output_grid_dy:-""}
-if [ $nest_grids -ge 2 ]; then
-  OUTPUT_GRID_2=${OUTPUT_GRID_2:-$OUTPUT_GRID}
-  IMO_2=${IMO_2:-$IMO} JMO_2=${JMO_2:-$JMO}
-  CEN_LON_2=${CEN_LON_2:-$CEN_LON} CEN_LAT_2=${CEN_LAT_2:-$CEN_LAT}
-# LON1_2=${LON1_2:-$LON1} LAT1_2=${LAT1_2:-$LAT1}
-# LON2_2=${LON2_2:-$LON2} LAT2_2=${LAT2_2:-$LAT2}
-# DLON_2=${DLON_2:-$DLON} DLAT_2=${DLAT_2:-$DLAT}
-  LON1_2=$( printf "%.6f" $(bc <<< "scale=6; $LON1+10.5") )
-  LAT1_2=$( printf "%.6f" $(bc <<< "scale=6; $LAT1+10.5") )
-  LON2_2=$( printf "%.6f" $(bc <<< "scale=6; $LON2-10.5") )
-  LAT2_2=$( printf "%.6f" $(bc <<< "scale=6; $LAT2-10.5") )
-  DLON_2=$( printf "%.6f" $(bc <<< "scale=6; ${DLON}/$( echo ${refine_ratio} | cut -d , -f 2 )") )
-  DLAT_2=$( printf "%.6f" $(bc <<< "scale=6; ${DLAT}/$( echo ${refine_ratio} | cut -d , -f 2 )") )
-  STDLAT1_2=${STDLAT1_2:-$STDLAT1} STDLAT2_2=${STDLAT2_2:-$STDLAT2}
-  NX_2=${NX_2:-$NX} NY_2=${NY_2:-$NY} DX_2=${DY_2:-$DX} DY_2=${DY_2:-$DY}
-else
-  sed -i -e "/<output_grid_02>/,/<\/output_grid_02>/d" model_configure.tmp
-fi
-if [ $nest_grids -ge 3 ]; then
-  OUTPUT_GRID_3=${OUTPUT_GRID_3:-$OUTPUT_GRID_2}
-  IMO_3=${IMO_3:-$IMO_2} JMO_3=${JMO_3:-$JMO_2}
-  CEN_LON_3=${CEN_LON_3:-$CEN_LON_2} CEN_LAT_3=${CEN_LAT_3:-$CEN_LAT_2}
-  LON1_3=${LON1_3:-$LON1_2} LAT1_3=${LAT1_3:-$LAT1_2}
-  LON2_3=${LON2_3:-$LON2_2} LAT2_3=${LAT2_3:-$LAT2_2}
-  DLON_3=${DLON_3:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_2}/$( echo ${refine_ratio} | cut -d , -f 3 )") )}
-  DLAT_3=${DLAT_3:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_2}/$( echo ${refine_ratio} | cut -d , -f 3 )") )}
-  STDLAT1_3=${STDLAT1_3:-$STDLAT1_2} STDLAT2_3=${STDLAT2_3:-$STDLAT2_2}
-  NX_3=${NX_3:-$NX_2} NY_3=${NY_3:-$NY_2} DX_3=${DY_3:-$DX} DY_3=${DY_3:-$DY_2}
-else
-  sed -i -e "/<output_grid_03>/,/<\/output_grid_03>/d" model_configure.tmp
-fi
-if [ $nest_grids -ge 4 ]; then
-  OUTPUT_GRID_4=${OUTPUT_GRID_4:-$OUTPUT_GRID_3}
-  IMO_4=${IMO_4:-$IMO_3} JMO_4=${JMO_4:-$JMO_3}
-  CEN_LON_4=${CEN_LON_4:-$CEN_LON_3} CEN_LAT_4=${CEN_LAT_4:-$CEN_LAT_3}
-  LON1_4=${LON1_4:-$LON1_3} LAT1_4=${LAT1_4:-$LAT1_3}
-  LON2_4=${LON2_4:-$LON2_3} LAT2_4=${LAT2_4:-$LAT2_3}
-  DLON_4=${DLON_4:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_3}/$( echo ${refine_ratio} | cut -d , -f 4 )") )}
-  DLAT_4=${DLAT_4:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_3}/$( echo ${refine_ratio} | cut -d , -f 4 )") )}
-  STDLAT1_4=${STDLAT1_4:-$STDLAT1_3} STDLAT2_4=${STDLAT2_4:-$STDLAT2_3}
-  NX_4=${NX_4:-$NX_3} NY_4=${NY_4:-$NY_3} DX_4=${DY_4:-$DX} DY_4=${DY_4:-$DY_3}
-else
-  sed -i -e "/<output_grid_04>/,/<\/output_grid_04>/d" model_configure.tmp
-fi
-if [ $nest_grids -ge 5 ]; then
-  OUTPUT_GRID_5=${OUTPUT_GRID_5:-$OUTPUT_GRID_4}
-  IMO_5=${IMO_5:-$IMO_4} JMO_5=${JMO_5:-$JMO_4}
-  CEN_LON_5=${CEN_LON_5:-$CEN_LON_4} CEN_LAT_5=${CEN_LAT_5:-$CEN_LAT_4}
-  LON1_5=${LON1_5:-$LON1_4} LAT1_5=${LAT1_5:-$LAT1_4}
-  LON2_5=${LON2_5:-$LON2_4} LAT2_5=${LAT2_5:-$LAT2_4}
-  DLON_5=${DLON_5:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_4}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
-  DLAT_5=${DLAT_5:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_4}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
-  STDLAT1_5=${STDLAT1_5:-$STDLAT1_4} STDLAT2_5=${STDLAT2_5:-$STDLAT2_4}
-  NX_5=${NX_5:-$NX_4} NY_5=${NY_5:-$NY_4} DX_5=${DY_5:-$DX} DY_5=${DY_5:-$DY_4}
-else
-  sed -i -e "/<output_grid_05>/,/<\/output_grid_05>/d" model_configure.tmp
-fi
-if [ $nest_grids -ge 6 ]; then
-  OUTPUT_GRID_6=${OUTPUT_GRID_6:-$OUTPUT_GRID_5}
-  IMO_6=${IMO_6:-$IMO_5} JMO_6=${JMO_6:-$JMO_5}
-  CEN_LON_6=${CEN_LON_6:-$CEN_LON_5} CEN_LAT_6=${CEN_LAT_6:-$CEN_LAT_5}
-  LON1_6=${LON1_6:-$LON1_5} LAT1_6=${LAT1_6:-$LAT1_5}
-  LON2_6=${LON2_6:-$LON2_5} LAT2_6=${LAT2_6:-$LAT2_5}
-  DLON_6=${DLON_6:-$( printf "%.6f" $(bc <<< "scale=6; ${DLON_5}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
-  DLAT_6=${DLAT_6:-$( printf "%.6f" $(bc <<< "scale=6; ${DLAT_5}/$( echo ${refine_ratio} | cut -d , -f 5 )") )}
-  STDLAT1_6=${STDLAT1_6:-$STDLAT1_5} STDLAT2_6=${STDLAT2_6:-$STDLAT2_5}
-  NX_6=${NX_6:-$NX_5} NY_6=${NY_6:-$NY_5} DX_6=${DY_6:-$DX} DY_6=${DY_6:-$DY_5}
-else
-  sed -i -e "/<output_grid_06>/,/<\/output_grid_06>/d" model_configure.tmp
-fi
+for n in $(seq 1 ${nest_grids})
+do
+  if [ $n -eq 1 ]; then
+    nstr=""
+  else
+    nstr="_${n}"
+  fi
+  outputgrid=$(echo ${output_grid} | cut -d , -f ${n})
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f ${n})
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f ${n})
+  if [[ "$outputgrid" = "rotated_latlon"* ]]; then
+    clontmp=0.0
+    clattmp=0.0
+  else
+    clontmp=${clon}
+    clattmp=${clat}
+  fi
+  lon_span=$(echo ${output_grid_lon_span} | cut -d , -f ${n})
+  lat_span=$(echo ${output_grid_lat_span} | cut -d , -f ${n})
+  dlon=$(echo ${output_grid_dlon} | cut -d , -f ${n})
+  dlat=$(echo ${output_grid_dlat} | cut -d , -f ${n})
+  lon1=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}-${lon_span}/2.0") )
+  lat1=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}-${lat_span}/2.0") )
+  lon2=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}+${lon_span}/2.0") )
+  lat2=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}+${lat_span}/2.0") )
+  eval OUTPUT_GRID${nstr}=${outputgrid}
+  eval CEN_LON${nstr}=${clon}
+  eval CEN_LAT${nstr}=${clat}
+  eval LON1${nstr}=${lon1}
+  eval LAT1${nstr}=${lat1}
+  eval LON2${nstr}=${lon2}
+  eval LAT2${nstr}=${lat2}
+  eval DLON${nstr}=${dlon}
+  eval DLAT${nstr}=${dlat}
+  eval IMO${nstr}=$(echo ${output_grid_imo:-""} | cut -d , -f ${n})
+  eval JMO${nstr}=$(echo ${output_grid_jmo:-""} | cut -d , -f ${n})
+  eval STDLAT1${nstr}=$(echo ${output_grid_stdlat1:-""} | cut -d , -f ${n})
+  eval STDLAT2${nstr}=$(echo ${output_grid_stdlat2:-""} | cut -d , -f ${n})
+  eval NX${nstr}=$(echo ${output_grid_nx:-""} | cut -d , -f ${n})
+  eval NY${nstr}=$(echo ${output_grid_ny:-""} | cut -d , -f ${n})
+  eval DX${nstr}=$(echo ${output_grid_dx:-""} | cut -d , -f ${n})
+  eval DY${nstr}=$(echo ${output_grid_dy:-""} | cut -d , -f ${n})
+done
+
+for n in $(seq $((${nest_grids}+1)) 6)
+do
+  nstr=$(printf "_%0.2d" $n)
+  sed -i -e "/<output_grid${nstr}>/,/<\/output_grid${nstr}>/d" model_configure.tmp
+done
 
 atparse < model_configure.tmp > model_configure
 

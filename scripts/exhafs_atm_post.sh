@@ -101,10 +101,10 @@ else
   nestdotstr=".nest$(printf "%02d" ${ng})."
 fi
 gridstr=".grid$(printf "%02d" ${ng})"
+
+outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
 postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${ng})
-# Need to revisit to enable support different output_grid types for the global parent domain.
-#outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
-outputgrid=${output_grid}
+trakgridspecs=$(echo ${trak_gridspecs} | cut -d, -f ${ng})
 
 grb2post=${out_prefix}.hafs${gridstr}.f${FHR3}.postgrb2
 grb2file=${out_prefix}.hafs${gridstr}.f${FHR3}.grb2
@@ -247,7 +247,30 @@ fi
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
 
-if [ "$outputgrid" = rotated_latlon ]; then
+if [ ${postgridspecs} = auto ]; then
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f 1)
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f 1)
+  lon_span=$(echo ${output_grid_lon_span} | cut -d , -f 1)
+  lat_span=$(echo ${output_grid_lat_span} | cut -d , -f 1)
+  latlon_dlon=$( printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${ng}))
+  latlon_dlat=$( printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${ng}))
+if [[ "$outputgrid" = "rotated_latlon"* ]]; then
+  latlon_lon0=$( printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0-9.0") )
+  latlon_nlon=$( printf "%.0f" $(bc <<< "scale=6; (${lon_span}+18.0)/${latlon_dlon}") )
+else
+  latlon_lon0=$( printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0") )
+  latlon_nlon=$( printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${latlon_dlon}") )
+fi
+  latlon_lat0=$( printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0") )
+  latlon_nlat=$( printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}") )
+  postgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
+fi
+
+if [ ${trakgridspecs} = auto ]; then
+  trakgridspecs=${postgridspecs}
+fi
+
+if [[ "$outputgrid" = "rotated_latlon"* ]]; then
 
 # For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
@@ -278,12 +301,12 @@ cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
 rm -f ${grb2post}.part??
 
-elif [ "$outputgrid" = regional_latlon ]; then
+elif [[ "$outputgrid" = "regional_latlon"* ]]; then
 
 # For regional_latlon output grid, no need to convert
 mv ${grb2post} ${grb2file}
 if [ ${satpost} = .true. ]; then
-mv ${sat_grb2post} ${sat_grb2file}
+  mv ${sat_grb2post} ${sat_grb2file}
 fi
 
 ## Alternatively, can use wgrib2 to convert from c3 to c2 packing, which can reduce the filesize by ~30%.
@@ -316,8 +339,24 @@ PARMlist='UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD
 
 ${APRUNS} ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
 
+# Create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
+if [ $ng -eq 2 ]; then
+  trkd01_grb2file=${out_prefix}.hafs.grid01.trk.f${FHR3}.grb2
+  trkd02_grb2file=${out_prefix}.hafs.grid02.trk.f${FHR3}.grb2
+  trkd12_grb2file=${out_prefix}.hafs.grid12.trk.f${FHR3}.grb2
+  opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
+  ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires
+  ${APRUNS} ${WGRIB2} ${trkd02_grb2file} -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
+  mv ${trkd12_grb2file} ${trkd02_grb2file}
+fi
+
 # Generate the index file for the tracker
 ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
+
+# Deliver to intercom
+mkdir -p ${intercom}
+mv ${trk_grb2file} ${intercom}/
+mv ${trk_grb2indx} ${intercom}/
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
@@ -329,11 +368,6 @@ if [ $SENDCOM = YES ]; then
     mv ${sat_grb2indx} ${COMOUTpost}/
   fi
 fi
-
-# Deliver to intercom
-mkdir -p ${intercom}
-mv ${trk_grb2file} ${intercom}/
-mv ${trk_grb2indx} ${intercom}/
 
 # Use mppnccombine to combine fragmented files if needed
 grid_spec=grid_spec${nesttilestr}.nc
