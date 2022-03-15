@@ -868,7 +868,7 @@
        allocate (work_1(nz),work_2(nz+1))
        DO J=1,NY
        DO I=1,NX
-          call get_eta_level(nz,PD1,work_1,work_2,eta1,eta2,1.0)
+          call get_eta_level(nz,PD1(I,J),work_1,work_2,eta1,eta2,1.0)
           do k=1,nz
              n=nz-k+1
              PMID1(I,J,K)=work_1(n)
@@ -965,7 +965,7 @@
        allocate (work_1(nz),work_2(nz+1))
        DO J=1,NY
        DO I=1,NX
-          call get_eta_level(nz,PD1,work_1,work_2,eta1,eta2,1.0)
+          call get_eta_level(nz,PD1(I,J),work_1,work_2,eta1,eta2,1.0)
           do k=1,nz
              n=nz-k+1
              PMID1(I,J,K)=work_1(n)
@@ -1095,7 +1095,7 @@
        allocate (work_1(nz),work_2(nz+1))
        DO J=1,NY
        DO I=1,NX
-          call get_eta_level(nz,PD1,work_1,work_2,eta1,eta2,1.0)
+          call get_eta_level(nz,PD1(I,J),work_1,work_2,eta1,eta2,1.0)
           do k=1,nz
              n=nz-k+1
              PMID1(I,J,K)=work_1(n)
