@@ -172,11 +172,12 @@
   <!ENTITY FORECAST_RESOURCES_C512_regional_1mvnest "<nodes>96:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_C512_regional_1mvnest_atm_ocn "<nodes>99:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1980</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_C512_regional_1mvnest_atm_ocn_980PE "<nodes>49:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>980</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY FORECAST_RESOURCES_180PE "<nodes>15:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_600PE "<nodes>50:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_680PE "<nodes>68:ppn=10:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>680</value></envar><envar><name>NCTSK</name><value>10</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1320PE "<nodes>110:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1380PE "<nodes>115:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
-
-  <!ENTITY FORECAST_RESOURCES_C96_global_1mvnest "<nodes>9:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
-  <!ENTITY FORECAST_RESOURCES_C768_global_1mvnest "<nodes>34:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>680</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
 <!--
   <!ENTITY FORECAST_RESOURCES_globnest1 "<nodes>33:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">

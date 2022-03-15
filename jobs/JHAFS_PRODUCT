@@ -65,9 +65,15 @@ mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
 rm -f cmdfile_product
 # Loop for grids/domains to prepare the cmdfile
-for ng in $(seq 1 ${nest_grids});
+for ng in $(seq 1 ${ngrids});
 do
 
 if [[ $ng -eq 1 ]]; then

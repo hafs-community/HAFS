@@ -18,7 +18,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
-HOMEhafs=/work/noaa/hwrf/save/${USER}/hafs_nesting
+HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
 dev="-s sites/orion.ent -f"
 PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
@@ -46,25 +46,20 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      ../parm/hafs_C512_regional_1mvnest_storm.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96_global_1mvnest_storm \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C512_regional_1mvnest_atm_ocn \
      config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_C96_global_1mvnest_storm.conf
+     ../parm/hafs_C512_regional_1mvnest_storm.conf \
+     ../parm/hafsv0p3_hycom.conf
+
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C192_global_1mvnest_storm \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_C192_global_1mvnest_storm.conf
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C768_global_1mvnest_storm \
      config.NHRS=12 ${scrubopt} \
      ../parm/hafs_C768_global_1mvnest_storm.conf
-
-#${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C96_regional_1mvnest_atm_ocn \
-#    config.NHRS=12 ${scrubopt} \
-#    ../parm/hafs_C96_regional_1mvnest_storm_hycom.conf
-
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C512_regional_1mvnest_atm_ocn \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_C512_regional_1mvnest_storm.conf \
-     ../parm/hafsv0p3_hycom.conf
 
 #===============================================================================
 

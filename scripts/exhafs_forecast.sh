@@ -1199,6 +1199,8 @@ do
   lat1=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}-${lat_span}/2.0") )
   lon2=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}+${lon_span}/2.0") )
   lat2=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}+${lat_span}/2.0") )
+  imo=$( printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${dlon} + 1") )
+  jmo=$( printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${dlat} + 1") )
   eval OUTPUT_GRID${nstr}=${outputgrid}
   eval CEN_LON${nstr}=${clon}
   eval CEN_LAT${nstr}=${clat}
@@ -1208,8 +1210,8 @@ do
   eval LAT2${nstr}=${lat2}
   eval DLON${nstr}=${dlon}
   eval DLAT${nstr}=${dlat}
-  eval IMO${nstr}=$(echo ${output_grid_imo:-""} | cut -d , -f ${n})
-  eval JMO${nstr}=$(echo ${output_grid_jmo:-""} | cut -d , -f ${n})
+  eval IMO${nstr}=${imo}
+  eval JMO${nstr}=${jmo}
   eval STDLAT1${nstr}=$(echo ${output_grid_stdlat1:-""} | cut -d , -f ${n})
   eval STDLAT2${nstr}=$(echo ${output_grid_stdlat2:-""} | cut -d , -f ${n})
   eval NX${nstr}=$(echo ${output_grid_nx:-""} | cut -d , -f ${n})

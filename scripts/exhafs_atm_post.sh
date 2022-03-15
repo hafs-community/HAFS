@@ -85,8 +85,14 @@ MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
 HH=`echo $NEWDATE | cut -c9-10`
 
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
 # Loop for grids/domains
-for ng in $(seq 1 ${nest_grids});
+for ng in $(seq 1 ${ngrids});
 do
 
 if [[ $ng -eq 1 ]]; then
@@ -100,6 +106,7 @@ else
   nesttilestr=".nest$(printf "%02d" ${ng}).tile$(printf "%d" ${ng})"
   nestdotstr=".nest$(printf "%02d" ${ng})."
 fi
+
 gridstr=".grid$(printf "%02d" ${ng})"
 
 outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
@@ -346,7 +353,8 @@ if [ $ng -eq 2 ]; then
   trkd12_grb2file=${out_prefix}.hafs.grid12.trk.f${FHR3}.grb2
   opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
   ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires
-  ${APRUNS} ${WGRIB2} ${trkd02_grb2file} -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
+  ${APRUNS} ${WGRIB2} ${trkd02_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires
+  ${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
 
@@ -368,6 +376,8 @@ if [ $SENDCOM = YES ]; then
     mv ${sat_grb2indx} ${COMOUTpost}/
   fi
 fi
+
+if [ ${gtype} = regional ]; then
 
 # Use mppnccombine to combine fragmented files if needed
 grid_spec=grid_spec${nesttilestr}.nc
@@ -423,6 +433,8 @@ if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
     ${NCP} -p ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
   fi
+fi
+
 fi
 
 # Write out the postdone message file
