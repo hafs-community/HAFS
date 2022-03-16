@@ -819,6 +819,8 @@ fi
 # For warm start from restart files (either before or after analysis)
 if [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.coupler.res ./coupler.res
+  sed -i -e "2s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Model start time:   year, month, day, hour, minute, second/" ./coupler.res
+  sed -i -e "3s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ./coupler.res
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nc ./fv_core.res.nc
 # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
 # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
