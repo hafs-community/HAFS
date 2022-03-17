@@ -2329,7 +2329,7 @@
       DO I=1,NX
          CALL get_eta_level(NZ,PD1(I,J),PFL,PHL,ETA1,ETA2,1.0)
          DO K=1,NZ
-           PMID1(I,J,K)=PHL(NZ+1-K)
+           PMID1(I,J,K)=PFL(NZ+1-K)
          END DO
          DO K=1,NZ+1
            P1(I,J,K)=PHL(NZ+2-K)
@@ -2493,7 +2493,7 @@
       DO I=1,NX
          CALL get_eta_level(NZ,PD1(I,J),PFL,PHL,ETA1,ETA2,1.0)
          DO K=1,NZ
-           PMID1(I,J,K)=PHL(NZ+1-K)
+           PMID1(I,J,K)=PFL(NZ+1-K)
          END DO
          DO K=1,NZ+1
            P1(I,J,K)=PHL(NZ+2-K)

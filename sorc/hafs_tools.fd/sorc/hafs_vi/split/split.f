@@ -3251,6 +3251,10 @@ c        DKY(I,J) = U(I,J)
        real(4), intent(in), optional :: pscale
        real(4), intent(out) :: pf(npz)
        real(4), intent(out) :: ph(npz+1)
+
+       real, parameter   :: RDGAS  = 287.05              !< Gas constant for dry air [J/kg/deg]
+       real, parameter   :: CP_AIR = 1004.6              !< Specific heat capacity of dry air at constant pressure [J/kg/deg]
+       real, parameter   :: KAPPA  = RDGAS/CP_AIR        !< RDGAS / CP_AIR [dimensionless]
        integer k
 
        ph(1) = ak(1)
