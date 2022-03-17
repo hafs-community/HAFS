@@ -29,6 +29,7 @@
 
 !-----------------------------------------------------------------------------
 
+  use constants
   use netcdf
   use module_mpi
   use var_type
@@ -357,13 +358,12 @@
         !---7.9 record 9: (((z1(i,j,k),i=1,nx),j=1,ny),k=nz1,1,-1)
         !---     hafs-VI/read_hafs_out.f90 z1:
         !---          z1(I,J,K)=z1(I,J,K+1)+rdgas1*tmp(i,j,k)*(1.+0.608*spfh(i,j,k))*ALOG(ph1(i,j,k+1)/ph1(i,j,k))
-        !--- hgt?: phis-sum(DZ)?
-        !--- in fv_core.res.tile1.nc, what are DZ and phis?
+        !--- hgt: phis/g-sum(DZ)
         if ( nrecord == 9 ) then
            allocate(dat4(ix, iy, 1,1))
            call get_var_data(trim(infile_core), 'phis', ix, iy, 1, 1, dat4)
            allocate(dat41(ix, iy, iz+1, 1))
-           dat41(:,:,iz+1,1)=dat4(:,:,1,1)
+           dat41(:,:,iz+1,1)=dat4(:,:,1,1)/g
            deallocate(dat4)
 
            allocate(dat4(ix, iy, iz, 1))
@@ -587,6 +587,7 @@
 
 !-----------------------------------------------------------------------------
 
+  use constants
   use netcdf
   use module_mpi
   use var_type
@@ -812,7 +813,7 @@
               !---phis
               if ( nrecord == 9 ) then
                  allocate(phis1(nx,ny,1,1))
-                 phis1(:,:,1,1)=dat3(:,:,1)
+                 phis1(:,:,1,1)=dat3(:,:,1)*g
               endif
            else
               do k = 1, iz
