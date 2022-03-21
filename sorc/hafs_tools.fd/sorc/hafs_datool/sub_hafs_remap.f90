@@ -272,11 +272,11 @@
         if ( u_stag == 0 .and. v_stag == 0 ) then
            call combine_grids_for_remap(ixi, jxi, kxi, txi, fdat_src, ixo, jxo, kxo, txo, fdat_dst, &
                                         gwt%gwt_t, fdat_out)
-           i=2; j=2
-           write(*,'(a,30i6)')'    gwt%gwt_t @ ', i, j, gwt%gwt_t(i,j)%src_points, gwt%gwt_t(i,j)%src_x(1:gwt%gwt_t(i,j)%src_points), &
-                  gwt%gwt_t(i,j)%src_y(1:gwt%gwt_t(i,j)%src_points)
-           write(*,'(a,3f10.2)')'src,dst,out =', fdat_src(gwt%gwt_t(i,j)%src_x(1),gwt%gwt_t(i,j)%src_y(1),1,1), &
-                  fdat_dst(i,j,1,1), fdat_out(i,j,1,1)
+          !i=2; j=2
+          !write(*,'(a,30i6)')'    gwt%gwt_t @ ', i, j, gwt%gwt_t(i,j)%src_points, gwt%gwt_t(i,j)%src_x(1:gwt%gwt_t(i,j)%src_points), &
+          !       gwt%gwt_t(i,j)%src_y(1:gwt%gwt_t(i,j)%src_points)
+          !write(*,'(a,3f10.2)')'src,dst,out =', fdat_src(gwt%gwt_t(i,j)%src_x(1),gwt%gwt_t(i,j)%src_y(1),1,1), &
+          !       fdat_dst(i,j,1,1), fdat_out(i,j,1,1)
 
         else if ( u_stag == 1 .and. v_stag == 0 ) then
            call combine_grids_for_remap(ixi, jxi, kxi, txi, fdat_src, ixo, jxo, kxo, txo, fdat_dst, &
