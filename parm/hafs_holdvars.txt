@@ -34,6 +34,14 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
+export vi_warm_start_vmax_threshold={vi_warm_start_vmax_threshold}
+export vi_bogus_vmax_threshold={vi_bogus_vmax_threshold}
+export vi_storm_env={vi_storm_env}
+export vi_storm_relocation={vi_storm_relocation}
+export vi_storm_modification={vi_storm_modification}
+export vi_ajust_intensity={vi_ajust_intensity}
+export vi_ajust_size={vi_ajust_size}
+
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}
 export warm_start_opt={warm_start_opt}

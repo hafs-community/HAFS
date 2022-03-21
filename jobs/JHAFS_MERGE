@@ -59,12 +59,26 @@ export merge_method=${analysis_merge_method:-vortexreplace}
 # Deterministic or ensemble
 if [ "${ENSDA}" = YES ]; then
   export ENSID=${ENSID:-001}
-  export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
+  if [ -d ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID} ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
+  elif [ -d ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID} ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
+  else
+    echo "Error RESTARTsrc does not exist"
+    exit 1
+  fi
   export RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
   export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}
 else
-  export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
+  if [ -e ${WORKhafs}/intercom/RESTART_analysis ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
+  elif [ -e ${WORKhafs}/intercom/RESTART_vi ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_vi
+  else
+    echo "Error RESTARTsrc does not exist"
+    exit 1
+  fi
   export RESTARTdst=${WORKhafs}/intercom/RESTART_init
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
   export DATA=${WORKhafs}/analysis_merge

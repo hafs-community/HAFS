@@ -770,8 +770,14 @@
     <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
     <dependency>
       <and>
-        <taskdep task="analysis"/>
-	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
+        <or>
+          <taskdep task="atm_vi"/>
+          <strneq><left>&RUN_ATM_VI;</left><right>YES</right></strneq>
+        </or>
+        <or>
+          <taskdep task="analysis"/>
+          <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
+        </or>
       </and>
     </dependency>
   </task>
@@ -1301,8 +1307,14 @@
       <envar><name>ENSID</name><value>#MEM#</value></envar>
       <dependency>
         <and>
-          <taskdep task="enkf_recenter"/>
-          <streq><left>&RUN_ANALYSIS_MERGE_ENS;</left><right>YES</right></streq>
+          <or>
+            <taskdep task="atm_vi_ens#MEM#"/>
+            <strneq><left>&RUN_ATM_VI_ENS;</left><right>YES</right></strneq>
+          </or>
+          <or>
+            <taskdep task="enkf_recenter"/>
+            <strneq><left>&RUN_ANALYSIS_MERGE_ENS;</left><right>YES</right></strneq>
+          </or>
         </and>
       </dependency>
     </task>

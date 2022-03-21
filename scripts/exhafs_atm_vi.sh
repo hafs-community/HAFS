@@ -2,8 +2,8 @@
 
 set -xe
 export vi_warm_start_vmax_threshold=${vi_warm_start_vmax_threshold:-20} # m/s
-export vi_bogus_vmax_threshold=${vi_bogus_vmax_threshold:-33} # m/s
-export vi_storm_env_from=${vi_storm_env_from:-init}
+export vi_bogus_vmax_threshold=${vi_bogus_vmax_threshold:-50} # m/s
+export vi_storm_env=${vi_storm_env:-init} # init: from gfs/gdas init; pert: from the same source for the storm perturbation
 export vi_storm_relocation=${vi_storm_relocation:-yes}
 export vi_storm_modification=${vi_storm_modification:-yes}
 export vi_ajust_intensity=${vi_adjust_intensity:-yes}
@@ -329,7 +329,7 @@ else
   else
     pert=init
   fi
-  if [ $vi_storm_env_from = init ] ; then
+  if [ $vi_storm_env = init ] ; then
     senv=init
   else
     senv=$pert
