@@ -131,7 +131,7 @@ EXPT=$(basename ${HOMEhafs})
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
      vi.vi_storm_env=init \
-     config.run_analysis_merge=no config.run_analysis_merge_ens=no \
+     config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
      atm_merge.atm_merge_method=vortexreplace analysis_merge.analysis_merge_method=vortexreplace \
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
