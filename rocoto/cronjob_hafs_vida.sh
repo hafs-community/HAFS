@@ -189,7 +189,7 @@ EXPT=$(basename ${HOMEhafs})
  # Storms to run: Laura13L2020, Ida09L2021, Sam18L2021
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts}
 #${PYTHON3} ./run_hafs.py -t ${dev} 2021082612-2021083012 09L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021092206-2021100500 18L HISTORY ${confopts}
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092300-2021100500 18L HISTORY ${confopts}
 
 #===============================================================================
 
