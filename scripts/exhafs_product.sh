@@ -118,7 +118,9 @@ ${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
 rm -f input.vitals
 vitmsg=$(cat ${tmp_vital} | cut -c1-95)
 echo "${vitmsg}" > input.vitals
-grep -v "${vitmsg}" allvit >> input.vitals
+if grep -v "${vitmsg}" allvit ; then
+  grep -v "${vitmsg}" allvit >> input.vitals
+fi
 
 cp input.vitals tcvit_rsmc_storms.txt
 ln -sf input.vitals       fort.12
@@ -195,31 +197,43 @@ time ./hafs_gettrk.x < namelist.gettrk
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
 cp ${COMOUTproduct}/${all_atcfunix_grid} ${COMOUTproduct}/${all_atcfunix_grid}.orig
-if [ $STORMNUM == "00" ] ; then
-  norig=`cat ${COMOUTproduct}/${all_atcfunix_grid}.orig |wc -l `
-  if [ $norig -eq 1 ] ; then
-    # Generate an empty track file
-    > ${COMOUTproduct}/${all_atcfunix_grid}
+if [ -s ${COMOUTproduct}/${all_atcfunix_grid}.orig ]; then
+  if [ $STORMNUM == "00" ] ; then
+    if grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid}.orig ; then
+      grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid}.orig >  ${COMOUTproduct}/${all_atcfunix_grid}
+    else
+      echo -n > ${COMOUTproduct}/${all_atcfunix_grid}
+    fi
   else
-    grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid}.orig >  ${COMOUTproduct}/${all_atcfunix_grid}
+    grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix_grid}
   fi
 else
-  grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix_grid} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix_grid}
+  if [ $STORMNUM == "00" ] ; then
+    echo -n > ${COMOUTproduct}/${all_atcfunix_grid}
+  else
+    echo -n > ${COMOUTproduct}/${trk_atcfunix_grid}
+  fi
 fi
 
 if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
 cp ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
-if [ $STORMNUM == "00" ] ; then
-  norig=`cat ${COMOUTproduct}/${all_atcfunix}.orig |wc -l `
-  if [ $norig -eq 1 ] ; then
-    # Generate an empty track file
-    > ${COMOUTproduct}/${all_atcfunix}
+if [ -s ${COMOUTproduct}/${all_atcfunix}.orig ]; then
+  if [ $STORMNUM == "00" ] ; then
+    if grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig ; then
+      grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
+    else
+      echo -n > ${COMOUTproduct}/${all_atcfunix}
+    fi
   else
-    grep -v "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix}.orig >  ${COMOUTproduct}/${all_atcfunix}
+    grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
   fi
 else
-  grep "^.., ${STORMNUM}," ${COMOUTproduct}/${all_atcfunix} | grep -E "^${STORMBS1}.,|^.${STORMBS1}," > ${COMOUTproduct}/${trk_atcfunix}
+  if [ $STORMNUM == "00" ] ; then
+    echo -n > ${COMOUTproduct}/${all_atcfunix}
+  else
+    echo -n > ${COMOUTproduct}/${trk_atcfunix}
+  fi
 fi
 
 if [ ${COMOUTproduct} = ${COMhafs} ]; then
