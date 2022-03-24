@@ -408,9 +408,13 @@ for file in ${INPdir}/${grid_spec} \
             ${INPdir}/RESTART/${phy_data};
 do
   if [[ -s ${file}.0000 ]]; then
-    rm -f ${file}
-   #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-    echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+    if [ $FHR -ge 12 ] && [ ${file} == ${INPdir}/${grid_mspec} ]; then
+      echo "Skip combining ${file}"
+    else
+      rm -f ${file}
+     #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
+      echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+    fi
   fi
 done
 chmod +x cmdfile_mppnccombine
