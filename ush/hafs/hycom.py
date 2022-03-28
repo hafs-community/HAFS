@@ -1075,7 +1075,9 @@ export gridno={gridno}\n'''.format(**self.__dict__))
              mpiserial_path=self.getexe('mpiserial','*MISSING*')
         if mpiserial_path=='*MISSING*':
              mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
+        cfp_path=produtil.fileop.find_exe('cfp')
+        cmd2=mpirun(mpi(cfp_path)['./command.file.preview'],allranks=True)
+#        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
 
 
@@ -1115,7 +1117,9 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
              mpiserial_path=self.getexe('mpiserial','*MISSING*')
         if mpiserial_path=='*MISSING*':
              mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file2.preview'],allranks=True)
+        cfp_path=produtil.fileop.find_exe('cfp')
+        cmd2=mpirun(mpi(cfp_path)['command.file2.preview'],allranks=True)
+#        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file2.preview'],allranks=True)
         checkrun(cmd2)
 
         self.ofs_timeinterp_forcing(logger)
