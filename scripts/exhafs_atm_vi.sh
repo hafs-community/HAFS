@@ -1,8 +1,8 @@
 #!/bin/sh
 
 set -xe
-export vi_warm_start_vmax_threshold=${vi_warm_start_vmax_threshold:-20} # m/s
-export vi_bogus_vmax_threshold=${vi_bogus_vmax_threshold:-50} # m/s
+export vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
+export vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
 export vi_storm_env=${vi_storm_env:-init} # init: from gfs/gdas init; pert: from the same source for the storm perturbation
 export vi_storm_relocation=${vi_storm_relocation:-yes}
 export vi_storm_modification=${vi_storm_modification:-yes}
@@ -75,7 +75,7 @@ vmax_vit=`cat ${tcvital} | cut -c68-69`
 # Stage 1: Process prior cycle's vortex if exists and storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 
-if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -d ${RESTARTinp} ]; then
+if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
   # prep
   work_dir=${DATA}/prep_guess
@@ -289,7 +289,7 @@ cd $DATA
   mkdir -p ${work_dir}
   cd ${work_dir}
 
-if [ $vmax_vit -ge $vi_bogus_vmax_threshold ] && [ ! -s ../anl_pert_guess/storm_pert_new ] ; then
+if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/storm_pert_new ] ; then
   # Bogus a storm if prior cycle does not exist and tcvital intensity >= vi_bogus_vmax_threshold (e.g., 33 m/s)
 
   pert=init
@@ -324,7 +324,7 @@ else
   # warm-start from prior cycle or cold start from global/parent model
 
   # anl_combine
-  if [ $vmax_vit -ge $vi_warm_start_vmax_threshold ] && [ -s ../anl_pert_guess/storm_pert_new ] ; then
+  if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -s ../anl_pert_guess/storm_pert_new ] ; then
     pert=guess
   else
     pert=init
