@@ -22,6 +22,8 @@ inputroot=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 [dir]
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+DATMdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## Save directory.  Make sure you edit this.
 CDSAVE=/work/noaa/{disk_project}/save/{ENV[USER]}
 ## Scrubbed directory for large work files.  Make sure you edit this.

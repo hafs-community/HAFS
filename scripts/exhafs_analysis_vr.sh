@@ -21,11 +21,14 @@ else
 fi
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
+export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
+export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
+export s_ens_h=${s_ens_h:-150}
+export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
@@ -322,6 +325,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_PASSIVE_BC_/${PASSIVE_BC:-.false.}/g" \
+    -e "s/_UPD_PRED_/${UPD_PRED:-0}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
@@ -330,10 +335,12 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
     -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_S_ENS_H_/${s_ens_h:-150}/g" \
+    -e "s/_S_ENS_V_/${s_ens_v:--0.5}/g" \
     -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
-    -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
+    -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------

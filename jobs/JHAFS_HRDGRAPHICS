@@ -10,6 +10,9 @@ export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
 export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
 export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 
+export GPLOThafs=${GPLOThafs:-${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot}
+export GPLOT_DIR=${GPLOThafs}
+
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
@@ -33,9 +36,6 @@ export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
 
-export GPLOThafs=${GPLOThafs:-${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot}
-export GPLOT_DIR=${GPLOThafs}
-
 export ADECKgraph=${ADECKhafs:?}
 export BDECKgraph=${BDECKhafs:?}
 export SYNDAThafs=${SYNDAThafs:?}
@@ -47,7 +47,7 @@ export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
 
 export INPdir=${INPdir:-${WORKhafs}/forecast}
-export DATA=${WORKhafs}/hrd_graphics
+export DATA=${WORKhafs}/hrdgraphics
 
 export SENDCOM=${SENDCOM:-YES}
 export SCRUBDATA=${SCRUBDATA:-YES}

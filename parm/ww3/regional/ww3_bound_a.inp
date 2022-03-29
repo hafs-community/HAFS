@@ -1,0 +1,84 @@
+$ -------------------------------------------------------------------- $
+$ WAVEWATCH III Ascii Boundary input processing                        $
+$--------------------------------------------------------------------- $
+$ Boundary option: READ or WRITE
+$
+  WRITE 
+$
+$ Interpolation method: 1: nearest
+$                       2: linear interpolation
+  2 
+$
+$ Verbose mode [0-1]
+$
+  1
+$
+$ List of spectra files. These ASCII files use the WAVEWATCH III
+$ format as described in the ww3_outp.inp file. The files are 
+$ defined relative to the directory in which the program is run.
+$
+$ Examples of such files can be found at (for example): 
+$   ftp://polar.ncep.noaa.gov/pub/waves/develop/glw.latest_run/
+$                                              (the *.spec.gz files)
+$   http://tinyurl.com/iowagaftp/HINDCAST/GLOBAL/2009_ECMWF/SPEC
+$
+$ If data is used other than from previous WAVEWATCH III runs, then
+$ this data will need to be converted to the WAVEWATCH III format.
+$
+$ In the case of NetCDF files see ww3_bounc.inp  
+$
+$ ----------
+$gfswave.HWRF*-#.spec 
+$a 50-86
+$c 50-177
+$e 50-146
+$l 50-98
+$p 50-169
+$s 50-150
+$w 50-123
+$    =======    LIST OF BOUNDARY POINTS FOR ******* ===========
+$#incomingspectra here#
+gfswave.HWRFa-50.spec
+gfswave.HWRFa-51.spec
+gfswave.HWRFa-52.spec
+gfswave.HWRFa-53.spec
+gfswave.HWRFa-54.spec
+gfswave.HWRFa-55.spec
+gfswave.HWRFa-56.spec
+gfswave.HWRFa-57.spec
+gfswave.HWRFa-58.spec
+gfswave.HWRFa-59.spec
+gfswave.HWRFa-60.spec
+gfswave.HWRFa-61.spec
+gfswave.HWRFa-62.spec
+gfswave.HWRFa-63.spec
+gfswave.HWRFa-64.spec
+gfswave.HWRFa-65.spec
+gfswave.HWRFa-66.spec
+gfswave.HWRFa-67.spec
+gfswave.HWRFa-68.spec
+gfswave.HWRFa-69.spec
+gfswave.HWRFa-70.spec
+gfswave.HWRFa-71.spec
+gfswave.HWRFa-72.spec
+gfswave.HWRFa-73.spec
+gfswave.HWRFa-74.spec
+gfswave.HWRFa-75.spec
+gfswave.HWRFa-76.spec
+gfswave.HWRFa-77.spec
+gfswave.HWRFa-78.spec
+gfswave.HWRFa-79.spec
+gfswave.HWRFa-80.spec
+gfswave.HWRFa-81.spec
+gfswave.HWRFa-82.spec
+gfswave.HWRFa-83.spec
+gfswave.HWRFa-84.spec
+gfswave.HWRFa-85.spec
+gfswave.HWRFa-86.spec
+$
+$
+'STOPSTRING'
+$ 
+$ -------------------------------------------------------------------- $
+$ End of input file                                                    $
+$ -------------------------------------------------------------------- $

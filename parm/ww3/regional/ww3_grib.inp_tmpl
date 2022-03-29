@@ -1,0 +1,23 @@
+$ -------------------------------------------------------------------- $
+$ WAVEWATCH III Grid output post-processing ( GRIB )                   $
+$--------------------------------------------------------------------- $
+$ Time, time increment and number of outputs.
+$
+  <u:FLD_BEG>  <i:FLD_DT>  9999
+$
+$ Output request flags identifying fields as in ww3_shel.inp. See that
+$ file for a full documentation of field output options. Namelist type
+$ selection is used here (for alternative F/T flags, see ww3_shel.inp).
+$
+N
+WND HS T01 FP DIR DP PHS PTP PDIR
+$
+$ Aditional info needed for grib file
+$   Forecast time, center ID, generating process ID, grid definition
+$   and GDS/BMS flag
+$
+  <u:RUN_BEG>  7 10  71 0 0
+$
+$ -------------------------------------------------------------------- $
+$ End of input file                                                    $
+$ -------------------------------------------------------------------- $

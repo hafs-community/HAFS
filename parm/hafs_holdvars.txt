@@ -3,6 +3,8 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
+export TZ=UTC # Orion workaround
+
 export envir={ENV[envir|-prod]}
 
 export storm_num={storm_num}
@@ -40,6 +42,24 @@ export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMgfs={COMgfs}
+export DATMdir={DATMdir}
+export DOCNdir={DOCNdir}
+
+export run_datm={run_datm}
+export run_docn={run_docn}
+export run_dwav={run_dwav}
+
+export make_mesh_atm={make_mesh_atm}
+export mesh_atm={mesh_atm}
+
+export docn_mesh_nx_global={docn_mesh_nx_global}
+export docn_mesh_ny_global={docn_mesh_ny_global}
+export make_mesh_ocn={make_mesh_ocn}
+export mesh_ocn={mesh_ocn}
+export docn_input_path={docn_input_path}
+export datm_input_path={datm_input_path}
+export DOCN_SOURCE={DOCN_SOURCE}
+export DATM_SOURCE={DATM_SOURCE}
 
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
@@ -62,12 +82,6 @@ export ictype_ens={ictype_ens}
 export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
 
-export nstf_n1={nstf_n1}
-export nstf_n2={nstf_n2}
-export nstf_n3={nstf_n3}
-export nstf_n4={nstf_n4}
-export nstf_n5={nstf_n5}
-
 export CASE={CASE}
 export LEVS={LEVS}
 export gtype={gtype}
@@ -87,6 +101,12 @@ export halo0={halo0}
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
 export use_bufr_nr={use_bufr_nr}
+export grid_ratio_fv3_regional={grid_ratio_fv3_regional}
+export s_ens_h={s_ens_h}
+export s_ens_v={s_ens_v}
+export online_satbias={online_satbias}
+export corrlength={corrlength}
+export lnsigcutoff={lnsigcutoff}
 
 export ccpp_suite_regional={ccpp_suite_regional}
 export ccpp_suite_glob={ccpp_suite_glob}
@@ -97,6 +117,10 @@ export restart_interval={restart_interval}
 export quilting={quilting}
 export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
+export write_dopost={write_dopost}
+export output_history={output_history}
+
+export print_esmf={print_esmf}
 
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}
@@ -113,6 +137,14 @@ export npx={npx}
 export npy={npy}
 export npz={npz}
 
+export fhswr={fhswr}
+export fhlwr={fhlwr}
+export nstf_n1={nstf_n1}
+export nstf_n2={nstf_n2}
+export nstf_n3={nstf_n3}
+export nstf_n4={nstf_n4}
+export nstf_n5={nstf_n5}
+
 export app_domain={app_domain}
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
@@ -122,7 +154,7 @@ export output_grid_lat1={output_grid_lat1}
 export output_grid_lon2={output_grid_lon2}
 export output_grid_lat2={output_grid_lat2}
 export output_grid_dlon={output_grid_dlon}
-export output_grid_dlat={output_grid_dlon}
+export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
@@ -154,6 +186,8 @@ export restart_interval_ens={restart_interval_ens}
 export quilting_ens={quilting_ens}
 export write_groups_ens={write_groups_ens}
 export write_tasks_per_group_ens={write_tasks_per_group_ens}
+export write_dopost_ens={write_dopost_ens}
+export output_history_ens={output_history_ens}
 export k_split_ens={k_split_ens}
 export n_split_ens={n_split_ens}
 export glob_layoutx_ens={glob_layoutx_ens}
@@ -165,16 +199,25 @@ export layouty_ens={layouty_ens}
 export npx_ens={npx_ens}
 export npy_ens={npy_ens}
 export npz_ens={npz_ens}
+export output_grid_dlon_ens={output_grid_dlon_ens}
+export output_grid_dlat_ens={output_grid_dlat_ens}
 export synop_gridspecs_ens={synop_gridspecs_ens}
 export trker_gridspecs_ens={trker_gridspecs_ens}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
 export cpl_dt={cpl_dt}
-export cpl_ocean={cpl_ocean}
-export ocean_tasks={ocean_tasks}
+export cpl_atm_ocn={cpl_atm_ocn}
+export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
+
+export run_wave={run_wave}
+export wave_model={wave_model}
+export cpl_atm_wav={cpl_atm_wav}
+export cpl_wav_ocn={cpl_wav_ocn}
+export wav_tasks={wav_tasks}
+export med_tasks={med_tasks}
 
 export RUN_ENVIR={RUN_ENVIR}
 export PATH=:.:$PATH:$utilexec

@@ -4,16 +4,11 @@
  declare -a Build_prg=("Build_libs"
                        "Build_forecast" \
                        "Build_post" \
-                       "Build_vortextracker" \
+                       "Build_tracker" \
                        "Build_utils" \
-                       "Build_chgres" \
-                       "Build_chgres_cube" \
-                       "Build_sfc_climo_gen" \
-                       "Build_regional_grid" \
-                       "Build_orog" \
-                       "Build_nctools" \
                        "Build_tools" \
                        "Build_hycom_utils" \
+                       "Build_ww3_utils" \
                        "Build_gsi" \
                       )
 

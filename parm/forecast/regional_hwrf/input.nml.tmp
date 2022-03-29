@@ -1,24 +1,9 @@
- &amip_interp_nml
-       interp_oi_sst = .true.
-       use_ncep_sst = .true.
-       use_ncep_ice = .false.
-       no_anom_sst = .false.
-       data_set = 'reynolds_oi'
-       date_out_of_range = 'climo'
-/
-
  &atmos_model_nml
-       blocksize = 40
+       blocksize = _blocksize_
        chksum_debug = .false.
        dycore_only = .false.
-       fdiag = 3
        avg_max_length = 3600.
-       fhmax = _fhmax_
-       fhout = 3
-       fhmaxhf = 0
-       fhouthf = 3
        ccpp_suite = '_ccpp_suite_'
-       merge_import = _merge_import_
 /
 
  &diag_manager_nml
@@ -40,9 +25,13 @@
        max_files_w = 100,
 /
 
+ &fms2_io_nml
+netcdf_default_format="netcdf4"
+/
+
  &fms_nml
        clock_grain = 'ROUTINE',
-       domains_stack_size = 12000000,
+       domains_stack_size = 30000000,
        print_memory_usage = .false.
 /
 
@@ -164,7 +153,6 @@
        fhcyc          = 0.
        use_ufo        = .true.
        pre_rad        = .false.
-       ncld           = 5
        imp_physics    = 15         ! F-A MP scheme
        RHGRD          = 1.0        ! F-A
        spec_adv       = .true.     ! F-A
@@ -178,8 +166,8 @@
        hurr_pbl       = .T.        ! HWRF moninedmf
        moninq_fac     = -1.0       ! HWRF moninedmf
        pdfcld         = .false.
-       fhswr          = 900.
-       fhlwr          = 900.
+       fhswr          = _fhswr_
+       fhlwr          = _fhlwr_
        ialb           = 1
        iems           = 1
        iaer           = 111
@@ -226,8 +214,10 @@
        nstf_name      = _nstf_n1_,_nstf_n2_,_nstf_n3_,_nstf_n4_,_nstf_n5_
        cplflx         = _cplflx_
        cplice         = .false.
-       cplwav         = .false.
-       cplwav2atm     = .false.
+       cplocn2atm     = _cplocn2atm_
+       cplwav         = _cplwav_
+       cplwav2atm     = _cplwav2atm_
+       cpl_imp_mrg    = _merge_import_
        psautco        = 0.0008, 0.0005
        prautco        = 0.00015, 0.00015
        iau_delthrs    = 6
@@ -246,12 +236,11 @@
        ca_sgs         = .false.
        nca            = 1
        ncells         = 5
-       nlives         = 30
-       nseed          = 1000000
+       nlives         = 12
+       nseed          = 1
        nfracseed      = 0.5
-       nthresh        = 0.
-       ca_trigger     = .true.
-       ca_entr       = .false.
+       ca_trigger     = .false.
+       ca_entr        = .false.
        ca_closure     = .false.
        ca_global      = .false.
        nca_g          = 1
@@ -259,10 +248,11 @@
        nlives_g       = 100
        nseed_g        = 100
        ca_smooth      = .false.
-       nspinup        = 100
+       nspinup        = 1
        iseed_ca       = 1
-       nsmooth        = 1
-       ca_amplitude   = 0.5
+       nsmooth        = 100
+       ca_amplitude   = 0.35
+       print_diff_pgr = .true.
 /
 
  &gfdl_cloud_microphysics_nml

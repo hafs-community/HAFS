@@ -50,11 +50,11 @@ echo " .... Building post .... "
 }
 
 #------------------------------------
-# build vortextracker
+# build tracker
 #------------------------------------
-$Build_vortextracker && {
-echo " .... Building vortextracker .... "
-./build_vortextracker.sh > $logs_dir/build_vortextracker.log 2>&1
+$Build_tracker && {
+echo " .... Building tracker .... "
+./build_tracker.sh > $logs_dir/build_tracker.log 2>&1
 }
 
 #------------------------------------
@@ -87,6 +87,14 @@ echo " .... Building gsi .... "
 $Build_hycom_utils && {
 echo " .... Building hycom_utils .... "
 ./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
+}
+
+#------------------------------------
+# build ww3_utils 
+#------------------------------------
+$Build_ww3_utils && {
+echo " .... Building ww3_utils .... "
+./build_ww3_utils.sh > $logs_dir/build_ww3_utils.log 2>&1
 }
 
 echo;echo " .... Build system finished .... "

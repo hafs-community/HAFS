@@ -3,12 +3,15 @@
 set -xe
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hwrf-crtm-2.2.6}
+export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export DONST=${DONST:-"NO"}
 export LEVS=${LEVS:-65}
 export use_bufr_nr=${use_bufr_nr:-no}
+export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
+export s_ens_h=${s_ens_h:-150}
+export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
@@ -21,6 +24,7 @@ export RUN_ENVAR=${RUN_ENVAR:-NO}
 export RUN_ENSDA=${RUN_ENSDA:-NO}
 export ENSDA=${ENSDA:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
+export online_satbias=${online_satbias:-no}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -274,8 +278,8 @@ ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr
 
 # Link CRTM coefficient files based on entries in satinfo file
 for file in `awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq` ;do
-  ${NLN} ${FIXcrtm}/fix-4-hwrf/${file}.SpcCoeff.bin ./
-  ${NLN} ${FIXcrtm}/fix-4-hwrf/${file}.TauCoeff.bin ./
+  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
 done
 
 ${NLN} ${FIXcrtm}/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
@@ -374,7 +378,12 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-$NLN $PREPQC           prepbufr
+if [ -s $PREPQC ]; then
+  $NCP -Lp $PREPQC     prepbufr
+else
+  touch prepbufr
+fi
+#$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
 $NLN $SATWND           satwndbufr
 ##$NLN $OSCATBF          oscatbufr
@@ -435,12 +444,25 @@ $NLN $B1AVHPM          avhpmbufr
 ##[[ $DONST = "YES" ]] && $NLN $NSSTBF nsstbufr
 
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
-  $NLN ${PREPQC}.nr    prepbufr
+
+if [ -s ${PREPQC}.nr ]; then
+  $NCP -L ${PREPQC}.nr    prepbufr
+fi
+# $NLN ${PREPQC}.nr    prepbufr
   $NLN ${SAPHIRBF}.nr  saphirbufr
 ##[[ $DONST = "YES" ]] && $NLN /dev/null nsstbufr
+
 fi
 
 # HAFS specific observations
+# Use updated prepbufr if exists
+if [ -s ${WORKhafs}/intercom/obs_proc/hafs.prepbufr ]; then
+  ${NCP} ${WORKhafs}/intercom/obs_proc/hafs.prepbufr prepbufr
+fi
+# cat tempdrop.prepbufr with drifting correction into prepbufr
+if [ -s ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr ]; then
+  cat ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr >> prepbufr
+fi
 COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
@@ -448,9 +470,29 @@ ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
 
 fi #USE_SELECT
 
+# Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ ${online_satbias} = "yes" ]; then
+  PASSIVE_BC=.true.
+  UPD_PRED=1
+  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  else
+    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    exit 2
+  fi
+else
+  PASSIVE_BC=.false.
+  UPD_PRED=0
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+fi
+
 #
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
@@ -487,6 +529,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_USE_GFS_NCIO_/${USE_GFS_NCIO:-.false.}/g" \
     -e "s/_NETCDF_DIAG_/${netcdf_diag:-.true.}/g" \
     -e "s/_BINARY_DIAG_/${binary_diag:-.false.}/g" \
+    -e "s/_PASSIVE_BC_/${PASSIVE_BC:-.false.}/g" \
+    -e "s/_UPD_PRED_/${UPD_PRED:-0}/g" \
     -e "s/_LREAD_OBS_SAVE_/${LREAD_OBS_SAVE:-.false.}/g" \
     -e "s/_LREAD_OBS_SKIP_/${LREAD_OBS_SKIP:-.false.}/g" \
     -e "s/_ENS_NSTARTHR_/${ENS_NSTARTHR:-6}/g" \
@@ -495,10 +539,12 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_REDUCE_DIAG_/${REDUCE_DIAG:-.false.}/g" \
     -e "s/_L_HYB_ENS_/${L_HYB_ENS:-.false.}/g" \
     -e "s/_N_ENS_/${N_ENS:-80}/g" \
+    -e "s/_S_ENS_H_/${s_ens_h:-150}/g" \
+    -e "s/_S_ENS_V_/${s_ens_v:--0.5}/g" \
     -e "s/_BETA_S0_/${BETA_S0:-0.2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
-    -e "s/_GRID_RATIO_FV3_REGIONAL_/${refine_ratio:-4}/g" \
+    -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
@@ -545,7 +591,7 @@ if [ $GENDIAG = "YES" ] ; then
    # Set up lists and variables for various types of diagnostic files.
    ntype=3
 
-   diagtype[0]="conv conv_gps conv_ps conv_pw conv_q conv_sst conv_t conv_tcp conv_uv conv_spd"
+   diagtype[0]="conv conv_gps conv_ps conv_pw conv_q conv_sst conv_t conv_tcp conv_uv conv_spd conv_rw"
    diagtype[1]="pcp_ssmi_dmsp pcp_tmi_trmm"
    diagtype[2]="sbuv2_n16 sbuv2_n17 sbuv2_n18 sbuv2_n19 gome_metop-a gome_metop-b omi_aura mls30_aura ompsnp_npp ompstc8_npp gome_metop-c"
    diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c"
@@ -714,6 +760,12 @@ EOFdiag
       echo $(date) END tar diagnostic files >&2
    fi
 fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
+
+# Save satbias data for next cycle
+if [ ${online_satbias} = "yes" ]; then
+  ${NCP} satbias_out  $RESTARTanl/satbias_hafs_out
+  ${NCP} satbias_pc.out  $RESTARTanl/satbias_hafs_pc.out
+fi
 
 # If no processing error, remove $DIAG_DIR
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then

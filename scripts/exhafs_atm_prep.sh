@@ -82,7 +82,7 @@ export DATA=${DATA:-${WORKhafs}/atm_prep}
 if [ -d $gridfixdir ]; then
   echo "$gridfixdir is specified and exists."
   echo "Copy the grid fix files directly."
-  cp -rp $gridfixdir/* ${out_dir}/
+  cp -r $gridfixdir/* ${out_dir}/
   ls ${out_dir}
   exit
 fi
