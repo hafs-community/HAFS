@@ -5,6 +5,7 @@ set -xe
 NCP=${NCP:-'/bin/cp'}
 NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
+NSED=${NSED:-'/usr/bin/sed'}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -713,6 +714,12 @@ if [ ${warmstart_from_restart} = yes ]; then
   # currently only update the variable itself but not its checksum attribute.
   ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+#
+  line2=`sed -n '2p' coupler.res`
+  line3=`sed -n '3p' coupler.res`
+  hh2=$(echo $line2 | awk '{print $4}')
+  hh3=$(echo $line3 | awk '{print $4}')
+  ${NSED} -i 's/\b'$hh2'\b/'$hh3'/' coupler.res
 fi
 
 cd ..
