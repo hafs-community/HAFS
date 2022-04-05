@@ -5,7 +5,6 @@ set -xe
 NCP=${NCP:-'/bin/cp'}
 NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
-NSED=${NSED:-'/usr/bin/sed'}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
@@ -14,6 +13,11 @@ OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
 CDATE=${CDATE:-${YMDH}}
+YMD=$(echo ${CDATE} | cut -c1-8)
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+hh=$(echo ${CDATE} | cut -c9-10)
 cyc=${cyc:-00}
 STORM=${STORM:-FAKE}
 STORMID=${STORMID:-00L}
@@ -703,7 +707,9 @@ ${NLN} gfs_data.tile7.nc gfs_data.nc
 
 # For warm start from restart files (either before or after analysis)
 if [ ${warmstart_from_restart} = yes ]; then
-  ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.coupler.res ./coupler.res
+  sed -i -e "2s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Model start time:   year, month, day, hour, minute, second/" ./coupler.res
+  sed -i -e "3s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ./coupler.res
   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv_core.res.nc
   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
 # ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
@@ -714,12 +720,6 @@ if [ ${warmstart_from_restart} = yes ]; then
   # currently only update the variable itself but not its checksum attribute.
   ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ncatted -a checksum,,d,, ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
-#
-  line2=`sed -n '2p' coupler.res`
-  line3=`sed -n '3p' coupler.res`
-  hh2=$(echo $line2 | awk '{print $4}')
-  hh3=$(echo $line3 | awk '{print $4}')
-  ${NSED} -i 's/\b'$hh2'\b/'$hh3'/' coupler.res
 fi
 
 cd ..
