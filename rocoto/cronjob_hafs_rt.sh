@@ -98,6 +98,16 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
 
+# 3DEnVar with GDAS ensembles
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_C192s1n4_3denvar \
+     config.run_gsi=yes config.run_envar=yes \
+     gsi.use_bufr_nr=yes \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C192s1n4.conf
+
+#===============================================================================
+
 date
 
 echo 'cronjob done'
