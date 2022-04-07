@@ -68,7 +68,7 @@ EXPT=$(basename ${HOMEhafs})
 # 2020 NATL storms
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020051606-2020051918 01L HISTORY ${confopts} # Arthur
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020052700-2020052718 02L HISTORY ${confopts} # Bertha
-#${PYTHON3} ./run_hwrf.py -t ${dev} 2020060112-2020060812 03L HISTORY ${confhdob} # Cristobal hwrfdata_PROD2020HDOBS
+#${PYTHON3} ./run_hwrf.py -t ${dev} 2020060112-2020060812 03L HISTORY ${confopts} # Cristobal hwrfdata_PROD2020HDOBS
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020062112-2020062406 04L HISTORY ${confopts} # Dolly
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020070400-2020070612 05L HISTORY ${confopts} # Edouard
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020070912-2020071100 06L HISTORY ${confopts} # Fay
