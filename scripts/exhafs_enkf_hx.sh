@@ -15,6 +15,13 @@ export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
 
+# KKUROSAWA
+if [ ${MIX_DA_FLAG} = YES ]; then             
+  export nens=${SUM_MIX_ENS_SIZE:-40}         
+  export nens_HAFS=${ENS_SIZE:-40}            
+  export nens_GDAS=${GDAS_MIX_ENS_SIZE:-40}   
+fi
+
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
@@ -153,7 +160,18 @@ else
     #export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
     export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
   else
-    export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
+    # KKUROSAWA
+    if [ ${MIX_DA_FLAG} = YES ]; then 
+      if [ $ENSID -le $nens_HAFS ]; then
+        export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}             # HAFS
+      else
+        export tmp_ENSID=`expr $ENSID - $nens_HAFS`
+        export tmp_MEMSTR="mem"$(printf %03i ${tmp_ENSID})
+        export RESTARTens_inp=${WORKhafs}/intercom/mix_ens_recenter/${tmp_MEMSTR}   # GDAS
+      fi
+    else
+      export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
+    fi
   fi
 fi
 
@@ -179,7 +197,11 @@ cd $DATA
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3_akbk
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data.nc ./fv3_sfcdata
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd
+if [ ${MIX_DA_FLAG} = YES ]; then           # KKUROSAWA
+  if [ $ENSID -le $nens_HAFS ]; then
+    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd 
+  fi
+fi
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
@@ -548,7 +570,11 @@ ${NCP} ./fv3_grid_spec ${RESTARTanl}/grid_spec.nc
 ${NCP} ./coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ./fv3_akbk ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.nc
 ${NCP} ./fv3_sfcdata ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data.nc
-${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
+if [ ${MIX_DA_FLAG} = YES ]; then           # KKUROSAWA
+  if [ $ENSID -le $nens_HAFS ]; then
+    ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
+  fi
+fi
 ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
 

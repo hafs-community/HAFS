@@ -1,6 +1,6 @@
 &nam_enkf
    datestring="_datestring_",datapath="./",
-   analpertwtnh=0.85,analpertwtsh=0.85,analpertwttr=0.85,
+   analpertwtnh=_analpertwtnh_,analpertwtsh=_analpertwtsh_,analpertwttr=_analpertwttr_, ! KKUROSAWA
    covinflatemax=1.e2,covinflatemin=1,pseudo_rh=.true.,iassim_order=0,
    corrlengthnh=_corrlength_,corrlengthsh=_corrlength_,corrlengthtr=_corrlength_,
    lnsigcutoffnh=_lnsigcutoff_,lnsigcutoffsh=_lnsigcutoff_,lnsigcutofftr=_lnsigcutoff_,
@@ -111,6 +111,16 @@
    sattypes_oz(8) = 'mls30_aura',
    sattypes_oz(9) = 'ompsnp_npp',
    sattypes_oz(10) = 'ompstc8_npp',
+/
+
+! KKUROSAWA
+&local_pf
+  pf_flag =_LPF_flag_,
+  frac_neff = 0.80,
+  pf_alpha = 0.3,
+  pf_bwnorm = 0.25,
+  pf_kddm = 1,
+  min_res = _min_res_,
 /
 
 &nam_fv3

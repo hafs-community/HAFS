@@ -30,6 +30,9 @@ CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
 
+#KKUROSAWA
+CREATE_RESTART_GDAS_ENS_FLAG=${CREATE_RESTART_GDAS_ENS_FLAG:-NO}
+
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
   NBDYHRS=${NBDYHRS:-3}
@@ -66,7 +69,7 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
+   export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
  else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
  fi
@@ -79,6 +82,28 @@ elif [ $GFSVER = "PROD2019" ]; then
 else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc
 fi
+
+
+# KKUROSAWA # PROD2021
+if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+
+  tmp_ENSID=`expr $ENSID - 0`          # <-- !!
+  tmp_memstr=$(printf %03i $tmp_ENSID) # <-- !!
+
+  # GDAS
+  if [ $ENSID -gt 40 ]; then 
+    tmp_ENSID=`expr $ENSID - 40`
+    tmp_memstr=$(printf %03i $tmp_ENSID)
+    export tmp_INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${tmp_memstr}
+  fi
+
+  # sgs_tke
+  COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
+  export sgs_tke_org_file=${COMhafsprior}/RESTART_ens/mem${tmp_memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+
+fi
+
+
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
 DATA=${DATA:-${WORKhafs}/atm_ic}
@@ -195,7 +220,16 @@ if [ $input_type = "grib2" ]; then
 else
   if [ ${ENSDA} = YES ]; then
    ln -sf ${INIDIR}/${atm_files_input_grid} ./
-   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
+   # KKUROSAWA # PROD2021
+   if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+     if [ $ENSID -gt 40 ]; then 
+       ln -sf ${tmp_INIDIR}/${sfc_files_input_grid} ./
+     else
+       ln -sf ${INIDIR}/${sfc_files_input_grid} ./
+     fi
+   else
+     ln -sf ${INIDIR}/${sfc_files_input_grid} ./
+   fi
    INPDIR="./"
   else
    INPDIR=${INIDIR}
@@ -225,19 +259,36 @@ elif [ $gtype = regional ]; then
 # set the links to use the 4 halo grid and orog files
 # these are necessary for creating the boundary data
 #
- ln -sf $FIXDIR/$CASE/${CASE}_grid.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_grid.tile7.nc
- ln -sf $FIXDIR/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_greenness.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_greenness.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.soil_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.soil_type.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.slope_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.slope_type.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.substrate_temperature.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.substrate_temperature.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.facsf.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.facsf.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.maximum_snow_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.maximum_snow_albedo.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
 
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
- orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
+
+ # KKUROSAWA
+ if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+   ln -sf $FIXDIR/$CASE/${CASE}_grid.tile7.halo0.nc $FIXDIR/$CASE/${CASE}_grid.tile7.nc
+   ln -sf $FIXDIR/$CASE/${CASE}_oro_data.tile7.halo0.nc $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_greenness.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.vegetation_greenness.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.soil_type.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.soil_type.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.slope_type.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.slope_type.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.substrate_temperature.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.substrate_temperature.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.facsf.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.facsf.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.maximum_snow_albedo.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.maximum_snow_albedo.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo0.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
+   orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo0.nc"'
+ else
+   ln -sf $FIXDIR/$CASE/${CASE}_grid.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_grid.tile7.nc
+   ln -sf $FIXDIR/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_greenness.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_greenness.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.soil_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.soil_type.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.slope_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.slope_type.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.substrate_temperature.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.substrate_temperature.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.facsf.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.facsf.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.maximum_snow_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.maximum_snow_albedo.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
+   ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
+   orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
+ fi
+
  convert_atm=.true.
  if [ $REGIONAL -eq 1 ]; then
    regional=1
@@ -254,7 +305,14 @@ elif [ $gtype = regional ]; then
  else
    echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
  fi
- halo_bndy=4
+
+ # KKUROSAWA
+ if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+   halo_bndy=0
+ else
+   halo_bndy=4
+ fi
+
  halo_blend=${halo_blend}
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
@@ -296,7 +354,12 @@ cat>./fort.41<<EOF
 /
 EOF
 
-cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+# KKUROSAWA
+if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+  cp -p /work/noaa/aoml-hafsda/kurosawa/WORK/HAFS_RUN/TEST_20211021/sorc/hafs_utils_new.fd/exec/chgres_cube  ./hafs_chgres_cube.x
+else
+  cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+fi
 ${APRUNC} ./hafs_chgres_cube.x
 #${APRUNC} ${CHGRESCUBEEXEC}
 
@@ -314,10 +377,22 @@ elif [ $gtype = regional ]; then
 #
 # move output files to save directory
 #
-mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
-mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
-mv out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
-mv out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
+
+# KKUROSAWA
+if [ "${CREATE_RESTART_GDAS_ENS_FLAG}" = YES ]; then
+
+  ncks -A -v sgs_tke $sgs_tke_org_file ./fv_tracer.res.tile1.nc # <-- !!
+
+  mv fv_core.res.nc           ${OUTDIR}/
+  mv fv_core.res.tile1.nc     ${OUTDIR}/
+  mv fv_tracer.res.tile1.nc   ${OUTDIR}/
+  mv out.sfc.tile7.nc         ${OUTDIR}/
+else
+  mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
+  mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
+  mv out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
+  mv out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
+fi
 #
 #remove the links that were set above for the halo4 files
 #

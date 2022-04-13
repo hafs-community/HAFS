@@ -25,6 +25,18 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
+# KKUROSAWA
+export RUN_RECENTER={RUN_RECENTER}
+export RUN_LONG_FORECAST_ENS={RUN_LONG_FORECAST_ENS}
+export lpf_opt={lpf_opt}
+export da_opt={da_opt}
+export NHRS_ENS_LONG={NHRS_ENS_LONG}
+export RUN_MIX_ENS_DA={RUN_MIX_ENS_DA}
+export SUM_MIX_ENS_SIZE={SUM_MIX_ENS_SIZE}
+export GDAS_MIX_ENS_SIZE={GDAS_MIX_ENS_SIZE}
+export RTPS_PARA={RTPS_PARA}
+export MIN_RES={MIN_RES}
+
 export warm_start_opt={warm_start_opt}
 
 export utilexec={utilexec}

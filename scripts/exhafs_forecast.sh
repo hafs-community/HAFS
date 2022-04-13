@@ -120,6 +120,13 @@ else
   output_grid_dlat=${output_grid_dlat_ens}
 fi
 
+# KKUROSAWA
+LONG_FORECAST_ENS_FLAG=${LONG_FORECAST_ENS_FLAG:-NO}
+if [ "${LONG_FORECAST_ENS_FLAG}" = YES ]; then
+  NHRS_ENS_LONG=${NHRS_ENS_LONG:-102}
+  NHRS=$NHRS_ENS_LONG
+fi
+
 app_domain=${app_domain:-regional}
 output_grid=${output_grid:-rotated_latlon}
 output_grid_cen_lon=${output_grid_cen_lon:-${domlon}}
@@ -504,7 +511,12 @@ fi
 
 # Prepare the output RESTART dir
 if [ ${ENSDA} = YES ]; then
-  RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
+  # KKUROSAWA
+  if [ "${LONG_FORECAST_ENS_FLAG}" = YES ]; then
+    RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens_long_forecast/mem${ENSID}}
+  else
+    RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
+  fi
   mkdir -p ${RESTARTout}
   ${NLN} ${RESTARTout} RESTART
 elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ]; then

@@ -565,6 +565,18 @@ if conf.getbool('config','run_ensda',False):
 else:
     VARS.update(ENS_SIZE='000',ENSIDS='000')
 
+# KKUROSAWA
+if conf.getbool('config','run_mix_ens_da',False):
+    sum_mix_ens_size=conf.getint('config','SUM_MIX_ENS_SIZE',40)
+    gdas_mix_ens_size=conf.getint('config','GDAS_MIX_ENS_SIZE',80)
+    assert(sum_mix_ens_size>=1)
+    sum_mix_ensids=' '.join([ '%03d'%(i+1) for i in range(sum_mix_ens_size) ])
+    gdas_mix_ensids=' '.join([ '%03d'%(i+1) for i in range(gdas_mix_ens_size) ])
+    VARS.update(SUM_MIX_ENSIDS=sum_mix_ensids,GDAS_MIX_ENSIDS=gdas_mix_ensids)
+else:
+    VARS.update(SUM_MIX_ENSIDS='000',GDAS_MIX_ENSIDS='000')
+
+
 bad=False
 for k,v in VARS.items():
     if not isinstance(v,str):

@@ -81,6 +81,13 @@
   <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
   <!ENTITY MAKE_MESH_OCN "@[MAKE_MESH_OCN]">
 
+  <!-- KKUROSAWA -->
+  <!ENTITY RUN_RECENTER "@[RUN_RECENTER]">
+  <!ENTITY RUN_LONG_FORECAST_ENS "@[RUN_LONG_FORECAST_ENS]">
+  <!ENTITY RUN_MIX_ENS_DA "@[RUN_MIX_ENS_DA]">
+  <!ENTITY SUM_MIX_ENSIDS "@[SUM_MIX_ENSIDS]">
+  <!ENTITY GDAS_MIX_ENSIDS "@[GDAS_MIX_ENSIDS]">
+
   <!ENTITY ENS_SIZE "@[ENS_SIZE]">
   <!ENTITY ENSIDS "@[ENSIDS]">
 
@@ -908,8 +915,58 @@
     </dependency>
   </task>
 
+<!-- KKUROSAWA -->
+@** if RUN_MIX_ENS_DA==YES
+  <metatask name="rst_gdas_ens" mode="parallel">
+    <var name="MEM">&GDAS_MIX_ENSIDS;</var>
+    <task name="rst_gdas_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_RST_GDAS_ENS</command>
+      <jobname>hafs_rst_gdas_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_rst_gdas_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_IC_ENS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+            <taskdep task="enkf_mean"/>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+
+  <task name="mix_ens_recenter" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_MIX_ENS_RECENTER</command>
+    <jobname>hafs_mix_ens_recenter_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_mix_ens_recenter.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ENKF_GDAS_RECENTER_RESOURCES;
+    &ENV_VARS;
+    <envar><name>ENSDA</name><value>YES</value></envar>
+
+    <dependency>
+      <and>
+        <metataskdep metatask="rst_gdas_ens"/>
+        <taskdep task="enkf_mean"/>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
   <metatask name="enkf_hx_ens">
+@** if RUN_MIX_ENS_DA==YES
+    <var name="MEM">&SUM_MIX_ENSIDS;</var>
+@** else
     <var name="MEM">&ENSIDS;</var>
+@** endif
     <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ENKF_HX</command>
       <jobname>hafs_enkf_hx_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -923,9 +980,16 @@
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>HX_ENS</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
+@** if RUN_MIX_ENS_DA==YES
+      <envar><name>MIX_DA_FLAG</name><value>YES</value></envar>
+@** endif
 
       <dependency>
+@** if RUN_MIX_ENS_DA==YES
+        <taskdep task="mix_ens_recenter"/>
+@** else
         <taskdep task="enkf_hx_mean"/>
+@** endif
       </dependency>
     </task>
   </metatask>
@@ -938,10 +1002,17 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+@** if RUN_MIX_ENS_DA==YES
+    &ENKF_MIX_ENKF_RESOURCES;
+@** else
     &ENKF_ENKF_RESOURCES;
+@** endif
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
     <envar><name>ldo_enscalc_option</name><value>0</value></envar>
+@** if RUN_MIX_ENS_DA==YES
+      <envar><name>MIX_DA_FLAG</name><value>YES</value></envar>
+@** endif
 
     <dependency>
       <and>
@@ -951,6 +1022,8 @@
     </dependency>
   </task>
 
+<!-- KKUROSAWA -->
+@** if RUN_RECENTER==YES
   <task name="enkf_recenter" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF_RECENTER</command>
     <jobname>hafs_enkf_recenter_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -971,6 +1044,7 @@
       </and>
     </dependency>
   </task>
+@** endif
 @** endif
 
   <metatask name="forecast_ens" mode="parallel">
@@ -1011,7 +1085,12 @@
 @** if RUN_ENKF==YES
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+<!-- KKUROSAWA -->
+@** if RUN_RECENTER==YES
             <taskdep task="enkf_recenter"/>
+@** else
+            <taskdep task="enkf_update"/>
+@** endif
           </or>
 @** endif
 @** endif
@@ -1019,6 +1098,105 @@
       </dependency>
     </task>
   </metatask>
+
+<!-- KKUROSAWA -->
+@** if RUN_LONG_FORECAST_ENS==YES
+  <metatask name="long_forecast_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="long_forecast_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_FORECAST_LONG_ENS</command>
+      <jobname>hafs_long_forecast_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_long_forecast_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &FORECAST_ENS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <metataskdep metatask="atm_ic_ens"/>
+@** if gtype==regional
+          <metataskdep metatask="atm_lbc"/>
+@** if RUN_OCEAN==YES
+          <taskdep task="ocn_prep"/>
+@** endif
+@** if RUN_GSI_VR_ENS==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="analysis_vr_ens#MEM#"/>
+          </or>
+@** endif
+@** if RUN_ENKF==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+@** if RUN_RECENTER==YES
+            <taskdep task="enkf_recenter"/>
+@** else
+            <taskdep task="enkf_update"/>
+@** endif
+          </or>
+@** endif
+@** endif
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+
+  <metatask name="long_forecast_atm_post_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="long_forecast_atm_post_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_POST_LONG_ENS</command>
+      <jobname>hafs_long_forecast_atm_post_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_long_forecast_atm_post_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_POST_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <!-- Start the atm_post if the forecast is running or if it has
+                                     already completed. -->
+        <and>
+          <taskdep task="long_forecast_ens#MEM#"/>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+
+  <metatask name="long_forecast_product_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="long_forecast_product_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_PRODUCT_LONG_ENS</command>
+      <jobname>hafs_long_forecast_product_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_long_forecast_product_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &PRODUCT_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+       <!-- Start the tracker if the atm_post is running or if it has
+            already completed. -->
+        <and>
+          <taskdep task="long_forecast_atm_post_ens#MEM#"/>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+<!-- END RUN_LONG_FORECAST_ENS -->
 
   <metatask name="atm_post_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
