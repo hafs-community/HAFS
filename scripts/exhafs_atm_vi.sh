@@ -83,7 +83,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   cd ${work_dir}
   vortexradius=30
   res=0.02
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
                                      --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
@@ -100,7 +100,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   vortexradius=45
   res=0.20
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
                                      --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
@@ -132,7 +132,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf ./trak.fnl.all fort.30
 
   ln -sf ${EXEChafs}/hafs_vi_create_trak_guess.x ./
-  time ./hafs_vi_create_trak_guess.x ${STORMID}
+  ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
   # input
@@ -152,7 +152,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNS} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -172,7 +172,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
   basin=${pubbasin2:-AL}
   initopt=${initopt:-0}
-  echo 6 ${basin} ${initopt} | ./hafs_vi_anl_pert.x
+  echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
 
 fi
 #===============================================================================
@@ -186,7 +186,7 @@ cd $DATA
   cd ${work_dir}
   vortexradius=30
   res=0.02
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
                                      --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
@@ -199,7 +199,7 @@ cd $DATA
   fi
   vortexradius=45
   res=0.20
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
                                      --debug_level=11 --interpolation_points=4 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
@@ -231,7 +231,7 @@ cd $DATA
   ln -sf ./trak.fnl.all fort.30
 
   ln -sf ${EXEChafs}/hafs_vi_create_trak_init.x ./
-  time ./hafs_vi_create_trak_init.x ${STORMID}
+  ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
   # input
@@ -259,7 +259,7 @@ cd $DATA
     ibgs=2
     iflag_cold=1
   fi
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNS} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -279,7 +279,7 @@ cd $DATA
   ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
   basin=${pubbasin2:-AL}
   initopt=${initopt:-0}
-  echo 6 ${basin} ${initopt} | ./hafs_vi_anl_pert.x
+  echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
 
 #===============================================================================
 # Stage 3:
@@ -317,7 +317,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
 
   ln -sf ${EXEChafs}/hafs_vi_anl_bogus.x ./
   basin=${pubbasin2:-AL}
-  echo 6 ${basin} | ./hafs_vi_anl_bogus.x
+  echo 6 ${basin} | ${APRUNS} ./hafs_vi_anl_bogus.x
   cp -p storm_anl_bogus storm_anl
 
 else
@@ -363,7 +363,7 @@ else
   gfs_flag=${gfs_flag:-6}
   initopt=${initopt:-0}
   ln -sf ${EXEChafs}/hafs_vi_anl_combine.x ./
-  echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ./hafs_vi_anl_combine.x
+  echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ${APRUNS} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
     cp -p storm_anl_combine storm_anl
   fi
@@ -396,7 +396,7 @@ else
   basin=${pubbasin2:-AL}
   iflag_cold=${iflag_cold:-0}
   ln -sf ${EXEChafs}/hafs_vi_anl_enhance.x ./
-  echo 6 ${basin} ${iflag_cold} | ./hafs_vi_anl_enhance.x
+  echo 6 ${basin} ${iflag_cold} | ${APRUNS} ./hafs_vi_anl_enhance.x
   cp -p storm_anl_enhance storm_anl
 
   fi
@@ -428,7 +428,7 @@ ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 for nd in $(seq 1 ${nest_grids})
 do
 
-time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+${APRUNS} ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
                                --debug_level=11 --interpolation_points=4 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \

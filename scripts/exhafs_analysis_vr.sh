@@ -352,8 +352,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
-${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
-cat stdout
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
 
 ${NCP} -p ./stdout ${GSISOUT}
 
