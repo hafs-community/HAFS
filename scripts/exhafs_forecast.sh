@@ -1287,11 +1287,8 @@ ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
-${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
-
-# Cat out and err into job log
-cat ./out.forecast
-cat ./err.forecast
+#${APRUNC} ./hafs_forecast.x 1>forecast.out 2>forecast.err
+${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

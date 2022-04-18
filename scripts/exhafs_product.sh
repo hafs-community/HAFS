@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -xe
+set -x
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
@@ -186,12 +186,20 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BDD_/${DD}/ | \
                           sed s/_BHH_/${HH}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
-
+sleep 3
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
 #${APRUNS} ./hafs_gettrk.x < namelist.gettrk
-time ./hafs_gettrk.x < namelist.gettrk
+time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
+
+if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+  echo "INFO: exhafs_product has run the vortex tracker successfully"
+else
+  echo "ERROR: exhafs_product failed running vortex tracker"
+  echo "ERROR: exitting..."
+  exit 1
+fi
 
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
@@ -249,6 +257,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ]; then
 fi
 
 fi
+
 #===============================================================================
 
 cd ${DATA}

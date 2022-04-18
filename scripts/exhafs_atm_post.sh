@@ -245,7 +245,7 @@ fi
 # Run the post
 ${NCP} -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
-${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
+${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
