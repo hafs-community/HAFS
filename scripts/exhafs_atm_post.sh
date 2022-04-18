@@ -245,7 +245,9 @@ fi
 # Run the post
 ${NCP} -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
+set -o pipefail
 ${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
+set +o pipefail
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
@@ -418,7 +420,8 @@ do
   fi
 done
 chmod +x cmdfile_mppnccombine
-${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+#${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+${APRUNS} ./cmdfile_mppnccombine
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then

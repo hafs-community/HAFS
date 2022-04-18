@@ -1288,7 +1288,9 @@ ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
 #${APRUNC} ./hafs_forecast.x 1>forecast.out 2>forecast.err
+set -o pipefail
 ${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
+set +o pipefail
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

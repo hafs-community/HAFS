@@ -352,7 +352,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
+set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
+set +o pipefail
 
 ${NCP} -p ./stdout ${GSISOUT}
 
