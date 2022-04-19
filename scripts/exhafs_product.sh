@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set -xe
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
