@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -xe
+set -x
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
@@ -190,7 +190,6 @@ sleep 3
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
-#${APRUNS} ./hafs_gettrk.x < namelist.gettrk
 set -o pipefail
 time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
 set +o pipefail

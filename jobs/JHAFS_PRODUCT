@@ -86,13 +86,17 @@ else
   gridstr=".grid$(printf "%02d" ${ng})"
 fi
 
-echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh 2>&1 | tee run_product${gridstr}.log" >> cmdfile_product
+echo "set -o pipefail; export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh 2>&1 | tee run_product${gridstr}.log; set +o pipefail" >> cmdfile_product
 
 done
 
 chmod +x cmdfile_product
 set -o pipefail
-${APRUNC} ${MPISERIAL} -m cmdfile_product
+if [ ${machine} = "wcoss_cray" ]; then
+  ${APRUNF} cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
 set +o pipefail
 
 export KEEPDATA=${KEEPDATA:-YES}
