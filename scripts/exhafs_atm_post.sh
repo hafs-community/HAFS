@@ -415,13 +415,13 @@ do
     else
       rm -f ${file}
      #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-      echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+      echo "${APRUNS} ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
     fi
   fi
 done
 chmod +x cmdfile_mppnccombine
 #${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
-${APRUNS} ./cmdfile_mppnccombine
+time ./cmdfile_mppnccombine
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
