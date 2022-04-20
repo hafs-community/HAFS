@@ -1165,7 +1165,7 @@ FHMAX=${NHRS} DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
 QUILTING=${quilting} WRITE_GROUP=${write_groups} WRTTASK_PER_GROUP=${write_tasks_per_group}
 WRITE_DOPOST=${write_dopost:-.false.} OUTPUT_HISTORY=${output_history:-.true.}
-NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
+NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf' 'netcdf'"
 IDEFLATE=1 NBITS=0
 NFHOUT=3 NFHMAX_HF=-1 NFHOUT_HF=3 NSOUT=-1 OUTPUT_FH=-1
 
