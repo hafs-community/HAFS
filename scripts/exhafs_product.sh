@@ -266,5 +266,3 @@ fi
 cd ${DATA}
 
 echo "product job done"
-
-exit
