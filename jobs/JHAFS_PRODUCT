@@ -92,6 +92,8 @@ done
 
 chmod +x cmdfile_product
 if [ ${machine} = "wcoss_cray" ]; then
+  export OMP_NUM_THREADS=1
+  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
   ${APRUNF} cmdfile_product
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_product
