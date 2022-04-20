@@ -415,7 +415,8 @@ do
     else
       rm -f ${file}
      #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-      echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+     #echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+      echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
     fi
   fi
 done

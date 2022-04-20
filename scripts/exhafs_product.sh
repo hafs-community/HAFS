@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -x
+set -xe
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
@@ -190,9 +190,11 @@ sleep 3
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
+set +e
 set -o pipefail
 time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
 set +o pipefail
+set -e
 
 if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
