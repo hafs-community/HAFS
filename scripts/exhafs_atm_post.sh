@@ -414,9 +414,11 @@ do
       echo "Skip combining ${file}"
     else
       rm -f ${file}
+      # Wait for file to be complete in case it is still being written
+      while [ $(( $(date +%s) - $(stat -c %Y ${file}.0000) )) -lt 20  ]; do sleep 10; done
      #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-     #echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
-      echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
+     #echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
+      echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
     fi
   fi
 done
