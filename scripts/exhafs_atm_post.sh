@@ -245,7 +245,9 @@ fi
 # Run the post
 ${NCP} -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
+set -o pipefail
 ${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
+set +o pipefail
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
@@ -412,13 +414,20 @@ do
       echo "Skip combining ${file}"
     else
       rm -f ${file}
+      # Wait for file to be complete in case it is still being written
+      while [ $(( $(date +%s) - $(stat -c %Y ${file}.0000) )) -lt 20  ]; do sleep 10; done
      #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
+     #echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
       echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
     fi
   fi
 done
 chmod +x cmdfile_mppnccombine
-${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+if [ ${machine} = "wcoss_cray" ]; then
+  ${APRUNF} cmdfile_mppnccombine
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+fi
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then

@@ -237,11 +237,18 @@ else
   gridstr=".grid$(printf "%02d" ${ng})"
 fi
 
-echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh 2>&1 | tee run_product${gridstr}.log" >> cmdfile_product
+echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
 
 done
 
-${APRUNC} ${MPISERIAL} -m cmdfile_product
+chmod +x cmdfile_product
+if [ ${machine} = "wcoss_cray" ]; then
+  export OMP_NUM_THREADS=1
+  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
+  ${APRUNF} cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

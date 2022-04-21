@@ -78,7 +78,9 @@ ${NLN} -sf ./prepbufr.qm_typ ./fort.51
 
 # Link and run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
+set -o pipefail
 ${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./hafs_change_prepbufr_qm_typ.out
+set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
@@ -120,7 +122,9 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Link and run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
+set -o pipefail
 ${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
+set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then

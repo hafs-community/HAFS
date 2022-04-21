@@ -15,6 +15,11 @@ NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+if [ ${machine} = "wcoss_cray" ]; then
+  APRUNS=${APRUNS}
+else
+  APRUNS=time
+fi
 
 # Utilities
 NDATE=${NDATE:-ndate}
@@ -68,7 +73,7 @@ do
   in_file=${RESTARTsrc}/${PDY}.${cyc}0000.${var}.nc
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nc
   cat >> cmdfile_datool_merge << EOF
-  time ${MERGE_CMD} \
+  ${APRUNS} ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
@@ -77,7 +82,11 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge
-${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
+if [ ${machine} = "wcoss_cray" ]; then
+  time ./cmdfile_datool_merge
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
+fi
 cat datool.*.log
 
 # Regional with one nest configuration
@@ -106,7 +115,7 @@ do
     out_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.tile1.nc
   fi
   cat >> cmdfile_datool_merge.step1 << EOF
-  time ${MERGE_CMD} \
+  ${APRUNS} ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
@@ -115,7 +124,11 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+if [ ${machine} = "wcoss_cray" ]; then
+  time ./cmdfile_datool_merge.step1
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+fi
 cat datool.*.step1.log
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -134,7 +147,7 @@ do
   fi
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
   cat >> cmdfile_datool_merge.step1 << EOF
-  time ${MERGE_CMD} \
+  ${APRUNS} ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
@@ -143,7 +156,11 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+if [ ${machine} = "wcoss_cray" ]; then
+  time ./cmdfile_datool_merge.step1
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+fi
 cat datool.*.step1.log
 
 else
@@ -165,7 +182,7 @@ do
     out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.tile1.nc
   fi
   cat >> cmdfile_datool_merge.step2 << EOF
-  time ${MERGE_CMD} \
+  ${APRUNS} ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
@@ -174,7 +191,11 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step2
-${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
+if [ ${machine} = "wcoss_cray" ]; then
+  time ./cmdfile_datool_merge.step2
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
+fi
 cat datool.*.step2.log
 
 # Step 3: merge srcd02 into dstd02
@@ -186,7 +207,7 @@ do
   in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
   cat >> cmdfile_datool_merge.step3 << EOF
-  time ${MERGE_CMD} \
+  ${APRUNS} ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
@@ -195,7 +216,11 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step3
-${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
+if [ ${machine} = "wcoss_cray" ]; then
+  time ./cmdfile_datool_merge.step3
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
+fi
 cat datool.*.step3.log
 
 else
