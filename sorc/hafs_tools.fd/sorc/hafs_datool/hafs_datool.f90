@@ -138,7 +138,7 @@
   if (len_trim(debug_levelc) > 1 .and. trim(debug_levelc) .ne. "w") read(debug_levelc,*)debug_level
   if ( debug_level < 0 .or. debug_level > 999999 ) debug_level = 1
 
-  if (len_trim(interpolation_pointsc) > 1 .and. trim(interpolation_pointsc) .ne. "w") read(interpolation_pointsc,*)gwt%max_points
+  if (len_trim(interpolation_pointsc) > 0 .and. trim(interpolation_pointsc) .ne. "w") read(interpolation_pointsc,*)gwt%max_points
   if ( gwt%max_points > 9999 .or. gwt%max_points < 1 ) gwt%max_points=4
 
   nestdoms=0; if (len_trim(nestdomsc) > 0 ) read(nestdomsc,*)nestdoms
