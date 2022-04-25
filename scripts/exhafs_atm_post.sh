@@ -122,6 +122,9 @@ sat_grb2indx=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.grb2.idx
 trk_grb2file=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2
 trk_grb2indx=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2.ix
 
+fort_patcf="fort.6$(printf "%02d" ${ng})"
+trk_patcf=${out_prefix}.hafs.trak.patcf
+
 # Check if post has processed this forecast hour previously
 if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
    [ ${INPdir}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
@@ -440,13 +443,15 @@ if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ];
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 
-# Pass over the grid_mspec files for moving nest (useful for storm cycling)
 if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  # Pass over the grid_mspec files for moving nest (useful for storm cycling)
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
     ${NCP} -p ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
   fi
-fi
-
+  # Deliver hafs.trak.patcf if exists
+  if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
+    ${NCP} -p ${fort_patcf} ${COMOUTpost}/${trk_patcf}
+  fi
 fi
 
 # Write out the postdone message file
