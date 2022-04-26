@@ -259,7 +259,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ]; then
   fi
   # Deliver patcf file to NOSCRUB:
   if [ -s ${COMhafs}/${out_prefix}.hafs.trak.patcf ]; then
-    ${NCP} -p ${COMhafs}/${out_prefix}.hafs.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
+    cp -p ${COMhafs}/${out_prefix}.hafs.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
   fi
 fi
 
