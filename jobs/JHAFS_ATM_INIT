@@ -230,13 +230,11 @@ do
 if [[ $ng -eq 1 ]]; then
   neststr=""
   tilestr=".tile1"
-  gridstr=".grid$(printf "%02d" ${ng})"
 else
-  neststr=".nest$(printf "%02d" ${ng})"
-  tilestr=".tile$(printf "%d" ${ng})"
-  gridstr=".grid$(printf "%02d" ${ng})"
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
 fi
-
+gridstr=".grid$(printf '%02d' ${ng})"
 echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
 
 done
@@ -249,6 +247,20 @@ if [ ${machine} = "wcoss_cray" ]; then
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_product
 fi
+
+for ng in $(seq 1 ${ngrids});
+do
+
+gridstr=".grid$(printf '%02d' ${ng})"
+if grep "PROGRAM GETTRK   HAS ENDED" ./run_product${gridstr}.log ; then
+  echo "INFO: successfully ran run_product${gridstr}"
+else
+  echo "ERROR: failed running run_product${gridstr}"
+  echo "ERROR: exitting..."
+  exit 1
+fi
+
+done
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
