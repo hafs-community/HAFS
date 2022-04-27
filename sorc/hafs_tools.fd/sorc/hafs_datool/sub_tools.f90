@@ -628,9 +628,9 @@
      allocate(gw(i,j)%src_x(max_points), gw(i,j)%src_y(max_points), gw(i,j)%src_weight(max_points))
      if ( ixs >= 1 .and. ixs <= src_ix .and. jxs >= 1 .and. jxs <= src_jx ) then
         n=0  !gw(i,j)%src_points=0
-        !do j1 = -1, 1; do i1 = -1, 1;
-        do j1 = 0, 0; do i1 = 0, 0
-           !if ( i1*j1 == 0 ) then  !5-point
+        do j1 = -1, 1; do i1 = -1, 1;
+        !do j1 = 0, 0; do i1 = 0, 0
+           if ( i1*j1 == 0 ) then  !5-point
               ixi=ixs+i1; jxi=jxs+j1
               !---change left to center
               if ( ixi < 1 ) ixi=3
@@ -642,8 +642,10 @@
                  gw(i,j)%src_x(n)=ixi
                  gw(i,j)%src_y(n)=jxi
                  gw(i,j)%src_weight(n)=earth_dist(src_lon(ixi,jxi),src_lat(ixi,jxi),dst_lon(i,j),dst_lat(i,j))
+                 !nolinear dis weight
+                 !gw(i,j)%src_weight(n)=gw(i,j)%src_weight(n)*gw(i,j)%src_weight(n)
               endif  !if ( ixi >= 1 .and. ixi <= src_ix .and. jxi >= 1 .and. jxi <= src_jx ) then
-           !endif
+           endif
         enddo; enddo
 
         !---convert earth_dist to weightening
@@ -656,7 +658,12 @@
            if ( dis == 0. ) then
               gw(i,j)%src_weight(1:n)=1.0/real(n)
            else if (dis > 0. .and. dis < 9000000000. ) then
-              gw(i,j)%src_weight(1:n)=gw(i,j)%src_weight(1:n)/dis
+              !gw(i,j)%src_weight(1:n)=gw(i,j)%src_weight(1:n)/dis
+              if ( n <= 1 ) then
+                 gw(i,j)%src_weight(1:n)=1.0
+              else
+                 gw(i,j)%src_weight(1:n)=(dis-gw(i,j)%src_weight(1:n))/((n-1)*dis)
+              endif
            else
               write(*,'(a)')'earth_dist calculation is wrong'
            endif
