@@ -310,12 +310,14 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         basin=self.storminfo.pubbasin2
         nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-        if basin=='AL':
-            Application='hat10_basin'
-        elif basin=='CP':
-            Application='hcp70_basin'
-        elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
-            Application='hep20_basin'
+	if basin in ['AL', 'EP', 'CP']:
+            Application='nhc_basin'
+       #elif basin=='AL':
+       #    Application='hat10_basin'
+       #elif basin=='CP':
+       #    Application='hcp70_basin'
+       #elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
+       #    Application='hep20_basin'
         elif nhbasin and atmos_lon>100:
             Application='hwp30_basin'
         elif nhbasin and atmos_lon>20 and atmos_lon<=100:
@@ -828,12 +830,14 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         basin=self.storminfo.pubbasin2
         nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-        if basin=='AL':
-            Application='hat10_basin'
-        elif basin=='CP':
-            Application='hcp70_basin'
-        elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
-            Application='hep20_basin'
+        if basin in ['AL', 'EP', 'CP']:
+            Application='nhc_basin'
+       #if basin=='AL':
+       #    Application='hat10_basin'
+       #elif basin=='CP':
+       #    Application='hcp70_basin'
+       #elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
+       #    Application='hep20_basin'
         elif nhbasin and atmos_lon>100:
             Application='hwp30_basin'
         elif nhbasin and atmos_lon>20 and atmos_lon<=100:
