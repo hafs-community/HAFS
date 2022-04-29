@@ -505,19 +505,22 @@
   real, allocatable, dimension(:)      :: ll_lon, ll_lat
 
   integer :: i, j, ll_ix, ll_jx, i1, j1, max_points, i2, j2, i3, j3, n
-  real    :: min_lon, min_lat, max_lon, max_lat, d_ll, dis, dis0
+  real    :: min_lon, min_lat, max_lon, max_lat, d_ll, dis, dis0, dis_src, dis_dst
+  logical :: src_in_bin
+  real    :: earth_dist
 
   !---define serach bins
-  max_points=500  !each bin maximul points
-  d_ll = 0.2   !each bin is 0.2 degx0.2 deg
+  d_ll = 0.1   !default bin size is 0.1 degx0.1 deg
   i1=int(src_ix/2); j1=int(src_jx/2);
   dis=sqrt((src_lon(i1,j1)-src_lon(i1+1,j1+1))**2.0+(src_lat(i1,j1)-src_lat(i1+1,j1+1))**2.0)
-  dis=int(dis*100.)/100.
-  d_ll=max(dis,d_ll)
+  dis_src=int(dis*100.)/100.
+  d_ll=max(dis_src,d_ll)
   i1=int(dst_ix/2); j1=int(dst_jx/2);
   dis=sqrt((dst_lon(i1,j1)-dst_lon(i1+1,j1+1))**2.0+(dst_lat(i1,j1)-dst_lat(i1+1,j1+1))**2.0)
-  dis=int(dis*100.)/100.
-  d_ll=max(dis,d_ll)
+  dis_dst=int(dis*100.)/100.
+  d_ll=max(dis_dst,d_ll)
+  !---determine max_points in each bin
+  max_points=min(max(10, 30*(int(d_ll/min(dis_src,dis_dst))+1)**2), 100000)
 
   min_lon = min(minval(src_lon), minval(dst_lon)) - 5.*d_ll
   min_lat = min(minval(src_lat), minval(dst_lat)) - 5.*d_ll
@@ -530,6 +533,7 @@
  
   ll_ix = int((max_lon - min_lon)/d_ll) + 1
   ll_jx = int((max_lat - min_lat)/d_ll) + 1
+  write(*,'(a,f,i )')'ll bin size d_ll and max_points:', d_ll, max_points
   write(*,'(a,3f  )')'min lon for src dst min:', minval(src_lon), minval(dst_lon), min_lon
   write(*,'(a,3f,i)')'max lon for src dst max:', maxval(src_lon), maxval(dst_lon), max_lon, ll_ix
   write(*,'(a,3f  )')'min lat for src dst min:', minval(src_lat), minval(dst_lat), min_lat
@@ -557,9 +561,24 @@
         i3=i1+i2; j3=j1+j2  
         if ( i3 >= 1 .and. i3 <= ll_ix .and. j3 >= 1 .and. j3 <= ll_jx ) then
            if ( src_points(i3,j3) < max_points ) then
-              src_points(i3,j3) = src_points(i3,j3) + 1
-              src_points_lon(i3,j3,src_points(i3,j3)) = i
-              src_points_lat(i3,j3,src_points(i3,j3)) = j
+              src_in_bin=.false.
+              do n=1,src_points(i3,j3)
+                 if ( i .eq. src_points_lon(i3,j3,n) .and. &
+                      j .eq. src_points_lat(i3,j3,n) ) then
+                    !---src point already included, skip
+                    src_in_bin=.true.
+                    exit
+                 endif
+              enddo
+              !---add the src point into the ll grid bin if it is not yet included
+              if ( .not. src_in_bin ) then
+                 src_points(i3,j3) = src_points(i3,j3) + 1
+                 src_points_lon(i3,j3,src_points(i3,j3)) = i
+                 src_points_lat(i3,j3,src_points(i3,j3)) = j
+              endif
+           else
+              write(*,'(a,6i6,2f10.3)') 'WARNING: src_points(i3,j3) >= max_points at i3, j3, i, j, src_lon(i,j), src_lat(i,j)', &
+                 src_points(i3,j3), max_points, i3, j3, i, j, src_lon(i,j), src_lat(i,j)
            endif
            !---may need add halo: 
         endif
@@ -584,8 +603,12 @@
            if ( src_points_lon(i1,j1,n) < 1 .or. src_points_lon(i1,j1,n) > src_ix .or. src_points_lat(i1,j1,n) < 1 .or. src_points_lat(i1,j1,n) > src_jx ) then
               write(*,'(7i8)')n, i, j, i1, j1, src_points_lon(i1,j1,n), src_points_lat(i1,j1,n)
            endif
-           dis=(dst_lon(i,j)-src_lon(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)))**2.0 + &
-               (dst_lat(i,j)-src_lat(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)))**2.0
+           !dis=(dst_lon(i,j)-src_lon(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)))**2.0 + &
+           !    (dst_lat(i,j)-src_lat(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)))**2.0
+           !---calculate great circle earth distance in km
+           dis=earth_dist(src_lon(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)), &
+                          src_lat(src_points_lon(i1,j1,n),src_points_lat(i1,j1,n)), &
+                          dst_lon(i,j),dst_lat(i,j))/1000.
            if ( dis < dis0 ) then
               dis0 = dis
               dst_in_src_x(i,j)=src_points_lon(i1,j1,n)
@@ -641,9 +664,11 @@
                  n=n+1
                  gw(i,j)%src_x(n)=ixi
                  gw(i,j)%src_y(n)=jxi
-                 gw(i,j)%src_weight(n)=earth_dist(src_lon(ixi,jxi),src_lat(ixi,jxi),dst_lon(i,j),dst_lat(i,j))
+                 !gw(i,j)%src_weight(n)=earth_dist(src_lon(ixi,jxi),src_lat(ixi,jxi),dst_lon(i,j),dst_lat(i,j))
                  !nolinear dis weight
                  !gw(i,j)%src_weight(n)=gw(i,j)%src_weight(n)*gw(i,j)%src_weight(n)
+                 !---use the weighting function based on exp(-r/r_scale); here r_scale is hardcoded as 2km currently
+                 gw(i,j)%src_weight(n)=exp(-earth_dist(src_lon(ixi,jxi),src_lat(ixi,jxi),dst_lon(i,j),dst_lat(i,j))/2000.)
               endif  !if ( ixi >= 1 .and. ixi <= src_ix .and. jxi >= 1 .and. jxi <= src_jx ) then
            endif
         enddo; enddo
@@ -662,7 +687,8 @@
               if ( n <= 1 ) then
                  gw(i,j)%src_weight(1:n)=1.0
               else
-                 gw(i,j)%src_weight(1:n)=(dis-gw(i,j)%src_weight(1:n))/((n-1)*dis)
+                 !gw(i,j)%src_weight(1:n)=(dis-gw(i,j)%src_weight(1:n))/((n-1)*dis)
+                 gw(i,j)%src_weight(1:n)=gw(i,j)%src_weight(1:n)/dis
               endif
            else
               write(*,'(a)')'earth_dist calculation is wrong'
