@@ -84,7 +84,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vortexradius=30
   res=0.02
   ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=5 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -101,7 +101,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vortexradius=45
   res=0.20
   ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=5 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -187,7 +187,7 @@ cd $DATA
   vortexradius=30
   res=0.02
   ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=5 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -200,7 +200,7 @@ cd $DATA
   vortexradius=45
   res=0.20
   ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=4 \
+                                     --debug_level=11 --interpolation_points=5 \
                                      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                      --tcvital=${tcvital} \
                                      --vortexradius=${vortexradius} --res=${res} \
@@ -429,7 +429,7 @@ for nd in $(seq 1 ${nest_grids})
 do
 
 ${APRUNS} ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
-                               --debug_level=11 --interpolation_points=4 \
+                               --debug_level=11 --interpolation_points=5 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                --nestdoms=$((${nd}-1)) \
