@@ -41,15 +41,20 @@ export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
 
 # Deterministic or ensemble
-if [ ${ENSDA} != YES ]; then
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-  export DATA=${WORKhafs}/atm_ic
-else
+if [ ${ENSDA} = YES ]; then
   export ENSID=${ENSID:-001}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/atm_ic_ens/mem${ENSID}
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}
+else
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export DATA=${WORKhafs}/atm_ic
 fi
 
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -62,8 +67,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_ic.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

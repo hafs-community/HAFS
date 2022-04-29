@@ -19,36 +19,19 @@ cyc=${cyc:-00}
 STORM=${STORM:-FAKE}
 STORMID=${STORMID:-00L}
 
-export ENSDA=${ENSDA:-NO}
-if [ ${ENSDA} != YES ]; then
-  export CASE=${CASE:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
-  export gtype=${gtype:-regional}
-  export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
-  export LEVS=${LEVS:-65}
-  export istart_nest=${istart_nest:-46}
-  export jstart_nest=${jstart_nest:-238}
-  export iend_nest=${iend_nest:-1485}
-  export jend_nest=${jend_nest:-1287}
-  export stretch_fac=${stretch_fac:-1.0001}
-  export target_lon=${target_lon:--62.0}
-  export target_lat=${target_lat:-22.0}
-  export refine_ratio=${refine_ratio:-4}
-else
-  export CASE=${CASE_ENS:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
-  export gtype=${gtype_ens:-regional}
-  export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
-  export LEVS=${LEVS_ENS:-65}
-  export istart_nest=${istart_nest_ens:-46}
-  export jstart_nest=${jstart_nest_ens:-238}
-  export iend_nest=${iend_nest_ens:-1485}
-  export jend_nest=${jend_nest_ens:-1287}
-  export stretch_fac=${stretch_fac_ens:-1.0001}
-  export target_lon=${target_lon_ens:--62.0}
-  export target_lat=${target_lat_ens:-22.0}
-  export refine_ratio=${refine_ratio_ens:-4}
-fi
+export CASE=${CASE:-C768}
+export CRES=`echo $CASE | cut -c 2-`
+export gtype=${gtype:-regional}
+export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
+export LEVS=${LEVS:-65}
+export istart_nest=${istart_nest:-46}
+export jstart_nest=${jstart_nest:-238}
+export iend_nest=${iend_nest:-1485}
+export jend_nest=${jend_nest:-1287}
+export stretch_fac=${stretch_fac:-1.0001}
+export target_lon=${target_lon:--62.0}
+export target_lat=${target_lat:-22.0}
+export refine_ratio=${refine_ratio:-4}
 export res=${res:-$CRES}
 export halo=${halo:-3}
 export halop1=${halop1:-4}
@@ -96,24 +79,24 @@ elif [ $gtype = stretch ]; then
   export target_lon=${target_lon:--97.5}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-35.5}       # center latitude of the highest resolution tile
   echo "creating stretched grid"
-elif [ $gtype = nest ] || [ $gtype = regional ]; then
+elif [ $gtype = nest -o $gtype = regional ]; then
   export stretch_fac=${stretch_fac:-1.0001}   # Stretching factor for the grid
   export target_lon=${target_lon:--62.0}      # center longitude of the highest resolution tile
   export target_lat=${target_lat:-22.0}       # center latitude of the highest resolution tile
-  # Need for grid types: nest and regional
-  export refine_ratio=${refine_ratio:-4}      # Specify the refinement ratio for nest grid
+
+  export nest_grids=${nest_grids:-1}
+  export parent_tile=${parent_tile:-6}
+  export refine_ratio=${refine_ratio:-4}
   export istart_nest=${istart_nest:-46}
   export jstart_nest=${jstart_nest:-238}
   export iend_nest=${iend_nest:-1485}
   export jend_nest=${jend_nest:-1287}
+
   export halo=${halo:-3}                      # halo size to be used in the atmosphere cubic sphere model for the grid tile.
   export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
   export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
-  if [ $gtype = nest ];then
-   echo "creating nested grid"
-  else
-   echo "creating regional grid"
-  fi
+
+  echo "creating grid for gtype of $gtype"
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
   exit 1
@@ -164,20 +147,27 @@ fi
   $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
   echo "Grid and orography files are now prepared"
 elif [ $gtype = nest ]; then
-  export ntiles=7
+  export ntiles=$((6 + ${nest_grids}))
   date
   echo "............ execute $MAKEGRIDSSH ................."
-  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
+       $nest_grids \
+       "$parent_tile" \
+       "$refine_ratio" \
+       "$istart_nest" \
+       "$jstart_nest" \
+       "$iend_nest" \
+       "$jend_nest" \
+       $halo $script_dir
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
   echo "${APRUNO} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  for itile in $(seq 2 $ntiles)
+  do 
+    echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  done
 if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
@@ -188,12 +178,55 @@ fi
   #rm $DATA/orog.file1
   date
   echo "Grid and orography files are now prepared"
-elif [ $gtype = regional ]; then
+
+# regional grid with nests
+elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
+
+  export ntiles=$((6 + ${nest_grids}))
+  echo "............ execute $MAKEGRIDSSH ................."
+  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
+       $nest_grids \
+       "$parent_tile" \
+       "$refine_ratio" \
+       "$istart_nest" \
+       "$jstart_nest" \
+       "$iend_nest" \
+       "$jend_nest" \
+       $halo $script_dir
+  date
+  echo "............ execute $MAKEOROGSSH ................."
+  # Run multiple tiles simulatneously for the orography
+  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  for itile in $(seq 8 $ntiles)
+  do
+    echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  done
+if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  echo 'wait' >> orog.file1
+fi
+  chmod u+x $DATA/orog.file1
+  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
+  ${APRUNF} $DATA/orog.file1
+  wait
+  #rm $DATA/orog.file1
+  date
+  echo "Grid and orography files are now prepared"
+
+fi
+
+if [ $gtype = regional ]; then
   # We are now creating only 1 tile and it is tile 7
   export ntiles=1
   tile=7
 
   # number of parent points
+  iend_nest=`echo $iend_nest | cut -d , -f 1`
+  istart_nest=`echo $istart_nest | cut -d , -f 1`
+  jend_nest=`echo $jend_nest | cut -d , -f 1`
+  jstart_nest=`echo $jstart_nest | cut -d , -f 1`
+  refine_ratio=`echo $refine_ratio | cut -d , -f 1`
+
   nptsx=`expr $iend_nest - $istart_nest + 1`
   nptsy=`expr $jend_nest - $jstart_nest + 1`
   # number of compute grid points
@@ -230,8 +263,8 @@ elif [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGSSH ................."
-  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
 if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
@@ -288,10 +321,14 @@ fi
 fi
 #----------------------------------------------------------------
 
+# Copy mosaic file(s) to output directory.
+cp $grid_dir/${CASE}_*mosaic.nc $out_dir/
+
 # For non-regional grids, copy grid and orography files to output directory.
-if [ $gtype != regional ]; then
+if [ $gtype = uniform -o $gtype = stretch -o $gtype = nest ]; then
   echo "Copy grid and orography files to output directory"
   tile=1
+  ntiles=`expr ${nest_grids} + 6`
   while [ $tile -le $ntiles ]; do
     cp $filter_dir/oro.${CASE}.tile${tile}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
     cp $grid_dir/${CASE}_grid.tile${tile}.nc  $out_dir/${CASE}_grid.tile${tile}.nc
@@ -299,8 +336,17 @@ if [ $gtype != regional ]; then
   done
 fi
 
-# Copy mosaic file(s) to output directory.
-cp $grid_dir/${CASE}_*mosaic.nc $out_dir/
+if [ $gtype = regional -a $nest_grids -gt 1 ]; then
+  cp -p $out_dir/${CASE}_all_mosaic.nc $out_dir/${CASE}_mosaic.nc
+  echo "Copy grid and orography files to output directory"
+  tile=8
+  ntiles=`expr ${nest_grids} + 6`
+  while [ $tile -le $ntiles ]; do
+    cp $filter_dir/oro.${CASE}.tile${tile}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
+    cp $grid_dir/${CASE}_grid.tile${tile}.nc  $out_dir/${CASE}_grid.tile${tile}.nc
+    tile=`expr $tile + 1 `
+  done
+fi
 
 #----------------------------------------------------------------
 # Make surface static fields - vegetation type, soil type, etc.
@@ -338,7 +384,11 @@ elif [ $gtype = regional ]; then
   HALO=$halop1
   ln -fs $out_dir/${CASE}_grid.tile${tile}.halo${HALO}.nc $out_dir/${CASE}_grid.tile${tile}.nc
   ln -fs $out_dir/${CASE}_oro_data.tile${tile}.halo${HALO}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
-  mosaic_file=${out_dir}/${CASE}_mosaic.nc
+  if [ $nest_grids -gt 1 ];  then
+    mosaic_file=${out_dir}/${CASE}_coarse_mosaic.nc
+  else
+    mosaic_file=${out_dir}/${CASE}_mosaic.nc
+  fi
   the_orog_files='"'${CASE}'_oro_data.tile'${tile}'.nc"'
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
@@ -367,7 +417,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ -e ./hafs_sfc_climo_gen.x ]]; then
+  cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+fi
 $APRUNC ./hafs_sfc_climo_gen.x
 #$APRUNC $SFCCLIMOEXEC
 
@@ -407,16 +459,28 @@ if [ $gtype = regional ]; then
 fi
 
 #----------------------------------------------------------------
-# Run for the global nest - tile 7.
-# Second pass for global-nesting configuration will run the 7th tile
+# Run for the global or regional nested tiles
+# Second pass for global-nesting or regional-nesting configuration will run the 7+th/8+th tiles
 #----------------------------------------------------------------
 
-if [ $gtype = nest ]; then
+if [ $gtype = nest -o $nest_grids -gt 1 ];  then
 
+ntiles=$(( ${nest_grids} + 6 ))
 export GRIDTYPE=nest
-HALO=${HALO:-0}
-mosaic_file=$out_dir/${CASE}_nested_mosaic.nc
-the_orog_files='"'${CASE}'_oro_data.tile7.nc"'
+HALO=0
+
+if [ $gtype = regional ]; then
+  stile=8
+else
+  stile=7
+fi
+
+for itile in $(seq $stile $ntiles)
+do
+
+inest=$(($itile + 2 - $stile))
+mosaic_file=$out_dir/${CASE}_nested0${inest}_mosaic.nc
+the_orog_files='"'${CASE}'_oro_data.tile'${itile}'.nc"'
 
 cat>./fort.41<<EOF
 &config
@@ -440,7 +504,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ -e ./hafs_sfc_climo_gen.x ]]; then
+  cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+fi
 $APRUNC ./hafs_sfc_climo_gen.x
 #$APRUNC $SFCCLIMOEXEC
 
@@ -457,8 +523,10 @@ else
   exit $rc
 fi
 
+done
+
 fi
-# End of run for the global nest - tile 7.
+# End of run for the global or regional nested tiles.
 #----------------------------------------------------------------
 
 exit

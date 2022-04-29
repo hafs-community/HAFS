@@ -62,19 +62,31 @@
 
   <!-- Enabling or disabling  parts of the workflow: -->
   <!ENTITY FETCH_INPUT "@[FETCH_INPUT]">
-  <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT:-NO]">
-  <!ENTITY RUN_VORTEXINIT "@[RUN_VORTEXINIT]">
+  <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT]">
+  <!ENTITY RUN_ATM_INIT_FGAT "@[RUN_ATM_INIT_FGAT]">
+  <!ENTITY RUN_ATM_INIT_ENS "@[RUN_ATM_INIT_ENS]">
+  <!ENTITY RUN_ATM_MERGE "@[RUN_ATM_MERGE]">
+  <!ENTITY RUN_ATM_MERGE_FGAT "@[RUN_ATM_MERGE_FGAT]">
+  <!ENTITY RUN_ATM_MERGE_ENS "@[RUN_ATM_MERGE_ENS]">
+  <!ENTITY RUN_ATM_VI "@[RUN_ATM_VI]">
+  <!ENTITY RUN_ATM_VI_FGAT "@[RUN_ATM_VI_FGAT]">
+  <!ENTITY RUN_ATM_VI_ENS "@[RUN_ATM_VI_ENS]">
   <!ENTITY RUN_GSI_VR "@[RUN_GSI_VR]">
   <!ENTITY RUN_GSI_VR_FGAT "@[RUN_GSI_VR_FGAT]">
   <!ENTITY RUN_GSI_VR_ENS "@[RUN_GSI_VR_ENS]">
-  <!ENTITY RUN_GSI "@[RUN_GSI]">
-  <!ENTITY RUN_DATM "@[RUN_DATM]">
-  <!ENTITY RUN_DOCN "@[RUN_DOCN]">
   <!ENTITY RUN_FGAT "@[RUN_FGAT]">
+  <!ENTITY RUN_GSI "@[RUN_GSI]">
+  <!ENTITY GSI_D01 "@[GSI_D01]">
+  <!ENTITY GSI_D02 "@[GSI_D02]">
+  <!ENTITY GSI_D03 "@[GSI_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
+  <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
+  <!ENTITY RUN_ANALYSIS_MERGE_ENS "@[RUN_ANALYSIS_MERGE_ENS]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
+  <!ENTITY RUN_DATM "@[RUN_DATM]">
+  <!ENTITY RUN_DOCN "@[RUN_DOCN]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY ARCHIVE_FV3OUT "@[ARCHIVE_FV3OUT]">
@@ -257,6 +269,273 @@
   </task>
 
 @** if gtype==regional
+
+@** if RUN_ATM_INIT_FGAT==YES
+  <metatask name="atm_ic_fgat">
+  <var name="FGAT_HR">03 06 09</var>
+  <task name="atm_ic_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_IC</command>
+    <jobname>hafs_atm_ic_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_ic_fgat#FGAT_HR#.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_IC_RESOURCES;
+    &ENV_VARS;
+    <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+    <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="atm_prep"/>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <or>
+          <taskdep task="input"/>
+          <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+        </or>
+        <!-- Second dependency: the GDAS output must be available -->
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
+        <and>
+@** if GFSVER==PROD2019
+          <datadep age="02:00" minsize="2000000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.atmf0#FGAT_HR#.nemsio</cyclestr></datadep>
+          <datadep age="02:00" minsize="500000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.sfcf0#FGAT_HR#.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="2000000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.atmf0#FGAT_HR#.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="500000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.sfcf0#FGAT_HR#.nc</cyclestr></datadep>
+@** endif
+        </and>
+      </and>
+    </dependency>
+  </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_INIT==YES
+  <task name="atm_init" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_INIT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_ic"/>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_ATM_INIT_FGAT==YES
+  <metatask name="atm_init_fgat">
+  <var name="FGAT_HR">03 06 09</var>
+  <task name="atm_init_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init_fgat#FGAT_HR#.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_INIT_RESOURCES;
+    &ENV_VARS;
+    <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+    <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="atm_ic_fgat#FGAT_HR#"/>
+      </and>
+    </dependency>
+  </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_MERGE==YES
+  <task name="atm_merge" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_MERGE</command>
+    <jobname>hafs_atm_merge_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_merge.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &MERGE_RESOURCES;
+    &ENV_VARS;
+    <envar><name>MERGE_TYPE</name><value>init</value></envar>
+    <dependency>
+      <and>
+        <taskdep task="atm_init"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_ATM_MERGE_FGAT==YES
+  <metatask name="atm_merge_fgat">
+  <var name="FGAT_HR">03 06 09</var>
+  <task name="atm_merge_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_MERGE</command>
+    <jobname>hafs_atm_merge_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_merge_fgat#FGAT_HR#.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &MERGE_RESOURCES;
+    &ENV_VARS;
+    <envar><name>MERGE_TYPE</name><value>init</value></envar>
+    <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+    <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="atm_init_fgat#FGAT_HR#"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+        </or>
+      </and>
+    </dependency>
+  </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_VI==YES
+  <task name="atm_vi" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_VI</command>
+    <jobname>hafs_atm_vi_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_vi.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_VI_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_init"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+          </and>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_ATM_VI_FGAT==YES
+  <metatask name="atm_vi_fgat">
+  <var name="FGAT_HR">03 06 09</var>
+  <task name="atm_vi_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_VI</command>
+    <jobname>hafs_atm_vi_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_vi_fgat#FGAT_HR#.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ATM_VI_RESOURCES;
+    &ENV_VARS;
+    <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+    <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+
+    <dependency>
+      <and>
+        <taskdep task="atm_init_fgat#FGAT_HR#"/>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+          <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+          </and>
+        </or>
+      </and>
+    </dependency>
+  </task>
+  </metatask>
+@** endif
+
+@** if RUN_GSI_VR==YES
+  <task name="analysis_vr" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+    <jobname>hafs_analysis_vr_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_analysis_vr.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &ANALYSIS_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_ic"/>
+	<streq><left>&RUN_GSI_VR;</left><right>YES</right></streq>
+	<or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+	  <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+          </and>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
+@** if RUN_GSI_VR_FGAT==YES
+  <metatask name="analysis_vr_fgat">
+    <var name="FGAT_HR">03 09</var>
+    <task name="analysis_vr_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+      <jobname>hafs_analysis_vr_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat#FGAT_HR#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ANALYSIS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>FGAT</name><value>YES</value></envar>
+      <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+      <dependency>
+        <and>
+          <taskdep task="atm_ic"/>
+          <streq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** endif
+
+@** if gtype==regional
   <metatask name="atm_lbc">
     <var name="group">001 002 003 004 005 006</var>
     <task name="atm_lbc#group#" maxtries="&MAX_TRIES;">
@@ -402,68 +681,6 @@
   </task>
 @** endif
 
-@** if RUN_GSI_VR==YES
-  <task name="analysis_vr" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-    <jobname>hafs_analysis_vr_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_analysis_vr.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &ANALYSIS_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <and>
-        <taskdep task="atm_ic"/>
-	<streq><left>&RUN_GSI_VR;</left><right>YES</right></streq>
-	<or>
-          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-	  <and>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
-          </and>
-        </or>
-      </and>
-    </dependency>
-  </task>
-@** endif
-
-@** if RUN_GSI_VR_FGAT==YES 
-  <metatask name="analysis_vr_fgat">
-    <var name="FGAT_HR">03 09</var>
-    <task name="analysis_vr_fgat#FGAT_HR#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-      <jobname>hafs_analysis_vr_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_fgat#FGAT_HR#.log</cyclestr></join>
-      <account>&ACCOUNT;</account>
-      &RESERVATION;
-      <queue>&QUEUE_PE;</queue>
-      &PE_EXTRA;
-      &ANALYSIS_RESOURCES;
-      &ENV_VARS;
-      <envar><name>FGAT</name><value>YES</value></envar>
-      <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
-      <dependency>
-        <and>
-          <taskdep task="atm_ic"/>
-          <streq><left>&RUN_GSI_VR_FGAT;</left><right>YES</right></streq>
-          <or>
-            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-            <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
-            </and>
-          </or>
-        </and>
-      </dependency>
-    </task>
-  </metatask>
-@** endif
-
 @** if RUN_GSI==YES
 
   <task name="obs_proc" maxtries="&MAX_TRIES;">
@@ -485,29 +702,6 @@
     </dependency>
   </task>
 
-@** if RUN_ATM_INIT==YES
-  <task name="atm_init" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
-    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &ATM_INIT_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <and>
-        <taskdep task="atm_ic"/>
-@** if gtype==regional
-        <metataskdep metatask="atm_lbc"/>
-@** endif
-      </and>
-    </dependency>
-  </task>
-@** endif
-
   <task name="analysis" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ANALYSIS</command>
     <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -523,6 +717,18 @@
         <taskdep task="atm_ic"/>
         <taskdep task="obs_proc"/>
 	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
+@** if RUN_ATM_VI_FGAT==YES
+	<or>
+          <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
+          <metataskdep metatask="atm_vi_fgat"/>
+        </or>
+@** endif
+@** if RUN_ATM_MERGE_FGAT==YES
+	<or>
+          <strneq><left>&RUN_ATM_MERGE_FGAT;</left><right>YES</right></strneq>
+          <metataskdep metatask="atm_merge_fgat"/>
+        </or>
+@** endif
 @** if RUN_GSI_VR==YES
 	<or>
           <strneq><left>&RUN_GSI_VR;</left><right>YES</right></strneq>
@@ -549,29 +755,37 @@
     </dependency>
   </task>
 @** endif
-@** endif
 
-@** if RUN_ATM_INIT==YES
-  <task name="atm_init" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
-    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_atm_init.log</cyclestr></join>
+@** if RUN_ANALYSIS_MERGE==YES
+  <task name="analysis_merge" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_MERGE</command>
+    <jobname>hafs_analysis_merge_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_analysis_merge.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
-    &ATM_INIT_RESOURCES;
+    &MERGE_RESOURCES;
     &ENV_VARS;
-
+    <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
     <dependency>
       <and>
-        <taskdep task="atm_ic"/>
-@** if gtype==regional
-        <metataskdep metatask="atm_lbc"/>
+@** if RUN_ATM_INIT==YES
+        <taskdep task="atm_init"/>
 @** endif
+        <or>
+          <taskdep task="atm_vi"/>
+          <strneq><left>&RUN_ATM_VI;</left><right>YES</right></strneq>
+        </or>
+        <or>
+          <taskdep task="analysis"/>
+          <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
+        </or>
       </and>
     </dependency>
   </task>
+@** endif
+
 @** endif
 
   <task name="forecast" maxtries="&MAX_TRIES;">
@@ -602,11 +816,23 @@
             <taskdep task="atm_ic"/>
 @** if gtype==regional
             <metataskdep metatask="atm_lbc"/>
-@** if RUN_GSI==YES
-            <taskdep task="analysis"/>
+@** if RUN_ATM_INIT==YES
+            <taskdep task="atm_init"/>
+@** endif
+@** if RUN_ATM_MERGE==YES
+            <taskdep task="atm_merge"/>
+@** endif
+@** if RUN_ATM_VI==YES
+            <taskdep task="atm_vi"/>
 @** endif
 @** if RUN_GSI_VR==YES
             <taskdep task="analysis_vr"/>
+@** endif
+@** if RUN_GSI==YES
+            <taskdep task="analysis"/>
+@** endif
+@** if RUN_ANALYSIS_MERGE==YES
+            <taskdep task="analysis_merge"/>
 @** endif
 @** endif
           </and>
@@ -776,6 +1002,133 @@
     </task>
   </metatask>
 
+@** if RUN_ATM_INIT_ENS==YES
+  <metatask name="atm_init_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="atm_init_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+      <jobname>hafs_atm_init_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_init_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_INIT_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_ic_ens#MEM#"/>
+          <streq><left>&RUN_ATM_INIT_ENS;</left><right>YES</right></streq>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_MERGE_ENS==YES
+  <metatask name="atm_merge_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="atm_merge_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_MERGE</command>
+      <jobname>hafs_atm_merge_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_merge_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &MERGE_RESOURCES;
+      &ENV_VARS;
+      <envar><name>MERGE_TYPE</name><value>init</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_init_ens#MEM#"/>
+          <streq><left>&RUN_ATM_MERGE_ENS;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_VI_ENS==YES
+  <metatask name="atm_vi_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="atm_vi_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_VI</command>
+      <jobname>hafs_atm_vi_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_vi_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ATM_VI_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_init_ens#MEM#"/>
+          <streq><left>&RUN_ATM_VI_ENS;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
+@** if RUN_GSI_VR_ENS==YES
+  <metatask name="analysis_vr_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="analysis_vr_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
+      <jobname>hafs_analysis_vr_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &ANALYSIS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_ic_ens#MEM#"/>
+          <streq><left>&RUN_GSI_VR_ENS;</left><right>YES</right></streq>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <and>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+            </and>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
 @** if gtype==regional
   <metatask name="atm_lbc_ens">
     <var name="MEM">&ENSIDS;</var>
@@ -818,40 +1171,6 @@
         </dependency>
       </task>
     </metatask>
-  </metatask>
-@** endif
-
-@** if RUN_GSI_VR_ENS==YES
-  <metatask name="analysis_vr_ens">
-    <var name="MEM">&ENSIDS;</var>
-    <task name="analysis_vr_ens#MEM#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_ANALYSIS_VR</command>
-      <jobname>hafs_analysis_vr_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_analysis_vr_ens#MEM#.log</cyclestr></join>
-      <account>&ACCOUNT;</account>
-      &RESERVATION;
-      <queue>&QUEUE_PE;</queue>
-      &PE_EXTRA;
-      &ANALYSIS_RESOURCES;
-      &ENV_VARS;
-      <envar><name>ENSDA</name><value>YES</value></envar>
-      <envar><name>ENSID</name><value>#MEM#</value></envar>
-
-      <dependency>
-        <and>
-          <taskdep task="atm_ic_ens#MEM#"/>
-          <streq><left>&RUN_GSI_VR_ENS;</left><right>YES</right></streq>
-          <or>
-            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-            <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
-              <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/*&sidlc;.@Y@m@d@H.trak.hafs.atcfunix.all</cyclestr> | wc -l) -ge 1 ]]; then exit 0; else exit 1; fi</sh>
-            </and>
-          </or>
-        </and>
-      </dependency>
-    </task>
   </metatask>
 @** endif
 
@@ -973,6 +1292,41 @@
   </task>
 @** endif
 
+@** if RUN_ANALYSIS_MERGE_ENS==YES
+  <metatask name="analysis_merge_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="analysis_merge_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_MERGE</command>
+      <jobname>hafs_analysis_merge_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_analysis_merge_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &MERGE_RESOURCES;
+      &ENV_VARS;
+      <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
+      <envar><name>ENSDA</name><value>YES</value></envar>
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+      <dependency>
+        <and>
+@** if RUN_ATM_INIT_ENS==YES
+          <taskdep task="atm_init_ens#MEM#"/>
+@** endif
+          <or>
+            <taskdep task="atm_vi_ens#MEM#"/>
+            <strneq><left>&RUN_ATM_VI_ENS;</left><right>YES</right></strneq>
+          </or>
+          <or>
+            <taskdep task="enkf_recenter"/>
+            <strneq><left>&RUN_ANALYSIS_MERGE_ENS;</left><right>YES</right></strneq>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@** endif
+
   <metatask name="forecast_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="forecast_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1012,6 +1366,12 @@
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <taskdep task="enkf_recenter"/>
+          </or>
+@** endif
+@** if RUN_ANALYSIS_MERGE_ENS==YES
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="analysis_merge_ens#MEM#"/>
           </or>
 @** endif
 @** endif
@@ -1074,7 +1434,6 @@
 
 @** endif
 
-
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_HRDGRAPHICS</command>
@@ -1134,7 +1493,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MEMORY;
+    &MORE_MEMORY;
     &ENV_VARS;
     <envar><name>ARCHIVE_STEP</name><value>DISK</value></envar>
 
@@ -1174,7 +1533,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MEMORY;
+    &MORE_MEMORY;
     &ENV_VARS;
     <envar><name>ARCHIVE_STEP</name><value>TAPE</value></envar>
 
@@ -1215,7 +1574,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MEMORY;
+    &MORE_MEMORY;
     &ENV_VARS;
 
     <dependency>

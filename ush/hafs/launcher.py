@@ -1082,7 +1082,6 @@ class HAFSLauncher(HAFSConfig):
         vitbase=self.choose_vitbase(storm_num)
 
         vitbasedir=os.path.dirname(vitbase)
-        print("vitbasedir",vitbasedir)
         produtil.fileop.makedirs(vitbasedir,logger=logger)
 
         logger.info('Reformat vitals...')
@@ -1118,6 +1117,18 @@ class HAFSLauncher(HAFSConfig):
         logger.info(filename+': write prior cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
+
+        tm03syndat=syndat-3 # vitals at tm03
+        filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
+        logger.info(filename+': write tm03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tm03syndat.as_tcvitals(), file=tmpvit)
+
+        tp03syndat=syndat+3 # vitals at tp03
+        filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
+        logger.info(filename+': write tp03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tp03syndat.as_tcvitals(), file=tmpvit)
 
     def sanity_check_archive(self,logger=None):
         """!Runs a sanity check on the archiving settings.
@@ -1412,103 +1423,6 @@ class HAFSLauncher(HAFSConfig):
         out=list()
         logger=self.log()
 
-        # Generate the output grid for the write grid component of the forecast job
-        output_grid=self.getstr('forecast','output_grid','rotated_latlon')
-        logger.info('output_grid is: %s'%(output_grid))
-        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0)
-        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0)
-        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0)
-        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0)
-        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025)
-        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025)
-        if output_grid=='rotated_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0)
-        elif output_grid=='regional_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0)
-        else:
-            logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
-            sys.exit(2)
-        self.set('holdvars','output_grid_lon1','%.6f'%(output_grid_lon1))
-        self.set('holdvars','output_grid_lat1','%.6f'%(output_grid_lat1))
-        self.set('holdvars','output_grid_lon2','%.6f'%(output_grid_lon2))
-        self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
-
-        # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
-        # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
-        if synop_gridspecs=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            logger.info('since synop_gridspecs is %s' %(synop_gridspecs))
-            synop_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs: %s' %(synop_gridspecs))
-        self.set('holdvars','synop_gridspecs',synop_gridspecs)
-
-        # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
-        if trker_gridspecs=='auto':
-            logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
-            trker_gridspecs=synop_gridspecs
-            logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
-        self.set('holdvars','trker_gridspecs',trker_gridspecs)
-
-        # Generate synop_gridspecs_ens if needed
-        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
-        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
-        output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
-        output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
-
-        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
-        if synop_gridspecs_ens=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
-            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
-        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
-
-        # Set trker_gridspecs_ens if needed
-        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
-        if trker_gridspecs_ens=='auto':
-            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
-            trker_gridspecs_ens=synop_gridspecs_ens
-            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
-        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
-
         run_ocean=self.getbool('config','run_ocean')
 
         # Set ocean_start_dtg if needed
@@ -1530,6 +1444,15 @@ class HAFSLauncher(HAFSConfig):
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
 
+        gsi_flag=self.getbool('config','gsi_d01')
+        self.set('holdvars','cap_gsi_d01',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d02')
+        self.set('holdvars','cap_gsi_d02',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d03')
+        self.set('holdvars','cap_gsi_d03',('YES' if gsi_flag else 'NO'))
+
         fgat_flag=self.getbool('config','run_fgat')
         self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
 
@@ -1542,9 +1465,38 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
-        reloc_flag=self.getbool('config','run_vortexinit')
-        self.set('holdvars','cap_run_vortexinit',
-                 ('YES' if reloc_flag else 'NO'))
+        atm_init_flag=self.getbool('config','run_atm_init')
+        self.set('holdvars','cap_run_atm_init',('YES' if atm_init_flag else 'NO'))
+
+        atm_init_fgat_flag=self.getbool('config','run_atm_init_fgat')
+        self.set('holdvars','cap_run_atm_init_fgat',('YES' if atm_init_fgat_flag else 'NO'))
+
+        atm_init_ens_flag=self.getbool('config','run_atm_init_ens')
+        self.set('holdvars','cap_run_atm_init_ens',('YES' if atm_init_ens_flag else 'NO'))
+
+        atm_vi_flag=self.getbool('config','run_atm_vi')
+        self.set('holdvars','cap_run_atm_vi',('YES' if atm_vi_flag else 'NO'))
+
+        atm_vi_fgat_flag=self.getbool('config','run_atm_vi_fgat')
+        self.set('holdvars','cap_run_atm_vi_fgat',('YES' if atm_vi_fgat_flag else 'NO'))
+
+        atm_vi_ens_flag=self.getbool('config','run_atm_vi_ens')
+        self.set('holdvars','cap_run_atm_vi_ens',('YES' if atm_vi_ens_flag else 'NO'))
+
+        atm_merge_flag=self.getbool('config','run_atm_merge')
+        self.set('holdvars','cap_run_atm_merge',('YES' if atm_merge_flag else 'NO'))
+
+        atm_merge_fgat_flag=self.getbool('config','run_atm_merge_fgat')
+        self.set('holdvars','cap_run_atm_merge_fgat',('YES' if atm_merge_fgat_flag else 'NO'))
+
+        atm_merge_ens_flag=self.getbool('config','run_atm_merge_ens')
+        self.set('holdvars','cap_run_atm_merge_ens',('YES' if atm_merge_ens_flag else 'NO'))
+
+        analysis_merge_flag=self.getbool('config','run_analysis_merge')
+        self.set('holdvars','cap_run_analysis_merge',('YES' if analysis_merge_flag else 'NO'))
+
+        analysis_merge_ens_flag=self.getbool('config','run_analysis_merge_ens')
+        self.set('holdvars','cap_run_analysis_merge_ens',('YES' if analysis_merge_ens_flag else 'NO'))
 
         gplot_flag=self.getbool('config','run_hrdgraphics')
         self.set('holdvars','cap_run_hrdgraphics',

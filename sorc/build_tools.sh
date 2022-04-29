@@ -37,6 +37,8 @@ export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:-"-I${HDF5}/include"}}"}
 #export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5}/lib -lhdf5_hl -lhdf5hl_fortran -lhdf5 -lhdf5_fortran"}
 export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:-"${HDF5}/lib"} -lhdf5_hl -lhdf5"}
 export BUFR_LDFLAGS="${BUFR_LIBd}"
+#export ZLIB_INCLUDE=${ZLIB_INCLUDE:-"-I${ZLIB_INCLUDES:--I${ZLIB_ROOT}/include}"}
+#export ZLIB_LDFLAGS=${ZLIB_LDFLAGS:-"-L${ZLIB_LIBRARIES:--L${ZLIB_ROOT}/lib} -lz -ldl -lm"}
 
 TOOLS_PATH=${cwd}/hafs_tools.fd
 export TOOLS_INC=${TOOLS_PATH}/include
@@ -59,5 +61,11 @@ make install
 cd ${TOOLS_PATH}/sorc
 
 ./build_hafs_utils.sh
+
+#cd ${TOOLS_PATH}/sorc/hafs_datool
+#./build_hafs_datool.sh
+
+#cd ${TOOLS_PATH}/sorc/hafs_vi
+#make
 
 exit

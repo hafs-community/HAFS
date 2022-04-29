@@ -78,7 +78,9 @@ ${NLN} -sf ./prepbufr.qm_typ ./fort.51
 
 # Link and run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
+set -o pipefail
+${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./hafs_change_prepbufr_qm_typ.out
+set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
@@ -120,17 +122,19 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Link and run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
+set -o pipefail
+${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
+set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.tempdrop.prepbufr
+  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.hafs.tempdrop.prepbufr
 fi
 
 # Deliver to intercom
 mkdir -p ${intercom}
-${NCP} -p ./tempdrop.prepbufr ${intercom}/tempdrop.prepbufr
+${NCP} -p ./tempdrop.prepbufr ${intercom}/hafs.tempdrop.prepbufr
 
 fi # end if [ -s ./tempdrop.filelist ]; then
 

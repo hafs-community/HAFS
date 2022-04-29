@@ -1,0 +1,124 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
+
+export machine=${WHERE_AM_I:-wcoss_cray}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/modulefiles
+  module load modulefile.hafs.${machine}
+  module list
+fi
+
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
+
+NDATE=${NDATE:-ndate}
+CDATEprior=`${NDATE} -6 $CDATE`
+PDYprior=`echo ${CDATEprior} | cut -c1-8`
+cycprior=`echo ${CDATEprior} | cut -c9-10`
+yrprior=`echo ${CDATEprior} | cut -c1-4`
+mnprior=`echo ${CDATEprior} | cut -c5-6`
+dyprior=`echo ${CDATEprior} | cut -c7-8`
+hhprior=`echo ${CDATEprior} | cut -c9-10`
+export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
+
+# merge analysis or init
+if [ ${MERGE_TYPE} = analysis ]; then
+
+export merge_method=${analysis_merge_method:-vortexreplace}
+# Deterministic or ensemble
+if [ "${ENSDA}" = YES ]; then
+  export ENSID=${ENSID:-001}
+  if [ -d ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID} ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
+  elif [ -d ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID} ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
+  else
+    echo "Error RESTARTsrc does not exist"
+    exit 1
+  fi
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}
+else
+  if [ -e ${WORKhafs}/intercom/RESTART_analysis ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
+  elif [ -e ${WORKhafs}/intercom/RESTART_vi ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_vi
+  else
+    echo "Error RESTARTsrc does not exist"
+    exit 1
+  fi
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
+  export DATA=${WORKhafs}/analysis_merge
+fi
+
+elif [ ${MERGE_TYPE} = init ]; then
+
+export merge_method=${atm_merge_method:-vortexreplace}
+if [ ${FGAT_MODEL} = gdas ]; then
+  export RESTARTsrc=${COMhafsprior}/RESTART
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
+  export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+else
+  export RESTARTsrc=${COMhafsprior}/RESTART
+  export RESTARTdst=${WORKhafs}/intercom/RESTART_init
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
+  export DATA=${WORKhafs}/atm_merge
+fi
+
+else
+  echo "Error unsupported MERGE_TYPE: ${MERGE_TYPE}"
+  exit 1
+fi
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_merge.sh
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

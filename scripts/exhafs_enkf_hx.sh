@@ -34,8 +34,8 @@ else
 fi
 
 export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
-export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
+export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
 
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
@@ -89,26 +89,25 @@ hhprior=`echo ${CDATEprior} | cut -c9-10`
 cycprior=`echo ${CDATEprior} | cut -c9-10`
 PDYprior=`echo ${CDATEprior} | cut -c1-8`
 
-if [ ${RUN_FGAT} = YES ]; then
- CDATEtm03=`${NDATE} -3 $CDATE`
- PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
- cyctm03=`echo ${CDATEtm03} | cut -c9-10`
- CDATEtm02=`${NDATE} -2 $CDATE`
- PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
- cyctm02=`echo ${CDATEtm02} | cut -c9-10`
- CDATEtm01=`${NDATE} -1 $CDATE`
- PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
- cyctm01=`echo ${CDATEtm01} | cut -c9-10`
- CDATEtp03=`${NDATE} +3 $CDATE`
- PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
- cyctp03=`echo ${CDATEtp03} | cut -c9-10`
- CDATEtp02=`${NDATE} +2 $CDATE`
- PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
- cyctp02=`echo ${CDATEtp02} | cut -c9-10`
- CDATEtp01=`${NDATE} +1 $CDATE`
- PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
- cyctp01=`echo ${CDATEtp01} | cut -c9-10`
-fi
+CDATEtm03=`${NDATE} -3 $CDATE`
+PDYtm03=`echo ${CDATEtm03} | cut -c1-8`
+cyctm03=`echo ${CDATEtm03} | cut -c9-10`
+CDATEtm02=`${NDATE} -2 $CDATE`
+PDYtm02=`echo ${CDATEtm02} | cut -c1-8`
+cyctm02=`echo ${CDATEtm02} | cut -c9-10`
+CDATEtm01=`${NDATE} -1 $CDATE`
+PDYtm01=`echo ${CDATEtm01} | cut -c1-8`
+cyctm01=`echo ${CDATEtm01} | cut -c9-10`
+
+CDATEtp03=`${NDATE} +3 $CDATE`
+PDYtp03=`echo ${CDATEtp03} | cut -c1-8`
+cyctp03=`echo ${CDATEtp03} | cut -c9-10`
+CDATEtp02=`${NDATE} +2 $CDATE`
+PDYtp02=`echo ${CDATEtp02} | cut -c1-8`
+cyctp02=`echo ${CDATEtp02} | cut -c9-10`
+CDATEtp01=`${NDATE} +1 $CDATE`
+PDYtp01=`echo ${CDATEtp01} | cut -c1-8`
+cyctp01=`echo ${CDATEtp01} | cut -c9-10`
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
@@ -142,27 +141,26 @@ export REDUCE_DIAG=".true."
 
 if [ ${RUN_GSI_VR_ENS} = YES ]; then
   if [ ${HX_ENS} != YES ]; then
-    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
     export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
   else
-    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens/${MEMSTR}
     export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/${MEMSTR}
   fi
 else
   if [ ${HX_ENS} != YES ]; then
-    #export RESTARTens_inp=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
     export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
   else
     export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
   fi
 fi
 
-#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens/${MEMSTR}
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
+export DIAGens_anl=${COMhafs}/DIAG_analysis_ens/${MEMSTR}
 
 RESTARTinp=${RESTARTinp:-${RESTARTens_inp}}
 RESTARTanl=${RESTARTanl:-${RESTARTens_anl}}
+DIAGanl=${DIAGanl:-${DIAGens_anl}}
 mkdir -p ${RESTARTanl}
+mkdir -p ${DIAGanl}
 
 ## ObsInput file from ensemble mean
 export SELECT_OBS=${SELECT_OBS:-${RESTARTanl}/../ensmean/obsinput.tar}
@@ -188,12 +186,12 @@ ${NCP} ${RESTARTinp}/atmos_static.nc ./fv3_atmos_static
 ${NCP} ${RESTARTinp}/grid_spec.nc ./fv3_grid_spec
 
 # Stat files
-RADSTAT=${RADSTAT:-${RESTARTanl}/analysis.radstat}
-GSISTAT=${GSISTAT:-${RESTARTanl}/analysis.gsistat}
-PCPSTAT=${PCPSTAT:-${RESTARTanl}/analysis.pcpstat}
-CNVSTAT=${CNVSTAT:-${RESTARTanl}/analysis.cnvstat}
-OZNSTAT=${OZNSTAT:-${RESTARTanl}/analysis.oznstat}
-GSISOUT=${GSISOUT:-${RESTARTanl}/analysis.gsisout}
+RADSTAT=${RADSTAT:-${DIAGanl}/analysis.radstat}
+GSISTAT=${GSISTAT:-${DIAGanl}/analysis.gsistat}
+PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis.pcpstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis.cnvstat}
+OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis.oznstat}
+GSISOUT=${GSISOUT:-${DIAGanl}/analysis.gsisout}
 
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
@@ -430,8 +428,8 @@ if [ -s ${WORKhafs}/intercom/obs_proc/hafs.prepbufr ]; then
   ${NCP} ${WORKhafs}/intercom/obs_proc/hafs.prepbufr prepbufr
 fi
 # cat tempdrop.prepbufr with drifting correction into prepbufr
-if [ -s ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr ]; then
-  cat ${WORKhafs}/intercom/obs_proc/tempdrop.prepbufr >> prepbufr
+if [ -s ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr ]; then
+  cat ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr >> prepbufr
 fi
 COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
 ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
@@ -442,13 +440,13 @@ fi #USE_SELECT
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
-  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+  if [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  elif [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out ]; then
+    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_out            satbias_in
+    ${NLN} ${COMhafsprior}/DIAG_analysis/satbias_hafs_pc.out         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -522,8 +520,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
-${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
-cat stdout
+set -o pipefail
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
+set +o pipefail
 
 ${NCP} -p ./stdout ${GSISOUT}
 

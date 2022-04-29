@@ -59,8 +59,8 @@ export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
-  rm -f $INPdir/postf???
-  rm -rf ${intercom}
+# rm -f $INPdir/post*f???
+# rm -rf ${intercom}
 fi
 mkdir -p ${COMOUTpost}
 mkdir -p ${intercom}
@@ -69,8 +69,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_post.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

@@ -34,6 +34,8 @@ export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
 
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
@@ -63,10 +65,51 @@ mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
-# Execute ex-script
-${HOMEhafs}/scripts/exhafs_product.sh
-export err=$?
-exit $err
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
+rm -f cmdfile_product
+# Loop for grids/domains to prepare the cmdfile
+for ng in $(seq 1 ${ngrids});
+do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+  tilestr=".tile1"
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
+fi
+gridstr=".grid$(printf '%02d' ${ng})"
+echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
+
+done
+
+chmod +x cmdfile_product
+if [ ${machine} = "wcoss_cray" ]; then
+  export OMP_NUM_THREADS=1
+  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
+  ${APRUNF} cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
+
+for ng in $(seq 1 ${ngrids});
+do
+
+gridstr=".grid$(printf '%02d' ${ng})"
+if grep "PROGRAM GETTRK   HAS ENDED" ./run_product${gridstr}.log ; then
+  echo "INFO: successfully ran run_product${gridstr}"
+else
+  echo "ERROR: failed running run_product${gridstr}"
+  echo "ERROR: exitting..."
+  exit 1
+fi
+
+done
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

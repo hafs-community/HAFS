@@ -1,3 +1,5 @@
+logKindFlag:            ESMF_LOGKIND_MULTI
+
 # component list
 _EARTH_component_list_
 
@@ -108,6 +110,8 @@ WAV_attributes::
   Diagnostic = 0
   OverwriteSlice = false
   merge_import = .true.
+  mask_value_water = 1
+  mask_value_land = 0
 ::
 
 # The following are only used by the hycom ocean model. #
