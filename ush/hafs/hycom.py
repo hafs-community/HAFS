@@ -310,7 +310,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         basin=self.storminfo.pubbasin2
         nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-	if basin in ['AL', 'EP', 'CP']:
+        if basin in ['AL', 'EP', 'CP']:
             Application='nhc_basin'
        #elif basin=='AL':
        #    Application='hat10_basin'
