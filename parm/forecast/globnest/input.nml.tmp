@@ -236,9 +236,9 @@
   iau_drymassfixer = .false.
   lgfdlmprad     = .true.
   effr_in        = .true.
-  do_sppt        = .false.
-  do_shum        = .false.
-  do_skeb        = .false.
+  do_sppt        = @[do_sppt]
+  do_shum        = @[do_shum]
+  do_skeb        = @[do_skeb]
   lndp_type      = 0
   n_var_lndp     = 0
   do_ca          = .false.
@@ -361,6 +361,26 @@
 /
 
 &nam_stochy
+/
+&nam_stochy
+  skebnorm = 1
+  skeb_npass = 30
+  skeb_vdof = 5
+  skeb = 0.6,-999,-999,-999,-999
+  skeb_tau = 2.16e4,1.728e5,2.592e6,7.776e6,3.1536e7
+  skeb_lscale = 500.e3,1000.e3,2000.e3,2000.e3,2000.e3
+  shum = 0.003
+  shum_tau = 21600
+  shum_lscale = 500000
+  sppt = 0.4,0.2,0.1,0.04,0.02
+  sppt_tau = 2.16e4,2.592e5,2.592e6,7.776e6,3.1536e7
+  sppt_lscale = 500.e3,1000.e3,2000.e3,2000.e3,2000.e3
+  sppt_logit = .true.
+  sppt_sfclimit = .true.
+  use_zmtnblck = .true.
+  iseed_sppt = @[iseed_sppt1],@[iseed_sppt2],@[iseed_sppt3],@[iseed_sppt4],@[iseed_sppt5]
+  iseed_shum = @[iseed_shum1],@[iseed_shum2],@[iseed_shum3],@[iseed_shum4],@[iseed_shum5]
+  iseed_skeb = @[iseed_skeb1],@[iseed_skeb2],@[iseed_skeb3],@[iseed_skeb4],@[iseed_skeb5]
 /
 
 &nam_sfcperts

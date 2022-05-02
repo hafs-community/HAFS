@@ -101,6 +101,9 @@ if [ "${ENSDA}" != YES ]; then
   max_slope=${max_slope:-0.25}
   shal_cnv=${shal_cnv:-.true.}
   do_deep=${do_deep:-.true.}
+  do_sppt=${do_sppt:-.false.}
+  do_shum=${do_shum:-.false.}
+  do_skeb=${do_skeb:-.false.}
   npz=${npz:-64}
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
@@ -163,11 +166,36 @@ else
   max_slope=${max_slope_ens:-0.25}
   shal_cnv=${shal_cnv_ens:-.true.}
   do_deep=${do_deep_ens:-.true.}
+  do_sppt=${do_sppt_ens:-.false.}
+  do_shum=${do_shum_ens:-.false.}
+  do_skeb=${do_skeb_ens:-.false.}
   npz=${npz_ens:-64}
   output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
+fi
+
+iseed1=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+3}')
+iseed2=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+4}')
+iseed3=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+5}')
+iseed4=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+6}')
+iseed5=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+7}')
+
+if [ $do_sppt = .true. ]; then
+  iseed_sppt1=$iseed1; iseed_sppt2=$iseed2; iseed_sppt3=$iseed3; iseed_sppt4=$iseed4; iseed_sppt5=$iseed5
+else
+  iseed_sppt1=0; iseed_sppt2=0; iseed_sppt3=0; iseed_sppt4=0; iseed_sppt5=0
+fi
+if [ $do_shum = .true. ]; then
+  iseed_shum1=$iseed1; iseed_shum2=$iseed2; iseed_shum3=$iseed3; iseed_shum4=$iseed4; iseed_shum5=$iseed5
+else
+  iseed_shum1=0; iseed_shum2=0; iseed_shum3=0; iseed_shum4=0; iseed_shum5=0
+fi
+if [ $do_skeb = .true. ]; then
+  iseed_skeb1=$iseed1; iseed_skeb2=$iseed2; iseed_skeb3=$iseed3; iseed_skeb4=$iseed4; iseed_skeb5=$iseed5
+else
+  iseed_skeb1=0; iseed_skeb2=0; iseed_skeb3=0; iseed_skeb4=0; iseed_skeb5=0
 fi
 
 halo_blend=${halo_blend:-0}
