@@ -127,7 +127,7 @@ else
 # jstart_nest=${jstart_nest:-238}
 # iend_nest=${iend_nest:-1485}
 # jend_nest=${jend_nest:-1287}
-  deflate_level=${deflate_level:-1}
+  deflate_level=${deflate_level:--1}
   ccpp_suite_regional=${ccpp_suite_regional_ens:-FV3_HAFS_v1}
   ccpp_suite_glob=${ccpp_suite_glob_ens:-FV3_HAFS_v1}
   ccpp_suite_nest=${ccpp_suite_nest_ens:-FV3_HAFS_v1}
