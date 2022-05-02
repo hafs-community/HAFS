@@ -417,7 +417,7 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-if [[ -e ./hafs_sfc_climo_gen.x ]]; then
+if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
@@ -504,7 +504,7 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-if [[ -e ./hafs_sfc_climo_gen.x ]]; then
+if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
