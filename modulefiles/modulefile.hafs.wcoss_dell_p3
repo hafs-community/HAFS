@@ -18,7 +18,7 @@ module load cmake/3.20.0
 module load hpc-ips/18.0.5.274
 module load hpc-impi/18.0.1
 
-module load jasper/2.0.22
+module load jasper/2.0.25
 module load zlib/1.2.11
 module load png/1.6.35
 
@@ -43,14 +43,14 @@ module load mapl/2.11.0-esmf-8.3.0b09
 
 module load g2/3.4.3
 
-module load bufr/11.4.0
+module load bufr/11.6.0
 module load gfsio/1.4.1
 module load landsfcutil/2.4.1
 module load nemsiogfs/2.5.3
 module load sfcio/1.4.1
 module load sigio/2.3.2
 module load szip/2.1.1
-module load wrf_io/1.1.1
+module load wrf_io/1.2.0
 
 module load prod_util/1.2.2
 module load grib_util/1.2.2
