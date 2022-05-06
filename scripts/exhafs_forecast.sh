@@ -673,6 +673,18 @@ for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NCP} $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
+# Copy MERRA2 fix files
+if [ ${iaer:-111} = 1011 ]; then
+  for n in 01 02 03 04 05 06 07 08 09 10 11 12; do
+    ${NCP} ${FIXhafs}/fix_aer/merra2.aerclim.2003-2014.m${n}.nc aeroclim.m${n}.nc
+  done
+  ${NCP} ${FIXhafs}/fix_lut/optics_BC.v1_3.dat  optics_BC.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_OC.v1_3.dat  optics_OC.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_DU.v15_3.dat optics_DU.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_SS.v3_3.dat  optics_SS.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_SU.v1_3.dat  optics_SU.dat
+fi
+
 if [ $gtype = nest ]; then
 
 cd ./INPUT
