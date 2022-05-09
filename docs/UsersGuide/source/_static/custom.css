@@ -17,3 +17,12 @@ background-color: #aa6347;
 width: 100%;
 }
 */
+
+.underline {
+    text-decoration: underline;
+}
+
+.bolditalic {
+    font-weight: bold;
+    font-style: italic;
+}

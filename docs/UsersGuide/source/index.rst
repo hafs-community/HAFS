@@ -11,3 +11,14 @@ Welcome to the HAFS User's Guide
    :maxdepth: 3
 
    Introduction
+   GuidanceDocs
+   CodeManagement
+   RepositoryManagement
+   Prerequisites
+   Submodules
+   Workflow
+   Install
+   RegressionTest
+   BasicSteps
+   UsefulResources
+   CDEPS
