@@ -201,6 +201,15 @@ export do_shum={do_shum}
 export do_skeb={do_skeb}
 export npz={npz}
 
+export imp_physics={imp_physics}
+export iovr={iovr}
+export dt_inner={dt_inner}
+export dnats={dnats}
+export do_sat_adj={do_sat_adj}
+export lgfdlmprad={lgfdlmprad}
+export lsm={lsm}
+export ialb={ialb}
+export iems={iems}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
 export iaer={iaer}

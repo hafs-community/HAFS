@@ -685,6 +685,14 @@ if [ ${iaer:-111} = 1011 ]; then
   ${NCP} ${FIXhafs}/fix_lut/optics_SU.v1_3.dat  optics_SU.dat
 fi
 
+# Fix files for Thompson MP
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${FIXam}/qr_acr_qgV2.dat ./
+  ${NCP} ${FIXam}/qr_acr_qsV2.dat ./
+  ${NCP} ${FIXam}/CCN_ACTIVATE.BIN ./
+  ${NCP} ${FIXam}/freezeH2O.dat ./
+fi
+
 if [ $gtype = nest ]; then
 
 cd ./INPUT
@@ -729,7 +737,11 @@ cd ..
 # model_configure, and nems.configure
 #${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
-${NCP} ${PARMforecast}/field_table .
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+else
+  ${NCP} ${PARMforecast}/field_table .
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -895,7 +907,11 @@ cd ..
 # model_configure, and nems.configure
 #${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
-${NCP} ${PARMforecast}/field_table .
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+else
+  ${NCP} ${PARMforecast}/field_table .
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
