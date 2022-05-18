@@ -521,10 +521,13 @@ contains
     do m2 = 1, 2         ! looping on grid box edges
     do m = 1, nlon_out   ! looping on output longitudes
         blon = blon_out(m,m2)
-!-o        if ( blon < blon_in(1)         ) blon = blon + tpi
-        if ( blon < blon_in(1)         ) blon = blon - tpi
-!-o        if ( blon > blon_in(nlon_in+1) ) blon = blon - tpi
-        if ( blon > blon_in(nlon_in+1) ) blon = blon + tpi
+        if (blon < 0.0) then
+          if ( blon < blon_in(1)         ) blon = blon + tpi
+          if ( blon > blon_in(nlon_in+1) ) blon = blon - tpi
+        else
+          if ( blon < blon_in(1)         ) blon = blon - tpi 
+          if ( blon > blon_in(nlon_in+1) ) blon = blon + tpi 
+        endif
         eps = 0.0
     do iter=1,num_iters
   ! find indices from input longitudes
