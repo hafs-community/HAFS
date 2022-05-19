@@ -14,9 +14,9 @@ Welcome to the HAFS User's Guide
    GuidanceDocs
    CodeManagement
    RepositoryManagement
-   Prerequisites
    Submodules
    Workflow
+   Prerequisites
    Install
    RegressionTest
    BasicSteps
