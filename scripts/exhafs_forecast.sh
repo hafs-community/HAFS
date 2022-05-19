@@ -975,6 +975,10 @@ if [ ${run_ocean} = yes ];  then
   ${NCP} ${WORKhafs}/intercom/hycominit/forcing* .
   ${NLN} forcing.presur.a forcing.mslprs.a
   ${NLN} forcing.presur.b forcing.mslprs.b
+  # copy hycom limits
+  ${NCP} ${WORKhafs}/intercom/hycominit/limits .
+ ## create hycom limits
+ #${USHhafs}/hafs_hycom_limits.py ${CDATE}
   # copy fix
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
@@ -1000,8 +1004,7 @@ if [ ${run_ocean} = yes ];  then
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocn_tasks} patch.input
-  # create hycom limits
-  ${USHhafs}/hafs_hycom_limits.py ${CDATE}
+
 fi #if [ ${run_ocean} = yes ]; then
 
 if [ ${run_wave} = yes ]; then

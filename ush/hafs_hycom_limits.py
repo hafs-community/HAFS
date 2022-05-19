@@ -20,7 +20,7 @@ delta2 = d1-d_1900
 
 results=[]
 results.append(delta2.days+cycle_hr/24.0)
-results.append(delta2.days++cycle_hr/24.0+5.25)
+results.append(delta2.days+cycle_hr/24.0+5.25)
 results.append("false")
 results.append("false")
 
