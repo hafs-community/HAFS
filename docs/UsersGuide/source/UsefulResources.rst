@@ -8,11 +8,15 @@ Useful Resources
 - `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/ufs-v1.0.0/>`_
 - `CCPP Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v4.0/sci_doc/index.html>`_
 - `UFS-UTILS <https://github.com/NOAA-EMC/UFS_UTILS>`_ `chgres_cube documentation <https://ufs-utils.readthedocs.io/en/latest/>`_
-    - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`_
+
+  - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`_
+
 - `FV3-LAM/SRW Application Users Guide <https://drive.google.com/file/d/1I0P_Qcge62Vr_wdjiO1ufgB-zY2bvLBN/view?usp=sharing>`_
 - `UFS Short-Range Weather App Users Guide <https://ufs-srweather-app.readthedocs.io/en/ufs-v1.0.0/>`_
 - UPP (`EMC_post <https://github.com/NOAA-EMC/EMC_post/>`_)
-    - `How to add a new variable to the UPP <https://docs.google.com/document/d/1r2BQtAI33S_zCDh6Ko-aFW0kO79MYILspW31Bw4zE60/edit?usp=sharing>`_
+
+  - `How to add a new variable to the UPP <https://docs.google.com/document/d/1r2BQtAI33S_zCDh6Ko-aFW0kO79MYILspW31Bw4zE60/edit?usp=sharing>`_
+
 - `FV3 multinest presentation from GFDL <https://docs.google.com/presentation/d/1cgi8J1ZzVt1EqVyRR5tzhO223p9zHBoNHJ2UPcU5Hn8/edit?usp=sharing>`_
 - JCSDA JEDI Academy Slides: `Nov 2020 Academy Slides <http://academy.jcsda.org/nov2020/pages/slides.html>`_
 - The JEDI online documentation: `JEDI Online Docs <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`_
