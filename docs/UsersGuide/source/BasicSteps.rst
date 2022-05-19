@@ -8,8 +8,10 @@ Basic Steps Working with the HAFS Repository
 
 1. Fork the HAFS repository and clone the forked repository locally 
 2. Branch from the develop branch for new developments
-    a. Create a feature branch, add development, complete testing
-    b. Commit changes into the local branch and push the local branch to your personal fork
+
+  a. Create a feature branch, add development, complete testing
+  b. Commit changes into the local branch and push the local branch to your personal fork
+
 3. Submit a PR (Pull Request) to request a code review and merge with the authoritative HAFS repository
 
 ================================================================
@@ -76,9 +78,6 @@ Submit a pull request for inclusion into the authoritative HAFS repository
 To propose changes for inclusion into the authoritative HAFS repository, you need to create a pull request. 
 
 1. Navigate to https://github.com/hafs-community/HAFS and click on 'new pull request'
-
 2. Select 'compare across forks', set base repository to 'hafs-community/HAFS', base to 'develop', head repository to 'YOUR_GITHUB_USERNAME/HAFS', compare to 'feature/mybranch'
-
 3. Add a descriptive title and short description in the text boxes
-
 4. If this were a real development, you would now click on 'Create pull request'
