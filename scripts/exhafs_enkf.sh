@@ -217,7 +217,7 @@ ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
 else # enkf_update
-  anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
+  anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 fi
 #${NCP} ${anavinfo} ./anavinfo
 sed -e "s/_LEV_/${npz:-64}/g" \

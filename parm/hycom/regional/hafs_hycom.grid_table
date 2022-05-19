@@ -8,3 +8,4 @@ hin40_basin	navy_0.08	basin		rtofs_glo	 712 331 41	   4113 1568 1 880
 hsn50_basin	navy_0.08	basin		rtofs_glo	1215  567 41	   3968  909 1 890
 hsp60_basin	navy_0.08	basin		rtofs_glo	1313  566 41	     11  909 1 900
 hcp70_basin	navy_0.08	basin		rtofs_glo	876   476 41	   1074 1568 1 900
+nhc_basin 	navy_0.08	basin	        rtofs_glo	2413  937 41       1349 1209 1 600

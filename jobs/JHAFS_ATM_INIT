@@ -135,6 +135,10 @@ date
 #===============================================================================
 # post
 
+export TOTAL_TASKS=120
+export OMP_NUM_THREADS=1
+source ${USHhafs}/hafs_runcmd.sh.inc
+
 if [ ${ENSDA} = YES ]; then
   export ENSID=${ENSID:-001}
   export INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
