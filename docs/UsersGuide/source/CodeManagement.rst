@@ -11,6 +11,7 @@ Useful Code Management Related Materials
 - `UFS-weather-model development training presentation <https://docs.google.com/presentation/d/1dzR6PACdFwqzJc9J-9u4RIhkxNIV3jZrRLhV53Xs8us/edit?usp=sharing>`_ (11/04/2020)
 - `GitHub at EMC presentation <https://docs.google.com/presentation/d/16XIq0mniV1JjhrxGQ2E00mFpnzd_w9CUnpaY4_Ogi2E/edit?usp=sharing>`_ (01/14/2021)
 - More about GitFlow:
-    - `A successful Git branching model <https://nvie.com/posts/a-successful-git-branching-model/>`_ By Vincent Driessen
-    - `GitFlow at GitHub <https://github.com/nvie/gitflow>`_
-    - `GitFlow Examples <https://gitversion.readthedocs.io/en/latest/git-branching-strategies/gitflow-examples/>`_ from GitVersion
+
+  - `A successful Git branching model <https://nvie.com/posts/a-successful-git-branching-model/>`_ By Vincent Driessen
+  - `GitFlow at GitHub <https://github.com/nvie/gitflow>`_
+  - `GitFlow Examples <https://gitversion.readthedocs.io/en/latest/git-branching-strategies/gitflow-examples/>`_ from GitVersion
