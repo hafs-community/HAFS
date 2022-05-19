@@ -13,15 +13,16 @@ date
 #PYTHON3=/opt/intel/intelpython3/bin/python3
 
 # NOAA RDHPCS Jet
- HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/hafsv0p3e_20220429
+# HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/hafsv0p3e_20220429
  #dev="-s sites/xjet.ent -f"
- dev="-s sites/xjet_ensda_eps.ent -f"
- PYTHON3=/apps/intel/intelpython3/bin/python3
+# dev="-s sites/xjet_ensda_eps.ent -f"
+# PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
-#HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
-#dev="-s sites/orion.ent -f"
-#PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
+HOMEhafs=/work2/noaa/hurricane/save/${USER}/H222_ensemble
+ #dev="-s sites/orion.ent -f"
+dev="-s sites/orion_ensda_eps.ent -f"
+PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
 #HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
@@ -38,7 +39,10 @@ EXPT=$(basename ${HOMEhafs})
      ../parm/hafs_2022_regional_ensda_eps_AL.conf"
 
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082518 00L HISTORY ${confopts} \
-     config.NHRS=120 config.ENS_SIZE=20 config.scrub_work=no config.scrub_com=no
+     config.NHRS=120 config.ENS_SIZE=20 config.scrub_work=no config.scrub_com=no \
+     forecast.write_group=1 \
+     forecast.write_tasks_per_group=20 \
+
 
 #===============================================================================
 
