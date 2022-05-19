@@ -100,8 +100,14 @@ fi
 for ng in $(seq 1 ${ngrids});
 do
 
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
 gridstr=".grid$(printf '%02d' ${ng})"
-if grep "PROGRAM GETTRK   HAS ENDED" ./run_product${gridstr}.log ; then
+cat ./run_product${gridstr}.log
+if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
   echo "INFO: successfully ran run_product${gridstr}"
 else
   echo "ERROR: failed running run_product${gridstr}"

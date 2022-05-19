@@ -17,7 +17,7 @@
 !---------------------------------------------------------------------------------------------------------
 program create_trak_guess
   implicit none
-  character(len=2)      :: part1,num,basin
+  character(len=2)      :: part1,num,basin,storm_num
   character(len=3)      :: part2,storm_id
   character(len=1)      :: ns,ew
   integer               :: idat,ihour,ifh,lat,lon,ih,j,stat
@@ -33,6 +33,7 @@ program create_trak_guess
      call getarg(1, storm_id)
   endif
 
+  storm_num=storm_id(1:2)             !storm number from input argument
   if(storm_id(3:3).eq.'L') basin='AL'
   if(storm_id(3:3).eq.'W') basin='WP'
   if(storm_id(3:3).eq.'E') basin='EP'
@@ -51,7 +52,8 @@ program create_trak_guess
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
     if(ns.eq.'S')lat=-lat
     if(ew.eq.'E')lon=3600-lon
-    if(ifh.ge.3 .and. ifh.le.9) then ! We only need 3-,6-,9-h HAFS storm postion
+    !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
+    if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then 
       lathr(ifh-2)=lat
       lonhr(ifh-2)=lon
     end if
