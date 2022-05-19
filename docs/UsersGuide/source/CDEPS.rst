@@ -18,13 +18,13 @@ CDEPS has been added to HAFS under the Improve Workflow Usability, Portability, 
 Obtaining the Code
 ==================
 
-The HAFS-CDEPS capability is contained in the **feature/hafs_couplehycom_cdeps** branch of **hafs-community/HAFS**.
+The HAFS-CDEPS capability is contained in the **develop** branch of **hafs-community/HAFS**.
 
 To obtain the code:
 
 .. code-block:: console
 
-    git clone --recursive -b feature/hafs_couplehycom_cdeps https://github.com/hafs-community/HAFS
+    git clone --recursive -b develop https://github.com/hafs-community/HAFS
 
 ===========
 Data Access
