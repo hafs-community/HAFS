@@ -81,6 +81,35 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
      config.NHRS=6 ${scrubopt}
 
+ # Regional low-resolution static NATL basin-focused configuration with 3DEnVar with GDAS ensembles
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_da_C192s1n4_3denvar \
+     config.run_gsi=yes config.run_envar=yes \
+     gsi.use_bufr_nr=yes \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hafs_regional_da_C192s1n4.conf
+
+ # Regional storm-focused moving-nesting configuration with vortex initialization and domain 02 data assimilation
+ #   atm_init+atm_vi+fgat+d02_3denvar+anal_merge and cycling storm perturbation
+ ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_mvnest_vida \
+     config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
+     config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
+     config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
+     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
+     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
+     config.gsi_d01=no config.gsi_d02=yes \
+     config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
+     config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
+     vi.vi_storm_env=init \
+     atm_merge.atm_merge_method=vortexreplace analysis_merge.analysis_merge_method=vortexreplace \
+     config.NHRS=12 ${scrubopt} \
+     config.GRID_RATIO_ENS=2 \
+     gsi.use_bufr_nr=yes \
+     gsi.grid_ratio_fv3_regional=1 \
+     ../parm/hafsv0p3_regional_mvnest.conf \
+     ../parm/hafsv0p3_hycom.conf
+
 #===============================================================================
 
  # Global-nesting static NATL basin-focused configuration (atm-only)

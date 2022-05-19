@@ -186,12 +186,23 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BDD_/${DD}/ | \
                           sed s/_BHH_/${HH}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
-
+sleep 3
 # Run the vortex tracker gettrk.x
 cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
-#${APRUNS} ./hafs_gettrk.x < namelist.gettrk
-time ./hafs_gettrk.x < namelist.gettrk
+set +e
+set -o pipefail
+time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
+set +o pipefail
+set -e
+
+if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+  echo "INFO: exhafs_product has run the vortex tracker successfully"
+else
+  echo "ERROR: exhafs_product failed running vortex tracker"
+  echo "ERROR: exitting..."
+  exit 1
+fi
 
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
@@ -239,20 +250,23 @@ fi
 if [ ${COMOUTproduct} = ${COMhafs} ]; then
   # Deliver track file to NOSCRUB:
   mkdir -p ${CDNOSCRUB}/${SUBEXPT}
-  cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
+# cp -p ${COMhafs}/${all_atcfunix}.orig ${CDNOSCRUB}/${SUBEXPT}/.
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     cp -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
   if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ]; then
     cp -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
+  # Deliver patcf file to NOSCRUB:
+  if [ -s ${COMhafs}/${out_prefix}.hafs.trak.patcf ]; then
+    cp -p ${COMhafs}/${out_prefix}.hafs.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
 fi
 
 fi
+
 #===============================================================================
 
 cd ${DATA}
 
 echo "product job done"
-
-exit

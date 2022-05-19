@@ -17,16 +17,14 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  if [ "${machine}" = "hera" ]; then 
-    module unload intelpython 
-  fi
-  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
-  module unload intelpython
-  if [ "${machine}" = "wcoss_cray" ] || [ "${machine}" = "wcoss_dell_p3" ]; then
-    module load ufs_${machine}
-  else
-    module load ufs_${machine}.intel
-  fi
+ #module list
+ #module unload intelpython
+ #module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
+ #if [ "${machine}" = "wcoss_cray" ] || [ "${machine}" = "wcoss_dell_p3" ]; then 
+ #  module load ufs_${machine}
+ #else
+ #  module load ufs_${machine}.intel
+ #fi
   module list
 fi
 
@@ -137,6 +135,10 @@ date
 #===============================================================================
 # post
 
+export TOTAL_TASKS=120
+export OMP_NUM_THREADS=1
+source ${USHhafs}/hafs_runcmd.sh.inc
+
 if [ ${ENSDA} = YES ]; then
   export ENSID=${ENSID:-001}
   export INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
@@ -230,20 +232,43 @@ do
 if [[ $ng -eq 1 ]]; then
   neststr=""
   tilestr=".tile1"
-  gridstr=".grid$(printf "%02d" ${ng})"
 else
-  neststr=".nest$(printf "%02d" ${ng})"
-  tilestr=".tile$(printf "%d" ${ng})"
-  gridstr=".grid$(printf "%02d" ${ng})"
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
 fi
-
+gridstr=".grid$(printf '%02d' ${ng})"
 echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
 
 done
 
-${APRUNC} ${MPISERIAL} -m cmdfile_product
+chmod +x cmdfile_product
+if [ ${machine} = "wcoss_cray" ]; then
+  export OMP_NUM_THREADS=1
+  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
+  ${APRUNF} cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
 
-cat run_product*.log
+for ng in $(seq 1 ${ngrids});
+do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
+gridstr=".grid$(printf '%02d' ${ng})"
+cat ./run_product${gridstr}.log
+if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+  echo "INFO: successfully ran run_product${gridstr}"
+else
+  echo "ERROR: failed running run_product${gridstr}"
+  echo "ERROR: exitting..."
+  exit 1
+fi
+
+done
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

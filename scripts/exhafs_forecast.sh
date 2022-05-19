@@ -101,6 +101,9 @@ if [ "${ENSDA}" != YES ]; then
   max_slope=${max_slope:-0.25}
   shal_cnv=${shal_cnv:-.true.}
   do_deep=${do_deep:-.true.}
+  do_sppt=${do_sppt:-.false.}
+  do_shum=${do_shum:-.false.}
+  do_skeb=${do_skeb:-.false.}
   npz=${npz:-64}
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
@@ -124,7 +127,7 @@ else
 # jstart_nest=${jstart_nest:-238}
 # iend_nest=${iend_nest:-1485}
 # jend_nest=${jend_nest:-1287}
-  deflate_level=${deflate_level:-1}
+  deflate_level=${deflate_level:--1}
   ccpp_suite_regional=${ccpp_suite_regional_ens:-FV3_HAFS_v1}
   ccpp_suite_glob=${ccpp_suite_glob_ens:-FV3_HAFS_v1}
   ccpp_suite_nest=${ccpp_suite_nest_ens:-FV3_HAFS_v1}
@@ -163,11 +166,36 @@ else
   max_slope=${max_slope_ens:-0.25}
   shal_cnv=${shal_cnv_ens:-.true.}
   do_deep=${do_deep_ens:-.true.}
+  do_sppt=${do_sppt_ens:-.false.}
+  do_shum=${do_shum_ens:-.false.}
+  do_skeb=${do_skeb_ens:-.false.}
   npz=${npz_ens:-64}
   output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
+fi
+
+iseed1=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+3}')
+iseed2=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+4}')
+iseed3=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+5}')
+iseed4=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+6}')
+iseed5=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+7}')
+
+if [ $do_sppt = .true. ]; then
+  iseed_sppt1=$iseed1; iseed_sppt2=$iseed2; iseed_sppt3=$iseed3; iseed_sppt4=$iseed4; iseed_sppt5=$iseed5
+else
+  iseed_sppt1=0; iseed_sppt2=0; iseed_sppt3=0; iseed_sppt4=0; iseed_sppt5=0
+fi
+if [ $do_shum = .true. ]; then
+  iseed_shum1=$iseed1; iseed_shum2=$iseed2; iseed_shum3=$iseed3; iseed_shum4=$iseed4; iseed_shum5=$iseed5
+else
+  iseed_shum1=0; iseed_shum2=0; iseed_shum3=0; iseed_shum4=0; iseed_shum5=0
+fi
+if [ $do_skeb = .true. ]; then
+  iseed_skeb1=$iseed1; iseed_skeb2=$iseed2; iseed_skeb3=$iseed3; iseed_skeb4=$iseed4; iseed_skeb5=$iseed5
+else
+  iseed_skeb1=0; iseed_skeb2=0; iseed_skeb3=0; iseed_skeb4=0; iseed_skeb5=0
 fi
 
 halo_blend=${halo_blend:-0}
@@ -645,6 +673,26 @@ for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NCP} $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
+# Copy MERRA2 fix files
+if [ ${iaer:-111} = 1011 ]; then
+  for n in 01 02 03 04 05 06 07 08 09 10 11 12; do
+    ${NCP} ${FIXhafs}/fix_aer/merra2.aerclim.2003-2014.m${n}.nc aeroclim.m${n}.nc
+  done
+  ${NCP} ${FIXhafs}/fix_lut/optics_BC.v1_3.dat  optics_BC.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_OC.v1_3.dat  optics_OC.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_DU.v15_3.dat optics_DU.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_SS.v3_3.dat  optics_SS.dat
+  ${NCP} ${FIXhafs}/fix_lut/optics_SU.v1_3.dat  optics_SU.dat
+fi
+
+# Fix files for Thompson MP
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${FIXam}/qr_acr_qgV2.dat ./
+  ${NCP} ${FIXam}/qr_acr_qsV2.dat ./
+  ${NCP} ${FIXam}/CCN_ACTIVATE.BIN ./
+  ${NCP} ${FIXam}/freezeH2O.dat ./
+fi
+
 if [ $gtype = nest ]; then
 
 cd ./INPUT
@@ -689,7 +737,11 @@ cd ..
 # model_configure, and nems.configure
 #${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
-${NCP} ${PARMforecast}/field_table .
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+else
+  ${NCP} ${PARMforecast}/field_table .
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -832,17 +884,19 @@ if [ ${warmstart_from_restart} = yes ]; then
   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
-  ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
+# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
 # ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
 
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
-    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
-    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
+  # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
+  #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
+  #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
+  # fi
     ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
-    ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
+#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
 #   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   done
 fi
@@ -853,7 +907,11 @@ cd ..
 # model_configure, and nems.configure
 #${NCP} ${PARMforecast}/data_table .
 ${NCP} ${PARMforecast}/diag_table.tmp .
-${NCP} ${PARMforecast}/field_table .
+if [ ${imp_physics:-11} = 8 ]; then
+  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+else
+  ${NCP} ${PARMforecast}/field_table .
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -973,6 +1031,10 @@ if [ ${run_ocean} = yes ];  then
   ${NCP} ${WORKhafs}/intercom/hycominit/forcing* .
   ${NLN} forcing.presur.a forcing.mslprs.a
   ${NLN} forcing.presur.b forcing.mslprs.b
+  # copy hycom limits
+  ${NCP} ${WORKhafs}/intercom/hycominit/limits .
+ ## create hycom limits
+ #${USHhafs}/hafs_hycom_limits.py ${CDATE}
   # copy fix
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
   ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
@@ -998,8 +1060,7 @@ if [ ${run_ocean} = yes ];  then
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocn_tasks} patch.input
-  # create hycom limits
-  ${USHhafs}/hafs_hycom_limits.py ${CDATE}
+
 fi #if [ ${run_ocean} = yes ]; then
 
 if [ ${run_wave} = yes ]; then
@@ -1163,7 +1224,7 @@ FHMAX=${NHRS} DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
 QUILTING=${quilting} WRITE_GROUP=${write_groups} WRTTASK_PER_GROUP=${write_tasks_per_group}
 WRITE_DOPOST=${write_dopost:-.false.} OUTPUT_HISTORY=${output_history:-.true.}
-NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
+NUM_FILES=2 FILENAME_BASE="'atm' 'sfc'" OUTPUT_FILE="'netcdf' 'netcdf'"
 IDEFLATE=1 NBITS=0
 NFHOUT=3 NFHMAX_HF=-1 NFHOUT_HF=3 NSOUT=-1 OUTPUT_FH=-1
 
@@ -1285,11 +1346,10 @@ ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
-${APRUNC} ./hafs_forecast.x 1>out.forecast 2>err.forecast
-
-# Cat out and err into job log
-cat ./out.forecast
-cat ./err.forecast
+#${APRUNC} ./hafs_forecast.x 1>forecast.out 2>forecast.err
+set -o pipefail
+${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
+set +o pipefail
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

@@ -63,7 +63,7 @@ for file in *.xml; do
 
   # Check if rocoto completion task ran successfully or not
 
-  if [[ $if_complete == "1" ]]; then
+  if [ $if_complete == "1" ] || [ $if_complete == "2" ]; then
     echo "ROCOTO SAYS COMPLETION TASK SUCCEEDED"
   else
     echo "ROCOTO SAYS COMPLETION TASK DID NOT SUCCEED"
@@ -71,7 +71,7 @@ for file in *.xml; do
 
   # Check the post and product log files
 
-  if [[ $if_complete == "1" ]]; then
+  if [ $if_complete == "1" ] || [ $if_complete == "2" ]; then
     post_log=`cat ${HAFS_out}/${subexpt}/${storm_init}/${sid}/hafs_atm_post.log|grep "post job done"|tail -1`
     prod_log=`cat ${HAFS_out}/${subexpt}/${storm_init}/${sid}/hafs_product.log|grep "product job done"|tail -1`
     if [[ $post_log == "post job done" ]]; then
@@ -96,7 +96,7 @@ for file in *.xml; do
 
   # Check if everything passed
 
-  if [[ $if_complete == "1" ]]; then
+  if [ $if_complete == "1" ] || [ $if_complete == "2" ]; then
     if [[ -e ${storm1_done} && -e ${atcfunix} && -e ${hafsprs_synoptic} ]]; then
     if [[ $post_log == "post job done" ]]; then
     if [[ $prod_log == "product job done" ]]; then

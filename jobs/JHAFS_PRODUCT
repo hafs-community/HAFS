@@ -79,20 +79,43 @@ do
 if [[ $ng -eq 1 ]]; then
   neststr=""
   tilestr=".tile1"
-  gridstr=".grid$(printf "%02d" ${ng})"
 else
-  neststr=".nest$(printf "%02d" ${ng})"
-  tilestr=".tile$(printf "%d" ${ng})"
-  gridstr=".grid$(printf "%02d" ${ng})"
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
 fi
-
+gridstr=".grid$(printf '%02d' ${ng})"
 echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
 
 done
 
 chmod +x cmdfile_product
-${APRUNC} ${MPISERIAL} -m cmdfile_product
-cat run_product*.log
+if [ ${machine} = "wcoss_cray" ]; then
+  export OMP_NUM_THREADS=1
+  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
+  ${APRUNF} cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
+
+for ng in $(seq 1 ${ngrids});
+do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
+gridstr=".grid$(printf '%02d' ${ng})"
+cat ./run_product${gridstr}.log
+if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+  echo "INFO: successfully ran run_product${gridstr}"
+else
+  echo "ERROR: failed running run_product${gridstr}"
+  echo "ERROR: exitting..."
+  exit 1
+fi
+
+done
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

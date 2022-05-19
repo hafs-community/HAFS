@@ -275,8 +275,13 @@ if [ $netcdf_diag = ".true." ] ; then
 fi
 DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
 DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
-USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
-USE_CFP=${USE_CFP:-"NO"}
+if [ ${machine} = "wcoss_cray" ]; then
+  USE_MPISERIAL=${USE_MPISERIAL:-"NO"}
+  USE_CFP=${USE_CFP:-"YES"}
+else
+  USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
+  USE_CFP=${USE_CFP:-"NO"}
+fi
 CFP_MP=${CFP_MP:-"NO"}
 nm=""
 if [ $CFP_MP = "YES" ]; then
@@ -591,8 +596,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 
-${APRUNC} ./hafs_gsi.x 1> stdout 2>&1
-cat stdout
+set -o pipefail
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
+set +o pipefail
 
 ${NCP} -p ./stdout ${GSISOUT}
 
@@ -625,8 +631,10 @@ ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${til
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
 
 if [[ ! -z "$neststr" ]] ; then
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ fi
 fi
 
 # Pass over the grid_mspec files for moving nest

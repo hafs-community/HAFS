@@ -125,8 +125,8 @@
   !!--- get rot-ll grid
   allocate(glon(nx,ny), glat(nx,ny))
   do j = 1, ny; do i = 1, nx
-     rot_lon = lon2 - dlon*(i-1)
-     rot_lat = lat2 - dlat*(j-1)
+     rot_lon = lon1 + dlon*(i-1)
+     rot_lat = lat1 + dlat*(j-1)
      call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
   enddo; enddo
   write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
@@ -442,38 +442,28 @@
         !-----------------------------
         !---7.15 record 15: land                  ! =A101 = land sea mask, B101 = ZNT
         !---     hafs-VI/read_hafs_out.f90 land:long_name = "sea-land-ice mask (0-sea, 1-land, 2-ice)" ;
-        !--- oro_data.nc: land_frac
+        !--- sfc_data.nc: slmsk
         if ( nrecord == 15 ) then
-           allocate(dat4(ix, iy, 1,1))
-           call get_var_data(trim(infile_oro), 'land_frac', ix, iy, 1, 1, dat4)
-       
-           !--- convert frac to 0/1
            allocate(dat41(ix, iy, 1,1))
-           dat41=1.0
-           where ( dat4 < 0.50 ) dat41=0.0
-           deallocate(dat4)
+           call get_var_data(trim(infile_sfc), 'slmsk', ix, iy, 1, 1, dat41)
         endif
    
         !-----------------------------
         !---7.16 record 16: sfcr                  ! =B101 = Z0
         !---surface roughness
         if ( nrecord == 16 ) then
-           allocate(dat4(ix, iy, 1,1))
            allocate(dat41(ix, iy, 1,1))
            call get_var_data(trim(infile_sfc), 'zorl', ix, iy, 1, 1, dat41)
-           call get_var_data(trim(infile_sfc), 'zorll', ix, iy, 1, 1, dat4)
-
-           !--- combine zorl and zorll/100.
-           where(dat41>9000.)dat41=dat4/100.
-           deallocate(dat4)
+           ! convert from cm to m
+           dat41=dat41/100.
         endif
    
         !-----------------------------
         !---7.17 record 17: C101                  ! =C101 = (10m wind speed)/(level 1 wind speed)
-        !--- could set to 1.0 or 0.95
+        !---                                      ! =C101 = f10m (in the sfc_data.nc)
         if ( nrecord == 17 ) then
-           allocate(dat41(ix, iy, 1,1))
-           dat41=0.96 
+           allocate(dat41(ix, iy, 1, 1))
+           call get_var_data(trim(infile_sfc), 'f10m', ix, iy, 1, 1, dat41)
         endif
    
         !-----------------------------

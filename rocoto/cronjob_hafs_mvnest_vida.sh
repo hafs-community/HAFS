@@ -201,10 +201,33 @@ EXPT=$(basename ${HOMEhafs})
  ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 13L HISTORY ${confopts} \
      config.NHRS=12 config.scrub_work=no config.scrub_com=no
 
- # Storms to run: Laura13L2020, Ida09L2021, Sam18L2021
-#${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021082612-2021083012 09L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021092300-2021100500 18L HISTORY ${confopts}
+ # 2021 NATL Storms
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021052206-2021052318 01L HISTORY ${confopts} # Ana
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021061506-2021061518 02L HISTORY ${confopts} # Bill
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021061906-2021062200 03L HISTORY ${confopts} # Claudette
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021062818-2021062900 04L HISTORY ${confopts} # Danny
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021070100-2021070918 05L HISTORY ${confopts} # Elsa
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021080918-2021081700 06L HISTORY ${confopts} # Fred
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021081312-2021082112 07L HISTORY ${confopts} # Grace
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021081600-2021082300 08L HISTORY ${confopts} # Henri
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021082612-2021083012 09L HISTORY ${confopts} # Ida
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021083012-2021090112 10L HISTORY ${confopts} # Kate
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021082912-2021083000 11L HISTORY ${confopts} # Julian
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021083118-2021091106 12L HISTORY ${confopts} # Larry
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021090900-2021091000 13L HISTORY ${confopts} # Mindy
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021091218-2021091500 14L HISTORY ${confopts} # Nicholas
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021091718-2021091818 15L HISTORY ${confopts} # Odette part 1
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092112-2021092406 15L HISTORY ${confopts} # Odette part 2
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021091906-2021092100 16L HISTORY ${confopts} # Peter part 1
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092112-2021092818 16L HISTORY ${confopts} # Peter part 2
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021091918-2021092300 17L HISTORY ${confopts} # Rose
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092300-2021100500 18L HISTORY ${confopts} # Sam
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092418-2021092512 19L HISTORY ${confopts} # Teresa
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021092918-2021100412 20L HISTORY ${confopts} # Victor
+#${PYTHON3} ./run_hafs.py -t ${dev} 2021103100-2021110706 21L HISTORY ${confopts} # Wanda
+
+ # 2020 NATL storms
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts} # Laura
 
 #===============================================================================
 

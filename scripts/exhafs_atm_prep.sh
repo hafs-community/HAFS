@@ -263,8 +263,8 @@ if [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGSSH ................."
-  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >$DATA/orog.file1
+  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
 if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> orog.file1
 fi
@@ -417,7 +417,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
+  cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+fi
 $APRUNC ./hafs_sfc_climo_gen.x
 #$APRUNC $SFCCLIMOEXEC
 
@@ -502,7 +504,9 @@ EOF
 more ./fort.41
 
 #APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
-cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
+  cp -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+fi
 $APRUNC ./hafs_sfc_climo_gen.x
 #$APRUNC $SFCCLIMOEXEC
 

@@ -292,7 +292,10 @@ cp -p $ENKFEXEC ./enkf.x
 #  ${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
 #fi
 
-${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
+#${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
+set -o pipefail
+${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
+set +o pipefail
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile

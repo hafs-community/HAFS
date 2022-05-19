@@ -18,7 +18,7 @@ date
 #PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/hafsv0p3_20220316
+ HOMEhafs=/work/noaa/hwrf/save/${USER}/hafsv0p3_20220412
  dev="-s sites/orion.ent -f"
  PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
@@ -33,7 +33,7 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
 
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bd \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bp \
      forecast.restart_interval=240 \
      ../parm/hafsv0p3_regional_mvnest.conf \
      ../parm/hafsv0p3_hycom.conf"
@@ -68,7 +68,7 @@ EXPT=$(basename ${HOMEhafs})
 # 2020 NATL storms
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020051606-2020051918 01L HISTORY ${confopts} # Arthur
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020052700-2020052718 02L HISTORY ${confopts} # Bertha
-#${PYTHON3} ./run_hwrf.py -t ${dev} 2020060112-2020060812 03L HISTORY ${confhdob} # Cristobal hwrfdata_PROD2020HDOBS
+#${PYTHON3} ./run_hwrf.py -t ${dev} 2020060112-2020060812 03L HISTORY ${confopts} # Cristobal hwrfdata_PROD2020HDOBS
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020062112-2020062406 04L HISTORY ${confopts} # Dolly
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020070400-2020070612 05L HISTORY ${confopts} # Edouard
 #${PYTHON3} ./run_hwrf.py -t ${dev} 2020070912-2020071100 06L HISTORY ${confopts} # Fay

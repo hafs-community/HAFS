@@ -770,6 +770,9 @@
     <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
     <dependency>
       <and>
+@** if RUN_ATM_INIT==YES
+        <taskdep task="atm_init"/>
+@** endif
         <or>
           <taskdep task="atm_vi"/>
           <strneq><left>&RUN_ATM_VI;</left><right>YES</right></strneq>
@@ -1307,6 +1310,9 @@
       <envar><name>ENSID</name><value>#MEM#</value></envar>
       <dependency>
         <and>
+@** if RUN_ATM_INIT_ENS==YES
+          <taskdep task="atm_init_ens#MEM#"/>
+@** endif
           <or>
             <taskdep task="atm_vi_ens#MEM#"/>
             <strneq><left>&RUN_ATM_VI_ENS;</left><right>YES</right></strneq>

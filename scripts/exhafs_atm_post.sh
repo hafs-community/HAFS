@@ -101,13 +101,13 @@ if [[ $ng -eq 1 ]]; then
   nesttilestr=""
   nestdotstr=""
 else
-  neststr=".nest$(printf "%02d" ${ng})"
-  tilestr=".tile$(printf "%d" ${ng})"
-  nesttilestr=".nest$(printf "%02d" ${ng}).tile$(printf "%d" ${ng})"
-  nestdotstr=".nest$(printf "%02d" ${ng})."
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
+  nesttilestr=".nest$(printf '%02d' ${ng}).tile$(printf '%d' ${ng})"
+  nestdotstr=".nest$(printf '%02d' ${ng})."
 fi
 
-gridstr=".grid$(printf "%02d" ${ng})"
+gridstr=".grid$(printf '%02d' ${ng})"
 
 outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
 postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${ng})
@@ -121,6 +121,9 @@ sat_grb2file=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.grb2
 sat_grb2indx=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.grb2.idx
 trk_grb2file=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2
 trk_grb2indx=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2.ix
+
+fort_patcf="fort.6$(printf '%02d' ${ng})"
+trk_patcf=${out_prefix}.hafs.trak.patcf
 
 # Check if post has processed this forecast hour previously
 if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
@@ -245,7 +248,9 @@ fi
 # Run the post
 ${NCP} -p  ${POSTEXEC} ./hafs_post.x
 #ln -sf ${POSTEXEC} ./hafs_post.x
-${APRUNC} ./hafs_post.x < itag > outpost_${NEWDATE}
+set -o pipefail
+${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
+set +o pipefail
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
@@ -412,13 +417,19 @@ do
       echo "Skip combining ${file}"
     else
       rm -f ${file}
-     #echo ${MPPNCCOMBINE} -v -64 -r ${file} >> cmdfile_mppnccombine
-      echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
+      # Wait for file to be complete in case it is still being written
+      while [ $(( $(date +%s) - $(stat -c %Y ${file}.0000) )) -lt 20  ]; do sleep 10; done
+      echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
+     #echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
     fi
   fi
 done
 chmod +x cmdfile_mppnccombine
-${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+if [ ${machine} = "wcoss_cray" ]; then
+  ${APRUNF} cmdfile_mppnccombine
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+fi
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
@@ -432,14 +443,18 @@ if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ];
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 
-# Pass over the grid_mspec files for moving nest (useful for storm cycling)
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]] ; then
+  # Pass over the grid_mspec files for moving nest (useful for storm cycling)
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
     ${NCP} -p ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
   fi
+  # Deliver hafs.trak.patcf if exists
+  if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
+    ${NCP} -p ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
+  fi
 fi
 
-fi
+fi #if [ ${gtype} = regional ]; then
 
 # Write out the postdone message file
 echo 'done' > ${INPdir}/post${nestdotstr}f${FHR3}
