@@ -2073,8 +2073,7 @@
          END IF
       END DO
       END DO
-
-      if((pct_m+200.) .gt. psfc_obs1)beta=1.0
+      if(pct_m.gt.psfc_obs1)beta=1.0
 
       IF ( INITOPT > 0 )THEN
         beta=1.0
