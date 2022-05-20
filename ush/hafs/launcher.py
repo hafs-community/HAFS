@@ -1119,12 +1119,22 @@ class HAFSLauncher(HAFSConfig):
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
 
         tm03syndat=syndat-3 # vitals at tm03
+        # interpolate to get wmax and pmin at tm03
+        tm03syndat.wmax=int(round(oldsyndat.wmax+0.5*(syndat.wmax-oldsyndat.wmax)))
+        tm03syndat.wmax=max(min(tm03syndat.wmax, 99), 0)
+        tm03syndat.pmin=int(round(oldsyndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
+        tm03syndat.pmin=max(min(tm03syndat.pmin, 1100), 800)
         filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
         logger.info(filename+': write tm03 vitals here')
         with open(filename,'wt') as tmpvit:
             print(tm03syndat.as_tcvitals(), file=tmpvit)
 
         tp03syndat=syndat+3 # vitals at tp03
+        # extrapolate to get wmax and pmin at tp03
+        tp03syndat.wmax=int(round(syndat.wmax+0.5*(syndat.wmax-oldsyndat.wmax)))
+        tp03syndat.wmax=max(min(tp03syndat.wmax, 99), 0)
+        tp03syndat.pmin=int(round(syndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
+        tp03syndat.pmin=max(min(tp03syndat.pmin, 1100), 800)
         filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
         logger.info(filename+': write tp03 vitals here')
         with open(filename,'wt') as tmpvit:
