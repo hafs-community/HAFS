@@ -152,6 +152,7 @@ export grid_ratio_fv3_regional={grid_ratio_fv3_regional}
 export s_ens_h={s_ens_h}
 export s_ens_v={s_ens_v}
 export online_satbias={online_satbias}
+export l_both_fv3sar_gfs_ens={l_both_fv3sar_gfs_ens}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 

@@ -512,6 +512,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
+    -e "s/_L_BOTH_FV3SAR_GFS_ENS_/${l_both_fv3sar_gfs_ens:-.false.}/g" \
+    -e "s/_NENS_GFS_/${n_ens_gfs:-80}/g" \
+    -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------

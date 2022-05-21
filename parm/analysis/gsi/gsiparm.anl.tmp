@@ -243,6 +243,9 @@ SUPEROB_RADAR::
   nlon_ens=387,
   nlat_ens=777,
   write_ens_sprd=F,
+! l_both_fv3sar_gfs_ens=_L_BOTH_FV3SAR_GFS_ENS_,
+! n_ens_gfs=_NENS_GFS_,
+! n_ens_fv3sar=_NENS_FV3SAR_,
 /
 &RAPIDREFRESH_CLDSURF
   dfi_radar_latent_heat_time_period=30.0,
