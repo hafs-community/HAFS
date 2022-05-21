@@ -25,6 +25,9 @@ export RUN_ENSDA=${RUN_ENSDA:-NO}
 export ENSDA=${ENSDA:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
+export l_both_fv3sar_gfs_ens=${l_both_fv3sar_gfs_ens:-.false.}
+export n_ens_gfs=${n_ens_gfs:-80}
+export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
 
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
@@ -199,41 +202,16 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ./fv3_grid_spec
 if [ ${RUN_ENVAR} = "YES" ]; then
 
 export L_HYB_ENS=.true.
-if [ ${RUN_ENSDA} = "YES" ]; then
-  export N_ENS=${ENS_SIZE:-2}
-  export BETA_S0=${BETA_S0:-0.0}
-  export GRID_RATIO_ENS=${GRID_RATIO_ENS}
-  export REGIONAL_ENSEMBLE_OPTION=5
-  for mem in $(seq -f '%03g' 1 ${N_ENS})
-  do
-    #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
-    #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
-    #else
-      RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
-    #fi
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
-    if [ ! -s ./fv3_ens_grid_spec ]; then
-      ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
-    fi
-  done
-else
-  export N_ENS=80
-  export BETA_S0=${BETA_S0:-0.2}
-  export GRID_RATIO_ENS=1
-  export REGIONAL_ENSEMBLE_OPTION=1
-# Link ensemble members
+
+if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
+# Link gdas ensemble members
   mkdir -p ensemble_data
   ENKF_SUFFIX="s"
   GSUFFIX=${GSUFFIX:-.nemsio}
   fhrs="06"
   for fhh in $fhrs; do
   rm -f filelist${fhh}
-  for mem in $(seq -f '%03g' 1 ${N_ENS}); do
+  for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
     if [ $USE_GFS_NEMSIO = .true. ]; then
     if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
       ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
@@ -251,6 +229,45 @@ else
     echo "./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
   done
+fi
+
+if [ ${RUN_ENSDA} = "YES" ]; then
+  for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
+  do
+    #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
+    #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
+    #else
+      RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
+    #fi
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+    if [ ! -s ./fv3_ens_grid_spec ]; then
+      ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
+    fi
+  done
+fi
+
+if [ ${RUN_ENSDA} != "YES" ]; then
+  export N_ENS=${n_ens_gfs}
+  export BETA_S0=${BETA_S0:-0.2}
+  export GRID_RATIO_ENS=1
+  export REGIONAL_ENSEMBLE_OPTION=1
+elif [ ${RUN_ENSDA} = "YES" ]; then
+  if [ $l_both_fv3sar_gfs_ens = .false. ]; then
+    export N_ENS=${n_ens_fv3sar}
+    export BETA_S0=${BETA_S0:-0.0}
+    export GRID_RATIO_ENS=${GRID_RATIO_ENS}
+    export REGIONAL_ENSEMBLE_OPTION=5
+  elif [ $l_both_fv3sar_gfs_ens = .true. ]; then
+    export N_ENS=$((${n_ens_gfs} + ${n_ens_fv3sar}))
+    export BETA_S0=${BETA_S0:-0.0}
+    export GRID_RATIO_ENS=${GRID_RATIO_ENS}
+    export REGIONAL_ENSEMBLE_OPTION=5
+  fi
 fi
 
 fi # endif ${RUN_ENVAR}
@@ -588,6 +605,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
+    -e "s/_L_BOTH_FV3SAR_GFS_ENS_/${l_both_fv3sar_gfs_ens:-.false.}/g" \
+    -e "s/_NENS_GFS_/${n_ens_gfs:-80}/g" \
+    -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------

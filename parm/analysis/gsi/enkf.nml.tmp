@@ -114,5 +114,5 @@
 /
 
 &nam_fv3
-   fv3fixpath="./",nx_res=_nx_res_,ny_res=_ny_res_,ntiles=1,
+   fv3fixpath="./",nx_res=_nx_res_,ny_res=_ny_res_,ntiles=1,l_fv3reg_filecombined=.false.,
 /
