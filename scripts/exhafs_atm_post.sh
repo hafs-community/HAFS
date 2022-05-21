@@ -424,11 +424,16 @@ do
     fi
   fi
 done
+
+if [ -s cmdfile_mppnccombine ]; then
+
 chmod +x cmdfile_mppnccombine
 if [ ${machine} = "wcoss_cray" ]; then
   ${APRUNF} cmdfile_mppnccombine
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+fi
+
 fi
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
