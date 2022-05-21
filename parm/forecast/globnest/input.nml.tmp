@@ -4,6 +4,7 @@
   dycore_only = .false.
   avg_max_length = 3600.
   ccpp_suite = '@[ccpp_suite_nml]'
+  ignore_rst_cksum = .true.
 /
 
 &diag_manager_nml
@@ -40,6 +41,7 @@
 /
 
 &fv_core_nml
+  ignore_rst_cksum = .true.
   layout = @[layoutx_nml],@[layouty_nml]
   io_layout = @[io_layoutx_nml],@[io_layouty_nml]
   npx = @[npx_nml]

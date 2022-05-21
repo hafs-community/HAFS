@@ -10,12 +10,6 @@ export vi_ajust_intensity=${vi_adjust_intensity:-yes}
 export vi_ajust_size=${vi_adjust_size:-yes}
 export crfactor=${crfactor:-1.0}
 
-if [ ${vi_storm_modification} = yes ]; then
-  initopt=0
-else
-  initopt=1
-fi
-
 CDATE=${CDATE:-$YMDH}
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
@@ -68,6 +62,7 @@ else
   gesfhr=6
 fi
 
+basin=${pubbasin2:-AL}
 tcvital=${DATA}/tcvitals.vi
 vmax_vit=`cat ${tcvital} | cut -c68-69`
 
@@ -120,13 +115,21 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf ${tcvital} fort.11
   if [ -e ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ]; then
     ln -sf ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./trak.atcfunix.all
-    grep "^.., ${STORMID:0:2}," trak.atcfunix.all \
+    grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
     # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
+  # get vmax in kt then convert into m/s
+  vmax_guess=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51)
+  vmax_guess=${vmax_guess:-0}
+  vmax_guess=$( printf "%.0f" $(bc <<< "scale=6; ${vmax_guess}*0.514444") )
+  # calculate the abs difference
+  vdif_guess=$(( ${vmax_guess}-${vmax_vit} ))
+  vdif_guess="${vdif_guess#-}"
+
   ln -sf trak.atcfunix.tmp fort.12
   # output
   ln -sf ./trak.fnl.all fort.30
@@ -170,8 +173,28 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf storm_sym fort.23
 
   ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
-  basin=${pubbasin2:-AL}
-  initopt=${initopt:-0}
+  if [ ${vi_storm_modification} = auto ]; then
+    # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
+    if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $( printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15") ) ]]; then
+      initopt=0
+    else
+      initopt=1
+    fi
+  elif [ ${vi_storm_modification} = vmax_threshold ]; then
+    # Conduct storm modification only if vmax >= 30 m/s or vmax_vit > 30 m/s
+    if [[ ${vmax_guess} -ge 30 ]] || [[ ${vmax_vit} -ge 30 ]]; then
+      initopt=0
+    else
+      initopt=1
+    fi
+  elif [ ${vi_storm_modification} = no ]; then
+    initopt=1
+  elif [ ${vi_storm_modification} = yes ]; then
+    initopt=0
+  else
+    initopt=0
+  fi
+  initopt_guess=${initopt}
   echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
 
 fi
@@ -219,13 +242,21 @@ cd $DATA
   ln -sf ${tcvital} fort.11
   if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ]; then
     ln -sf ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ./trak.atcfunix.all
-    grep "^.., ${STORMID:0:2}," trak.atcfunix.all \
+    grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
     # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
+  # get vmax in kt then convert into m/s
+  vmax_init=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51)
+  vmax_init=${vmax_init:-0}
+  vmax_init=$( printf "%.0f" $(bc <<< "scale=6; ${vmax_init}*0.514444") )
+  # calculate the abs difference
+  vdif_init=$(( ${vmax_init}-${vmax_vit} ))
+  vdif_init="${vdif_init#-}"
+
   ln -sf trak.atcfunix.tmp fort.12
   # output
   ln -sf ./trak.fnl.all fort.30
@@ -277,8 +308,28 @@ cd $DATA
   ln -sf storm_sym fort.23
 
   ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
-  basin=${pubbasin2:-AL}
-  initopt=${initopt:-0}
+  if [ ${vi_storm_modification} = auto ]; then
+    # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
+    if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $( printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15") ) ]]; then
+      initopt=0
+    else
+      initopt=1
+    fi
+  elif [ ${vi_storm_modification} = vmax_threshold ]; then
+    # Conduct storm modification only if vmax >= 30 m/s or vmax_vit > 30 m/s
+    if [[ ${vmax_init} -ge 30 ]] || [[ ${vmax_vit} -ge 30 ]]; then
+      initopt=0
+    else
+      initopt=1
+    fi
+  elif [ ${vi_storm_modification} = no ]; then
+    initopt=1
+  elif [ ${vi_storm_modification} = yes ]; then
+    initopt=0
+  else
+    initopt=0
+  fi
+  initopt_init=${initopt}
   echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
 
 #===============================================================================
@@ -316,7 +367,6 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ln -sf storm_anl_bogus                        fort.56
 
   ln -sf ${EXEChafs}/hafs_vi_anl_bogus.x ./
-  basin=${pubbasin2:-AL}
   echo 6 ${basin} | ${APRUNS} ./hafs_vi_anl_bogus.x
   cp -p storm_anl_bogus storm_anl
 
@@ -326,8 +376,10 @@ else
   # anl_combine
   if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -s ../anl_pert_guess/storm_pert_new ] ; then
     pert=guess
+    initopt=${initopt_guess}
   else
     pert=init
+    initopt=${initopt_init}
   fi
   if [ $vi_storm_env = init ] ; then
     senv=init
@@ -359,9 +411,8 @@ else
   ln -sf storm_anl_combine             fort.56
 
   gesfhr=${gesfhr:-6}
-  basin=${pubbasin2:-AL}
   gfs_flag=${gfs_flag:-6}
-  initopt=${initopt:-0}
+
   ln -sf ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ${APRUNS} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
@@ -393,7 +444,6 @@ else
   # output
   ln -sf storm_anl_enhance                     fort.56
 
-  basin=${pubbasin2:-AL}
   iflag_cold=${iflag_cold:-0}
   ln -sf ${EXEChafs}/hafs_vi_anl_enhance.x ./
   echo 6 ${basin} ${iflag_cold} | ${APRUNS} ./hafs_vi_anl_enhance.x
