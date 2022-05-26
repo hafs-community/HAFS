@@ -250,6 +250,7 @@ export layouty_init={layouty_init}
 
 # ENSDA related items
 export ENS_SIZE={ENS_SIZE}
+export ENS_FCST_SIZE={ENS_FCST_SIZE}
 export GRID_RATIO_ENS={GRID_RATIO_ENS}
 export NHRS_ENS={NHRS_ENS}
 export NBDYHRS_ENS={NBDYHRS_ENS}

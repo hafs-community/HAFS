@@ -108,7 +108,12 @@ if [ "${ENSDA}" != YES ]; then
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
 else
-  NHRS=${NHRS_ENS:-6}
+# Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+    NHRS=${NHRS:-126}
+  else
+    NHRS=${NHRS_ENS:-6}
+  fi
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
@@ -633,6 +638,12 @@ if [ ${run_datm} = no ];  then
 if [ ! -d $INPdir ]; then
    echo "FATAL ERROR: Input data dir does not exist: $INPdir"
    exit 9
+fi
+
+# Link all the gfs_bndy files here for full forecast ensemble members, but the
+# hour 000 and hour 006 lbc files will be replaced below.
+if [ ${ENSDA} = YES ] && [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+  ${NLN} ${WORKhafs}/intercom/chgres/gfs_bndy.tile7.*.nc INPUT/
 fi
 
 ${NLN} ${INPdir}/*.nc INPUT/

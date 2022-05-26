@@ -7,7 +7,12 @@ NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
 
 if [ ${ENSDA} = YES ]; then
-  export NHRS=${NHRS_ENS:-126}
+# Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+    NHRS=${NHRS:-126}
+  else
+    NHRS=${NHRS_ENS:-6}
+  fi
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
