@@ -85,6 +85,9 @@ if [ "${ENSDA}" != YES ]; then
   glob_n_zs_filter=${glob_n_zs_filter:-1}
   glob_n_del2_weak=${glob_n_del2_weak:-20}
   glob_max_slope=${glob_max_slope:-0.25}
+  glob_rlmx=${glob_rlmx:-300.}
+  glob_elmx=${glob_elmx:-300.}
+  glob_sfc_rlm=${glob_sfc_rlm:-1}
   glob_shal_cnv=${glob_shal_cnv:-.true.}
   glob_do_deep=${glob_do_deep:-.true.}
   k_split=${k_split:-4}
@@ -99,6 +102,9 @@ if [ "${ENSDA}" != YES ]; then
   n_zs_filter=${n_zs_filter:-1}
   n_del2_weak=${n_del2_weak:-20}
   max_slope=${max_slope:-0.25}
+  rlmx=${rlmx:-300.}
+  elmx=${elmx:-300.}
+  sfc_rlm=${sfc_rlm:-1}
   shal_cnv=${shal_cnv:-.true.}
   do_deep=${do_deep:-.true.}
   do_sppt=${do_sppt:-.false.}
@@ -108,7 +114,12 @@ if [ "${ENSDA}" != YES ]; then
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
 else
-  NHRS=${NHRS_ENS:-6}
+# Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+    NHRS=${NHRS:-126}
+  else
+    NHRS=${NHRS_ENS:-6}
+  fi
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
@@ -150,6 +161,9 @@ else
   glob_n_zs_filter=${glob_n_zs_filter_ens:-1}
   glob_n_del2_weak=${glob_n_del2_weak_ens:-20}
   glob_max_slope=${glob_max_slope_ens:-0.25}
+  glob_rlmx=${glob_rlmx_ens:-300.}
+  glob_elmx=${glob_elmx_ens:-300.}
+  glob_sfc_rlm=${glob_sfc_rlm_ens:-1}
   glob_shal_cnv=${glob_shal_cnv_ens:-.true.}
   glob_do_deep=${glob_do_deep_ens:-.true.}
   k_split=${k_split_ens:-4}
@@ -164,6 +178,9 @@ else
   n_zs_filter=${n_zs_filter_ens:-1}
   n_del2_weak=${n_del2_weak_ens:-20}
   max_slope=${max_slope_ens:-0.25}
+  rlmx=${rlmx_ens:-300.}
+  elmx=${elmx_ens:-300.}
+  sfc_rlm=${sfc_rlm_ens:-1}
   shal_cnv=${shal_cnv_ens:-.true.}
   do_deep=${do_deep_ens:-.true.}
   do_sppt=${do_sppt_ens:-.false.}
@@ -635,6 +652,12 @@ if [ ! -d $INPdir ]; then
    exit 9
 fi
 
+# Link all the gfs_bndy files here for full forecast ensemble members, but the
+# hour 000 and hour 006 lbc files will be replaced below.
+if [ ${ENSDA} = YES ] && [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+  ${NLN} ${WORKhafs}/intercom/chgres/gfs_bndy.tile7.*.nc INPUT/
+fi
+
 ${NLN} ${INPdir}/*.nc INPUT/
 
 if [ ${run_init:-no} = yes ]; then
@@ -783,6 +806,9 @@ full_zs_filter_nml=${glob_full_zs_filter:-.true.}
 n_zs_filter_nml=${glob_n_zs_filter:-1}
 n_del2_weak_nml=${glob_n_del2_weak:-20}
 max_slope_nml=${glob_max_slope:-0.25}
+rlmx_nml=${glob_rlmx:-300.}
+elmx_nml=${glob_elmx:-300.}
+sfc_rlm_nml=${glob_sfc_rlm:-1}
 shal_cnv_nml=${glob_shal_cnv:-.true.}
 do_deep_nml=${glob_do_deep:-.true.}
 
@@ -984,6 +1010,9 @@ full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
 n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
 n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
 max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
+elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
+sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
 shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
 do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
@@ -1009,6 +1038,9 @@ do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+  rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
+  elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
+  sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
