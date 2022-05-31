@@ -9,3 +9,4 @@ hsn50_basin	 rtofs_glo	    hycom_hsn50		hsn50_basin
 hsp60_basin	 rtofs_glo	    hycom_hsp60		hsp60_basin
 hcp70_basin	 rtofs_glo	    hycom_hcp70		hcp70_basin
 nhc_basin        rtofs_glo  	    hycom_nhc      	nhc_basin
+jtnh_basin       rtofs_glo  	    hycom_jtnh      	jtnh_basin
