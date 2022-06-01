@@ -521,11 +521,13 @@ contains
     do m2 = 1, 2         ! looping on grid box edges
     do m = 1, nlon_out   ! looping on output longitudes
         blon = blon_out(m,m2)
-!-o        if ( blon < blon_in(1)         ) blon = blon + tpi
-        if ( blon < blon_in(1)         ) blon = blon - tpi
-!-o        if ( blon > blon_in(nlon_in+1) ) blon = blon - tpi
- !<-hsk may 2022       if ( blon > blon_in(nlon_in+1) ) blon = blon + tpi
-        if ( blon > blon_in(nlon_in+1) ) blon=blon - 2*pi
+        if (blon < 0.0) then
+          if ( blon < blon_in(1)         ) blon = blon + tpi
+          if ( blon > blon_in(nlon_in+1) ) blon = blon - tpi
+        else
+          if ( blon < blon_in(1)         ) blon = blon - tpi 
+          if ( blon > blon_in(nlon_in+1) ) blon = blon + tpi 
+        endif
         eps = 0.0
     do iter=1,num_iters
   ! find indices from input longitudes
@@ -545,10 +547,6 @@ contains
        eps  = epsilon(blon)*real(10**iter)
     enddo
      ! no match
-!     print *, &
-!        blon_out(m,m2)*57.2957795,blon*57.2957795, &
-!        blon_in(1)*57.2957795,blon_in(nlon_in+1)*57.2957795,eps, &
-!        Interp%ilon(m,m2),m2,m
        if ( Interp%ilon(m,m2) == 0 ) then
            print *, 'blon_out,blon,blon_in(1),blon_in(end),eps=',  &
               blon_out(m,m2),blon,blon_in(1),blon_in(nlon_in+1),eps
@@ -719,9 +717,8 @@ contains
     call horiz_interp_init_2 ( Interp, blon_in, blat_in,   &
                                blon_out, blat_out, verbose )
 
-!<-hsk May 2022
-!    call horiz_interp_base_2d ( Interp, data_in, data_out, &
-!                                verbose, mask_in, mask_out )
+    call horiz_interp_base_2d ( Interp, data_in, data_out, &
+                                verbose, mask_in, mask_out )
 
     call horiz_interp_end ( Interp )
 

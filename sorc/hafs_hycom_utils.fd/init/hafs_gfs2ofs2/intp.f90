@@ -511,13 +511,12 @@ timeloop: do m=1,ntime
 !
 !     Establish MRF mask (land=0,sea=1). 
 !
-!<-hsk May 2022
-!      print *,'--- Changing MRF mask'; call flush(6)
-!      call mask_mrf(82,intrp,trim(mrfnames(1)),kpds567(:,nmrf),mskfrac,nextrap_max,msk_in &
-! &      ,imsk_hycom,mskmrf_tmp,nextrap,mapflg,exhycom2d,eyhycom2d)
-!      if(nextrap>=nextrap_max) then
-!        print *,'ERROR: nextrap>=nextrap_max, nextrap=',nextrap,' nextrap_max=',nextrap_max
-!      endif
+      print *,'--- Changing MRF mask'; call flush(6)
+      call mask_mrf(82,intrp,trim(mrfnames(1)),kpds567(:,nmrf),mskfrac,nextrap_max,msk_in &
+ &      ,imsk_hycom,mskmrf_tmp,nextrap,mapflg,exhycom2d,eyhycom2d)
+      if(nextrap>=nextrap_max) then
+        print *,'ERROR: nextrap>=nextrap_max, nextrap=',nextrap,' nextrap_max=',nextrap_max
+      endif
     endif
 ! 
 !   Read MRF fluxes from GRIB
