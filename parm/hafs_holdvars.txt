@@ -60,6 +60,7 @@ export DATA={WORKhafs}
 export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
+export COMINhafs={COMINhafs}
 export COMgfs={COMgfs}
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
