@@ -51,6 +51,7 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 export run_init=yes
+
 if [ ${FGAT_MODEL} = gdas ]; then
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 # export out_prefix=$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')

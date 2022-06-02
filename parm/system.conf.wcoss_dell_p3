@@ -35,6 +35,8 @@ syndat=/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS
 #COMgfs=/gpfs/dell1/nco/ops/com/gfs/prod
 COMgfs=/gpfs/dell3/nco/storage/hurpara/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
+#COMINhafs=/gpfs/dell3/nco/storage/hurpara/hafs-input/COMGFSv16
 COMrtofs=/gpfs/dell3/nco/storage/hurpara/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics

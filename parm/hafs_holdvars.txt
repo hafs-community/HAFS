@@ -8,6 +8,8 @@ export TZ=UTC # Orion workaround
 export envir={ENV[envir|-prod]}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
+export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
+export RUN_ATM_MVNEST_ENS={RUN_ATM_MVNEST_ENS}
 export RUN_ATM_INIT={RUN_ATM_INIT}
 export RUN_ATM_INIT_FGAT={RUN_ATM_INIT_FGAT}
 export RUN_ATM_INIT_ENS={RUN_ATM_INIT_ENS}
@@ -60,6 +62,7 @@ export DATA={WORKhafs}
 export COMhafs={COMhafs}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
+export COMINhafs={COMINhafs}
 export COMgfs={COMgfs}
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
