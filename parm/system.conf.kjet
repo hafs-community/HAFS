@@ -34,6 +34,8 @@ syndat=/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
+#COMINhafs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 COMrtofs=/lfs4/HFIP/hwrf-data/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
