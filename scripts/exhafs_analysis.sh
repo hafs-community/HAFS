@@ -5,7 +5,7 @@ set -xe
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMINhafs=${COMINhafs:-${COMgfs}}
 export DONST=${DONST:-"NO"}
 export LEVS=${LEVS:-65}
 export use_bufr_nr=${use_bufr_nr:-no}
@@ -524,9 +524,15 @@ if [ -s ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr ]; then
   cat ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr >> prepbufr
 fi
 COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
+fi
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
+fi
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+fi
 
 fi #USE_SELECT
 
