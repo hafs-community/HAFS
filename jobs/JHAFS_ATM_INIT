@@ -260,7 +260,8 @@ else
 fi
 gridstr=".grid$(printf '%02d' ${ng})"
 cat ./run_product${gridstr}.log
-if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+#if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out ; then
   echo "INFO: successfully ran run_product${gridstr}"
 else
   echo "ERROR: failed running run_product${gridstr}"
