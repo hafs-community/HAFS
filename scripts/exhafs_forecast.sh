@@ -253,8 +253,6 @@ if [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_init
   #warm_start_opt=1
-  # Set is_moving_nest to .false. since it only run one time step forecast
-  is_moving_nest=".false.,.false."
 fi
 if [ ${RUN_ATM_MERGE} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_merge/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
