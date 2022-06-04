@@ -351,6 +351,9 @@
     <dependency>
       <and>
         <taskdep task="atm_ic"/>
+@**   if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@**   endif
       </and>
     </dependency>
   </task>
@@ -375,6 +378,9 @@
     <dependency>
       <and>
         <taskdep task="atm_ic_fgat#FGAT_HR#"/>
+@**   if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@**   endif
       </and>
     </dependency>
   </task>
@@ -826,9 +832,6 @@
       <and>
 @**   if RUN_DATM==YES
         <taskdep task="atm_prep"/>
-@**   endif
-@**   if RUN_ATM_MVNEST==YES
-        <taskdep task="atm_prep_mvnest"/>
 @**   endif
 @**   if RUN_DOCN==YES
         <taskdep task="ocn_prep"/>

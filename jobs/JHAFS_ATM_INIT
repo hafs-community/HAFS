@@ -51,8 +51,6 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 export run_init=yes
-# Set is_moving_nest to .false. since it only run one time step forecast
-export is_moving_nest=".false.,.false."
 
 if [ ${FGAT_MODEL} = gdas ]; then
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
