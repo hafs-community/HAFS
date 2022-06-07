@@ -50,6 +50,7 @@
 &structinfo
   structflag = "n",
   ikeflag = "n",
+  radii_pctile=95.0
 /
 
 &fnameinfo
@@ -72,40 +73,69 @@
   per_fcst_command = "./deliver.sh %[FHOUR]",
 /
 
-&netcdflist
-  netcdfinfo%lat_name = "",
-  netcdfinfo%lmaskname = "",
-  netcdfinfo%lon_name = "",
-  netcdfinfo%mslpname = "",
-  netcdfinfo%netcdf_filename = "",
-  netcdfinfo%num_netcdf_vars = 0,
-  netcdfinfo%rv700name = "",
-  netcdfinfo%rv850name = "",
-  netcdfinfo%time_name = "",
-  netcdfinfo%time_units = "",
-  netcdfinfo%tmean_300_500_name = "",
-  netcdfinfo%u500name = "",
-  netcdfinfo%u700name = "",
-  netcdfinfo%u850name = "",
-  netcdfinfo%usfcname = "",
-  netcdfinfo%v500name = "",
-  netcdfinfo%v700name = "",
-  netcdfinfo%v850name = "",
-  netcdfinfo%vsfcname = "",
-  netcdfinfo%z200name = "",
-  netcdfinfo%z300name = "",
-  netcdfinfo%z350name = "",
-  netcdfinfo%z400name = "",
-  netcdfinfo%z450name = "",
-  netcdfinfo%z500name = "",
-  netcdfinfo%z550name = "",
-  netcdfinfo%z600name = "",
-  netcdfinfo%z650name = "",
-  netcdfinfo%z700name = "",
-  netcdfinfo%z750name = "",
-  netcdfinfo%z800name = "",
-  netcdfinfo%z850name = "",
-  netcdfinfo%z900name = "",
+&netcdflist 
+  netcdfinfo%num_netcdf_vars=,
+  netcdfinfo%netcdf_filename='',
+  netcdfinfo%rv850name='',
+  netcdfinfo%rv700name='',
+  netcdfinfo%u850name='',
+  netcdfinfo%v850name='',
+  netcdfinfo%u700name='',
+  netcdfinfo%v700name='',
+  netcdfinfo%z850name='',
+  netcdfinfo%z700name='',
+  netcdfinfo%mslpname='',
+  netcdfinfo%usfcname='',
+  netcdfinfo%vsfcname='',
+  netcdfinfo%u500name='',
+  netcdfinfo%v500name='',
+  netcdfinfo%u200name='',
+  netcdfinfo%v200name='',
+  netcdfinfo%tmean_300_500_name='',
+  netcdfinfo%z500name='',
+  netcdfinfo%z200name='',
+  netcdfinfo%lmaskname='',
+  netcdfinfo%z900name='',
+  netcdfinfo%z850name='',
+  netcdfinfo%z800name='',
+  netcdfinfo%z750name='',
+  netcdfinfo%z700name='',
+  netcdfinfo%z650name='',
+  netcdfinfo%z600name='',
+  netcdfinfo%z550name='',
+  netcdfinfo%z500name='',
+  netcdfinfo%z450name='',
+  netcdfinfo%z400name='',
+  netcdfinfo%z350name='',
+  netcdfinfo%z300name='',
+  netcdfinfo%time_name='',
+  netcdfinfo%lon_name='',
+  netcdfinfo%lat_name='',
+  netcdfinfo%time_units='',
+  netcdfinfo%sstname='',
+  netcdfinfo%q850name='',
+  netcdfinfo%rh1000name='',
+  netcdfinfo%rh925name='',
+  netcdfinfo%rh800name='',
+  netcdfinfo%rh750name='',
+  netcdfinfo%rh700name='',
+  netcdfinfo%rh650name='',
+  netcdfinfo%rh600name='',
+  netcdfinfo%spfh1000name='',
+  netcdfinfo%spfh925name='',
+  netcdfinfo%spfh800name='',
+  netcdfinfo%spfh750name='',
+  netcdfinfo%spfh700name='',
+  netcdfinfo%spfh650name='',
+  netcdfinfo%spfh600name='',
+  netcdfinfo%temp1000name='',
+  netcdfinfo%temp925name='',
+  netcdfinfo%temp800name='',
+  netcdfinfo%temp750name='',
+  netcdfinfo%temp700name='',
+  netcdfinfo%temp650name='',
+  netcdfinfo%temp600name='',
+  netcdfinfo%omega500name=''
 /
 
 &parmpreflist
@@ -128,3 +158,15 @@
   verb_g2 = 0,
 /
 
+&sheardiaginfo
+  shearflag='y'
+/
+
+&sstdiaginfo
+  sstflag='n'
+/
+
+&gendiaginfo
+  genflag='n',
+  gen_read_rh_fields=''
+/

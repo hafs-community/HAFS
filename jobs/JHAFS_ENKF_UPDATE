@@ -17,8 +17,8 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  module load modulefile.ProdGSI.${machine}
+ #module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+ #module load modulefile.ProdGSI.${machine}
   module list
 fi
 

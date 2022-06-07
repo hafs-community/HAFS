@@ -201,7 +201,8 @@ time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
 set +o pipefail
 set -e
 
-if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+#if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+if grep "top of output_all" ./hafs_gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
 else
   echo "ERROR: exhafs_product failed running vortex tracker"
