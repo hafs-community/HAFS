@@ -11,7 +11,6 @@ Useful Resources
 
   - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`_
 
-- `FV3-LAM/SRW Application Users Guide <https://drive.google.com/file/d/1I0P_Qcge62Vr_wdjiO1ufgB-zY2bvLBN/view?usp=sharing>`_
 - `UFS Short-Range Weather App Users Guide <https://ufs-srweather-app.readthedocs.io/en/ufs-v1.0.0/>`_
 - UPP (`EMC_post <https://github.com/NOAA-EMC/EMC_post/>`_)
 
