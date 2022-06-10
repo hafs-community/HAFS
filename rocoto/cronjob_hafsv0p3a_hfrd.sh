@@ -85,7 +85,7 @@ EXPT=$(basename ${HOMEhafs})
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020083112-2020090318 16L HISTORY ${confopts} # Nana
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020090612-2020091612 17L HISTORY ${confopts} # Paulette part1
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020091806-2020091818 17L HISTORY ${confopts} # Paulette part2
-#${PYTHON3} ./run_hafs.py -t ${dev} 2020091906-2020092318 17L HISTORY ${confopts} # Paulette part3
+#${PYTHON3} ./run_hafs.py -t ${dev} 2020091906-2020092300 17L HISTORY ${confopts} # Paulette part3
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020090700-2020091412 18L HISTORY ${confopts} # Rene
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020091112-2020091618 19L HISTORY ${confopts} # Sally
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020091212-2020092306 20L HISTORY ${confopts} # Teddy
