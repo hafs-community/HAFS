@@ -122,19 +122,23 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Link and run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-set -o pipefail
+#set -o pipefail
 ${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
-set +o pipefail
+#set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.hafs.tempdrop.prepbufr
+  if [ -s ./tempdrop.prepbufr ]; then
+    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.hafs.tempdrop.prepbufr
+  fi
 fi
 
 # Deliver to intercom
 mkdir -p ${intercom}
-${NCP} -p ./tempdrop.prepbufr ${intercom}/hafs.tempdrop.prepbufr
+if [ -s ./tempdrop.prepbufr ]; then
+  ${NCP} -p ./tempdrop.prepbufr ${intercom}/hafs.tempdrop.prepbufr
+fi
 
 fi # end if [ -s ./tempdrop.filelist ]; then
 
