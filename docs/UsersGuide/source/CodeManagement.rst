@@ -14,4 +14,4 @@ Useful Code Management Related Materials
 
   - `A successful Git branching model <https://nvie.com/posts/a-successful-git-branching-model/>`_ By Vincent Driessen
   - `GitFlow at GitHub <https://github.com/nvie/gitflow>`_
-  - `GitFlow Examples <https://gitversion.readthedocs.io/en/latest/git-branching-strategies/gitflow-examples/>`_ from GitVersion
+  - `GitFlow Examples <https://gitversion.net/docs/>`_ from GitVersion
