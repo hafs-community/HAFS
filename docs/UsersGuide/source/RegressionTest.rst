@@ -23,3 +23,9 @@ Add the driver script in your cron tasks or simply run the driver script
 .. code-block:: console
 
     ./cronjob_hafs_rt.sh
+
+Run the following script to check whether the regression tests finished succesfully or not
+
+.. code-block:: console
+
+    ./hafs_rt_status.sh
