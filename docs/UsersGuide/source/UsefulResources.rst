@@ -14,7 +14,7 @@ Useful Resources
 - `UFS Short-Range Weather App Users Guide <https://ufs-srweather-app.readthedocs.io/en/ufs-v1.0.0/>`_
 - UPP (`EMC_post <https://github.com/NOAA-EMC/EMC_post/>`_)
 
-  - `How to add a new variable to the UPP <https://docs.google.com/document/d/1r2BQtAI33S_zCDh6Ko-aFW0kO79MYILspW31Bw4zE60/edit?usp=sharing>`_
+  - `UPP Documentation <https://upp.readthedocs.io/en/latest/index.html>`_
 
 - `FV3 multinest presentation from GFDL <https://docs.google.com/presentation/d/1cgi8J1ZzVt1EqVyRR5tzhO223p9zHBoNHJ2UPcU5Hn8/edit?usp=sharing>`_
 - JCSDA JEDI Academy Slides: `Nov 2020 Academy Slides <http://academy.jcsda.org/nov2020/pages/slides.html>`_
