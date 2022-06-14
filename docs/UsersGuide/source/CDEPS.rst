@@ -219,6 +219,6 @@ For a run that couples DOCN to the UFS Weather Model, the only variable that mus
 
 .. rubric:: Footnotes
 
-.. [#] https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview
+.. [#] https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels
 .. [#] https://www.ncdc.noaa.gov/oisst/optimum-interpolation-sea-surface-temperature-oisst-v21
 .. [#] https://www.ghrsst.org/about-ghrsst/overview/
