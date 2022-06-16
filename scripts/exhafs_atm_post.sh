@@ -312,7 +312,13 @@ if [ ${satpost} = .true. ]; then
 echo ${WGRIB2} ${sat_grb2post}                                             ${opts} -new_grid ${postgridspecs} ${sat_grb2file} >> cmdfile
 fi
 chmod +x cmdfile
-${APRUNC} ${MPISERIAL} -m cmdfile
+if [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile
+else
+   ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -435,6 +441,10 @@ if [ -s cmdfile_mppnccombine ]; then
 chmod +x cmdfile_mppnccombine
 if [ ${machine} = "wcoss_cray" ]; then
   ${APRUNF} cmdfile_mppnccombine
+elif [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_mppnccombine
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
 fi

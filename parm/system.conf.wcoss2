@@ -36,6 +36,7 @@ syndat=/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS
 #COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
 COMgfs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
 #COMrtofs=/lfs/h1/ops/prod/com/rtofs/v2.2
 COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}

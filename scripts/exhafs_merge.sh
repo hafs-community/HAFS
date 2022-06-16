@@ -84,6 +84,10 @@ done
 chmod +x cmdfile_datool_merge
 if [ ${machine} = "wcoss_cray" ]; then
   time ./cmdfile_datool_merge
+elif  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
 fi
@@ -126,6 +130,10 @@ done
 chmod +x cmdfile_datool_merge.step1
 if [ ${machine} = "wcoss_cray" ]; then
   time ./cmdfile_datool_merge.step1
+elif  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
@@ -158,6 +166,10 @@ done
 chmod +x cmdfile_datool_merge.step1
 if [ ${machine} = "wcoss_cray" ]; then
   time ./cmdfile_datool_merge.step1
+elif  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
@@ -193,6 +205,10 @@ done
 chmod +x cmdfile_datool_merge.step2
 if [ ${machine} = "wcoss_cray" ]; then
   time ./cmdfile_datool_merge.step2
+elif [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step2 | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step2
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
 fi
@@ -218,6 +234,10 @@ done
 chmod +x cmdfile_datool_merge.step3
 if [ ${machine} = "wcoss_cray" ]; then
   time ./cmdfile_datool_merge.step3
+elif [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step3 | wc -l)
+   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step3
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
 fi
