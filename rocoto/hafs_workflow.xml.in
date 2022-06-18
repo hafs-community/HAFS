@@ -98,6 +98,8 @@
   <!ENTITY ENS_SIZE "@[ENS_SIZE]">
   <!ENTITY ENSIDS "@[ENSIDS]">
 
+  <!ENTITY ENS "@[ENS]">
+
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
   <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
@@ -277,6 +279,7 @@
         <!-- Second dependency: the GFS output must be available -->
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
+@** if ENS==99
         <and>
 @** if GFSVER==PROD2019
           <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio</cyclestr></datadep>
@@ -287,6 +290,21 @@
           <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.sfcanl.nc</cyclestr></datadep>
 @** endif
         </and>
+@** endif
+@** if ENS!=99
+@** if ENS==00
+        <and>
+          <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gec&ENS;.t@Hz.pgrb2af00</cyclestr></datadep>
+          <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gec&ENS;.t@Hz.pgrb2bf00</cyclestr></datadep>
+        </and>
+@** endif
+@** if ENS!=00
+        <and>
+          <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2af00</cyclestr></datadep>
+          <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2bf00</cyclestr></datadep>
+        </and>
+@** endif
+@** endif
       </and>
     </dependency>
   </task>
@@ -591,6 +609,7 @@
           <!-- Second dependency: the GFS output must be available -->
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
+@** if ENS==99
           <or>
 @** if GFSVER==PROD2019
             <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
@@ -601,6 +620,21 @@
             <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
 @** endif
           </or>
+@** endif
+@** if ENS!=99
+@** if ENS==00
+          <and>
+            <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gec&ENS;.t@Hz.pgrb2af126</cyclestr></datadep>
+            <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gec&ENS;.t@Hz.pgrb2bf126</cyclestr></datadep>
+          </and>
+@** endif
+@** if ENS!=00
+          <and>
+            <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2af126</cyclestr></datadep>
+            <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2bf126</cyclestr></datadep>
+          </and>
+@** endif
+@** endif
         </and>
       </dependency>
     </task>

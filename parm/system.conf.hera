@@ -33,6 +33,8 @@ syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMgfs_ocean=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
+COMINgfs_ocean={COMgfs_ocean}
 COMINhafs={COMINgfs}
 #COMINhafs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFSv2

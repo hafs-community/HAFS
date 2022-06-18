@@ -29,6 +29,7 @@ WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
+ENS=${ENS:-99}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
@@ -72,20 +73,36 @@ fi
 if [ ${ENSDA} = YES ]; then
  CDUMP=gdas                   # gfs or gdas
 else
- CDUMP=gfs                   # gfs or gdas
+   if [ $ENS -eq 99 ] ; then
+      CDUMP=gfs               # gfs or gdas
+   else
+      if [ $ENS -eq 00 ] ; then
+      CDUMP=gec${ENS}
+      else
+      CDUMP=gep${ENS}
+   fi
+   fi
 fi
 
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
  else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    if [ ${ENS} -eq 99 ] ; then
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    else
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+    fi
  fi
 elif [ $GFSVER = "PROD2019" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/mem${ENSID}
  else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+    if [ ${ENS} -eq 99 ] ; then
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    else
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+    fi
  fi
 else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc
@@ -101,6 +118,12 @@ FHRI=${FHRI:-${NBDYHRS}}
 
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
+
+if [ $FHR -le 99 ] ; then
+FHRGEFS=$( printf "%02d" "$FHR" )
+else
+FHRGEFS=$( printf "%03d" "$FHR" )
+fi
 
 # Loop for forecast hours
 while [ $FHR -le ${FHRE} ];
@@ -189,6 +212,26 @@ elif [ $bctype = "gfsgrib2_0p50" ]; then
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2ab_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2abf${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
 elif [ $bctype = "gfsgrib2_1p00" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
@@ -225,6 +268,9 @@ if [ $input_type = "grib2" ]; then
     cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
     #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+  elif [ $bctype = gefsgrib2ab_0p50 ]; then
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2bf${FHRGEFS} > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
     ln -sf ${INIDIR}/${grib2_file_input_grid} ./
     #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
@@ -258,6 +304,7 @@ if [ $gtype = regional ]; then
  if [ $nest_grids -gt 1 ]; then
    ln -sf $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
  fi
+
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
  orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
  convert_atm=.true.

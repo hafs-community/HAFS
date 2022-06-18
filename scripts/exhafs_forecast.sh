@@ -2,6 +2,8 @@
 
 set -xe
 
+ENS=${ENS:-99}
+
 NCP=${NCP:-'/bin/cp'}
 NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
@@ -193,11 +195,19 @@ else
   output_grid_dlat=${output_grid_dlat_ens}
 fi
 
+if [ ${ENSDA} = "YES" ]; then
 iseed1=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+3}')
 iseed2=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+4}')
 iseed3=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+5}')
 iseed4=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+6}')
 iseed5=$(echo $CDATE $ENSID |awk '{print $1*1000+$2*10+7}')
+else
+iseed1=$(echo $CDATE $ENS |awk '{print $1*1000+$2*10+3}')
+iseed2=$(echo $CDATE $ENS |awk '{print $1*1000+$2*10+4}')
+iseed3=$(echo $CDATE $ENS |awk '{print $1*1000+$2*10+5}')
+iseed4=$(echo $CDATE $ENS |awk '{print $1*1000+$2*10+6}')
+iseed5=$(echo $CDATE $ENS |awk '{print $1*1000+$2*10+7}')
+fi
 
 if [ $do_sppt = .true. ]; then
   iseed_sppt1=$iseed1; iseed_sppt2=$iseed2; iseed_sppt3=$iseed3; iseed_sppt4=$iseed4; iseed_sppt5=$iseed5

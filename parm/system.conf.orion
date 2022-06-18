@@ -33,6 +33,8 @@ syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMgfs_ocean=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
+COMINgfs_ocean={COMgfs_ocean}
 COMINhafs={COMINgfs}
 #COMINhafs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2

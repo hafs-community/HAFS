@@ -64,6 +64,8 @@ export COMIN={COMIN}
 export COMOUT={COMOUT}
 export COMINhafs={COMINhafs}
 export COMgfs={COMgfs}
+export COMgfs_ocean={COMgfs_ocean}
+export ENS={ENS}
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
 

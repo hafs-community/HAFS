@@ -12,8 +12,6 @@ NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 
-nest_grids=${nest_grids:-1}
-
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
 STORM=${STORM:-FAKE}
@@ -31,8 +29,7 @@ WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
-FGAT_MODEL=${FGAT_MODEL:-gfs}
-FGAT_HR=${FGAT_HR:-00}
+ENS=${ENS:-99}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
@@ -71,18 +68,22 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
- elif [ ${FGAT_MODEL} = gdas ]; then
-  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}/atmos
  else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    if [ ${ENS} -eq 99 ] ; then
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    else
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+    fi
  fi
 elif [ $GFSVER = "PROD2019" ]; then
  if [ ${ENSDA} = YES ]; then
   export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${ENSID}
- elif [ ${FGAT_MODEL} = gdas ]; then
-  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}
  else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+    if [ ${ENS} -eq 99 ] ; then
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    else
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+    fi
  fi
 else
   export INIDIR=${COMgfs}/gfs.$PDY/$cyc
@@ -102,16 +103,22 @@ ln -sf ${GRID_intercom}/${CASE}/* ./
 cd $DATA
 
 FHR3="000"
-CDUMP=gfs                   # gfs or gdas
+FHRGEFS="00"
+if [ $ENS -eq 99 ] ; then
+CDUMP=gfs               # gfs or gdas
+else
+if [ $ENS -eq 00 ] ; then
+CDUMP=gec${ENS}
+else
+CDUMP=gep${ENS}
+fi
+fi
 
 # Use gfs netcdf files from GFSv16
 if [ $ictype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nc
-  elif [ ${FGAT_MODEL} = gdas ]; then
-    atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
-    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nc
   else
     atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
     sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
@@ -127,9 +134,6 @@ elif [ $ictype = "gfsnemsio" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nemsio
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nemsio
-  elif [ ${FGAT_MODEL} = gdas ]; then
-    atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nemsio
-    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nemsio
   else
     atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
     sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
@@ -180,6 +184,26 @@ elif [ $ictype = "gfsgrib2_0p50" ]; then
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2ab_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2abf${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
 elif [ $ictype = "gfsgrib2_1p00" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
@@ -190,6 +214,7 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
+
 else
   echo "FATAL ERROR: unsupportted input data type yet."
   exit 1
@@ -201,6 +226,9 @@ if [ $input_type = "grib2" ]; then
     cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
     #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+  elif [ $bctype = gefsgrib2ab_0p50 ]; then
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2bf${FHRGEFS} > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
     ln -sf ${INIDIR}/${grib2_file_input_grid} ./
     #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
@@ -208,10 +236,6 @@ if [ $input_type = "grib2" ]; then
   INPDIR="./"
 else
   if [ ${ENSDA} = YES ]; then
-   ln -sf ${INIDIR}/${atm_files_input_grid} ./
-   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
-   INPDIR="./"
-  elif [ ${FGAT_MODEL} = gdas ]; then
    ln -sf ${INIDIR}/${atm_files_input_grid} ./
    ln -sf ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"
@@ -357,28 +381,16 @@ else
   exit 9
 fi
 
-# For the global-nesting or regional-nesting configurations, run for the nested tile(s)
-if [ $gtype = nest -o $nest_grids -gt 1 ];  then
-
-ntiles=$(( ${nest_grids} + 6 ))
-
-if [ $gtype = regional ]; then
-  stile=8
-else
-  stile=7
-fi
-
-for itile in $(seq $stile $ntiles)
-do
-
- inest=$(($itile + 2 - $stile))
+# For the global-nesting configuration, run for the 7th tile
+if [ $gtype = nest ];  then
 
  ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
- ln -sf $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+
+ ln -sf $FIXDIR/$CASE/${CASE}_nested_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
  export GRIDTYPE=nest
- HALO=0
+ HALO=${HALO:-0}
  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
- orog_files_target_grid='"'${CASE}'_oro_data.tile'${itile}'.nc"'
+ orog_files_target_grid='"'${CASE}'_oro_data.tile7.nc"'
  convert_atm=.true.
  convert_sfc=.true.
  if [ $input_type = "grib2" ]; then
@@ -428,10 +440,8 @@ EOF
 ${APRUNC} ./hafs_chgres_cube.x
 #${APRUNC} ${CHGRESCUBEEXEC}
 
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
-
-done
+mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
+mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
 
 fi
 
