@@ -19,15 +19,15 @@ date
 # PYTHON3=/apps/intel/intelpython3/bin/python3
 
 # MSU Orion
-HOMEhafs=/work2/noaa/hurricane/save/${USER}/H222_ensemble
+#HOMEhafs=/work2/noaa/hurricane/save/${USER}/H222_ensemble
  #dev="-s sites/orion.ent -f"
-dev="-s sites/orion_ensda_eps.ent -f"
-PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
+#dev="-s sites/orion_ensda_eps.ent -f"
+#PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/hafsv0.3_ensda_eps
+dev="-s sites/hera_ensda_eps.ent -f"
+PYTHON3=/apps/intel/intelpython3/bin/python3
 
 cd ${HOMEhafs}/rocoto
 
