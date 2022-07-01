@@ -54,6 +54,7 @@ export SFCCLIMOEXEC=${EXEChafs}/hafs_sfc_climo_gen.x
 export MAKEGRIDSSH=${USHhafs}/hafs_make_grid.sh
 export MAKEOROGSSH=${USHhafs}/hafs_make_orog.sh
 export FILTERTOPOSSH=${USHhafs}/hafs_filter_topo.sh
+export STORMCENTERPY=${USHhafs}/GFDLgrid-stormcenter.py
 
 export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
 export script_dir=${USHhafs}
@@ -102,8 +103,11 @@ else
   exit 1
 fi
 
+
 #----------------------------------------------------------------
-# Make grid and orography
+#----------------------------------------------------------------
+#----------------------------------------------------------------
+# MAKE GRID AND OROGRAPHY
 
 export grid_dir=$DATA/grid
 export orog_dir=$DATA/orog
@@ -115,6 +119,10 @@ elif [ $gtype = nest ] || [ $gtype = regional ] ;  then
 fi
 mkdir -p $grid_dir $orog_dir $filter_dir
 
+
+#----------------------------------------------------------------
+#----------------------------------------------------------------
+# uniform or stretched global grid
 if [ $gtype = uniform ] || [ $gtype = stretch ] ;  then
   export ntiles=6
   date
@@ -146,6 +154,11 @@ fi
   echo "............ execute $FILTERTOPOSSH .............."
   $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
   echo "Grid and orography files are now prepared"
+
+
+#----------------------------------------------------------------
+#----------------------------------------------------------------
+# nested grid
 elif [ $gtype = nest ]; then
   export ntiles=$((6 + ${nest_grids}))
   date
@@ -179,59 +192,33 @@ fi
   date
   echo "Grid and orography files are now prepared"
 
+
+#----------------------------------------------------------------
+#----------------------------------------------------------------
 # regional grid with nests
-elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
+#elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
+elif [ "${gtype}" == "regional" ]; then
 
-  export ntiles=$((6 + ${nest_grids}))
-  echo "............ execute $MAKEGRIDSSH ................."
-  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
-  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
-       $nest_grids \
-       "$parent_tile" \
-       "$refine_ratio" \
-       "$istart_nest" \
-       "$jstart_nest" \
-       "$iend_nest" \
-       "$jend_nest" \
-       $halo $script_dir
-  date
-  echo "............ execute $MAKEOROGSSH ................."
-  # Run multiple tiles simulatneously for the orography
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  for itile in $(seq 8 $ntiles)
-  do
-    echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  done
-if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
-  echo 'wait' >> orog.file1
-fi
-  chmod u+x $DATA/orog.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  ${APRUNF} $DATA/orog.file1
-  wait
-  #rm $DATA/orog.file1
-  date
-  echo "Grid and orography files are now prepared"
-
-fi
-
-if [ $gtype = regional ]; then
-  # We are now creating only 1 tile and it is tile 7
+  #----------------------------------------------------------------
+  # Create Tile 7 (parent domain) halo.
+  echo "............ Creating/preparing the halo for Tile 7 .............."
   export ntiles=1
   tile=7
 
-  # number of parent points
-  iend_nest=`echo $iend_nest | cut -d , -f 1`
-  istart_nest=`echo $istart_nest | cut -d , -f 1`
-  jend_nest=`echo $jend_nest | cut -d , -f 1`
-  jstart_nest=`echo $jstart_nest | cut -d , -f 1`
-  refine_ratio=`echo $refine_ratio | cut -d , -f 1`
+  # Tile 7 grid locations and refinement ratio
+  iend_nest_t7=`echo $iend_nest | cut -d , -f 1`
+  istart_nest_t7=`echo $istart_nest | cut -d , -f 1`
+  jend_nest_t7=`echo $jend_nest | cut -d , -f 1`
+  jstart_nest_t7=`echo $jstart_nest | cut -d , -f 1`
+  refine_ratio_t7=`echo $refine_ratio | cut -d , -f 1`
 
-  nptsx=`expr $iend_nest - $istart_nest + 1`
-  nptsy=`expr $jend_nest - $jstart_nest + 1`
+  # number of Tile 7 grid points
+  nptsx=`expr $iend_nest_t7 - $istart_nest_t7 + 1`
+  nptsy=`expr $jend_nest_t7 - $jstart_nest_t7 + 1`
+
   # number of compute grid points
-  npts_cgx=`expr $nptsx  \* $refine_ratio / 2`
-  npts_cgy=`expr $nptsy  \* $refine_ratio / 2`
+  npts_cgx=`expr $nptsx  \* $refine_ratio_t7 / 2`
+  npts_cgy=`expr $nptsy  \* $refine_ratio_t7 / 2`
  
   # figure out how many columns/rows to add in each direction so we have at least 5 halo points
   # for make_hgrid and the orography program
@@ -240,22 +227,22 @@ if [ $gtype = regional ]; then
   while (test "$index" -le "0")
   do
     add_subtract_value=`expr $add_subtract_value + 1`
-    iend_nest_halo=`expr $iend_nest + $add_subtract_value`
-    istart_nest_halo=`expr $istart_nest - $add_subtract_value`
+    iend_nest_halo=`expr $iend_nest_t7 + $add_subtract_value`
+    istart_nest_halo=`expr $istart_nest_t7 - $add_subtract_value`
     newpoints_i=`expr $iend_nest_halo - $istart_nest_halo + 1`
-    newpoints_cg_i=`expr $newpoints_i  \* $refine_ratio / 2`
+    newpoints_cg_i=`expr $newpoints_i  \* $refine_ratio_t7 / 2`
     diff=`expr $newpoints_cg_i - $npts_cgx`
     if [ $diff -ge 10 ]; then 
       index=`expr $index + 1`
     fi
   done
-  jend_nest_halo=`expr $jend_nest + $add_subtract_value`
-  jstart_nest_halo=`expr $jstart_nest - $add_subtract_value`
+  jend_nest_halo=`expr $jend_nest_t7 + $add_subtract_value`
+  jstart_nest_halo=`expr $jstart_nest_t7 - $add_subtract_value`
 
   echo "================================================================================== "
-  echo "For refine_ratio= $refine_ratio" 
-  echo " iend_nest= $iend_nest iend_nest_halo= $iend_nest_halo istart_nest= $istart_nest istart_nest_halo= $istart_nest_halo"
-  echo " jend_nest= $jend_nest jend_nest_halo= $jend_nest_halo jstart_nest= $jstart_nest jstart_nest_halo= $jstart_nest_halo"
+  echo "For refine_ratio= $refine_ratio_t7" 
+  echo " iend_nest= $iend_nest_t7 iend_nest_halo= $iend_nest_halo istart_nest= $istart_nest_t7 istart_nest_halo= $istart_nest_halo"
+  echo " jend_nest= $jend_nest_t7 jend_nest_halo= $jend_nest_halo jstart_nest= $jstart_nest_t7 jstart_nest_halo= $jstart_nest_halo"
   echo "================================================================================== "
 
   echo "............ execute $MAKEGRIDSSH ................."
@@ -317,9 +304,185 @@ fi
   cp $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo0}.nc
 
   echo "Grid and orography files are now prepared"
+  echo "............ Finished preparing Tile 7 halo ................."
+  #----------------------------------------------------------------
+
+
+  #----------------------------------------------------------------
+  # If necessary, update i/j locations for Tile 8
+
+  # Check if Tile 8 i/j locations should be computed here
+  istart_nest_t8=`echo $istart_nest | cut -d , -f 2`
+  iend_nest_t8=`echo $iend_nest | cut -d , -f 2`
+  jstart_nest_t8=`echo $jstart_nest | cut -d , -f 2`
+  jend_nest_t8=`echo $jend_nest | cut -d , -f 2`
+
+  if [ "${istart_nest_t8}" == "-999" ] || [ "${iend_nest_t8}" == "-999" ] || \
+     [ "${jstart_nest_t8}" == "-999" ] || [ "${jend_nest_t8}" == "-999" ]; then
+
+    # Find i/j for the TC center
+    GRIDFILE="${out_dir}/${CASE}_grid.tile${tile}.halo${halo0}.nc"
+    STORMCENTEROUT="${WORKhafs}/atm_prep/gfdlcentergr.txt"
+    TMPVIT="${WORKhafs}/tmpvit"
+
+    source /work2/noaa/aoml-hafs1/galaka/gus-toolbox/conda/load_conda.miniconda3_v397.GPLOT_20220614.sh
+
+    python3 ${STORMCENTERPY} ${STORMID} ${CDATE} ${GRIDFILE} ${TMPVIT} ${STORMCENTEROUT}
+    if [ ! -f ${STORMCENTEROUT} ]; then
+        echo "ERROR! Could not find the storm center file --> ${STORMCENTEROUT}. Can't proceed."
+        exit 1
+    fi
+
+    # Read i/j for the TC center
+    npx_t7="`echo ${npx} | cut -d',' -f1`"
+    icen_nest_t8="`cat ${STORMCENTEROUT} | awk '{$1=$1};1' | cut -d' ' -f1`"
+    #icen_nest_t8_sw=$(( ( 2 * npx_t7 ) + 1 - icen_nest_t8))
+
+    npy_t7="`echo ${npy} | cut -d',' -f1`"
+    jcen_nest_t8="`cat ${STORMCENTEROUT} | awk '{$1=$1};1' | cut -d' ' -f2`"
+    #jcen_nest_t8_sw=$(( ( 2 * npy_t7 ) + 1 - jcen_nest_t8))
+
+    refine_ratio_t8=`echo $refine_ratio | cut -d , -f 2`
+
+    # Calculate istart/iend    
+    npx_t8="`echo ${npx} | cut -d',' -f2`"
+    ispan=$(( ( npx_t8 - 1 ) * 2 / refine_ratio_t8 ))
+    istart_nest_t8=$(( icen_nest_t8 - ( ispan / 2 ) ))
+    iend_nest_t8=$(( icen_nest_t8 + ( ispan / 2 ) ))
+    if [ $((iend_nest_t8 - istart_nest_t8)) -ne $((ispan-1)) ]; then
+        istart_nest_t8=$((istart_nest_t8 + ( iend_nest_t8 - istart_nest_t8 - ispan ) ))
+    fi
+    if [ $((istart_nest_t8%2)) -eq 0 ]; then
+        istart_nest_t8=$(( istart_nest_t8 + 1))
+    fi
+    if [ $((iend_nest_t8%2)) -eq 1 ]; then
+        iend_nest_t8=$(( iend_nest_t8 + 1))
+    fi
+    #istart_nest_t8_sw=$(( icen_nest_t8_sw - ( ispan / 2 ) ))
+    #iend_nest_t8_sw=$(( icen_nest_t8_sw + ( ispan / 2 ) ))
+    #if [ $((iend_nest_t8_sw - istart_nest_t8_sw)) -ne $((ispan-1)) ]; then
+    #    istart_nest_t8_sw=$((istart_nest_t8_sw + ( iend_nest_t8_sw - istart_nest_t8_sw - ispan ) ))
+    #fi
+    #if [ $((istart_nest_t8_sw%2)) -eq 0 ]; then
+    #    istart_nest_t8_sw=$(( istart_nest_t8_sw + 1))
+    #fi
+    #if [ $((iend_nest_t8_sw%2)) -eq 1 ]; then
+    #    iend_nest_t8_sw=$(( iend_nest_t8_sw + 1))
+    #fi
+
+    # Calculate jstart/jend
+    npy_t8="`echo ${npy} | cut -d',' -f2`"
+    jspan=$(( ( npy_t8 - 1 ) * 2 / refine_ratio_t8 ))
+    jstart_nest_t8=$(( jcen_nest_t8 - ( jspan / 2 ) ))
+    jend_nest_t8=$(( jcen_nest_t8 + ( jspan / 2 ) ))
+    if [ $((jend_nest_t8 - jstart_nest_t8)) -ne $((jspan-1)) ]; then
+        jstart_nest_t8=$((jstart_nest_t8 + ( jend_nest_t8 - jstart_nest_t8 - jspan ) ))
+    fi
+    if [ $((jstart_nest_t8%2)) -eq 0 ]; then
+        jstart_nest_t8=$(( jstart_nest_t8 + 1))
+    fi
+    if [ $((jend_nest_t8%2)) -eq 1 ]; then
+        jend_nest_t8=$(( jend_nest_t8 + 1))
+    fi
+    #jstart_nest_t8_sw=$(( jcen_nest_t8_sw - ( jspan / 2 ) ))
+    #jend_nest_t8_sw=$(( jcen_nest_t8_sw + ( jspan / 2 ) ))
+    #if [ $((jend_nest_t8_sw - jstart_nest_t8_sw)) -ne $((jspan-1)) ]; then
+    #    jstart_nest_t8_sw=$((jstart_nest_t8_sw + ( jend_nest_t8_sw - jstart_nest_t8_sw - jspan ) ))
+    #fi
+    #if [ $((jstart_nest_t8_sw%2)) -eq 0 ]; then
+    #    jstart_nest_t8_sw=$(( jstart_nest_t8_sw + 1))
+    #fi
+    #if [ $((jend_nest_t8_sw%2)) -eq 1 ]; then
+    #    jend_nest_t8_sw=$(( jend_nest_t8_sw + 1))
+    #fi
+
+    # Update comma-separated i/j variables
+    istart_nest="`echo ${istart_nest} | cut -d',' -f1`,${istart_nest_t8}"
+    iend_nest="`echo ${iend_nest} | cut -d',' -f1`,${iend_nest_t8}"
+    jstart_nest="`echo ${jstart_nest} | cut -d',' -f1`,${jstart_nest_t8}"
+    jend_nest="`echo ${jend_nest} | cut -d',' -f1`,${jend_nest_t8}"
+    #istart_nest_sw="`echo ${istart_nest} | cut -d',' -f1`,${istart_nest_t8_sw}"
+    #iend_nest_sw="`echo ${iend_nest} | cut -d',' -f1`,${iend_nest_t8_sw}"
+    #jstart_nest_sw="`echo ${jstart_nest} | cut -d',' -f1`,${jstart_nest_t8_sw}"
+    #jend_nest_sw="`echo ${jend_nest} | cut -d',' -f1`,${jend_nest_t8_sw}"
+
+    # Update storm1.conf and storm1.holdvars.txt for future tasks
+    sed -i -e 's/^istart_nest = [0-9]\{3,4\},-999$/istart_nest = '${istart_nest}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^iend_nest = [0-9]\{3,4\},-999$/iend_nest = '${iend_nest}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^jstart_nest = [0-9]\{3,4\},-999$/jstart_nest = '${jstart_nest}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^jend_nest = [0-9]\{3,4\},-999$/jend_nest = '${jend_nest}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^export istart_nest=[0-9]\{3,4\},-999$/export istart_nest='${istart_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export iend_nest=[0-9]\{3,4\},-999$/export iend_nest='${iend_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export jstart_nest=[0-9]\{3,4\},-999$/export jstart_nest='${jstart_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export jend_nest=[0-9]\{3,4\},-999$/export jend_nest='${jend_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export istart_nest_ens=[0-9]\{3,4\},-999$/export istart_nest_ens='${istart_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export iend_nest_ens=[0-9]\{3,4\},-999$/export iend_nest_ens='${iend_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export jstart_nest_ens=[0-9]\{3,4\},-999$/export jstart_nest_ens='${jstart_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export jend_nest_ens=[0-9]\{3,4\},-999$/export jend_nest_ens='${jend_nest}'/g' ${COMhafs}/storm1.holdvars.txt
+
+    # Get storm center from vitals and update storm1.conf/storm1.holdvars.txt for future tasks
+    tclat=echo "`awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev` / 10" | bc -l | xargs printf "%.1f\n"
+    if [ "$(awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c1)" == "S" ]; then
+        tclat=$(( tclat * -1 ))
+    fi
+    tclon=echo "`awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev` / 10" | bc -l | xargs printf "%.1f\n"
+    if [ "$(awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c1)" == "W" ]; then
+        tclon=$(( tclon * -1 ))
+    fi
+    sed -i -e 's/^output_grid_cen_lon = {domlon},*$/output_grid_cen_lon = {domlon},'${tclon}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^output_grid_cen_lat = {domlat},*$/output_grid_cen_lat = {domlat},'${tclat}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^output_grid_cen_lon=*,*$/output_grid_cen_lon='${target_lon}','${tclon}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^output_grid_cen_lat=*,*$/output_grid_cen_lat='${target_lat}','${tclat}'/g' ${COMhafs}/storm1.holdvars.txt
+
+  fi
+  #----------------------------------------------------------------
+
+
+  #----------------------------------------------------------------
+  # Create Tile 7 and Tile 8
+  if [ ${nest_grids} -gt 1 ]; then
+    export ntiles=$((6 + ${nest_grids}))
+
+    echo "================================================================================== "
+    echo "For refine_ratio= $refine_ratio"
+    echo " iend_nest= $iend_nest istart_nest= $istart_nest"
+    echo " jend_nest= $jend_nest jstart_nest= $jstart_nest"
+    echo "================================================================================== "
+ 
+    echo "............ execute $MAKEGRIDSSH ................."
+    #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
+    ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
+         $nest_grids \
+         "$parent_tile" \
+         "$refine_ratio" \
+         "$istart_nest" \
+         "$jstart_nest" \
+         "$iend_nest" \
+         "$jend_nest" \
+         $halo $script_dir
+    date
+    echo "............ execute $MAKEOROGSSH ................."
+    # Run multiple tiles simulatneously for the orography
+    echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+    for itile in $(seq 8 $ntiles)
+    do
+      echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+    done
+    if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+      echo 'wait' >> ${DATA}/orog.file1
+    fi
+    chmod u+x $DATA/orog.file1
+    #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
+    ${APRUNF} $DATA/orog.file1
+    wait
+    #rm $DATA/orog.file1
+    date
+    echo "Grid and orography files are now prepared"
+  
+  fi
+  #----------------------------------------------------------------
 
 fi
-#----------------------------------------------------------------
 
 # Copy mosaic file(s) to output directory.
 cp $grid_dir/${CASE}_*mosaic.nc $out_dir/

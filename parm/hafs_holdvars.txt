@@ -43,6 +43,8 @@ export vi_storm_relocation={vi_storm_relocation}
 export vi_storm_modification={vi_storm_modification}
 export vi_ajust_intensity={vi_ajust_intensity}
 export vi_ajust_size={vi_ajust_size}
+export vi_vortexradius_fine={vi_vortexradius_fine}
+export vi_vortexradius_coarse={vi_vortexradius_coarse}
 
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}
