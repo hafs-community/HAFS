@@ -314,7 +314,7 @@ fi
 chmod +x cmdfile
 if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile
@@ -443,7 +443,7 @@ if [ ${machine} = "wcoss_cray" ]; then
   ${APRUNF} cmdfile_mppnccombine
 elif [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_mppnccombine
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine

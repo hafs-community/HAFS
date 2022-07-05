@@ -85,7 +85,7 @@ chmod +x cmdfile_datool_merge
 [ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
@@ -136,7 +136,7 @@ chmod +x cmdfile_datool_merge.step1
 [ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
@@ -177,7 +177,7 @@ chmod +x cmdfile_datool_merge.step1
 [ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
@@ -221,7 +221,7 @@ chmod +x cmdfile_datool_merge.step2
 [ $machine = wcoss_cray ] && set +e
 if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step2 | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step2
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
@@ -255,7 +255,7 @@ chmod +x cmdfile_datool_merge.step3
 [ $machine = wcoss_cray ] && set +e
 if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step3 | wc -l)
-   ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+   ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step3
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
