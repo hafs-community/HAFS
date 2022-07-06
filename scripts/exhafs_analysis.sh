@@ -809,9 +809,9 @@ EOFdiag
       chmod 755 ./mp_diag.sh
       ncmd=$(cat ./mp_diag.sh | wc -l)
       if [ $ncmd -gt 0 ]; then
-         ncmd_max=$((ncmd < NCTSK ? ncmd : NCTSK))
+         ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
          APRUNCFP_DIAG=$(eval echo $APRUNCFP)
-         $APRUNCFP_DIAG -n $ncmd_max cfp ./mp_diag.sh
+         $APRUNCFP_DIAG -n $ncmd cfp ./mp_diag.sh
          export ERR=$?
          export err=$ERR
          $ERRSCRIPT || exit 3
