@@ -7,7 +7,7 @@ tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
 cpu_account=HWRF-DEV
 ## Archive path
-archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+archive=hpss:/NCEPDEV/{tape_project}/5year/Biju.Thomas/{SUBEXPT}/{out_prefix}.tar
 #archive=disk:/lfs/h2/emc/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar
 ## Specify input sources for HISTORY mode.
 input_sources=wcoss_sources_{GFSVER}
@@ -34,14 +34,13 @@ CDSAVE=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/save
 syndat=/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 #COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
-#COMgfs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
-COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
+COMgfs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
+#COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
 COMINgfs={COMgfs}
 #COMINhafs={COMINgfs}
 COMINhafs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
-COMIN_OBS=/lfs/h1/ops/prod/com/obsproc/v1.0/gfs.{aYMD}/{aHH}/atmos
-COMrtofs=/lfs/h1/ops/prod/com/rtofs/v2.2
-#COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2
+#COMrtofs=/lfs/h1/ops/prod/com/rtofs/v2.2
+COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/aid
