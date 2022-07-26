@@ -67,45 +67,87 @@ tcvital=${DATA}/tcvitals.vi
 vmax_vit=`cat ${tcvital} | cut -c68-69`
 
 #===============================================================================
+# Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
+
+cd $DATA
+rm -f cmdfile_hafsvi_preproc
+
+# Stage 0.1: Process prior cycle's vortex if exists and storm intensity is
+# stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
+
+for vortexradius in 30 45; do
+
+if [[ ${vortexradius} == 30 ]]; then
+  res=0.02
+elif [[ ${vortexradius} == 45 ]]; then
+  res=0.20
+fi
+cat > hafsvi_preproc_guess_${vortexradius}.sh << EOF
+#!/bin/sh
+  # prep
+  work_dir=${DATA}/prep_guess
+  mkdir -p \${work_dir}
+  cd \${work_dir}
+  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+                                --debug_level=1 --interpolation_points=5 \
+                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                                --tcvital=${tcvital} \
+                                --vortexradius=${vortexradius} --res=${res} \
+                                --nestdoms=$((${nest_grids:-1}-1)) \
+                                --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
+EOF
+chmod +x hafsvi_preproc_guess_${vortexradius}.sh
+echo "./hafsvi_preproc_guess_${vortexradius}.sh > ./hafsvi_preproc_guess_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
+
+done
+
+fi
+
+cd $DATA
+# Stage 0.2: Process current cycle's vortex from the global/parent model
+for vortexradius in 30 45; do
+
+if [[ ${vortexradius} == 30 ]]; then
+  res=0.02
+elif [[ ${vortexradius} == 45 ]]; then
+  res=0.20
+fi
+cat > hafsvi_preproc_init_${vortexradius}.sh << EOF
+#!/bin/sh
+  # prep
+  work_dir=${DATA}/prep_init
+  mkdir -p \${work_dir}
+  cd \${work_dir}
+  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+                                --debug_level=1 --interpolation_points=5 \
+                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                                --tcvital=${tcvital} \
+                                --vortexradius=${vortexradius} --res=${res} \
+                                --nestdoms=$((${nest_grids:-1}-1)) \
+                                --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  if [[ ${nest_grids} -gt 1 ]]; then
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+  fi
+EOF
+chmod +x hafsvi_preproc_init_${vortexradius}.sh
+echo "./hafsvi_preproc_init_${vortexradius}.sh > ./hafsvi_preproc_init_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
+
+done
+
+chmod +x cmdfile_hafsvi_preproc
+${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_preproc
+
+#===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
-
-  # prep
-  work_dir=${DATA}/prep_guess
-  mkdir -p ${work_dir}
-  cd ${work_dir}
-  vortexradius=30
-  res=0.02
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-#                                    [--vortexposition=vortex_position ]
-#                                    [--debug_level=10 (default is 1) ]
-#                                    [--interpolation_points=5 (default is 4, range 1-500) ]
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
-
-  vortexradius=45
-  res=0.20
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
 
   # create_trak and split
   work_dir=${DATA}/split_guess
@@ -202,37 +244,6 @@ fi
 # Stage 2: Process current cycle's vortex from the global/parent model
 
 cd $DATA
-
-  # prep
-  work_dir=${DATA}/prep_init
-  mkdir -p ${work_dir}
-  cd ${work_dir}
-  vortexradius=30
-  res=0.02
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
-  vortexradius=45
-  res=0.20
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
 
   # create_trak and split
   work_dir=${DATA}/split_init
@@ -458,10 +469,12 @@ if [ ! -s storm_anl ]; then
   exit 1
 fi
 
-# Interpolate storm_anl back to HAFS restart files
+#===============================================================================
+# Stage 4: Run hafs_datool's hafsvi_postproc to interpolate VI analysis back to
+# HAFS restart files
+
 cd $DATA
 
-# post
 mkdir -p ${RESTARTout}
 if [ $senv = init ] ; then
   RESTARTdst=${RESTARTinit}
@@ -475,20 +488,23 @@ ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
+rm -f cmdfile_hafsvi_postproc
 for nd in $(seq 1 ${nest_grids})
 do
 
-${APRUNS} ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
-                               --debug_level=11 --interpolation_points=5 \
+cat >> cmdfile_hafsvi_postproc <<EOF
+time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+                               --debug_level=1 --interpolation_points=5 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                --nestdoms=$((${nd}-1)) \
                                --out_dir=${RESTARTout}
-#                              [--relaxzone=50 (grids, default is 30) ]
-#                              [--debug_level=10 (default is 1) ]
-#                              [--interpolation_points=5 (default is 4, range 1-500) ]
+EOF
 
 done
+chmod +x cmdfile_hafsvi_postproc
+${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_postproc
+
 #===============================================================================
 
 exit
