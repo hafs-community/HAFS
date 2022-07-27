@@ -1,0 +1,60 @@
+## This is the system-specific configuration file for the WCOSS Cray
+[config]
+## Project disk area
+disk_project=hur
+## Project hpss tape area
+tape_project=emc-hwrf
+## CPU account name for submitting jobs to the batch system.
+cpu_account=HWRF-DEV
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archive=disk:/lfs/h2/emc/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar
+## Specify input sources for HISTORY mode.
+input_sources=wcoss_sources_{GFSVER}
+## Specify the DataCatalog for FORECAST mode runs.
+fcst_catalog=wcoss_fcst_{GFSVER}
+
+[hafsdata]
+inputroot=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/hafsdata_{GFSVER}
+
+[wcoss_fcst_PROD2019]
+inputroot=/lfs/h1/ops/prod/com/gfs/v16.2
+
+[dir]
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+DATMdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DOCN
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/lfs/h2/emc/ptmp/{ENV[USER]}
+## Save directory.  Make sure you edit this.
+CDSAVE=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/save
+## Syndat directory for finding which cycles to run
+#syndat=/lfs/h1/ops/prod/com/gfs/v16.2/syndat
+syndat=/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS
+## Input GFS data directory
+#COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
+COMgfs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
+#COMgfs=/lfs/h1/ops/prod/com/gfs/v16.2
+COMINgfs={COMgfs}
+#COMINhafs={COMINgfs}
+COMINhafs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
+#COMrtofs=/lfs/h1/ops/prod/com/rtofs/v2.2
+COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+## A-Deck directory for graphics
+ADECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/btk
+
+## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
+[holdvars]
+WHERE_AM_I=wcoss2        ;; Which cluster? (For setting up environment.)
+WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.
+
+[forecast]
+write_groups=1
+write_tasks_per_group=96
+
+[rocotostr]
+FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

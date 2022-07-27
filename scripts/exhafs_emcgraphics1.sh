@@ -316,8 +316,13 @@ if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> $cmdfile
 fi
 chmod u+x ./$cmdfile
-${APRUNF} ./$cmdfile
-
+if [ ${machine} = "wcoss2" ]; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP  -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNF} ./$cmdfile
+fi
 wait
 
 date
@@ -505,7 +510,13 @@ if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
   echo 'wait' >> $cmdfile
 fi
 chmod u+x ./$cmdfile
-${APRUNF} ./$cmdfile
+if [ ${machine} = "wcoss2" ]; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP  -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNF} ./$cmdfile
+fi
 
 wait
 

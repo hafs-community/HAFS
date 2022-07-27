@@ -1,9 +1,12 @@
 
 """HYCOM related initialization and post-processing jobs."""
-
+# Updates Biju Thomas on 05/26/2022
+#     Added cfp option for WCOSS2
+#     Updated command.preview file's inputs consistent for getarg() function in gfs2ofs2(BT)
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
 import tarfile
 import produtil.fileop, produtil.log
+import produtil.cluster
 import tcutil.numerics, hafs.input, hafs.namelist
 import hafs.hafstask, hafs.exceptions
 import time, shutil
@@ -1081,16 +1084,20 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         with open('command.file.preview','wt') as cfpf:
             cfpf.write(''.join(commands))
 
+        clustername=produtil.cluster.name()
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
-        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=self.getexe('mpiserial','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
+        if clustername in ('cactus','dogwood'):
+            cfp_path=produtil.fileop.find_exe('cfp')
+            cmd2=mpirun(mpi(cfp_path)['./command.file.preview'],allranks=True)
+        else:
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*') 
+            if mpiserial_path=='*MISSING*':
+                mpiserial_path=self.getexe('mpiserial','*MISSING*')
+            if mpiserial_path=='*MISSING*':
+                mpiserial_path=produtil.fileop.find_exe('mpiserial')
+            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
-
 
         with open('listflx.dat','wt') as listflxf:
             listflxf.write(''.join(listflx))
@@ -1109,28 +1116,25 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         with open('jpdt_table.dat','wt') as j:
             j.write('''8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0''')
         cmd=self.getexe('hafs_gfs2ofs2')
-        commands=list()
-        for i in range(1,11):
-          gfs2ofs_in='gfs2ofs.%d.in'%i
-          gfs2ofs_out='gfs2ofs.%d.out'%i
-          with open (gfs2ofs_in,'wt') as f:
-              f.write("""%d\n"""%(i))
-          #commands.append ( (hafs_gfs2ofs<gfs2ofs_in)>gfs2ofs_out )
-          commands.append('%s < %s > %s 2>&1\n'%(cmd,gfs2ofs_in,gfs2ofs_out)) 
-
-        with open('command.file2.preview','wt') as cfpf:
-            cfpf.write(''.join(commands))
-
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofs2 %d ',tt)
-        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=self.getexe('mpiserial','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file2.preview'],allranks=True)
+        commands=list()         
+        for i in range(1,11):   
+            gfs2ofs_out='gfs2ofs.%d.out'%i  
+            commands.append('%s %d > %s 2>&1\n'%(cmd,i,gfs2ofs_out))
+        with open('command.file.preview_gfs2ofs','wt') as fid:
+            fid.write(''.join(commands))
+        if clustername in ('cactus','dogwood'):
+            cfp_path=produtil.fileop.find_exe('cfp')
+            cmd2=mpirun(mpi(cfp_path)['./command.file.preview_gfs2ofs'],allranks=True)
+        else:
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')  
+            if mpiserial_path=='*MISSING*':
+                 mpiserial_path=self.getexe('mpiserial','*MISSING*')
+            if mpiserial_path=='*MISSING*': 
+                 mpiserial_path=produtil.fileop.find_exe('mpiserial')
+            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
         checkrun(cmd2)
-
         self.ofs_timeinterp_forcing(logger)
 
     def ofs_forcing_info(self,filename):
