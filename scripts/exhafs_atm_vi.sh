@@ -141,7 +141,13 @@ echo "./hafsvi_preproc_init_${vortexradius}.sh > ./hafsvi_preproc_init_${vortexr
 done
 
 chmod +x cmdfile_hafsvi_preproc
-${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_preproc
+if  [ ${machine} = "wcoss2" ]; then                                                                  
+   ncmd=$(cat ./cmdfile_hafsvi_preproc | wc -l)                                                        
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_preproc                                            
+else                                                    
+   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_preproc
+fi
 
 #===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and storm intensity is
@@ -503,8 +509,13 @@ EOF
 
 done
 chmod +x cmdfile_hafsvi_postproc
-${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_postproc
-
+if  [ ${machine} = "wcoss2" ]; then                                                                  
+   ncmd=$(cat ./cmdfile_hafsvi_postproc | wc -l)                                                        
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_postproc                                                
+else                    
+   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_postproc
+fi 
 #===============================================================================
 
 exit
