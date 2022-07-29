@@ -13,7 +13,7 @@ if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
   export F90=ifort
   export CC=icc
   export MPIFC=mpif90
-elif [ $target = wcoss_cray ]; then
+elif [ $target = wcoss_cray ] || [ $target = wcoss2 ]; then
   export FC="ftn -static"
   export F90="ftn -free -static"
   export CC=icc

@@ -695,7 +695,7 @@ EOFdiag
       chmod 755 ./mp_diag.sh
       ncmd=$(cat ./mp_diag.sh | wc -l)
       if [ $ncmd -gt 0 ]; then
-         ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+         ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
          APRUNCFP_DIAG=$(eval echo $APRUNCFP)
          $APRUNCFP_DIAG ./mp_diag.sh
          export ERR=$?
