@@ -72,7 +72,7 @@ module load wgrib2/2.0.8_wmo
 module load cfp/2.0.4
 #module load prod_envir/1.0.3
 
-module load gsl/2.6
+module load gsl/2.7
 module load udunits/2.2.28
 module load nco/4.7.9
 
