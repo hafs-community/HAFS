@@ -240,6 +240,11 @@ if [ ${warm_start_opt} -eq 0 ]; then
   RESTARTinp="UNNEEDED"
 fi
 
+if [ ${run_init:-no} = yes ]; then
+  is_moving_nest=$(echo ${is_moving_nest} | sed -e 's/.true./.false./g' -e 's/.T./.F./g')
+  output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
+fi
+
 if [ ${run_init:-no} = no ]; then
 
 # Different warm_start_opt options for determinist/ensemble forecast
@@ -666,54 +671,54 @@ if [ ${run_init:-no} = yes ]; then
   cd ../
 fi
 
-# Copy fix files
-${NCP} $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
-${NCP} $FIXam/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77 global_o3prdlos.f77
-${NCP} $FIXam/global_h2o_pltc.f77               global_h2oprdlos.f77
-${NCP} $FIXam/global_sfc_emissivity_idx.txt     sfc_emissivity_idx.txt
-${NCP} $FIXam/global_co2historicaldata_glob.txt co2historicaldata_glob.txt
-${NCP} $FIXam/co2monthlycyc.txt                 co2monthlycyc.txt
-${NCP} $FIXam/global_climaeropac_global.txt     aerosol.dat
-${NCP} $FIXam/global_glacier.2x2.grb .
-${NCP} $FIXam/global_maxice.2x2.grb .
-${NCP} $FIXam/RTGSST.1982.2012.monthly.clim.grb .
-${NCP} $FIXam/global_snoclim.1.875.grb .
-${NCP} $FIXam/global_snowfree_albedo.bosu.t1534.3072.1536.rg.grb .
-${NCP} $FIXam/global_albedo4.1x1.grb .
-${NCP} $FIXam/CFSR.SEAICE.1982.2012.monthly.clim.grb .
-${NCP} $FIXam/global_tg3clim.2.6x1.5.grb .
-${NCP} $FIXam/global_vegfrac.0.144.decpercent.grb .
-${NCP} $FIXam/global_vegtype.igbp.t1534.3072.1536.rg.grb .
-${NCP} $FIXam/global_soiltype.statsgo.t1534.3072.1536.rg.grb .
-${NCP} $FIXam/global_soilmgldas.t1534.3072.1536.grb .
-${NCP} $FIXam/seaice_newland.grb .
-${NCP} $FIXam/global_shdmin.0.144x0.144.grb .
-${NCP} $FIXam/global_shdmax.0.144x0.144.grb .
-${NCP} $FIXam/global_slope.1x1.grb .
-${NCP} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+# Link fix files
+${NLN} $FIXam/global_solarconstant_noaa_an.txt  solarconstant_noaa_an.txt
+${NLN} $FIXam/ozprdlos_2015_new_sbuvO3_tclm15_nuchem.f77 global_o3prdlos.f77
+${NLN} $FIXam/global_h2o_pltc.f77               global_h2oprdlos.f77
+${NLN} $FIXam/global_sfc_emissivity_idx.txt     sfc_emissivity_idx.txt
+${NLN} $FIXam/global_co2historicaldata_glob.txt co2historicaldata_glob.txt
+${NLN} $FIXam/co2monthlycyc.txt                 co2monthlycyc.txt
+${NLN} $FIXam/global_climaeropac_global.txt     aerosol.dat
+${NLN} $FIXam/global_glacier.2x2.grb .
+${NLN} $FIXam/global_maxice.2x2.grb .
+${NLN} $FIXam/RTGSST.1982.2012.monthly.clim.grb .
+${NLN} $FIXam/global_snoclim.1.875.grb .
+${NLN} $FIXam/global_snowfree_albedo.bosu.t1534.3072.1536.rg.grb .
+${NLN} $FIXam/global_albedo4.1x1.grb .
+${NLN} $FIXam/CFSR.SEAICE.1982.2012.monthly.clim.grb .
+${NLN} $FIXam/global_tg3clim.2.6x1.5.grb .
+${NLN} $FIXam/global_vegfrac.0.144.decpercent.grb .
+${NLN} $FIXam/global_vegtype.igbp.t1534.3072.1536.rg.grb .
+${NLN} $FIXam/global_soiltype.statsgo.t1534.3072.1536.rg.grb .
+${NLN} $FIXam/global_soilmgldas.t1534.3072.1536.grb .
+${NLN} $FIXam/seaice_newland.grb .
+${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
+${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
+${NLN} $FIXam/global_slope.1x1.grb .
+${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
-  ${NCP} $file $(echo $(basename $file) |sed -e "s/global_//g")
+  ${NLN} $file $(echo $(basename $file) |sed -e "s/global_//g")
 done
 
-# Copy MERRA2 fix files
+# MERRA2 fix files
 if [ ${iaer:-111} = 1011 ]; then
   for n in 01 02 03 04 05 06 07 08 09 10 11 12; do
-    ${NCP} ${FIXhafs}/fix_aer/merra2.aerclim.2003-2014.m${n}.nc aeroclim.m${n}.nc
+    ${NLN} ${FIXhafs}/fix_aer/merra2.aerclim.2003-2014.m${n}.nc aeroclim.m${n}.nc
   done
-  ${NCP} ${FIXhafs}/fix_lut/optics_BC.v1_3.dat  optics_BC.dat
-  ${NCP} ${FIXhafs}/fix_lut/optics_OC.v1_3.dat  optics_OC.dat
-  ${NCP} ${FIXhafs}/fix_lut/optics_DU.v15_3.dat optics_DU.dat
-  ${NCP} ${FIXhafs}/fix_lut/optics_SS.v3_3.dat  optics_SS.dat
-  ${NCP} ${FIXhafs}/fix_lut/optics_SU.v1_3.dat  optics_SU.dat
+  ${NLN} ${FIXhafs}/fix_lut/optics_BC.v1_3.dat  optics_BC.dat
+  ${NLN} ${FIXhafs}/fix_lut/optics_OC.v1_3.dat  optics_OC.dat
+  ${NLN} ${FIXhafs}/fix_lut/optics_DU.v15_3.dat optics_DU.dat
+  ${NLN} ${FIXhafs}/fix_lut/optics_SS.v3_3.dat  optics_SS.dat
+  ${NLN} ${FIXhafs}/fix_lut/optics_SU.v1_3.dat  optics_SU.dat
 fi
 
 # Fix files for Thompson MP
 if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${FIXam}/qr_acr_qgV2.dat ./
-  ${NCP} ${FIXam}/qr_acr_qsV2.dat ./
-  ${NCP} ${FIXam}/CCN_ACTIVATE.BIN ./
-  ${NCP} ${FIXam}/freezeH2O.dat ./
+  ${NLN} ${FIXam}/qr_acr_qgV2.dat ./
+  ${NLN} ${FIXam}/qr_acr_qsV2.dat ./
+  ${NLN} ${FIXam}/CCN_ACTIVATE.BIN ./
+  ${NLN} ${FIXam}/freezeH2O.dat ./
 fi
 
 if [ $gtype = nest ]; then
@@ -725,10 +730,10 @@ ntiles=$((6 + ${nest_grids}))
 # Copy grid and orography
 for itile in $(seq 1 ${ntiles})
 do
-  cp $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
-  cp $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
-${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./grid_spec.nc
+${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./grid_spec.nc
 
 for itile in $(seq 7 ${ntiles})
 do
@@ -844,10 +849,10 @@ cd INPUT
 
 # Prepare tile data and orography for regional
 tile=7
-# Copy grid and orog files (halo[034])
-${NCP} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
-${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
-${NCP} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./
+# prepare grid and orog files (halo[034])
+${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
+${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
+${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./
 
 ${NLN} ${CASE}_mosaic.nc grid_spec.nc
 ${NLN} ${CASE}_grid.tile7.halo0.nc grid.tile7.halo0.nc
@@ -864,8 +869,8 @@ if [ $nest_grids -gt 1 ]; then
 ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 8 ${ntiles})
 do
-  ${NCP} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
-  ${NCP} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
 
 for itile in $(seq 8 ${ntiles})
@@ -903,16 +908,6 @@ if [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
-  # Remove the checksum attribute for all restart variables, so that the
-  # forecast executable will not compare the checksum attribute against the
-  # checksum calculated from the actual data. This is because the DA/GSI
-  # currently only update the variable itself but not its checksum attribute.
-# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
-# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
-# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
-# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
-# ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
-
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
@@ -922,11 +917,6 @@ if [ ${warmstart_from_restart} = yes ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
   # fi
-#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
-#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
-#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
-#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
-#   ncatted -a checksum,,d,, ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   done
 fi
 
@@ -1056,41 +1046,41 @@ fi # if not cdeps datm
 if [ $gtype = regional ]; then
 
 if [ ${run_ocean} = yes ];  then
-  # Copy hycom related files
-  ${NCP} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
+  # link hycom related files
+  ${NLN} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
   hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
-  # copy IC/BC
-  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
-  ${NCP} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
-  # copy forcing
-  ${NCP} ${WORKhafs}/intercom/hycominit/forcing* .
+  # link IC/BC
+  ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
+  ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
+  # link forcing
+  ${NLN} ${WORKhafs}/intercom/hycominit/forcing* .
   ${NLN} forcing.presur.a forcing.mslprs.a
   ${NLN} forcing.presur.b forcing.mslprs.b
-  # copy hycom limits
-  ${NCP} ${WORKhafs}/intercom/hycominit/limits .
+  # link hycom limits
+  ${NLN} ${WORKhafs}/intercom/hycominit/limits .
  ## create hycom limits
  #${USHhafs}/hafs_hycom_limits.py ${CDATE}
-  # copy fix
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
-  ${NCP} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
+  # link fix
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
+  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
   # copy parms
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
@@ -1166,7 +1156,7 @@ fi
 
 fi #if [ $gtype = nest ]; then
 
-# Copy CDEPS input, parm, and fix files if required.
+# Prepare CDEPS input, parm, and fix files if required.
 if [ ${run_datm} = yes ];  then
   datm_source=${DATM_SOURCE:-ERA5}
   ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -1338,13 +1328,13 @@ if [ ${run_datm} = no ];  then
   atparse < diag_table.tmp > diag_table
 fi
 # Remove the grid_mspec lines if it is not a moving nesting configuration
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] || [[ ${run_init:-no} = yes ]]; then
   echo "This is a moving nesting configuration"
 else
   sed -i -e "/grid_mspec/d" diag_table
 fi
 
-# Copy fix files needed by inline_post
+# Prepare files needed by inline_post
 if [ ${write_dopost:-.false.} = .true. ]; then
 
   ${NCP} ${PARMhafs}/post/itag                    ./itag

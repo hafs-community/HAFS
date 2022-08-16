@@ -197,7 +197,7 @@ cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
 set +e
 set -o pipefail
-time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
+time ./hafs_gettrk.x  2>&1 | tee ./hafs_gettrk.out
 set +o pipefail
 set -e
 

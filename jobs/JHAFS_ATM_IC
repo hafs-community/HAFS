@@ -17,6 +17,10 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
+  if [[ ${machine} != "wcoss2" ]]; then
+     module purge
+  fi
+  #module unload module load mapl/2.11.0-esmf-8.3.0b09
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
   module load build.${machine}.intel
   module list

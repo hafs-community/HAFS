@@ -89,6 +89,9 @@ elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
     target=wcoss_dell_p3
     module purge
     source /usrx/local/prod/lmod/lmod/init/$__ms_shell
+elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
+    target=wcoss2
+    . $MODULESHOME/init/sh
 elif [[ -d /glade ]] ; then
     # We are on NCAR Cheyenne
     if ( ! eval module help > /dev/null 2>&1 ) ; then

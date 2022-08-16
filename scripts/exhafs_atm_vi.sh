@@ -47,18 +47,18 @@ export DATA=${DATA:-${WORKhafs}/atm_vi}
 cd $DATA
 
 if [ ${FGAT_HR} = 03 ]; then
-  cp ${WORKhafs}/tm03vit tcvitals.vi
-# cp ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/tm03vit tcvitals.vi
+# ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=3
 elif [ ${FGAT_HR} = 06 ]; then
-  cp ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
-  cp ${WORKhafs}/tp03vit tcvitals.vi
-# cp ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/tp03vit tcvitals.vi
+# ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=9
 else
-  cp ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=6
 fi
 
@@ -69,11 +69,24 @@ vortexradius_fine=${vi_vortexradius_fine:-30}
 vortexradius_coarse=${vi_vortexradius_coarse:-45}
 
 #===============================================================================
-# Stage 1: Process prior cycle's vortex if exists and storm intensity is
-# stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+# Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
+cd $DATA
+rm -f cmdfile_hafsvi_preproc
+
+# Stage 0.1: Process prior cycle's vortex if exists and storm intensity is
+# stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
+for vortexradius in 30 45; do
+
+if [[ ${vortexradius} == 30 ]]; then
+  res=0.02
+elif [[ ${vortexradius} == 45 ]]; then
+  res=0.20
+fi
+cat > hafsvi_preproc_guess_${vortexradius}.sh << EOF
+#!/bin/sh
   # prep
   work_dir=${DATA}/prep_guess
   mkdir -p ${work_dir}
@@ -90,33 +103,64 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 #                                    [--vortexposition=vortex_position ]
 #                                    [--debug_level=10 (default is 1) ]
 #                                    [--interpolation_points=5 (default is 4, range 1-500) ]
+
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
+EOF
+chmod +x hafsvi_preproc_guess_${vortexradius}.sh
+echo "./hafsvi_preproc_guess_${vortexradius}.sh > ./hafsvi_preproc_guess_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
 
   vortexradius="${vortexradius_coarse}"
   res=0.20
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+fi
+cat > hafsvi_preproc_init_${vortexradius}.sh << EOF
+#!/bin/sh
+  # prep
+  work_dir=${DATA}/prep_init
+  mkdir -p \${work_dir}
+  cd \${work_dir}
+  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+                                --debug_level=1 --interpolation_points=5 \
+                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                                --tcvital=${tcvital} \
+                                --vortexradius=${vortexradius} --res=${res} \
+                                --nestdoms=$((${nest_grids:-1}-1)) \
+                                --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
+EOF
+chmod +x hafsvi_preproc_init_${vortexradius}.sh
+echo "./hafsvi_preproc_init_${vortexradius}.sh > ./hafsvi_preproc_init_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
+
+done
+
+chmod +x cmdfile_hafsvi_preproc
+if  [ ${machine} = "wcoss2" ]; then                                                                  
+   ncmd=$(cat ./cmdfile_hafsvi_preproc | wc -l)                                                        
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_preproc                                            
+else                                                    
+   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_preproc
+fi
+
+#===============================================================================
+# Stage 1: Process prior cycle's vortex if exists and storm intensity is
+# stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+
+if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
   # create_trak and split
   work_dir=${DATA}/split_guess
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
-  ln -sf ${tcvital} fort.11
+  ${NLN} ${tcvital} fort.11
   if [ -e ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ]; then
-    ln -sf ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./trak.atcfunix.all
+    ${NLN} ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./trak.atcfunix.all
     grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
@@ -132,11 +176,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vdif_guess=$(( ${vmax_guess}-${vmax_vit} ))
   vdif_guess="${vdif_guess#-}"
 
-  ln -sf trak.atcfunix.tmp fort.12
+  ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ln -sf ./trak.fnl.all fort.30
+  ${NLN} ./trak.fnl.all fort.30
 
-  ln -sf ${EXEChafs}/hafs_vi_create_trak_guess.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
@@ -146,18 +190,18 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf ../prep_guess/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
   ln -sf ../prep_guess/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
   # output
-  ln -sf storm_env                     fort.56
-  ln -sf rel_inform                    fort.52
-  ln -sf vital_syn                     fort.55
-  ln -sf storm_pert                    fort.71
-  ln -sf storm_radius                  fort.85
+  ${NLN} storm_env                     fort.56
+  ${NLN} rel_inform                    fort.52
+  ${NLN} vital_syn                     fort.55
+  ${NLN} storm_pert                    fort.71
+  ${NLN} storm_radius                  fort.85
 
-  ln -sf ${EXEChafs}/hafs_vi_split.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNS} ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNO} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -170,11 +214,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ln -sf ../split_guess/storm_pert fort.71
   ln -sf ../split_guess/storm_radius fort.65
   # output
-  ln -sf storm_pert_new fort.58
-  ln -sf storm_size_p fort.14
-  ln -sf storm_sym fort.23
+  ${NLN} storm_pert_new fort.58
+  ${NLN} storm_size_p fort.14
+  ${NLN} storm_sym fort.23
 
-  ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $( printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15") ) ]]; then
@@ -197,7 +241,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     initopt=0
   fi
   initopt_guess=${initopt}
-  echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
+  echo 6 ${basin} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
 
 fi
 #===============================================================================
@@ -241,9 +285,9 @@ cd $DATA
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
-  ln -sf ${tcvital} fort.11
+  ${NLN} ${tcvital} fort.11
   if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ]; then
-    ln -sf ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ./trak.atcfunix.all
+    ${NLN} ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ./trak.atcfunix.all
     grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
@@ -259,11 +303,11 @@ cd $DATA
   vdif_init=$(( ${vmax_init}-${vmax_vit} ))
   vdif_init="${vdif_init#-}"
 
-  ln -sf trak.atcfunix.tmp fort.12
+  ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ln -sf ./trak.fnl.all fort.30
+  ${NLN} ./trak.fnl.all fort.30
 
-  ln -sf ${EXEChafs}/hafs_vi_create_trak_init.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
@@ -273,16 +317,16 @@ cd $DATA
   ln -sf ../prep_init/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
   ln -sf ../prep_init/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
   if [ -s ../split_guess/storm_radius ]; then
-    ln -sf ../split_guess/storm_radius ./fort.65
+    ${NLN} ../split_guess/storm_radius ./fort.65
   fi
   # output
-  ln -sf storm_env                     fort.56
-  ln -sf rel_inform                    fort.52
-  ln -sf vital_syn                     fort.55
-  ln -sf storm_pert                    fort.71
-  ln -sf storm_radius                  fort.85
+  ${NLN} storm_env                     fort.56
+  ${NLN} rel_inform                    fort.52
+  ${NLN} vital_syn                     fort.55
+  ${NLN} storm_pert                    fort.71
+  ${NLN} storm_radius                  fort.85
 
-  ln -sf ${EXEChafs}/hafs_vi_split.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -292,7 +336,7 @@ cd $DATA
     ibgs=2
     iflag_cold=1
   fi
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNS} ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNO} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -305,11 +349,11 @@ cd $DATA
   ln -sf ../split_init/storm_pert fort.71
   ln -sf ../split_init/storm_radius fort.65
   # output
-  ln -sf storm_pert_new fort.58
-  ln -sf storm_size_p fort.14
-  ln -sf storm_sym fort.23
+  ${NLN} storm_pert_new fort.58
+  ${NLN} storm_size_p fort.14
+  ${NLN} storm_sym fort.23
 
-  ln -sf ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $( printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15") ) ]]; then
@@ -332,7 +376,7 @@ cd $DATA
     initopt=0
   fi
   initopt_init=${initopt}
-  echo 6 ${basin} ${initopt} | ${APRUNS} ./hafs_vi_anl_pert.x
+  echo 6 ${basin} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
 
 #===============================================================================
 # Stage 3:
@@ -366,11 +410,11 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
-  ln -sf storm_anl_bogus                        fort.56
+  ${NLN} storm_anl_bogus                        fort.56
 
-  ln -sf ${EXEChafs}/hafs_vi_anl_bogus.x ./
-  echo 6 ${basin} | ${APRUNS} ./hafs_vi_anl_bogus.x
-  cp -p storm_anl_bogus storm_anl
+  ${NLN} ${EXEChafs}/hafs_vi_anl_bogus.x ./
+  echo 6 ${basin} | ${APRUNO} ./hafs_vi_anl_bogus.x
+  ${NCP} -p storm_anl_bogus storm_anl
 
 else
   # warm-start from prior cycle or cold start from global/parent model
@@ -409,16 +453,16 @@ else
   ln -sf ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
 
   # output
-  ln -sf storm_env_new                 fort.36
-  ln -sf storm_anl_combine             fort.56
+  ${NLN} storm_env_new                 fort.36
+  ${NLN} storm_anl_combine             fort.56
 
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
 
-  ln -sf ${EXEChafs}/hafs_vi_anl_combine.x ./
-  echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ${APRUNS} ./hafs_vi_anl_combine.x
+  ${NLN} ${EXEChafs}/hafs_vi_anl_combine.x ./
+  echo ${gesfhr} ${basin} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
-    cp -p storm_anl_combine storm_anl
+    ${NCP} -p storm_anl_combine storm_anl
   fi
 
   # If the combined storm is weaker than the tcvital intensity, add a small
@@ -444,12 +488,12 @@ else
   ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
-  ln -sf storm_anl_enhance                     fort.56
+  ${NLN} storm_anl_enhance                     fort.56
 
   iflag_cold=${iflag_cold:-0}
-  ln -sf ${EXEChafs}/hafs_vi_anl_enhance.x ./
-  echo 6 ${basin} ${iflag_cold} | ${APRUNS} ./hafs_vi_anl_enhance.x
-  cp -p storm_anl_enhance storm_anl
+  ${NLN} ${EXEChafs}/hafs_vi_anl_enhance.x ./
+  echo 6 ${basin} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
+  ${NCP} -p storm_anl_enhance storm_anl
 
   fi
 
@@ -460,10 +504,12 @@ if [ ! -s storm_anl ]; then
   exit 1
 fi
 
-# Interpolate storm_anl back to HAFS restart files
+#===============================================================================
+# Stage 4: Run hafs_datool's hafsvi_postproc to interpolate VI analysis back to
+# HAFS restart files
+
 cd $DATA
 
-# post
 mkdir -p ${RESTARTout}
 if [ $senv = init ] ; then
   RESTARTdst=${RESTARTinit}
@@ -477,20 +523,28 @@ ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
+rm -f cmdfile_hafsvi_postproc
 for nd in $(seq 1 ${nest_grids})
 do
 
-${APRUNS} ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
-                               --debug_level=11 --interpolation_points=5 \
+cat >> cmdfile_hafsvi_postproc <<EOF
+time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+                               --debug_level=1 --interpolation_points=5 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                --nestdoms=$((${nd}-1)) \
                                --out_dir=${RESTARTout}
-#                              [--relaxzone=50 (grids, default is 30) ]
-#                              [--debug_level=10 (default is 1) ]
-#                              [--interpolation_points=5 (default is 4, range 1-500) ]
+EOF
 
 done
+chmod +x cmdfile_hafsvi_postproc
+if  [ ${machine} = "wcoss2" ]; then                                                                  
+   ncmd=$(cat ./cmdfile_hafsvi_postproc | wc -l)                                                        
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_postproc                                                
+else                    
+   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_postproc
+fi 
 #===============================================================================
 
 exit

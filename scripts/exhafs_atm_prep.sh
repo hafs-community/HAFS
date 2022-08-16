@@ -147,7 +147,14 @@ if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
 fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  ${APRUNF} $DATA/orog.file1
+  if [ ${machine} = "wcoss2" ]; then
+     ncmd=$(cat $DATA/orog.file1 | wc -l)
+     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+#     $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
+     $DATA/orog.file1
+  else
+     ${APRUNF} $DATA/orog.file1
+  fi
   wait
   #rm $DATA/orog.file1
   date
@@ -186,12 +193,18 @@ if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
 fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  ${APRUNF} $DATA/orog.file1
+  if [ ${machine} = "wcoss2" ]; then
+     ncmd=$(cat $DATA/orog.file1 | wc -l)
+     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+#     $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
+     $DATA/orog.file1
+  else
+     ${APRUNF} $DATA/orog.file1
+  fi
   wait
   #rm $DATA/orog.file1
   date
   echo "Grid and orography files are now prepared"
-
 
 #----------------------------------------------------------------
 #----------------------------------------------------------------
@@ -257,7 +270,14 @@ if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
 fi
   chmod u+x $DATA/orog.file1
   #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  ${APRUNF} $DATA/orog.file1
+  if [ ${machine} = "wcoss2" ]; then
+     ncmd=$(cat $DATA/orog.file1 | wc -l)
+     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+#     $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
+     $DATA/orog.file1
+  else
+     ${APRUNF} $DATA/orog.file1
+  fi
   wait
   #rm $DATA/orog.file1
 
