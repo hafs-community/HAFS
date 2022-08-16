@@ -39,6 +39,8 @@ export USHgraph=${USHgraph:-${HOMEgraph}/ush}
 export WORKgraph=${WORKgraph:-${COMhafs}/../../../${YMDH}/${STORMID}/emc_graphics}
 export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
 
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+
 export ADECKgraph=${ADECKhafs:?}
 export BDECKgraph=${BDECKhafs:?}
 export SYNDAThafs=${SYNDAThafs:?}
