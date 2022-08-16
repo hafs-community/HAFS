@@ -132,9 +132,10 @@ DD=`echo $NEWDATE | cut -c7-8`
 HH=`echo $NEWDATE | cut -c9-10`
 
 # Check if graphics has processed this forecast hour previously
-if [ -s ${WORKgraph}/graphf${FHR3} ] ; then
+if [ -s ${WORKhafs}/forecast/graphf${FHR3} ] && \
+   [ ${WORKhafs}/forecast/graphf${FHR3} -nt ${WORKhafs}/forecast/postf${FHR3} ] ; then
 
-echo "graph message ${WORKgraph}/graphf${FHR3} exist"
+echo "graph message ${WORKhafs}/forecast/graphf${FHR3} exist and newer than ${WORKhafs}/forecast/postf${FHR3}"
 echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 
 # Otherwise run graphics for this forecast hour
@@ -319,7 +320,7 @@ date
 cd ${WORKgraph}
 
 # Write out the graphics done message file
-echo 'done' > ${WORKgraph}/graphf${FHR3}
+echo 'done' > ${WORKhafs}/forecast/graphf${FHR3}
 
 fi
 # End if for checking if graphics has processed this forecast hour previously
