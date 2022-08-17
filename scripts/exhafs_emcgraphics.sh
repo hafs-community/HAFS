@@ -38,7 +38,7 @@ stid=${STID,,}
 STORMNUM=${STID:0:2}
 BASIN1C=${STID: -1}
 basin1c=${BASIN1C,,}
-yyyy=`echo ${ymdh} | cut -c1-4`
+yyyy=`echo ${YMDH} | cut -c1-4`
 
 export HOMEgraph=${HOMEgraph:-/mnt/lfs4/HFIP/hwrfv3/${USER}/hafs_graphics}
 export USHgraph=${USHgraph:-${HOMEgraph}/ush}
