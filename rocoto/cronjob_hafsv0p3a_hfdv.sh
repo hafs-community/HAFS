@@ -33,8 +33,8 @@ EXPT=$(basename ${HOMEhafs})
 
 #===============================================================================
  # atm_init+atm_vi+fgat+d02_3denvar+anal_merge and cycling storm perturbation
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_final \
-     ../parm/hafsv0p3a_final.conf"
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_hfdv \
+     ../parm/hafsv0p3a_final.conf vi.vi_storm_modification=auto"
 
  # Technical testing
 #${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 13L HISTORY ${confopts} \

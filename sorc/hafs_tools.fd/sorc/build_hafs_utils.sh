@@ -381,12 +381,17 @@ _extlib_shtns (){
     # Define the local environment variables for the SHTNS
     # compilation.
 
-    export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
+    if [ $target = wcoss2 ]; then
+       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib64
+    else
+       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
+    fi
     PREFIX=${HAFS_UTILS_EXTLIBS}
 
     # Configure the compile-time environment for the SHTNS application
     # build.
 
+    echo "target = " $target
     ./configure --prefix=${PREFIX}
 
     # Build the SHTNS application.
@@ -396,6 +401,11 @@ _extlib_shtns (){
     # Install the SHTNS application.
 
     make install
+
+    if [ $target = wcoss2 ]; then
+       ln -sf ${HAFS_UTILS_EXTLIBS}/lib64/libfftw3.a ${HAFS_UTILS_EXTLIBS}/lib/libfftw3.a
+       ln -sf ${HAFS_UTILS_EXTLIBS}/lib64/libfftw3.la ${HAFS_UTILS_EXTLIBS}/lib/libfftw3.la
+    fi
 }
 
 #----

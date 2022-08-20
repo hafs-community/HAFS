@@ -340,12 +340,12 @@
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
         <and>
 @** if GFSVER==PROD2019
-          <datadep age="02:00" minsize="2000000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.atmf0#FGAT_HR#.nemsio</cyclestr></datadep>
-          <datadep age="02:00" minsize="500000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.sfcf0#FGAT_HR#.nemsio</cyclestr></datadep>
+          <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.atmf0#FGAT_HR#.nemsio</cyclestr></datadep>
+          <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.sfcf0#FGAT_HR#.nemsio</cyclestr></datadep>
 @** endif
 @** if GFSVER==PROD2021
-          <datadep age="02:00" minsize="2000000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.atmf0#FGAT_HR#.nc</cyclestr></datadep>
-          <datadep age="02:00" minsize="500000000"><cyclestr>&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.sfcf0#FGAT_HR#.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.atmf0#FGAT_HR#.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.sfcf0#FGAT_HR#.nc</cyclestr></datadep>
 @** endif
         </and>
       </and>
@@ -369,9 +369,6 @@
     <dependency>
       <and>
         <taskdep task="atm_ic"/>
-@**   if RUN_ATM_MVNEST==YES
-        <taskdep task="atm_prep_mvnest"/>
-@**   endif
       </and>
     </dependency>
   </task>
@@ -396,9 +393,6 @@
     <dependency>
       <and>
         <taskdep task="atm_ic_fgat#FGAT_HR#"/>
-@**   if RUN_ATM_MVNEST==YES
-        <taskdep task="atm_prep_mvnest"/>
-@**   endif
       </and>
     </dependency>
   </task>
@@ -864,6 +858,9 @@
 
     <dependency>
       <and>
+@**   if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@**   endif
 @**   if RUN_DATM==YES
         <taskdep task="atm_prep"/>
 @**   endif
@@ -1532,6 +1529,7 @@
     &PE_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;
+    <envar><name>COMgraph</name><value>@[CDSAVE]/comgraph_&SUBEXPT;</value></envar>
 
     <dependency>
       <!-- Start the product if the product is running or if it has

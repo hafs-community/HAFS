@@ -7,6 +7,7 @@ if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = orion ]; then target=orion.intel ; fi
 if [ $target = jet ]; then target=jet.intel ; fi
 if [ $target = cheyenne ]; then target=cheyenne.intel ; fi
+if [ $target = wcoss2 ]; then target=wcoss2.intel ; fi
 
 if [ $target = wcoss_cray ]; then 
   app=HAFSW
