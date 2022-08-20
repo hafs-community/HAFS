@@ -17,6 +17,7 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module purge
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
   module load build.${machine}.intel
   module list
