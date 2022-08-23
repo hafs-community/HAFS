@@ -66,6 +66,7 @@ export COMINhafs={COMINhafs}
 export COMgfs={COMgfs}
 export COMgfs_ocean={COMgfs_ocean}
 export ENS={ENS}
+export CASE_ROOT={CASE_ROOT}
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
 

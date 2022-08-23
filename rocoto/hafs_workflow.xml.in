@@ -291,6 +291,7 @@
 @** endif
         </and>
 @** endif
+@** if CASE_ROOT==HISTORY
 @** if ENS!=99
 @** if ENS==00
         <and>
@@ -303,6 +304,22 @@
           <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2af00</cyclestr></datadep>
           <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2bf00</cyclestr></datadep>
         </and>
+@** endif
+@** endif
+@** else
+@** if ENS!=99
+@** if ENS==00
+        <and>
+       	  <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2ap5/gec&ENS;.t@Hz.pgrb2a.0p50.f000</cyclestr></datadep>
+	  <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2bp5/gec&ENS;.t@Hz.pgrb2b.0p50.f000</cyclestr></datadep>
+        </and>
+@** endif
+@** if ENS!=00
+        <and>
+       	  <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2ap5/gep&ENS;.t@Hz.pgrb2a.0p50.f000</cyclestr></datadep>
+	  <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2bp5/gep&ENS;.t@Hz.pgrb2b.0p50.f000</cyclestr></datadep>
+        </and>
+@** endif
 @** endif
 @** endif
       </and>
@@ -615,6 +632,7 @@
 @** endif
           </or>
 @** endif
+@** if CASE_ROOT==HISTORY
 @** if ENS!=99
 @** if ENS==00
           <and>
@@ -627,6 +645,21 @@
             <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2af126</cyclestr></datadep>
             <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/@Y@m@d@H/&ENS;/gep&ENS;.t@Hz.pgrb2bf126</cyclestr></datadep>
           </and>
+@** endif
+@** endif
+@** if ENS!=99
+@** if ENS==00
+        <and>
+          <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2ap5/gec&ENS;.t@Hz.pgrb2a.0p50.f126</cyclestr></datadep>
+          <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2bp5/gec&ENS;.t@Hz.pgrb2b.0p50.f126</cyclestr></datadep>
+        </and>
+@** endif
+@** if ENS!=00
+        <and>
+          <datadep age="02:00" minsize="10000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2ap5/gep&ENS;.t@Hz.pgrb2a.0p50.f126</cyclestr></datadep>
+          <datadep age="02:00" minsize="60000000"><cyclestr>&COMgfs;/gefs.@Y@m@d/@H/atmos/pgrb2bp5/gep&ENS;.t@Hz.pgrb2b.0p50.f126</cyclestr></datadep>
+        </and>
+@** endif
 @** endif
 @** endif
         </and>

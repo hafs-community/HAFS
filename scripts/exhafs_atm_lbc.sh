@@ -6,6 +6,7 @@ NCP=${NCP:-'/bin/cp'}
 NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
 
+CASE_ROOT=${CASE_ROOT:-HISTORY}
 TOTAL_TASKS=${TOTAL_TASKS:-2016}
 NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
@@ -91,7 +92,11 @@ if [ $GFSVER = "PROD2021" ]; then
     if [ ${ENS} -eq 99 ] ; then
       export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
     else
+      if [ ${CASE_ROOT} == "HISTORY" ] ; then
       export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+      else
+      export INIDIR=${COMgfs}/gefs.$PDY/$cyc/atmos
+      fi
     fi
  fi
 elif [ $GFSVER = "PROD2019" ]; then
@@ -214,9 +219,15 @@ elif [ $bctype = "gfsgrib2_0p50" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gefs 0.50 degree grib2 files
 elif [ $bctype = "gefsgrib2_0p50" ]; then
+  if [ $CASE_ROOT = "HISTORY" ] ; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  else
+  atm_files_input_grid=pgrb2ap5/${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3}
+  sfc_files_input_grid=pgrb2ap5/${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3}
+  fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
@@ -224,9 +235,15 @@ elif [ $bctype = "gefsgrib2_0p50" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gefs 0.50 degree grib2 files
 elif [ $bctype = "gefsgrib2ab_0p50" ]; then
+  if [ $CASE_ROOT = "HISTORY" ] ; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2abf${FHRGEFS}
+  else
+  atm_files_input_grid=pgrb2ap5/${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3}
+  sfc_files_input_grid=pgrb2ap5/${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p50.f${FHR3}
+  fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
@@ -269,7 +286,11 @@ if [ $input_type = "grib2" ]; then
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
     #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
   elif [ $bctype = gefsgrib2ab_0p50 ]; then
+    if [ $CASE_ROOT = "HISTORY" ] ; then
     cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2bf${FHRGEFS} > ./${grib2_file_input_grid}_tmp
+    else
+    cat ${INIDIR}/pgrb2ap5/${CDUMP}.t${cyc}z.pgrb2a.0p50.f${FHR3} ${INIDIR}/pgrb2bp5/${CDUMP}.t${cyc}z.pgrb2b.0p50.f${FHR3} > ./${grib2_file_input_grid}_tmp
+    fi
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
     ln -sf ${INIDIR}/${grib2_file_input_grid} ./
