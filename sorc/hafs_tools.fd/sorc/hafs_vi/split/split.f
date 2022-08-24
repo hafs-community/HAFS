@@ -93,10 +93,13 @@
       IF(SN.eq.'S')CLAT_VIT=-CLAT_VIT
       IF(EW.eq.'W')CLON_VIT=-CLON_VIT
 
-      I360=180
-      if(abs(CLON_VIT).gt.90.)then
-         I360=360
-      end if
+!      I360=180
+!      if(abs(CLON_VIT).gt.90.)then
+!         I360=360
+!      end if
+! For HAFS, I360 is newly defined to handle the storms in eastern/western hemisphere 2022 July
+      IF(EW.eq.'W') I360=180 ! Western hemisphere TC
+      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC 
 
       READ(IUNIT) NX,NY,NZ
 
@@ -809,15 +812,18 @@
         STMNAME(I)='NUL'
         READ(30,442,end=436)
      &     (ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
+       ! Western hemisphere TCs, converts longitude into negative value
+       if(I360.eq.180)then
         do j=1,7
           ISTMCX1(J,I)=-ISTMCX1(J,I)
         end do
-        if(I360.eq.180)then
-          do j=1,7
-            IF(ISTMCX1(J,I).LT.-1800)
-     &         ISTMCX1(J,I)=3600+ISTMCX1(J,I)
-          end do
-        end if
+       endif  
+!wpac        if(I360.eq.180)then
+!wpac          do j=1,7
+!wpac            IF(ISTMCX1(J,I).LT.-1800)
+!wpac     &         ISTMCX1(J,I)=3600+ISTMCX1(J,I)
+!wpac          end do
+!wpac        end if
         DYM1=0.
         DXM1=0.
         DYP1=0.
@@ -955,10 +961,10 @@
 
       IF(LONEW .EQ. 'W')  THEN
         STMLNZ=-STMLNZ
-      ELSE IF(LONEW .EQ. 'E')  THEN
-        if(I360.eq.360)then
-          STMLNZ=-360+STMLNZ
-        end if
+!wpac      ELSE IF(LONEW .EQ. 'E')  THEN
+!wpac        if(I360.eq.360)then
+!wpac          STMLNZ=-360+STMLNZ
+!wpac        end if
       ELSE IF(LONEW .NE. 'E')  THEN
       WRITE(6,157) STMLTZ,STMLNZ,LATNS
   157 FORMAT('******ERROR DECODING LONEW, ERROR RECOVERY NEEDED.',
@@ -1969,10 +1975,11 @@
         READ(30,442,end=436)
      &    (ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
 !
-        STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1
-        IF(I360.eq.180)THEN
-          IF(STMCX(I).lt.-180.)STMCX(I)=STMCX(I)+360.
-        END IF
+        IF(I360.eq.180) STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1  !Western hemisphere TC
+        IF(I360.eq.360) STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Eastern hemisphere TC
+!wpac        IF(I360.eq.180)THEN
+!wpac          IF(STMCX(I).lt.-180.)STMCX(I)=STMCX(I)+360.
+!wpac        END IF
         STMCY(I)=ISTMCY1(INDX1,I)*0.1
         K1STM=K1STM+1
         PRINT*,'QLIU test=',STMNAME(I),STMCX(I),STMCY(I)
