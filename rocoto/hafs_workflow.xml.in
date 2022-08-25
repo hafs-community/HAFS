@@ -647,6 +647,7 @@
           </and>
 @** endif
 @** endif
+@** else
 @** if ENS!=99
 @** if ENS==00
         <and>
