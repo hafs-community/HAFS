@@ -3,7 +3,7 @@ set -x
 date
 
 # NOAA WCOSS2
-#HOMEhafs=/lfs/h2/emc/hur/noscrub/zhan.zhang/save/hafsv0.3_ensda_eps
+#HOMEhafs=/lfs/h2/emc/hur/noscrub/${USER}/save/hafsv0.3_ensda_eps
 #dev="-s sites/wcoss2_ensda_eps.ent -f"
 #PYTHON3=/usr/bin/python3
 
