@@ -68,6 +68,13 @@ vmax_vit=`cat ${tcvital} | cut -c68-69`
 vortexradius_fine=${vi_vortexradius_fine:-30}
 vortexradius_coarse=${vi_vortexradius_coarse:-45}
 
+# Below two lines: Extract the basin infomration from storm ID: L, E, C, W, S, P, A, B
+storm=`cat ${tcvital} | awk '{print $2}'`
+region=${storm:2:2}    # L, E, C, W, S, P, A, B  
+if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
+ echo 'We are handling the Southern hemisphere or Northern Indian Ocean TCs'
+fi
+
 #===============================================================================
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
@@ -161,6 +168,28 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ${tcvital} fort.11
   if [ -e ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ]; then
     ${NLN} ${COMhafsprior}/${STORMID,,}.${CDATEprior}.hafs.trak.atcfunix.all ./trak.atcfunix.all
+
+    #== Special treatments for Southern hemisphere or Northern Indian Ocean TCs ================
+    #== This part is NOT applied to WPAC and NHC basin TCs
+    #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
+    if [ $region = "S" ]; then
+     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+    fi
+    if [ $region = "P" ]; then
+     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+    fi
+    #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
+    if [ $region = "A" ]; then
+     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+    fi
+    if [ $region = "B" ]; then
+     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+    fi
+    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
+     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    fi
+    #============================================================================================
+
     grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
@@ -288,6 +317,28 @@ cd $DATA
   ${NLN} ${tcvital} fort.11
   if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ]; then
     ${NLN} ${INTCOMinit}/${STORMID,,}.${CDATE}.hafs.trak.atcfunix.all ./trak.atcfunix.all
+
+    #== Special treatments for Southern hemisphere or Northern Indian Ocean TCs ================
+    #== This part is NOT applied to WPAC and NHC basin TCs
+    #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
+    if [ $region = "S" ]; then
+     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+    fi
+    if [ $region = "P" ]; then
+     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+    fi
+    #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
+    if [ $region = "A" ]; then
+     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+    fi
+    if [ $region = "B" ]; then
+     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+    fi
+    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
+     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    fi
+    #============================================================================================
+
     grep "^${basin^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
     # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \

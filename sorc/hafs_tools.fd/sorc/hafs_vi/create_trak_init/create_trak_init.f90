@@ -50,7 +50,6 @@ program create_trak_init
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
     if(ns.eq.'S')lat=-lat
-    if(ew.eq.'E')lon=3600-lon
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
     ! exit the do loop if stat is NOT 0
@@ -72,7 +71,6 @@ program create_trak_init
     endif
     read(11,13) part2,idat,ihour,lat,ns,lon,ew
     if(ns.eq.'S')lat=-lat
-    if(ew.eq.'E')lon=3600-lon
   endif
 
   write(*,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id

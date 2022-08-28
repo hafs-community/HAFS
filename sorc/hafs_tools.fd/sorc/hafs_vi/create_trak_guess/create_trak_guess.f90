@@ -51,7 +51,6 @@ program create_trak_guess
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
     if(ns.eq.'S')lat=-lat
-    if(ew.eq.'E')lon=3600-lon
     !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
     if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then 
       lathr(ifh-2)=lat
@@ -65,7 +64,6 @@ program create_trak_guess
   ! values from fort.11 to fill the FGAT hours
   read(11,13) part2,idat,ihour,lat,ns,lon,ew
   if(ns.eq.'S')lat=-lat
-  if(ew.eq.'E')lon=3600-lon
   do ih=1,7,3
     if(abs(lathr(ih)).eq.9999 .or. abs(lonhr(ih)).eq.9999) then
       print*, 'ih,lathr(ih),lonhr(ih)=',ih,lathr(ih),lonhr(ih)

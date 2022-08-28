@@ -255,9 +255,9 @@
 
       CLOSE(IUNIT)
 
-      if(I360.eq.360)then
-       IF(CLON_NHC.GT.0.)CLON_NHC=CLON_NHC-360.
-      endif
+!wpac      if(I360.eq.360)then
+!wpac       IF(CLON_NHC.GT.0.)CLON_NHC=CLON_NHC-360.
+!wpac      endif
 
       DO J=1,NY
       DO I=1,NX
@@ -390,14 +390,14 @@
                           CLAT1,CLON1,              & ! central lat,lon, all in degree
                           NX,NY )
 
-      if(I360.eq.360) then
-        DO J=1,NY
-        DO I=1,NX
-	  IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
-	  IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
-        END DO
-        END DO
-      endif
+!wpac      if(I360.eq.360) then
+!wpac        DO J=1,NY
+!wpac        DO I=1,NX
+!wpac	  IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
+!wpac	  IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
+!wpac        END DO
+!wpac        END DO
+!wpac      endif
 
 
       print*,'HLAT,HLON,VLAT,VLON=',                  &
@@ -485,9 +485,9 @@
       PRINT*,'ST_NAME=',ST_NAME(KST)
       READ(NCHT) CLON_NEW,CLAT_NEW
 !
-      if(I360.eq.360)then
-       IF (CLON_NEW.gt.0.) CLON_NEW=CLON_NEW-360.
-      endif
+!wpac      if(I360.eq.360)then
+!wpac       IF (CLON_NEW.gt.0.) CLON_NEW=CLON_NEW-360.
+!wpac      endif
 
       PRINT*,CLON_NEW,CLAT_NEW
 !

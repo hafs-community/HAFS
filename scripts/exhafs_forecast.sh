@@ -88,6 +88,7 @@ if [ "${ENSDA}" != YES ]; then
   glob_rlmx=${glob_rlmx:-300.}
   glob_elmx=${glob_elmx:-300.}
   glob_sfc_rlm=${glob_sfc_rlm:-1}
+  glob_tc_pbl=${glob_tc_pbl:-0}
   glob_shal_cnv=${glob_shal_cnv:-.true.}
   glob_do_deep=${glob_do_deep:-.true.}
   k_split=${k_split:-4}
@@ -105,6 +106,7 @@ if [ "${ENSDA}" != YES ]; then
   rlmx=${rlmx:-300.}
   elmx=${elmx:-300.}
   sfc_rlm=${sfc_rlm:-1}
+  tc_pbl=${tc_pbl:-0}
   shal_cnv=${shal_cnv:-.true.}
   do_deep=${do_deep:-.true.}
   do_sppt=${do_sppt:-.false.}
@@ -164,6 +166,7 @@ else
   glob_rlmx=${glob_rlmx_ens:-300.}
   glob_elmx=${glob_elmx_ens:-300.}
   glob_sfc_rlm=${glob_sfc_rlm_ens:-1}
+  glob_tc_pbl=${glob_tc_pbl_ens:-0}
   glob_shal_cnv=${glob_shal_cnv_ens:-.true.}
   glob_do_deep=${glob_do_deep_ens:-.true.}
   k_split=${k_split_ens:-4}
@@ -181,6 +184,7 @@ else
   rlmx=${rlmx_ens:-300.}
   elmx=${elmx_ens:-300.}
   sfc_rlm=${sfc_rlm_ens:-1}
+  tc_pbl=${tc_pbl_ens:-0}
   shal_cnv=${shal_cnv_ens:-.true.}
   do_deep=${do_deep_ens:-.true.}
   do_sppt=${do_sppt_ens:-.false.}
@@ -814,6 +818,7 @@ max_slope_nml=${glob_max_slope:-0.25}
 rlmx_nml=${glob_rlmx:-300.}
 elmx_nml=${glob_elmx:-300.}
 sfc_rlm_nml=${glob_sfc_rlm:-1}
+tc_pbl_nml=${glob_tc_pbl:-0}
 shal_cnv_nml=${glob_shal_cnv:-.true.}
 do_deep_nml=${glob_do_deep:-.true.}
 
@@ -1003,6 +1008,7 @@ max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
 rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
 elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
 sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
+tc_pbl_nml=$( echo ${tc_pbl} | cut -d , -f ${n} )
 shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
 do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
@@ -1031,6 +1037,7 @@ do
   rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
   elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
   sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
+  tc_pbl_nml=$( echo ${tc_pbl} | cut -d , -f ${n} )
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 
