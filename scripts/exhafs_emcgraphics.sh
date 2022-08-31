@@ -108,7 +108,7 @@ else
   exit 1
 fi
 archbase="${COMgraph}/figures"
-archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${ymdh}"
+archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
 
 mkdir -p ${WORKgraph}
 cd ${WORKgraph}
