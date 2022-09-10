@@ -1,4 +1,4 @@
-#!/bin/sh
+# !/bin/sh
 
 set -xe
 export vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
@@ -73,7 +73,7 @@ storm=`cat ${tcvital} | awk '{print $2}'`
 region=${storm:2:2}    # L, E, C, W, S, P, A, B  
 if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
  echo 'We are handling the Southern hemisphere or Northern Indian Ocean TCs'
-fi
+ fi
 
 #===============================================================================
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
@@ -85,44 +85,52 @@ rm -f cmdfile_hafsvi_preproc
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
-for vortexradius in 30 45; do
+i=0
+for vortexradius in ${vortexradius_fine} ${vortexradius_coarse}; do
 
-if [[ ${vortexradius} == 30 ]]; then
+if [[ ${i} == 0 ]]; then
   res=0.02
-elif [[ ${vortexradius} == 45 ]]; then
+elif [[ ${i} == 1 ]]; then
   res=0.20
 fi
-cat > hafsvi_preproc_guess_${vortexradius}.sh << EOF
+cat > hafsvi_preproc_guess_${vortexradius}deg${res/\./p}.sh << EOF
 #!/bin/sh
   # prep
   work_dir=${DATA}/prep_guess
-  mkdir -p ${work_dir}
-  cd ${work_dir}
-  vortexradius="${vortexradius_fine}"
-  res=0.02
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-#                                    [--vortexposition=vortex_position ]
-#                                    [--debug_level=10 (default is 1) ]
-#                                    [--interpolation_points=5 (default is 4, range 1-500) ]
-
+  mkdir -p \${work_dir}
+  cd \${work_dir}
+  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+                                --debug_level=1 --interpolation_points=5 \
+                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+                                --tcvital=${tcvital} \
+                                --vortexradius=${vortexradius} --res=${res} \
+                                --nestdoms=$((${nest_grids:-1}-1)) \
+                                --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 EOF
-chmod +x hafsvi_preproc_guess_${vortexradius}.sh
-echo "./hafsvi_preproc_guess_${vortexradius}.sh > ./hafsvi_preproc_guess_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
+chmod +x hafsvi_preproc_guess_${vortexradius}deg${res/\./p}.sh
+echo "./hafsvi_preproc_guess_${vortexradius}deg${res/\./p}.sh > ./hafsvi_preproc_guess_${vortexradius}deg${res/\./p}.log 2>&1" >> cmdfile_hafsvi_preproc
 
-  vortexradius="${vortexradius_coarse}"
+i=$((i+1))
+
+done
+
+fi
+
+cd $DATA
+# Stage 0.2: Process current cycle's vortex from the global/parent model
+i=0
+for vortexradius in ${vortexradius_fine} ${vortexradius_coarse}; do
+
+if [[ ${i} == 0 ]]; then
+  res=0.02
+elif [[ ${i} == 1 ]]; then
   res=0.20
 fi
-cat > hafsvi_preproc_init_${vortexradius}.sh << EOF
+cat > hafsvi_preproc_init_${vortexradius}deg${res/\./p}.sh << EOF
 #!/bin/sh
   # prep
   work_dir=${DATA}/prep_init
@@ -140,8 +148,10 @@ cat > hafsvi_preproc_init_${vortexradius}.sh << EOF
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 EOF
-chmod +x hafsvi_preproc_init_${vortexradius}.sh
-echo "./hafsvi_preproc_init_${vortexradius}.sh > ./hafsvi_preproc_init_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
+chmod +x hafsvi_preproc_init_${vortexradius}deg${res/\./p}.sh
+echo "./hafsvi_preproc_init_${vortexradius}deg${res/\./p}.sh > ./hafsvi_preproc_init_${vortexradius}deg${res/\./p}.log 2>&1" >> cmdfile_hafsvi_preproc
+
+i=$((i+1))
 
 done
 
@@ -214,10 +224,10 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   # split
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ./trak.fnl.all fort.30
-  ln -sf ../prep_guess/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
-  ln -sf ../prep_guess/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ./trak.fnl.all fort.30
+  ${NLN} ../prep_guess/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
+  ${NLN} ../prep_guess/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
   # output
   ${NLN} storm_env                     fort.56
   ${NLN} rel_inform                    fort.52
@@ -237,11 +247,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ../split_guess/storm_env fort.26
-  ln -sf ../prep_guess/vi_inp_${vortexradius_fine}deg0p02.bin fort.46
-  ln -sf ../split_guess/storm_pert fort.71
-  ln -sf ../split_guess/storm_radius fort.65
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ../split_guess/storm_env fort.26
+  ${NLN} ../prep_guess/vi_inp_${vortexradius_fine}deg0p02.bin fort.46
+  ${NLN} ../split_guess/storm_pert fort.71
+  ${NLN} ../split_guess/storm_radius fort.65
   # output
   ${NLN} storm_pert_new fort.58
   ${NLN} storm_size_p fort.14
@@ -277,37 +287,6 @@ fi
 # Stage 2: Process current cycle's vortex from the global/parent model
 
 cd $DATA
-
-  # prep
-  work_dir=${DATA}/prep_init
-  mkdir -p ${work_dir}
-  cd ${work_dir}
-  vortexradius="${vortexradius_fine}"
-  res=0.02
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
-  vortexradius="${vortexradius_coarse}"
-  res=0.20
-  ${APRUNS} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
-                                     --debug_level=11 --interpolation_points=5 \
-                                     --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-                                     --tcvital=${tcvital} \
-                                     --vortexradius=${vortexradius} --res=${res} \
-                                     --nestdoms=$((${nest_grids:-1}-1)) \
-                                     --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
 
   # create_trak and split
   work_dir=${DATA}/split_init
@@ -363,10 +342,10 @@ cd $DATA
 
   # split
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ./trak.fnl.all fort.30
-  ln -sf ../prep_init/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
-  ln -sf ../prep_init/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ./trak.fnl.all fort.30
+  ${NLN} ../prep_init/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.26
+  ${NLN} ../prep_init/vi_inp_${vortexradius_coarse}deg0p20.bin ./fort.46
   if [ -s ../split_guess/storm_radius ]; then
     ${NLN} ../split_guess/storm_radius ./fort.65
   fi
@@ -394,11 +373,11 @@ cd $DATA
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ../split_init/storm_env fort.26
-  ln -sf ../prep_init/vi_inp_${vortexradius_fine}deg0p02.bin fort.46
-  ln -sf ../split_init/storm_pert fort.71
-  ln -sf ../split_init/storm_radius fort.65
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ../split_init/storm_env fort.26
+  ${NLN} ../prep_init/vi_inp_${vortexradius_fine}deg0p02.bin fort.46
+  ${NLN} ../split_init/storm_pert fort.71
+  ${NLN} ../split_init/storm_radius fort.65
   # output
   ${NLN} storm_pert_new fort.58
   ${NLN} storm_size_p fort.14
@@ -444,21 +423,21 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   senv=$pert
   # anl_bogus
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ../split_${senv}/storm_env fort.26
-  ln -sf ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.36
-  ln -sf ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
-  ln -sf ../split_${pert}/storm_pert fort.61
-  ln -sf ../split_${pert}/storm_radius fort.85
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ../split_${senv}/storm_env fort.26
+  ${NLN} ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.36
+  ${NLN} ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
+  ${NLN} ../split_${pert}/storm_pert fort.61
+  ${NLN} ../split_${pert}/storm_radius fort.85
 
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
   ${NLN} storm_anl_bogus                        fort.56
@@ -494,14 +473,14 @@ else
 
   rm -f flag_file
   # input
-  ln -sf ${tcvital} fort.11
-  ln -sf ../split_${pert}/trak.atcfunix.tmp fort.12
-  ln -sf ../split_${pert}/trak.fnl.all fort.30
-  ln -sf ../anl_pert_${pert}/storm_size_p fort.14
-  ln -sf ../anl_pert_${pert}/storm_sym fort.23
-  ln -sf ../anl_pert_${pert}/storm_pert_new fort.71
-  ln -sf ../split_${senv}/storm_env fort.26
-  ln -sf ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
+  ${NLN} ${tcvital} fort.11
+  ${NLN} ../split_${pert}/trak.atcfunix.tmp fort.12
+  ${NLN} ../split_${pert}/trak.fnl.all fort.30
+  ${NLN} ../anl_pert_${pert}/storm_size_p fort.14
+  ${NLN} ../anl_pert_${pert}/storm_sym fort.23
+  ${NLN} ../anl_pert_${pert}/storm_pert_new fort.71
+  ${NLN} ../split_${senv}/storm_env fort.26
+  ${NLN} ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
 
   # output
   ${NLN} storm_env_new                 fort.36
@@ -522,21 +501,21 @@ else
   if [ -s flag_file ] && [ -s storm_env_new ]; then
   # anl_enhance
   # input
- #ln -sf ${tcvital} fort.11
- #ln -sf ./flag_file flag_file
-  ln -sf ../anl_pert_${pert}/storm_sym fort.23
-  ln -sf storm_env_new fort.26
-  ln -sf ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
-  ln -sf ../split_${pert}/storm_radius fort.85
+ #${NLN} ${tcvital} fort.11
+ #${NLN} ./flag_file flag_file
+  ${NLN} ../anl_pert_${pert}/storm_sym fort.23
+  ${NLN} storm_env_new fort.26
+  ${NLN} ../prep_${pert}/vi_inp_${vortexradius_fine}deg0p02.bin ./fort.46 #roughness
+  ${NLN} ../split_${pert}/storm_radius fort.85
 
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
-  ln -sf ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
   ${NLN} storm_anl_enhance                     fort.56
