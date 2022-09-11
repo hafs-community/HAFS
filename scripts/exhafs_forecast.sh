@@ -735,6 +735,10 @@ ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 1 ${ntiles})
 do
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${itile}.nc ./oro_data_ls.tile${itile}.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${itile}.nc ./oro_data_ss.tile${itile}.nc
+  fi
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
 ${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./grid_spec.nc
@@ -744,6 +748,10 @@ do
   inest=$(($itile - 5))
   ${NLN} ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${itile}.nc
   ${NLN} oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} oro_data_ls.tile${itile}.nc oro_data_ls.nest0${inest}.tile${itile}.nc
+    ${NLN} oro_data_ss.tile${itile}.nc oro_data_ss.nest0${inest}.tile${itile}.nc
+  fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${itile}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
 done
@@ -755,8 +763,16 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile6.nc grid.tile6.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile6.nc oro_data.tile6.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile6.nc oro_data_ls.tile6.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile6.nc oro_data_ss.tile6.nc
+  fi
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile6.nc oro_data_ls.tile6.${rrtmp}x.nc
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile6.nc oro_data_ss.tile6.${rrtmp}x.nc
+  fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
   done
@@ -857,6 +873,10 @@ tile=7
 # prepare grid and orog files (halo[034])
 ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
 ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
+if [ ${use_orog_gsl:-no} = yes ]; then
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${tile}.nc ./
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${tile}.nc ./
+fi
 ${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./
 
 ${NLN} ${CASE}_mosaic.nc grid_spec.nc
@@ -865,6 +885,10 @@ ${NLN} ${CASE}_grid.tile7.halo3.nc ${CASE}_grid.tile7.nc
 ${NLN} ${CASE}_grid.tile7.halo4.nc grid.tile7.halo4.nc
 ${NLN} ${CASE}_oro_data.tile7.halo0.nc oro_data.nc
 ${NLN} ${CASE}_oro_data.tile7.halo4.nc oro_data.tile7.halo4.nc
+if [ ${use_orog_gsl:-no} = yes ]; then
+  ${NLN} ${CASE}_oro_data_ls.tile7.nc oro_data_ls.nc
+  ${NLN} ${CASE}_oro_data_ss.tile7.nc oro_data_ss.nc
+fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
 
@@ -875,6 +899,10 @@ ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 8 ${ntiles})
 do
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${itile}.nc ./oro_data_ls.tile${itile}.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${itile}.nc ./oro_data_ss.tile${itile}.nc
+  fi
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
 
@@ -883,6 +911,10 @@ do
   inest=$(($itile - 6))
   ${NLN} ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${inest}.nc
   ${NLN} oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${inest}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} oro_data_ls.tile${itile}.nc oro_data_ls.nest0${inest}.tile${inest}.nc
+    ${NLN} oro_data_ss.tile${itile}.nc oro_data_ss.nest0${inest}.tile${inest}.nc
+  fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
 done
@@ -896,8 +928,16 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
+  fi
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile7.nc oro_data_ls.tile1.${rrtmp}x.nc
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile7.nc oro_data_ss.tile1.${rrtmp}x.nc
+  fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
   done
@@ -1145,7 +1185,7 @@ if [ ${ENSDA} = YES ]; then
     ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/atmos_static*.nc RESTART/
   fi
   if [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.nc ]; then
-    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.n*c RESTART/
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data*.n*c RESTART/
   fi
 else
   if [ -s ${WORKhafs}/intercom/RESTART_init/grid_spec.nc ]; then
@@ -1155,7 +1195,7 @@ else
     ${NCP} -p ${WORKhafs}/intercom/RESTART_init/atmos_static*.nc RESTART/
   fi
   if [ -s ${WORKhafs}/intercom/RESTART_init/oro_data.nc ]; then
-    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/oro_data.n*c RESTART/
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/oro_data*.n*c RESTART/
   fi
 fi
 

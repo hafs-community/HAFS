@@ -462,6 +462,14 @@ oro_data=oro_data${nesttilestr}.nc
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
+oro_data_ls=oro_data_ls${nesttilestr}.nc
+if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ls} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
+fi
+oro_data_ss=oro_data_ss${nesttilestr}.nc
+if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ss} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
+fi
 
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]] ; then
   # Pass over the grid_mspec files for moving nest (useful for storm cycling)
