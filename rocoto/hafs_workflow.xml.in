@@ -6,7 +6,7 @@
 
   <!ENTITY COM_SCRUB_TIME "10800">
   <!ENTITY WORK_SCRUB_TIME "3600">
-  <!ENTITY CYCLE_THROTTLE "5">
+  <!ENTITY CYCLE_THROTTLE "7">
   <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
@@ -224,6 +224,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -243,6 +244,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
     <envar><name>ATM_PREP_MVNEST</name><value>YES</value></envar>
@@ -263,6 +265,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_IC_RESOURCES;
     &ENV_VARS;
 
@@ -304,6 +307,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_IC_RESOURCES;
     &ENV_VARS;
     <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
@@ -345,6 +349,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_INIT_RESOURCES;
     &ENV_VARS;
 
@@ -367,6 +372,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_INIT_RESOURCES;
     &ENV_VARS;
     <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
@@ -390,6 +396,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -416,6 +423,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -444,6 +452,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_VI_RESOURCES;
     &ENV_VARS;
 
@@ -473,6 +482,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_VI_RESOURCES;
     &ENV_VARS;
     <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
@@ -503,6 +513,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ANALYSIS_RESOURCES;
     &ENV_VARS;
 
@@ -534,6 +545,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ANALYSIS_RESOURCES;
       &ENV_VARS;
       <envar><name>FGAT</name><value>YES</value></envar>
@@ -569,6 +581,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ATM_LBC_RESOURCES;
       &ENV_VARS;
       <envar><name>BC_GROUPN</name><value>6</value></envar>
@@ -609,6 +622,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &DOCN_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -625,6 +639,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &OCN_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -678,6 +693,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &WAV_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -714,6 +730,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &OBS_PROC_RESOURCES;
     &ENV_VARS;
 
@@ -733,6 +750,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ANALYSIS_RESOURCES;
     &ENV_VARS;
     <dependency>
@@ -788,6 +806,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
@@ -819,6 +838,7 @@
     &RESERVATION;
     <queue>&QUEUE_FORECAST;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &FORECAST_RESOURCES;
     &ENV_VARS;
 
@@ -878,6 +898,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_POST_RESOURCES;
     &ENV_VARS;
 
@@ -903,6 +924,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &OCN_POST_RESOURCES;
     &ENV_VARS;
 
@@ -926,6 +948,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &WAV_POST_RESOURCES;
     &ENV_VARS;
 
@@ -947,6 +970,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &PRODUCT_RESOURCES;
     &ENV_VARS;
 
@@ -972,6 +996,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -998,6 +1023,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ATM_IC_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1039,6 +1065,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ATM_INIT_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1065,6 +1092,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &MERGE_RESOURCES;
       &ENV_VARS;
       <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -1099,6 +1127,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ATM_VI_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1132,6 +1161,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ANALYSIS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1168,6 +1198,7 @@
         &RESERVATION;
         <queue>&QUEUE_PE;</queue>
         &PE_EXTRA;
+        &CORES_EXTRA;
         &ATM_LBC_ENS_RESOURCES;
         &ENV_VARS;
         <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1209,6 +1240,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1238,6 +1270,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ENKF_GSI_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1263,6 +1296,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ENKF_GSI_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1283,6 +1317,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1304,6 +1339,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CORES_EXTRA;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1329,6 +1365,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &MERGE_RESOURCES;
       &ENV_VARS;
       <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
@@ -1363,6 +1400,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &FORECAST_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1416,6 +1454,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
+      &CORES_EXTRA;
       &ATM_POST_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1441,6 +1480,7 @@
       <account>&ACCOUNT;</account>
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
+      &CORES_EXTRA;
       &PE_EXTRA;
       &PRODUCT_RESOURCES;
       &ENV_VARS;
@@ -1468,6 +1508,7 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
+    &CORES_EXTRA;
     &PE_EXTRA;
     &HRDGRAPHICS_RESOURCES;
     &ENV_VARS;
@@ -1492,6 +1533,7 @@
     &RESERVATION;
     <!--&RESERV_FCST;-->
     <queue>&QUEUE_PE;</queue>
+    &CORES_EXTRA; 
     &PE_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;
