@@ -6,7 +6,7 @@
 
   <!ENTITY COM_SCRUB_TIME "10800">
   <!ENTITY WORK_SCRUB_TIME "3600">
-  <!ENTITY CYCLE_THROTTLE "7">
+  <!ENTITY CYCLE_THROTTLE "5">
   <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
