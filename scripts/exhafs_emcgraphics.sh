@@ -386,20 +386,17 @@ if [ ${run_ocean} = yes ];  then
 
 cd ${WORKgraph}
 
-cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
-export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
-
 # Wait for hycompost and product output
 atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]
 do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc ] && [ -f ${atcfFile} ] ; then
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc and ${atcfFile} exist"
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ] ; then
+    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
     sleep 60s
   fi
   n=$(( n+1 ))
