@@ -53,6 +53,7 @@
   fv_debug = .false.
   range_warn = .true.
   reset_eta = .false.
+  upoff = 1
   n_sponge = 24
   nudge_qv = .false.
   nudge_dz = .false.
