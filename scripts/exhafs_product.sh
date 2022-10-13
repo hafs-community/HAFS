@@ -3,7 +3,12 @@
 set -xe
 
 if [ ${ENSDA} = YES ]; then
-  export NHRS=${NHRS_ENS:-126}
+# Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+    NHRS=${NHRS:-126}
+  else
+    NHRS=${NHRS_ENS:-6}
+  fi
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
@@ -192,11 +197,12 @@ cp -p ${GETTRKEXEC} ./hafs_gettrk.x
 #ln -sf ${GETTRKEXEC} ./hafs_gettrk.x
 set +e
 set -o pipefail
-time ./hafs_gettrk.x < namelist.gettrk 2>&1 | tee ./hafs_gettrk.out
+time ./hafs_gettrk.x  2>&1 | tee ./hafs_gettrk.out
 set +o pipefail
 set -e
 
-if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+#if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
+if grep "top of output_all" ./hafs_gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
 else
   echo "ERROR: exhafs_product failed running vortex tracker"

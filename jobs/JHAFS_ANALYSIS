@@ -17,8 +17,8 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  module load modulefile.ProdGSI.${machine}
+ #module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+ #module load modulefile.ProdGSI.${machine}
   module list
 fi
 
@@ -42,9 +42,44 @@ export ENSDA=${ENSDA:-NO}
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
 
+yr=`echo $CDATE | cut -c1-4`
+mn=`echo $CDATE | cut -c5-6`
+dy=`echo $CDATE | cut -c7-8`
+
+export NDATE=${NDATE:-ndate}
+export NCP=${NCP:-"/bin/cp"}
+CDATEprior=`${NDATE} -6 $CDATE`
+export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
+
+if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
+elif [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr_fgat06
+elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
+elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
+else
+  if [ ${RUN_ATM_VI} = "YES" ]; then
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
+  elif [ ${RUN_GSI_VR} = "YES" ]; then
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr
+  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
+  elif [ ${RUN_ATM_INIT} = "YES" ]; then
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
+  else
+    RESTARTinp_fgat06=${COMhafsprior}/RESTART
+  fi
+fi
+RESTARTinp=${RESTARTinp_fgat06}
+
 # analysis for d01
 if [ ${GSI_D01} = YES ]; then
 
+export neststr=${neststr:-""}
+export tilestr=${tilestr:-".tile1"}
+export nesttilestr=${nesttilestr:-""}
 export DATA=${WORKhafs}/analysis
 
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -63,10 +98,55 @@ if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
 fi
 
+else
+
+export neststr=${neststr:-""}
+export tilestr=${tilestr:-".tile1"}
+export nesttilestr=${nesttilestr:-""}
+
+export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
+mkdir -p ${RESTARTanl}
+
+if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
+
+${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/oro_data${nesttilestr}.nc
+${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/atmos_static${nesttilestr}.nc
+${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttilestr}.nc
+
+# pass over phy_data as well
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+
+if [[ ! -z "$neststr" ]] ; then
+ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ fi
+fi
+
+# Pass over the grid_mspec files for moving nest
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+    # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
+  else
+    # "grid_mspec.nest02_${yr}_${mn}_${dy}_${cyc}.tile2.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec${neststr}_${yr}_${mn}_${dy}_${cyc}${tilestr}.nc ${RESTARTanl}/
+  fi
+fi
+
+fi
+
 fi
 
 # analysis for d02
-if [ ${GSI_D02} = YES ]; then
+if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
 export neststr=".nest02"
 export tilestr=".tile2"
@@ -87,6 +167,51 @@ ${HOMEhafs}/scripts/exhafs_analysis.sh
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
+fi
+
+elif [ ${GSI_D02} != YES ] && [[ $nest_grids -ge 2 ]]; then
+
+export neststr=".nest02"
+export tilestr=".tile2"
+export nesttilestr=".nest02.tile2"
+
+export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
+mkdir -p ${RESTARTanl}
+
+if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.sfc_data${nesttilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
+
+${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/oro_data${nesttilestr}.nc
+${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/atmos_static${nesttilestr}.nc
+${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttilestr}.nc
+
+# pass over phy_data as well
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+
+if [[ ! -z "$neststr" ]] ; then
+ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ fi
+fi
+
+# Pass over the grid_mspec files for moving nest
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+    # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
+  else
+    # "grid_mspec.nest02_${yr}_${mn}_${dy}_${cyc}.tile2.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec${neststr}_${yr}_${mn}_${dy}_${cyc}${tilestr}.nc ${RESTARTanl}/
+  fi
+fi
+
 fi
 
 fi

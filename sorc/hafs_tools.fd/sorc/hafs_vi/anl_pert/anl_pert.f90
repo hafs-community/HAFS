@@ -258,9 +258,9 @@
        if(SN.eq.'S')CLAT_NHC=-CLAT_NHC
        if(EW.eq.'W')CLON_NHC=-CLON_NHC
 
-       if(I360.eq.360) then
-          if(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
-       end if
+!wpac       if(I360.eq.360) then
+!wpac          if(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
+!wpac       end if
 !
        vobs=ivobs*1.0    !* Vmax (m/s)
        vobs_o= vobs

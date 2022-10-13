@@ -93,6 +93,10 @@ if [ ${machine} = "wcoss_cray" ]; then
   export OMP_NUM_THREADS=1
   export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
   ${APRUNF} cmdfile_product
+elif [ ${machine} = "wcoss2" ]; then
+  ncmd=$(cat ./cmdfile_product | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  ${APRUNCFP} -n ${ncmd_max} cfp ./cmdfile_product
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_product
 fi
@@ -100,8 +104,15 @@ fi
 for ng in $(seq 1 ${ngrids});
 do
 
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
 gridstr=".grid$(printf '%02d' ${ng})"
-if grep "PROGRAM GETTRK   HAS ENDED" ./run_product${gridstr}.log ; then
+cat ./run_product${gridstr}.log
+#if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out ; then
   echo "INFO: successfully ran run_product${gridstr}"
 else
   echo "ERROR: failed running run_product${gridstr}"

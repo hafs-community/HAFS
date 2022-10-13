@@ -51,6 +51,7 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 export run_init=yes
+
 if [ ${FGAT_MODEL} = gdas ]; then
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 # export out_prefix=$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')
@@ -134,6 +135,10 @@ date
 
 #===============================================================================
 # post
+
+export TOTAL_TASKS=120
+export OMP_NUM_THREADS=1
+source ${USHhafs}/hafs_runcmd.sh.inc
 
 if [ ${ENSDA} = YES ]; then
   export ENSID=${ENSID:-001}
@@ -249,8 +254,15 @@ fi
 for ng in $(seq 1 ${ngrids});
 do
 
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
 gridstr=".grid$(printf '%02d' ${ng})"
-if grep "PROGRAM GETTRK   HAS ENDED" ./run_product${gridstr}.log ; then
+cat ./run_product${gridstr}.log
+#if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
+if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out ; then
   echo "INFO: successfully ran run_product${gridstr}"
 else
   echo "ERROR: failed running run_product${gridstr}"

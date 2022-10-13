@@ -380,6 +380,25 @@
         !--- glat=grid_yt*180./pi, grid_yt=1:2160, what is this?
         if ( nrecord == 10 ) then
            !write(*,'(a,4i8)')'=== record10: ',ix, iy, nx, ny
+
+           !For WPAC storms located near the west of international date line, add 360 to
+           !longitude value in the eastern side of IDL (western hemisphere) so that all
+           !longitude values have positive values in the VI domain.
+           if ( cen_lon > 0. ) then
+              do j = 1, ny; do i = 1, nx
+                 if(glon(i,j).lt.0.0) glon(i,j)=glon(i,j)+360.0
+              enddo; enddo
+           endif
+
+           !For CPAC storms located near the east of international date line, subrtact 360
+           !from longitude value in the western side of IDL (eastern hemisphere) so
+           !that all longitude values have negative values in the VI domain.
+           if ( cen_lon < -140. )then
+              do j = 1, ny; do i = 1, nx
+                 if(glon(i,j).gt.0.0) glon(i,j)=glon(i,j)-360.0
+              enddo; enddo
+           endif
+
            write(*,'(a,4f8.3)')'=== record10: ',glon(1,1), glat(1,1), glon(nx,ny), glat(nx,ny)
            write(flid_out) glon,glat,glon,glat 
            if ( nd > 1 ) read(flid_in)
@@ -646,6 +665,29 @@
   enddo
   allocate(hlon(nx,ny), hlat(nx,ny), vlon(nx,ny), vlat(nx,ny))
   read(iunit)hlon, hlat, vlon, vlat
+! -------------------------------------------------------------
+
+  ! For WPAC storms, CONVERT positive values of western hemisphere within the VI domain
+  ! into negative value, IF the portion of western hemisphere (e.g., the eastern side of IDL)
+  ! is included in VI domain, because VI is completed
+  if ( cen_lon > 0. ) then
+     do j = 1, ny; do i = 1, nx
+        if(hlon(i,j).gt.180.0) hlon(i,j)=hlon(i,j)-360.0
+        if(vlon(i,j).gt.180.0) vlon(i,j)=vlon(i,j)-360.0
+     enddo; enddo
+  endif
+
+  ! For CPAC storms located near the east of international date line
+  ! CONVERT negative values of eastern hemisphere within the VI domain into positive value
+  ! because VI is done
+  if ( cen_lon < -140. )then
+     do j = 1, ny; do i = 1, nx
+        if(hlon(i,j).le.-180.0) hlon(i,j)=hlon(i,j)+360.0
+        if(vlon(i,j).le.-180.0) vlon(i,j)=vlon(i,j)+360.0
+     enddo; enddo
+  endif
+
+! -------------------------------------------------------------
   write(*, '(a,8f10.3)')' hlon,hlat(1,1; nx,1; nx,ny; 1,ny) =', &
                         hlon(1,1), hlat(1,1), hlon(nx,1), hlat(nx,1), hlon(nx,ny), hlat(nx,ny), hlon(1,ny), hlat(1,ny) 
   write(*, '(a,8f10.3)')' vlon,vlat(1,1; nx,1; nx,ny; 1,ny) =', &

@@ -17,6 +17,9 @@ export machine=${WHERE_AM_I:-wcoss_cray}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
+  if [ ${machine} != wcoss2 ]; then
+    module purge
+  fi
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
   module load build.${machine}.intel
   module list
@@ -39,6 +42,9 @@ export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
 export ENSDA=${ENSDA:-NO}
+export ATM_PREP_MVNEST=${ATM_PREP_MVNEST:-NO}
+
+if [[ ${ATM_PREP_MVNEST} != YES ]]; then
 
 # Deterministic or ensemble
 if [ ${ENSDA} = YES ]; then
@@ -86,6 +92,8 @@ if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
 fi
 
+elif [[ ${ATM_PREP_MVNEST} = YES ]]; then
+
 # If moving nest is enabled
 if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]] ; then
 
@@ -122,6 +130,8 @@ ${HOMEhafs}/scripts/exhafs_atm_prep.sh
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
+fi
+
 fi
 
 fi

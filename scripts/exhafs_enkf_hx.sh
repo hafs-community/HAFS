@@ -7,7 +7,7 @@ set -xe
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMINhafs=${COMINhafs:-${COMgfs}}
 export DONST=${DONST:-"NO"}
 export use_bufr_nr=${use_bufr_nr:-no}
 export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
@@ -432,9 +432,15 @@ if [ -s ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr ]; then
   cat ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr >> prepbufr
 fi
 COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
-${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d            hdobbufr
+fi
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d          l2rwbufr
+fi
+if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d ]; then
+  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d          tldplrbufr
+fi
 
 fi #USE_SELECT
 
@@ -512,6 +518,9 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_GRID_RATIO_ENS_/${GRID_RATIO_ENS:-1}/g" \
     -e "s/_REGIONAL_ENSEMBLE_OPTION_/${REGIONAL_ENSEMBLE_OPTION:-1}/g" \
     -e "s/_GRID_RATIO_FV3_REGIONAL_/${grid_ratio_fv3_regional:-1}/g" \
+    -e "s/_L_BOTH_FV3SAR_GFS_ENS_/${l_both_fv3sar_gfs_ens:-.false.}/g" \
+    -e "s/_NENS_GFS_/${n_ens_gfs:-80}/g" \
+    -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
@@ -686,7 +695,7 @@ EOFdiag
       chmod 755 ./mp_diag.sh
       ncmd=$(cat ./mp_diag.sh | wc -l)
       if [ $ncmd -gt 0 ]; then
-         ncmd_max=$((ncmd < npe_node_max ? ncmd : npe_node_max))
+         ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
          APRUNCFP_DIAG=$(eval echo $APRUNCFP)
          $APRUNCFP_DIAG ./mp_diag.sh
          export ERR=$?

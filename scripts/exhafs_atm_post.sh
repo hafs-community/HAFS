@@ -7,7 +7,12 @@ NLN=${NLN:-'/bin/ln -sf'}
 NDATE=${NDATE:-ndate}
 
 if [ ${ENSDA} = YES ]; then
-  export NHRS=${NHRS_ENS:-126}
+# Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
+    NHRS=${NHRS:-126}
+  else
+    NHRS=${NHRS_ENS:-6}
+  fi
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
@@ -307,7 +312,13 @@ if [ ${satpost} = .true. ]; then
 echo ${WGRIB2} ${sat_grb2post}                                             ${opts} -new_grid ${postgridspecs} ${sat_grb2file} >> cmdfile
 fi
 chmod +x cmdfile
-${APRUNC} ${MPISERIAL} -m cmdfile
+if [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile
+else
+   ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -424,11 +435,20 @@ do
     fi
   fi
 done
+
+if [ -s cmdfile_mppnccombine ]; then
+
 chmod +x cmdfile_mppnccombine
 if [ ${machine} = "wcoss_cray" ]; then
   ${APRUNF} cmdfile_mppnccombine
+elif [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_mppnccombine
 else
   ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
+fi
+
 fi
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
@@ -446,7 +466,11 @@ fi
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]] ; then
   # Pass over the grid_mspec files for moving nest (useful for storm cycling)
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-    ${NCP} -p ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10; done
+    if [ ! -L ${INPdir}/${grid_mspec} ]; then
+      mv ${INPdir}/${grid_mspec} ${INPdir}/RESTART/${grid_mspec}
+      ${NLN} ${INPdir}/RESTART/${grid_mspec} ${INPdir}/${grid_mspec}
+    fi
   fi
   # Deliver hafs.trak.patcf if exists
   if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then

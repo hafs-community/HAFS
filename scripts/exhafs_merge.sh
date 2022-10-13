@@ -15,11 +15,6 @@ NCTSK=${NCTSK:-12}
 NCNODE=${NCNODE:-24}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
 APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-if [ ${machine} = "wcoss_cray" ]; then
-  APRUNS=${APRUNS}
-else
-  APRUNS=time
-fi
 
 # Utilities
 NDATE=${NDATE:-ndate}
@@ -72,21 +67,30 @@ do
   out_grid=${RESTARTmrg}/grid_spec.nc
   in_file=${RESTARTsrc}/${PDY}.${cyc}0000.${var}.nc
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nc
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+    exit 1
+  fi
   cat >> cmdfile_datool_merge << EOF
-  ${APRUNS} ${MERGE_CMD} \
+  time ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} \
-    > datool.${var}.log
+    > datool.${var}.log 2>&1
 EOF
 done
 chmod +x cmdfile_datool_merge
-if [ ${machine} = "wcoss_cray" ]; then
-  time ./cmdfile_datool_merge
+[ $machine = wcoss_cray ] && set +e
+if  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge
 else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
+   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
 fi
+[ $machine = wcoss_cray ] && set -e
 cat datool.*.log
 
 # Regional with one nest configuration
@@ -114,21 +118,30 @@ do
   else
     out_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.tile1.nc
   fi
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+    exit 1
+  fi
   cat >> cmdfile_datool_merge.step1 << EOF
-  ${APRUNS} ${MERGE_CMD} \
+  time ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} \
-    > datool.${var}.step1.log
+    > datool.${var}.step1.log 2>&1
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-if [ ${machine} = "wcoss_cray" ]; then
-  time ./cmdfile_datool_merge.step1
+[ $machine = wcoss_cray ] && set +e
+if  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
+[ $machine = wcoss_cray ] && set -e
 cat datool.*.step1.log
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -146,21 +159,30 @@ do
     in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.tile1.nc
   fi
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+    exit 1
+  fi
   cat >> cmdfile_datool_merge.step1 << EOF
-  ${APRUNS} ${MERGE_CMD} \
+  time ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} \
-    > datool.${var}.step1.log
+    > datool.${var}.step1.log 2>&1
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-if [ ${machine} = "wcoss_cray" ]; then
-  time ./cmdfile_datool_merge.step1
+[ $machine = wcoss_cray ] && set +e
+if  [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step1
 else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
+   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
+[ $machine = wcoss_cray ] && set -e
 cat datool.*.step1.log
 
 else
@@ -181,21 +203,30 @@ do
     in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.tile1.nc
     out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.tile1.nc
   fi
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+    exit 1
+  fi
   cat >> cmdfile_datool_merge.step2 << EOF
-  ${APRUNS} ${MERGE_CMD} \
+  time ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} \
-    > datool.${var}.step2.log
+    > datool.${var}.step2.log 2>&1
 EOF
 done
 chmod +x cmdfile_datool_merge.step2
-if [ ${machine} = "wcoss_cray" ]; then
-  time ./cmdfile_datool_merge.step2
+[ $machine = wcoss_cray ] && set +e
+if [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step2 | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step2
 else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
+   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
 fi
+[ $machine = wcoss_cray ] && set -e
 cat datool.*.step2.log
 
 # Step 3: merge srcd02 into dstd02
@@ -206,21 +237,30 @@ do
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+    exit 1
+  fi
   cat >> cmdfile_datool_merge.step3 << EOF
-  ${APRUNS} ${MERGE_CMD} \
+  time ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} \
-    > datool.${var}.step3.log
+    > datool.${var}.step3.log 2>&1
 EOF
 done
 chmod +x cmdfile_datool_merge.step3
-if [ ${machine} = "wcoss_cray" ]; then
-  time ./cmdfile_datool_merge.step3
+[ $machine = wcoss_cray ] && set +e
+if [ ${machine} = "wcoss2" ]; then
+   ncmd=$(cat ./cmdfile_datool_merge.step3 | wc -l)
+   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_datool_merge.step3
 else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
+   ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
 fi
+[ $machine = wcoss_cray ] && set -e
 cat datool.*.step3.log
 
 else

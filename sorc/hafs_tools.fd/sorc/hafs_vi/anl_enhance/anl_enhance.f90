@@ -425,9 +425,9 @@
 
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
-      if(I360.eq.360) then
-        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
-      endif
+!wpac      if(I360.eq.360) then
+!wpac        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
+!wpac      endif
 
 !      PW=1.
 !      IF(DEPTH.eq.'S')THEN
