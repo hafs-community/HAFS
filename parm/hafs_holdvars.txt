@@ -106,6 +106,7 @@ export bctype={bctype}
 export ictype_ens={ictype_ens}
 export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
+export use_orog_gsl={use_orog_gsl}
 
 export CASE={CASE}
 export LEVS={LEVS}

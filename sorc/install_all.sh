@@ -23,6 +23,7 @@ $Build_forecast && {
 $Build_utils && {
   ${CP} hafs_utils.fd/exec/chgres_cube               ../exec/hafs_chgres_cube.x
   ${CP} hafs_utils.fd/exec/orog                      ../exec/hafs_orog.x
+  ${CP} hafs_utils.fd/exec/orog_gsl                  ../exec/hafs_orog_gsl.x
   ${CP} hafs_utils.fd/exec/sfc_climo_gen             ../exec/hafs_sfc_climo_gen.x
   ${CP} hafs_utils.fd/exec/global_equiv_resol        ../exec/hafs_global_equiv_resol.x
   ${CP} hafs_utils.fd/exec/regional_esg_grid         ../exec/hafs_regional_esg_grid.x
