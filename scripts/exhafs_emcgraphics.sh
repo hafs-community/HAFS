@@ -171,7 +171,7 @@ done
 figTimeLevels=${IFHR}
 
 #Generate the cmdfile
-cmdfile="cmdfile.${FHR3}"
+cmdfile="cmdfile_atmos.${FHR3}"
 rm -f $cmdfile
 touch $cmdfile
 
@@ -208,6 +208,9 @@ if [ ${stormDomain} = "grid01" ]; then
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
     plot_t2m_mslp_wind10m.py \
+    plot_heatflux_wind10m.py \
+    plot_shtflux_wind10m.py \
+    plot_lhtflux_wind10m.py \
     plot_precip_mslp_thk.py \
     plot_reflectivity.py \
     plot_850mb_200mb_vws.py \
@@ -234,6 +237,9 @@ if [ ${stormDomain} = "grid01" ]; then
     1003 \
     1003 \
     1003 \
+    1003 \
+    1003 \
+    1003 \
     850 \
     700 \
     500 \
@@ -253,6 +259,9 @@ elif [ ${stormDomain} = "grid02" ]; then
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
     plot_t2m_mslp_wind10m.py \
+    plot_heatflux_wind10m.py \
+    plot_shtflux_wind10m.py \
+    plot_lhtflux_wind10m.py \
     plot_precip_mslp_thk.py \
     plot_reflectivity.py \
     plot_rhmidlev_hgt_wind.py \
@@ -272,6 +281,9 @@ elif [ ${stormDomain} = "grid02" ]; then
     plot_tempanomaly_hgt_wind.py \
     )
   levAll=( \
+    1003 \
+    1003 \
+    1003 \
     1003 \
     1003 \
     1003 \
@@ -370,52 +382,51 @@ date
 # For the ocean figures
 #==============================================================================
 
-#if [ ${run_ocean} = yes ];  then
-if [ no = yes ];  then
+if [ ${run_ocean} = yes ];  then
 
 cd ${WORKgraph}
-
-cp ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
-export hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
 
 # Wait for hycompost and product output
 atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]
 do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc ] && [ -f ${atcfFile} ] ; then
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc and ${atcfFile} exist"
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ] ; then
+    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs_${hycom_basin}_3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
     sleep 60s
   fi
   n=$(( n+1 ))
 done
 
 #Generate the cmdfile
-cmdfile='cmdfile'
+cmdfile='cmdfile_ocean'
 rm -f $cmdfile
 touch $cmdfile
 
 figScriptAll=( \
-  "SSTnc.py" \
-  "MLDnc.py" \
-  "OHCnc.py" \
-  "Z20nc.py" \
-  "storm_SST.py" \
-  "storm_MLD.py" \
-  "storm_OHC.py" \
-  "storm_Z20.py" \
-  "storm_tempZ40m.py" \
-  "storm_tempZ70m.py" \
-  "storm_tempZ100m.py" \
-  "storm_WvelZ40m.py" \
-  "storm_WvelZ70m.py" \
-  "storm_WvelZ100m.py" \
+  "plot_sst.py" \
+  "plot_sss.py" \
+  "plot_mld.py" \
+  "plot_ohc.py" \
+  "plot_z20.py" \
+  "plot_z26.py" \
+  "plot_storm_sst.py" \
+  "plot_storm_sss.py" \
+  "plot_storm_mld.py" \
+  "plot_storm_ohc.py" \
+  "plot_storm_z20.py" \
+  "plot_storm_z26.py" \
+  "plot_storm_tempz40m.py" \
+  "plot_storm_tempz70m.py" \
+  "plot_storm_tempz100m.py" \
+  "plot_storm_wvelz40m.py" \
+  "plot_storm_wvelz70m.py" \
+  "plot_storm_wvelz100m.py" \
   )
-# "storm_HeatFlux.py" \
 
 nscripts=${#figScriptAll[*]}
 
@@ -423,10 +434,8 @@ trackOn=True
 
 for((i=0;i<${nscripts};i++));
 do
-
   echo ${figScriptAll[$i]}
   echo "${APRUNS} ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $trackOn ${figScriptAll[$i]} > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.log 2>&1" >> $cmdfile
-
 done
 
 chmod u+x ./$cmdfile

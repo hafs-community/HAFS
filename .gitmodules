@@ -1,7 +1,7 @@
 [submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
 	url = https://github.com/hafs-community/ufs-weather-model.git
-	branch = feature/hafsv0.3_final
+	branch = support/HAFS
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
@@ -9,7 +9,7 @@
 [submodule "gfdl-tracker"]
 	path = sorc/hafs_tracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
-	branch = feature/hafsv0.3_final
+	branch = support/HAFS
 [submodule "NCEPLIBS-pyprodutil"]
 	path = ush/produtil_repo
 	url = https://github.com/hafs-community/NCEPLIBS-pyprodutil.git
@@ -17,7 +17,7 @@
 [submodule "sorc/hafs_gsi.fd"]
 	path = sorc/hafs_gsi.fd
 	url = https://github.com/hafs-community/GSI.git
-	branch = feature/hafsv0.3_final
+	branch = support/HAFS
 [submodule "GPLOT"]
 	path = sorc/hafs_graphics.fd/hrd_gplot
 	url = https://github.com/hafs-community/GPLOT.git
