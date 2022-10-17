@@ -448,18 +448,18 @@ fi
     sed -i -e 's/^export jend_nest_ens=[0-9]\{3,4\},-999$/export jend_nest_ens='${jend_nest}'/g' ${COMhafs}/storm1.holdvars.txt
 
     # Get storm center from vitals and update storm1.conf/storm1.holdvars.txt for future tasks
-    tclat=echo "`awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev` / 10" | bc -l | xargs printf "%.1f\n"
-    if [ "$(awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c1)" == "S" ]; then
-        tclat=$(( tclat * -1 ))
+    tclat=$( printf "%.1f" $( bc <<< "scale=6; $( awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev )/10.0" ) )
+    if [ "$( awk '{print $6}' ${WORKhafs}/tmpvit | rev | cut -c1 )" == "S" ]; then
+        tclat=$( printf "%.1f" $( bc <<< "scale=6; ${tclat} * -1.0" ) )
     fi
-    tclon=echo "`awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev` / 10" | bc -l | xargs printf "%.1f\n"
-    if [ "$(awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c1)" == "W" ]; then
-        tclon=$(( tclon * -1 ))
+    tclon=$( printf "%.1f" $( bc <<< "scale=6; $( awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c2- | rev )/10.0" ) )
+    if [ "$( awk '{print $7}' ${WORKhafs}/tmpvit | rev | cut -c1 )" == "W" ]; then
+        tclon=$( printf "%.1f" $( bc <<< "scale=6; ${tclon} * -1.0" ) )
     fi
-    sed -i -e 's/^output_grid_cen_lon = {domlon},*$/output_grid_cen_lon = {domlon},'${tclon}'/g' ${COMhafs}/storm1.conf
-    sed -i -e 's/^output_grid_cen_lat = {domlat},*$/output_grid_cen_lat = {domlat},'${tclat}'/g' ${COMhafs}/storm1.conf
-    sed -i -e 's/^output_grid_cen_lon=*,*$/output_grid_cen_lon='${target_lon}','${tclon}'/g' ${COMhafs}/storm1.holdvars.txt
-    sed -i -e 's/^output_grid_cen_lat=*,*$/output_grid_cen_lat='${target_lat}','${tclat}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^output_grid_cen_lon = {domlon},.*$/output_grid_cen_lon = {domlon},'${tclon}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^output_grid_cen_lat = {domlat},.*$/output_grid_cen_lat = {domlat},'${tclat}'/g' ${COMhafs}/storm1.conf
+    sed -i -e 's/^export output_grid_cen_lon=.*,.*$/export output_grid_cen_lon='${target_lon}','${tclon}'/g' ${COMhafs}/storm1.holdvars.txt
+    sed -i -e 's/^export output_grid_cen_lat=.*,.*$/export output_grid_cen_lat='${target_lat}','${tclat}'/g' ${COMhafs}/storm1.holdvars.txt
 
   fi
   #----------------------------------------------------------------
