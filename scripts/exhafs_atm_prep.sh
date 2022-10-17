@@ -344,9 +344,16 @@ fi
     GRIDFILE="${out_dir}/${CASE}_grid.tile${tile}.halo${halo0}.nc"
     STORMCENTEROUT="${WORKhafs}/atm_prep/gfdlcentergr.txt"
     TMPVIT="${WORKhafs}/tmpvit"
-
-    source /work2/noaa/aoml-hafs1/galaka/gus-toolbox/conda/load_conda.miniconda3_v397.GPLOT_20220614.sh
-
+    if [ "$machine" = orion ]; then
+        source /work2/noaa/aoml-hafs1/galaka/gus-toolbox/conda/load_conda.sh GPLOT_20220614
+    elif [ "$machine" = hera ]; then
+        source /scratch2/AOML/aoml-hafs1/Ghassan.Alaka/gus-toolbox/conda/load_conda.sh GPLOT_20220614 /scratch2/AOML/aoml-hafs1/Ghassan.Alaka/ANACONDA/miniconda3_v397 /scratch2/AOML/aoml-hafs1/Ghassan.Alaka/software/eccodes/latest
+    elif [ "$machine" = jet ]; then
+        source /lfs4/HFIP/hur-aoml/Ghassan.Alaka/gus-toolbox/conda/load_conda.sh GPLOT_20220614 /lfs1/HFIP/hur-aoml/Ghassan.Alaka/software/anaconda/miniconda3_v397 /lfs1/HFIP/hur-aoml/Ghassan.Alaka/software/eccodes/latest
+    else
+        echo "ERROR! Anaconda Python environment not supported on ${machine}. Can't proceed."
+        exit 1
+    fi
     python3 ${STORMCENTERPY} ${STORMID} ${CDATE} ${GRIDFILE} ${TMPVIT} ${STORMCENTEROUT}
     if [ ! -f ${STORMCENTEROUT} ]; then
         echo "ERROR! Could not find the storm center file --> ${STORMCENTEROUT}. Can't proceed."
