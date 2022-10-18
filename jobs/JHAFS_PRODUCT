@@ -13,7 +13,7 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
@@ -89,11 +89,7 @@ echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}
 done
 
 chmod +x cmdfile_product
-if [ ${machine} = "wcoss_cray" ]; then
-  export OMP_NUM_THREADS=1
-  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
-  ${APRUNF} cmdfile_product
-elif [ ${machine} = "wcoss2" ]; then
+if [ ${machine} = "wcoss2" ]; then
   ncmd=$(cat ./cmdfile_product | wc -l)
   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
   ${APRUNCFP} -n ${ncmd_max} cfp ./cmdfile_product
