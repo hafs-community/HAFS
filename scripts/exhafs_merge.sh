@@ -82,7 +82,6 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge
-[ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
@@ -90,7 +89,6 @@ if  [ ${machine} = "wcoss2" ]; then
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge
 fi
-[ $machine = wcoss_cray ] && set -e
 cat datool.*.log
 
 # Regional with one nest configuration
@@ -133,7 +131,6 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-[ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
@@ -141,7 +138,6 @@ if  [ ${machine} = "wcoss2" ]; then
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
-[ $machine = wcoss_cray ] && set -e
 cat datool.*.step1.log
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -174,7 +170,6 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step1
-[ $machine = wcoss_cray ] && set +e
 if  [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step1 | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
@@ -182,7 +177,6 @@ if  [ ${machine} = "wcoss2" ]; then
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step1
 fi
-[ $machine = wcoss_cray ] && set -e
 cat datool.*.step1.log
 
 else
@@ -218,7 +212,6 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step2
-[ $machine = wcoss_cray ] && set +e
 if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step2 | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
@@ -226,7 +219,6 @@ if [ ${machine} = "wcoss2" ]; then
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step2
 fi
-[ $machine = wcoss_cray ] && set -e
 cat datool.*.step2.log
 
 # Step 3: merge srcd02 into dstd02
@@ -252,7 +244,6 @@ do
 EOF
 done
 chmod +x cmdfile_datool_merge.step3
-[ $machine = wcoss_cray ] && set +e
 if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_datool_merge.step3 | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
@@ -260,7 +251,6 @@ if [ ${machine} = "wcoss2" ]; then
 else
    ${APRUNC} ${MPISERIAL} -m cmdfile_datool_merge.step3
 fi
-[ $machine = wcoss_cray ] && set -e
 cat datool.*.step3.log
 
 else

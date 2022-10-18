@@ -13,17 +13,13 @@ if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
   export F90=ifort
   export CC=icc
   export MPIFC=mpif90
-elif [ $target = wcoss_cray ] || [ $target = wcoss2 ]; then
+elif [ $target = wcoss2 ]; then
   export FC="ftn -static"
   export F90="ftn -free -static"
   export CC=icc
   export DM_FC="ftn -static"
   export DM_F90="ftn -free -static"
   export DM_CC="cc -static"
-elif [ $target = wcoss_dell_p3 ]; then
-  export FC=ifort
-  export F90=ifort
-  export CC=icc
 else
   echo "Unknown machine = $target"
   exit 1
@@ -49,11 +45,7 @@ if [ -d "${TOOLS_PATH}/build" ]; then
 fi
 mkdir ${TOOLS_PATH}/build
 cd ${TOOLS_PATH}/build
-if [ $target = wcoss_cray ]; then
-  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-else
-  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-fi
+cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
 #make -j 8
 make -j 8 VERBOSE=1
 make install

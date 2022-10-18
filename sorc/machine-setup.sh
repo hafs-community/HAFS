@@ -47,48 +47,6 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/modulefiles
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
-elif [[ -d /gpfs/hps && -e /etc/SuSE-release ]] ; then
-    # We are on NOAA Luna or Surge
-    if ( ! eval module help > /dev/null 2>&1 ) ; then
-        echo load the module command 1>&2
-        source /opt/modules/default/init/$__ms_shell
-    fi
-    target=wcoss_cray
-
-    # Silence the "module purge" to avoid the expected error messages
-    # related to modules that load modules.
-    module purge > /dev/null 2>&1
-    module use /usrx/local/prod/modulefiles
-    module use /gpfs/hps/nco/ops/nwprod/lib/modulefiles
-    module use /gpfs/hps/nco/ops/nwprod/modulefiles
-    module use /opt/cray/alt-modulefiles
-    module use /opt/cray/craype/default/alt-modulefiles
-    module use /opt/cray/ari/modulefiles
-    module use /opt/modulefiles
-    module purge > /dev/null 2>&1
-
-    # Workaround until module issues are fixed:
-    unset _LMFILES_
-    unset LOADEDMODULES
-    echo y 2> /dev/null | module clear > /dev/null 2>&1
-
-    module use /usrx/local/prod/modulefiles
-    module use /gpfs/hps/nco/ops/nwprod/lib/modulefiles
-    module use /gpfs/hps/nco/ops/nwprod/modulefiles
-    module use /opt/cray/alt-modulefiles
-    module use /opt/cray/craype/default/alt-modulefiles
-    module use /opt/cray/ari/modulefiles
-    module use /opt/modulefiles
-    module load modules
-elif [[ -L /usrx && "$( readlink /usrx 2> /dev/null )" =~ dell ]] ; then
-    # We are on NOAA Venus or Mars
-    if ( ! eval module help > /dev/null 2>&1 ) ; then
-        echo load the module command 1>&2
-        source /usrx/local/prod/lmod/lmod/init/$__ms_shell
-    fi
-    target=wcoss_dell_p3
-    module purge
-    source /usrx/local/prod/lmod/lmod/init/$__ms_shell
 elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
     target=wcoss2
     . $MODULESHOME/init/sh

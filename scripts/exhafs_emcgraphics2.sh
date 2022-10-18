@@ -32,7 +32,7 @@ export COMhafs=${COMhafs:-/hafs/com/${YMDH}/${STORMID}}
 export WORKgraph=${WORKgraph:-${COMhafs}/../../../${YMDH}/${STORMID}/emc_graphics}
 export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
 
-export machine=${WHERE_AM_I:-wcoss_cray} # platforms: wcoss_cray, wcoss_dell_p3, hera, orion, jet
+export machine=${WHERE_AM_I:-wcoss2} # platforms: wcoss2, hera, orion, jet
 export TOTAL_TASKS=${TOTAL_TASKS:-${SLURM_NTASKS:-480}}
 export NCTSK=${NCTSK:-16}
 export NCNODE=${NCNODE:-16}

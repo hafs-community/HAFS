@@ -292,7 +292,7 @@ if [ $netcdf_diag = ".true." ] ; then
 fi
 DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
 DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
-if [ ${machine} = "wcoss_cray" ] ||  [ ${machine} = "wcoss2" ]; then
+if [ ${machine} = "wcoss2" ]; then
   USE_MPISERIAL=${USE_MPISERIAL:-"NO"}
   USE_CFP=${USE_CFP:-"YES"}
 else

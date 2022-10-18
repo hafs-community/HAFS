@@ -439,9 +439,7 @@ done
 if [ -s cmdfile_mppnccombine ]; then
 
 chmod +x cmdfile_mppnccombine
-if [ ${machine} = "wcoss_cray" ]; then
-  ${APRUNF} cmdfile_mppnccombine
-elif [ ${machine} = "wcoss2" ]; then
+if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_mppnccombine
