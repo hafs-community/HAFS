@@ -53,6 +53,7 @@ GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
 TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
 VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
 SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
+NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_nhc_products.x}
 
 MPISERIAL=${MPISERIAL:-mpiserial}
 NDATE=${NDATE:-ndate}
@@ -269,6 +270,36 @@ if [ ${COMOUTproduct} = ${COMhafs} ]; then
   fi
 fi
 
+fi
+
+#===============================================================================
+# generate nhc products
+mkdir -p ${DATA}/nhc_products
+cd ${DATA}/nhc_products
+
+cp -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
+cp ${COMhafs}/storm1.holdvars.txt .
+ln -sf ${COMhafs}/${trk_atcfunix} fort.20
+
+set +e
+set -o pipefail
+time ./hafs_nhc_products.x  2>&1 | tee ./hafs_nhc_products.out
+set +o pipefail
+set -e
+
+short=${out_prefix}.grib.stats.short
+afos=${out_prefix}.afos
+tpc=${out_prefix}.stats.tpc
+
+if grep "ALL DONE" ./hafs_nhc_products.out ; then
+ cp fort.41 ${COMhafs}/${short}
+ cp fort.51 ${COMhafs}/${afos}
+ cp fort.61 ${COMhafs}/${tpc}
+ echo "INFO: nhc products has been successfully generated"
+else
+ echo "ERROR: nhc products failed"
+ echo "ERROR: exitting..."
+ exit 1
 fi
 
 #===============================================================================
