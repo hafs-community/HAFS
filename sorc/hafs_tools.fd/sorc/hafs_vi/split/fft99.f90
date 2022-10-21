@@ -36,7 +36,7 @@ contains
 
 !##########################################################################
 
-    subroutine fft99 (a,work,trigs,ifax,inc,jump,n,lot,isign) 
+    subroutine fft99 (a,work,trigs,ifax,inc,jump,n,lot,isign)
 
 ! purpose      performs multiple fast fourier transforms.  this package
 !              will perform a number of simultaneous real/half-complex
@@ -135,7 +135,7 @@ contains
 !              'half-complex' fourier coefficient vectors, or vice
 !              versa.  the length of the transforms must be an even
 !              number that has no other factors except possibly powers
-!              of 2, 3, and 5.  this is an all-fortran version of 
+!              of 2, 3, and 5.  this is an all-fortran version of
 !              optimized routine fft991 written for xmp/ymps by
 !              dr. clive temperton of ecmwf.
 !
@@ -165,7 +165,7 @@ contains
 !
 !              jump
 !               the increment (in words) between the first elements of
-!               successive data or coefficient vectors.  on crays, 
+!               successive data or coefficient vectors.  on crays,
 !               try to arrange data so that jump is not a multiple of 8
 !               (to avoid memory bank conflicts).  for clarification of
 !               inc and jump, see the examples below.
@@ -311,11 +311,11 @@ contains
       nx=n+1
       nh=n/2
       ink=inc+inc
-    if (.NOT.(isign.eq.+1)) then 
+    if (.NOT.(isign.eq.+1)) then
 
 !   if necessary, transfer data to work area
       igo=50
-      if (.NOT.(mod(nfax,2).eq.1)) then 
+      if (.NOT.(mod(nfax,2).eq.1)) then
         ibase=inc+1
         jbase=1
         do L=1,lot
@@ -365,8 +365,8 @@ contains
         endif
         la=la*ifax(k+1)
       enddo !80
- 
-    if (isign.eq.-1) then 
+
+    if (isign.eq.-1) then
       call fft99b(work,a,trigs,inc,jump,n,lot)
       return
     endif
@@ -441,7 +441,7 @@ contains
       ja=ja+nx
       jb=jb+nx
     enddo
- 
+
 !   remaining wavenumbers
     iabase=2*inc+1
     ibbase=(n-2)*inc+1
@@ -578,7 +578,7 @@ contains
         ja=ja+jump
       enddo
     endif
-  
+
     end subroutine fft99b
 
 !##########################################################################
@@ -644,7 +644,7 @@ contains
     nx=n+1
     nh=n/2
     ink=inc+inc
-    if (.NOT.(isign.eq.+1)) then 
+    if (.NOT.(isign.eq.+1)) then
 
 !    if necessary, transfer data to work area
       igo=50
@@ -666,7 +666,7 @@ contains
     !
         igo=60
         ind40=1
-      else 
+      else
         ind40=1
       endif
 !
@@ -674,7 +674,7 @@ contains
 !   ------------------------
 !
      endif
-     if(ind40.ne.1) then 
+     if(ind40.ne.1) then
        call fft99a(a,work,trigs,inc,jump,n,lot)
        igo=60
      endif
@@ -685,7 +685,7 @@ contains
       ia=1
       la=1
     do k=1,nfax
-      if (.NOT.(igo.eq.60)) then 
+      if (.NOT.(igo.eq.60)) then
         call vpassm (a(ia),a(ia+inc),work(1),work(2),trigs, &
                      ink,2,jump,nx,lot,nh,ifax(k+1),la)
       igo=60
@@ -699,7 +699,7 @@ contains
       la=la*ifax(k+1)
     enddo
 
-    if (isign.eq.-1) then 
+    if (isign.eq.-1) then
       call fft99b (work,a,trigs,inc,jump,n,lot)
       return
     endif
@@ -759,7 +759,7 @@ contains
       call fax (ifax, n, mode)
       i = ifax(1)
       if (ifax(i+1) .gt. 5 .or. n .le. 4) ifax(1) = -99
-      if (ifax(1) .le. 0 ) then 
+      if (ifax(1) .le. 0 ) then
 !        call mpp_error(FATAL,'fft99_mod: in routine set99 -- invalid n')
          print*,'fft error'
       endif
@@ -779,8 +779,8 @@ contains
     integer ind28,ind38,ind48
 
       nn=n
-      if (iabs(mode).eq.1) then 
-        if (iabs(mode).eq.8) then 
+      if (iabs(mode).eq.1) then
+        if (iabs(mode).eq.8) then
           nn=n/2
           if ((nn+nn).eq.n) then
             ifax(1)=-99
@@ -795,22 +795,22 @@ contains
         k=k+1
         ifax(k)=4
         nn=nn/4
-        if (nn.eq.1) then 
+        if (nn.eq.1) then
           ind28=1
           exit
         endif
       enddo !20
 !     test for extra factor of 2
       if (ind28.ne.1) then
-        if (.NOT.(mod(nn,2).ne.0)) then 
+        if (.NOT.(mod(nn,2).ne.0)) then
           k=k+1
           ifax(k)=2
           nn=nn/2
-          if (nn.eq.1) then 
+          if (nn.eq.1) then
             ind38=1
           endif
         endif
-  
+
         if(ind38.ne.1) then
   !     test for factors of 3
           do !40
@@ -818,29 +818,29 @@ contains
               k=k+1
               ifax(k)=3
               nn=nn/3
-              if (nn.eq.1) then 
+              if (nn.eq.1) then
                 ind48=1
                 exit
               endif
           enddo !40
     !     now find remaining factors
-          if (ind48.ne.1) then 
+          if (ind48.ne.1) then
             L=5
             inc=2
     !       inc alternately takes on values 2 and 4
-    
+
             do
-              if (.NOT.(mod(nn,L).ne.0)) then 
+              if (.NOT.(mod(nn,L).ne.0)) then
                 k=k+1
                 ifax(k)=L
                 nn=nn/L
-                if (nn.eq.1) exit 
+                if (nn.eq.1) exit
                 cycle
               endif
               L=L+inc
               inc=6-inc
             enddo !6080
-    
+
           endif !ind48
         endif !ind38
       endif !ind28
@@ -849,11 +849,11 @@ contains
 !     ifax(1) contains number of factors
       nfax=ifax(1)
 !     sort factors into ascending order
-      if (nfax.eq.1) return 
+      if (nfax.eq.1) return
       do ii=2,nfax !100
         istop=nfax+2-ii
         do i=2,istop !90
-          if (ifax(i+1).ge.ifax(i)) cycle 
+          if (ifax(i+1).ge.ifax(i)) cycle
           item=ifax(i)
           ifax(i)=ifax(i+1)
           ifax(i+1)=item
@@ -1011,9 +1011,9 @@ contains
           jbase=jbase+jump
         enddo !40
   !     return
-  
+
   !   coding for factor 3
-  
+
       case (2)
      50 ia=1
         ja=1
@@ -1076,9 +1076,9 @@ contains
           jbase=jbase+jump
         enddo !80
   !     return
-  
+
   !   coding for factor 4
-  
+
       case (3)
      90 ia=1
         ja=1
@@ -1154,9 +1154,9 @@ contains
         jbase=jbase+jump
         enddo !120
   !     return
-  
+
   !   coding for factor 5
-  
+
       case (4)
     130 ia=1
         ja=1
@@ -1268,7 +1268,7 @@ contains
           enddo !150
           jbase=jbase+jump
         enddo !160
- 
+
   end select
         return
     end subroutine vpassm

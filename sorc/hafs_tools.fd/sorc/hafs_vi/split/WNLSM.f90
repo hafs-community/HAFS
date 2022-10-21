@@ -121,19 +121,19 @@
       NTIMES = 0
       LAST = 1
       LINK = PRGOPT(1)
-      IF ((LINK.LE.0 .OR. LINK.GT.NLINK)) then 
+      IF ((LINK.LE.0 .OR. LINK.GT.NLINK)) then
         NERR = 3
         IOPT = 1
-        CALL XERROR( 'WNNLS( ) THE OPTION VECTOR IS UNDEFINED', 39, & 
+        CALL XERROR( 'WNNLS( ) THE OPTION VECTOR IS UNDEFINED', 39, &
                      NERR, IOPT)
         MODE = 2
         RETURN
 
       endif
       do
-        IF (.NOT.(LINK.GT.1)) exit 
+        IF (.NOT.(LINK.GT.1)) exit
         NTIMES = NTIMES + 1
-        IF ((NTIMES.GT.NOPT)) then 
+        IF ((NTIMES.GT.NOPT)) then
           NERR = 3
           IOPT = 1
           CALL XERROR( 'WNNLS( ). THE LINKS IN THE OPTION VECTOR ARE &
@@ -142,7 +142,7 @@
           RETURN
         endif
         KEY = PRGOPT(LAST+1)
-        IF ((KEY.EQ.6 .AND. PRGOPT(LAST+2).NE.ZERO)) then 
+        IF ((KEY.EQ.6 .AND. PRGOPT(LAST+2).NE.ZERO)) then
           if (kind(W) == real_single) then
             do J=1,N
               T = SNRM2(M,W(1,J),1)
@@ -168,7 +168,7 @@
         IF (KEY.EQ.8) TAU = AMAX1(SRELPR,PRGOPT(LAST+2))
         IF (KEY.EQ.9) BLOWUP = AMAX1(SRELPR,PRGOPT(LAST+2))
         NEXT = PRGOPT(LINK)
-        IF ((NEXT.LE.0 .OR. NEXT.GT.NLINK)) then 
+        IF ((NEXT.LE.0 .OR. NEXT.GT.NLINK)) then
           NERR = 3
           IOPT = 1
           CALL XERROR( 'WNNLS( ) THE OPTION VECTOR IS UNDEFINED', &
@@ -273,8 +273,8 @@
 !C
 !C     COMPUTE-FINAL-SOLUTION
 !C
-      do 
-        IF (DONE) exit 
+      do
+        IF (DONE) exit
 !!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !C
 !C       TO COMPUTE-SEARCH-DIRECTION-AND-FEASIBLE-POINT
@@ -299,12 +299,12 @@
 !C       ACTIVE CONSTRAINTS ARE REMOVED FROM THE BASIS.
         ALPHA = TWO
         HITCON = .FALSE.
-        IF ((L.LT.NSOLN)) then 
+        IF ((L.LT.NSOLN)) then
           DO J=LP1,NSOLN !350
             ZZ = Z(J)
-            IF (.NOT.(ZZ.LE.ZERO)) cycle 
+            IF (.NOT.(ZZ.LE.ZERO)) cycle
             T = X(J)/(X(J)-ZZ)
-            IF ((T.LT.ALPHA)) then 
+            IF ((T.LT.ALPHA)) then
               ALPHA = T
               JCON = J
             endif
@@ -315,7 +315,7 @@
 !C
 !C       COMPUTE-SEARCH-DIRECTION-AND-FEASIBLE-POINT
 !C
-        IF ((HITCON)) then 
+        IF ((HITCON)) then
 !!!!!!    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           ind59=0
 !C
@@ -324,7 +324,7 @@
 !C         USE COMPUTED ALPHA TO INTERPOLATE BETWEEN LAST
 !C         FEASIBLE SOLUTION X(*) AND CURRENT UNCONSTRAINED
 !C         (AND INFEASIBLE) SOLUTION Z(*).
-          IF ((LP1.LE.NSOLN)) then 
+          IF ((LP1.LE.NSOLN)) then
             DO J=LP1,NSOLN !380
               X(J) = X(J) + ALPHA*(Z(J)-X(J))
             enddo !380
@@ -353,7 +353,7 @@
 !C
 !C           UPDATE PERMUTED INDEX VECTOR TO REFLECT THIS SHIFT AND SWAP.
             ITEMP = IPIVOT(JCON)
-            IF ((JCON.LT.N)) then 
+            IF ((JCON.LT.N)) then
               DO I=JCON,NM1 !430
                 IPIVOT(I) = IPIVOT(I+1)
               enddo !430
@@ -380,8 +380,8 @@
             J = JCON
             I = KRANK + JCON - L
             do
-              IF (.NOT.(J.LE.NSOLN)) exit 
-                IF ((ITYPE(I).EQ.0 .AND. ITYPE(I+1).EQ.0)) then 
+              IF (.NOT.(J.LE.NSOLN)) exit
+                IF ((ITYPE(I).EQ.0 .AND. ITYPE(I+1).EQ.0)) then
                   call sub938(SPARAM, SCALE, W, MDW, I, J, NP1)
 !C
 !C                 (ITYPE(I).EQ.0 .AND. ITYPE(I+1).EQ.0) ZERO-IP1-TO-I-IN-COL-J
@@ -389,7 +389,7 @@
                   J = J + 1
                   cycle
               endif
-              IF ((ITYPE(I).EQ.1 .AND. ITYPE(I+1).EQ.1)) then 
+              IF ((ITYPE(I).EQ.1 .AND. ITYPE(I+1).EQ.1)) then
                 call sub938(SPARAM, SCALE, W, MDW, I, J, NP1)
 !C
 !C               (ITYPE(I).EQ.1 .AND. ITYPE(I+1).EQ.1) ZERO-IP1-TO-I-IN-COL-J
@@ -397,7 +397,7 @@
                 J = J + 1
                 cycle
               endif
-              IF ((ITYPE(I).EQ.1 .AND. ITYPE(I+1).EQ.0)) then 
+              IF ((ITYPE(I).EQ.1 .AND. ITYPE(I+1).EQ.0)) then
                 if (kind(W) == real_single) then
                   CALL SSWAP(NP1, W(I,1), MDW, W(I+1,1), MDW)
                 else if (kind(W) == real_double) then
@@ -421,7 +421,7 @@
                 J = J + 1
                 cycle
               endif
-              IF (.NOT.(ITYPE(I).EQ.0 .AND. ITYPE(I+1).EQ.1)) then 
+              IF (.NOT.(ITYPE(I).EQ.0 .AND. ITYPE(I+1).EQ.1)) then
                 I = I + 1
                 J = J + 1
                 cycle
@@ -456,18 +456,18 @@
 !C         SHOULD BE BECAUSE OF THE WAY ALPHA WAS DETERMINED.  IF ANY ARE
 !C         INFEASIBLE IT IS DUE TO ROUNDOFF ERROR.  ANY THAT ARE NON-
 !C         POSITIVE WILL BE SET TO ZERO AND REMOVED FROM THE SOLN SET.
-            IF ((LP1.LE.NSOLN)) then 
+            IF ((LP1.LE.NSOLN)) then
               DO JCON=LP1,NSOLN !580
                 IF (X(JCON).LE.ZERO) then
-                  ind59=1 
+                  ind59=1
                   exit
                 endif
               enddo !580
             endif
-            if (ind59.ne.1) then 
+            if (ind59.ne.1) then
               FEASBL = .TRUE.
             endif
-            IF (FEASBL) exit 
+            IF (FEASBL) exit
           enddo
 !!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           cycle
@@ -526,7 +526,7 @@
         IF ((NSP1.LE.N)) then
           DO J=NSP1,N !720
             SM = ZERO
-            IF ((NSOLN.LT.M)) then 
+            IF ((NSOLN.LT.M)) then
               DO I=NSP1,M !700
                 SM = SM + SCALE(I)*W(I,J)*W(I,NP1)
               enddo !700
@@ -535,14 +535,14 @@
           enddo !720
         endif
 
-        do 
+        do
 !C
 !C         FIND J SUCH THAT WD(J)=WMAX IS MAXIMUM.  THIS DETERMINES
 !C         THAT THE INCOMING COL J WILL REDUCE THE RESIDUAL VECTOR
 !C         AND BE POSITIVE.
           WMAX = ZERO
           IWMAX = NSP1
-          IF ((NSP1.LE.N)) then 
+          IF ((NSP1.LE.N)) then
             DO J=NSP1,N !770
               IF ((WD(J).GT.WMAX)) then
                 WMAX = WD(J)
@@ -550,7 +550,7 @@
               endif
             enddo !770
           endif
-          IF ((WMAX.LE.ZERO)) then 
+          IF ((WMAX.LE.ZERO)) then
             DONE = .TRUE.
             exit
           endif
@@ -568,7 +568,7 @@
           NSP1 = NSOLN + 1
           NIV = NIV1
           NIV1 = NIV + 1
-          IF ((NSOLN.NE.IWMAX)) then 
+          IF ((NSOLN.NE.IWMAX)) then
             if (kind(W) == real_single) then
               CALL SSWAP(M, W(1,NSOLN), 1, W(1,IWMAX), 1)
             else if (kind(W) == real_double) then
@@ -585,7 +585,7 @@
 !C         CONSTRAINTS VARIABLES IS TRIANGULAR.
           J = M
           do !810
-            IF (.NOT.(J.GT.NIV)) exit 
+            IF (.NOT.(J.GT.NIV)) exit
             JM1 = J - 1
             JP = JM1
 !C
@@ -593,13 +593,13 @@
 !C           IS NEAR ZERO.  IF SO, USE THE LARGEST ELT. ABOVE IT AS THE PIVOT.
 !C           THIS IS TO MAINTAIN THE SHARP INTERFACE BETWEEN WEIGHTED AND
 !C           NON-WEIGHTED ROWS IN ALL CASES.
-            IF ((J.EQ.MEP1)) then 
+            IF ((J.EQ.MEP1)) then
               IMAX = ME
               AMAX = SCALE(ME)*W(ME,NSOLN)**2
               do !820
-                IF (.NOT.(JP.GE.NIV)) exit 
+                IF (.NOT.(JP.GE.NIV)) exit
                 T = SCALE(JP)*W(JP,NSOLN)**2
-                IF ((T.GT.AMAX)) then 
+                IF ((T.GT.AMAX)) then
                   IMAX = JP
                   AMAX = T
                 endif
@@ -607,7 +607,7 @@
               enddo !820
               JP = IMAX
             endif
-            IF ((W(J,NSOLN).NE.ZERO)) then 
+            IF ((W(J,NSOLN).NE.ZERO)) then
               CALL SROTMG(SCALE(JP), SCALE(J), W(JP,NSOLN), &
                           W(J,NSOLN), SPARAM)
               W(J,NSOLN) = ZERO
@@ -627,19 +627,19 @@
                        NSOLN,POS,MDW, W)
 !C
 !C           TEST-PROPOSED-NEW-COMPONENT
-            IF (.NOT.(POS)) then 
+            IF (.NOT.(POS)) then
               NSP1 = NSOLN
               NSOLN = NSOLN - 1
               NIV1 = NIV
               NIV = NIV - 1
             endif
-            IF (POS .OR. DONE) then 
-              exit 
+            IF (POS .OR. DONE) then
+              exit
             else
               cycle
             endif
           endif
-          IF ((NIV.LE.ME .AND. W(MEP1,NSOLN).NE.ZERO)) then 
+          IF ((NIV.LE.ME .AND. W(MEP1,NSOLN).NE.ZERO)) then
 !C
 !C           TRY TO ADD ROW MEP1 AS AN ADDITIONAL EQUALITY CONSTRAINT.
 !C           CHECK SIZE OF PROPOSED NEW SOLN COMPONENT.
@@ -675,19 +675,19 @@
           if(ind91.ne.1) then
             POS = .FALSE.
           endif
-          IF (.NOT.(POS)) then 
+          IF (.NOT.(POS)) then
             NSP1 = NSOLN
             NSOLN = NSOLN - 1
             NIV1 = NIV
             NIV = NIV - 1
           endif
-          IF (POS .OR. DONE) exit 
+          IF (POS .OR. DONE) exit
         enddo
 
 !!!!!!  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !C
 !C       ELSE PERFORM-MULTIPLIER-TEST-AND-DROP-A-CONSTRAINT
-!C       
+!C
       enddo
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -715,7 +715,7 @@
       endif
 !C
 !C     FILL IN TRAILING ZEROES FOR CONSTRAINED VARIABLES NOT IN SOLN.
-      IF ((NSOLN.LT.N)) then 
+      IF ((NSOLN.LT.N)) then
         X(NSP1) = ZERO
         if (kind(X) == real_single) then
           CALL SCOPY(N-NSOLN, X(NSP1), 0, X(NSP1), 1)
@@ -727,7 +727,7 @@
 !C     REPERMUTE SOLN VECTOR TO NATURAL ORDER.
       DO I=1,N !1070
         J = I
-        do 
+        do
           IF (IPIVOT(J).EQ.I) exit
           J = J + 1
         enddo
@@ -744,7 +744,7 @@
       DO  J=1,N !1080
         X(J) = X(J)*D(J)
       enddo !1080
-      IF ((NSOLN.LT.M)) then 
+      IF ((NSOLN.LT.M)) then
         DO I=NSP1,M !1090
           T = W(I,NP1)
           IF (I.LE.ME) T = T/ALAMDA
@@ -774,13 +774,13 @@
 !C
 !C     SRELPR IS THE PRECISION FOR THE PARTICULAR MACHINE
 !C     BEING USED.  THIS LOGIC AVOIDS RECOMPUTING IT EVERY ENTRY.
-      IF ((SRELPR.EQ.ZERO)) then 
+      IF ((SRELPR.EQ.ZERO)) then
 !c***   changed back by BROSS
 !c***   changed by RF Boisvert, 19-Feb-92  (fails on HP 9000 Series 300)
 !cross      srelpr = r1mach(4)
          SRELPR = ONE
         do
-          IF (ONE+SRELPR.EQ.ONE) exit 
+          IF (ONE+SRELPR.EQ.ONE) exit
           SRELPR = SRELPR/TWO
         enddo
         SRELPR = SRELPR*TWO
@@ -801,7 +801,7 @@
       integer I,J,JJ,LP1,NSOLN,MDW,NP1,KRANK, ISOL, L,NIV
       REAL W(MDW,1)
       REAL Z(1), TEMP(1),ZERO
-      DATA ZERO /0.E0/ 
+      DATA ZERO /0.E0/
 
       IF ((DONE)) then
         ISOL = 1
@@ -809,7 +809,7 @@
         ISOL = LP1
       endif
       IF ((NSOLN.GE.ISOL)) then
-!C  
+!C
 !C       COPY RT. HAND SIDE INTO TEMP VECTOR TO USE OVERWRITING METHOD.
         if (kind(W) == real_single) then
           CALL SCOPY(NIV, W(1,NP1), 1, TEMP, 1)

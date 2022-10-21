@@ -12,6 +12,12 @@
 ! output:  T_X,Q_X,SLP_X   -   new axisymmetric part
 ! output:  A11,B11,C11  - correlation coef
 
+      implicit none
+      integer i,j,k,m,n,NX,NY,NZ,IR,IR1,IR_1,IR_2,nm,kmx,kmx1,NXC,NYC
+      integer jmax3,jmin,k1,KM1,KM2,IFLAG
+      real pi,pi180,pi_deg,DST1,cost,tmax,tmin,ff0,beta11,force,force2
+      real sum_str,str_cut,str_m_rat,pms1,pms2,pms3,TEK1,TEK2,ESRR,DIF
+      real tmpdiff1,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6
       real(4)   U_2S(IR1,KMX),U_2S1(IR1,KMX)
       real(4)   T_2S(IR1,KMX),Q_2S(IR1,KMX),SLP_2S(IR1)
       real(4)   HLON(NX,NY),HLAT(NX,NY)
@@ -166,10 +172,11 @@
 	if(str_cut.gt.-10.)then
 	  str_m_rat=strm2(n,1)/(strm1(n,1)-1.E-20)
 	  IR_2=n
-          go to 57
+           exit      ! shin
+!          go to 57
 	end if
       end do
- 57   continue
+! 57   continue
 
       CFT=0.
       DO n=1,IR_2
@@ -345,10 +352,11 @@
             DIF=RADIUS(N)-RIJ2(I,J)
             IF(DIF.GT.0.)THEN
               IDX1(I,J)=N
-              GO TO 25
+              EXIT     ! shin
+!              GO TO 25
             END IF
           END DO
- 25       CONTINUE
+! 25       CONTINUE
 	END DO
 	END DO
 	DO J=1,NY

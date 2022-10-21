@@ -1,5 +1,5 @@
 !---------------------------------------------------------------------------------------------------------
-! This code is designed to replace create_trak_guess.f90 of HWRF: 2022 JungHoon Shin   
+! This code is designed to replace create_trak_guess.f90 of HWRF: 2022 JungHoon Shin
 ! Usage example:
 !   ./hafs_vi_create_trak_guess.x storm_id
 !   e.g., ./hafs_vi_create_trak_guess.x 13L
@@ -52,12 +52,12 @@ program create_trak_guess
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
     if(ns.eq.'S')lat=-lat
     !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
-    if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then 
+    if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then
       lathr(ifh-2)=lat
       lonhr(ifh-2)=lon
     end if
     !If we find 9-h information or reach the end of file WITHOUT 9-h data, exit the do loop
-    if(stat /= 0 .or. ifh.eq.9) exit 
+    if(stat /= 0 .or. ifh.eq.9) exit
   enddo
 
   ! If there are no valid lat/lon locations from fort.12, then using the lat/lon
@@ -80,5 +80,5 @@ program create_trak_guess
   65 format(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1)           ! Input fort.12 (ATCF) format
   15 format('72HDAS',I6,I2,14I5,'   0   0   0   0   0   0',1x,3A) ! Output(trak.fnl.all) format
 
-end program create_trak_guess 
+end program create_trak_guess
 

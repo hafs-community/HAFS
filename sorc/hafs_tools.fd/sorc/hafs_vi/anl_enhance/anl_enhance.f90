@@ -9,7 +9,23 @@
 !
 !     DECLARE VARIABLES
 !
-      INTEGER I,J,K,NX,NY,NZ,ICH
+      IMPLICIT NONE
+      INTEGER I,J,K,L,N,NX,NY,NZ,NX1,NY1,NZ1,ICH,NST,IR,IR1,IR2,NZ2
+      integer IR_1,JX,JY,JZ,KMX,KMX1,KMX2,JST1
+      integer ITIM,IUNIT,I360,iflag_cold,IM1,JM1,id_storm,KST
+      integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs,IFLAG,K850
+      integer ictr,jctr,imn1,imx1,jmn1,jmx1,imax1,jmax1,iter,IMV,JMV
+      integer imax12,jmax12,i_psm,j_psm,k1,ics
+      real GAMMA,G,Rd,D608,Cp,GRD,COEF1,COEF2,COEF3,DST1,TENV1,press1
+      real pi,pi_deg,arad,rad,TV1,ZSF1,PSF1,A,SUM11,vobs,vobs_o,VRmax
+      real SLP1_MEAN,SLP_AVE,SLP_SUM,SLP_MIN,DP_CT,psfc_obs,psfc_cls,PRMAX
+      real Rctp,cost,TWMAX1,RWMAX1,fact_v,dp_obs,distm,distt,delt_z1,pt_c
+      real sum1,dist1,psfc_env,psfc_obs1,vobs_kt,vmax1,vmax2,d_max,RMX_d
+      real z0,vmax_s,vmax_s_b,vobs1,RMN,W,W1,crtn,beta,VMAX,UUT,VVT,FF,R_DIST
+      real UU11,VV11,UUM1,VVM1,QQ1,uv22,QQ,beta1,vmax_1,ff0,ps_min,beta11
+      real DIF,U_2S3,WT1,WT2,strm11,strm22,force,force2,PS_C1,PS_C2
+      real fact,pt_c1,ps_rat,TEK1,TEK2,ESRR,T_OLD,Q_OLD,ZSFC,TSFC,QENV1
+
 !
       PARAMETER (NST=5,IR=200)
 !      PARAMETER (NX=158,NY=329,NZ=42,NST=5)
@@ -119,16 +135,26 @@
 
 !      DATA PW_S/30*1.0,0.95,0.9,0.8,0.7,       &
 !                    0.6,0.5,0.4,0.3,0.2,0.1,45*0./
-      DATA PW_S/42*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
-                0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
-                0.25,0.2,0.15,0.1,0.05,60*0./
+!using      DATA PW_S/42*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
+!using                0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
+!using                0.25,0.2,0.15,0.1,0.05,60*0./
+      PW_S(1:42)=1.0
+      PW_S(43:61)=(/0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.6,0.55, &
+      0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1,0.05/)
+      PW_S(62:121)=0.0
+
 !      DATA PW_S/30*1.0,0.95,0.9,0.8,0.7,          &
 !                0.6,0.5,0.4,0.3,0.2,0.1,45*0./                        ! 850-700mb
 !      DATA PW_M/38*1.0,0.95,0.9,0.8,0.7,          &
 !  	        0.6,0.5,0.4,0.3,0.2,0.1,37*0./                    ! 850-400mb
-      DATA PW_M/50*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
-                0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
-                0.25,0.2,0.15,0.1,0.05,52*0./
+!using      DATA PW_M/50*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
+!using                0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
+!using                0.25,0.2,0.15,0.1,0.05,52*0./
+      PW_M(1:50)=1.0
+      PW_M(51:69)=(/0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.6,0.55, &
+       0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1,0.05/)
+      PW_M(70:121)=0.0
+
 
       COEF1=Rd/Cp
       COEF3=Rd*GAMMA/G
@@ -683,11 +709,12 @@
                W1=ALOG(1.*PCK(K+1))-ALOG(1.*PCK(K))
                W=(ALOG(1.*PCSK(N))-ALOG(1.*PCK(K)))/W1
                TEK42(N)=TEK(K)*(1.-W)+TEK(K+1)*W
-               GO TO 447
+!               GO TO 447
+               exit    !shin
              END IF
            END DO
          END IF
- 447     CONTINUE
+! 447     CONTINUE
        ENDDO
 
 ! ENV. wind
@@ -738,7 +765,7 @@
        iter=0
        beta=1.0
 
- 876   CONTINUE
+! 876   CONTINUE
 
        VMAX=0.
        DO J=1,NY
@@ -797,7 +824,7 @@
        print*,'iter,beta=',iter,beta
 
 !zhan based in Qingfu's comment       IF(iter.lt.3)go to 876
-       IF(iter.lt.1)go to 876
+!       IF(iter.lt.1)go to 876  shin: Don't need this because iter is already 1
 
        beta=beta*crtn
 
@@ -928,10 +955,11 @@
                 (RADIUS2(N)-RADIUS2(N-1))
             WT2=1.-WT1
 	    U_2S3=WT1*U_2SB(N,1)+WT2*U_2SB(N-1,1)
-	    GO TO 55
+            exit    ! shin
+!	    GO TO 55
 	  END IF
 	END DO
- 55     CONTINUE
+! 55     CONTINUE
 	U_2S2(J)=U_2S1(J,1)+beta*U_2S3
       END DO
 
@@ -1152,11 +1180,12 @@
                   W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PCST1(I,J,K)))/W1
                   T1(I,J,N)=TENV1+WRK1(K)*(1.-W)+WRK1(K+1)*W
                   Q1(I,J,N)=QENV1+WRK2(K)*(1.-W)+WRK2(K+1)*W
-                  GO TO 887
+!                  GO TO 887
+                  exit    ! shin
                END IF
              END DO
            END IF
- 887       CONTINUE
+! 887       CONTINUE
 !	   IF(N.EQ.1)THEN
 !	     IF(ZMID(I,J,1).GT.10..and.SLP1(I,J).GT.PMID1(I,J,1))THEN
 !	       PRINT*,'before T1(I,J,1)=',T(I,J,1)
@@ -1295,11 +1324,12 @@
                   W=(ALOG(1.*PMV1(I,J,N))-ALOG(1.*PCST2(K)))/W1
                   U1(I,J,N)=U1(I,J,N)+WRK1(K)*(1.-W)+WRK1(K+1)*W
                   V1(I,J,N)=V1(I,J,N)+WRK2(K)*(1.-W)+WRK2(K+1)*W
-                  GO TO 888
+!                  GO TO 888
+                  exit    ! shin
                END IF
              END DO
            END IF
- 888       CONTINUE
+! 888       CONTINUE
          END DO
        ENDDO
        ENDDO

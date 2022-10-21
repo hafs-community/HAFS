@@ -2,31 +2,31 @@
     !From http://jacobwilliams.github.io/slsqp/proc/h12.html
     implicit none
 
-    integer,intent(in):: mode   
+    integer,intent(in):: mode
     !! `1` or `2` --selects algorithm ***h1*** to construct and apply a
     !! householder transformation, or algorithm ***h2*** to apply a
     !! previously constructed transformation.
     integer,intent(in):: lpivot !! the index of the pivot element
-    integer,intent(in):: l1     
+    integer,intent(in):: l1
     !! if `l1 <= m` the transformation will be constructed to
     !! zero elements indexed from `l1` through `m`.
     !! if `l1 > m` the subroutine does an identity transformation.
     integer,intent(in):: m      !! see `li`.
     integer,intent(in):: iue    !! see `u`.
     integer,parameter:: wp=8
-    real(wp),dimension(iue,*),intent(inout) :: u      
+    real(wp),dimension(iue,*),intent(inout) :: u
     !! on entry with `mode = 1`, `u` contains the pivot
     !! vector.  `iue` is the storage increment between elements. on exit when `mode = 1`, `u` and `up` contain quantities
     !! defining the vector `u` of the householder transformation. on entry with `mode = 2`, `u` and `up` should contain quantities
     !! previously computed with `mode = 1`. these will not be modified during the entry with `mode = 2`. `dimension[u(iue,m)]`
     real(wp),intent(inout)                  :: up     !! see `u`.
-    real(wp),dimension(*),intent(inout)     :: c      
+    real(wp),dimension(*),intent(inout)     :: c
     !! on entry with `mode = 1 or 2`, `c` contains a matrix which
     !! will be regarded as a set of vectors to which the householder transformation is
     !! to be applied. on exit `c` contains the set of transformed vectors.
     integer,intent(in):: ice    !! storage increment between elements of vectors in `c`.
     integer,intent(in):: icv    !! storage increment between vectors in `c`.
-    integer,intent(in):: ncv    
+    integer,intent(in):: ncv
     !! number of vectors in `c` to be transformed. if `ncv <= 0`
     !! no operations will be done on `c`.
 

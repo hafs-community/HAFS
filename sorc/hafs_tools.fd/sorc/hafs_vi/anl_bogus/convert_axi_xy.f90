@@ -14,7 +14,13 @@
 !
 !     All variables have the same vertical dimension (KMAX=121).
 !
-      INTEGER I,J,K,NX,NY,NZ,ICH
+      IMPLICIT NONE
+      INTEGER I,J,K,N,NX,NY,NZ,KMAX,KMX
+      integer NST,IR,IR1,NHCT,II1,JJ1,iparam,icut1,icut2
+      real GAMMA,G,Rd,D608,Cp,eps6,pi,pi180,arad,deg2m,cost,zmax,vobs,cost_old
+      real count_smth,TWMAX,twsum,RWMAX,Rmax_0,fact,fact1,fact_v,vrmax,FC1,FC2,DFC
+      real density,sum_vt,sum_vt2,th_m,xxx,yyy,rmw1,rmw2,dp_obs,roc1,roc2,cut_off
+      real aaa,bbb,ddd,RMN,RMN1,RMN2,prmax,DIF,DTX,DTY,DTR,RIJ_m,PIJ_m
 !
       PARAMETER (NST=5)
 !     PARAMETER (NX=420,NY=820,NZ=42) !* E-grid dimensions
@@ -36,10 +42,14 @@
       REAL(8) CLON_NHC,CLAT_NHC !* storm  lon, lat
       REAL(8) delc,thac         !* vortex lon, lat
 
-      DIMENSION rp(IR1),ps(IR),ps1(IR),ps2(IR),ps_1mb(IR)
-      DIMENSION q(KMAX),p(KMAX,IR) !* pressure on sigma-levels (q)
-      DIMENSION t(KMAX,IR),r(KMAX,IR),ur(KMAX,IR1),th(KMAX,IR1)
-      DIMENSION vrad(KMAX),vtan(KMAX) !^ bogus vortex
+!      DIMENSION rp(IR1),ps(IR),ps1(IR),ps2(IR),ps_1mb(IR)
+!      DIMENSION q(KMAX),p(KMAX,IR) !* pressure on sigma-levels (q)
+!      DIMENSION t(KMAX,IR),r(KMAX,IR),ur(KMAX,IR1),th(KMAX,IR1)
+!      DIMENSION vrad(KMAX),vtan(KMAX) !^ bogus vortex
+      real(4) rp(IR1),ps(IR),ps1(IR),ps2(IR),ps_1mb(IR)    !shin
+      real(4) q(KMAX),p(KMAX,IR) !* pressure on sigma-levels (q) shin
+      real(4) t(KMAX,IR),r(KMAX,IR),ur(KMAX,IR1),th(KMAX,IR1) !shin
+      real(4) vrad(KMAX),vtan(KMAX) !^ bogus vortex shin
 
       REAL(4), ALLOCATABLE :: RIJ1(:,:),RIJ2(:,:)
       REAL(4), ALLOCATABLE :: W1(:,:),W2(:,:)
@@ -54,7 +64,8 @@
       REAL(4) U_2SB(IR1,KMAX),T_2SB(IR1,KMAX),SLP_2SB(IR1)
       REAL(4) V_2SB(IR1,KMAX),R_2SB(IR1,KMAX) !* sigma-level
 
-      DIMENSION RF(24)
+!      DIMENSION RF(24)
+      real(4) RF(24)    !shin
 
       CHARACTER DEPTH*1
       CHARACTER SN*1,EW*1
@@ -147,7 +158,8 @@
 
       count_smth=0.
 
- 999  continue  !* smooth vortex for large & weak storm <---------------
+! 999  continue  !* smooth vortex for large & weak storm <---------------
+  do  !* smooth vortex for large & weak storm MORE than 250  shin
 
       TWMAX=1.e-6
       do i=1,IR
@@ -206,62 +218,66 @@
             end do
          END DO
          count_smth=count_smth+1
-         IF (count_smth.LE.250.) go to 999  !* ------------------------>
+!         IF (count_smth.LE.250.) go to 999  !* ------------------------>
+          IF (count_smth.gt.250.) exit !*---> smoothing should be less than 250 shin
+      ELSE    ! shin
+        exit  !if we don't satisfy the above IF (smooth) statement exit!
       END IF
+
+  enddo    ! do loop end for smooth vortex
 
       print*,'count_smth=',count_smth !* ===============================
 
-      go to 557
-
- 556  continue  !* UNUSED code for homogenizing ROCI with RMW <- - - - -
-
-      pres_ct=dp_obs/ps(1)
-      do i=1,IR
-         ps_1mb(i)=ps(i)*pres_ct
-      end do
-
-      IRAD_1=1
-      do i=1,IR
-         if (abs(ps_1mb(i)).GT.100.) then
-	    IRAD_1=I
-         end if
-      end do
-
-      RAD_1=(IRAD_1+0.5)*(rp(2)-rp(1))*1.E-3
-      fact_p=PRMAX/RAD_1 !* alfa=ROCI*/ROCI
-
-!     fact_p=0.5*(fact_p+fact_v)
-      fact_p=fact_v
-
-      print*,'fact,fact_p=',fact,fact_p,PRMAX,RAD_1
-
-      IF (fact .LT. fact_p) THEN  !* smooth => fact_p = fact_v
-         wrk1(1)=(2.*ps(1)+ps(2))/3.
-         wrk1(IR)=0.
-         do i=2,IR-1
-            wrk1(i)=(ps(i-1)+ps(i)+ps(i+1))/3.
-         end do
-         do i=1,IR
-            ps(i)=wrk1(i)
-         end do
-         do k=1,kmax
-            wrk3(1)=(2.*t(k,1)+t(k,2))/3.
-            wrk3(IR)=0.
-            wrk4(1)=(2.*r(k,1)+r(k,2))/3.
-            wrk4(IR)=0.
-            do i=2,IR-1
-               wrk3(i)=(t(k,i-1)+t(k,i)+t(k,i+1))/3.
-               wrk4(i)=(r(k,i-1)+r(k,i)+r(k,i+1))/3.
-            end do
-            do i=1,IR
-               t(k,i)=wrk3(i)
-               r(k,i)=wrk4(i)
-            end do
-         end do
-         go to 556 !* - - - - - - - - - - - - - - - - - - - - - - - - ->
-      END IF
-
- 557  continue
+!      go to 557
+! 556  continue  !* UNUSED code for homogenizing ROCI with RMW <- - - - -
+! shin: UNUSED part between 557/556 continue~goto 556/557 were commented
+!      pres_ct=dp_obs/ps(1)
+!      do i=1,IR
+!         ps_1mb(i)=ps(i)*pres_ct
+!      end do
+!
+!      IRAD_1=1
+!      do i=1,IR
+!         if (abs(ps_1mb(i)).GT.100.) then
+!	    IRAD_1=I
+!         end if
+!      end do
+!
+!      RAD_1=(IRAD_1+0.5)*(rp(2)-rp(1))*1.E-3
+!      fact_p=PRMAX/RAD_1 !* alfa=ROCI*/ROCI
+!
+!!!#     fact_p=0.5*(fact_p+fact_v)
+!      fact_p=fact_v
+!
+!      print*,'fact,fact_p=',fact,fact_p,PRMAX,RAD_1
+!
+!      IF (fact .LT. fact_p) THEN  !* smooth => fact_p = fact_v
+!         wrk1(1)=(2.*ps(1)+ps(2))/3.
+!         wrk1(IR)=0.
+!         do i=2,IR-1
+!            wrk1(i)=(ps(i-1)+ps(i)+ps(i+1))/3.
+!         end do
+!         do i=1,IR
+!            ps(i)=wrk1(i)
+!         end do
+!         do k=1,kmax
+!            wrk3(1)=(2.*t(k,1)+t(k,2))/3.
+!            wrk3(IR)=0.
+!            wrk4(1)=(2.*r(k,1)+r(k,2))/3.
+!            wrk4(IR)=0.
+!            do i=2,IR-1
+!               wrk3(i)=(t(k,i-1)+t(k,i)+t(k,i+1))/3.
+!               wrk4(i)=(r(k,i-1)+r(k,i)+r(k,i+1))/3.
+!            end do
+!            do i=1,IR
+!               t(k,i)=wrk3(i)
+!               r(k,i)=wrk4(i)
+!            end do
+!         end do
+!         go to 556 !* - - - - - - - - - - - - - - - - - - - - - - - - ->
+!      END IF
+!
+! 557  continue
 
 !*    50% contraint for bogus vortex stretch
 !*    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -413,31 +429,32 @@
          end if
       end do
 
-      go to 777 !* UNUSED cutoff beyond RMN2 - - - - - - - - - -
-
-         do i=1,icut1-1
-             ps(i)= ps(i)- ps(icut1)+ ps(IR)
-            ps1(i)=ps1(i)-ps1(icut1)+ps1(IR)
-            do k=1,kmax
-               ur(k,i)=ur(k,i)-ur(k,icut1)+ur(k,IR)
-               th(k,i)=th(k,i)-th(k,icut1)+th(k,IR)
-               t(k,i)=t(k,i)-t(k,icut1)+t(k,IR)
-               r(k,i)=max(0.,r(k,i)-r(k,icut1))+r(k,IR)
-            end do
-         end do
-
-         do i=icut1,IR
-             ps(i)= ps(IR)
-            ps1(i)=ps1(IR)
-            do k=1,kmax
-               ur(k,i)=ur(k,IR)
-               th(k,i)=th(k,IR)
-               t(k,i)=t(k,IR)
-               r(k,i)=r(k,IR)
-            end do
-         end do
-
- 777  continue  !* - - - - - - - - - - - - - - - - - - - - - - -
+!      go to 777 !* UNUSED cutoff beyond RMN2 - - - - - - - - - -
+! shin: UNUSED part between go to 777~777 CONTINUE were commented
+!
+!         do i=1,icut1-1
+!             ps(i)= ps(i)- ps(icut1)+ ps(IR)
+!            ps1(i)=ps1(i)-ps1(icut1)+ps1(IR)
+!            do k=1,kmax
+!               ur(k,i)=ur(k,i)-ur(k,icut1)+ur(k,IR)
+!               th(k,i)=th(k,i)-th(k,icut1)+th(k,IR)
+!               t(k,i)=t(k,i)-t(k,icut1)+t(k,IR)
+!               r(k,i)=max(0.,r(k,i)-r(k,icut1))+r(k,IR)
+!            end do
+!         end do
+!
+!         do i=icut1,IR
+!             ps(i)= ps(IR)
+!            ps1(i)=ps1(IR)
+!            do k=1,kmax
+!               ur(k,i)=ur(k,IR)
+!               th(k,i)=th(k,IR)
+!               t(k,i)=t(k,IR)
+!               r(k,i)=r(k,IR)
+!            end do
+!         end do
+!
+! 777  continue  !* - - - - - - - - - - - - - - - - - - - - - - -
 
       icut2=icut1+1.5*arad/(rp1(2)-rp1(1)) !* icut2 -> RMN2+3'
 
@@ -516,78 +533,78 @@
       end do
       SLP_2SB(IR1)=0
 
-      go to 799 !* UNUSED p-to-sigma correction ------------------------
-
-      DO I=1,IR
-         DO N=1,KMAX
-            work1(N)=t(N,I)+temp_e(N) !* total temperature
-	 END DO
-         DO K=1,kmax
-            IF (p(k,i).GE.pcst(1)) THEN
-	       U_2SB(i,k)=th(1,i)
-	       V_2SB(i,k)=ur(1,i)
-	       T_2SB(i,k)=work1(1)
-	       R_2SB(i,k)=r(1,i)
-            ELSEIF (p(k,i).LE.pcst(kmax)) THEN
-	       U_2SB(i,k)=th(kmax,i)
-	       V_2SB(i,k)=ur(kmax,i)
-	       T_2SB(i,k)=work1(kmax)
-	       R_2SB(i,k)=r(kmax,i)
-	    ELSE !* p-to-sigma interpolation
-	       DO N=1,kmax
-	       if ( p(k,i).LE.pcst(N) .AND. p(k,i).GT.pcst(N+1) ) then
-	          WT1=ALOG(1.*pcst(N+1))-ALOG(1.*pcst(N))
-		  WT2=(ALOG(1.*p(k,i))-ALOG(1.*pcst(N)))/WT1
-		  WT3=1.-WT2
-		  U_2SB(i,k)=WT3*th(N,i)+WT2*th(N+1,i)
-		  V_2SB(i,k)=WT3*ur(N,i)+WT2*ur(N+1,i)
-		  T_2SB(i,k)=WT3*work1(N)+WT2*work1(N+1)
-		  R_2SB(i,k)=WT3*r(N,i)+WT2*r(N+1,i)
-                  GOTO 870
-	       endif
-	       ENDDO
-  870          continue
-	    ENDIF
-	 END DO
-      END DO
-
-      TSUM1=0.
-      TSUM2=0.
-
-      DO I=1,IR
-      DO K=1,KMAX
-         TEK1=temp_e(K)+t(k,i) !* total temperature
-         TEK2=T_2SB(i,k)
-         ESRR=exp(4302.645*(TEK2-TEK1)/((TEK2-29.66)*(TEK1-29.66)))
-         R_2SB(i,k)=ESRR*r(k,i)
-         T_2SB(i,k)=T_2SB(i,k)-temp_e(K)    !* perturbation temperature
-!        T_2SB(i,k)=0.5*(T_2SB(i,k)+t(k,i)) ! avg btw const P and const Sigma
-!        T_2SB(i,k)=0.5*t(k,i)      ! average between const P and const Sigma
-         TSUM1=TSUM1+t(k,i)
-         TSUM2=TSUM2+T_2SB(i,k)
-      END DO
-      END DO
-
-      print*,'TSUM1,TSUM2=',TSUM1,TSUM2
-
-      TSUM1=TSUM1+TSUM2
-
-      DO I=1,IR
-      DO K=1,KMAX
-         IF (ABS(TSUM1).GT.0.01) THEN
-	    T_2SB(i,k)=(t(k,i)+T_2SB(i,k))*TSUM2/TSUM1
-         ELSE
-	    T_2SB(i,k)=0.
-         END IF
-         th(k,i)=U_2SB(i,k)
-         ur(k,i)=V_2SB(i,k)
-         t(k,i)=T_2SB(i,k)  !* perturbation temperature
-         r(k,i)=R_2SB(i,k)
-!        print*,'T_2SB(i,k)=',i,k,T_2SB(i,k)
-      END DO
-      END DO
-
- 799  CONTINUE !* ------------------------------------------------------
+!      go to 799 !* UNUSED p-to-sigma correction ------------------------
+! shin: UNUSED part between go to 799~799 CONTINUE were commented
+!      DO I=1,IR
+!         DO N=1,KMAX
+!            work1(N)=t(N,I)+temp_e(N) !* total temperature
+!	 END DO
+!         DO K=1,kmax
+!            IF (p(k,i).GE.pcst(1)) THEN
+!	       U_2SB(i,k)=th(1,i)
+!	       V_2SB(i,k)=ur(1,i)
+!	       T_2SB(i,k)=work1(1)
+!	       R_2SB(i,k)=r(1,i)
+!            ELSEIF (p(k,i).LE.pcst(kmax)) THEN
+!	       U_2SB(i,k)=th(kmax,i)
+!	       V_2SB(i,k)=ur(kmax,i)
+!	       T_2SB(i,k)=work1(kmax)
+!	       R_2SB(i,k)=r(kmax,i)
+!	    ELSE !* p-to-sigma interpolation
+!	       DO N=1,kmax
+!	       if ( p(k,i).LE.pcst(N) .AND. p(k,i).GT.pcst(N+1) ) then
+!	          WT1=ALOG(1.*pcst(N+1))-ALOG(1.*pcst(N))
+!		  WT2=(ALOG(1.*p(k,i))-ALOG(1.*pcst(N)))/WT1
+!		  WT3=1.-WT2
+!		  U_2SB(i,k)=WT3*th(N,i)+WT2*th(N+1,i)
+!		  V_2SB(i,k)=WT3*ur(N,i)+WT2*ur(N+1,i)
+!		  T_2SB(i,k)=WT3*work1(N)+WT2*work1(N+1)
+!		  R_2SB(i,k)=WT3*r(N,i)+WT2*r(N+1,i)
+!                  GOTO 870
+!	       endif
+!	       ENDDO
+!  870          continue
+!	    ENDIF
+!	 END DO
+!      END DO
+!
+!      TSUM1=0.
+!      TSUM2=0.
+!
+!      DO I=1,IR
+!      DO K=1,KMAX
+!         TEK1=temp_e(K)+t(k,i) !* total temperature
+!         TEK2=T_2SB(i,k)
+!         ESRR=exp(4302.645*(TEK2-TEK1)/((TEK2-29.66)*(TEK1-29.66)))
+!         R_2SB(i,k)=ESRR*r(k,i)
+!         T_2SB(i,k)=T_2SB(i,k)-temp_e(K)    !* perturbation temperature
+!!!#        T_2SB(i,k)=0.5*(T_2SB(i,k)+t(k,i)) ! avg btw const P and const Sigma
+!!!#        T_2SB(i,k)=0.5*t(k,i)      ! average between const P and const Sigma
+!         TSUM1=TSUM1+t(k,i)
+!         TSUM2=TSUM2+T_2SB(i,k)
+!      END DO
+!      END DO
+!
+!      print*,'TSUM1,TSUM2=',TSUM1,TSUM2
+!
+!      TSUM1=TSUM1+TSUM2
+!
+!      DO I=1,IR
+!      DO K=1,KMAX
+!         IF (ABS(TSUM1).GT.0.01) THEN
+!	    T_2SB(i,k)=(t(k,i)+T_2SB(i,k))*TSUM2/TSUM1
+!         ELSE
+!	    T_2SB(i,k)=0.
+!         END IF
+!         th(k,i)=U_2SB(i,k)
+!         ur(k,i)=V_2SB(i,k)
+!         t(k,i)=T_2SB(i,k)  !* perturbation temperature
+!         r(k,i)=R_2SB(i,k)
+!!!#        print*,'T_2SB(i,k)=',i,k,T_2SB(i,k)
+!      END DO
+!      END DO
+!
+! 799  CONTINUE !* ------------------------------------------------------
 
 !*    Using p-level instead of sigma-level
       DO I=1,IR
@@ -634,10 +651,11 @@
             DIF=rp(N)-RIJ1(I,J)
             IF (DIF.GT.0.) THEN
                IDX1(I,J)=N  !* Grid point inside vortex
-               GO TO 15
+!               GO TO 15
+                exit   !shin
             ENDIF
          ENDDO
- 15      CONTINUE
+! 15      CONTINUE
          IF (IDX1(I,J).GE.2) THEN
             W1(I,J)=(RIJ1(I,J)-rp(IDX1(I,J)-1))/            &
                 (rp(IDX1(I,J))-rp(IDX1(I,J)-1))
@@ -711,10 +729,11 @@
             DIF=rp(N)-RIJ2(I,J)
             IF (DIF.GT.0.) THEN
                IDX1(I,J)=N  !* Grid point inside vortex
-               GO TO 25
+!               GO TO 25
+               exit   !shin
             ENDIF
          ENDDO
- 25      CONTINUE
+! 25      CONTINUE
          IF (IDX1(I,J).GE.2) THEN
             W1(I,J)=(RIJ2(I,J)-rp(IDX1(I,J)-1))/           &
                 (rp(IDX1(I,J))-rp(IDX1(I,J)-1))

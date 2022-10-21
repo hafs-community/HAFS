@@ -194,7 +194,7 @@
              ELSE
                PRINT*,'SOMETHING IS WRONG'
              END IF
-    
+
             END DO
           END DO
         END DO
@@ -553,7 +553,7 @@
             END DO
           END IF
 !C EnD SH
-    
+
           TX = -10000000.
           DO KL = 1,IR
             IF(WTM(KL).GE.TX) THEN

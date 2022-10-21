@@ -49,7 +49,7 @@
              SY(I)=-W+SH22*Z
            enddo
            return
-         else 
+         else
            SH11=SPARAM(2)
            SH12=SPARAM(4)
            SH21=SPARAM(3)

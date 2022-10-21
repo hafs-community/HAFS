@@ -66,8 +66,8 @@
       I = 1
       IP1 = 2
       LEND = L
-      do 
-        IF (.NOT.(I.LE.LB)) exit 
+      do
+        IF (.NOT.(I.LE.LB)) exit
 !C
 !C       SET IR TO POINT TO THE I-TH ROW.
         IR = I
@@ -88,7 +88,7 @@
 !C
 !C         TEST-INDEP-OF-INCOMING-COL
           IF ((INDEP)) then
-!C       
+!C
 !C           ELIMINATE I-TH COL BELOW DIAG. USING MOD. GIVENS TRANSFORMATIONS
 !C           APPLIED TO (A B).
             J = M
@@ -97,7 +97,7 @@
               JP = JM1
 !C           WHEN OPERATING NEAR THE ME LINE, USE THE LARGEST ELT.
 !C           ABOVE IT AS THE PIVOT.
-              IF ((J.EQ.MEP1)) then 
+              IF ((J.EQ.MEP1)) then
                 IMAX = ME
                 AMAX = SCALE(ME)*W(ME,I)**2
                 do
@@ -122,7 +122,7 @@
             exit
           endif
 
-          IF (.NOT.(LEND.GT.I)) exit 
+          IF (.NOT.(LEND.GT.I)) exit
 !C
 !C         COL I IS DEPENDENT. SWAP WITH COL LEND.
           MAX = LEND
@@ -152,7 +152,7 @@
       KRANK = L1
 
       KRP1 = KRANK + 1
-      IF ((KRANK.LT.ME)) then 
+      IF ((KRANK.LT.ME)) then
         FACTOR = ALSQ
         DO I=KRP1,ME
           IF (L.GT.0) W(I,1) = ZERO
@@ -173,7 +173,7 @@
         IP1 = I + 1
 
         do
-          IF (.NOT.(I.LE.LB)) exit 
+          IF (.NOT.(I.LE.LB)) exit
           IR = KRANK + I - L
           LEND = N
           MEND = ME
@@ -187,7 +187,7 @@
 !C
 !C         ELIMINATE ELEMENTS IN THE I-TH COL.
           J = ME
-          do 
+          do
             IF (.NOT.(J.GT.IR)) exit
             JM1 = J - 1
             IF ((W(J,I).NE.ZERO)) then
@@ -203,7 +203,7 @@
           call sub990(ME, MEND, IR, FACTOR, TAU, SCALE, W)
 !C
 !C         TEST-INDEP-OF-INCOMING-COL
-          IF (.NOT.INDEP) then 
+          IF (.NOT.INDEP) then
 !C
 !C           REMOVE ANY REDUNDANT OR DEPENDENT EQUALITY CONSTRAINTS.
             JJ = IR
@@ -238,7 +238,7 @@
         enddo
       endif
       IF ((KRANK.LT.L1)) then
-!C       
+!C
 !C       TRY TO DETERMINE THE VARIABLES KRANK+1 THROUGH L1 FROM THE
 !C       LEAST SQUARES EQUATIONS.  CONTINUE THE TRIANGULARIZATION WITH
 !C       PIVOT ELEMENT W(MEP1,I).
@@ -285,8 +285,8 @@
 !C         DEPENDENT.
           T = SCALE(IR)*W(IR,I)**2
           INDEP = T.GT.TAU**2*EANORM**2
-          IF (INDEP) then 
-!C   
+          IF (INDEP) then
+!C
 !C           COL TEST PASSED. NOW MUST PASS ROW NORM TEST TO BE CLASSIFIED
 !C           AS INDEPENDENT.
             RN = ZERO
@@ -331,7 +331,7 @@
           I = IP1
           IP1 = IP1 + 1
         enddo
-   
+
       endif
 !C
 !C     IF PSEUDORANK IS LESS THAN L, APPLY HOUSEHOLDER TRANS.
@@ -389,7 +389,7 @@
         H(I) = T
       endif
       return
-      end subroutine sub993 
+      end subroutine sub993
 
       subroutine sub990(ME, MEND, IR, FACTOR, TAU, SCALE, W)
       implicit none
@@ -424,7 +424,7 @@
         IF (J.LE.ME) T = T/FACTOR
         T = T*W(J)**2
 !        T = T*W(J,IC)**2
-        IF (.NOT.(J.LT.IR)) then 
+        IF (.NOT.(J.LT.IR)) then
           RN = RN + T
         else
           SN = SN + T
@@ -454,7 +454,7 @@
 !C     THE COL SS VECTOR WILL BE UPDATED AT EACH STEP. WHEN
 !C     NUMERICALLY NECESSARY, THESE VALUES WILL BE RECOMPUTED.
 !C
-      IF ((IR.NE.1 .AND. (.NOT.RECALC))) then 
+      IF ((IR.NE.1 .AND. (.NOT.RECALC))) then
 !C     UPDATE COL SS =SUM OF SQUARES.
         do J=i,lend
           H(J) = H(J) - SCALE(IR-1)*W(IR-1,J)**2
@@ -470,7 +470,7 @@
       endif
 !C
 !C     IF REQUIRED, RECALCULATE COL SS, USING ROWS IR THROUGH MEND.
-      IF ((RECALC)) then 
+      IF ((RECALC)) then
         do j=1,lend
           H(J) = 0.
           do k=ir,mend

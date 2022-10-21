@@ -1,12 +1,12 @@
       SUBROUTINE BOUND(NMX,XR,ro)
       use xxx
-      use posit 
+      use posit
       implicit none
       integer,intent(in) :: nmx
       real, dimension(nmx):: XR,ro
       real:: theta,x,y,p,q,pi,fact
       integer::ix,iy,ix1,iy1,i
-      
+
       PI = 4.*ATAN(1.0)
       fact=1.0
       DO I=1,NMX
@@ -21,6 +21,6 @@
         Q=Y/DY-FLOAT(IY)
         XR(I)=(1.-P)*(1.-Q)*XF(IX,IY) +(1.-P)*Q*XF(IX,IY+1)+(1.-Q)*P*XF(IX+1,IY) + P*Q*XF(IX+1,IY+1)
       ENDDO
-      
+
       RETURN
       END

@@ -8,7 +8,7 @@
  integer kunit,itim
  end module fileconst
 
- module tcvit 
+ module tcvit
  implicit none
  integer,parameter :: nst=10
  character,save ::  TCVT(NST)*95

@@ -115,7 +115,7 @@
       CLOSE(IUNIT)
       print*,'finish reading data'
 !
-!$omp parallel do & 
+!$omp parallel do &
 !$omp& private(i,j,k)
       DO K=1,KZ
         DO J=1,KY

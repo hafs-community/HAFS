@@ -106,7 +106,7 @@
 !      end if
 ! For HAFS, I360 is newly defined to handle the storms in eastern/western hemisphere 2022 July
       IF(EW.eq.'W') I360=180 ! Western hemisphere TC
-      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC 
+      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC
 
       READ(IUNIT) NX,NY,NZ
 
@@ -171,7 +171,7 @@
 
       write(*,*)'K,T1,Q1,U1,V1,Z1,P1='
       do k=1,nz
-        write(*,32)K,T1(9,9,K), & 
+        write(*,32)K,T1(9,9,K), &
            Q1(9,9,K),U1(9,9,K),V1(9,9,K),Z1(9,9,K),P1(9,9,K)
       end do
       write(*,*)
@@ -473,7 +473,7 @@
       write(*,*)
       write(*,*)'K,T2,Q2,U2,V2,Z2,P2='
       do k=1,kmx
-        write(*,32)K,T2(9,9,K),    & 
+        write(*,32)K,T2(9,9,K),    &
            Q2(9,9,K),U2(9,9,K),V2(9,9,K),HP(9,9,K),P2(K)
       end do
 
@@ -830,7 +830,7 @@
           do j=1,7
             ISTMCX1(J,I)=-ISTMCX1(J,I)
           end do
-        endif  
+        endif
 !wpac         if(I360.eq.180)then
 !wpac           do j=1,7
 !wpac             IF(ISTMCX1(J,I).LT.-1800)
@@ -939,7 +939,7 @@
       enddo
 
       do IV=3,MAXVIT
-        CALL DECVAR(ISTVAR(IV),IENVAR(IV),IVTVAR(IV),IERDEC,  &  
+        CALL DECVAR(ISTVAR(IV),IENVAR(IV),IVTVAR(IV),IERDEC,  &
         FMTVIT(IV),BUFINZ)
         VITVAR(IV)=REAL(IVTVAR(IV))*VITFAC(IV)
       enddo
@@ -1091,14 +1091,14 @@
       do i=1,kstm
         CLON=CLON_N(I)
         CLAT=CLAT_N(I)
-  
+
         AMN = 500.
         DO ILA = 1,JMAX
           DO ILO = 1,IMAX
             DMN = GLAT(ILO,ILA) - CLAT
             OMN = GLON(ILO,ILA) - CLON
             DISTC=DMN*DMN+OMN*OMN
-            IF(ILA*ILO.LT.20)PRINT*,'GLON,GLAT=', & 
+            IF(ILA*ILO.LT.20)PRINT*,'GLON,GLAT=', &
             GLON(ILO,ILA),GLAT(ILO,ILA),DISTC
             IF (DISTC.LE.AMN) THEN
               AMN = DISTC
@@ -1107,13 +1107,13 @@
             ENDIF
           END DO
         END DO
-  
+
         IC_N(I)=IC
         JC_N(I)=JC
-  
+
         PRINT *,'CLON,CLAT=',CLON,CLAT
         PRINT *,'IC,JC=  ',IC,JC,GLON(IC,JC),GLAT(IC,JC)
-  
+
         SLON_N(I) = floor(GLON(IC,JC)+0.5 - IRX/2)
         SLAT_N(I) = floor(GLAT(IC,JC)+0.5 - JRX/2)
         PRINT *,' '
@@ -1125,7 +1125,7 @@
       RETURN
 
   990 WRITE(6,991) BUFIN
-  991 FORMAT('******ERROR READING STORM RECORD.  BUFIN IS:',/, & 
+  991 FORMAT('******ERROR READING STORM RECORD.  BUFIN IS:',/, &
       ' ******',A95,'******')
       cycle readcyc
       enddo readcyc
@@ -1136,7 +1136,7 @@
       SUBROUTINE DECVAR(ISTART,IEND,IVALUE,IERDEC,FMT,BUFF)
       implicit none
       integer, PARAMETER ::NCHLIN=130
-   
+
       CHARACTER FMT*(*),BUFF*(*),OUTLIN*1 !, IVALUE
 
       DIMENSION OUTLIN(NCHLIN)
@@ -1762,7 +1762,7 @@
         INTEGER jmax
         real(4) a(jmax,jmax),b(jmax,jmax), &
             c(jmax,jmax),d(jmax,jmax),e(jmax,jmax), &
-            f(jmax,jmax),u(jmax,jmax) 
+            f(jmax,jmax),u(jmax,jmax)
         integer, PARAMETER:: MAXITS=1000
         real, parameter :: EPS=1.e-3
 
@@ -1863,7 +1863,7 @@
       DIMENSION DKY1(IMAX,JMAX),DKM1(IMAX,JMAX)
 !      DIMENSION DKM1(IMAX,JMAX),SKIP(IX,JX)
       DIMENSION XTU(IX,NF),XTV(IX,NF),YTU(IX,JX),YTV(IX,JX)
-      DIMENSION RS(IT),RF(IT) 
+      DIMENSION RS(IT),RF(IT)
       DIMENSION M(NF),FK(NF),TW(IT,IR)
       DIMENSION ALAT(JX),ALON(IX)
       DIMENSION RRIJ(NSG)
@@ -1886,8 +1886,8 @@
       real ALON,ALAT
       real CLAT_NHC,CLON_NHC,A,B
       real CLON_TIM,CLAT_TIM
-      real CLON_NHC_RAD,CLAT_NHC_RAD    
- 
+      real CLON_NHC_RAD,CLAT_NHC_RAD
+
       real(4) zmax
 
       real mindist,tmplat,tmplon,dist
@@ -1900,7 +1900,7 @@
       real RDIST2,CALC_DIST,STMCX,STMCY,DKM1,COEF3,COEF2,COEF1,DKY1
       integer JWMIN1,JWMAX1,IWMIN1,IWMAX1,JWMIN,JWMAX,IWMIN,IWMAX
 
-      real DKM,DKY 
+      real DKM,DKY
       real TH,RRIJ,WT2
 
 
@@ -2217,7 +2217,7 @@
           IF((CLAT_NHC.GE.GLAT(I,J).and. &
             CLAT_NHC.LT.GLAT(I,J+1)).and. &
             (CLON_NHC.GE.GLON(I,J).and. &
-            CLON_NHC.LT.GLON(I+1,J)))THEN 
+            CLON_NHC.LT.GLON(I+1,J)))THEN
             KNHC=I
             MNHC=J
           END IF
@@ -2309,7 +2309,7 @@
         A = GLON(I,J) - CLON_NEW
         B = GLAT(I,J) - CLAT_NEW
         R = SQRT(A**2. + B**2.)
-        IF(R.EQ.0.) then 
+        IF(R.EQ.0.) then
 444       IB = IB+1
           ING(IB) = I
           JNG(IB) = J
@@ -2384,7 +2384,7 @@
         A = XLON1(I,J) - CLON_NEW
         B = XLAT1(I,J) - CLAT_NEW
         R = SQRT(A**2. + B**2.)
-        IF(R.EQ.0.) then 
+        IF(R.EQ.0.) then
 866       IBH = IBH+1
           ING3(IBH) = I
           JNG3(IBH) = J
@@ -2491,44 +2491,44 @@
           XTU(1,N)  = U(1,J)
           XTU(IX,N) = U(IX,J)
         ENDDO
-  
+
         DO I=2,IX-1
           XTU(I,1) = U(I,J)+FK(1)*(U(I-1,J)+U(I+1,J)-2.*U(I,J))
         ENDDO
-  
+
         DO N=2,NF1
           DO I=2,IX-1
             XTU(I,N)=XTU(I,N-1)+FK(N)*(XTU(I-1,N-1)+XTU(I+1,N-1) &
                        -2.*XTU(I,N-1))
           ENDDO
         ENDDO
-  
+
         DO I=1,IX
           US(I,J) = XTU(I,NF1)
         ENDDO
-  
+
       enddo
-  
+
 !.. DO MERIDIONAL FILTER
-  
+
       do i=1,ix
         DO N=1,NF1
           YTU(1,N)  = US(I,1)
           YTU(JX,N) = US(I,JX)
         ENDDO
-  
+
         DO J = 2 , JX-1
           YTU(J,1) = US(I,J) + FK(1)*(US(I,J-1) + US(I,J+1) &
                       -2.*US(I,J))
         ENDDO
-  
+
         DO N = 2 , NF1
           DO J = 2 , JX-1
             YTU(J,N) = YTU(J,N-1) + FK(N)*(YTU(J-1,N-1)  +  &
                   YTU(J+1,N-1) - 2.*YTU(J,N-1))
           ENDDO
         ENDDO
-  
+
         DO J = 1 , JX
           US(I,J)   =  YTU(J,NF1)
         ENDDO
@@ -2772,23 +2772,23 @@
       ISE = 1
       do iv=1,mtv6
         IREM = -22
-  
+
         IF(IV.GT.KDIV2.AND.IV.LE.KQ2)IREM=MOD(IV-KDIV2,4)
         IF((IV.GE.2.AND.IV.LE.KDIV2).OR.(IV.GT.KQ2).OR. &
                  (IREM.EQ.1.OR.IREM.EQ.2)) THEN
           ISE = ISE+1
-    
+
           print*,'ISE,IV=',ISE,IV
-    
+
           DDAT=0.
-    
+
           DO J=1,JMAX
             DO I=1,IMAX
               DATG(I,J)=ENV1(I,J,ISE)
               DATG2(I,J)=HDATN(I,J,ISE)
             ENDDO
           ENDDO
-    
+
           DDAT=0.
           SAVE1=0.
 !      RDIST2=AMDX*AMDX+AMDY*AMDY
@@ -2800,7 +2800,7 @@
               ENDDO
             ENDDO
           END IF
-    
+
           DO J=1,JMAX
             DO I=1,IMAX
               SAVE1(I,J)=DDAT(I,J)
@@ -2813,7 +2813,7 @@
 !        END DO
 
 !      END IF
-    
+
           IF(ISE.EQ.2) THEN
             DO J=1,JMAX
               DO I=1,IMAX
@@ -2821,9 +2821,9 @@
               ENDDO
             ENDDO
           END IF
-    
+
           IF(ISE.GE.3.and.ISE.LE.(KMAX+2))then
-    
+
             IF(IFLAG.EQ.1)THEN
               DO J=1,JMAX
                 DO I=1,IMAX
@@ -2838,19 +2838,19 @@
                 ENDDO
               ENDDO
             END IF
-    
+
           END IF
-    
+
           IF(ISE.GT.(KMAX+2).and.ISE.LE.(3*KMAX+2))THEN
-    
+
             DO J=1,JMAX
               DO I=1,IMAX
                 HDATN(I,J,ISE)=DATG(I,J)
               ENDDO
             ENDDO
-    
+
           ENDIF
-    
+
           IF(ISE.GT.(3*KMAX+2))THEN
             IF(IFLAG.EQ.1)THEN
               DO J=1,JMAX
@@ -2868,8 +2868,8 @@
               ENDDO
             END IF
           ENDIF
-    
-    
+
+
           IF(ISE.EQ.2)THEN
             WRITE(NCHT)IWMIN1,IWMAX1,JWMIN1,JWMAX1
             DO J=1,JMAX
@@ -2897,11 +2897,11 @@
             WRITE(NCHT)((SAVE2(I,J),I=1,IMAX),J=1,JMAX)    ! T1
           END IF
           WRITE(NCHT)((SAVE1(I,J),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)
-    
+
 !      PRINT*,'TEST ISE=',ISE
-    
+
           WRITE(25)((SAVE1(I,J),I=1,IMAX),J=1,JMAX,2)
-  
+
         ENDIF
       enddo !781
 
@@ -3026,7 +3026,7 @@
 !c      print *,'CNT  ',CNT
 
       do k=jxx,120
-        IF(TWM(K).GE.6..OR.TWM(K).LT.3.) cycle 
+        IF(TWM(K).GE.6..OR.TWM(K).LT.3.) cycle
         DXX = 10000.
         DV = TWM(K) - TWM(K+1)
         DVDR = DV/DXX
@@ -3104,12 +3104,12 @@
       implicit none
       integer, PARAMETER:: IX=41,JX=41,IT=24,IR=120
 !      integer, PARAMETER:: NST=10
-      integer I, ICK,  K, IK, IS, KST, IBGS, IVOBS, iflag_cold 
+      integer I, ICK,  K, IK, IS, KST, IBGS, IVOBS, iflag_cold
 
       real DXX, DV, CNT, IST, RMN, DVDR, RFAVG, RMN_FACT, RMN_HWRF
 
       real RS, RF
-      real TW 
+      real TW
       DIMENSION RS(IT),TW(IT,IR),RF(IT),IST(IT)
       real R01
       DIMENSION R01(IT)
@@ -3125,10 +3125,10 @@
 
       iloop: do i=1,it
         IS = IST(I)
-  
+
 !CWH      DO 30 K=IS,IR
         kloop: do k=is,ir-1
-          IF(TW(I,K).GE.6..OR.TW(I,K).LT.3.) cycle kloop 
+          IF(TW(I,K).GE.6..OR.TW(I,K).LT.3.) cycle kloop
           DXX = 10000.
           DV = TW(I,K) - TW(I,K+1)
           DVDR = DV/DXX
@@ -3141,7 +3141,7 @@
             cycle iloop
           ENDIF
         enddo kloop
-  
+
         DO IK=IS,IR
           IF(TW(I,IK).LE.3) THEN
             RF(I) = IK*0.1 + 0.00000001
@@ -3149,7 +3149,7 @@
             cycle iloop
           ENDIF
         ENDDO
-  
+
 !c      print *,'3rd Catagory ',I
         RF(I) = 10.
       enddo iloop

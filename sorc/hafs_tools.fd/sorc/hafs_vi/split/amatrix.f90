@@ -1,4 +1,4 @@
-        subroutine amatrix 
+        subroutine amatrix
         use matrix, only: a, capd2,nmx
         use posit, only: xold,yold,xcorn,ycorn
         use vect, only: xvect,yvect!,rovect

@@ -21,7 +21,7 @@ DO I = 1,IB
 !cnew    AMDX=0.
 !cnew    AMDY=0.
     print*,' Filter domain topography height > 500 m' &
-          ,', storm name = ', ST_NAME(KST),          &  
+          ,', storm name = ', ST_NAME(KST),          &
           ', forecast time = ',ITIM,'h',             &
      ', only wind field is relocated'
     exit

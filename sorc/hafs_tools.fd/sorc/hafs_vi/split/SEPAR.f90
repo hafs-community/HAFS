@@ -97,7 +97,7 @@
                    delx=(x-xc)*fact
                    dely=(y-yc)
                    DR=SQRT((delx)**2 +(dely)**2)
-                   IF(DR.GT.RO) cycle jyloop 
+                   IF(DR.GT.RO) cycle jyloop
                    IF(delx.ne.0.) THETA=ATAN((dely)/(delx))
                    if(delx.eq.0..and.dely.lt.0.)theta=270.*pi180
                    if(delx.eq.0..and.dely.gt.0.)theta=90. *pi180
@@ -112,7 +112,7 @@
 !c
                    ro=delth*float(nmx)/(2.*pi)*(rovect(n2)-rovect(n1+1)) &
                         +rovect(n1+1)
-                   IF(DR.GT.ro) cycle jyloop 
+                   IF(DR.GT.ro) cycle jyloop
                    XRO=DELTH*FLOAT(NMX)/(2.*PI)*(XR(N2)-XR(N1+1)) +XR(N1+1)
 !CC
 !c Now add new code to compute distance from each gridpt. to rovect pts

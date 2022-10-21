@@ -16,8 +16,33 @@
 
 ! DECLARE VARIABLES
 
-      INTEGER I,J,K,NX,NY,NZ,IFLAG,NX2
-      INTEGER ITIM,IGFS_FLAG,INITOPT
+      implicit none
+      INTEGER I,J,K,L,NX,NY,NZ,IFLAG,NX2,NST,ITIM,IGFS_FLAG,INITOPT
+      integer IUNIT,I360,NX1,NY1,NZ1,KMX,JX,JY,I1,J1,NX_1,NY_1,N,N1
+      integer ITER,ics,CURRENT_DOMAIN_ID,stat
+      integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs
+      integer NCHT,KSTM,k850,KST,IWMIN1,IWMAX1,JWMIN1,JWMAX1,KNHC,MNHC
+      integer IC1,JC1,MDX,MDY,NXT,NYT,NXT1,NYT1
+      integer ictr,jctr,i_max,j_max,IMV,JMV,IR1,IR,K1,IR_1,id_storm
+      integer IDAT,IHOUR,IFH,LAT,LON,IVFT,IPFT,IV34,IMAX1,JMAX1
+      integer iparam,icst,jcst,ID_INDX,JD_INDX,imn1,imx1,jmn1,jmx1
+      real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,pi,pi_deg,pi180,DST1
+      real vobs,vobs_o,VRmax,psfc_cls,PRMAX,R34obs,R34obsm,pct_m,ps_rat2
+      real acount,deltp,deltp1,rdgas1,arad,vs_t,vmax_s
+      real eps1,eps2,eps3,eps4,eps5,eps6,rad2deg
+      real psfc_obs,cost,distm,distt,RMX_d,smax1,R05,smax2
+      real beta,UU11,VV11,UUM1,VVM1,QQ,beta1,v34kt,v50kt,v64kt
+      real psfc_env,psfc_obs1,z0,zzz,rrr,ps_rat
+      real RAD_1,FACT_P,TV1,ZSF1,PSF1,A,wt,PMN06,DDX,DDY
+      real R34MOD,R34MODM,DEG2RAD,DEG2M,DEG2KM,FTMIN,FTMAX
+      real RMAX_0,ROC1,ROC2,RMW1,RMW2,RMW1_MOD,RMW2_OBS,SLP_T1
+      real XXX,YYY,DDD,AAA,BBB,AAA1,BBB1,bbb_t1,bbb_t2,delt_z1,pt_c,sum1,dist1
+      real FACT,FACT1,TEK1,TEK2,ESRR,DELT_P,DLMD2,DPHD2,WBD2,SBD2
+      real CENTRAL_LON2,CENTRAL_LAT2,RWMAX1,PDIF1,T_OLD,Q_OLD
+      real VMX06,PSFC_OBS2,DPV_CT,PMN06_CT,TWMAX,RWMAX,ASYM,D_MAX
+      real VMAX1,VMAX2,R_MAX_W,VVMAX,VSMAX,V34SYM,RMX_E,R34DEG,RMAX_01
+      real FLAG_TEST,RT_MAX,DR_VD,DR_VB,DR_VT,RVMAX5,Rmax_04,fact_v
+      real TENV1,QENV1,W,W1,ZSFC,TSFC,VMAX,UUT,VVT,FF,UV21,UV22,DDR
 
 !     PARAMETER (NX=215,NY=431,NZ=42,NST=5)
       PARAMETER (NST=5)
@@ -111,7 +136,7 @@
       REAL(8) CLON_NEW,CLAT_NEW,CLON_NHC,CLAT_NHC,CLON_NHC_6H,CLAT_NHC_6H
       REAL(8) CLON_NEW1,CLAT_NEW1
 
-      DIMENSION TWM(101),RWM(101),TH1(200),RP(200)
+      REAL(4) TWM(101),RWM(101),TH1(200),RP(200)   ! shin
 
       REAL(4) zmax
 
@@ -589,8 +614,8 @@
         R34modm=0.
         R34_mod=0.
 
-        DO I=1,100
-        READ(12,65,end=104)PART1,NUM,IDAT,IHOUR,IFH,LAT,SN,LON,EW,IVFT,IPFT,IV34,IR34_mod
+        DO
+        READ(12,65,iostat=stat)PART1,NUM,IDAT,IHOUR,IFH,LAT,SN,LON,EW,IVFT,IPFT,IV34,IR34_mod
           IF(PART1.eq.basin.and.NUM.eq.ST_NAME(KST)(1:2))THEN
             IF(IFH.eq.ITIM)THEN
                 VMX06=IVFT*0.514668039           ! 0.514668039=1./1.943
@@ -610,11 +635,10 @@
               end if
             END IF
           END IF
+        if(stat /= 0) exit   !shin
         END DO
 
  65     FORMAT(A2,2x,A2,4x,I6,I2,12x,I3,2x,I3,A1,2x,I4,A1,2X,I3,2x,I4,6x,I3,5x,4(1x,I5))
-
- 104    CONTINUE
 
         IF ( acount > 0.5 ) R34mod = R34mod/acount     !* avg R34 [km]
 
@@ -1973,7 +1997,7 @@
 
       print*,'vobs_o,vobs,C101=',vobs_o,vobs,C101(i_max,j_max)
 
- 876  CONTINUE
+! 876  CONTINUE
 
       VMAX=0.
 !      DO J=1,NYT
@@ -2639,13 +2663,18 @@
       SUBROUTINE FIND_NEWCT1(IX,JX,UD,VD,GLON2,GLAT2,    &
                              CLON_NEW1,CLAT_NEW1)
 
+      implicit none
+      INTEGER I,J,IR,IT,IR1,IX,JX,IX2,JX2,IL,JL,KL
+      INTEGER ID,JD,I1,J1,NIC,NJC
+      REAL ddr,dds,WTS,DR,DD,PI,RAD,pi180,cost,u1,v1,sum1
+      REAL DTX,DTY,XLAT,XLON,DIST,DIST1,UT,VT,WT,TX,RRX,TTX
 !     PARAMETER (IR=100,IT=24,IX=254,JX=254)
       PARAMETER (IR=60,IT=24)
       PARAMETER (ID=31,JD=31,DTX=0.1,DTY=0.1)    ! Search x-Domain (ID-1)*DTX
       REAL (4) UD(IX,JX),VD(IX,JX),GLON2(IX,JX),GLAT2(IX,JX)
 !     DIMENSION RWM(IR+1),TWM(IR+1)
-      DIMENSION TNMX(ID,JD),RX(ID,JD),WTM(IR)
-      REAL (8) CLON_NEW1,CLAT_NEW1
+      REAL(4) TNMX(ID,JD),RX(ID,JD),WTM(IR)     ! shin
+      REAL (8) CLON_NEW,CLAT_NEW,CLON_NEW1,CLAT_NEW1,BLON,BLAT,DLAT,DLON,TLAT,TLON
 
       PI=ASIN(1.)*2.
       RAD=PI/180.
@@ -2681,9 +2710,9 @@
 !..   CALCULATE TANGENTIAL WIND EVERY 0.2 deg INTERVAL
 !..   10*10 deg AROUND 1ST GUESS VORTEX CENTER
 
-      DO 10 JL=1,IR
+      do JL=1,IR  ! do loop for JL
       WTS= 0.
-      DO 20 IL=1,IT
+      do IL=1,IT  ! loop for IL
       DR = JL*ddr
 !     DR = JL
       DD = (IL-1)*15*RAD
@@ -2715,9 +2744,9 @@
 !..   TANGENTIAL WIND
       WT = -SIN(DD)*UT + COS(DD)*VT
       WTS = WTS+WT
-20    CONTINUE
+      enddo   ! do loop for IL
       WTM(JL) = WTS/24.
-10    CONTINUE
+      enddo   ! do loop for JL
 
 !     Southern Hemisphere
       IF (CLAT_NEW.LT.0) THEN

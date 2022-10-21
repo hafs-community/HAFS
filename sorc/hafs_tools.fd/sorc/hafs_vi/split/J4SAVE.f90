@@ -45,7 +45,7 @@
       integer ivalue
       integer iwhich
       integer j4save
-    
+
       SAVE IPARAM
       DATA IPARAM(1),IPARAM(2),IPARAM(3),IPARAM(4)/0,2,0,10/
       DATA IPARAM(5)/1/

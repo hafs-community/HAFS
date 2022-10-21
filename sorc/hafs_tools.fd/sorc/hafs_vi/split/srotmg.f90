@@ -134,9 +134,9 @@
             SX1 = SY1*SU
           END IF
         END IF
-                  
+
 !        KJ-2018: The main refactoring starts here and ends at location
-!        (*)         
+!        (*)
 !        PROCEDURE SCALE-CHECK
         DO WHILE (SD1 .LE. RGAMSQ)
           IF (SD1.EQ.ZERO) EXIT
@@ -203,7 +203,7 @@
           SH22 = SH22*GAM
         END DO
       END IF
-!     KJ-2018. Location (*), end of main refactoring section 
+!     KJ-2018. Location (*), end of main refactoring section
       IF (SFLAG.LT.ZERO) THEN
         SPARAM(2) = SH11
         SPARAM(3) = SH21
