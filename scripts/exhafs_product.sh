@@ -274,34 +274,37 @@ fi
 
 #===============================================================================
 # generate nhc products
-mkdir -p ${DATA}/nhc_products
-cd ${DATA}/nhc_products
+if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
 
-cp -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
-cp ${COMhafs}/storm1.holdvars.txt .
-ln -sf ${COMhafs}/${trk_atcfunix} fort.20
+  mkdir -p ${DATA}/nhc_products
+  cd ${DATA}/nhc_products
 
-set +e
-set -o pipefail
-time ./hafs_nhc_products.x  2>&1 | tee ./hafs_nhc_products.out
-set +o pipefail
-set -e
+  cp -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
+  cp ${COMhafs}/storm1.holdvars.txt .
+  ln -sf ${COMhafs}/${trk_atcfunix} fort.20
 
-short=${out_prefix}.hafs.grib.stats.short
-afos=${out_prefix}.hafs.afos
-tpc=${out_prefix}.hafs.stats.tpc
+  set +e
+  set -o pipefail
+  time ./hafs_nhc_products.x  2>&1 | tee ./hafs_nhc_products.out
+  set +o pipefail
+  set -e
 
-if grep "ALL DONE" ./hafs_nhc_products.out ; then
- cp fort.41 ${COMhafs}/${short}
- cp fort.51 ${COMhafs}/${afos}
- cp fort.61 ${COMhafs}/${tpc}
- echo "INFO: nhc products has been successfully generated"
-else
- echo "ERROR: nhc products failed"
- echo "ERROR: exitting..."
- exit 1
+  short=${out_prefix}.hafs.grib.stats.short
+  afos=${out_prefix}.hafs.afos
+  tpc=${out_prefix}.hafs.stats.tpc
+
+  if grep "ALL DONE" ./hafs_nhc_products.out ; then
+    cp fort.41 ${COMhafs}/${short}
+    cp fort.51 ${COMhafs}/${afos}
+    cp fort.61 ${COMhafs}/${tpc}
+    echo "INFO: nhc products has been successfully generated"
+  else
+    echo "ERROR: nhc products failed"
+    echo "ERROR: exitting..."
+    exit 1
+  fi
+
 fi
-
 #===============================================================================
 
 cd ${DATA}
