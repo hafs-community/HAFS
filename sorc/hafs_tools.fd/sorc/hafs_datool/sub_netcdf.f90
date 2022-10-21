@@ -26,35 +26,35 @@
             case ('grid_yt') ; grid%grid_yt = i
      end select
   enddo
- 
+
   if (allocated(grid%grid_lon)) deallocate(grid%grid_lon)
   allocate(grid%grid_lon(grid%grid_x,grid%grid_y))
   call nccheck(nf90_inq_varid(ncid, 'grid_lon', varid), 'wrong in nf90_inq_varid grid_lon', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_lon), 'wrong in get data of grid_lon', .false.)
   where ( grid%grid_lon > 180. ) grid%grid_lon=grid%grid_lon-360.
- 
+
   if (allocated(grid%grid_lat)) deallocate(grid%grid_lat)
   allocate(grid%grid_lat(grid%grid_x,grid%grid_y))
   call nccheck(nf90_inq_varid(ncid, 'grid_lat', varid), 'wrong in nf90_inq_varid grid_lat', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_lat), 'wrong in get data of grid_lat', .false.)
- 
+
   if (allocated(grid%times)) deallocate(grid%times)
   allocate(grid%times(grid%ntime))
   call nccheck(nf90_inq_varid(ncid, 'time', varid), 'wrong in nf90_inq_varid time', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%times), 'wrong in get data of time', .false.)
-  call nccheck(nf90_get_att(ncid, varid, 'units', grid%times_unit), 'wrong in get times_unit', .false.) 
- 
+  call nccheck(nf90_get_att(ncid, varid, 'units', grid%times_unit), 'wrong in get times_unit', .false.)
+
   if (allocated(grid%grid_lont)) deallocate(grid%grid_lont)
   allocate(grid%grid_lont(grid%grid_xt,grid%grid_yt))
   call nccheck(nf90_inq_varid(ncid, 'grid_lont', varid), 'wrong in nf90_inq_varid grid_lont', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_lont), 'wrong in get data of grid_lont', .false.)
   where ( grid%grid_lont > 180. ) grid%grid_lont=grid%grid_lont-360.
- 
+
   if (allocated(grid%grid_latt)) deallocate(grid%grid_latt)
   allocate(grid%grid_latt(grid%grid_xt,grid%grid_yt))
   call nccheck(nf90_inq_varid(ncid, 'grid_latt', varid), 'wrong in nf90_inq_varid grid_latt', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_latt), 'wrong in get data of grid_latt', .false.)
- 
+
   !if (allocated(grid%grid_area)) deallocate(grid%grid_area)
   !allocate(grid%grid_area(grid%grid_xt,grid%grid_yt))
   !call nccheck(nf90_inq_varid(ncid, 'grid_area', varid), 'wrong in nf90_inq_varid grid_area', .false.)
@@ -83,7 +83,7 @@
 
   return
   end subroutine rd_grid_spec_data
-  
+
 !========================================================================================
   subroutine get_var_data (ncfile, var, ix, jx, kx, tx, data)
 
@@ -96,17 +96,17 @@
 
   integer                         :: ncid, varid, dimid,xtype
   real*8, allocatable, dimension(:,:,:,:)  :: ddata
-  integer, allocatable, dimension(:,:,:,:) :: idata 
+  integer, allocatable, dimension(:,:,:,:) :: idata
 
   write(*,'(a,4i5)')'---getting '//trim(var)//' :', ix, jx, kx, tx
   call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), 'wrong in open '//trim(ncfile), .false.)
   call nccheck(nf90_inq_varid(ncid, trim(var), varid), 'wrong in nf90_inq_varid '//trim(var), .false.)
   call nccheck(nf90_inquire_variable(ncid, varid, xtype=xtype), 'wrong in nf90_inquire_variable'//trim(var), .false.)
- 
+
   if ( xtype == nf90_float .or. xtype == nf90_real .or. xtype == nf90_real4 ) then
      call nccheck(nf90_get_var(ncid, varid, data), 'wrong in get data of '//trim(var), .false.)
   else if ( xtype == nf90_double .or. xtype == nf90_real8 ) then
-     allocate(ddata(ix, jx, kx, tx)) 
+     allocate(ddata(ix, jx, kx, tx))
      call nccheck(nf90_get_var(ncid, varid, ddata), 'wrong in get data of '//trim(var), .false.)
      data=real(ddata)
      deallocate(ddata)
@@ -115,7 +115,7 @@
      call nccheck(nf90_get_var(ncid, varid, idata), 'wrong in get data of '//trim(var), .false.)
      data=real(idata)
      deallocate(idata)
-  else 
+  else
      !---NF90_BYTE, NF90_CHAR, NF90_SHORT
      write(*,*)' !!!! please add ',xtype,' xtype data here '
      stop
@@ -210,7 +210,7 @@
 
 !========================================================================================
   subroutine get_var_dim(ncfile, var, ndims, dims)
-  
+
   use netcdf
   implicit none
   character(len=*), intent(in)    :: ncfile
@@ -223,7 +223,7 @@
 
   call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), 'wrong in open '//trim(ncfile), .false.)
   call nccheck(nf90_inq_varid(ncid, trim(var), varid), 'wrong in nf90_inq_varid '//trim(var), .false.)
-  call nccheck(nf90_inquire_variable(ncid, varid, ndims=ndims, dimids=dimids), 'wrong in inquire_variable '//trim(var), .false.)         
+  call nccheck(nf90_inquire_variable(ncid, varid, ndims=ndims, dimids=dimids), 'wrong in inquire_variable '//trim(var), .false.)
   dims=-999
   do i = 1, ndims
      call nccheck(nf90_inquire_dimension(ncid,dimids(i), len=dims(i)), 'wrong in inquire '//trim(var)//' dim', .false.)
@@ -244,7 +244,7 @@
   real, dimension(abs(ix), abs(jx), abs(kx), abs(tx)), intent(in) :: dat4
 
   integer :: ncid, varid, ndims, xtype, rcode
-  
+
   call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile), .true.)
   !---check variable's type: nf90_real, nf90_double
   call nccheck(nf90_inq_varid(ncid, trim(varname), varid), 'wrong in inq_varid '//trim(varname), .true.)
@@ -257,7 +257,7 @@
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
 
   return
-  end subroutine update_hafs_restart 
+  end subroutine update_hafs_restart
 !========================================================================================
   subroutine update_hafs_restart_par(ncfile, varname, ix, jx, kx, tx, dat4, ixs, jxs, kxs, txs)
 
@@ -303,7 +303,7 @@
   if ( file_exists ) then
      !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
      call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), &
-                             'wrong in open '//trim(ncfile), .true.) 
+                             'wrong in open '//trim(ncfile), .true.)
   else
      call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid), 'wrong in creat '//trim(ncfile), .true.)
      !call nccheck(nf90_create(trim(ncfile), nf90_netcdf4, ncid), 'wrong in creat '//trim(ncfile), .true.)
@@ -318,7 +318,7 @@
   endif
 
   !----2.0 define dimension
-  rcode=nf90_inq_dimid(ncid, trim(dimname), nxid) 
+  rcode=nf90_inq_dimid(ncid, trim(dimname), nxid)
   if ( rcode /= nf90_noerr ) then   !need to create the dimension
      call nccheck(nf90_def_dim(ncid, trim(dimname), nx, nxid), 'wrong in def '//trim(dimname), .true.)
   endif
@@ -367,7 +367,7 @@
      if ( len_trim(long_name) > 0 ) call nccheck(nf90_put_att(ncid, varid, "long_name",long_name), 'wrong in put long_name', .false.)
   endif
 
-  !----3.0 
+  !----3.0
   call nccheck(nf90_put_var(ncid, varid, data), 'wrong in write '//trim(varname), .true.)
 
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
@@ -420,11 +420,11 @@
      rcode=nf90_inq_dimid(ncid, trim(cx), ixid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cx, ix, ixid), 'wrong in def_dim '//trim(cx), .true.)
   endif
-  if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then  
+  if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(cy), jxid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cy, jx, jxid), 'wrong in def_dim '//trim(cy), .true.)
   endif
-  if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then 
+  if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ck), kxid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, ck, kx, kxid), 'wrong in def_dim '//trim(ck), .true.)
   endif
@@ -464,7 +464,7 @@
      !---
      !if ( ix>0 .and. jx>0 ) then
      !   call nccheck(nf90_def_var_chunking(ncid, varid, 1, [jx, ix]), 'wrong in nf90_def_var_chunking', .false.)
-     !   call nccheck(nf90_def_var_deflate(ncid, varid, 1, 1, 4), 'wrong in nf90_def_var_deflate 4', .false.) 
+     !   call nccheck(nf90_def_var_deflate(ncid, varid, 1, 1, 4), 'wrong in nf90_def_var_deflate 4', .false.)
      !endif
      call nccheck(nf90_enddef(ncid), 'wrong in nf90_enddef', .false.)
   endif
@@ -496,14 +496,14 @@
         if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, data), 'wrong in write '//trim(varname), .true.)
      endif
   endif
-  
+
   !----6.0 put att
   if ( len_trim(units) > 0 .and. units(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "units", units), 'wrong in put units', .false.)
   if ( len_trim(long_name) > 0 .and. long_name(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "long_name",long_name), 'wrong in put long_name', .false.)
   call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS VI pre-file on rot-ll grids derived from HAFS restart files"), 'wrong in put_att', .false.)
   call date_and_time(date(1), date(2), date(3), date_time)
   call nccheck(nf90_put_att(ncid, nf90_global, "Created_date",date(1)), 'wrong input Created_date', .false.)
-  
+
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
 
   return
@@ -557,11 +557,11 @@
      rcode=nf90_inq_dimid(ncid, trim(cx), ixid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cx, ix, ixid), 'wrong in def_dim '//trim(cx), .true.)
   endif
-  if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then  
+  if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(cy), jxid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cy, jx, jxid), 'wrong in def_dim '//trim(cy), .true.)
   endif
-  if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then 
+  if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ck), kxid)
      if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, ck, kx, kxid), 'wrong in def_dim '//trim(ck), .true.)
   endif
@@ -598,7 +598,7 @@
            if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,varid), 'wrong in def_var '//trim(varname), .true.)
         endif
      endif
-     !call nccheck(nf90_def_var_deflate(ncid, varid, 1, 1, 4), 'wrong in nf90_def_var_deflate 4', .false.) 
+     !call nccheck(nf90_def_var_deflate(ncid, varid, 1, 1, 4), 'wrong in nf90_def_var_deflate 4', .false.)
      call nccheck(nf90_enddef(ncid), 'wrong in nf90_enddef', .false.)
   endif
 
@@ -629,14 +629,14 @@
         if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, data), 'wrong in write '//trim(varname), .true.)
      endif
   endif
-  
+
   !----6.0 put att
   if ( len_trim(units) > 0 .and. units(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "units", units), 'wrong in put units', .false.)
   if ( len_trim(long_name) > 0 .and. long_name(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "long_name",long_name), 'wrong in put long_name', .false.)
   call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS VI pre-file on rot-ll grids derived from HAFS restart files"), 'wrong in put_att', .false.)
   call date_and_time(date(1), date(2), date(3), date_time)
   call nccheck(nf90_put_att(ncid, nf90_global, "Created_date",date(1)), 'wrong input Created_date', .false.)
-  
+
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
 
   return

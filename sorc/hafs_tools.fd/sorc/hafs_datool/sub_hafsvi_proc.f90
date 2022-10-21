@@ -37,8 +37,8 @@
   implicit none
 
   character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file
-  integer, intent(in)           :: nestdoms 
-!--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc, 
+  integer, intent(in)           :: nestdoms
+!--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
 !             fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
 !--- in_date, HAFS_restart file date, like 20200825.120000
 !--- radius,  to cut a square, default value is 40, which means a 40deg x 40deg square.
@@ -54,14 +54,14 @@
   type(grid2d_info)      :: ingrid   ! hafs restart grid
   real     :: radiusf
   logical  :: file_exist
-  
+
 !----for hafs restart
   integer  :: ix, iy, iz, kz, ndom, nd
   character (len=50) :: nestfl, tilefl, tempfl
                         ! grid_spec.nc : grid_spec.nest02.tile2.nc
                         ! fv_core.res.tile1.nc : fv_core.res.nest02.tile2.nc
                         ! phy_data.nc  : phy_data.nest02.tile2.nc
- 
+
 !----for hafsvi
   integer  :: nx, ny, nz, filetype  ! filetype: 1=bin, 2=nc
   real     :: lon1,lat1,lon2,lat2,cen_lat,cen_lon,dlat,dlon
@@ -77,17 +77,17 @@
 
   !real, allocatable, dimension(:)       :: pfull, phalf
   real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
-  real    :: cputime1, cputime2, cputime3 
+  real    :: cputime1, cputime2, cputime3
   integer :: io_proc, nm, ks, ke, nv
-  
-  
+
+
 !------------------------------------------------------------------------------
 ! 1 --- arg process
   io_proc=nprocs-1
   !io_proc=0
 !
 ! 1.1 --- ndom
-  ndom=nestdoms+1  
+  ndom=nestdoms+1
 
 ! 1.2 --- input_dir
   if (len_trim(in_dir) < 2 .or. trim(in_dir) == 'w' .or. trim(in_dir) == 'null') then
@@ -104,7 +104,7 @@
      if ( radiusf < 3. .or. radiusf > 70. ) then
         if ( my_proc_id == 0 ) write(*,'(a)')'!!! hafsvi cut radius number wrong: '//trim(radius)
         if ( my_proc_id == 0 ) write(*,'(a)')'!!! please call with --vortexradius=40 (75< 3)'
-        stop 'hafsvi_preproc' 
+        stop 'hafsvi_preproc'
      endif
   endif
 
@@ -120,7 +120,7 @@
 ! 2.1 --- define rot-ll grid
   cen_lat = tc%lat
   cen_lon = tc%lon
-  nx = int(radiusf/2.0/dlon+0.5)*2+1 
+  nx = int(radiusf/2.0/dlon+0.5)*2+1
   ny = int(radiusf/2.0/dlat+0.5)*2+1
   lon1 = - radiusf/2.0
   lat1 = - radiusf/2.0
@@ -137,8 +137,8 @@
   enddo; enddo
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
-  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1) 
-  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1) 
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1)
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1)
 
 ! 2.2 --- set dstgrid
   dstgrid%grid_x = nx
@@ -154,14 +154,14 @@
   allocate(dstgrid%grid_latt(dstgrid%grid_x,dstgrid%grid_y))
   dstgrid%grid_lat  = glat
   dstgrid%grid_latt = glat
-   
+
 !------------------------------------------------------------------------------
 ! 3 --- process output file type: now is only for bin
 !  i=len_trim(out_file)
 !  if ( out_file(i-2:i) == '.nc' ) then
 !     write(*,'(a)')' --- output to '//trim(out_file)
 !     filetype=2
-!     call nccheck(nf90_open(trim(out_file), nf90_write, flid), 'wrong in open '//trim(out_file), .true.) 
+!     call nccheck(nf90_open(trim(out_file), nf90_write, flid), 'wrong in open '//trim(out_file), .true.)
 !  else
 !     filetype=1
 !     flid=71
@@ -182,7 +182,7 @@
      !       read from grid file grid_spec.nc:
      !       nestfl, tilefl: infile_core, infile_tracer, infile_grid, infile_atmos, infile_oro
      write(nestfl,'(a4,i2.2)')'nest',nd
-     write(tilefl,'(a4,i0)')'tile',nd     
+     write(tilefl,'(a4,i0)')'tile',nd
      if ( nd == 1 ) then
         infile_grid=trim(indir)//'/grid_spec.nc'
         infile_grid2=trim(indir)//'/grid_mspec_'//in_date(1:4)//'_'//in_date(5:6)//'_'//in_date(7:8)//'_'//in_date(10:11)//'.nc'
@@ -214,23 +214,23 @@
      iy=ingrid%grid_yt
      if ( debug_level > 10 .and. my_proc_id == 0 ) then
         write(*,'(a,i,1x,i,1x,f,1x,f,1x,f,1x,f)')' --- ingrid info: ', ix, iy, &
-              ingrid%grid_lon(int(ix/2), int(iy/2)), ingrid%grid_lat(int(ix/2), int(iy/2)), & 
+              ingrid%grid_lon(int(ix/2), int(iy/2)), ingrid%grid_lat(int(ix/2), int(iy/2)), &
               ingrid%grid_lont(int(ix/2), int(iy/2)), ingrid%grid_latt(int(ix/2), int(iy/2))
      endif
 
      !---to add the test if the tc was inside of the domain
-     
+
 
      ! call FV3-grid cos and sin
-     allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) ) 
-     call cal_uv_coeff_fv3(ix, iy, ingrid%grid_lat, ingrid%grid_lon, cangu, sangu, cangv, sangv) 
+     allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) )
+     call cal_uv_coeff_fv3(ix, iy, ingrid%grid_lat, ingrid%grid_lon, cangu, sangu, cangv, sangv)
 
      !-------------------------------------------------------------------------
      ! 5 --- calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
      if ( debug_level > 10 ) then
         if ( my_proc_id == 0 ) write(*,'(a)')' --- call cal_src_dst_grid_weight'
         write(*,'(i,a,2(i,1x),2(f,1x))')my_proc_id,' --- dstgrid: ', nx, ny, &
-             dstgrid%grid_lont(int(nx/2),int(ny/2)), dstgrid%grid_latt(int(nx/2),int(ny/2)) 
+             dstgrid%grid_lont(int(nx/2),int(ny/2)), dstgrid%grid_latt(int(nx/2),int(ny/2))
      endif
      call cal_src_dst_grid_weight(ingrid, dstgrid)
 
@@ -257,16 +257,16 @@
      do_out_var_loop: do nrecord = 1, 17
         !write(*,*)my_proc_id, '=== nrecord =',nrecord
         !-----------------------------
-        !---7.1 record 1: nx, ny, nz 
+        !---7.1 record 1: nx, ny, nz
         !---nx, ny, nz, & lon1,lat1,lon2,lat2,cen_lon,cen_lat
         call cpu_time(cputime1)
         if ( my_proc_id == io_proc ) write(*,'(a,i3,f)')' --- record start cputime: ', nrecord, cputime1
-        if ( nrecord == 1 ) then 
+        if ( nrecord == 1 ) then
            call get_var_dim(trim(infile_atmos), 'pfull', ndims, dims)
            nz=dims(1)
-  
+
            if ( my_proc_id == io_proc ) write(*,'(a,3i6)')'=== record1: ',nx, ny, nz
-           if ( my_proc_id == io_proc ) write(flid_out) nx, ny, nz 
+           if ( my_proc_id == io_proc ) write(flid_out) nx, ny, nz
            if ( nd > 1 .and. my_proc_id == io_proc ) read(flid_in)
         endif
 
@@ -282,15 +282,15 @@
            if ( my_proc_id == io_proc ) write(flid_out) lon1,lat1,lon2,lat2,cen_lon,cen_lat
            if ( nd > 1 .and. my_proc_id == io_proc ) read(flid_in)
            write(*,*)'==== finished record 2 at ', my_proc_id
-        endif   
+        endif
 
         !-----------------------------
         !---7.3 record 3: (((pf1(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
         !---     hafs-VI/read_hafs_out.f90 pf:
         !---          ph(k) = ak(k) + bk(k)*p_s --> half level pressure
         !---          pf(k) = (ph(k+1) - ph(k)) / log(ph(k+1)/ph(k)) --> full level pressure
-        !---          
-        !---seem pf1 is pressure on full level, use 
+        !---
+        !---seem pf1 is pressure on full level, use
         !---    pf1(k) = phalf(1) + sum(delp(1:k))
         if ( nrecord == 3 .or. nrecord == 9 .or. nrecord == 11 ) then
            if ( my_proc_id == io_proc ) then
@@ -308,7 +308,7 @@
                  call get_var_data(trim(infile_core), 'delp', ix, iy, iz,1, dat4)
                  dat2(:,:)=ptop
                  do k = 1, iz
-                    dat41(:,:,k,1)=dat2(:,:)+dat4(:,:,k,1)/2.0  
+                    dat41(:,:,k,1)=dat2(:,:)+dat4(:,:,k,1)/2.0
                     dat2(:,:)=dat2(:,:)+dat4(:,:,k,1)
                  enddo
                  allocate(sfcp(ix, iy))
@@ -338,14 +338,14 @@
 
               !---broadcast dat41 to each computing-core
               if ( nprocs > 1 ) then
-                 nm=max(1,int((iz+nprocs-1)/nprocs))  !devide iz to each processor 
+                 nm=max(1,int((iz+nprocs-1)/nprocs))  !devide iz to each processor
                  do k = 0, nprocs-1
                     ks=k*nm+1              !k-start
                     ke=k*nm+nm            !k-end
                     if ( ke > iz ) ke=iz
                     if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                        allocate(dat42(ix, iy, ke-ks+1,1))
-                       dat42(:,:,:,1)=dat41(:,:,ks:ke,1)  
+                       dat42(:,:,:,1)=dat41(:,:,ks:ke,1)
                        if ( k /= io_proc ) then
                           call mpi_send(dat42(1,1,1,1), size(dat42), mpi_real, k, 3000+ks, comm, ierr)
                        else
@@ -371,7 +371,7 @@
                  call mpi_recv(dat43(1,1,1,1), size(dat43), mpi_real, io_proc, 3000+ks, comm, status, ierr)
               endif
            endif
-        endif 
+        endif
 
         !-----------------------------
         !---7.4 record 4: (((tmp(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
@@ -406,7 +406,7 @@
               else
                  allocate(dat43(ix, iy, iz,1))
                  dat43=dat4
-              endif 
+              endif
               deallocate(dat4)
            else  !if ( my_proc_id == io_proc ) then
               !---receive dat43
@@ -426,7 +426,7 @@
         if ( nrecord == 6 ) then
            !---get u,v from restart
            if ( my_proc_id == io_proc ) then
-              do nv = 1, 2 
+              do nv = 1, 2
                  if (nv==1) then
                     allocate(dat4(ix, iy+1, iz,1))
                     call get_var_data(trim(infile_core), 'u', ix, iy+1, iz, 1, dat4)
@@ -479,14 +479,14 @@
               ks=min(iz,my_proc_id*nm+1)
               ke=min(iz,my_proc_id*nm+nm)
               if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
-                 allocate(dat42(ix, iy+1, ke-ks+1,1), dat43(ix+1, iy, ke-ks+1,1))                 
+                 allocate(dat42(ix, iy+1, ke-ks+1,1), dat43(ix+1, iy, ke-ks+1,1))
                  call mpi_recv(dat42(1,1,1,1), size(dat42), mpi_real, io_proc, 200*1+ks, comm, status, ierr)
                  call mpi_recv(dat43(1,1,1,1), size(dat43), mpi_real, io_proc, 200*2+ks, comm, status, ierr)
               endif
            endif  !if ( my_proc_id == io_proc ) then
            write(*,*)'===w11 distributed u,v @ dat42,dat43'
-        endif  
- 
+        endif
+
         !!-----------------------------
         !!---7.9 record 9: (((z1(i,j,k),i=1,nx),j=1,ny),k=nz1,1,-1)
         !!---     hafs-VI/read_hafs_out.f90 z1:
@@ -539,17 +539,17 @@
 
 ! New change: Jul 2022 JH Shin-------------------------------------------------------------
 
-              write(flid_out) glon,glat,glon,glat 
+              write(flid_out) glon,glat,glon,glat
               if ( nd > 1 ) read(flid_in)
            endif
         endif
-   
+
         !!-----------------------------
         !!---7.11 record 11: (((ph1(i,j,k),i=1,nx),j=1,ny),k=nz1,1,-1)
         !!---     hafs-VI/read_hafs_out.f90 ph:
         !!---       ph(k) = ak(k) + bk(k)*p_s --> pressure in pa
         !!---       64.270-->100570
-        !!---seem ph1 is pressure on half level, use 
+        !!---seem ph1 is pressure on half level, use
         !!---    pf1(k) = phalf(1) + sum(delp(1:k))
         !if ( nrecord == 11 ) then
         !   allocate(dat4(iz+1,1,1,1))
@@ -566,7 +566,7 @@
         !   enddo
         !   deallocate(dat4)
         !endif
-   
+
         !-----------------------------
         !---7.12 record 12: pressfc1              ! 2D
         !--- use lowest-level pressure?
@@ -577,7 +577,7 @@
               deallocate(sfcp)
            endif
         endif
-   
+
         !-----------------------------
         !---7.13 record 13: ak
         if ( nrecord == 13 ) then
@@ -587,12 +587,12 @@
               write(*,'(a,200f12.1)')'=== record13: ', (dat4(k,1,1,1),k=1,iz+1)
               write(flid_out) (dat4(k,1,1,1),k=1,iz+1)
               if ( nd > 1 ) read(flid_in)
-              deallocate(dat4) 
+              deallocate(dat4)
            endif
         endif
-   
+
         !-----------------------------
-        !---7.14 record 14: bk 
+        !---7.14 record 14: bk
         if ( nrecord == 14 ) then
            if ( my_proc_id == io_proc ) then
               allocate(dat4(iz+1,1,1,1))
@@ -600,10 +600,10 @@
               write(*,'(a,200f10.3)')'=== record14: ', (dat4(k,1,1,1),k=1,iz+1)
               write(flid_out) (dat4(k,1,1,1),k=1,iz+1)
               if ( nd > 1 ) read(flid_in)
-              deallocate(dat4) 
+              deallocate(dat4)
            endif
         endif
-   
+
         !-----------------------------
         !---7.15 record 15: land                  ! =A101 = land sea mask, B101 = ZNT
         !---     hafs-VI/read_hafs_out.f90 land:long_name = "sea-land-ice mask (0-sea, 1-land, 2-ice)" ;
@@ -614,7 +614,7 @@
               call get_var_data(trim(infile_sfc), 'slmsk', ix, iy, 1, 1, dat43)
            endif
         endif
-   
+
         !-----------------------------
         !---7.16 record 16: sfcr                  ! =B101 = Z0
         !---surface roughness
@@ -626,7 +626,7 @@
               dat43=dat43/100.
            endif
         endif
-   
+
         !-----------------------------
         !---7.17 record 17: C101                  ! =C101 = (10m wind speed)/(level 1 wind speed)
         !---                                      ! =C101 = f10m (in the sfc_data.nc)
@@ -636,7 +636,7 @@
               call get_var_data(trim(infile_sfc), 'f10m', ix, iy, 1, 1, dat43)
            endif
         endif
-   
+
         !-----------------------------
         !---7.18 output 3d
         if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. &
@@ -649,7 +649,7 @@
            !--- map fv3 grid to rot-ll grid: ingrid-->dstgrid
            !call cpu_time(cputime2)
            !write(*,'(a,i3,f)')' --- read rot-ll grid for 1 record ', nrecord, cputime2
-            
+
            if ( nprocs == 1 ) then  !--no mpi
               !----only 1-core
               allocate(dat41(nx,ny,kz,1), dat42(nx,ny,kz,1))
@@ -663,7 +663,7 @@
                  dat41=-999999.
               endif
               call combine_grids_for_remap(ix,iy,kz,1,dat43,nx,ny,kz,1,dat41,gwt%gwt_t,dat42)
-  
+
               !--- output
               !write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
               write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
@@ -688,7 +688,7 @@
                        if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                           allocate(dat42(nx, ny, ke-ks+1,1))
                           dat42(:,:,:,1)=dat4(:,:,ks:ke,1)
-                          if ( k /= io_proc ) then 
+                          if ( k /= io_proc ) then
                              call mpi_send(dat42(1,1,1,1),size(dat42),mpi_real, k, 4000+ks, comm, ierr)
                           else
                              allocate(dat41(nx, ny, ke-ks+1,1))
@@ -779,10 +779,10 @@
                  v(:,:,k,1) = (dat21(1:ix,:)+dat21(2:ix+1,:))/2.0
               enddo
               deallocate(dat42, dat43, dat2, dat21, cangu, sangu, cangv, sangv)
-           endif 
+           endif
            write(*,*)'===w12 dat42,dat43 to earth wind u,v'
 
-           !--- loop u,v 
+           !--- loop u,v
            do nv = 1, 2
               !--- get outer domain u,v
               if ( nd > 1 ) then
@@ -904,12 +904,12 @@
               write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
               deallocate(dat41, dat42, dat43)
            endif  !if ( my_proc_id == io_proc ) then
-        endif 
+        endif
 
      enddo do_out_var_loop !: for nrecord = 1, 17
 
      !-------------------------------------------------------------------------
-     ! 8 --- clean ingrid gwt 
+     ! 8 --- clean ingrid gwt
      deallocate( ingrid%grid_lon, ingrid%grid_lat, ingrid%grid_lont, ingrid%grid_latt)
      deallocate( gwt%gwt_t, gwt%gwt_u, gwt%gwt_v )
 
@@ -958,8 +958,8 @@
   implicit none
 
   character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file
-  integer, intent(in)           :: nestdoms 
-!--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc, 
+  integer, intent(in)           :: nestdoms
+!--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
 !             fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
 !--- in_date, HAFS_restart file date, like 20200825.120000
 !--- radius,  to cut a square, default value is 40, which means a 40deg x 40deg square.
@@ -975,7 +975,7 @@
   type(grid2d_info)      :: ingrid   ! hafs restart grid
   real     :: radiusf
   logical  :: file_exist
-  
+
 !----for hafs restart
   integer  :: ix, iy, iz, kz, ndom, nd
   character (len=50) :: nestfl, tilefl, tempfl
@@ -983,7 +983,7 @@
                         ! fv_core.res.tile1.nc : fv_core.res.nest02.tile2.nc
                         ! phy_data.nc  : phy_data.nest02.tile2.nc
   character (len=2500):: fl_in, fl_out
- 
+
 !----for hafsvi
   integer  :: nx, ny, nz, filetype  ! filetype: 1=bin, 2=nc
   real     :: lon1,lat1,lon2,lat2,cen_lat,cen_lon,dlat,dlon
@@ -999,17 +999,17 @@
 
   !real, allocatable, dimension(:)       :: pfull, phalf
   real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
-  real    :: cputime1, cputime2, cputime3 
+  real    :: cputime1, cputime2, cputime3
   integer :: io_proc, nm, ks, ke, nv
-  character (len=50)  :: varname, varname_long, units, nzc  
-  
+  character (len=50)  :: varname, varname_long, units, nzc
+
 !------------------------------------------------------------------------------
 ! 1 --- arg process
   io_proc=nprocs-1
   !io_proc=0
 !
 ! 1.1 --- ndom
-  ndom=nestdoms+1  
+  ndom=nestdoms+1
 
 ! 1.2 --- input_dir
   if (len_trim(in_dir) < 2 .or. trim(in_dir) == 'w' .or. trim(in_dir) == 'null') then
@@ -1026,7 +1026,7 @@
      if ( radiusf < 3. .or. radiusf > 70. ) then
         if ( my_proc_id == 0 ) write(*,'(a)')'!!! hafsvi cut radius number wrong: '//trim(radius)
         if ( my_proc_id == 0 ) write(*,'(a)')'!!! please call with --vortexradius=40 (75< 3)'
-        stop 'hafsvi_preproc' 
+        stop 'hafsvi_preproc'
      endif
   endif
 
@@ -1042,7 +1042,7 @@
 ! 2.1 --- define rot-ll grid
   cen_lat = tc%lat
   cen_lon = tc%lon
-  nx = int(radiusf/2.0/dlon+0.5)*2+1 
+  nx = int(radiusf/2.0/dlon+0.5)*2+1
   ny = int(radiusf/2.0/dlat+0.5)*2+1
   lon1 = - radiusf/2.0
   lat1 = - radiusf/2.0
@@ -1059,8 +1059,8 @@
   enddo; enddo
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
-  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1) 
-  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1) 
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1)
+  !write(*,'(a,4f10.5)')'---rot-ll grid rot_lat:', glat(1,1), glat(1,ny), glat(nx,ny), glat(nx,1)
 
 ! 2.2 --- set dstgrid
   dstgrid%grid_x = nx
@@ -1076,14 +1076,14 @@
   allocate(dstgrid%grid_latt(dstgrid%grid_x,dstgrid%grid_y))
   dstgrid%grid_lat  = glat
   dstgrid%grid_latt = glat
-   
+
 !------------------------------------------------------------------------------
 ! 3 --- process output file type: now is only for bin
 !  i=len_trim(out_file)
 !  if ( out_file(i-2:i) == '.nc' ) then
 !     write(*,'(a)')' --- output to '//trim(out_file)
 !     filetype=2
-!     call nccheck(nf90_open(trim(out_file), nf90_write, flid), 'wrong in open '//trim(out_file), .true.) 
+!     call nccheck(nf90_open(trim(out_file), nf90_write, flid), 'wrong in open '//trim(out_file), .true.)
 !  else
 !     filetype=1
 !     flid=71
@@ -1104,7 +1104,7 @@
      !       read from grid file grid_spec.nc:
      !       nestfl, tilefl: infile_core, infile_tracer, infile_grid, infile_atmos, infile_oro
      write(nestfl,'(a4,i2.2)')'nest',nd
-     write(tilefl,'(a4,i0)')'tile',nd     
+     write(tilefl,'(a4,i0)')'tile',nd
      if ( nd == 1 ) then
         infile_grid=trim(indir)//'/grid_spec.nc'
         infile_grid2=trim(indir)//'/grid_mspec_'//in_date(1:4)//'_'//in_date(5:6)//'_'//in_date(7:8)//'_'//in_date(10:11)//'.nc'
@@ -1136,23 +1136,23 @@
      iy=ingrid%grid_yt
      if ( debug_level > 10 .and. my_proc_id == 0 ) then
         write(*,'(a,i,1x,i,1x,f,1x,f,1x,f,1x,f)')' --- ingrid info: ', ix, iy, &
-              ingrid%grid_lon(int(ix/2), int(iy/2)), ingrid%grid_lat(int(ix/2), int(iy/2)), & 
+              ingrid%grid_lon(int(ix/2), int(iy/2)), ingrid%grid_lat(int(ix/2), int(iy/2)), &
               ingrid%grid_lont(int(ix/2), int(iy/2)), ingrid%grid_latt(int(ix/2), int(iy/2))
      endif
 
      !---to add the test if the tc was inside of the domain
-     
+
 
      ! call FV3-grid cos and sin
-     allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) ) 
-     call cal_uv_coeff_fv3(ix, iy, ingrid%grid_lat, ingrid%grid_lon, cangu, sangu, cangv, sangv) 
+     allocate( cangu(ix,iy+1),sangu(ix,iy+1),cangv(ix+1,iy),sangv(ix+1,iy) )
+     call cal_uv_coeff_fv3(ix, iy, ingrid%grid_lat, ingrid%grid_lon, cangu, sangu, cangv, sangv)
 
      !-------------------------------------------------------------------------
      ! 5 --- calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
      if ( debug_level > 10 ) then
         if ( my_proc_id == 0 ) write(*,'(a)')' --- call cal_src_dst_grid_weight'
         write(*,'(i,a,2(i,1x),2(f,1x))')my_proc_id,' --- dstgrid: ', nx, ny, &
-             dstgrid%grid_lont(int(nx/2),int(ny/2)), dstgrid%grid_latt(int(nx/2),int(ny/2)) 
+             dstgrid%grid_lont(int(nx/2),int(ny/2)), dstgrid%grid_latt(int(nx/2),int(ny/2))
      endif
      call cal_src_dst_grid_weight(ingrid, dstgrid)
 
@@ -1195,7 +1195,7 @@
         call write_nc_real0d(trim(fl_out), 'lat2', lat2, 'degree', 'latitude 1')
         call write_nc_real0d(trim(fl_out), 'cen_lon', cen_lon, 'degree', 'center of longtitude')
         call write_nc_real0d(trim(fl_out), 'cen_lat', cen_lat, 'degree', 'center of latitude')
-       
+
         !----
         !--- change: Jul 2022 JH Shin
         !  For WPAC storms located near the west of international date line, add 360 to
@@ -1285,7 +1285,7 @@
         if ( iz == 1 ) nzc='-'
 
         !-----------------------------
-        !---7.1 record 1: nx, ny, nz 
+        !---7.1 record 1: nx, ny, nz
         !---nx, ny, nz, & lon1,lat1,lon2,lat2,cen_lon,cen_lat
 
         !-----------------------------
@@ -1296,8 +1296,8 @@
         !---     hafs-VI/read_hafs_out.f90 pf:
         !---          ph(k) = ak(k) + bk(k)*p_s --> half level pressure
         !---          pf(k) = (ph(k+1) - ph(k)) / log(ph(k+1)/ph(k)) --> full level pressure
-        !---          
-        !---seem pf1 is pressure on full level, use 
+        !---
+        !---seem pf1 is pressure on full level, use
         !---    pf1(k) = phalf(1) + sum(delp(1:k))
         if ( nrecord == 3 .or. nrecord == 9 .or. nrecord == 11 ) then
            if ( my_proc_id == io_proc ) then
@@ -1315,7 +1315,7 @@
                  call get_var_data(trim(infile_core), 'delp', ix, iy, iz,1, dat4)
                  dat2(:,:)=ptop
                  do k = 1, iz
-                    dat41(:,:,k,1)=dat2(:,:)+dat4(:,:,k,1)/2.0  
+                    dat41(:,:,k,1)=dat2(:,:)+dat4(:,:,k,1)/2.0
                     dat2(:,:)=dat2(:,:)+dat4(:,:,k,1)
                  enddo
                  allocate(sfcp(ix, iy))
@@ -1345,14 +1345,14 @@
 
               !---broadcast dat41 to each computing-core
               if ( nprocs > 1 ) then
-                 nm=max(1,int((iz+nprocs-1)/nprocs))  !devide iz to each processor 
+                 nm=max(1,int((iz+nprocs-1)/nprocs))  !devide iz to each processor
                  do k = 0, nprocs-1
                     ks=k*nm+1              !k-start
                     ke=k*nm+nm            !k-end
                     if ( ke > iz ) ke=iz
                     if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                        allocate(dat42(ix, iy, ke-ks+1,1))
-                       dat42(:,:,:,1)=dat41(:,:,ks:ke,1)  
+                       dat42(:,:,:,1)=dat41(:,:,ks:ke,1)
                        if ( k /= io_proc ) then
                           call mpi_send(dat42(1,1,1,1), size(dat42), mpi_real, k, 3000+ks, comm, ierr)
                        else
@@ -1378,7 +1378,7 @@
                  call mpi_recv(dat43(1,1,1,1), size(dat43), mpi_real, io_proc, 3000+ks, comm, status, ierr)
               endif
            endif
-        endif 
+        endif
 
         !-----------------------------
         !---7.4 record 4: (((tmp(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
@@ -1413,7 +1413,7 @@
               else
                  allocate(dat43(ix, iy, iz,1))
                  dat43=dat4
-              endif 
+              endif
               deallocate(dat4)
            else  !if ( my_proc_id == io_proc ) then
               !---receive dat43
@@ -1433,7 +1433,7 @@
         if ( nrecord == 6 ) then
            !---get u,v from restart
            if ( my_proc_id == io_proc ) then
-              do nv = 1, 2 
+              do nv = 1, 2
                  if (nv==1) allocate(dat4(ix, iy+1, iz,1))
                  if (nv==1) call get_var_data(trim(infile_core), 'u', ix, iy+1, iz, 1, dat4)
                  if (nv==2) allocate(dat4(ix+1, iy, iz,1))
@@ -1474,13 +1474,13 @@
               ks=min(iz,my_proc_id*nm+1)
               ke=min(iz,my_proc_id*nm+nm)
               if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
-                 allocate(dat42(ix, iy+1, ke-ks+1,1), dat43(ix+1, iy, ke-ks+1,1))                 
+                 allocate(dat42(ix, iy+1, ke-ks+1,1), dat43(ix+1, iy, ke-ks+1,1))
                  call mpi_recv(dat42(1,1,1,1), size(dat42), mpi_real, io_proc, 200*1+ks, comm, status, ierr)
                  call mpi_recv(dat43(1,1,1,1), size(dat43), mpi_real, io_proc, 200*2+ks, comm, status, ierr)
               endif
            endif  !if ( my_proc_id == io_proc ) then
-        endif  
- 
+        endif
+
         !!-----------------------------
         !!---7.9 record 9: (((z1(i,j,k),i=1,nx),j=1,ny),k=nz1,1,-1)
         !!---     hafs-VI/read_hafs_out.f90 z1:
@@ -1490,15 +1490,15 @@
         !-----------------------------
         !---7.10 record 10: glon,glat,glon,glat   ! 2D
         !--- glat=grid_yt*180./pi, grid_yt=1:2160, what is this?
-   
+
         !!-----------------------------
         !!---7.11 record 11: (((ph1(i,j,k),i=1,nx),j=1,ny),k=nz1,1,-1)
         !!---     hafs-VI/read_hafs_out.f90 ph:
         !!---       ph(k) = ak(k) + bk(k)*p_s --> pressure in pa
         !!---       64.270-->100570
-        !!---seem ph1 is pressure on half level, use 
+        !!---seem ph1 is pressure on half level, use
         !!---    pf1(k) = phalf(1) + sum(delp(1:k))
-   
+
         !-----------------------------
         !---7.12 record 12: pressfc1              ! 2D
         !--- use lowest-level pressure?
@@ -1509,13 +1509,13 @@
               deallocate(sfcp)
            endif
         endif
-   
+
         !-----------------------------
         !---7.13 record 13: ak
-   
+
         !-----------------------------
-        !---7.14 record 14: bk 
-   
+        !---7.14 record 14: bk
+
         !-----------------------------
         !---7.15 record 15: land                  ! =A101 = land sea mask, B101 = ZNT
         !---     hafs-VI/read_hafs_out.f90 land:long_name = "sea-land-ice mask (0-sea, 1-land, 2-ice)" ;
@@ -1526,7 +1526,7 @@
               call get_var_data(trim(infile_sfc), 'slmsk', ix, iy, 1, 1, dat43)
            endif
         endif
-   
+
         !-----------------------------
         !---7.16 record 16: sfcr                  ! =B101 = Z0
         !---surface roughness
@@ -1538,7 +1538,7 @@
               dat43=dat43/100.
            endif
         endif
-   
+
         !-----------------------------
         !---7.17 record 17: C101                  ! =C101 = (10m wind speed)/(level 1 wind speed)
         !---                                      ! =C101 = f10m (in the sfc_data.nc)
@@ -1548,7 +1548,7 @@
               call get_var_data(trim(infile_sfc), 'f10m', ix, iy, 1, 1, dat43)
            endif
         endif
-   
+
         !-----------------------------
         !---7.18 output 3d
         if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. &
@@ -1561,7 +1561,7 @@
            !--- map fv3 grid to rot-ll grid: ingrid-->dstgrid
            !call cpu_time(cputime2)
            !write(*,'(a,i3,f)')' --- read rot-ll grid for 1 record ', nrecord, cputime2
-            
+
            if ( nprocs == 1 ) then  !--no mpi
               !----only 1-core
               allocate(dat41(nx,ny,kz,1), dat42(nx,ny,kz,1))
@@ -1576,7 +1576,7 @@
                  dat41=-999999.
               endif
               call combine_grids_for_remap(ix,iy,kz,1,dat43,nx,ny,kz,1,dat41,gwt%gwt_t,dat42)
-  
+
               !--- output
               !write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
               !write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
@@ -1603,7 +1603,7 @@
                        if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                           allocate(dat42(nx, ny, ke-ks+1,1))
                           dat42(:,:,:,1)=dat4(:,:,ks:ke,1)
-                          if ( k /= io_proc ) then 
+                          if ( k /= io_proc ) then
                              call mpi_send(dat42(1,1,1,1),size(dat42),mpi_real, k, 4000+ks, comm, ierr)
                           else
                              allocate(dat41(nx, ny, ke-ks+1,1))
@@ -1695,17 +1695,17 @@
                  v(:,:,k,1) = (dat21(1:ix,:)+dat21(2:ix+1,:))/2.0
               enddo
               deallocate(dat42, dat43, dat2, dat21, cangu, sangu, cangv, sangv)
-           endif 
+           endif
 
-           !--- loop u,v 
+           !--- loop u,v
            do nv = 1, 2
               !--- get outer domain u,v
               if ( nd > 1 ) then
                  if ( my_proc_id == io_proc ) then
                     allocate(dat4(nx,ny,kz,1), dat42(nx,ny,kz,1))
                     !read(flid_in)dat42
-                    if (nv==1)call get_var_data(trim(fl_in), 'u', nx, ny, kz, 1, dat42) 
-                    if (nv==2)call get_var_data(trim(fl_in), 'v', nx, ny, kz, 1, dat42) 
+                    if (nv==1)call get_var_data(trim(fl_in), 'u', nx, ny, kz, 1, dat42)
+                    if (nv==2)call get_var_data(trim(fl_in), 'v', nx, ny, kz, 1, dat42)
                     do k = 1, kz
                        dat4(:,:,k,1)=dat42(:,:,kz-k+1,1)
                     enddo
@@ -1803,7 +1803,7 @@
               allocate(dat41(nx,ny,kz,1), dat42(nx,ny,kz,1))
               if ( nd > 1 ) then
                  !read(flid_in)dat42
-                 call get_var_data(trim(fl_in), trim(varname), nx, ny, kz, 1, dat42) 
+                 call get_var_data(trim(fl_in), trim(varname), nx, ny, kz, 1, dat42)
                  do k = 1, kz
                      dat41(:,:,k,1)=dat42(:,:,kz-k+1,1)
                  enddo
@@ -1817,12 +1817,12 @@
               call write_nc_real(trim(fl_out), trim(varname), nx, ny, -1, -1, 'nx', 'ny', '-', '-', dat42, trim(units), trim(varname_long))
               deallocate(dat41, dat42, dat43)
            endif  !if ( my_proc_id == io_proc ) then
-        endif 
+        endif
 
      enddo do_out_var_loop !: for nrecord = 1, 17
 
      !-------------------------------------------------------------------------
-     ! 8 --- clean ingrid gwt 
+     ! 8 --- clean ingrid gwt
      deallocate( ingrid%grid_lon, ingrid%grid_lat, ingrid%grid_lont, ingrid%grid_latt)
      deallocate( gwt%gwt_t, gwt%gwt_u, gwt%gwt_v )
 
@@ -1843,7 +1843,7 @@
 ! hafs_vi binary output:
 !      WRITE(IUNIT) NX,NY,NZ,I360
 !      WRITE(IUNIT) LON1,LAT1,LON2,LAT2,CENTRAL_LON,CENTRAL_LAT
-!      WRITE(IUNIT) PMID1   
+!      WRITE(IUNIT) PMID1
 !      WRITE(IUNIT) T1
 !      WRITE(IUNIT) Q1
 !      WRITE(IUNIT) U1
@@ -1917,7 +1917,7 @@
 ! 1.1 --- i/o processor
   io_proc=nprocs-1  !last processor as I/O
   !io_proc=0
-  
+
 ! 1.2 --- ndom
   ndom=nestdoms+1
 
@@ -1928,7 +1928,7 @@
   !---2.1 get input grid info from binary file
   iunit=36
   open(iunit, file=trim(in_file), form='unformatted')
-  read(iunit) nx, ny, nz, i360 
+  read(iunit) nx, ny, nz, i360
   write(*,'(a,4i5)')'nx, ny, nz, i360 = ',nx, ny, nz, i360
   read(iunit) lon1,lat1,lon2,lat2,cen_lon,cen_lat
   write(*,'(a,6f10.3)')'lon1,lat1,lon2,lat2,cen_lon,cen_lat =', lon1,lat1,lon2,lat2,cen_lon,cen_lat
@@ -1970,9 +1970,9 @@
 
   if (my_proc_id==0) then
      write(*, '(a,8f10.3)')' hlon,hlat(1,1; nx,1; nx,ny; 1,ny) =', &
-                        hlon(1,1), hlat(1,1), hlon(nx,1), hlat(nx,1), hlon(nx,ny), hlat(nx,ny), hlon(1,ny), hlat(1,ny) 
+                        hlon(1,1), hlat(1,1), hlon(nx,1), hlat(nx,1), hlon(nx,ny), hlat(nx,ny), hlon(1,ny), hlat(1,ny)
      write(*, '(a,8f10.3)')' vlon,vlat(1,1; nx,1; nx,ny; 1,ny) =', &
-                        vlon(1,1), vlat(1,1), vlon(nx,1), vlat(nx,1), vlon(nx,ny), vlat(nx,ny), vlon(1,ny), vlat(1,ny) 
+                        vlon(1,1), vlat(1,1), vlon(nx,1), vlat(nx,1), vlon(nx,ny), vlat(nx,ny), vlon(1,ny), vlat(1,ny)
   endif
 
   !-----------------------------
@@ -2046,10 +2046,10 @@
      !-----------------------------
      !---4.3 calculate output-grid in input-grid's positions (xin, yin), and each grid's weight to dst
      call cal_src_dst_grid_weight(ingrid, dstgrid)
- 
+
      !-------------------------------------------------------------------------
      ! 5 --- process record one-by-one
-     do_record_loop: do nrecord = 1, 14 
+     do_record_loop: do nrecord = 1, 14
 
         if ( my_proc_id == io_proc ) open(iunit, file=trim(in_file), form='unformatted')
 
@@ -2064,7 +2064,7 @@
            !---record 2 : lon1,lat1,lon2,lat2,cen_lon,cen_lat
            !---record 3 : pmid1(nx,ny,nz): pressure on full level
            !---                ignore, we use p1 to derive delp.
-           !---record 10: hlon, hlat, vlon, vlat 
+           !---record 10: hlon, hlat, vlon, vlat
            !---record 12: pd1,  PD1(NX,NY): surface pressure
            !---record 13: eta1, ETA1(NZ+1)
            !---record 14: eta2, ETA2(NZ+1)
@@ -2076,13 +2076,13 @@
               elseif ( nrecord == 13 .or. nrecord == 14 ) then
                  allocate(dat1(nz+1))
                  read(iunit)dat1
-                 deallocate(dat1) 
+                 deallocate(dat1)
               else
                  read(iunit)
               endif
            endif
-        endif  
-  
+        endif
+
         !  ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
         !  ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
         !  ALLOCATE ( Z1(NX,NY,NZ+1),P1(NX,NY,NZ+1) )
@@ -2116,7 +2116,7 @@
                              if ( nv == 1 ) then
                                 allocate(dat42(nx, ny, ke-ks+1,1))
                                 dat42=dat41
-                             else if ( nv == 2 ) then 
+                             else if ( nv == 2 ) then
                                 allocate(dat43(nx, ny, ke-ks+1,1))
                                 dat43=dat41
                              endif
@@ -2168,7 +2168,7 @@
               endif
               read(iunit) dat3
 
-              allocate(dat41(nx,ny,iz,1)) 
+              allocate(dat41(nx,ny,iz,1))
               if ( nrecord == 9 .or. nrecord == 11 ) then  ! z1 to dz; p1 to delp
                  !---back pressure to delp on fv_core.res.tile1.nc
                  do k = 1, nz
@@ -2230,7 +2230,7 @@
            iz=nz
            nm=max(1,int((iz+nprocs-1)/nprocs))
            do nv = 1, 2
-              if ( my_proc_id == io_proc ) then 
+              if ( my_proc_id == io_proc ) then
                  allocate(dat4(ix+nv-1, iy+2-nv, iz, 1))  !u(ix, iy+1, iz, 1), v(ix+1, iy, iz, 1)
                  if ( nv == 1 ) then
                     call get_var_data(trim(ncfile_core), 'u', ix, iy+1, iz,1, dat4)
@@ -2266,14 +2266,14 @@
                  ke=min(iz,my_proc_id*nm+nm)
                  if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                     allocate(dat44(ix+nv-1, iy+2-nv, ke-ks+1, 1))
-                    call mpi_recv(dat44, size(dat43), mpi_real, io_proc, 200*nv+ks, comm, status, ierr) 
-                 endif  
+                    call mpi_recv(dat44, size(dat43), mpi_real, io_proc, 200*nv+ks, comm, status, ierr)
+                 endif
               endif  !if ( my_proc_id == io_proc ) then
 
               ks=min(iz,my_proc_id*nm+1)
               ke=min(iz,my_proc_id*nm+nm)
               if ( nv == 1 ) then
-                 allocate(u(ix, iy+1, ke-ks+1,1)) 
+                 allocate(u(ix, iy+1, ke-ks+1,1))
                  u(:,:,1:ke-ks+1,1)=dat44(:,:,1:ke-ks+1,1)
               else if ( nv == 2 ) then
                  allocate(v(ix+1, iy, ke-ks+1,1))
@@ -2284,7 +2284,7 @@
 
            !---convert fv3grid to earth
            ks=min(iz,my_proc_id*nm+1)
-           ke=min(iz,my_proc_id*nm+nm) 
+           ke=min(iz,my_proc_id*nm+nm)
            allocate(dat4 (ix, iy+1, ke-ks+1, 1), dat41(ix+1, iy, ke-ks+1, 1))
            !$omp parallel do &
            !$omp& private(k)
@@ -2294,14 +2294,14 @@
            deallocate(u,v)
 
            !---merge
-           allocate(u1(ix, iy+1, ke-ks+1, 1), v1(ix+1, iy, ke-ks+1, 1)) 
+           allocate(u1(ix, iy+1, ke-ks+1, 1), v1(ix+1, iy, ke-ks+1, 1))
            u1=0.; v1=0.
            call combine_grids_for_remap(nx,ny,ke-ks+1,1,dat42,ix,iy+1,ke-ks+1,1,dat4,gwt%gwt_u,u1)
            call combine_grids_for_remap(nx,ny,ke-ks+1,1,dat43,ix+1,iy,ke-ks+1,1,dat41,gwt%gwt_v,v1)
            deallocate(dat42, dat43, dat4, dat41)
 
            !---convert earth wind to fv3grid wind
-           allocate(u(ix, iy+1, ke-ks+1, 1), v(ix+1, iy, ke-ks+1, 1)) 
+           allocate(u(ix, iy+1, ke-ks+1, 1), v(ix+1, iy, ke-ks+1, 1))
            u=-999999.; v=-99999999.;
            !$omp parallel do &
            !$omp& private(k)
@@ -2319,8 +2319,8 @@
            else
               nm=max(1,int((iz+nprocs-1)/nprocs))
               if ( my_proc_id /= io_proc ) then
-                 call mpi_send(u(1,1,1,1),size(u),mpi_real, io_proc, 400*1+my_proc_id, comm, ierr)           
-                 call mpi_send(v(1,1,1,1),size(v),mpi_real, io_proc, 400*2+my_proc_id, comm, ierr)           
+                 call mpi_send(u(1,1,1,1),size(u),mpi_real, io_proc, 400*1+my_proc_id, comm, ierr)
+                 call mpi_send(v(1,1,1,1),size(v),mpi_real, io_proc, 400*2+my_proc_id, comm, ierr)
                  deallocate(u,v)
               else
                  allocate(u1(ix, iy+1, iz, 1), v1(ix+1, iy, iz, 1))
@@ -2398,15 +2398,15 @@
                  call mpi_recv(dat42(1,1,1,1), size(dat42), mpi_real, io_proc, 3000+ks, comm, status, ierr)
               endif
            endif
-      
+
            !---merge
            ks=min(iz,my_proc_id*nm+1)
            ke=min(iz,my_proc_id*nm+nm)
            allocate(dat4(ix, iy, ke-ks+1, 1))
-           call combine_grids_for_remap(nx,ny,ke-ks+1,1,dat43,ix,iy,ke-ks+1,1,dat42,gwt%gwt_t,dat4)           
+           call combine_grids_for_remap(nx,ny,ke-ks+1,1,dat43,ix,iy,ke-ks+1,1,dat42,gwt%gwt_t,dat4)
            deallocate(dat43, dat42)
 
-           !---collect data to io_proc 
+           !---collect data to io_proc
            if ( nprocs == 1 ) then
               allocate(dat41(ix, iy, iz, 1))
               dat41=dat4
@@ -2456,11 +2456,11 @@
            endif  !if ( my_proc_id == io_proc ) then
            deallocate(dat4)
         endif
-        
+
      enddo do_record_loop
 
      !-----------------------------
-     ! 6 --- clean 
+     ! 6 --- clean
      deallocate( dstgrid%grid_lon, dstgrid%grid_lat, dstgrid%grid_lont, dstgrid%grid_latt)
      deallocate( gwt%gwt_t, gwt%gwt_u, gwt%gwt_v )
 

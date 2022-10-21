@@ -9,14 +9,14 @@
   implicit none
 
   integer, intent(in) :: nx, ny
-  real,dimension(nx+1,ny+1), intent(in) :: grid_lat, grid_lon ! FV3 
+  real,dimension(nx+1,ny+1), intent(in) :: grid_lat, grid_lon ! FV3
 !  real, allocatable, dimension(:,:), intent(out) :: cangu, sangu, cangv, sangv
   real, dimension(nx,ny+1), intent(out) :: cangu, sangu
-  real, dimension(nx+1,ny), intent(out) :: cangv, sangv 
+  real, dimension(nx+1,ny), intent(out) :: cangv, sangv
 
   real, allocatable, dimension(:,:)  :: x, y, z
   integer      :: i, j
-  real         :: sq180, rlat, diff, rlon, xr, yr, zr, xu, yu, zu, uval, ewval, nsval, xv, yv, zv, vval 
+  real         :: sq180, rlat, diff, rlon, xr, yr, zr, xu, yu, zu, uval, ewval, nsval, xv, yv, zv, vval
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -99,7 +99,7 @@
   deallocate(x, y, z)
 
   return
-  end subroutine cal_uv_coeff_fv3 
+  end subroutine cal_uv_coeff_fv3
 !========================================================================================
   subroutine earthuv2fv3(nx, ny, u, v, cangu, sangu, cangv, sangv, u_out, v_out)
 !$$$  subprogram documentation block
@@ -115,7 +115,7 @@
 !   input argument list:
 !    nx,ny - dimensions
 !    u,v -  earth wind components at center of the cell
-!    cangu, sangu, cangv, sangv 
+!    cangu, sangu, cangv, sangv
 !
 !   output argument list:
 !    u_out,v_out - output fv3 winds on the cell boundaries
@@ -164,12 +164,12 @@
      j1=min(j,ny)
      u_out(i,j)= u(i,j)*cangu(i,j)+v(i,j1)*sangu(i,j)
   enddo; enddo
-  
+
   do j = 1, ny; do i = 1, nx+1
      i1=min(i,nx)
      v_out(i,j)=u(i1,j)*cangv(i,j)+v(i,j)*sangv(i,j)
   enddo; enddo
-  
+
   return
   end subroutine earthuv2fv3
 !========================================================================================

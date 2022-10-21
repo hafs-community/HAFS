@@ -18,7 +18,7 @@
   end function date2second1970
 
 !-----------------------------------------------------------------------+
-  function date2second1970_str(cdate) 
+  function date2second1970_str(cdate)
   implicit none
 
   character (len=*),intent(in) :: cdate
@@ -27,9 +27,9 @@
   integer            :: julian, julian_1970_01_01
   integer            :: yyyy, mm, dd, hh, minute, second
   julian_1970_01_01 = 2440588
- 
+
   read(cdate,'(i4,5i2)')yyyy, mm, dd, hh, minute, second
-  
+
   julian = dd -32075 + 1461*(yyyy + 4800 + (mm - 14)/12)/4 + &
                367*(mm - 2 - ((mm - 14)/12)*12)/12 - &
                3*((yyyy + 4900 + (mm - 14)/12)/100)/4
@@ -268,7 +268,7 @@
            if ( dat(i-j) >= value_min .and. dat(i-j) <= value_max ) then
               i1 = i - j
               exit do_search_before
-           endif 
+           endif
         enddo do_search_before
         i2=0
         do_search_after: do j = 1, radius
@@ -433,12 +433,12 @@
   return
   end subroutine cal_src_dst_grid_weight
 !========================================================================================
-!-----------------------------------------------------------------------+  
+!-----------------------------------------------------------------------+
   subroutine search_nearst_grid0(src_ix, src_jx, src_lat, src_lon, dst_ix, dst_jx, &
              dst_lat, dst_lon, dst_in_src_x, dst_in_src_y)
 
   implicit none
-  
+
   integer, intent(in)                  :: src_ix, src_jx, dst_ix, dst_jx
   real, dimension(src_ix, src_jx), intent(in) :: src_lat, src_lon
   real, dimension(dst_ix, dst_jx), intent(in) :: dst_lat, dst_lon
@@ -468,11 +468,11 @@
          !if( abs(dst_lat(i,j)-src_lat(int(src_ix/2),j1)) > 2.0*out_ave_dy ) cycle do_search_src_grid_y
          !if( abs(dst_lat(i,j)-src_lat(int(src_ix/2),j1)) > 20.0*out_ave_dy .and.  &
          !    abs(dst_lat(i,j)-src_lat(1,j1)) > 20.0*out_ave_dy .and. &
-         !    abs(dst_lat(i,j)-src_lat(src_ix,j1)) > 20.0*out_ave_dy ) cycle do_search_src_grid_y 
+         !    abs(dst_lat(i,j)-src_lat(src_ix,j1)) > 20.0*out_ave_dy ) cycle do_search_src_grid_y
          if ( abs(dst_lat(i,j)-src_lat(int(src_ix/2),j1)) > 2.0*max_dy(j1) ) cycle do_search_src_grid_y
          do_search_src_grid_x: do i1 = 1, src_ix
             !if ( abs(dst_lon(i,j)-src_lon(i1,j1)) > 1.0*out_ave_dx ) cycle do_search_src_grid_x
-            if ( abs(dst_lon(i,j)-src_lon(i1,j1)) > max_dx(i1) ) cycle do_search_src_grid_x 
+            if ( abs(dst_lon(i,j)-src_lon(i1,j1)) > max_dx(i1) ) cycle do_search_src_grid_x
             dis=(dst_lon(i,j)-src_lon(i1,j1))**2.0+(dst_lat(i,j)-src_lat(i1,j1))**2.0
             if ( dis <= dis0 ) then
                dis0 = dis
@@ -530,7 +530,7 @@
   max_lon = int((max_lon+0.5)*10)/10.0
   min_lat = int(min_lat*10)/10.0
   max_lat = int((max_lat+0.5)*10)/10.0
- 
+
   ll_ix = int((max_lon - min_lon)/d_ll) + 1
   ll_jx = int((max_lat - min_lat)/d_ll) + 1
   write(*,'(a,f,i )')'ll bin size d_ll and max_points:', d_ll, max_points
@@ -544,14 +544,14 @@
   enddo
   do j = 1, ll_jx
      ll_lat(j) = min_lat + (j-1)*d_ll
-  enddo 
+  enddo
   write(*,'(a,f10.3,a,f10.3,a,f10.3,a,f10.3)')'search grids: ', ll_lon(1),'-->',ll_lon(ll_ix),' : ', ll_lat(1), '-->', ll_lat(ll_jx)
 
   !---sign src grids to search bins
   allocate ( src_points(ll_ix,ll_jx))
   allocate ( src_points_lon(ll_ix,ll_jx,max_points), src_points_lat(ll_ix,ll_jx,max_points))
   src_points=0
-  
+
   !--- may need halo
   write(*,'(a)')'---sign src to ll grids'
   !$omp parallel do &
@@ -560,7 +560,7 @@
      i1 = int((src_lon(i,j) - ll_lon(1))/d_ll) + 1
      j1 = int((src_lat(i,j) - ll_lat(1))/d_ll) + 1
      do i2 = -1, 1; do j2 = -1, 1;   !add halo
-        i3=i1+i2; j3=j1+j2  
+        i3=i1+i2; j3=j1+j2
         if ( i3 >= 1 .and. i3 <= ll_ix .and. j3 >= 1 .and. j3 <= ll_jx ) then
            if ( src_points(i3,j3) < max_points ) then
               src_in_bin=.false.
@@ -582,7 +582,7 @@
               write(*,'(a,6i6,2f10.3)') 'WARNING: src_points(i3,j3) >= max_points at i3, j3, i, j, src_lon(i,j), src_lat(i,j)', &
                  src_points(i3,j3), max_points, i3, j3, i, j, src_lon(i,j), src_lat(i,j)
            endif
-           !---may need add halo: 
+           !---may need add halo:
         endif
      enddo; enddo
   enddo; enddo
@@ -621,7 +621,7 @@
         enddo
      else
         dst_in_src_x(i,j)=-99
-        dst_in_src_y(i,j)=-99 
+        dst_in_src_y(i,j)=-99
      endif
   enddo; enddo
 
@@ -630,7 +630,7 @@
   write(*,'(a)')'---search_nearst_grid finished'
 
   return
-  end subroutine search_nearst_grid 
+  end subroutine search_nearst_grid
 
 !-----------------------------------------------------------------------+
   subroutine cal_grid_weight(src_ix, src_jx, src_lat, src_lon, dst_ix, dst_jx, &
@@ -706,7 +706,7 @@
      gw(i,j)%dst_points=0
      dst_weight=0.0
      allocate(gw(i,j)%dst_x(max_points), gw(i,j)%dst_y(max_points), gw(i,j)%dst_weight(max_points))
-   
+
      !if ( ixs > 1 .and. ixs < src_ix .and. jxs > 1 .and. jxs < src_jx ) then
      !   !---when the grid is inside of src-domain, no dst grid is needed
      !   !dst_weight=0.0
@@ -754,9 +754,9 @@
         dst_weight=0.0
         if ( gwt%relaxzone < 0 ) gwt%relaxzone = min(30, int(min(src_ix, src_jx, dst_ix, dst_jx)/10))
         !--- find relaxzone: min (i,j) or max (i,j) grids to src (1,1) and src(ix,jx)
-        !  ixs, jxs  
-        min_ij_src = min(ixs, jxs, src_ix-ixs, src_jx-jxs) ! shortest distance (grid not earth-distance) from SRC domain edge 
-        min_ij_dst = min(i, j, dst_ix-i, dst_jx-j) 
+        !  ixs, jxs
+        min_ij_src = min(ixs, jxs, src_ix-ixs, src_jx-jxs) ! shortest distance (grid not earth-distance) from SRC domain edge
+        min_ij_dst = min(i, j, dst_ix-i, dst_jx-j)
         if ( min_ij_src <= gwt%relaxzone .and. min_ij_dst > 2 .and. gwt%relaxzone > 0 ) then
            dst_weight = real(gwt%relaxzone - min_ij_src)/real(gwt%relaxzone)
            if ( dst_weight < 0.0 .or. dst_weight > 1.0 ) then
@@ -795,7 +795,7 @@
      !else
      !   write(*,*)'----tc zone', tc%lon, tc%lat, dis, tc%vortexreplace_r(1:2), dst_weight
      !   stop
-     endif  
+     endif
 
      !---combine src and dst weight
      if ( gw(i,j)%src_points > 0 ) then
@@ -806,7 +806,7 @@
      endif
 
   enddo; enddo
- 
+
   return
   end subroutine cal_grid_weight
 
@@ -833,7 +833,7 @@
      fdat_out(i,j,k,n)=0.0
      ncount=0
      if ( gw(i,j)%src_points > 0 ) then
-        do_src_points_loop: do n1 = 1, gw(i,j)%src_points 
+        do_src_points_loop: do n1 = 1, gw(i,j)%src_points
            i1=gw(i,j)%src_x(n1)
            j1=gw(i,j)%src_y(n1)
            if ( i1 < 1 .or. i1 > ixi .or. j1 < 1 .or. j1 > jxi ) cycle do_src_points_loop
@@ -860,7 +860,7 @@
      !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
      !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
      if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
-        if (debug_level>20) write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
+        if (debug_level>20) write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount
         if (debug_level>20) write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
         if (debug_level>20) write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
         write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
@@ -871,9 +871,9 @@
         else
            write(*,'(a)')     '--             no dst point'
         endif
-        write(*,'(a,f13.4)')    '--          remaped value: ', fdat_out(i,j,k,n) 
-     endif 
-    
+        write(*,'(a,f13.4)')    '--          remaped value: ', fdat_out(i,j,k,n)
+     endif
+
   enddo; enddo; enddo; enddo
 
   return
@@ -951,7 +951,7 @@
   return
   end subroutine combine_grids_for_merge
 
-!-----------------------------------------------------------------------+             
+!-----------------------------------------------------------------------+
   function uppercase (cs)
 
   implicit none
@@ -979,7 +979,7 @@
   endif
   end function uppercase
 
-!-----------------------------------------------------------------------+             
+!-----------------------------------------------------------------------+
   function lowercase (cs)
 
   implicit none
@@ -1006,5 +1006,5 @@
 !#endif
   endif
   end function lowercase
-         
-!-----------------------------------------------------------------------+             
+
+!-----------------------------------------------------------------------+
