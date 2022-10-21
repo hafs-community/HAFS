@@ -155,20 +155,21 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     #== This part is NOT applied to WPAC and NHC basin TCs
     #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
     if [ $region = "S" ]; then
-     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+     sed -i 's/SI/SH/g' trak.atcfunix.all
     fi
     if [ $region = "P" ]; then
-     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+     sed -i 's/SP/SH/g' trak.atcfunix.all
     fi
     #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
     if [ $region = "A" ]; then
-     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+     sed -i 's/AA/IO/g' trak.atcfunix.all
     fi
     if [ $region = "B" ]; then
-     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+     sed -i 's/BB/IO/g' trak.atcfunix.all
     fi
-    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
-     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    # For rare Southern Atlantic TCs: NOT tested yet!
+    if [ $region = "Q" ]; then
+     sed -i 's/QQ/SL/g' trak.atcfunix.all
     fi
     #============================================================================================
 
@@ -273,20 +274,21 @@ cd $DATA
     #== This part is NOT applied to WPAC and NHC basin TCs
     #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
     if [ $region = "S" ]; then
-     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+     sed -i 's/SI/SH/g' trak.atcfunix.all
     fi
     if [ $region = "P" ]; then
-     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+     sed -i 's/SP/SH/g' trak.atcfunix.all
     fi
     #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
     if [ $region = "A" ]; then
-     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+     sed -i 's/AA/IO/g' trak.atcfunix.all
     fi
     if [ $region = "B" ]; then
-     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+     sed -i 's/BB/IO/g' trak.atcfunix.all
     fi
-    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
-     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    # For rare Southern Atlantic TCs: Not tested yet!
+    if [ $region = "Q" ]; then
+     sed -i 's/QQ/SL/g' trak.atcfunix.all
     fi
     #============================================================================================
 
