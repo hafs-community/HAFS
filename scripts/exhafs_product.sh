@@ -287,9 +287,9 @@ time ./hafs_nhc_products.x  2>&1 | tee ./hafs_nhc_products.out
 set +o pipefail
 set -e
 
-short=${out_prefix}.grib.stats.short
-afos=${out_prefix}.afos
-tpc=${out_prefix}.stats.tpc
+short=${out_prefix}.hafs.grib.stats.short
+afos=${out_prefix}.hafs.afos
+tpc=${out_prefix}.hafs.stats.tpc
 
 if grep "ALL DONE" ./hafs_nhc_products.out ; then
  cp fort.41 ${COMhafs}/${short}
