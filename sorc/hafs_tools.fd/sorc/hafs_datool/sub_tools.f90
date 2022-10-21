@@ -554,6 +554,8 @@
   
   !--- may need halo
   write(*,'(a)')'---sign src to ll grids'
+  !$omp parallel do &
+  !$omp& private(i,j)
   do j = 1, src_jx; do i = 1, src_ix
      i1 = int((src_lon(i,j) - ll_lon(1))/d_ll) + 1
      j1 = int((src_lat(i,j) - ll_lat(1))/d_ll) + 1
@@ -587,6 +589,8 @@
 
   !---search nearest src grid for each dst grid
   write(*,'(a)')'---search nearest src grid for each dst grid'
+  !$omp parallel do &
+  !$omp& private(i,j)
   do j = 1, dst_jx; do i = 1, dst_ix
      !---calculate dst grid position in search-bin
      i1 = int((dst_lon(i,j) - ll_lon(1))/d_ll) + 1
@@ -643,6 +647,8 @@
   integer :: i, j, k, n, i1, j1, ixs, jxs, ixi, jxi, min_ij_src, min_ij_dst
   real    :: dst_weight, earth_dist, dis, lon180_1, lon180_2
 
+  !$omp parallel do &
+  !$omp& private(i,j)
   do j = 1,dst_jx; do i = 1,dst_ix
      ixs=dst_in_src_x(i,j)  !the position in src grids
      jxs=dst_in_src_y(i,j)
@@ -821,6 +827,8 @@
 
   integer   :: i, j, k, n, i1, j1, k1, n1, ncount
 
+  !$omp parallel do &
+  !$omp& private(i,j,k,n)
   do n = 1, txo; do k = 1, kxo; do j = 1, jxo; do i = 1, ixo
      fdat_out(i,j,k,n)=0.0
      ncount=0
@@ -852,18 +860,18 @@
      !if ( (i == int(ixo/4) .or. i == int(ixo/2) .or. i == ixo-1) .and. &
      !     (j == int(jxo/4) .or. j == int(jxo/2) .or. j == jxo-1) .and. k==1 .and. n==1 ) then
      if ( i == int(ixo/2) .and.j == int(jxo/2) .and. k==1 .and. n==1 ) then
-        write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
-        write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
-        write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
+        if (debug_level>20) write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount 
+        if (debug_level>20) write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
+        if (debug_level>20) write(*,'(a,90f)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
         write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         if ( gw(i,j)%dst_points > 0 ) then
-           write(*,'(a,  90i10)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
-           write(*,'(a,90f10.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-           write(*,'(a,  e)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+           if (debug_level>20) write(*,'(a,  90i13)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
+           if (debug_level>20) write(*,'(a,90f13.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
+           write(*,'(a,90f13.4)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
         else
            write(*,'(a)')     '--             no dst point'
         endif
-        write(*,'(a,  f)')    '--          remaped value: ', fdat_out(i,j,k,n) 
+        write(*,'(a,f13.4)')    '--          remaped value: ', fdat_out(i,j,k,n) 
      endif 
     
   enddo; enddo; enddo; enddo
@@ -888,6 +896,8 @@
 
   integer   :: i, j, k, n, i1, j1, k1, n1, ncount
 
+  !$omp parallel do &
+  !$omp& private(i,j,k,n)
   do n = 1, txo; do k = 1, kxo; do j = 1, jxo; do i = 1, ixo
      fdat_out(i,j,k,n)=0.0
      ncount=0

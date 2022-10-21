@@ -22,7 +22,7 @@
 
   character (len=*), intent(in) :: src_dir, src_grid, src_file, dst_dir, dst_grid, dst_file, out_file
 
-  integer   :: i, j, k, n, i0, n_srcfl, n_dstfl, i1, j1, k1, n1, nf, nv
+  integer   :: i, j, k, n, i0, n_srcfl, n_dstfl, i1, j1, k1, n1, nf, nv, nm
   character (len=2500)                :: srcdir, srcgridfl, dstdir, dstgridfl 
   character (len=2500),dimension(50)  :: srcfiles, dstfiles
    
@@ -174,7 +174,12 @@
      !if ( k == 4 ) if_fv_core_file = .true. 
 
 ! 5.1 --- variables' loop
-     do_input_var_loop: do nv=1, nvars
+     !do_input_var_loop: do nv=1, nvars
+     !----change parallel computing for variables
+     nm=max(1,int((nvars+nprocs-1)/nprocs))
+     do_input_var_loop: do n1=1, nm
+        nv=(n1-1)*nprocs+my_proc_id+1
+        if ( nv > nvars ) exit do_input_var_loop 
       
         ! 5.1.1 --- get variable's dimension
         dimids=-1; vdim=-1

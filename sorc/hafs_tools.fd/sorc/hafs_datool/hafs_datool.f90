@@ -57,7 +57,7 @@
 !                                  --besttrack=bdeckfile ] [--vortexradius=deg ] \
 !                                 [--nestdoms=nestdoms ] \ 
 !                                 [ --tc_date=tcvital_date] [--res=deg ] \
-!                                 [--out_file=output_bin_file]
+!                                 [--out_file=output_bin_file or nc_file]
 !
 !    3.4) vi_postproc
 !       * hafs_datool.x hafsvi_postproc --in_file=[hafs_vi rot-ll bin file] \
@@ -90,7 +90,7 @@
 !----------------------------------------------------------------
 ! 0 --- initialization
 ! Initialize parallel stuff
-!  call parallel_start()
+  call parallel_start()
 
 !----------------------------------------------------------------
 ! 1 --- argc and usage
@@ -197,7 +197,11 @@
 ! 4.0 --- HAFS VI
   if ( trim(actions) == "hafsvi_preproc" ) then
      write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
-     call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     if ( index(trim(out_file),'.nc') > 1 ) then
+        call hafsvi_preproc_nc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     else
+        call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     endif
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
@@ -206,6 +210,12 @@
   endif
 
 !----------------------------------------------------------------
-!  call parallel_finish()
+  call parallel_finish()
+
+  if ( trim(actions) == "hafsvi_postproc" ) then
+     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_dir)//' for nestdoms '//trim(nestdomsc)//' ==='
+  else
+     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_file)//' ==='
+  endif
 
   end program

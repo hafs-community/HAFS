@@ -28,6 +28,8 @@
 !   1.  compute x,y,z at cell cornor from grid_lon, grid_lat
 
   allocate( x(nx+1,ny+1), y(nx+1,ny+1), z(nx+1,ny+1) )
+  !$omp parallel do &
+  !$omp& private(i,j)
   do j=1,ny+1
      do i=1,nx+1
         x(i,j)=cos(grid_lat(i,j)*deg2rad)*cos(grid_lon(i,j)*deg2rad)
@@ -38,6 +40,8 @@
 
 !  2   find angles to E-W and N-S for U edges
   sq180=180.**2
+  !$omp parallel do &
+  !$omp& private(i,j,rlat,rlon,xr,yr,zr,xu,yu,zu)
   do j=1,ny+1
      do i=1,nx
 !      center lat/lon of the edge
@@ -66,6 +70,8 @@
   enddo
 
 !  3   find angles to E-W and N-S for V edges
+  !$omp parallel do &
+  !$omp& private(i,j,rlat,rlon,xr,yr,zr,xu,yu,zu)
   do j=1,ny
      do i=1,nx+1
         rlat=0.50*(grid_lat(i,j)+grid_lat(i,j+1))
