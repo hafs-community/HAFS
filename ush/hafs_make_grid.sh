@@ -7,17 +7,19 @@
 set -eux
 
 nargv=$#
-if [ $nargv -ne 3 -a $nargv -ne 5 -a $nargv -ne 6 -a $nargv -ne 12 -a $nargv -ne 14  ]; then 
-   echo "number of arguments must be 3, 5 (regular cubic sphere grid), 6 (stretched grid), or 12, 14 ( nested grid)"
+if [ $nargv -ne 3 -a $nargv -ne 5 -a $nargv -ne 6 -a $nargv -ne 7 -a $nargv -ne 12 -a $nargv -ne 14  ]; then
+   echo "number of arguments must be 3, 5 (regular cubic sphere grid), 6 (stretched grid), 7 (regional esg grid) or 12, 14 ( global/regional nested grid)"
    echo "Usage for regular cubic sphere grid: (uses default target_lat, target_lon, retained for backwards compatibility ) "
    echo "  $0 resolution out_dir script_dir"
    echo "Usage for regular cubic sphere grid: "
    echo "  $0 resolution out_dir target_lon target_lat script_dir"
-   echo "Usage for Stretched grid: "
+   echo "Usage for stretched grid: "
    echo "  $0 resolution out_dir stetch_fac target_lon target_lat script_dir"
-   echo "Usage for Nested grid: (single nest with parent tile 6, retained for backwards compatibility)"
+   echo "Usage for regional esg grid: "
+   echo "  $0 resolution out_dir target_lon target_lat halop2 pazi script_dir"
+   echo "Usage for nested grid: (single nest with parent tile 6, retained for backwards compatibility)"
    echo "  $0 resolution out_dir stetch_fac target_lon target_lat refine_ratio_list istart_nest_list jstart_nest_list iend_nest_list jend_nest_list halo script_dir"
-   echo "Usage for Nested grid: (single or multiple nests)"
+   echo "Usage for nested grid: (single or multiple nests)"
    echo "  $0 resolution out_dir stetch_fac target_lon target_lat num_nests parent_tile_list refine_ratio_list istart_nest_list jstart_nest_list iend_nest_list jend_nest_list halo script_dir"
    exit 1
 fi
@@ -114,13 +116,104 @@ elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
       --target_lon ${target_lon} --target_lat ${target_lat} --nest_grids $nest_grids --parent_tile $parent_tile --refine_ratio $refine_ratio \
       --istart_nest $istart_nest --jstart_nest $jstart_nest --iend_nest $iend_nest --jend_nest $jend_nest --halo $halo --great_circle_algorithm
 
+elif  [ $nargv -eq 7 -a ${regional_esg:-no} = yes ] ; then
+  export target_lon=$3
+  export target_lat=$4
+  export pazi=$5
+  export halop2=$6
+  export script_dir=$7
+  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_regional_esg_grid.x}
+  if [ ! -s $executable ]; then
+    echo "executable does not exist"
+    exit 1
+  fi
+
+  # First, deal with regional esg grid parent or single regional esg grid
+  n=1
+  inest=$(( ${n} + 1 ))
+  idim=$( echo ${idim_nest} | cut -d , -f ${n} )
+  jdim=$( echo ${jdim_nest} | cut -d , -f ${n} )
+  delx=$( echo ${delx_nest} | cut -d , -f ${n} )
+  dely=$( echo ${dely_nest} | cut -d , -f ${n} )
+  halop2=${halop2:-$(( halo+2 ))}
+  (( lx=idim+halop2*2 ))
+  (( ly=jdim+halop2*2 ))
+  cat > ./regional_grid.nml << EOF
+    &regional_grid_nml
+      plon = ${target_lon}
+      plat = ${target_lat}
+      pazi = ${pazi:--180.}
+      delx = ${delx}
+      dely = ${dely}
+      lx   = -${lx}
+      ly   = -${ly}
+    /
+EOF
+
+  $APRUN $executable
+  mv regional_grid.nml C${res}_grid.tile7.nml
+  mv regional_grid.nc C${res}_grid.tile7.nc
+
+  # If needed, create a regional esg fine parent grid with its child/nest grid
+  # resolution. It covers the regional esg parent grid, which can be subsetted
+  # to generate collocated nest grid.
+  if [ ${nest_grids} -ge 2 ]; then
+
+  n=2
+  delx=$( echo ${delx_nest} | cut -d , -f ${n} )
+  dely=$( echo ${dely_nest} | cut -d , -f ${n} )
+  refine=$( echo ${refine_ratio} | cut -d , -f ${n} )
+  lx=$(( ${lx} * ${refine} ))
+  ly=$(( ${ly} * ${refine} ))
+
+  cat > ./regional_grid.nml << EOF
+    &regional_grid_nml
+      plon = ${target_lon}
+      plat = ${target_lat}
+      pazi = ${pazi:--180.}
+      delx = ${delx}
+      dely = ${dely}
+      lx   = -${lx}
+      ly   = -${ly}
+    /
+EOF
+
+  $APRUN $executable
+  mv regional_grid.nml C${res}_nest1res_grid.tile7.nml
+  mv regional_grid.nc C${res}_nest1res_grid.tile7.nc
+
+  # Subset to generate the regional esg nested grids
+  for n in $(seq 2 ${nest_grids})
+  do
+
+  itile=$((6 + ${n}))
+  refine=$( echo ${refine_ratio} | cut -d , -f ${n} )
+  istart=$( echo ${istart_nest} | cut -d , -f ${n} )
+  jstart=$( echo ${jstart_nest} | cut -d , -f ${n} )
+  iend=$( echo ${iend_nest} | cut -d , -f ${n} )
+  jend=$( echo ${jend_nest} | cut -d , -f ${n} )
+  istart_sub=$(( $(( ${istart}+${halop2}*2-1 )) * ${refine} ))
+  jstart_sub=$(( $(( ${jstart}+${halop2}*2-1 )) * ${refine} ))
+  iend_sub=$(( $(( ${iend}+${halop2}*2 )) * ${refine} - 1 ))
+  jend_sub=$(( $(( ${jend}+${halop2}*2 )) * ${refine} - 1 ))
+  ncks -O -d nx,${istart_sub},${iend_sub} \
+          -d ny,${jstart_sub},${jend_sub} \
+          -d nxp,${istart_sub},$((${iend_sub}+1)) \
+          -d nyp,${jstart_sub},$((${jend_sub}+1)) \
+       C${res}_nest1res_grid.tile7.nc C${res}_nest1res_grid.tile${itile}.nc
+  # Replace the tile value after subsetting
+  ncap2 -s 'tile="'tile${itile}'"' C${res}_nest1res_grid.tile${itile}.nc C${res}_grid.tile${itile}.nc
+
+  done
+
+  fi # if [ ${nest_grids} -ge 2 ]; then
+
 fi
 
 if [ $? -ne 0 ]; then
   echo "ERROR in running create C$res grid without halo "
   exit 1
 fi
-
 
 #---------------------------------------------------------------------------------------
 #export executable=$exec_dir/make_solo_mosaic
@@ -175,6 +268,7 @@ elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
 
   # mosaic file for coarse grids only
   $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_coarse_mosaic --tile_file C${res}_grid.tile7.nc
+  $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile7.nc
 
   # mosaic file for nested grids only
   for itile in $(seq 8 $ntiles)

@@ -61,6 +61,12 @@ if [ ${ENSDA} = YES ]; then
   export target_lon=${target_lon_ens:--62.0}
   export target_lat=${target_lat_ens:-22.0}
   export refine_ratio=${refine_ratio_ens:-4}
+  export regional_esg=${regional_esg_ens:-no}
+  export idim_nest=${idim_nest_ens:-1320}
+  export jdim_nest=${jdim_nest_ens:-1320}
+  export delx_nest=${delx_nest_ens:-0.03}
+  export dely_nest=${dely_nest_ens:-0.03}
+  export halop2=${halop2_ens:-5}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
   export DATA=${WORKhafs}/atm_prep_ens
 else
@@ -113,6 +119,12 @@ export istart_nest=${istart_nest_mvnest1res:-46}
 export jstart_nest=${jstart_nest_mvnest1res:-238}
 export iend_nest=${iend_nest_mvnest1res:-1485}
 export jend_nest=${jend_nest_mvnest1res:-1287}
+export regional_esg=${regional_esg_mvnest1res:-no}
+export idim_nest=${idim_nest_mvnest1res:-3960}
+export jdim_nest=${jdim_nest_mvnest1res:-3960}
+export delx_nest=${delx_nest_mvnest1res:-0.01}
+export dely_nest=${dely_nest_mvnest1res:-0.01}
+export halop2=${halop2_mvnest1res:-15}
 
 export OUTDIR=${WORKhafs}/intercom/grid_mvnest1res/${CASE}
 export DATA=${WORKhafs}/atm_prep_mvnest1res

@@ -38,12 +38,24 @@ export halop1=${halop1:-4}
 export halo0=${halo0:-0}
 export NTRAC=7
 
+export regional_esg=${regional_esg:-no}
+export idim_nest=${idim_nest:-1320}
+export jdim_nest=${jdim_nest:-1320}
+export delx_nest=${delx_nest:-0.03}
+export dely_nest=${dely_nest:-0.03}
+export halop2=${halop2:-5}
+export pazi=${pazi:--180.}
+
 export FIXam=${FIXhafs}/fix_am
 export FIXorog=${FIXhafs}/fix_orog
 export FIXfv3=${FIXhafs}/fix_fv3
 export FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
-export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
+if [ ${regional_esg} = yes ]; then
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_regional_esg_grid.x
+else
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
+fi
 export MAKEMOSAICEXEC=${EXEChafs}/hafs_make_solo_mosaic.x
 export FILTERTOPOEXEC=${EXEChafs}/hafs_filter_topo.x
 export FREGRIDEXEC=${EXEChafs}/hafs_fregrid.x
@@ -98,7 +110,17 @@ elif [ $gtype = nest -o $gtype = regional ]; then
   export halop1=${halop1:-4}                  # halo size that will be used for the orography and grid tile in chgres
   export halo0=${halo0:-0}                    # no halo, used to shave the filtered orography for use in the model
 
+  export regional_esg=${regional_esg:-no}
+  export idim_nest=${idim_nest:-1320}
+  export jdim_nest=${jdim_nest:-1320}
+  export delx_nest=${delx_nest:-0.03}
+  export dely_nest=${dely_nest:-0.03}
+  export halop2=${halop2:-5}
+
   echo "creating grid for gtype of $gtype"
+  if [ ${regional_esg} = yes ]; then
+    echo "using regional esg grid: ${regional_esg}"
+  fi
 else
   echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
   exit 1
@@ -259,6 +281,14 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
 
   export ntiles=$((6 + ${nest_grids}))
   echo "............ execute $MAKEGRIDSSH ................."
+
+  if [ ${regional_esg:-no} = yes ] ; then
+
+  echo "creating regional esg grid"
+  ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+
+  else
+
   #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
        $nest_grids \
@@ -269,6 +299,9 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
        "$iend_nest" \
        "$jend_nest" \
        $halo $script_dir
+
+  fi
+
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
@@ -370,7 +403,20 @@ if [ $gtype = regional ]; then
   echo "================================================================================== "
 
   echo "............ execute $MAKEGRIDSSH ................."
+  if [ ${regional_esg:-no} = yes ] ; then
+
+  if [ ${nest_grids} -eq 1 ] ; then
+    echo "Creating regional esg grid"
+    ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+  else
+    echo "Regional esg grid parent already generated. No need to generate again."
+  fi
+
+  else
+
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest_halo $jstart_nest_halo $iend_nest_halo $jend_nest_halo $halo $script_dir
+
+  fi
 
   date
   echo "............ execute $MAKEOROGSSH ................."
