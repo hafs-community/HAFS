@@ -15,7 +15,7 @@ that it is easy to learn and use, promoting community modeling and development.
 ## General
 
 * Trim all trailing whitespace from every line (here is an example sed command, 
-  sed -i -e 's/[ \t]*$//' filename)
+  `sed -i -e 's/[ \t]*$//' filename`)
 * No tab characters unless absolutely necessary
 * Follow the coding style of the current file, as much as possible
 
