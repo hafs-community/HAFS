@@ -45,7 +45,7 @@ if [ -d "${TOOLS_PATH}/build" ]; then
 fi
 mkdir ${TOOLS_PATH}/build
 cd ${TOOLS_PATH}/build
-cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
 #make -j 8
 make -j 8 VERBOSE=1
 make install
