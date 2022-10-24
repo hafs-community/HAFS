@@ -6,11 +6,7 @@
 
 
 set(fortran_srcs
-    create_stats_short.f90
-    DISTSP.f
-    ATAN2D.f
-    COSD.f
-    SIND.f)
+    create_stats_short.f90)
 
 set(exe_name hafs_nhc_products.x)
 set(exec_dir ${CMAKE_SOURCE_DIR}/exec)
