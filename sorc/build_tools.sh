@@ -50,9 +50,9 @@ fi
 mkdir ${TOOLS_PATH}/build
 cd ${TOOLS_PATH}/build
 if [ $target = wcoss_cray ]; then
-  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
+  cmake .. -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -DBUILD_TYPE=RELEASE
 else
-  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
+  cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
 fi
 #make -j 8
 make -j 8 VERBOSE=1
