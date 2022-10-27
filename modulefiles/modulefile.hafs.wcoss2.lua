@@ -137,7 +137,7 @@ setenv("CMAKE_Platform", "wcoss2")
 
 prepend_path("MODULEPATH", "/apps/ops/test/nco/modulefiles")
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.4"
+rocoto_ver=os.getenv("rocoto_ver") or "1.3.5"
 load(pathJoin("core", "rocoto", rocoto_ver))
 
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
