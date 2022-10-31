@@ -1,0 +1,5 @@
+(1) Main scripts: get_netcdf_rtofs_HAT10_IC.sh, get_UV_Cgrids.sh
+
+(2) output: rtofs_HAT10_20201024_f12_TS_ic.nc, rtofs_HAT10_20201024_f12_SSH_ic.nc, 
+            rtofs_HAT10_20201024_f12_UV_ic.nc
+

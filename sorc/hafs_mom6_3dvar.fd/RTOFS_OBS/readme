@@ -1,0 +1,4 @@
+(1) 6H for 6 h obs window. 24H for 24 h obs window.
+
+(2) iodav2_4_3dvar.sh makes directories for nc files used in exp.config.
+
