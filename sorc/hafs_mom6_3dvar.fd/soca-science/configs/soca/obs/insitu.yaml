@@ -1,0 +1,59 @@
+- obs space:
+    name: insitu_t___OBS_PLAT__
+    distribution: *obs_distribution
+    obsdatain:  {obsfile: __OBS_IN_FILE__}
+    obsdataout: {obsfile: __OBS_OUT_DIR__/insitu___OBS_PLAT___T.nc}
+    simulated variables: [sea_water_temperature]
+  obs operator:
+    name: InsituTemperature
+  obs error:
+    covariance model: diagonal
+  obs localization: # note, this is only used for LETKF
+    localization method: Rossby
+    search method: kd_tree
+    base value: 50.0e3
+    rossby mult: 1.5
+    min grid mult: 2.0
+    min value: 50.0e3
+    max value: 200.0e3
+  obs filters:
+  - *obs_land_mask
+  - filter: Domain Check
+    where:
+    - variable: {name: sea_water_temperature@ObsError}
+      minvalue: 0.001
+  - filter: Bounds Check
+    minvalue: -2.0
+    maxvalue: 36.0
+  - filter: Background Check
+    threshold: 1.0
+
+- obs space:
+    name: insitu_s___OBS_PLAT__
+    distribution: *obs_distribution
+    obsdatain:  {obsfile: __OBS_IN_FILE__}
+    obsdataout: {obsfile: __OBS_OUT_DIR__/insitu___OBS_PLAT___S.nc}
+    simulated variables: [sea_water_salinity]
+  obs operator:
+    name: MarineVertInterp
+  obs error:
+    covariance model: diagonal
+  obs localization: # note, this is only used for LETKF
+    localization method: Rossby
+    search method: kd_tree
+    base value: 50.0e3
+    rossby mult: 1.5
+    min grid mult: 2.0
+    min value: 50.0e3
+    max value: 200.0e3
+  obs filters:
+  - *obs_land_mask
+  - filter: Domain Check
+    where:
+    - variable: {name: sea_water_salinity@ObsError}
+      minvalue: 0.0001
+  - filter: Bounds Check
+    minvalue: 1.0
+    maxvalue: 40.0
+  - filter: Background Check
+    threshold: 5.0

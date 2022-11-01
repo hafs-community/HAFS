@@ -1,0 +1,53 @@
+# the list of background files depends on whether we're using ice
+_: &bkg_files_ocn
+    ocn_filename: MOM.res.nc
+_: &bkg_files_ocn_ice
+    ice_filename: cice.res.nc
+    << : *bkg_files_ocn
+_: &bkg_files *bkg_files___DOMAINS__
+
+# the list of correlation operators depends on whether we're using ice
+_corr:
+  - &corr_ocn
+    name: ocn
+    rossby mult: 1.0
+    min grid mult: 1.0
+    min value: 150.0e3
+    variables: [__DA_VARIABLES_OCN__]
+  - &corr_ice
+    name: ice
+    base value: 200.0e3
+    variables: [__DA_VARIABLES_ICE__]
+  - &corr_list_ocn [ *corr_ocn ]
+  - &corr_list_ocn_ice [ *corr_ocn , *corr_ice ]
+
+geometry:
+  geom_grid_file: soca_gridspec_sub.nc
+  mom6_input_nml: input_sub.nml
+  fields metadata: fields_metadata.yaml
+
+analysis variables: &ana_vars [__DA_VARIABLES__]
+
+background:
+  read_from_file: 1
+  date: &date 2018-04-15T00:00:00Z
+  basename: ./INPUT_small/
+  << : *bkg_files
+  state variables: &state_vars [__DA_VARIABLES__, mld, layer_depth]
+
+background error:
+  covariance model: SocaError
+  date: *date
+  analysis variables: *ana_vars
+  bump:
+    verbosity: main
+    datadir: ./bump_sub
+    method: cor
+    strategy: specific_univariate
+    new_nicas: 1
+    write_nicas_local: 1
+    mask_check: 1
+    resol: 6.0
+
+  correlation: *corr_list___DOMAINS__
+

@@ -1,0 +1,33 @@
+- obs space:
+    name: sss___OBS_PLAT__
+    distribution: *obs_distribution
+    obsdatain:  {obsfile: __OBS_IN_FILE__}
+    obsdataout: {obsfile: __OBS_OUT_DIR__/sss___OBS_PLAT__.nc}
+    simulated variables: [sea_surface_salinity]
+  obs operator:
+    name: Identity
+  obs error:
+    covariance model: diagonal
+  obs localization: # note, this is only used for LETKF
+    localization method: Rossby
+    search method: kd_tree
+    base value: 50.0e3
+    rossby mult: 1.5
+    min grid mult: 2.0
+    min value: 50.0e3
+    max value: 200.0e3
+  obs filters:
+  - *obs_land_mask
+  - filter: Bounds Check
+    minvalue: 0.1
+    maxvalue: 40.0
+  - filter: Background Check
+    threshold: 5.0
+  - filter: Domain Check
+    where:
+    - variable: {name: sea_surface_temperature@GeoVaLs}
+      minvalue: 10.0
+
+  ## Gaussian_Thinning is having problems with LETKF, try again later
+  # - filter: Gaussian_Thinning
+  #   horizontal_mesh:   25.0 #km

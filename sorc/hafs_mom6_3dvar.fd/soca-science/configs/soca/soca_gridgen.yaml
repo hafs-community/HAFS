@@ -1,0 +1,5 @@
+geometry:
+  geom_grid_file: soca_gridspec.nc
+  full_init: true
+  mom6_input_nml: mom_input.nml
+  fields metadata: fields_metadata.yaml

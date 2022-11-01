@@ -1,0 +1,41 @@
+# the list of background files depends on whether we're using ice
+_: &bkg_files_ocn
+    ocn_filename: MOM.res.nc
+_: &bkg_files_ocn_ice
+    ice_filename: cice.res.nc
+    << : *bkg_files_ocn
+_: &bkg_files *bkg_files___DOMAINS__
+
+# the list of checkpoint files depends on whether we're using ice
+_: &chkpt_files_ocn
+    ocn_filename: checkpoint_ana.nc
+_: &chkpt_files_ocn_ice
+    ice_filename: ice.checkpoint_ana.nc
+    << : *chkpt_files_ocn
+_: &chkpt_files *chkpt_files___DOMAINS__
+
+resolution:
+  mom6_input_nml: mom_input.nml
+  fields metadata: fields_metadata.yaml
+
+model:
+  name: SOCA
+  tstep: PT6H
+  advance_mom6: 0
+  model variables: &soca_vars [__DA_VARIABLES__, mld, layer_depth]
+  tocn_minmax: [-1.9, 33.0]
+  socn_minmax: [0.1, 38.0]
+
+background:
+  read_from_file: 1
+  date: &date 2018-04-15T00:00:00Z
+  basename: ./RESTART_IN/
+  << : *bkg_files
+  state variables: *soca_vars
+
+analysis:
+  read_from_file: 1
+  date: *date
+  basename: ./
+  << : *chkpt_files
+  state variables: *soca_vars

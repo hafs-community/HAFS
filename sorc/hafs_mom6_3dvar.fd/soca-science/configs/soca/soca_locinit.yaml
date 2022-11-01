@@ -1,0 +1,73 @@
+# BUMP Variables
+_: &bump_vars_ocn
+    [hocn, socn, tocn, ssh, uocn, vocn]
+_: &bump_vars_ocn_ice
+    [cicen, hicen, hsnon, hocn, socn, tocn, ssh, uocn, vocn]
+
+# GRID Variables
+_: &grid_vars_ocn
+    [socn, tocn, ssh, uocn, vocn]
+_: &grid_vars_ocn_ice
+    [cicen, hicen, hsnon, socn, tocn, ssh, uocn, vocn]
+
+
+# Horizontal Localization scales
+_: &rh_ocn
+    socn:   [750e3]
+    tocn:   [750e3]
+    uocn:   [750e3]
+    vocn:   [750e3]
+    ssh:    [750e3]
+_: &rh_ocn_ice
+    cicen:  [250e3]
+    hicen:  [250e3]
+    hsnon:  [250e3]
+    << : *rh_ocn
+
+# Vertical Localization scales
+_: &rv_ocn
+    socn:   [250]
+    tocn:   [250]
+    uocn:   [250]
+    vocn:   [250]
+    ssh:    [250]
+_: &rv_ocn_ice
+    cicen:  [250]
+    hicen:  [250]
+    hsnon:  [250]
+    << : *rv_ocn
+
+geometry:
+  mom6_input_nml: mom_input.nml
+  fields metadata: fields_metadata.yaml
+
+input variables: *bump_vars___DOMAINS__
+
+background:
+  read_from_file: 1
+  date: &date 2018-04-15T00:00:00Z
+  basename: ./RESTART_IN/
+  ocn_filename: MOM.res.nc
+  ice_filename: cice.res.nc
+  state variables: *bump_vars___DOMAINS__
+
+bump:
+  verbosity: main
+  prefix: soca_bump_loc
+  datadir: ./bump
+  method: loc
+  strategy: common
+  new_nicas: 1
+  write_nicas_local: 1
+  resol: 6.0
+  mpicom: 2
+  forced_radii: 1
+  date: *date
+  rh:
+    common: [750e3]
+    << : *rh___DOMAINS__
+  rv:
+    common: [250]
+    << : *rv_ocn_ice
+  grids:
+  - variables:  *grid_vars___DOMAINS__

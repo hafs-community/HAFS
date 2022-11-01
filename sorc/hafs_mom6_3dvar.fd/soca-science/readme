@@ -1,0 +1,44 @@
+soca-science
+├── configs
+│   ├── machine
+│   │   └── machine.orion.intel
+│   └── soca
+│       ├── fields_metadata.yaml
+│       ├── obs
+│       │   ├── adt.yaml
+│       │   ├── insitu.yaml
+│       │   ├── sss.yaml
+│       │   └── sst.yaml
+│       ├── soca_3dvar.yaml
+│       ├── soca_checkpoint_regional.yaml
+│       ├── soca_checkpoint.yaml
+│       ├── soca_gridgen.yaml
+│       ├── soca_locinit.yaml
+│       ├── soca_staticbinit_sub.yaml
+│       └── soca_staticbinit.yaml
+├── readme
+└── scripts
+    └── workflow
+        ├── cycle.sh
+        ├── exp.config
+        ├── model
+        │   └── model.mom6sis2.sh
+        ├── subscripts
+        │   ├── post.cleanup.sh
+        │   ├── post.obs.sh
+        │   ├── post.state.sh
+        │   ├── prep.bkgrst.coldstart.sh
+        │   ├── prep.bkgrst.sh
+        │   ├── prep.forc.sh
+        │   ├── prep.obs.sh
+        │   ├── prep.soca.sh
+        │   ├── run.atmhofx.sh
+        │   ├── run.fcst.sh
+        │   ├── run.hofx.sh
+        │   ├── run.letkf.sh
+        │   ├── run.recenter.checkpoint.sh
+        │   └── run.var.sh
+        └── workload_manager
+            └── wm.slurm.sh
+
+9 directories, 32 files

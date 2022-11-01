@@ -1,0 +1,137 @@
+# the list of background files depends on whether we're using ice
+_: &bkg_files_ocn
+    ocn_filename: MOM.res.nc
+_: &bkg_files_ocn_ice
+    ice_filename: cice.res.nc
+    << : *bkg_files_ocn
+_: &bkg_files *bkg_files___DOMAINS__
+
+# the list of correlation operators depends on whether we're using ice
+_corr:
+  - &corr_ocn {name: ocn, variables: [__DA_VARIABLES_OCN__]}
+  - &corr_ice {name: ice, variables: [__DA_VARIABLES_ICE__]}
+  - &corr_list_ocn [ *corr_ocn ]
+  - &corr_list_ocn_ice [ *corr_ocn , *corr_ice ]
+
+# placeholders used by the obs yaml files that will be placed
+#  where _OBSERVATIONS_ token is
+_: &obs_distribution RoundRobin
+_: &obs_land_mask
+  filter: Domain Check
+  where:
+  - variable: {name: sea_area_fraction@GeoVaLs}
+    minvalue: 0.9
+_: &observations
+    __OBSERVATIONS__
+
+
+variational:
+  minimizer:
+    algorithm: RPCG
+  iterations:
+  - geometry:
+      mom6_input_nml: mom_input.nml
+      fields metadata: fields_metadata.yaml
+    ninner: 150
+    gradient norm reduction: 1e-3
+    test: on
+    diagnostics:
+      departures: ombg
+    online diagnostics:
+      write increment: true
+      increment:
+        datadir: Data
+        date:  &bkg_date __DA_ANA_DATE__
+        exp: var.iter1
+        type: incr
+
+output:
+  datadir: Data
+  exp: 3dvar
+  type: an
+
+final:
+  diagnostics:
+    departures: oman
+
+cost function:
+  cost type: 3D-Var
+  window begin: __DA_WINDOW_START__
+  window length: __DA_WINDOW_LENGTH__
+  analysis variables: &soca_vars [ __DA_VARIABLES__ ]
+  geometry:
+    mom6_input_nml: mom_input.nml
+    fields metadata: fields_metadata.yaml
+  variable change: Ana2Model #Identity
+  rotate:
+    u: [uocn]
+    v: [vocn]
+
+  background:
+    read_from_file: 1
+    basename: ./bkg/
+    date: &bkg_date __DA_ANA_DATE__
+    << : *bkg_files
+    state variables: [__DA_VARIABLES__, mld, layer_depth]
+
+  background error:
+    covariance model: SocaError
+    analysis variables: [__DA_VARIABLES__]
+    date: *bkg_date
+    bump:
+      verbosity: main
+      datadir: ./bump
+      strategy: specific_univariate
+      load_nicas_local: 1
+    correlation: *corr_list___DOMAINS__
+
+    variable changes:
+
+    - variable change: VertConvSOCA
+      Lz_min: 0.0
+      Lz_mld: 0
+      Lz_mld_max: 1.0
+      scale_layer_thick: 5
+      input variables: *soca_vars
+      output variables: *soca_vars
+
+    - variable change: BkgErrFILT
+      ocean_depth_min: 0    # [m]
+      rescale_bkgerr: 1.0
+      efold_z: 2500.0       # [m]
+      input variables: *soca_vars
+      output variables: *soca_vars
+
+    - variable change: BkgErrGODAS
+      t_min: 0.1
+      t_max: 2.0
+      t_dz:  20.0
+      t_efold: 500.0
+      s_min: 0.0
+      s_max: 0.25
+      ssh_min: 0.0   # value at EQ
+      ssh_max: 0.0   # value in Extratropics
+      ssh_phi_ex: 20 # lat of transition from extratropics
+      cicen_min: 0.1
+      cicen_max: 0.1
+      hicen_min: 0.1
+      hicen_max: 0.1
+      input variables: *soca_vars
+      output variables: *soca_vars
+
+    - variable change: HorizFiltSOCA
+      niter: 2
+      filter variables: *soca_vars
+      input variables: *soca_vars
+      output variables: *soca_vars
+
+    - variable change: BalanceSOCA
+      dsdtmax: 0.1
+      dsdzmin: 3.0e-6
+      dtdzmin: 1.0e-6
+      nlayers: 10
+      input variables: *soca_vars
+      output variables: *soca_vars
+
+
+  observations: *observations

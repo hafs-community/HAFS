@@ -1,0 +1,23 @@
+#!/bin/bash
+export JEDI_OPT=/work/noaa/da/jedipara/opt/modules
+module use $JEDI_OPT/modulefiles/core
+module purge
+module load jedi/intel-impi
+
+# modules to only load during runtime
+if [[ "$SOCA_SCIENCE_RUNTIME" == T ]]; then
+    module load nco/4.9.3
+    module unload python/3.9.2
+    #module use -a /work/noaa/da/kritib/soca-shared/modulefiles
+    #module load anaconda/2020.11
+    module use -a /work/noaa/da/yli/modulefiles
+    module load anaconda/1.7.2
+
+fi
+
+
+ulimit -s unlimited
+
+export MPIRUN=$(which srun)
+export WORKLOAD_MANAGER=slurm
+export JOB_OPTS="--exclusive"

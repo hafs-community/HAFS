@@ -1,4 +1,22 @@
-(1) 6H for 6 h obs window. 24H for 24 h obs window.
+(1) 6H for 6 h obs window. 
+Makefile  rtofs_ascii2iodav2.py  rtofs_obs2iodav2_24H.sh  rtofs_obs_read.F90
+Example:
+/work/noaa/marine/yli/RTOFS_OBS
+Orion-login-4[265] yongzuo$ ls DATA/*/2022/20220920
+DATA/jpss/2022/20220920:
+sst_jpss_2022092000.nc  sst_jpss_2022092006.nc  sst_jpss_2022092012.nc  sst_jpss_2022092018.nc
 
-(2) iodav2_4_3dvar.sh makes directories for nc files used in exp.config.
+DATA/metop/2022/20220920:
+sst_metop_2022092000.nc  sst_metop_2022092006.nc  sst_metop_2022092012.nc  sst_metop_2022092018.nc
+
+DATA/profile/2022/20220920:
+insitu_profile_2022092000.nc  insitu_profile_2022092012.nc
+insitu_profile_2022092006.nc  insitu_profile_2022092018.nc
+
+DATA/ssh/2022/20220920:
+adt_ssh_2022092000.nc  adt_ssh_2022092006.nc  adt_ssh_2022092012.nc  adt_ssh_2022092018.nc
+
+(2) 24H for 24 h obs window.
+
+(2) iodav2_4_3dvar.sh links IODA v2 nc files in directories used in exp.config.
 

@@ -1,0 +1,62 @@
+- obs space:
+    name: adt___OBS_PLAT__
+    distribution: *obs_distribution
+    obsdatain:  {obsfile: __OBS_IN_FILE__}
+    obsdataout: {obsfile: __OBS_OUT_DIR__/adt___OBS_PLAT__.nc}
+    simulated variables: [obs_absolute_dynamic_topography]
+  obs operator:
+    name: ADT
+  obs error:
+    covariance model: diagonal
+  obs localization: # note, this is only used for LETKF
+    localization method: Rossby
+    search method: kd_tree
+    base value: 50.0e3
+    rossby mult: 1.5
+    min grid mult: 2.0
+    min value: 50.0e3
+    max value: 200.0e3
+  obs filters:
+  - *obs_land_mask
+  - filter: Domain Check
+    where:
+    - variable: { name: sea_surface_temperature@GeoVaLs}
+      minvalue: 5.0
+  - filter: Background Check
+    absolute threshold: 0.2
+    action:
+      name: reject
+
+# TODO use this filter when fixed 
+#  - filter: Bounds Check
+#    minvalue: -2.0
+#    maxvalue: 2.0
+#    action:
+#      name: assign error
+#      error function:
+#        name: LinearCombination@ObsFunction
+#        options:
+#          variables: [mesoscale_representation_error@GeoVaLs,
+#                      obs_absolute_dynamic_topography@ObsError]
+#          coefs: [0.5,
+#                  1.0]
+  - filter: BlackList
+    where:
+    - variable:
+        name: latitude@MetaData
+      minvalue: -65
+      maxvalue: -30
+    - variable:
+        name: longitude@MetaData
+      minvalue: -125
+      maxvalue: -90
+  - filter: BlackList
+    where:
+    - variable:
+        name: latitude@MetaData
+      minvalue: -65
+      maxvalue: -30
+    - variable:
+        name: longitude@MetaData
+      minvalue: 60
+      maxvalue: 110

@@ -1,0 +1,11 @@
+variable: analysed_sst
+clim:
+  min: 18.0
+  max: 35.0
+time: 0
+level: surface
+latitude: 0.0
+color: seismic # Spectral  #seismic #jet 
+aggregate: False
+projection: 'hat10'
+experiment: 'OSTIA_0.05deg'

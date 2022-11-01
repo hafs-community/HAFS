@@ -1,0 +1,241 @@
+# --------------------------------------------------------------------------------------------------
+# Field metadata for SOCA. Each field can contain the following information:
+#
+# name:                 Internal name used by soca code and config files
+# grid:                 "h", "u", or "v"    (Default: h)
+# masked:               use land mask if true  (Default: true)
+# levels:               "1" or "full_ocn"   (Default: 1)
+# getval_name:          variable name expected by GetValues  (Default: <name>)
+# getval_name_surface:  GetValues variable name for 2D surface of a 3D field (Default: <unused>)
+# io_file:              The restart file domain "ocn", "sfc", or "ice" (Default: <unused>)
+# io_name:              The variable name used in the restart IO (Default: <unused>)
+# dummy_atm:            Don't use this. (It's a temporary hack for CRTM stuff)
+# --------------------------------------------------------------------------------------------------
+
+
+# --------------------------------------------------------------------------------------------------
+# Ocean state variables
+# --------------------------------------------------------------------------------------------------
+- name: tocn
+  levels: full_ocn
+  getval name: sea_water_potential_temperature
+  getval name surface: sea_surface_temperature
+  io file: ocn
+  io name: Temp
+
+- name: socn
+  levels: full_ocn
+  getval name: sea_water_salinity
+  getval name surface: sea_surface_salinity
+  io file: ocn
+  io name: Salt
+  property: positive_definite
+
+- name: uocn
+  grid: u
+  levels: full_ocn
+  getval name: eastward_sea_water_velocity
+  getval name surface: surface_eastward_sea_water_velocity
+  io file: ocn
+  io name: u
+
+- name: vocn
+  grid: v
+  levels: full_ocn
+  getval name: northward_sea_water_velocity
+  getval name surface: surface_northward_sea_water_velocity
+  io file: ocn
+  io name: v
+
+- name: hocn
+  levels: full_ocn
+  getval name: sea_water_cell_thickness
+  io file: ocn
+  io name: h
+
+- name: ssh
+  getval name: sea_surface_height_above_geoid
+  io file: ocn
+  io name: ave_ssh
+
+
+# --------------------------------------------------------------------------------------------------
+# ice state variables
+# --------------------------------------------------------------------------------------------------
+- name: hicen
+  getval name: sea_ice_category_thickness
+  io file: ice
+  io name: hicen
+  property: positive_definite
+
+- name: cicen
+  getval name: sea_ice_category_area_fraction
+  getval name surface: sea_ice_area_fraction     # note: not accurate, should be "sum" not "surface"
+  io file: ice
+  io name: aicen
+
+- name: hsnon
+  getval name: sea_ice_category_snow_thickness
+  io file: ice
+  io name: hsnon
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# sea surface variables
+# --------------------------------------------------------------------------------------------------
+- name: sw
+  masked: false
+  getval name: net_downwelling_shortwave_radiation
+  io file: sfc
+  io name: sw_rad
+
+- name: lw
+  masked: false
+  getval name: net_downwelling_longwave_radiation
+  io file: sfc
+  io name: lw_rad
+
+- name: lhf
+  masked: false
+  getval name: upward_latent_heat_flux_in_air
+  io file: sfc
+  io name: latent_heat
+
+- name: shf
+  masked: false
+  getval name: upward_sensible_heat_flux_in_air
+  io file: sfc
+  io name: sens_heat
+
+- name: us
+  masked: false
+  getval name: friction_velocity_over_water
+  io file: sfc
+  io name: fric_vel
+
+
+# --------------------------------------------------------------------------------------------------
+# BGC
+# --------------------------------------------------------------------------------------------------
+- name: chl
+  levels: full_ocn
+  getval name: mass_concentration_of_chlorophyll_in_sea_water
+  getval name surface: sea_surface_chlorophyll
+  io file: ocn
+  io name: chl
+  property: positive_definite
+
+- name: biop
+  levels: full_ocn
+  getval name: molar_concentration_of_biomass_in_sea_water_in_p_units
+  getval name surface: sea_surface_biomass_in_p_units
+  io file: ocn
+  io name: biomass_p
+  property: positive_definite
+
+# --------------------------------------------------------------------------------------------------
+# built-in derived variables that you don't need to worry about
+# --------------------------------------------------------------------------------------------------
+- name: distance_from_coast
+  masked: false
+
+- name: layer_depth
+  levels: full_ocn
+
+- name: mesoscale_representation_error
+
+- name: mld
+
+- name: sea_floor_depth_below_sea_surface
+
+- name: sea_area_fraction
+  masked: false
+
+- name: surface_temperature_where_sea
+
+
+# --------------------------------------------------------------------------------------------------
+# Dummy fields that aren't actually used.
+# Needed for the CRTM hack to work
+# these should all be removed at some point when coupled hofx is implemented correctly
+# --------------------------------------------------------------------------------------------------
+- name: air_pressure
+  dummy_atm: true
+
+- name: air_pressure_levels
+  dummy_atm: true
+
+- name: air_temperature
+  dummy_atm: true
+
+- name: humidity_mixing_ratio
+  dummy_atm: true
+
+- name: effective_radius_of_cloud_liquid_water_particle
+  dummy_atm: true
+
+- name: effective_radius_of_cloud_ice_particle
+  dummy_atm: true
+
+- name: mass_content_of_cloud_ice_in_atmosphere_layer
+  dummy_atm: true
+
+- name: mass_content_of_cloud_liquid_water_in_atmosphere_layer
+  dummy_atm: true
+
+- name: mole_fraction_of_carbon_dioxide_in_air
+  dummy_atm: true
+
+- name: mole_fraction_of_ozone_in_air
+  dummy_atm: true
+
+- name: surface_wind_from_direction
+  dummy_atm: true
+
+- name: soil_type
+  dummy_atm: true
+
+- name: leaf_area_index
+  dummy_atm: true
+
+- name: vegetation_type_index
+  dummy_atm: true
+
+- name: surface_wind_speed
+  dummy_atm: true
+
+- name: surface_snow_thickness
+  dummy_atm: true
+
+- name: vegetation_area_fraction
+  dummy_atm: true
+
+- name: land_type_index
+  dummy_atm: true
+
+- name: volume_fraction_of_condensed_water_in_soil
+  dummy_atm: true
+
+- name: soil_temperature
+  dummy_atm: true
+
+- name: surface_temperature_where_snow
+  dummy_atm: true
+
+- name: surface_temperature_where_ice
+  dummy_atm: true
+
+- name: surface_temperature_where_land
+  dummy_atm: true
+
+- name: surface_snow_area_fraction
+  dummy_atm: true
+
+- name: ice_area_fraction
+  dummy_atm: true
+
+- name: land_area_fraction
+  dummy_atm: true
+
+- name: water_area_fraction
+  dummy_atm: true

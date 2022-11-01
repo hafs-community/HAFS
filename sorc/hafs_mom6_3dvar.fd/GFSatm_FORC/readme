@@ -2,7 +2,14 @@ Use this link to make sure time (days from 12/31/1900) is correct
 https://www.epochconverter.com
 
 (1) gfsatm_forcing_6H.sh gfsatm_forcing_6H.py create GFSatm forcing every 6 hour
-ls 20220923
+ls 2022/2022092*
+2022/20220921:
+atm_2022092100.nc  atm_2022092106.nc  atm_2022092112.nc  atm_2022092118.nc
+
+2022/20220922:
+atm_2022092200.nc  atm_2022092206.nc  atm_2022092212.nc  atm_2022092218.nc
+
+2022/20220923:
 atm_2022092300.nc  atm_2022092306.nc  atm_2022092312.nc  atm_2022092318.nc
 
 (2) gfsatm_forcing_00H.sh gfsatm_forcing_00H.py create GFSatm forcing daily with initial time at 00Z.    00Z analysis missing data, First field is yesterday 18Z 6h forecast. 

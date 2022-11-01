@@ -1,0 +1,10 @@
+variables: [socn, tocn]
+
+bounds:  
+  tocn_minmax: [-1.9, 33.0]
+  socn_minmax: [0.1, 38.0]
+
+background filename: ./RESTART_IN/MOM.res.nc
+
+analysis filename: checkpoint_ana.nc
+
