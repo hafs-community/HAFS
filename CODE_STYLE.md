@@ -14,9 +14,11 @@ that it is easy to learn and use, promoting community modeling and development.
 
 ## General
 
-* Trim all trailing whitespace from every line (here is an example sed command, 
+* Trim all trailing whitespace from every line (here is an example `sed` command, 
   `sed -i -e 's/[ \t]*$//' filename`)
 * No tab characters unless absolutely necessary
+* Do not add binary files/executables, or NetCDF input files to the repository
+* Avoid adding non-existing symbolic links to the repository
 * Follow the coding style of the current file, as much as possible
 
 ## Python
@@ -26,12 +28,18 @@ that it is easy to learn and use, promoting community modeling and development.
 
 ## Shell
 
+* Using Bash is preferred
+* Two space indentation, no tabs
+* Put `; do` and `; then` on the same line as the `while`, `for` or `if`
+* Use `$(command)` instead of backticks
+* `[[ … ]]` is preferred over `[ … ]`, `test` and `/usr/bin/[`
+* Use `(( … ))` or `$(( … ))` rather than `let` or `$[ … ]` or `expr`
 * Follow the coding style of the current file and/or files under the same directory
 
 ## Fortran
 
 * Use Fortran 95 standard or newer
-* Two space indentation, or follow the existing indentation in the source code
+* Two space indentation, no tabs
 * Lines must be <= 120 characters long (including comments)
 * Always specify `implicit none` (never use implicit variables)
 * `COMMON` blocks should never be used
@@ -43,4 +51,5 @@ that it is easy to learn and use, promoting community modeling and development.
 * Define all function/subroutine arguments, and function results
 * All OpenMP directives should specify default(none), and then explicitly list
   all shared and private variables, and all critical sections must have a unique name
+* Follow the coding style of the current file and/or files under the same directory
 
