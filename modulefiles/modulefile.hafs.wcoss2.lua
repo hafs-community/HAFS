@@ -49,7 +49,7 @@ load(pathJoin("hdf5", hdf5_ver))
 netcdf_ver=os.getenv("netcdf_ver") or "4.7.4"
 load(pathJoin("netcdf", netcdf_ver))
 
-pio_ver=os.getenv("pio_ver") or "2.5.2"
+pio_ver=os.getenv("pio_ver") or "2.5.7"
 load(pathJoin("pio", pio_ver))
 
 esmf_ver=os.getenv("esmf_ver") or "8.3.0b09"
@@ -61,7 +61,7 @@ load(pathJoin("fms", fms_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
 
-crtm_ver=os.getenv("crtm_ver") or "2.3.0"
+crtm_ver=os.getenv("crtm_ver") or "2.4.0"
 load(pathJoin("crtm", crtm_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
@@ -79,7 +79,7 @@ load(pathJoin("nemsio", nemsio_ver))
 sp_ver=os.getenv("sp_ver") or "2.3.3"
 load(pathJoin("sp", sp_ver))
 
-w3emc_ver=os.getenv("w3emc_ver") or "2.9.1"
+w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
 w3nco_ver=os.getenv("w3nco_ver") or "2.4.1"
