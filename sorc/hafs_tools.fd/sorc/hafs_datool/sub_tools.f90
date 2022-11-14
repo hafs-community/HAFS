@@ -666,7 +666,7 @@
               if ( ixi > src_ix ) ixi=src_ix-2
               if ( jxi < 1 ) jxi=3
               if ( jxi > src_jx ) jxi=src_jx-2
-              if ( ixi >= 1 .and. ixi <= src_ix .and. jxi >= 1 .and. jxi <= src_jx ) then
+              if ( ixi >= 1 .and. ixi <= src_ix .and. jxi >= 1 .and. jxi <= src_jx .and. n < max_points) then
                  n=n+1
                  gw(i,j)%src_x(n)=ixi
                  gw(i,j)%src_y(n)=jxi
@@ -770,31 +770,32 @@
 
      !--- find TC vortex relax zone
      if ( tc%vortexrep==1 .and. tc%lat>-85. .and. tc%lat<85. .and. tc%lon>=-180. .and. tc%lon<=360. ) then
-        lon180_1=src_lon(ixs,jxs)
-        if ( lon180_1 > 180. ) lon180_1 = lon180_1 -360.
-        lon180_2=tc%lon
-        if ( lon180_2 > 180. ) lon180_2 = lon180_2 - 360.
-        dis = earth_dist(lon180_1,src_lat(ixs,jxs),lon180_2,tc%lat)/1000.
+        if ( ixs>=1 .and. ixs<=src_ix .and. jxs>=1 .and. jxs<=src_jx) then
+           lon180_1=src_lon(ixs,jxs)
+           if ( lon180_1 > 180. ) lon180_1 = lon180_1 -360.
+           lon180_2=tc%lon
+           if ( lon180_2 > 180. ) lon180_2 = lon180_2 - 360.
+           dis = earth_dist(lon180_1,src_lat(ixs,jxs),lon180_2,tc%lat)/1000.
 
-        if ( abs(tc%vortexreplace_r(1)-tc%vortexreplace_r(2)) < 1.0 .or. tc%vortexreplace_r(1) < 1.0 .or. tc%vortexreplace_r(2) < 1.0 ) then
-           tc%vortexreplace_r(1)=600.
-           tc%vortexreplace_r(2)=900.
-        endif
-        if ( dis < tc%vortexreplace_r(1) ) then
-           dst_weight=0.0
-        else if ( dis > tc%vortexreplace_r(2) ) then
-           dst_weight=1.0
+           if ( abs(tc%vortexreplace_r(1)-tc%vortexreplace_r(2)) < 1.0 .or. tc%vortexreplace_r(1) < 1.0 .or. tc%vortexreplace_r(2) < 1.0 ) then
+              tc%vortexreplace_r(1)=600.
+              tc%vortexreplace_r(2)=900.
+           endif
+           if ( dis < tc%vortexreplace_r(1) ) then
+              dst_weight=0.0
+           else if ( dis > tc%vortexreplace_r(2) ) then
+              dst_weight=1.0
+           else
+              dst_weight=(dis-tc%vortexreplace_r(1))/(tc%vortexreplace_r(2)-tc%vortexreplace_r(1))
+           endif
+           !write(*,*)'----tc zone', tc%lon, tc%lat, dis, tc%vortexreplace_r(1:2), dst_weight
+           if ( dst_weight < 0.0 .or. dst_weight > 1.0 ) then
+              write(*,'(a,4i6,4f10.2)')'---vortex dst_weight:', i,j,ixs,jxs,tc%vortexreplace_r(1:2), dis, dst_weight
+              stop
+           endif
         else
-           dst_weight=(dis-tc%vortexreplace_r(1))/(tc%vortexreplace_r(2)-tc%vortexreplace_r(1))
+           dst_weight=1.0
         endif
-        !write(*,*)'----tc zone', tc%lon, tc%lat, dis, tc%vortexreplace_r(1:2), dst_weight
-        if ( dst_weight < 0.0 .or. dst_weight > 1.0 ) then
-           write(*,'(a,4i6,4f10.2)')'---vortex dst_weight:', i,j,ixs,jxs,tc%vortexreplace_r(1:2), dis, dst_weight
-           stop
-        endif
-     !else
-     !   write(*,*)'----tc zone', tc%lon, tc%lat, dis, tc%vortexreplace_r(1:2), dst_weight
-     !   stop
      endif
 
      !---combine src and dst weight

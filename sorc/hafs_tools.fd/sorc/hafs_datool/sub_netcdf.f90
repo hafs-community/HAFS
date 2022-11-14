@@ -13,8 +13,7 @@
   integer :: ncid, varid, ndims, nvars, xtype, dimids(5), vdim(5)
   character(len=50) :: varname, dimname
 
-  call nccheck(nf90_open(trim(ncfile), ior(nf90_nowrite,nf90_mpiio), ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-               'wrong in open: '//trim(ncfile), .true.)
+  call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), 'wrong in open: '//trim(ncfile), .true.)
   call nccheck(nf90_inquire(ncid, ndims, nvars), 'wrong in inquire ncid', .true.)
   do n = 1, ndims
      call nccheck(nf90_inquire_dimension(ncid,n,name=dimname, len=i), 'wrong in inquire_dimension', .true.)
@@ -143,8 +142,7 @@
 
   write(*,'(a,3(i0,1x),i0,a,3(i0,1x),i0,a)')'---getting '//trim(var)//' : (', ixs, jxs, kxs, txs, ') --> (', ix, jx, kx, tx,')'
   !call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), &
-  call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-              'wrong in open '//trim(ncfile), .false.)
+  call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), 'wrong in open '//trim(ncfile), .false.)
   call nccheck(nf90_inq_varid(ncid, trim(var), varid), 'wrong in nf90_inq_varid '//trim(var), .false.)
   !call nccheck(nf90_var_par_access(ncid, varid, nf90_collective), 'wrong in  nf90_var_par_access '//trim(var), .false.)
   call nccheck(nf90_inquire_variable(ncid, varid, xtype=xtype), 'wrong in nf90_inquire_variable'//trim(var), .false.)
@@ -301,20 +299,9 @@
   !----1.0 open or creat file
   inquire(file=trim(ncfile), exist=file_exists)
   if ( file_exists ) then
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), &
-                             'wrong in open '//trim(ncfile), .true.)
+     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile), .true.)
   else
      call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid), 'wrong in creat '//trim(ncfile), .true.)
-     !call nccheck(nf90_create(trim(ncfile), nf90_netcdf4, ncid), 'wrong in creat '//trim(ncfile), .true.)
-     !call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !                       'wrong in creat '//trim(ncfile), .true.)
-     !call nccheck(nf90_create(trim(ncfile), ior(nf90_clobber,nf90_64bit_offset), ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !                        'wrong in creat '//trim(ncfile), .true.)
-     !call nccheck(nf90_create(trim(ncfile), ior(nf90_clobber,nf90_netcdf4), ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !                        'wrong in creat '//trim(ncfile), .true.)
-     !call nccheck(nf90_create(path=trim(ncfile), cmode=ior(nf90_netcdf4, nf90_mpiio), ncid=ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !                        'wrong in creat '//trim(ncfile), .true.)
   endif
 
   !----2.0 define dimension
@@ -347,15 +334,9 @@
   !----1.0 open or creat file
   inquire(file=trim(ncfile), exist=file_exists)
   if ( file_exists ) then
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), &
-                             'wrong in open '//trim(ncfile), .true.)
+     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile), .true.)
   else
-     call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid), &
-     !call nccheck(nf90_create(path=trim(ncfile), cmode=ior(nf90_netcdf4, nf90_mpiio), ncid=ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_create(trim(ncfile), nf90_netcdf4, ncid), &
-                             'wrong in creat '//trim(ncfile), .true.)
+     call nccheck(nf90_create(trim(ncfile), nf90_hdf5, ncid), 'wrong in creat '//trim(ncfile), .true.)
   endif
 
   !----2.0 define variables
@@ -404,12 +385,7 @@
   !----2.0 check file
   inquire(file=trim(ncfile), exist=file_exists)
   if ( file_exists ) then
-     !call nccheck(nf90_open(trim(ncfile), ior(nf90_write,nf90_mpiio), ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_open(trim(ncfile), ior(nf90_write,nf90_mpiio), ncid), &
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), &
-                            'wrong in open '//trim(ncfile)//' for '//trim(varname), .true.)
+     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile)//' for '//trim(varname), .true.)
   else
      write(*,*)' !!!! please call write_nc_dim to generate the nc file of '//trim(ncfile)
      stop
@@ -541,12 +517,7 @@
   !----2.0 check file
   inquire(file=trim(ncfile), exist=file_exists)
   if ( file_exists ) then
-     !call nccheck(nf90_open(trim(ncfile), ior(nf90_write,nf90_mpiio), ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-     !call nccheck(nf90_open(trim(ncfile), ior(nf90_write,nf90_mpiio), ncid), &
-     !call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), &
-     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
-                            'wrong in open '//trim(ncfile)//' for '//trim(varname), .true.)
+     call nccheck(nf90_open(trim(ncfile), nf90_write, ncid), 'wrong in open '//trim(ncfile)//' for '//trim(varname), .true.)
   else
      write(*,*)' !!!! please call write_nc_dim to generate the nc file of '//trim(ncfile)
      stop
