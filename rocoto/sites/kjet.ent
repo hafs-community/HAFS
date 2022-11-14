@@ -13,8 +13,7 @@
   <!ENTITY CORES_EXTRA     "<nodesize>40</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>40</nodesize>">
   <!ENTITY RESERVATION     "">
-  <!ENTITY MEMORY          "<memory>1G</memory>">
-  <!ENTITY MORE_MEMORY     "<memory>5G</memory>">
+  <!ENTITY MEMORY          "<memory>8G</memory>">
 
   <!ENTITY DOCN_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
   <!ENTITY DATM_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">

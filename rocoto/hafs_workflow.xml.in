@@ -111,6 +111,7 @@
 
   <!-- Site that we are currently running on -->
   <!ENTITY % SITES    SYSTEM "sites/all.ent">
+  %SITES;
 
   <!ENTITY % SITE_DEFAULTS SYSTEM "sites/defaults.ent">
   %SITE_DEFAULTS;
@@ -1562,7 +1563,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MORE_MEMORY;
+    &MEMORY;
     &ENV_VARS;
     <envar><name>ARCHIVE_STEP</name><value>DISK</value></envar>
 
@@ -1602,7 +1603,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MORE_MEMORY;
+    &MEMORY;
     &ENV_VARS;
     <envar><name>ARCHIVE_STEP</name><value>TAPE</value></envar>
 
@@ -1643,7 +1644,7 @@
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
-    &MORE_MEMORY;
+    &MEMORY;
     &ENV_VARS;
 
     <dependency>

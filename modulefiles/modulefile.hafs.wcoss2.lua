@@ -1,5 +1,5 @@
 help([[
-loads HAFS application level modulefile on Cactus and Dogwood
+loads HAFS application level modulefile on WCOSS2 (Cactus and Dogwood)
 ]])
 
 envvar_ver=os.getenv("envvar_ver") or "1.0"
