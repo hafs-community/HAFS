@@ -61,7 +61,7 @@
      if ( src_file(i:i) == ":" .or. i == len_trim(src_file) ) then
         n_srcfl=n_srcfl+1
         i0=1; if ( i == len_trim(src_file) ) i0=0
-        if (src_file(j+1:j+1) == '/' .or. src_file(j+1:j+2) == './' ) then
+        if (src_file(j+1:j+1) == '/' .or. src_file(j+1:j+2) == './' .or. len_trim(srcdir) < 3 ) then
            srcfiles(n_srcfl) = src_file(j+1:i-i0)
         else
            srcfiles(n_srcfl) = trim(srcdir)//'/'//src_file(j+1:i-i0)
@@ -75,7 +75,7 @@
   if (len_trim(src_grid) < 2 ) then
      srcgridfl=srcfiles(1)
   else
-     if (src_grid(1:1) == '/' .or. src_grid(1:2) == './' ) then
+     if (src_grid(1:1) == '/' .or. src_grid(1:2) == './' .or. len_trim(srcdir) < 3 ) then
         srcgridfl=trim(src_grid)
      else
         srcgridfl=trim(srcdir)//'/'//trim(src_grid)
@@ -93,29 +93,32 @@
 ! 1.5 --- will-be-merged data: if have, src_file+dst_file-->out_file
 !                              if not,  src_file         -->out_file
 !
-  j=0; n_dstfl=0
-  do i = 1, len_trim(dst_file)
-     if ( dst_file(i:i) == ":" .or. i == len_trim(dst_file) ) then
-        n_dstfl=n_dstfl+1
-        i0=1; if ( i == len_trim(dst_file) ) i0=0
-        if (dst_file(j+1:j+1) == '/' .or. dst_file(j+1:j+2) == './' ) then
-           dstfiles(n_dstfl) = dst_file(j+1:i-i0)
-        else
-           dstfiles(n_dstfl) = trim(dstdir)//'/'//dst_file(j+1:i-i0)
-        endif
-        j=i
-     endif   !if ( dst_file(i:i) == ":"
-  enddo  !do i = 1, len_trim(dst_file)
-  write(*,'(a,i,a)')' --- there is', n_dstfl, ' file(s) will be merged.'
+  n_dstfl=0
+  if ( len_trim(dst_file) > 2 ) then
+     j=0
+     do i = 1, len_trim(dst_file)
+        if ( dst_file(i:i) == ":" .or. i == len_trim(dst_file) ) then
+           n_dstfl=n_dstfl+1
+           i0=1; if ( i == len_trim(dst_file) ) i0=0
+           if (dst_file(j+1:j+1) == '/' .or. dst_file(j+1:j+2) == './' .or. len_trim(dstdir) < 2) then
+              dstfiles(n_dstfl) = dst_file(j+1:i-i0)
+           else
+              dstfiles(n_dstfl) = trim(dstdir)//'/'//dst_file(j+1:i-i0)
+           endif
+           j=i
+        endif   !if ( dst_file(i:i) == ":"
+     enddo  !do i = 1, len_trim(dst_file)
+     write(*,'(a,i,a)')' --- there is', n_dstfl, ' file(s) will be merged.'
+  endif
 
 ! 1.6 --- destination grid
   if (len_trim(dst_grid) < 2 ) then
      dstgridfl=dstfiles(1)
   else
-     if ( dst_grid(1:1) == '/' .or. dst_grid(1:2) == './' ) then
+     if ( dst_grid(1:1) == '/' .or. dst_grid(1:2) == './' .or. len_trim(dstdir) < 2) then
         dstgridfl=dst_grid
      else
-        dstgridfl=trim(dst_dir)//'/'//trim(dst_grid)
+        dstgridfl=trim(dstdir)//'/'//trim(dst_grid)
      endif
   endif
   write(*,'(a)')' --- remap to grid: '//trim(dstgridfl)
@@ -123,10 +126,11 @@
 
 ! 1.7 --- out_file
   if (len_trim(out_file) > 2) then  !output to one file
-     if ( out_file(1:1) == '/' .or. out_file(1:2) == './' ) then
-        do j = 1, n_srcfl; dstfiles(j)=trim(out_file); enddo
+     if ( out_file(1:1) == '/' .or. out_file(1:2) == './' .or. len_trim(dstdir) < 2) then
+        do j = 1, n_srcfl; n_dstfl=n_dstfl+1; dstfiles(j)=trim(out_file); enddo
      else
         do j = 1, n_srcfl; write(*,*)'j=',j
+           n_dstfl=n_dstfl+1
            dstfiles(j)=trim(dstdir)//'/'//trim(out_file); enddo
      endif
   else
@@ -185,6 +189,7 @@
         dimids=-1; vdim=-1
         call nccheck(nf90_inquire_variable(ncid,nv,varname,xtype,ndims,dimids), &
                      'wrong in inquire_variable '//trim(varname), .false.)
+        write(*,*)' my_proc_id,nprocs,nv,varname: ',my_proc_id,nprocs,nv, trim(varname)
 
         do i = 1, ndims
            call nccheck(nf90_inquire_dimension(ncid,dimids(i), len=vdim(i)), 'wrong in inquire '//trim(varname)//' dim', .false.)

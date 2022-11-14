@@ -484,7 +484,7 @@
                  call mpi_recv(dat43(1,1,1,1), size(dat43), mpi_real, io_proc, 200*2+ks, comm, status, ierr)
               endif
            endif  !if ( my_proc_id == io_proc ) then
-           write(*,*)'===w11 distributed u,v @ dat42,dat43'
+           !write(*,*)'===w11 distributed u,v @ dat42,dat43'
         endif
 
         !!-----------------------------
@@ -758,7 +758,7 @@
                        endif
                     endif
                  enddo
-                 write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
+                 !write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
@@ -780,7 +780,7 @@
               enddo
               deallocate(dat42, dat43, dat2, dat21, cangu, sangu, cangv, sangv)
            endif
-           write(*,*)'===w12 dat42,dat43 to earth wind u,v'
+           !write(*,*)'===w12 dat42,dat43 to earth wind u,v'
 
            !--- loop u,v
            do nv = 1, 2
@@ -832,7 +832,7 @@
                     dat41=-999999.
                  endif
               endif  !if ( nd > 1 ) then
-              write(*,*)'===w13 got outer domain dat41'
+              !write(*,*)'===w13 got outer domain dat41'
 
               !--- map u/v to rot-ll grid: ingrid-->dstgrid
               nm=max(1,int((kz+nprocs-1)/nprocs))
@@ -853,7 +853,7 @@
                  endif
                  deallocate(dat41)
               endif
-              write(*,*)'===w14 got dat42'
+              !write(*,*)'===w14 got dat42'
 
               !---collect dat43 to io_proc, and output
               !call mpi_barrier(comm,ierr)
@@ -876,7 +876,7 @@
                        endif
                     endif
                  enddo
-                 write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
+                 !write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
@@ -1673,7 +1673,7 @@
                        endif
                     endif
                  enddo
-                 write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
+                 !write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
                  call write_nc_real(trim(fl_out), trim(varname), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
                  deallocate(dat43)
@@ -1788,7 +1788,7 @@
                        endif
                     endif
                  enddo
-                 write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
+                 !write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
                  if (nv==1) call write_nc_real(trim(fl_out), 'u', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'u-component')
                  if (nv==2) call write_nc_real(trim(fl_out), 'v', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'v-component')
@@ -1929,7 +1929,7 @@
   iunit=36
   open(iunit, file=trim(in_file), form='unformatted')
   read(iunit) nx, ny, nz, i360
-  write(*,'(a,4i5)')'nx, ny, nz, i360 = ',nx, ny, nz, i360
+  write(*,'(a,4i5)')'===w40 nx, ny, nz, i360 = ',nx, ny, nz, i360
   read(iunit) lon1,lat1,lon2,lat2,cen_lon,cen_lat
   write(*,'(a,6f10.3)')'lon1,lat1,lon2,lat2,cen_lon,cen_lat =', lon1,lat1,lon2,lat2,cen_lon,cen_lat
 
@@ -2419,11 +2419,11 @@
                  do k = 0, nprocs-1
                     ks=k*nm+1
                     ke=k*nm+nm
-                    if ( ke > kz ) ke=kz
-                    if ( ks >= 1 .and. ks <= kz .and. ke >= 1 .and. ke <= kz ) then
+                    if ( ke > iz ) ke=iz
+                    if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                        if ( k /= io_proc ) then
                           allocate(dat42(ix, iy, ke-ks+1,1))
-                          call mpi_recv(dat42(1,1,1,1), size(dat4), mpi_real, k, 600+ks, comm, status, ierr)
+                          call mpi_recv(dat42(1,1,1,1), size(dat42), mpi_real, k, 600+ks, comm, status, ierr)
                           dat41(:,:,ks:ke,1)=dat42(:,:,1:ke-ks+1,1)
                           deallocate(dat42)
                        else
