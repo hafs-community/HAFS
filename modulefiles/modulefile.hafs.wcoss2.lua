@@ -130,6 +130,12 @@ load(pathJoin("udunits", udunits_ver))
 nco_ver=os.getenv("nco_ver") or "4.7.9"
 load(pathJoin("nco", nco_ver))
 
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio",ncio_ver))
+
+ncdiag_ver=os.getenv("ncdiag_ver") or "1.0.0"
+load(pathJoin("ncdiag",ncdiag_ver))
+
 setenv("CMAKE_C_COMPILER", "cc")
 setenv("CMAKE_CXX_COMPILER", "CC")
 setenv("CMAKE_Fortran_COMPILER", "ftn")

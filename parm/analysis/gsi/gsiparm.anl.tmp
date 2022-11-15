@@ -167,7 +167,7 @@ OBS_INPUT::
    ahibufr        ahi         himawari8   ahi_himawari8       0.0     3     0
 ::
 &SUPEROB_RADAR
-  del_azimuth=5.,del_elev=.25,del_range=10000.,del_time=.1,elev_angle_max=5.,minnum=1,range_max=100000.,
+  del_azimuth=5.,del_elev=.25,del_range=10000.,del_time=.5,elev_angle_max=5.,minnum=5,range_max=200000.,
   l2superob_only=.false.,radar_sites=.false.,
   radar_box=.true.,radar_rmesh=10,radar_zmesh=500,
 /

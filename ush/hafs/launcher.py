@@ -1444,7 +1444,7 @@ class HAFSLauncher(HAFSConfig):
         # For the storm-focused nest, check (and recalculate if needed) i/jstart_nest, i/jend_nest
         istart_nest=self.getstr('grid','istart_nest','auto').split(',')
         jstart_nest=self.getstr('grid','jstart_nest','auto').split(',')
-        iend_nest=self.getstr('grid','jend_nest','auto').split(',')
+        iend_nest=self.getstr('grid','iend_nest','auto').split(',')
         jend_nest=self.getstr('grid','jend_nest','auto').split(',')
         if "-999" in istart_nest+jstart_nest+iend_nest+jend_nest:
             logger.info(f'Original istart_nest={istart_nest},jstart_nest={jstart_nest}')
