@@ -4,7 +4,7 @@ source ./machine-setup.sh > /dev/null 2>&1
 cwd=`pwd`
 
 module use ../modulefiles
-module load modulefile.hafs.$target
+module load hafs.$target
 module list
 
 cd hafs_hycom_utils.fd/libs

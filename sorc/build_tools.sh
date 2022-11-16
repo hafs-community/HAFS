@@ -5,7 +5,7 @@ cwd=`pwd`
 
 export target=${target}
 module use ../modulefiles
-module load modulefile.hafs.${target}
+module load hafs.${target}
 module list
 
 if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then

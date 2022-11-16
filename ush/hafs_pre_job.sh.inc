@@ -92,7 +92,7 @@ export WHERE_AM_I=${target}
 
 if [[ Q"${HOMEhafs:-}" != "Q" ]]; then
   module use $HOMEhafs/modulefiles
-  module load modulefile.hafs.$WHERE_AM_I
+  module load hafs.$WHERE_AM_I
 fi
 
 # Avoild "NetCDF: HDF error"

@@ -18,7 +18,7 @@ export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/modulefiles
-  module load modulefile.hafs.${machine}
+  module load hafs.${machine}
   module list
 fi
 

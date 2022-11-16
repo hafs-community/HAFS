@@ -9,7 +9,7 @@ if [ ! -d "../exec" ]; then
 fi
 
 module use ../modulefiles
-module load modulefile.hafs.${target}
+module load hafs.${target}
 module list
 
 if [ $target = hera ]; then target=hera.intel ; fi
