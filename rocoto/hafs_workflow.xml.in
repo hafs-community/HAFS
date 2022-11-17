@@ -1535,7 +1535,7 @@
     &PE_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;
-    <envar><name>COMgraph</name><value>@[CDSAVE]/comgraph_&SUBEXPT;</value></envar>
+    <envar><name>COMgraph</name><value>@[CDSCRUB]/comgraph_&SUBEXPT;</value></envar>
 
     <dependency>
       <!-- Start the product if the product is running or if it has
