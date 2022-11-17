@@ -160,13 +160,10 @@
     <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
-    <queue>&QUEUE_SERIAL;</queue>
-    &SERIAL_EXTRA;
-    <cores>1</cores>
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
     &CORES_EXTRA;
-    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
-    <walltime>00:15:00</walltime>
-    &MEMORY;
+    &LAUNCH_RESOURCES;
     &ENV_VARS;
 
     <dependency>
