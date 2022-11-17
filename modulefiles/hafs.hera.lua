@@ -9,8 +9,8 @@ load("hpss")
 cmake_ver=os.getenv("cmake_ver") or "3.20.1"
 load(pathJoin("cmake", cmake_ver))
 
-prepend_path("PATH", "/scratch1/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/WCOSS2_env/bin")
-prepend_path("PYTHONPATH", "/scratch1/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/WCOSS2_env")
+prepend_path("MODULEPATH", "/scratch1/NCEPDEV/hwrf/noscrub/local/modulefiles")
+load(pathJoin("python","wcoss2_env"))
 
 prepend_path("MODULEPATH", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/modulefiles/stack")
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"

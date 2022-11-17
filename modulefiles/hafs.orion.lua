@@ -8,6 +8,9 @@ load("noaatools")
 cmake_ver=os.getenv("cmake_ver") or "3.22.1"
 load(pathJoin("cmake", cmake_ver))
 
+prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
+load(pathJoin("python", "wcoss2_env"))
+
 prepend_path("MODULEPATH", "/work/noaa/epic-ps/hpc-stack/libs/intel/2022.1.2/modulefiles/stack")
 
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"
@@ -119,14 +122,9 @@ load(pathJoin("nco", nco_ver))
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
 load(pathJoin("rocoto", rocoto_ver))
 
-intelpython_ver=os.getenv("intelpython_ver") or "2022.1.2"
-load(pathJoin("intelpython3", intelpython_ver))
-
 cdo_ver=os.getenv("cdo_ver") or "1.9.10"
 load(pathJoin("cdo", cdo_ver))
 
-
-setenv("CATEXEC", "/apps/contrib/NCEP/libs/hpc-stack/intel-2018.4/impi-2018.4/ncdiag/1.0.0/bin/ncdiag_cat_serial.x")
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
 setenv("CMAKE_Fortran_COMPILER", "mpiifort")
