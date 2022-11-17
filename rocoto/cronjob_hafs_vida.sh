@@ -2,34 +2,12 @@
 set -x
 date
 
-# NOAA WCOSS Dell Phase3
-#HOMEhafs=/gpfs/dell2/emc/modeling/noscrub/${USER}/save/HAFS
-#dev="-s sites/wcoss_dell_p3.ent -f"
-#PYTHON3=/usrx/local/prod/packages/python/3.6.3/bin/python3
-
-# NOAA WCOSS Cray
-#HOMEhafs=/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS
-#dev="-s sites/wcoss_cray.ent -f"
-#PYTHON3=/opt/intel/intelpython3/bin/python3
-
-# NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#dev="-s sites/xjet.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
-
-# MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
- dev="-s sites/orion.ent -f"
- PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
-
-# NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
+source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
-
 EXPT=$(basename ${HOMEhafs})
+opts="-t -f"
 
 #===============================================================================
  # h3db_vidacycst: atm_init+atm_vi+fgat+3denvar+anal_merge and cycling storm
@@ -182,13 +160,13 @@ EXPT=$(basename ${HOMEhafs})
 #confopts="${confh3da}"
 
  confopts="${confh3db_vida}"
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082506-2020082512 13L HISTORY ${confopts} \
+ ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY ${confopts} \
      config.NHRS=12 config.scrub_work=no config.scrub_com=no
 
  # Storms to run: Laura13L2020, Ida09L2021, Sam18L2021
-#${PYTHON3} ./run_hafs.py -t ${dev} 2020081918-2020082718 13L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021082612-2021083012 09L HISTORY ${confopts}
-#${PYTHON3} ./run_hafs.py -t ${dev} 2021092300-2021100500 18L HISTORY ${confopts}
+#./run_hafs.py ${opts} 2020081918-2020082718 13L HISTORY ${confopts}
+#./run_hafs.py ${opts} 2021082612-2021083012 09L HISTORY ${confopts}
+#./run_hafs.py ${opts} 2021092300-2021100500 18L HISTORY ${confopts}
 
 #===============================================================================
 
