@@ -11,9 +11,9 @@ EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
 #===============================================================================
 
- #hafsv1a baseline
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1s_baseline \
-     ../parm/hafsv1s_baseline.conf"
+ #hafsv1b baseline
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1b_baseline \
+     ../parm/hafsv1b_baseline.conf"
 
  # Technical testing for Hurricane Laura
 #./run_hafs.py ${opts} 2020082512 13L HISTORY ${confopts} \
