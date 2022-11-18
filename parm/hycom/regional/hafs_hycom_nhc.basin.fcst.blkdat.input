@@ -5,7 +5,7 @@ sigma:84-14m; depth_GLBb0.08_11; apply offlux to CICE; 2.2.86C2p0i-sm-sse-900d
   23	  'iversn' = hycom version number x10
  924	  'iexpt ' = experiment number x10
 2413	  'idm   ' = longitudinal array size
- 964	  'jdm   ' = latitudinal  array size
+ 937	  'jdm   ' = latitudinal  array size
  131	  'itest ' = grid point where detailed diagnostics are desired
  315	  'jtest ' = grid point where detailed diagnostics are desired
   41	  'kdm   ' = number of layers
