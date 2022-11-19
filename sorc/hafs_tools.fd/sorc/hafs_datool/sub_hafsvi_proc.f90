@@ -293,14 +293,15 @@
         !---seem pf1 is pressure on full level, use
         !---    pf1(k) = phalf(1) + sum(delp(1:k))
         if ( nrecord == 3 .or. nrecord == 9 .or. nrecord == 11 ) then
+           if ( nrecord == 3 ) then
+              allocate(dat4(iz+1,1,1,1))
+              call get_var_data(trim(infile_atmos), 'phalf', iz+1, 1, 1, 1, dat4)
+              ptop=dat4(1,1,1,1)*100.  !phalf:units = "mb" ;
+              deallocate(dat4)
+           endif
+
            if ( my_proc_id == io_proc ) then
               if ( nrecord == 3 ) then
-                 allocate(dat4(iz+1,1,1,1))
-                 call get_var_data(trim(infile_atmos), 'phalf', iz+1, 1, 1, 1, dat4)
-                 ptop=dat4(1,1,1,1)*100.  !phalf:units = "mb" ;
-                 deallocate(dat4)
-                 call mpi_bcast(ptop, 1, mpi_real, io_proc, comm, ierr)
-
                  allocate(dat4(ix, iy, iz,1))
                  allocate(dat41(ix, iy, iz,1))
                  allocate(dat2(ix, iy))
@@ -1300,14 +1301,15 @@
         !---seem pf1 is pressure on full level, use
         !---    pf1(k) = phalf(1) + sum(delp(1:k))
         if ( nrecord == 3 .or. nrecord == 9 .or. nrecord == 11 ) then
+           if ( nrecord == 3 ) then
+              allocate(dat4(iz+1,1,1,1))
+              call get_var_data(trim(infile_atmos), 'phalf', iz+1, 1, 1, 1, dat4)
+              ptop=dat4(1,1,1,1)*100.  !phalf:units = "mb" ;
+              deallocate(dat4)
+           endif
+
            if ( my_proc_id == io_proc ) then
               if ( nrecord == 3 ) then
-                 allocate(dat4(iz+1,1,1,1))
-                 call get_var_data(trim(infile_atmos), 'phalf', iz+1, 1, 1, 1, dat4)
-                 ptop=dat4(1,1,1,1)*100.  !phalf:units = "mb" ;
-                 deallocate(dat4)
-                 call mpi_bcast(ptop, 1, mpi_real, io_proc, comm, ierr)
-
                  allocate(dat4(ix, iy, iz,1))
                  allocate(dat41(ix, iy, iz,1))
                  allocate(dat2(ix, iy))
