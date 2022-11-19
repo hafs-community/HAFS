@@ -13,6 +13,7 @@ opts="-t -f"
 
  #hafsv1a baseline
  confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1a_baseline \
+     config.run_emcgraphics=yes \
      ../parm/hafsv1a_baseline.conf"
 
  # Technical testing for Hurricane Laura
