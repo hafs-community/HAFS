@@ -93,7 +93,8 @@
 !C
 !C     INITIALIZE-VARIABLES
 !C***FIRST EXECUTABLE STATEMENT  WNLSM
-      call sub998(SRELPR, M, MA, MME,MEP1)
+      !yonghui call sub998(SRELPR, M, MA, MME,MEP1)
+      call sub998(SRELPR, M, MA, MME, ME, MEP1)
 !C
 !C     TO PROCESS-OPTION-VECTOR
       FAC = 1.E-4
@@ -256,7 +257,8 @@
 !C     PERFORM INITIAL TRIANGULARIZATION IN THE SUBMATRIX
 !C     CORRESPONDING TO THE UNCONSTRAINED VARIABLES USING
 !C     THE PROCEDURE INITIALLY-TRIANGULARIZE.
-       call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
+       !yonghui call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
+       call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
                  ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
 !C
 !C     PERFORM WNNLS ALGORITHM USING THE FOLLOWING STEPS.
@@ -762,7 +764,8 @@
 
       END subroutine WNLSM
 
-      subroutine sub998(SRELPR, M, MA, MME,MEP1)
+      !yonghui subroutine sub998(SRELPR, M, MA, MME,MEP1)
+      subroutine sub998(SRELPR, M, MA, MME, ME, MEP1)
       use setparms
       implicit none
       REAL             SRELPR
@@ -845,7 +848,8 @@
       end subroutine sub958
 
 
-      subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
+      !yonghui subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
+      subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
                  ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
       USE setparms
       implicit none
