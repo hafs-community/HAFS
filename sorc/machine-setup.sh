@@ -48,8 +48,12 @@ elif [[ -d /work/noaa ]] ; then
     module use /apps/contrib/NCEPLIBS/lib/modulefiles
     module use /apps/contrib/NCEPLIBS/orion/modulefiles
 elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
+    # We are on NOAA WCOSS2
+     echo load the module command 1>&2
+     source /usr/share/lmod/lmod/init/$__ms_shell
+#    . /usr/share/lmod/lmod/init/sh
     target=wcoss2
-    . $MODULESHOME/init/sh
+#   module purge
 elif [[ -d /glade ]] ; then
     # We are on NCAR Cheyenne
     if ( ! eval module help > /dev/null 2>&1 ) ; then

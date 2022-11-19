@@ -56,12 +56,12 @@ elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
     target=wcoss2
     module purge
 elif [[ -d /glade ]] ; then
-    # We are on NCAR Yellowstone
+    # We are on NCAR Cheyenne
     if ( ! eval module help > /dev/null 2>&1 ) ; then
         echo load the module command 1>&2
         . /usr/share/Modules/init/$__ms_shell
     fi
-    target=yellowstone
+    target=cheyenne
     module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
     # We are on GAEA.
