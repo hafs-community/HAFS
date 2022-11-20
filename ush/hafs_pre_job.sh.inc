@@ -27,6 +27,8 @@ if [[ -d /lfs4 ]] ; then
     fi
     target=jet
     module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
 elif [[ -d /scratch1/NCEPDEV ]] ; then
     # We are on NOAA Hera
     if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -35,6 +37,8 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
     fi
     target=hera
     module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
 elif [[ -d /work/noaa ]] ; then
     # We are on MSU Orion
     if ( ! eval module help > /dev/null 2>&1 ) ; then
