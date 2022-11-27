@@ -52,6 +52,7 @@ if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
 
+mkdir -p ${WORKhafs}/intercom/ww3
 mkdir -p $DATA
 cd $DATA
 
