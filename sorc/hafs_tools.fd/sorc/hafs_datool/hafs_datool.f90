@@ -8,7 +8,7 @@
 !  hafs_datool.x FUNCTION --in_file=input_files \
 !                         --in_grid=input_grids_file \
 !                         --in_format=restart \
-!                         --out_grid=output_grid_file 
+!                         --out_grid=output_grid_file
 !
 ! Usage and Examples:
 !
@@ -25,13 +25,13 @@
 !                     if no dir info, then find the file[s] in in_dir folder;
 !    --in_grid: input_grids_file, for FV3, it may be grid_spec.nc
 !                     if no this argument, then find grid information from in_file.
-! 
+!
 ! 3) Examples
 !    3.1) remap
 !       * hafs_datool.x remap --in_file=${in_dir}/20190829.060000.phy_data.nc \
 !                             --in_grid=${in_dir}/grid_spec.nc \
-!                             --out_grid=${out_dir}/grid_spec.nc 
-!           : interpolate 20190829.060000.phy_data.nc to grid_spec.nc grids, if grid_spec.nc 
+!                             --out_grid=${out_dir}/grid_spec.nc
+!           : interpolate 20190829.060000.phy_data.nc to grid_spec.nc grids, if grid_spec.nc
 !             domain is bigger than input, then fill missing values.
 !       * mpirun -np 32 hafs_datool.x remap \
 !                             --in_file=${in_dir}/20190829.060000.phy_data.nc \
@@ -55,9 +55,9 @@
 !       * hafs_datool.x hafsvi_preproc --in_dir=HAFS_restart_folder --infile_date=20200825.180000 \
 !                                 [--vortexposition=user_define_vortex_file --tcvital=tcvitalfile \
 !                                  --besttrack=bdeckfile ] [--vortexradius=deg ] \
-!                                 [--nestdoms=nestdoms ] \ 
+!                                 [--nestdoms=nestdoms ] \
 !                                 [ --tc_date=tcvital_date] [--res=deg ] \
-!                                 [--out_file=output_bin_file]
+!                                 [--out_file=output_bin_file or nc_file]
 !
 !    3.4) vi_postproc
 !       * hafs_datool.x hafsvi_postproc --in_file=[hafs_vi rot-ll bin file] \
@@ -67,7 +67,7 @@
   use module_mpi
   use var_type
   use netcdf
-  
+
   implicit none
 
   !----parameter define
@@ -76,21 +76,21 @@
   character (len=2500) :: in_dir='w', in_file='w', in_grid='w', &
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
                           out_dir='w', out_grid='w', out_data='w', out_file='w', infile_date='w'
-  character (len=50  ) :: vortexradius='w'  ! for vortexreplace, vortexradius=600:900 km 
+  character (len=50  ) :: vortexradius='w'  ! for vortexreplace, vortexradius=600:900 km
                                             ! for hafsvi_preproc, vortexradius=30 deg or 45 deg
-  character (len=50  ) :: relaxzone=''      ! 
+  character (len=50  ) :: relaxzone=''      !
   character (len=50  ) :: tc_date='w'       !
   character (len=50  ) :: res='w'           !
   character (len=50  ) :: debug_levelc=''   !
   character (len=50  ) :: interpolation_pointsc='' !
-  character (len=50  ) :: nestdomsc=''      ! number for nest domains, 1-30, 1=nest02.tile2 
+  character (len=50  ) :: nestdomsc=''      ! number for nest domains, 1-30, 1=nest02.tile2
                                             ! in vi_preproc, combine all domains and output to one rot-ll grid.
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
 ! 0 --- initialization
 ! Initialize parallel stuff
-!  call parallel_start()
+  call parallel_start()
 
 !----------------------------------------------------------------
 ! 1 --- argc and usage
@@ -117,9 +117,9 @@
                case ('--tcvital');        tcvital_file=arg(j+1:n)
                case ('--besttrack');      besttrackfile=arg(j+1:n)
                case ('--vortexradius');   vortexradius=arg(j+1:n)
-               case ('--infile_date');    infile_date=arg(j+1:n)  !20210312.0930  
+               case ('--infile_date');    infile_date=arg(j+1:n)  !20210312.0930
                case ('--relaxzone');      relaxzone=arg(j+1:n)
-               case ('--tc_date');        tc_date=arg(j+1:n)  !20210312.0930  
+               case ('--tc_date');        tc_date=arg(j+1:n)  !20210312.0930
                case ('--res');            res=arg(j+1:n)  !0.02
                case ('--debug_level');    debug_levelc=arg(j+1:n)  !
                case ('--interpolation_points'); interpolation_pointsc=arg(j+1:n)  !
@@ -170,7 +170,7 @@
         write(*,'(a)')'  --infile_date=input_file_date'
         stop
      endif
-  endif 
+  endif
   if ( trim(tc_date) == "w" .and. len_trim(infile_date) > 1 ) then
      tc_date=trim(infile_date)
   endif
@@ -197,7 +197,11 @@
 ! 4.0 --- HAFS VI
   if ( trim(actions) == "hafsvi_preproc" ) then
      write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
-     call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     if ( index(trim(out_file),'.nc') > 1 ) then
+        call hafsvi_preproc_nc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     else
+        call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+     endif
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
@@ -206,6 +210,12 @@
   endif
 
 !----------------------------------------------------------------
-!  call parallel_finish()
+  call parallel_finish()
+
+  if ( trim(actions) == "hafsvi_postproc" ) then
+     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_dir)//' for nestdoms '//trim(nestdomsc)//' ==='
+  else
+     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_file)//' ==='
+  endif
 
   end program

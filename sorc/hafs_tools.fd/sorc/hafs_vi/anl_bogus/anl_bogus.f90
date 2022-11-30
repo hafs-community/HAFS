@@ -8,7 +8,21 @@
 !
 !     DECLARE VARIABLES
 !
-      INTEGER I,J,K,NX,NY,NZ,ICH
+      IMPLICIT NONE
+      INTEGER I,J,K,L,M,N,NX,NY,NZ,NX1,NY1,NZ1,NZ2,JX,JY,KMX,ICH
+      integer NST,IT,ID,JD,IR,IR1,ITIM,IUNIT,I360,IM1,JM1,JX1,IMV,JMV
+      integer ictr,jctr,imn1,imx1,jmn1,jmx1,KST,imax1,jmax1,iter,ics
+      integer id_storm,ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs
+      integer i_psm,j_psm,ix2,jx2
+      real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,TV1,ZSF1,PSF1,A,DP_CT
+      real pi,pi_deg,pi180,rad,arad,SLP1_MEAN,SUM11,SLP_AVE,SLP_SUM,SLP_MIN
+      real vobs,vobs_o,VRmax,psfc_obs,psfc_cls,PRMAX,Rctp,cost,dp_obs,z0
+      real delt_z1,vobs_kt,distm,distt,vt_c,vt_n,vd_c,pt_c,sum1,dist1
+      real psfc_env,psfc_obs1,RMN,d_max,vmax1,vmax2,vmax_s,crtn,RMX_d
+      real beta,beta1,VMAX,UUT,VVT,UU11,VV11,UUM1,VVM1,QQ,FF,R_DIST,uv22
+      real v_min,PS_C1,fact,TEK1,TEK2,ESRR,ps_min,T_OLD,Q_OLD,ZSFC,TSFC
+      real QENV1,W,W1,Q1_GFS,DTX,DTY,DDR,DDS,TENV1,XLAT,XLON
+
 !
       PARAMETER (NST=5,IR=200)
 !      PARAMETER (NX=158,NY=329,NZ=42,NST=5)
@@ -105,16 +119,21 @@
 
       integer Ir_v4(4)
       CHARACTER SN*1,EW*1,DEPTH*1
+      CHARACTER*2 basin
 
-      DATA PW_S/42*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
-	        0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
-                0.25,0.2,0.15,0.1,0.05,60*0./                        ! 850-700mb
+!using      DATA PW_S/42*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
+!using	        0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
+!using                0.25,0.2,0.15,0.1,0.05,60*0./                        ! 850-700mb
+      PW_S(1:42)=1.0
+      PW_S(43:61)=(/0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.6,0.55, &
+       0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1,0.05/)
 
-      DATA PW_M/121*1.0/
+!using      DATA PW_M/121*1.0/
+      PW_M(1:121)=1.0
+
 !      DATA PW_M/40*1.0,0.95,0.9,0.8,0.7,          &
 !	        0.6,0.5,0.4,0.3,0.2,0.1,35*0./                    ! 850-300mb
 !zhang: added basin domain shift option
-      CHARACTER*2 basin
 
       print*,'this is cold start'
 
@@ -666,7 +685,7 @@
        iter=0
        beta=1.0
 
- 876   CONTINUE
+! 876   CONTINUE
 
        VMAX=0.
        DO J=1,NY
@@ -932,11 +951,12 @@
                   W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PCST1(I,J,K)))/W1
                   T1(I,J,N)=TENV1+WRK1(K)*(1.-W)+WRK1(K+1)*W
                   Q1(I,J,N)=QENV1+WRK2(K)*(1.-W)+WRK2(K+1)*W
-                  GO TO 887
+!                  GO TO 887
+                   exit   !shin
                END IF
              END DO
            END IF
- 887       CONTINUE
+! 887       CONTINUE
 
            T_OLD     = T4(I,J,N)
            Q_OLD     = Q4(I,J,N)
@@ -1069,11 +1089,12 @@
                   W=(ALOG(1.*PMV1(I,J,N))-ALOG(1.*PCST2(K)))/W1
                   U1(I,J,N)=U1(I,J,N)+WRK1(K)*(1.-W)+WRK1(K+1)*W
                   V1(I,J,N)=V1(I,J,N)+WRK2(K)*(1.-W)+WRK2(K+1)*W
-                  GO TO 888
+!                  GO TO 888
+                  exit   !shin
                END IF
              END DO
            END IF
- 888       CONTINUE
+! 888       CONTINUE
          END DO
        ENDDO
        ENDDO
@@ -1196,12 +1217,18 @@ end subroutine dbend
       SUBROUTINE FIND_NEWCT1(IX,JX,UD,VD,GLON2,GLAT2,    &
                              CLON_NEW1,CLAT_NEW1)
 
+      IMPLICIT NONE
+      integer I,J,JL,IX,JX,IL,KL,IR,IT,ID,JD,NIC,NJC,ix2,jx2,i1,j1
+      real DTX,DTY,DDS,TENV1,PI,RAD,ddr,pi180,cost,u1,v1,sum1,dist,dist1
+      real XLAT,XLON,BLON,BLAT,WTS,DR,DD,DLON,DLAT,TLON,TLAT,UT,VT,WT,TX
+      real clat_new,RRX,TTX
 !      PARAMETER (IR=100,IT=24,IX=254,JX=254)
       PARAMETER (IR=30,IT=24)
       PARAMETER (ID=61,JD=61,DTX=0.05,DTY=0.05)    ! Search x-Domain (ID-1)*DTX
       REAL (4) UD(IX,JX),VD(IX,JX),GLON2(IX,JX),GLAT2(IX,JX)
 !      DIMENSION RWM(IR+1),TWM(IR+1)
-      DIMENSION TNMX(ID,JD),RX(ID,JD),WTM(IR)
+!      DIMENSION TNMX(ID,JD),RX(ID,JD),WTM(IR)
+      REAL (4) TNMX(ID,JD),RX(ID,JD),WTM(IR)   !shin
       REAL (8) CLON_NEW1,CLAT_NEW1
 
       PI=ASIN(1.)*2.
@@ -1238,9 +1265,9 @@ end subroutine dbend
 !.. CALCULATE TANGENTIAL WIND EVERY 0.2 deg INTERVAL
 !..  10*10 deg AROUND 1ST GUESS VORTEX CENTER
 
-      DO 10 JL=1,IR
+      do JL=1,IR   ! do loop for JL
       WTS= 0.
-      DO 20 IL=1,IT
+      do IL=1,IT   ! do loop for IL
       DR = JL*ddr
 !      DR = JL
       DD = (IL-1)*15*RAD
@@ -1272,9 +1299,9 @@ end subroutine dbend
 !C.. TANGENTIAL WIND
       WT = -SIN(DD)*UT + COS(DD)*VT
       WTS = WTS+WT
-20    CONTINUE
+      enddo  ! do loop for IL
       WTM(JL) = WTS/24.
-10    CONTINUE
+      enddo  ! do loop for JL
 
 !C Southern Hemisphere
       IF(CLAT_NEW.LT.0)THEN

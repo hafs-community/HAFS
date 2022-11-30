@@ -49,7 +49,7 @@ export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
 export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
-export CATEXEC=${CATEXEC:-${EXEChafs}/hafs_ncdiag_cat.x}
+export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
@@ -292,7 +292,7 @@ if [ $netcdf_diag = ".true." ] ; then
 fi
 DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
 DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
-if [ ${machine} = "wcoss_cray" ] ||  [ ${machine} = "wcoss2" ]; then
+if [ ${machine} = "wcoss2" ]; then
   USE_MPISERIAL=${USE_MPISERIAL:-"NO"}
   USE_CFP=${USE_CFP:-"YES"}
 else

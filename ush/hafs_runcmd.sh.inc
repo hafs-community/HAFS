@@ -18,15 +18,7 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 # APRUNC: command to run pure mpi or mpi+omp jobs
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
-if [ "$machine" = wcoss_cray ]; then
-  #export NODES=${NODES:-1}
-  export APRUNS="aprun -b -j1 -n1 -N1 -d1 -cc depth"
-  #export APRUNO="aprun -b -j1 -n1 -N1 -d${PURE_OMP_THREADS} -cc depth"
-  export APRUNO="time"
-  export APRUNC="aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"
-  export APRUNF="aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth cfp"
-  export BACKGROUND=""
-elif [ "$machine" = wcoss2 ]; then                                                                 
+if [ "$machine" = wcoss2 ]; then                                                                 
   #export NODES=${NODES:-1}                                                                          
   export APRUNS="time"                                                 
   export APRUNO="time"                                                                               
@@ -34,12 +26,6 @@ elif [ "$machine" = wcoss2 ]; then
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export APRUNO="time"
-elif [ "$machine" = wcoss_dell_p3 ]; then
-  export APRUNS="time"
-  export APRUNO="time"
-  export APRUNC="mpirun -n ${TOTAL_TASKS}"
-  export APRUNF="mpirun -n ${TOTAL_TASKS} cfp"
-  export BACKGROUND=""
 elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ]; then
   export APRUNS="srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"

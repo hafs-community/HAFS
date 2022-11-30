@@ -53,8 +53,12 @@ WHERE_AM_I=wcoss2        ;; Which cluster? (For setting up environment.)
 WHICH_JET=none           ;; Which part of Jet are we on?  None; we are not on Jet.
 
 [forecast]
+glob_layoutx=8
+glob_layouty=10
+layoutx=40
+layouty=30
 write_groups=1
-write_tasks_per_group=96
+write_tasks_per_group=60
 
 [rocotostr]
 FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2

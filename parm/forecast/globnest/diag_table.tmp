@@ -211,8 +211,11 @@ ufs.hafs
 "gfs_phys",  "USWRF",         "uswrf_ave",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "USWRFI",        "uswrf",       "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "DSWRFtoa",      "dswrf_avetoa","fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "DSWRFItoa",     "dswrf_toa",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "USWRFtoa",      "uswrf_avetoa","fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "USWRFItoa",     "uswrf_toa",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "ULWRFtoa",      "ulwrf_avetoa","fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "ULWRFItoa",     "ulwrf_toa",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "gflux_ave",     "gflux_ave",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "hpbl",          "hpbl",        "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "lhtfl_ave",     "lhtfl_ave",   "fv3_history2d",         "all",  .false.,  "none",  2
@@ -239,7 +242,9 @@ ufs.hafs
 "gfs_phys",  "u-gwd_ave",     "u-gwd_ave",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "v-gwd_ave",     "v-gwd_ave",   "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "dusfc",         "uflx_ave",    "fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "dusfci",        "uflx",        "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "dvsfc",         "vflx_ave",    "fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "dvsfci",        "vflx",        "fv3_history2d",         "all",  .false.,  "none",  2
 
 "gfs_phys",    "psurf",       "pressfc",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "u10m",        "ugrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2

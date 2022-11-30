@@ -628,13 +628,7 @@ with open(outxml,'wt') as outf:
 
 clustername=produtil.cluster.name()
 
-if clustername in ('tide','gyre'):
-    WHERE_AM_I='wcoss'
-elif clustername in ('luna','surge'):
-    WHERE_AM_I='wcoss_cray'
-elif clustername in ('mars','venus'):
-    WHERE_AM_I='wcoss_dell_p3'
-elif clustername in ('cactus','dogwood'):
+if clustername in ('cactus','dogwood'):
     WHERE_AM_I='wcoss2'
 else:
     WHERE_AM_I=clustername

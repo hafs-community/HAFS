@@ -1,5 +1,6 @@
 subroutine open_grads(label,nlon,nlat,nsig,startx,starty,xinc,yinc)
 
+  implicit none
   character(*) label
   integer nlon,nlat,nsig
   integer i,k,ntime
@@ -60,6 +61,7 @@ end subroutine open_grads
 
 subroutine load(a,ni,nj,nk,n,dum)
 
+  implicit none
   integer :: ni,nj,nk,n,i,j
   real(4) :: a(ni,nj,nk)
   real(4) :: dum(ni,nj)

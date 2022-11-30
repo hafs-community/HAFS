@@ -1,11 +1,11 @@
 include ../configure.vi
 include ../pure-openmp.inc
 
-SRCS =	modules.f split.f BOUND.f fft99.f sig_p_convt.f \
-	SEPAR.f WNLIT.f FDUMP.f H12.f I1MACH.f J4SAVE.f XGETUA.f \
-	WNLSM.f WNNLS.f XERABT.f XERCTL.f XERPRT.f XERROR.f XERRWV.f \
-	XERSAV.f srotm.f srotmg.f amatrix.f rodist.f landcmsk.f \
-        create_rel_domain.f
+SRCS =	modules.f90 split.f90 BOUND.f90 fft99.f90 sig_p_convt.f90 \
+	SEPAR.f90 WNLIT.f90 FDUMP.f90 H12.f90 I1MACH.f90 J4SAVE.f90 XGETUA.f90 \
+	WNLSM.f90 WNNLS.f90 XERABT.f90 XERCTL.f90 XERPRT.f90 XERROR.f XERRWV.f90 \
+	XERSAV.f90 srotm.f90 srotmg.f90 amatrix.f90 rodist.f90 landcmsk.f90 \
+        create_rel_domain.f90
 
 OBJS =	modules.o split.o BOUND.o fft99.o sig_p_convt.o \
 	SEPAR.o WNLIT.o FDUMP.o H12.o I1MACH.o J4SAVE.o XGETUA.o \

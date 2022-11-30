@@ -12,6 +12,13 @@
 ! output:  T_X,Q_X,SLP_X   -   new axisymmetric part
 ! output:  CFT  - correlation coef
 
+      implicit none
+      integer I,J,K,M,N,NX,NY,NZ,IR,IR1,IR_1,IR_2,nm,kmx,kmx1,NXC,NYC,JX,JY,JZ
+      integer k1,jmax3,jmin,iparam,ics,JST1
+      real eps4,eps5,pi,pi180,pi_deg,DST1,cost,beta11,tmax,tmin
+      real ff0,beta,fact,aaa,bbb,force,force2,DIF,WT11,WT12,str_cut,str_m_rat
+      real TEK1,TEK2,TEK3,ESRR,ESR1
+
       real(4)   HLON(NX,NY),HLAT(NX,NY)
       real(4)   VLON(NX,NY),VLAT(NX,NY)
 
@@ -214,10 +221,11 @@
   	          WT11=(RADIUS(J)-RADIUS1(N-1))/(RADIUS1(N)-RADIUS1(N-1))
                   WT12=1.-WT11
 	          strm3(J,k)=WT11*strm2(n,k)+WT12*strm2(n-1,k)
-	          GO TO 55
+!	          GO TO 55
+                  exit   ! shin
 	       END IF
             END DO
- 55         CONTINUE
+! 55         CONTINUE
          END DO
          DO n=1,IR1
             strm2(n,k)=strm3(n,k)
@@ -231,10 +239,11 @@
 	 IF (str_cut.GT.-10.) THEN
 	    str_m_rat=strm2(m,1)/(strm1(m,1)-1.E-20)
 	    IR_2=m
-	    go to 57
+            exit  ! shin
+!	    go to 57
 	 END IF
       end do
- 57   continue
+! 57   continue
 
 
       print*,'IR_1,IR_2=',IR_1,IR_2
@@ -353,10 +362,11 @@
             DIF=RADIUS(N)-RIJ2(I,J)
             IF (DIF.GT.0.) THEN
                IDX1(I,J)=N
-               GO TO 25
+               exit    ! shin
+!               GO TO 25
             END IF
          END DO
- 25      CONTINUE
+! 25      CONTINUE
          IF (IDX1(I,J).GE.2) THEN
             W1(I,J)=(RIJ2(I,J)-RADIUS(IDX1(I,J)-1))/        &
             (RADIUS(IDX1(I,J))-RADIUS(IDX1(I,J)-1))

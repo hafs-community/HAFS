@@ -67,7 +67,7 @@
 
 !-----------------------------------------------------------------------+
 !--- from hwrf_wps.fd/geogrid/src/module_map_utils.f90
-!--- modified 
+!--- modified
   subroutine ijll_rotlatlon(i, j, phi, lambda, ixdim, jydim, lat1, lon1, stagger, lat,lon)
 
   implicit none
@@ -265,5 +265,5 @@
       ENDDO
 
 END SUBROUTINE EARTH_LATLON
- 
+
 !-----------------------------------------------------------------------+
