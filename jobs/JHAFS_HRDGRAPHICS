@@ -44,13 +44,14 @@ export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
+export pubbasin2=${pubbasin2:-AL}
 export ENSDA=${ENSDA:-NO}
 
 export INPdir=${INPdir:-${WORKhafs}/forecast}
 export DATA=${WORKhafs}/hrdgraphics
 
 export SENDCOM=${SENDCOM:-YES}
-export SCRUBDATA=${SCRUBDATA:-YES}
+export SCRUBDATA=${SCRUBDATA:-NO}
 
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
