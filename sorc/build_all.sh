@@ -90,7 +90,7 @@ echo " .... Building hycom_utils .... "
 }
 
 #------------------------------------
-# build ww3_utils 
+# build ww3_utils
 #------------------------------------
 $Build_ww3_utils && {
 echo " .... Building ww3_utils .... "

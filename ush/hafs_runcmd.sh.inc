@@ -18,11 +18,11 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 # APRUNC: command to run pure mpi or mpi+omp jobs
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
-if [ "$machine" = wcoss2 ]; then                                                                 
-  #export NODES=${NODES:-1}                                                                          
-  export APRUNS="time"                                                 
-  export APRUNO="time"                                                                               
-  export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"             
+if [ "$machine" = wcoss2 ]; then
+  #export NODES=${NODES:-1}
+  export APRUNS="time"
+  export APRUNO="time"
+  export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export APRUNO="time"
@@ -43,7 +43,12 @@ else
   export BACKGROUND=""
 fi
 
-# Print out environment 
+# Utility commands
+export NCP=${NCP:-"/bin/cp"}
+export NMV=${NMV:-"/bin/mv"}
+export NLN=${NLN:-"/bin/ln -sf"}
+
+# Print out environment
 env
 
 #==============================================================================

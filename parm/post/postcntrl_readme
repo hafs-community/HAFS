@@ -9,4 +9,4 @@ cd ../../sorc/hafs_post.fd/parm/
 # Edit postcntrl_hafs.xml
 vi postcntrl_hafs.xml
 # Regenerate postxconfig-NT-hafs.txt
-make 
+make

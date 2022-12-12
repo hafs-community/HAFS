@@ -71,7 +71,7 @@
 #                   defaults to input sigma file value
 #     REGIONAL      Process stand-alone regional grid.  When '1', remove halo
 #                   from grids and create an atmospheric boundary file.
-#                   When '2', create boundary file only.  When '0', 
+#                   When '2', create boundary file only.  When '0',
 #                   do neither (process as normal for a global grid).
 #                   Default is '0'.
 #     HALO          When processing a stand-alone regional grid, this

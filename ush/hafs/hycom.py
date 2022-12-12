@@ -1010,7 +1010,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         grb2index=alias(exe(self.getexe('grb2index')))
         wgrib2loc=self.getexe('wgrib2')
         grb2indexloc=self.getexe('grb2index')
-        if os.path.isdir(grb2indexloc): 
+        if os.path.isdir(grb2indexloc):
             grb2indexloc=grb2indexloc+"/grb2index"
 
         if mode=='anal':
@@ -1091,7 +1091,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
             cfp_path=produtil.fileop.find_exe('cfp')
             cmd2=mpirun(mpi(cfp_path)['./command.file.preview'],allranks=True)
         else:
-            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*') 
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
             if mpiserial_path=='*MISSING*':
                 mpiserial_path=self.getexe('mpiserial','*MISSING*')
             if mpiserial_path=='*MISSING*':
@@ -1118,9 +1118,9 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         cmd=self.getexe('hafs_gfs2ofs2')
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofs2 %d ',tt)
-        commands=list()         
-        for i in range(1,11):   
-            gfs2ofs_out='gfs2ofs.%d.out'%i  
+        commands=list()
+        for i in range(1,11):
+            gfs2ofs_out='gfs2ofs.%d.out'%i
             commands.append('%s %d > %s 2>&1\n'%(cmd,i,gfs2ofs_out))
         with open('command.file.preview_gfs2ofs','wt') as fid:
             fid.write(''.join(commands))
@@ -1128,10 +1128,10 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
             cfp_path=produtil.fileop.find_exe('cfp')
             cmd2=mpirun(mpi(cfp_path)['./command.file.preview_gfs2ofs'],allranks=True)
         else:
-            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')  
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
             if mpiserial_path=='*MISSING*':
                  mpiserial_path=self.getexe('mpiserial','*MISSING*')
-            if mpiserial_path=='*MISSING*': 
+            if mpiserial_path=='*MISSING*':
                  mpiserial_path=produtil.fileop.find_exe('mpiserial')
             cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
         checkrun(cmd2)

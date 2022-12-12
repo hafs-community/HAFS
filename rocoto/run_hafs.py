@@ -14,7 +14,7 @@
 # Arguments:
 # * 95E --- stormid
 # * case_root --- HISTORY for retrospective runs or FORECAST for real-time
-# 
+#
 # Options:
 # * -f --- Force a run even if the *.xml and *.db file already exist
 # * -w workflow.xml --- specify the Rocoto XML file
@@ -63,16 +63,16 @@ def usage(message=None,logger=None):
     print('''
 Usage: run_hafs.py [options] [cycles] 95E case_root [conf]
 
-Mandatory arguments: 
+Mandatory arguments:
   95E -- the storm to run
   case_root -- FORECAST = real-time mode, HISTORY = retrospective mod
 
 Workflow options:
   -f -- Tells the run_hafs.py that you already ran it once for this
         storm, cycle list and experiment.  It will use any existing
-        *.xml or *.db file without asking for permission.  Critical 
+        *.xml or *.db file without asking for permission.  Critical
         in crontabs.
-  -w workflow-file.xml -- use this as the output XML file to send 
+  -w workflow-file.xml -- use this as the output XML file to send
         into rocotorun (rocotorun's -w option)
   -d workflow-db.db -- use this as the SQLite3 database file for
         Rocoto (rocotorun's -d option)
@@ -96,7 +96,7 @@ SPECIFYING CYCLES:
   [cycles] -- one or more cycle specifications:
     2014091312-2014091712     - run this range of cycles
     2014091312                - run this cycle
-    2014                      - all cycles from 0Z January 1, 2014 to 
+    2014                      - all cycles from 0Z January 1, 2014 to
                                 the end of that year.
     2014091312-2014091712 2014091800 - run cycles from 2014091312
                                through 2014091712 AND run 2014091800
@@ -109,7 +109,7 @@ SPECIFYING CYCLES:
         automatically when an invest is requested.
 
   -W N -- discard invests weaker than N meters per second before
-        renumbering.  Default: -W 14 if a non-invest storm is 
+        renumbering.  Default: -W 14 if a non-invest storm is
         requested, and -W 0 (don't discard) if an invest is requested.
 
 Configuration ([conf]):
@@ -153,12 +153,12 @@ if HOMEhafs is not None:
     if USHhafs is None:            USHhafs=os.path.join(HOMEhafs,'ush')
     if PARMhafs is None:           PARMhafs=os.path.join(HOMEhafs,'parm')
 
-if USHhafs is None: 
+if USHhafs is None:
     print("Cannot guess $USHhafs.  Please set $HOMEhafs or " \
         "$USHhafs in environment.", file=sys.stderr)
     sys.exit(2)
 
-if PARMhafs is None: 
+if PARMhafs is None:
     print("Cannot guess $PARMhafs.  Please set $HOMEhafs or " \
         "$PARMhafs in environment.", file=sys.stderr)
     sys.exit(2)
@@ -443,7 +443,7 @@ if loghere:
 def check_test_vitals(vl):
     """!This is a replacement for tcutil.storminfo.name_number_okay for
     use with TEST storms and internal stormids.  It allows through
-    only the storm numbers matching stormnum, regardless of the 
+    only the storm numbers matching stormnum, regardless of the
     storm name (usually TEST and UNKNOWN would be dropped)."""
     logger.info('Keeping only storm number %s in vitals'%(stid,))
     for vital in vl:
@@ -634,10 +634,10 @@ else:
     WHERE_AM_I=clustername
 
 #   '--login', '-c', '. %s/machine-setup.sh ; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
-#   %( shbackslash(USHhafs), shbackslash(outdb), 
+#   %( shbackslash(USHhafs), shbackslash(outdb),
 cmd = exe('sh') [
     '--login', '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
-    %( shbackslash(USHhafs), shbackslash(outdb), 
+    %( shbackslash(USHhafs), shbackslash(outdb),
        shbackslash(outxml) ) ] .env(QUIET_PRE_JOB='YES',
                                     HOMEhafs=HOMEhafs,
                                     WHERE_AM_I=WHERE_AM_I) \

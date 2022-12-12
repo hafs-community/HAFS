@@ -36,8 +36,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
-
-export COMgfs=${COMgfs:-/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16}
+export COMgfs=${COMgfs:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}

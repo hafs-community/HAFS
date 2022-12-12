@@ -65,7 +65,7 @@ $    input.
 $  - The first three data columns are used by the forecats code, the other
 $    are used by postprocessing scripts.
 $
-$ NE Pacific deep ocean 
+$ NE Pacific deep ocean
 $
 $   LON     LAT     NAME          AH   TYPE  SOURCE  SCALE
 $ ---------------------------------------------------------
@@ -345,7 +345,7 @@ $
    -81.50   16.83  '42057     '  10.0   DAT  NDBC     360
    -75.06   15.09  '42058     '  10.0   DAT  NDBC     360
    -81.95   24.39  '42080     ' 999.    DAT  NDBC      45
-   -84.24   27.34  '42099     ' 999.    DAT  SCRIPPS  100 
+   -84.24   27.34  '42099     ' 999.    DAT  SCRIPPS  100
 $
    -67.50   15.01  '42059     '   5.0   DAT  NDBC     360
    -63.50   16.50  '42060     '   5.0   DAT  NDBC     360
@@ -508,9 +508,9 @@ $
      0.00   57.90  '62117     '  999.   DAT  UNKNOWN   15
      0.90   57.70  '62118     '  999.   DAT  UNKNOWN   15
      2.00   57.00  '62119     '  999.   DAT  UNKNOWN   25
-$    -3.50   53.80  '62125     '  999.   DAT  PRIV      25 
-$    -3.60   53.90  '62126     '  999.   DAT  UNKNOWN   25 
-$    -3.80   54.00  '62135     '  999.   DAT  UNKNOWN   25 
+$    -3.50   53.80  '62125     '  999.   DAT  PRIV      25
+$    -3.60   53.90  '62126     '  999.   DAT  UNKNOWN   25
+$    -3.80   54.00  '62135     '  999.   DAT  UNKNOWN   25
      1.40   58.70  '62128     '  999.   DAT  UNKNOWN   25
      2.00   56.40  '62132     '  999.   DAT  UNKNOWN   25
      1.00   57.10  '62133     '  999.   DAT  UNKNOWN   15
@@ -585,7 +585,7 @@ $ ---------------------------------------------------------
    -47.50    3.00  'AMAZON    '  999.   VBY  NCEP     360
    -30.00    1.00  'PETER_PAUL'  999.   VBY  NCEP     360
 $
-$ Peru/Chile Basin 
+$ Peru/Chile Basin
 $
 $   LON     LAT     NAME          AH   TYPE  SOURCE  SCALE
 $ ---------------------------------------------------------
@@ -865,4 +865,4 @@ $
 $
   'STP'
 $
-$ End of input file$ 
+$ End of input file$
