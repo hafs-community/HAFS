@@ -163,6 +163,7 @@ SUBROUTINE G2T2V_BGRID( IIV,JJV,                     & ! output grid index and w
 
    subroutine rtll(tlmd,tphd,almd,aphd,tlm0d,tph0d)
 !-------------------------------------------------------------------------------
+      IMPLICIT NONE
       INTEGER,PARAMETER          :: KIND_R8=8
 
       real(KIND_R8), intent(in)  :: tlmd, tphd
@@ -262,6 +263,7 @@ SUBROUTINE G2T2V_BGRID( IIV,JJV,                     & ! output grid index and w
 !! subroutine 'get_eta_level' returns the interface and
 !! layer-mean pressures for reference.
        subroutine get_eta_level(npz, p_s, pf, ph, ak, bk, pscale)
+       implicit none
        integer, intent(in) :: npz
        real, intent(in)  :: p_s            !< unit: pascal
        real, intent(in)  :: ak(npz+1)
@@ -270,9 +272,9 @@ SUBROUTINE G2T2V_BGRID( IIV,JJV,                     & ! output grid index and w
        real, intent(out) :: pf(npz)
        real, intent(out) :: ph(npz+1)
 
-       real, parameter   :: RDGAS  = 287.05              !< Gas constant for dry air [J/kg/deg]
-       real, parameter   :: CP_AIR = 1004.6              !< Specific heat capacity of dry air at constant pressure [J/kg/deg]
-       real, parameter   :: KAPPA  = RDGAS/CP_AIR        !< RDGAS / CP_AIR [dimensionless]
+       real, parameter   :: RDGAS  = 287.05        !< Gas constant for dry air [J/kg/deg]
+       real, parameter   :: CP_AIR = 1004.6        !< Specific heat capacity of dry air at constant pressure [J/kg/deg]
+       real, parameter   :: KAPPA  = RDGAS/CP_AIR  !< RDGAS / CP_AIR [dimensionless]
        integer k
 
        ph(1) = ak(1)

@@ -13,18 +13,10 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
- #module list
- #module unload intelpython
- #module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
- #if [ "${machine}" = "wcoss_cray" ] || [ "${machine}" = "wcoss_dell_p3" ]; then 
- #  module load ufs_${machine}
- #else
- #  module load ufs_${machine}.intel
- #fi
   module list
 fi
 
@@ -243,13 +235,7 @@ echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}
 done
 
 chmod +x cmdfile_product
-if [ ${machine} = "wcoss_cray" ]; then
-  export OMP_NUM_THREADS=1
-  export APRUNF="aprun -b -j1 -n2 -N1 -d1 -cc depth cfp"
-  ${APRUNF} cmdfile_product
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile_product
-fi
+${APRUNC} ${MPISERIAL} -m cmdfile_product
 
 for ng in $(seq 1 ${ngrids});
 do

@@ -18,14 +18,17 @@ tcvitals generation."""
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
 import os, re, sys, collections, random
+import numpy as np
+import xarray as xr
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
 import hafs.prelaunch
 
 from random import Random
-from produtil.fileop import isnonempty
-from produtil.run import run, exe
+from produtil.fileop import isnonempty, deliver_file
+from produtil.cd import NamedDir, TempDir
+from produtil.run import mpi, mpirun, run, runstr, checkrun, exe, bigexe, alias
 from produtil.log import jlogger
 from tcutil.numerics import to_datetime_rel, to_datetime, to_fraction
 from hafs.config import HAFSConfig
@@ -665,7 +668,12 @@ class HAFSLauncher(HAFSConfig):
             logger.info('Domain center is already set to lat=%g lon=%g'
                         %(cenla,cenlo))
             return
-        (cenlo, cenla) = self.syndat.tcutil_domain_center(logger)
+        parent_domain_center=self.getstr('config','parent_domain_center','storm')
+        if parent_domain_center=='storm':
+            (cenlo, cenla) = self.syndat.tcutil_domain_center_storm(logger)
+        else:
+            (cenlo, cenla) = self.syndat.tcutil_domain_center(logger)
+
         self.set('config','domlat',cenla)
         self.set('config','domlon',cenlo)
         logger.info('Decided on domain center lat=%g lon=%g'%(cenla,cenlo))
@@ -1432,6 +1440,149 @@ class HAFSLauncher(HAFSConfig):
         assert(isinstance(part1,str))
         out=list()
         logger=self.log()
+
+        # For the storm-focused nest, check (and recalculate if needed) i/jstart_nest, i/jend_nest
+        istart_nest=self.getstr('grid','istart_nest','auto').split(',')
+        jstart_nest=self.getstr('grid','jstart_nest','auto').split(',')
+        iend_nest=self.getstr('grid','iend_nest','auto').split(',')
+        jend_nest=self.getstr('grid','jend_nest','auto').split(',')
+        if "-999" in istart_nest+jstart_nest+iend_nest+jend_nest:
+            logger.info(f'Original istart_nest={istart_nest},jstart_nest={jstart_nest}')
+            logger.info(f'Original iend_nest={iend_nest},jend_nest={jend_nest}')
+            logger.info('Need to recalculate i/jstart_nest and i/jend_nest based on storm location.')
+            cres=self.getstr('grid','CASE','C512')
+            gtype=self.getstr('grid','gtype','regional')
+            stretch_fac=self.getstr('grid','stretch_fac','1.0001')
+            target_lon=self.getstr('grid','target_lon')
+            target_lat=self.getstr('grid','target_lat')
+            nest_grids=self.getint('grid','nest_grids',1)
+            parent_tile=self.getstr('grid','parent_tile').split(',')
+            refine_ratio=self.getstr('grid','refine_ratio','3').split(',')
+            npx=self.getstr('forecast','npx').split(',')
+            npy=self.getstr('forecast','npy').split(',')
+            regional_esg=self.getstr('grid','regional_esg','no')
+            idim_nest=self.getstr('grid','idim_nest').split(',')
+            jdim_nest=self.getstr('grid','jdim_nest').split(',')
+            delx_nest=self.getstr('grid','delx_nest').split(',')
+            dely_nest=self.getstr('grid','dely_nest').split(',')
+            jdim_nest=self.getstr('grid','jdim_nest').split(',')
+            halop2=self.getint('grid','halop2',5)
+            pazi=self.getfloat('grid','pazi',-180.)
+            WORKhafs=self.getstr('dir','WORKhafs','work')
+            EXEChafs=self.getstr('dir','EXEChafs','exec')
+
+            # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
+            with NamedDir(os.path.join(WORKhafs, 'launch'),logger=logger,rm_first=True) as d:
+                if gtype=='nest':
+                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
+                                          '--do_schmidt --stretch_factor', stretch_fac,
+                                          '--target_lon', target_lon, '--target_lat', target_lat]
+                    checkrun(cmd,logger=logger)
+                    deliver_file(cres+'_grid.tile6.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
+                elif gtype=='regional' and nest_grids > 1 and not regional_esg=='yes':
+                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
+                                          '--do_schmidt --stretch_factor', stretch_fac,
+                                          '--target_lon', target_lon, '--target_lat', target_lat,
+                                          '--nest_grids', 1, '--parent_tile', parent_tile[0],
+                                          '--istart_nest', istart_nest[0], '--jstart_nest', jstart_nest[0],
+                                          '--iend_nest', iend_nest[0], '--jend_nest', jend_nest[0],
+                                          '--halo 0 --great_circle_algorithm']
+                    checkrun(cmd,logger=logger)
+                    deliver_file(cres+'_grid.tile7.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
+                elif gtype=='regional' and nest_grids > 1 and regional_esg=='yes':
+                    executable=os.path.join(EXEChafs, 'hafs_regional_esg_grid.x')
+                    # generate regional esg parent grid
+                    lx=int(idim_nest[0])+halop2*2
+                    ly=int(jdim_nest[0])+halop2*2
+                    with open('./regional_grid.nml','w') as f:
+                        f.write(f'&regional_grid_nml\n')
+                        f.write(f'  plon = {target_lon}\n')
+                        f.write(f'  plat = {target_lat}\n')
+                        f.write(f'  pazi = {pazi}\n')
+                        f.write(f'  delx = {delx_nest[0]}\n')
+                        f.write(f'  dely = {dely_nest[0]}\n')
+                        f.write(f'  lx = {-lx}\n')
+                        f.write(f'  ly = {-ly}\n')
+                        f.write(f'/')
+                    cmd=exe(executable)
+                    checkrun(cmd,logger=logger)
+                    # Subset into a halo0 grid using nco ncks an alternative way is to use hafs_shave.x
+                    cmd=exe('ncks')['-O',
+                                    '-d', f'nx,{2*halop2},{2*(lx-halop2)-1}',
+                                    '-d', f'ny,{2*halop2},{2*(ly-halop2)-1}',
+                                    '-d', f'nxp,{2*halop2},{2*(lx-halop2)}',
+                                    '-d', f'nyp,{2*halop2},{2*(ly-halop2)}',
+                                    './regional_grid.nc', './parent_grid.tile.halo0.nc']
+                    checkrun(cmd,logger=logger)
+                    # An alternative way is to use hafs_shave.x to shave the grid into halo0
+                   #with open('./input.shave.grid.halo0','w') as f:
+                   #    f.write(' '.join(map(str, [idim_nest[0], jdim_nest[0],halo0,
+                   #                               "'./regional_grid.nc'", "'./parent_grid.tile.halo0.nc'"])))
+                   #executable=os.path.join(EXEChafs, 'hafs_shave.x')
+                   #cmd=exe(executable)<'./input.shave.grid.halo0'
+                   #checkrun(cmd,logger=logger)
+                else:
+                    logger.warning('Unsupported gtype.')
+
+                # Get storm center lon/lat from tmpvit
+                tmpvit=os.path.join(WORKhafs,'tmpvit')
+                #syndat is a StormInfo object
+                with open(tmpvit,'rt') as f:
+                    syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
+                    syndat=syndat[0]
+                # Search the nearest index location to the storm center on the compute grid (not on the super grid)
+                grid=xr.open_dataset('./parent_grid.tile.halo0.nc')
+                dist=np.sqrt(np.mod((grid.x[::2,::2]-syndat.lon),360.)**2 + (grid.y[::2,::2]-syndat.lat)**2)
+                # Note: xloc is dim2, yloc is dim1 in the grid xarray
+                yloc,xloc=np.where(dist==dist.min())
+                logger.info(f'Storm center at compute grid: xloc={xloc}, yloc={yloc}')
+                icenter=2*xloc[0]
+                jcenter=2*yloc[0]
+                logger.info(f'Storm center at super grid: icenter={icenter}, jcenter={jcenter}')
+                if gtype=='nest':
+                    istart=int(min(max(4, icenter-(int(npx[0])-1)/int(refine_ratio[0])+1),
+                                   2*int(cres[1:])-4-2*(int(npx[0])-1)/int(refine_ratio[0])))
+                    jstart=int(min(max(4, jcenter-(int(npy[0])-1)/int(refine_ratio[0])+1),
+                                   2*int(cres[1:])-4-2*(int(npy[0])-1)/int(refine_ratio[0])))
+                    iend=int(istart-1+2*(int(npx[0])-1)/int(refine_ratio[0]))
+                    jend=int(jstart-1+2*(int(npy[0])-1)/int(refine_ratio[0]))
+                    istart_nest[0]=str(istart)
+                    jstart_nest[0]=str(jstart)
+                    iend_nest[0]=str(iend)
+                    jend_nest[0]=str(jend)
+                elif gtype=='regional':
+                    istart=int(min(max(4, icenter-(int(npx[1])-1)/int(refine_ratio[1])+1),
+                                   2*(int(npx[0])-1)-4-2*(int(npx[1])-1)/int(refine_ratio[1])))
+                    jstart=int(min(max(4, jcenter-(int(npy[1])-1)/int(refine_ratio[1])+1),
+                                   2*(int(npy[0])-1)-4-2*(int(npy[1])-1)/int(refine_ratio[1])))
+                    iend=int(istart-1+2*(int(npx[1])-1)/int(refine_ratio[1]))
+                    jend=int(jstart-1+2*(int(npy[1])-1)/int(refine_ratio[1]))
+                    istart_nest[1]=str(istart)
+                    jstart_nest[1]=str(jstart)
+                    iend_nest[1]=str(iend)
+                    jend_nest[1]=str(jend)
+                else:
+                    logger.warning('Unsupported gtype.')
+
+                # Update i/jstart_nest and i/jend_nest
+                self.set('holdvars','istart_nest',','.join(istart_nest))
+                self.set('holdvars','jstart_nest',','.join(jstart_nest))
+                self.set('holdvars','iend_nest',','.join(iend_nest))
+                self.set('holdvars','jend_nest',','.join(jend_nest))
+                logger.info(f'Updated istart_nest={istart_nest},jstart_nest={jstart_nest}')
+                logger.info(f'Updated iend_nest={iend_nest},jend_nest={jend_nest}')
+
+                # Update output_grid_cen_lon/lat
+                output_grid_cen_lon=self.getstr('forecast','output_grid_cen_lon').split(',')
+                output_grid_cen_lat=self.getstr('forecast','output_grid_cen_lat').split(',')
+                output_grid_cen_lon[1]=str(syndat.lon)
+                output_grid_cen_lat[1]=str(syndat.lat)
+                self.set('holdvars','output_grid_cen_lon',','.join(output_grid_cen_lon))
+                self.set('holdvars','output_grid_cen_lat',','.join(output_grid_cen_lat))
+                logger.info(f'Updated output_grid_cen_lon={output_grid_cen_lon}')
+                logger.info(f'Updated output_grid_cen_lat={output_grid_cen_lat}')
 
         run_ocean=self.getbool('config','run_ocean')
 

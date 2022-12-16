@@ -11,10 +11,6 @@ cd ${FIXhafs}
 mkdir -p fix_fv3
 if [ ${target} == "wcoss2" ]; then
   FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
-elif [ ${target} == "wcoss_cray" ]; then
-  FIXROOT=/gpfs/hps3/emc/hwrf/noscrub/emc.hurpara/hafs-fix-files/hafs-${FIXversion}-fix/fix
-elif [ ${target} == "wcoss_dell_p3" ]; then
-  FIXROOT=/gpfs/dell2/emc/modeling/noscrub/emc.hurpara/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ]; then

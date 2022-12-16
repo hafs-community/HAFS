@@ -5,15 +5,19 @@
 !   IX,JX must be less than IX1,JX1
 
 !        PARAMETER (IX1=2000,JX1=2000)
+        implicit none
+        integer I,J,K,N,IR,IT,IR1,IX1,JX1,IX,JX,KX
+        real pi,pi180,cost,ASYM,TWMAX,RWMAX,UTT,DTX,DTY,DTR,DDR,DIF
         PARAMETER (IR=100, IT=24, DDR=0.1)
         PARAMETER (IR1=IR+1)
         REAL(8)   CLON_NEW,CLAT_NEW
         REAL(4)   UD(IX,JX,KX),VD(IX,JX,KX),GLON(IX,JX),GLAT(IX,JX)
         REAL(4)   US(IX,JX,KX),VS(IX,JX,KX),UA(IX,JX,KX),VA(IX,JX,KX)
-        DIMENSION RWM(IR1),TWM(IR1)
+        real(4)   RWM(IR1),TWM(IR1)  !shin
+!        DIMENSION RWM(IR1),TWM(IR1)
         real, dimension(:,:), allocatable :: RIJ,W1,W2
         integer, dimension(:,:), allocatable :: IDX1
-        integer :: IX1,JX1
+!        integer :: IX1,JX1
 !        DIMENSION RIJ(IX1,JX1),W1(IX1,JX1),W2(IX1,JX1)
 !        INTEGER   IDX1(IX1,JX1)
 
@@ -43,10 +47,11 @@
             DIF=RWM(N)-RIJ(I,J)
             IF(DIF.GT.0.)THEN
               IDX1(I,J)=N
-              GO TO 15
+!              GO TO 15  !shin
+              exit
             END IF
           END DO
- 15       CONTINUE
+! 15       CONTINUE
           IF(IDX1(I,J).GE.2)THEN
             W1(I,J)=(RIJ(I,J)-RWM(IDX1(I,J)-1))/             &
                  (RWM(IDX1(I,J))-RWM(IDX1(I,J)-1))
@@ -104,13 +109,17 @@
 
       SUBROUTINE FIND_WT1(IX,JX,UD,VD,GLON2,GLAT2,TWM,RWM,ASYM,   &
                         CLON_NEW,CLAT_NEW)
+      implicit none
+      INTEGER I,J,IR,IT,IR1,IX,JX,IX2,JX2,IL,JL,KL,KLM
+      REAL ddr,dds,WTS,DR,DD,PI,RAD,pi180,cost,u1,v1,sum1
+      REAL dist,dist1,UT,VT,WT,TX,RRX,WSUM,WT_S,W_MAX,W_MIN,ASYM
 !      PARAMETER (IR=75,IT=24,ddr=0.2)
       PARAMETER (IR=100,IT=24,ddr=0.1)
       PARAMETER (IR1=IR+1)
-      DIMENSION UD(IX,JX),VD(IX,JX)
+      REAL(4)   UD(IX,JX),VD(IX,JX)                            !shin
       REAL(4)   GLON2(IX,JX),GLAT2(IX,JX)
-      DIMENSION WTM(IR),RWM(IR1),TWM(IR1),WTM2(IR,IT),WTM1(IT)
-      REAL(8)   CLON_NEW,CLAT_NEW
+      REAL(4)   WTM(IR),RWM(IR1),TWM(IR1),WTM2(IR,IT),WTM1(IT)  !shin
+      REAL(8)   CLON_NEW,CLAT_NEW,BLON,BLAT,DLAT,DLON,TLAT,TLON
 
 !
       PI=ASIN(1.)*2.
@@ -137,10 +146,10 @@
 !.. CALCULATE TANGENTIAL WIND EVERY 0.1 deg INTERVAL
 !..  20*20 deg AROUND 1ST GUESS VORTEX CENTER
 
-      DO 10 JL=1,IR
+      do JL=1,IR   ! do loop for JL
       WTS= 0.
       DR = JL*ddr
-      DO 20 IL=1,IT
+      DO IL=1,IT   ! do loop for IL
       DD = (IL-1)*15*RAD
       DLON = DR*COS(DD)
       DLAT = DR*SIN(DD)
@@ -171,10 +180,10 @@
       WT = -SIN(DD)*UT + COS(DD)*VT
       WTS = WTS+WT
       WTM2(JL,IL)=WT
-20    CONTINUE
+      enddo  ! do loop for IL
       WTM(JL) = WTS/24.
 !      print*,'JL,WTM(JL)=',JL,WTM(JL)
-10    CONTINUE
+      enddo  ! do loop for JL
 
 ! Southern Hemisphere
       IF(CLAT_NEW.LT.0)THEN

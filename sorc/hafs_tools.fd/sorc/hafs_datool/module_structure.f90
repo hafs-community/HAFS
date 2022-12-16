@@ -55,12 +55,12 @@ module var_type
  type tc_track_info
       integer               :: vortexrep  ! 1=tc vortex-replacement, others are not
       real                  :: lat, lon, pmin, vmax
-      real, dimension(2)    :: vortexreplace_r 
+      real, dimension(2)    :: vortexreplace_r
  end type tc_track_info
  type(tc_track_info)    :: tc
 
  integer                :: debug_level  ! default is 1, only print basic information
-                                        !            2-9: 
+                                        !            2-9:
 
 end module var_type
- 
+

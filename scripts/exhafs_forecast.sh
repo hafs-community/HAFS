@@ -354,7 +354,7 @@ cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
 cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
-CPL_WND=${CPL_WND:-"CPL:native"}
+INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
 cpl_dt=${cpl_dt:-360}
 ocean_start_dtg=${ocean_start_dtg:-43340.00000}
 base_dtg=${CDATE:-2019082900}
@@ -498,7 +498,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
-    CPL_WND="CPL:native"
+    INPUT_WNDFLD="C F"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from atm to wav only
   elif [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
@@ -506,7 +506,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
-    CPL_WND="CPL:native"
+    INPUT_WNDFLD="C F"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from wav to atm only
   elif [ $cpl_atm_wav = cmeps_1way_2to1 ]; then
@@ -514,7 +514,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
-    CPL_WND="native"
+    INPUT_WNDFLD="T F"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based atm-wav side by side run (no coupling)
   elif [ $cpl_atm_wav = cmeps_sidebyside ]; then
@@ -522,7 +522,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
-    CPL_WND="native"
+    INPUT_WNDFLD="T F"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   fi
 # Currently unsupported coupling option combinations
@@ -561,7 +561,7 @@ if [ $cpl_atm_ocn = nuopc_sidebyside ] && [ $cpl_atm_wav = nuopc_sidebyside ]; t
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.false.
-  CPL_WND="native"
+  INPUT_WNDFLD="T F"
   runSeq_ALL="ATM\n OCN\n WAV"
 # CMEPS based two-way atm-ocn and atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
@@ -569,7 +569,7 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplocn2atm=.true.
   cplwav=.true.
   cplwav2atm=.true.
-  CPL_WND="CPL:native"
+  INPUT_WNDFLD="C F"
   runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
@@ -577,7 +577,7 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplocn2atm=.true.
   cplwav=.true.
   cplwav2atm=.false.
-  CPL_WND="CPL:native"
+  INPUT_WNDFLD="C F"
   runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
@@ -585,7 +585,7 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.true.
-  CPL_WND="CPL:native"
+  INPUT_WNDFLD="C F"
   runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
@@ -593,7 +593,7 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; t
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.false.
-  CPL_WND="CPL:native"
+  INPUT_WNDFLD="C F"
   runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based atm-ocn-wav side by side run
 elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ]; then
@@ -601,7 +601,7 @@ elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ];
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.false.
-  CPL_WND="native"
+  INPUT_WNDFLD="T F"
   runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # Currently unsupported coupling option combinations
 else
@@ -619,7 +619,7 @@ if [ ${run_datm} = yes ];  then
   cplocn2atm=.false.
   cplwav=.false.
   cplwav2atm=.false.
-  CPL_WND="native"
+  INPUT_WNDFLD="T F"
   runSeq_ALL="" # not used yet
 elif [ ${run_docn} = yes ]; then
   OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
@@ -628,7 +628,7 @@ elif [ ${run_docn} = yes ]; then
   cplocn2atm=.true.
   cplwav=.false.
   cplwav2atm=.false.
-  CPL_WND="native"
+  INPUT_WNDFLD="T F"
   runSeq_ALL="" # not used yet
 fi
 
@@ -735,6 +735,10 @@ ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 1 ${ntiles})
 do
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${itile}.nc ./oro_data_ls.tile${itile}.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${itile}.nc ./oro_data_ss.tile${itile}.nc
+  fi
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
 ${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./grid_spec.nc
@@ -744,6 +748,10 @@ do
   inest=$(($itile - 5))
   ${NLN} ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${itile}.nc
   ${NLN} oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} oro_data_ls.tile${itile}.nc oro_data_ls.nest0${inest}.tile${itile}.nc
+    ${NLN} oro_data_ss.tile${itile}.nc oro_data_ss.nest0${inest}.tile${itile}.nc
+  fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${itile}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
 done
@@ -755,8 +763,16 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile6.nc grid.tile6.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile6.nc oro_data.tile6.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile6.nc oro_data_ls.tile6.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile6.nc oro_data_ss.tile6.nc
+  fi
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile6.nc oro_data_ls.tile6.${rrtmp}x.nc
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile6.nc oro_data_ss.tile6.${rrtmp}x.nc
+  fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
   done
@@ -857,6 +873,10 @@ tile=7
 # prepare grid and orog files (halo[034])
 ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
 ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
+if [ ${use_orog_gsl:-no} = yes ]; then
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${tile}.nc ./
+  ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${tile}.nc ./
+fi
 ${NLN} $FIXgrid/${CASE}/${CASE}_mosaic.nc ./
 
 ${NLN} ${CASE}_mosaic.nc grid_spec.nc
@@ -865,6 +885,10 @@ ${NLN} ${CASE}_grid.tile7.halo3.nc ${CASE}_grid.tile7.nc
 ${NLN} ${CASE}_grid.tile7.halo4.nc grid.tile7.halo4.nc
 ${NLN} ${CASE}_oro_data.tile7.halo0.nc oro_data.nc
 ${NLN} ${CASE}_oro_data.tile7.halo4.nc oro_data.tile7.halo4.nc
+if [ ${use_orog_gsl:-no} = yes ]; then
+  ${NLN} ${CASE}_oro_data_ls.tile7.nc oro_data_ls.nc
+  ${NLN} ${CASE}_oro_data_ss.tile7.nc oro_data_ss.nc
+fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
 
@@ -875,6 +899,10 @@ ntiles=$((6 + ${nest_grids}))
 for itile in $(seq 8 ${ntiles})
 do
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${itile}.nc ./oro_data.tile${itile}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${itile}.nc ./oro_data_ls.tile${itile}.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${itile}.nc ./oro_data_ss.tile${itile}.nc
+  fi
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${itile}.nc ./${CASE}_grid.tile${itile}.nc
 done
 
@@ -883,6 +911,10 @@ do
   inest=$(($itile - 6))
   ${NLN} ${CASE}_grid.tile${itile}.nc grid.nest0${inest}.tile${inest}.nc
   ${NLN} oro_data.tile${itile}.nc oro_data.nest0${inest}.tile${inest}.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} oro_data_ls.tile${itile}.nc oro_data_ls.nest0${inest}.tile${inest}.nc
+    ${NLN} oro_data_ss.tile${itile}.nc oro_data_ss.nest0${inest}.tile${inest}.nc
+  fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
 done
@@ -896,8 +928,16 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
+    ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
+  fi
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
   ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
+  if [ ${use_orog_gsl:-no} = yes ]; then
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile7.nc oro_data_ls.tile1.${rrtmp}x.nc
+    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile7.nc oro_data_ss.tile1.${rrtmp}x.nc
+  fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
   done
@@ -965,6 +1005,9 @@ fi
       -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
       -e "s/_end_hour_/${end_hour}/g" \
       -e "s/_merge_import_/${merge_import:-.false.}/g" \
+      -e "/_mesh_atm_/d" \
+      -e "s/_mesh_wav_/ww3_mesh.nc/g" \
+      -e "s/_multigrid_/false/g" \
       nems.configure.tmp > nems.configure
 
 ngrids=${nest_grids}
@@ -1097,41 +1140,36 @@ fi #if [ ${run_ocean} = yes ]; then
 
 if [ ${run_wave} = yes ]; then
   # link ww3 related files
-  ${NLN} ${COMhafs}/${out_prefix}.mod_def.ww3 mod_def.ww3
-  ${NLN} ${COMhafs}/${out_prefix}.wind.ww3 wind.ww3
-  ${NLN} ${COMhafs}/${out_prefix}.current.ww3 current.ww3
-  ${NLN} ${COMhafs}/${out_prefix}.restart_init.ww3 restart.ww3
-  ${NLN} ${COMhafs}/${out_prefix}.nest.ww3 nest.ww3
+  ${NLN} ${WORKhafs}/intercom/ww3/mod_def.ww3 mod_def.ww3
+  ${NLN} ${WORKhafs}/intercom/ww3/ww3_mesh.nc ww3_mesh.nc
+  ${NLN} ${WORKhafs}/intercom/ww3/wind.ww3 wind.ww3
+  ${NLN} ${WORKhafs}/intercom/ww3/current.ww3 current.ww3
+  ${NLN} ${WORKhafs}/intercom/ww3/restart_init.ww3 restart.ww3
+  ${NLN} ${WORKhafs}/intercom/ww3/nest.ww3 nest.ww3
   # copy parms
-  ${NCP} ${PARMww3}/ww3_multi.inp_tmpl ./ww3_multi.inp_tmpl
-  # generate ww3_multi.inp
+  ${NCP} ${PARMww3}/ww3_shel.inp_tmpl ./ww3_shel.inp_tmpl
+  # generate ww3_shel.inp
+  INPUT_CURFLD="F F"
+  INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
+  INPUT_ICEFLD="F F"
   EDATE=$($NDATE +${NHRS} ${CDATE})
   RDATE=$($NDATE +6 ${CDATE})
   RUN_BEG="${CDATE:0:8} ${CDATE:8:2}0000"
-  FLD_BEG="${RUN_BEG}"
-  PNT_BEG="${RUN_BEG}"
-  RST_BEG="${RUN_BEG}"
+  FLD_BEG=${RUN_BEG}
+  PNT_BEG=${RUN_BEG}
+  RST_BEG=${RUN_BEG}
   RUN_END="${EDATE:0:8} ${EDATE:8:2}0000"
-  FLD_END="${RUN_END}"
-  PNT_END="${RUN_END}"
+  FLD_END=${RUN_END}
+  PNT_END=${RUN_END}
   RST_END="${RDATE:0:8} ${RDATE:8:2}0000"
   FLD_DT=$((3600*${NOUTHRS}))
   PNT_DT=$((3600*${NOUTHRS}))
   RST_DT=$((3600*6))
+  GOFILETYPE=0
+  POFILETYPE=0
+  OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
+  atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
 
-  sed -e "s/<u:CPL_WND>/${CPL_WND}/g" \
-      -e "s/<u:RUN_BEG>/${RUN_BEG}/g" \
-      -e "s/<u:RUN_END>/${RUN_END}/g" \
-      -e "s/<u:FLD_BEG>/${FLD_BEG}/g" \
-      -e "s/<i:FLD_DT>/${FLD_DT}/g" \
-      -e "s/<u:FLD_END>/${FLD_END}/g" \
-      -e "s/<u:PNT_BEG>/${PNT_BEG}/g" \
-      -e "s/<i:PNT_DT>/${PNT_DT}/g" \
-      -e "s/<u:PNT_END>/${PNT_END}/g" \
-      -e "s/<u:RST_BEG>/${RST_BEG}/g" \
-      -e "s/<i:RST_DT>/${RST_DT}/g" \
-      -e "s/<u:RST_END>/${RST_END}/g" \
-    ./ww3_multi.inp_tmpl > ./ww3_multi.inp
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${run_init:-no} = no ]; then
@@ -1145,7 +1183,7 @@ if [ ${ENSDA} = YES ]; then
     ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/atmos_static*.nc RESTART/
   fi
   if [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.nc ]; then
-    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data.n*c RESTART/
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/oro_data*.n*c RESTART/
   fi
 else
   if [ -s ${WORKhafs}/intercom/RESTART_init/grid_spec.nc ]; then
@@ -1155,7 +1193,7 @@ else
     ${NCP} -p ${WORKhafs}/intercom/RESTART_init/atmos_static*.nc RESTART/
   fi
   if [ -s ${WORKhafs}/intercom/RESTART_init/oro_data.nc ]; then
-    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/oro_data.n*c RESTART/
+    ${NCP} -p ${WORKhafs}/intercom/RESTART_init/oro_data*.n*c RESTART/
   fi
 fi
 

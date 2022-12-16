@@ -439,9 +439,7 @@ done
 if [ -s cmdfile_mppnccombine ]; then
 
 chmod +x cmdfile_mppnccombine
-if [ ${machine} = "wcoss_cray" ]; then
-  ${APRUNF} cmdfile_mppnccombine
-elif [ ${machine} = "wcoss2" ]; then
+if [ ${machine} = "wcoss2" ]; then
    ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
    $APRUNCFP  -n $ncmd_max cfp ./cmdfile_mppnccombine
@@ -461,6 +459,14 @@ fi
 oro_data=oro_data${nesttilestr}.nc
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
+fi
+oro_data_ls=oro_data_ls${nesttilestr}.nc
+if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ls} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
+fi
+oro_data_ss=oro_data_ss${nesttilestr}.nc
+if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ss} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
 
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]] ; then

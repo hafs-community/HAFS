@@ -11,6 +11,11 @@
 ! input:   RADIUS,CLON_NEW,CLAT_NEW,ics
 ! output:  T_X,Q_X,SLP_X   -   new axisymmetric part
 
+      implicit none
+      integer I,J,K,M,N,NX,NY,NZ,KMX,KMX1,NXC,NYC,NM,IR,IR1,IR_1,IR_2
+      integer k1,jmin,jmax3,ics
+      real pi,pi180,pi_deg,DST1,cost,tmax,tmin,ff0,beta,fact,force,force2
+      real sum_str,str_cut,str_m_rat,adj_fun1,PS_C1,TEK1,TEK2,ESRR,DIF
       real(4)   HLON(NX,NY),HLAT(NX,NY)
       real(4)   VLON(NX,NY),VLAT(NX,NY)
 
@@ -153,11 +158,12 @@
 	if(str_cut.gt.-10.)then
 	  str_m_rat=strm2(m,1)/(strm1(m,1)-1.E-20)
 	  IR_2=m
-	  go to 57
+!	  go to 57
+          exit   !shin
 	end if
       end do
 
- 57   continue
+! 57   continue
 
       fun1=0.
       do m=1,IR_2
@@ -256,10 +262,11 @@
             DIF=RADIUS(N)-RIJ2(I,J)
             IF(DIF.GT.0.)THEN
               IDX1(I,J)=N
-              GO TO 25
+!              GO TO 25
+              exit   !shin
             END IF
           END DO
- 25       CONTINUE
+! 25       CONTINUE
           IF(IDX1(I,J).GE.2)THEN
             W1(I,J)=(RIJ2(I,J)-RADIUS(IDX1(I,J)-1))/           &
                  (RADIUS(IDX1(I,J))-RADIUS(IDX1(I,J)-1))

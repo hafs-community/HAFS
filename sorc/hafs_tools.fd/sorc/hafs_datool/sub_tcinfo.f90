@@ -12,7 +12,7 @@
   character (len=300)           :: temp
   integer                       :: i, j, n
   real                          :: xtemp
- 
+
   !---get info from file
   center = -9999999.0
   if ( len_trim(vortex_position_file) > 1 ) then
@@ -32,7 +32,7 @@
         call rd_interp_besttrack(time, trim(tcvital_file), center)
      else if ( len_trim(besttrackfile) > 1 ) then
         call rd_interp_besttrack(time, trim(besttrackfile), center)
-     endif 
+     endif
   endif
 
   call check_tc_lon_lat(center(1), center(2))
@@ -71,7 +71,7 @@
   write(*,'(a,2f8.2,2x,a)')'---vortex replacement info: ', tc%lon, tc%lat, trim(vortexradius)
 
   return
-  end subroutine get_tc_info 
+  end subroutine get_tc_info
 
 !=======================================================================================
   subroutine check_tc_lon_lat(lat, lon)
@@ -87,19 +87,19 @@
   endif
 
   return
-  end subroutine check_tc_lon_lat 
+  end subroutine check_tc_lon_lat
 
 !=======================================================================================
   subroutine rd_vortex_position (filename, center )
 
 !-----------------------------------------------------------------------------
-! read user-define hurricane track information, i.e., 
+! read user-define hurricane track information, i.e.,
 ! -86.5 23.8
 !-----------------------------------------------------------------------------
 
   implicit none
   character (len=*), intent(in)         :: filename
-  real, dimension(2), intent(out)       :: center  !lat, lon 
+  real, dimension(2), intent(out)       :: center  !lat, lon
   real, dimension(2)                    :: dat
   integer                               :: iost
 
@@ -193,7 +193,7 @@
               exit do_get_track_loop
            else if (diff_hour < dhour(1) ) then
               nrecord=nrecord+1
-              if ( nrecord <= 1 ) then 
+              if ( nrecord <= 1 ) then
                  lat(2) = ilat/10.
                  lon(2) = ilon/10.
                  wsp(2) = awsp
@@ -205,7 +205,7 @@
                  slp(3) = islp*1.0
                  dhour(3) = diff_hour
               else
-                 lat(2) = lat(3) 
+                 lat(2) = lat(3)
                  lon(2) = lon(3)
                  wsp(2) = wsp(3)
                  slp(2) = slp(3)

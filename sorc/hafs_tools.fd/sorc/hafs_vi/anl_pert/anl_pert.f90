@@ -9,7 +9,28 @@
 !
 !     DECLARE VARIABLES
 !
+      implicit none
       INTEGER I,J,K,NX,NY,NZ,IFLAG,NX2
+      integer NST,INITOPT,IUNIT,I360,ITIM,NX1,NY1,NZ1,KMX,JX,JY
+      integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs
+      integer NCHT,KSTM,k850,KST,IWMIN1,IWMAX1,JWMIN1,JWMAX1
+      integer ictr,jctr,ismth_01,N_smth,I_max1,J_max1,i_max,j_max,IMV,JMV
+      integer ICTRM1,ICTRP1,JCTRM1,JCTRP1,IR1,IR,IT1,IR0,IT2,I2,J2,KM1,M1
+      integer IRAD_1,N_ITER,MAX_ITER,N,K1,IT_FLAG,IR_1
+      real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,pi,pi_deg,pi180,DST1
+      real vobs,vobs_o,VRmax,VRmax_deg,psfc_cls,PRMAX,R34obs,R34obsm
+      real acount,cmax,deltp,deltp1
+      real psfc_obs,cost,distm,distt,v_max1,RMX_d,smax1,R05,smax2
+      real beta,UU11,VV11,UUM1,VVM1,QQ,beta1,PRMAX2
+      real v34kt,v50kt,v64kt,DR1,DA1,RCT,RCT2
+      real DSTX,DSTY,RDT2,UT1,VT1,USUM,VSUM,R_WT,PRES_CT,RAD_1,FACT_P
+      real V_MAX,R34MOD,R34MODM,DEG2RAD,DEG2M,DEG2KM,FTMIN,FTMAX
+      real CTMIN,CTMAX,DMIN,ROC_ADD,RMAX_0,ROC1,ROC2,RMW1,RMW2,RMW_RAT,RMW2_LIMIT
+      real ROC1_T,ROC2_T,ROC_RAT,ROC_MAX,ROC_RAT1,DMAX,FF0,FORCE,FORCE2,FORCE3
+      real RMW1_MOD,ROC1_MOD,RMW2_OBS,ROC2_OBS,SLP_MD,ROCX_RAT,SLP_T
+      real RMW2_0,ROC2_0,RMN_HWRF,XXX,YYY,DDD,AAA,BBB
+      real DIFF_P,DIFF_P_X,DIFF_P_N,DELT_P,RMW1_NEW,ROC1_NEW,SCALE1
+      real BETA_CT,BETA11,FACT,TEK1,TEK2,ESRR
 !
 !     PARAMETER (NX=215,NY=431,NZ=42,NST=5)
       PARAMETER (NST=5)
@@ -122,7 +143,7 @@
       REAL(8) :: CLON_NHC,CLAT_NHC
       REAL(8) :: CLON_NEW,CLAT_NEW
 
-      DIMENSION TWM(101),RWM(101),TH1(200),RP(200)
+      REAL(4) TWM(101),RWM(101),TH1(200),RP(200)   ! shin
 
       REAL(4) zmax
 
@@ -145,14 +166,22 @@
 !	      0.6,0.5,0.4,0.3,0.2,0.1,37*0./                    ! 850-400mb
 !      DATA PW_S/36*1.0,0.8,0.6,0.4,0.2,          &
 !                45*0./                    ! 600-500mb
-      DATA PW_S/38*1.0,0.8,0.6,0.4,0.2,          &
-                43*0./                    ! 600-500mb
+
+!using      DATA PW_S/38*1.0,0.8,0.6,0.4,0.2,          &
+!using                43*0./                    ! 600-500mb
+      PW_S(1:38)=1.0
+      PW_S(39:42)=(/0.8,0.6,0.4,0.2/)
+      PW_S(43:85)=0.0
+
 !2      DATA PW_S/32*1.0,0.8,0.6,0.4,0.2,          &
 !2                49*0./                    ! 850-700mb
 !1      DATA PW_S/28*1.0,0.95,0.9,0.8,0.7,          &
 !1	      0.6,0.5,0.4,0.3,0.2,0.1,47*0./                    ! 850-700mb
-      DATA PW_M/32*1.0,0.95,0.9,0.8,0.7,          &
-	      0.6,0.5,0.4,0.3,0.2,0.1,43*0./                    ! 850-400mb
+!using      DATA PW_M/32*1.0,0.95,0.9,0.8,0.7,          &
+!using	      0.6,0.5,0.4,0.3,0.2,0.1,43*0./                    ! 850-400mb
+      PW_M(1:32)=1.0
+      PW_M(33:42)=(/0.95,0.9,0.8,0.7,0.6,0.5,0.4,0.3,0.2,0.1/)
+      PW_M(43:85)=0.0
 
       COEF1=Rd/Cp
       COEF3=Rd*GAMMA/G
@@ -532,7 +561,8 @@
       ALLOCATE ( T_4(NX,NY,KMX),Q_4(NX,NY,KMX) )
 
       N_smth=0
- 667  CONTINUE
+      do  ! shin ================================================
+! 667  CONTINUE
 
          IF (INITOPT .EQ. 0 .and. ismth_01.EQ.1) THEN
 
@@ -688,18 +718,27 @@
 
             N_smth=N_smth+1
             print*,'N_smth=',N_smth
-            IF(N_smth.lt.2)go to 667
+!            IF(N_smth.lt.2)go to 667
+            if(N_smth.ge.2)then   ! shin
             IF((N_smth.lt.15.and.VRmax_deg.lt.1.5)                     &
                .and.RIJ2(I_max1,J_max1).lt.VRmax_deg)THEN
                print*,'N_smth,RIJ2,VRmax_deg=',N_smth,RIJ2(I_max1,J_max1),VRmax_deg
-               go to 667
+            ELSE   ! shin:If above statement is not satistifed, escapce
+                print*,'Exit the loop after N_smth=', N_smth
+               exit ! shin
+!               go to 667
             END IF
+            end if  ! shin
+
+         ELSE   ! shin
+          exit  ! shin: Just exit, if the above part is not applied
 
          END IF
 
+      enddo    !shin ===========================================================
       DEALLOCATE ( T_4,Q_4 )
 
- 665  continue
+! 665  continue We don't need this  shin
 
       RMX_d=max(2.0,3.*VRmax/DST1)
 !      RMX_d=max(RMX_d,3.0)
@@ -1539,8 +1578,9 @@
 
       IF(diff_p.lt.diff_p_n)THEN
 
- 969  CONTINUE
-
+! 969  CONTINUE
+! ==================== shin ===================
+      do
       n_iter=n_iter+1
 
       xxx  = ftmin*rmw1 ; yyy = ftmax*rmw1  !* 50% Constraint
@@ -1563,7 +1603,7 @@
 
       print*,'after aconstraint: aaa,bbb=',aaa,bbb
 
-      if(n_iter.le.max_iter)then
+      if(n_iter.le.max_iter)then   ! if statement of n_iter
 
       RKX2=0.
       DO n=1,IR1
@@ -1599,7 +1639,7 @@
          if(roc1_new.gt.roc2_0)then
            roc2=min(roc1_new,(1.+0.01*n_iter)*roc2_0)
          end if
-         go to 969
+!         go to 969
        else if (diff_p.lt.diff_p_n.and.it_flag.eq.2)then
 !         if(Rmax_0.gt.40.)then
            ftmin=ftmin-0.005
@@ -1614,11 +1654,15 @@
          if(roc1_new.lt.roc2_0)then
            roc2=max(roc1_new,(1.-0.02*n_iter)*roc2_0)
          end if
-         go to 969
+!         go to 969
+       else
+        exit  !If above two options aren't met escape the loop: shin
        end if
 
-       end if
+       end if  ! if statement of n_iter
 
+       enddo   ! end of do loop !shin
+! ==================== shin ===================
        END IF
 
 

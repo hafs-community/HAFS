@@ -64,7 +64,7 @@ fi
 
 basin=${pubbasin2:-AL}
 tcvital=${DATA}/tcvitals.vi
-vmax_vit=`cat ${tcvital} | cut -c68-69`
+vmax_vit=`cat ${tcvital} | cut -c68-69 | bc -l`
 
 # Below two lines: Extract the basin infomration from storm ID: L, E, C, W, S, P, A, B
 storm=`cat ${tcvital} | awk '{print $2}'`
@@ -85,32 +85,26 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
 for vortexradius in 30 45; do
 
-if [[ ${vortexradius} == 30 ]]; then
-  res=0.02
-elif [[ ${vortexradius} == 45 ]]; then
-  res=0.20
-fi
-cat > hafsvi_preproc_guess_${vortexradius}.sh << EOF
-#!/bin/sh
-  # prep
-  work_dir=${DATA}/prep_guess
-  mkdir -p \${work_dir}
-  cd \${work_dir}
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
+    if [[ ${vortexradius} == 30 ]]; then
+      res=0.02
+    elif [[ ${vortexradius} == 45 ]]; then
+      res=0.20
+    fi
+    # prep
+    work_dir=${DATA}/prep_guess
+    mkdir -p ${work_dir}
+    cd ${work_dir}
+    time ${APRUNC} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinp} \
                                 --debug_level=1 --interpolation_points=5 \
                                 --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                 --tcvital=${tcvital} \
                                 --vortexradius=${vortexradius} --res=${res} \
                                 --nestdoms=$((${nest_grids:-1}-1)) \
                                 --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
-EOF
-chmod +x hafsvi_preproc_guess_${vortexradius}.sh
-echo "./hafsvi_preproc_guess_${vortexradius}.sh > ./hafsvi_preproc_guess_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
-
+    if [[ ${nest_grids} -gt 1 ]]; then
+       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    fi
 done
 
 fi
@@ -119,42 +113,28 @@ cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
 for vortexradius in 30 45; do
 
-if [[ ${vortexradius} == 30 ]]; then
-  res=0.02
-elif [[ ${vortexradius} == 45 ]]; then
-  res=0.20
-fi
-cat > hafsvi_preproc_init_${vortexradius}.sh << EOF
-#!/bin/sh
-  # prep
-  work_dir=${DATA}/prep_init
-  mkdir -p \${work_dir}
-  cd \${work_dir}
-  time ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
+    if [[ ${vortexradius} == 30 ]]; then
+       res=0.02
+    elif [[ ${vortexradius} == 45 ]]; then
+       res=0.20
+    fi
+    # prep
+    work_dir=${DATA}/prep_init
+    mkdir -p ${work_dir}
+    cd ${work_dir}
+    time ${APRUNC} ${DATOOL} hafsvi_preproc --in_dir=${RESTARTinit} \
                                 --debug_level=1 --interpolation_points=5 \
                                 --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                 --tcvital=${tcvital} \
                                 --vortexradius=${vortexradius} --res=${res} \
                                 --nestdoms=$((${nest_grids:-1}-1)) \
                                 --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
-  fi
-EOF
-chmod +x hafsvi_preproc_init_${vortexradius}.sh
-echo "./hafsvi_preproc_init_${vortexradius}.sh > ./hafsvi_preproc_init_${vortexradius}.log 2>&1" >> cmdfile_hafsvi_preproc
-
+    if [[ ${nest_grids} -gt 1 ]]; then
+       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    fi
 done
 
-chmod +x cmdfile_hafsvi_preproc
-if  [ ${machine} = "wcoss2" ]; then                                                                  
-   ncmd=$(cat ./cmdfile_hafsvi_preproc | wc -l)                                                        
-   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
-   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_preproc                                            
-else                                                    
-   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_preproc
-fi
 
 #===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and storm intensity is
@@ -175,20 +155,21 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     #== This part is NOT applied to WPAC and NHC basin TCs
     #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
     if [ $region = "S" ]; then
-     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+     sed -i 's/SI/SH/g' trak.atcfunix.all
     fi
     if [ $region = "P" ]; then
-     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+     sed -i 's/SP/SH/g' trak.atcfunix.all
     fi
     #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
     if [ $region = "A" ]; then
-     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+     sed -i 's/AA/IO/g' trak.atcfunix.all
     fi
     if [ $region = "B" ]; then
-     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+     sed -i 's/BB/IO/g' trak.atcfunix.all
     fi
-    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
-     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    # For rare Southern Atlantic TCs: NOT tested yet!
+    if [ $region = "Q" ]; then
+     sed -i 's/QQ/SL/g' trak.atcfunix.all
     fi
     #============================================================================================
 
@@ -200,7 +181,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     touch trak.atcfunix.tmp
   fi
   # get vmax in kt then convert into m/s
-  vmax_guess=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51)
+  vmax_guess=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_guess=${vmax_guess:-0}
   vmax_guess=$( printf "%.0f" $(bc <<< "scale=6; ${vmax_guess}*0.514444") )
   # calculate the abs difference
@@ -293,20 +274,21 @@ cd $DATA
     #== This part is NOT applied to WPAC and NHC basin TCs
     #For the Southern hemisphere TCs, the basin ID in trak.atcfunix.all will be changed from SI (or SP) to SH
     if [ $region = "S" ]; then
-     cat trak.atcfunix.all|tr 'SI' 'SH' > temp1.txt
+     sed -i 's/SI/SH/g' trak.atcfunix.all
     fi
     if [ $region = "P" ]; then
-     cat trak.atcfunix.all|tr 'SP' 'SH' > temp1.txt
+     sed -i 's/SP/SH/g' trak.atcfunix.all
     fi
     #For the Northern Indian Ocean TCs, the basin ID in trak.atcfunix.all will be changed from AA (or BB) to IO
     if [ $region = "A" ]; then
-     cat trak.atcfunix.all|tr 'AA' 'IO' > temp1.txt
+     sed -i 's/AA/IO/g' trak.atcfunix.all
     fi
     if [ $region = "B" ]; then
-     cat trak.atcfunix.all|tr 'BB' 'IO' > temp1.txt
+     sed -i 's/BB/IO/g' trak.atcfunix.all
     fi
-    if [ $region = "S" ] || [ $region = "P" ] || [ $region = "A" ] || [ $region = "B" ]; then
-     mv temp1.txt trak.atcfunix.all  # Replace the old trak.atcfunix.all!!
+    # For rare Southern Atlantic TCs: Not tested yet!
+    if [ $region = "Q" ]; then
+     sed -i 's/QQ/SL/g' trak.atcfunix.all
     fi
     #============================================================================================
 
@@ -318,7 +300,7 @@ cd $DATA
     touch trak.atcfunix.tmp
   fi
   # get vmax in kt then convert into m/s
-  vmax_init=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51)
+  vmax_init=$(grep "^${basin^^}, ${STORMID:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_init=${vmax_init:-0}
   vmax_init=$( printf "%.0f" $(bc <<< "scale=6; ${vmax_init}*0.514444") )
   # calculate the abs difference
@@ -546,27 +528,16 @@ ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 rm -f cmdfile_hafsvi_postproc
-for nd in $(seq 1 ${nest_grids})
-do
+for nd in $(seq 1 ${nest_grids}); do
 
-cat >> cmdfile_hafsvi_postproc <<EOF
-time ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
+    time ${APRUNC} ${DATOOL} hafsvi_postproc --in_file=${DATA}/anl_storm/storm_anl \
                                --debug_level=1 --interpolation_points=5 \
                                --relaxzone=30 \
                                --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
                                --nestdoms=$((${nd}-1)) \
                                --out_dir=${RESTARTout}
-EOF
 
 done
-chmod +x cmdfile_hafsvi_postproc
-if  [ ${machine} = "wcoss2" ]; then                                                                  
-   ncmd=$(cat ./cmdfile_hafsvi_postproc | wc -l)                                                        
-   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))                                             
-   $APRUNCFP  -n $ncmd_max cfp ./cmdfile_hafsvi_postproc                                                
-else                    
-   ${APRUNC} ${MPISERIAL} -m cmdfile_hafsvi_postproc
-fi 
 #===============================================================================
 
 exit

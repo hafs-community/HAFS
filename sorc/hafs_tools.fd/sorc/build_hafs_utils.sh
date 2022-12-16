@@ -77,11 +77,7 @@ _hafsutils_analysis_update (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application 
-    if [[ $target = "wcoss_cray" ]]; then
-        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 
     # Build the analysis-update application.
 
@@ -121,11 +117,7 @@ _hafsutils_obs_preproc (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 
     # Build the obs-preproc application.
     make all
@@ -164,11 +156,7 @@ _hafsutils_change_prepbufr (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 
     # Build the hafs_change_prepbufr application.
     make all
@@ -209,11 +197,7 @@ _hafsutils_datool (){
 
     # Generate makefile using CMake for the application
     # BUILD_TYPE supports RELEASE OR DEBUG MODE
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -DBUILD_TYPE=RELEASE
-    else
-       cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
-    fi
+    cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=RELEASE
 
     # Build the hafs_datool application.
     make all VERBOSE=3
@@ -253,11 +237,7 @@ _hafsutils_vi (){
 
     # Generate makefile using CMake for the application
     # BUILD_TYPE supports RELEASE OR DEBUG MODE
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc -DBUILD_TYPE=RELEASE
-    else
-       cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
-    fi
+    cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=RELEASE
 
     # Build the hafs_vi application.
     make all VERBOSE=3
@@ -382,7 +362,7 @@ _extlib_shtns (){
     # compilation.
 
     if [ $target = wcoss2 ]; then
-       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib64
+       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib64 
     else
        export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
     fi
