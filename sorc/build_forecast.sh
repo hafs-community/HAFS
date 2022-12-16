@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
-cwd=`pwd`
+cwd=$(pwd)
 
 if [ $target = hera ]; then target=hera.intel ; fi
 if [ $target = orion ]; then target=orion.intel ; fi

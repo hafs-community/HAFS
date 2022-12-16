@@ -370,7 +370,7 @@ else
  while [ $tile -le $ntiles ]; do
   ln -sf ${FIXfv3}/C${CRES}/C${CRES}_grid.tile${tile}.nc chgres.fv3.grd.t${tile}
   ln -sf ${FIXfv3}/C${CRES}/C${CRES}_oro_data.tile${tile}.nc chgres.fv3.orog.t${tile}
-  tile=`expr $tile + 1 `
+  tile=$(($tile + 1))
  done
 fi
 

@@ -308,6 +308,7 @@ ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
+  mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
   tile=1
   while [ $tile -le 6 ]; do
     mv out.atm.tile${tile}.nc ${OUTDIR}/gfs_data.tile${tile}.nc

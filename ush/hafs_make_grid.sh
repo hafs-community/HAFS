@@ -29,7 +29,7 @@ export res=$1
 export outdir=$2
 if [ ! -s $outdir ]; then  mkdir -p $outdir ;fi
 
-nx=`expr $res \* 2 `
+nx=$(($res * 2))
 cd $outdir
 
 if [ $nargv -eq 3 -o $nargv -eq 5 ]; then

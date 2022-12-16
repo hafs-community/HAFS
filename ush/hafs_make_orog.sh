@@ -62,7 +62,7 @@ if [ ! -s $workdir ]; then mkdir -p $workdir ;fi
 if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
 
 #jcap is for Gaussian grid
-#jcap=`expr $latb - 2 `
+#jcap=$(($latb - 2))
 jcap=0
 NF1=0
 NF2=0

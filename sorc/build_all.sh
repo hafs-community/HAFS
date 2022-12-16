@@ -13,7 +13,7 @@ export USE_PREINST_LIBS="true"
 # END USER DEFINED STUFF
 #------------------------------------
 
-build_dir=`pwd`
+build_dir=$(pwd)
 logs_dir=$build_dir/logs
 mkdir -p $logs_dir
 mkdir -p ../exec
