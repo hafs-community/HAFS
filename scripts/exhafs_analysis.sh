@@ -28,6 +28,8 @@ export online_satbias=${online_satbias:-no}
 export l_both_fv3sar_gfs_ens=${l_both_fv3sar_gfs_ens:-.false.}
 export n_ens_gfs=${n_ens_gfs:-80}
 export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
+export l4densvar=${l4densvar:-.false.}
+export nhr_obsbin=${nhr_obsbin:--1}
 
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
@@ -201,7 +203,11 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   mkdir -p ensemble_data
   ENKF_SUFFIX="s"
   GSUFFIX=${GSUFFIX:-.nemsio}
-  fhrs="06"
+  if [ ${l4densvar:-.false.} = ".true." ]; then
+    fhrs="03 06 09"
+  else
+    fhrs="06"
+  fi
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
@@ -607,6 +613,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_L_BOTH_FV3SAR_GFS_ENS_/${l_both_fv3sar_gfs_ens:-.false.}/g" \
     -e "s/_NENS_GFS_/${n_ens_gfs:-80}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
+    -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
+    -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
