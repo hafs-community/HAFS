@@ -521,13 +521,8 @@ contains
     do m2 = 1, 2         ! looping on grid box edges
     do m = 1, nlon_out   ! looping on output longitudes
         blon = blon_out(m,m2)
-        if (blon < 0.0) then
           if ( blon < blon_in(1)         ) blon = blon + tpi
           if ( blon > blon_in(nlon_in+1) ) blon = blon - tpi
-        else
-          if ( blon < blon_in(1)         ) blon = blon - tpi 
-          if ( blon > blon_in(nlon_in+1) ) blon = blon + tpi 
-        endif
         eps = 0.0
     do iter=1,num_iters
   ! find indices from input longitudes
@@ -538,6 +533,12 @@ contains
              fac = (blon-blon_in(i))/(blon_in(i+1)-blon_in(i))
              if (m2 == 1) Interp%faci(m,m2) = 1.0 - fac
              if (m2 == 2) Interp%faci(m,m2) = fac
+!hsk
+!             if (i==nlon_in) then
+!               print *,'i,fac,blon,blon_in(i),blon_in(i+1)='
+!               print *, i,fac,blon,blon_in(i),blon_in(i+1)
+!             endif
+!hsk
              exit
         endif
     enddo
@@ -548,12 +549,14 @@ contains
     enddo
      ! no match
        if ( Interp%ilon(m,m2) == 0 ) then
-           print *, 'blon_out,blon,blon_in(1),blon_in(end),eps=',  &
-              blon_out(m,m2),blon,blon_in(1),blon_in(nlon_in+1),eps
+!           print *,'fac,iter,eps=', fac,iter,eps
+           print *,'m2,m,nlon_out,nlon_in=',m2,m,nlon_out,nlon_in
+           print *,'blon_out(m,m2),blon,blon_in(1),blon_in(end)=',  &
+              blon_out(m,m2),blon,blon_in(1),blon_in(nlon_in+1)
            call error_handler ('no longitude index found')
        endif
-    enddo
-    enddo
+    enddo  ! loop for m
+    enddo  ! loop for m2
 
 !-----------------------------------------------------------------------
 ! this output may be quite lengthy and is not recommended
