@@ -40,7 +40,7 @@ VARIABLES = [
     'large_scale_precipitation', 'large_scale_snowfall', 'mean_sea_level_pressure',
     'near_ir_albedo_for_diffuse_radiation', 'near_ir_albedo_for_direct_radiation',
     'uv_visible_albedo_for_diffuse_radiation', 'uv_visible_albedo_for_direct_radiation',
-    'surface_latent_heat_flux', 'surface_sensible_heat_flux', 
+    'surface_latent_heat_flux', 'surface_sensible_heat_flux',
     'surface_solar_radiation_downwards', 'surface_thermal_radiation_downwards',
     'surface_pressure', 'total_precipitation', 'skin_temperature',
     'eastward_turbulent_surface_stress', 'northward_turbulent_surface_stress',

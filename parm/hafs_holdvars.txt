@@ -86,6 +86,7 @@ export DATM_SOURCE={DATM_SOURCE}
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
 export BDECKhafs={BDECKhafs}
+export cartopyDataDir={cartopyDataDir}
 
 export PARMforecast={PARMforecast}
 
@@ -170,6 +171,8 @@ export s_ens_h={s_ens_h}
 export s_ens_v={s_ens_v}
 export online_satbias={online_satbias}
 export l_both_fv3sar_gfs_ens={l_both_fv3sar_gfs_ens}
+export l4densvar={l4densvar}
+export nhr_obsbin={nhr_obsbin}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 

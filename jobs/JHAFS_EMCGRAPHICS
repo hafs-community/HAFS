@@ -44,6 +44,7 @@ export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export ADECKgraph=${ADECKhafs:?}
 export BDECKgraph=${BDECKhafs:?}
 export SYNDAThafs=${SYNDAThafs:?}
+export cartopyDataDir=${cartopyDataDir:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}

@@ -85,24 +85,21 @@ def set_para_paths():
         "/work/noaa/hwrf/noscrub/input/SYNDAT",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT",
-        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
-        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT",
         "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
         "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT",
-        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT",
-        "/gpfs/dell1/nco/ops/com/gfs/prod/syndat",
+        "/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS",
+        "/lfs/h2/emc/hur/noscrub/input/SYNDAT",
         ]
     messagedir=[
         "/work/noaa/hwrf/noscrub/input/MESSAGES",
         "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
         "/lfs1/HFIP/hwrf-vd/hwrf-input/MESSAGES",
-        "/gpfs/hps/nco/ops/com/hur/prod/inpdata"
+        "/lfs/h2/emc/hur/noscrub/input/MESSAGES",
         ]
     if 'CASE_ROOT' in os.environ and os.environ['CASE_ROOT']=='FORECAST':
-        tcvlocs=['/gpfs/dell1/nco/ops/com/gfs/prod/syndat']
+        tcvlocs=['/lfs/h1/ops/prod/com/gfs/v16.3/syndat']
     else:
-        tcvlocs.append('/gpfs/dell1/nco/ops/com/gfs/prod/syndat')
+        tcvlocs.append('/lfs/h1/ops/prod/com/gfs/v16.3/syndat')
     if 'SYNDAThafs' in os.environ:
         tcvlocs=[os.environ['SYNDAThafs'],]
 

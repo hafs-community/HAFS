@@ -30,7 +30,7 @@ else
   stretch=1.0
 fi
 
-res=$1 
+res=$1
 griddir=$2
 orodir=$3
 outdir=$4
@@ -43,7 +43,7 @@ if [ ! -s $executable ]; then
   echo "FATAL ERROR: ${executable} does not exist"
   echo
   set -x
-  exit 1 
+  exit 1
 fi
 
 mosaic_grid=C${res}_mosaic.nc
@@ -67,7 +67,7 @@ cat > input.nml <<EOF
   grid_file = $mosaic_grid
   topo_file = $topo_file
   mask_field = "land_frac"
-  regional = $regional 
+  regional = $regional
   stretch_fac = $stretch
   res = $res
   /

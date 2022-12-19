@@ -6,18 +6,18 @@ set -u
 output_path="$1"
 set +u
 
-if ( ! which cdo ) ; then
+if ( ! which cdo ); then
     echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
     exit 1
 fi
 
-if ( ! which ncks ) ; then
+if ( ! which ncks ); then
     echo "The \"ncks\" command from the NetCDF Data Operators (nco) is not in your path! Go find the nco and rerun this job." 1>&2
     exit 1
 fi
 
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS} 
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+HOMEhafs=${HOMEhafs:?}
+WORKhafs=${WORKhafs:?}
 USHhafs=${USHhafs:-${HOMEhafs}/ush}
 CDATE=${CDATE:-${YMDH}}
 
@@ -39,9 +39,9 @@ missing=''
 usefiles=''
 itime=0
 infinity=9999 # infinite loop guard
-while (( now <= end && itime < infinity )) ; do
+while (( now <= end && itime < infinity )); do
     infile="$DOCNdir/JPL-L4_GHRSST-SSTfnd-MUR-GLOB-${now:0:8}.nc"
-    if [[ ! -s "$infile" || ! -r "$infile" ]] ; then
+    if [[ ! -s "$infile" || ! -r "$infile" ]]; then
         echo "GHRSST input file is missing: $infile" 2>&1
         missing="$missing $infile"
     else
@@ -56,7 +56,7 @@ while (( now <= end && itime < infinity )) ; do
         cdo -sellonlatbox,-118,-5,-15.0,60.0 vars.nc subset.nc
 
         # Convert temperature units:
-        aos_old=`ncdump -c subset.nc | grep add_offset | grep analysed_sst | awk '{print $3}'`
+		aos_old=$(ncdump -c subset.nc | grep add_offset | grep analysed_sst | awk '{print $3}')
         aos_new=$(echo "scale=3; $aos_old-273.15" | bc)
         ncatted -O -a add_offset,analysed_sst,o,f,"$aos_new" subset.nc
 
@@ -66,15 +66,15 @@ while (( now <= end && itime < infinity )) ; do
     now=$( date -d "${now:0:4}-${now:4:2}-${now:6:2}t00:00:00+00 +24 hours" +%Y%m%d )
     itime=$(( itime+1 ))
 done
-if (( itime >= infinity )) ; then
+if (( itime >= infinity )); then
     echo "Infinite loop detected! The \"date\" command did not behave as expected. Aborting!" 1>&2
     exit 1
 fi
 
-if [[ "${missing:-}Q" != Q ]] ; then
+if [[ "${missing:-}Q" != Q ]]; then
     set +x
     echo "You are missing some GHRSST input files!"
-    for infile in $missing ; do
+    for infile in $missing; do
         echo "  missing: $infile"
     done
     echo " -> SCRIPT IS ABORTING BECAUSE INPUT FILES ARE MISSING <- "

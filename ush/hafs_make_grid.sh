@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Updates:
-#  May 15, 2020  Bill Ramstrom, HRD/AOML, Added multiple nest capability 
+#  May 15, 2020  Bill Ramstrom, HRD/AOML, Added multiple nest capability
 #
 
 set -eux
@@ -25,11 +25,11 @@ if [ $nargv -ne 3 -a $nargv -ne 5 -a $nargv -ne 6 -a $nargv -ne 7 -a $nargv -ne 
 fi
 
 APRUN=${APRUN:-time}
-export res=$1 
+export res=$1
 export outdir=$2
 if [ ! -s $outdir ]; then  mkdir -p $outdir ;fi
 
-nx=`expr $res \* 2 `
+nx=$(($res * 2))
 cd $outdir
 
 if [ $nargv -eq 3 -o $nargv -eq 5 ]; then
@@ -48,7 +48,7 @@ if [ $nargv -eq 3 -o $nargv -eq 5 ]; then
   export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
-    exit 1 
+    exit 1
   fi
   echo "Making uniform grids:   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid ${target_opts}"
 
@@ -64,12 +64,12 @@ elif  [ $nargv -eq 6 ]; then
   export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
-    exit 1 
+    exit 1
   fi
 
   echo "Making stretched grids:   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} --target_lon ${target_lon} --target_lat ${target_lat} "
- 
-  $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} --target_lon ${target_lon} --target_lat ${target_lat} 
+
+  $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} --target_lon ${target_lon} --target_lat ${target_lat}
 
 elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
   export stretch_fac=$3
@@ -105,7 +105,7 @@ elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
   export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
-    exit 1 
+    exit 1
   fi
 
   echo "Making nested grids: $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} \
@@ -220,7 +220,7 @@ fi
 export executable=${MAKEMOSAICEXEC:-$exec_dir/hafs_make_solo_mosaic.x}
 if [ ! -s $executable ]; then
   echo "executable does not exist"
-  exit 1 
+  exit 1
 fi
 
 if [ $gtype = uniform -o $gtype = stretch ] && [ $ntiles -eq 6 ]; then

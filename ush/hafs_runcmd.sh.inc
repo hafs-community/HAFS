@@ -18,20 +18,20 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 # APRUNC: command to run pure mpi or mpi+omp jobs
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
-if [ "$machine" = wcoss2 ]; then                                                                 
-  #export NODES=${NODES:-1}                                                                          
-  export APRUNS="time"                                                 
-  export APRUNO="time"                                                                               
-  export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"             
+if [ "$machine" = wcoss2 ]; then
+  #export NODES=${NODES:-1}
+  export APRUNS="time"
+  export APRUNO="time"
+  export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export APRUNO="time"
 elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ]; then
-  export APRUNS="srun --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
-  export APRUNO="srun --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
-  #export APRUNO="srun --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
-  export APRUNC="srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
-  #export APRUNF="srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+  export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
+  export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
+  #export APRUNO="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
+  export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+  #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
   export APRUNF="time"
   export BACKGROUND="&"
 else
@@ -43,7 +43,12 @@ else
   export BACKGROUND=""
 fi
 
-# Print out environment 
+# Utility commands
+export NCP=${NCP:-"/bin/cp"}
+export NMV=${NMV:-"/bin/mv"}
+export NLN=${NLN:-"/bin/ln -sf"}
+
+# Print out environment
 env
 
 #==============================================================================

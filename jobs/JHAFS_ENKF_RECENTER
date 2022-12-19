@@ -17,12 +17,12 @@ export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles                                                  
-  if [ ${machine}  = "hera" ]; then                                                                   
-    module load gsi_${machine}.intel                                                                 
-  else                                                                                               
-    module load gsi_${machine}                                                                       
-  fi  
+  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+  if [ ${machine}  = "hera" ]; then
+    module load gsi_${machine}.intel
+  else
+    module load gsi_${machine}
+  fi
   module list
 fi
 

@@ -3,7 +3,7 @@ loads HAFS application level modulefile on Orion
 ]])
 
 load("contrib")
-load("noaatools") 
+load("noaatools")
 
 cmake_ver=os.getenv("cmake_ver") or "3.22.1"
 load(pathJoin("cmake", cmake_ver))
@@ -77,7 +77,7 @@ gftl_shared_ver=os.getenv("gftl_shared_ver") or "v1.5.0"
 load(pathJoin("gftl-shared", gftl_shared_ver))
 
 yafyaml_ver=os.getenv("yafyaml_ver") or "v0.5.1"
-load(pathJoin("yafyaml", yafyaml_ver)) 
+load(pathJoin("yafyaml", yafyaml_ver))
 
 mapl_ver=os.getenv("mapl_ver") or "2.22.0-esmf-8.3.0b09"
 load(pathJoin("mapl", mapl_ver))

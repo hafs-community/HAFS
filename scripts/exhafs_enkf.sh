@@ -8,18 +8,12 @@
 
 set -xe
 
-TOTAL_TASKS=${TOTAL_TASKS:-2016}
-NCTSK=${NCTSK:-12}
-NCNODE=${NCNODE:-24}
-OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
+  export CRES=$(echo $CASE | cut -c 2-)
   export gtype=${gtype_ens:-regional}
   export LEVS=${LEVS_ENS:-65}
 else
@@ -27,13 +21,12 @@ else
   export NBDYHRS=${NBDYHRS:-3}
   export NOUTHRS=${NOUTHRS:-3}
   export CASE=${CASE:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
+  export CRES=$(echo $CASE | cut -c 2-)
   export gtype=${gtype:-regional}
   export LEVS=${LEVS:-65}
 fi
 
-# Utilities
-NDATE=${NDATE:-ndate}
+export NDATE=${NDATE:-ndate}
 export NCP=${NCP:-"/bin/cp"}
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
@@ -60,17 +53,17 @@ export nesttilestr=${nesttilestr:-""}
 netcdf_diag=${netcdf_diag:-".true."}
 binary_diag=${binary_diag:-".false."}
 
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
 
-CDATEprior=`${NDATE} -6 $CDATE`
-yrprior=`echo ${CDATEprior} | cut -c1-4`
-mnprior=`echo ${CDATEprior} | cut -c5-6`
-dyprior=`echo ${CDATEprior} | cut -c7-8`
-hhprior=`echo ${CDATEprior} | cut -c9-10`
-cycprior=`echo ${CDATEprior} | cut -c9-10`
-PDYprior=`echo ${CDATEprior} | cut -c1-8`
+CDATEprior=$(${NDATE} -6 $CDATE)
+yrprior=$(echo ${CDATEprior} | cut -c1-4)
+mnprior=$(echo ${CDATEprior} | cut -c5-6)
+dyprior=$(echo ${CDATEprior} | cut -c7-8)
+hhprior=$(echo ${CDATEprior} | cut -c9-10)
+cycprior=$(echo ${CDATEprior} | cut -c9-10)
+PDYprior=$(echo ${CDATEprior} | cut -c1-8)
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
@@ -106,8 +99,7 @@ if [ $ldo_enscalc_option -eq 1 ] || [ $ldo_enscalc_option -eq 0 ]; then # enkf_m
   ${NCP} ${RESTARTens_inp}/${memstr}/grid_spec.nc fv3sar_tile1_grid_spec.nc
   # prepare ensemble member files
   rm -f cmdfile_prep_dynvartracer_ens
-  for memstr in $(seq -f 'mem%03g' 1 $nens)
-  do
+  for memstr in $(seq -f 'mem%03g' 1 $nens); do
     cat > ./prep_dynvartracer_ens${memstr}.sh << EOFprep
 #!/bin/sh
 set -x
@@ -147,8 +139,7 @@ else # enkf_recenter
   rm -f cmdfile
   let "nens0 = $nens"
   let "nens = $nens + 1"
-  for imem in $(seq 1 $nens0)
-  do
+  for imem in $(seq 1 $nens0); do
     memchar="mem"$(printf %03i $imem)
     let "memin = $imem + 1"
     meminchar="mem"$(printf %03i $memin)
@@ -167,8 +158,7 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   echo "tar -xvf $RADSTAT" >> cmdfile
   echo "tar -xvf $CNVSTAT" >> cmdfile
 
-  for memstr in $(seq -f "mem%03g" 1 $nens)
-  do
+  for memstr in $(seq -f "mem%03g" 1 $nens); do
     RADSTAT=${DIAGens_anl}/${memstr}/analysis.radstat
     CNVSTAT=${DIAGens_anl}/${memstr}/analysis.cnvstat
     echo "tar -xvf $RADSTAT" >> cmdfile
@@ -179,8 +169,7 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   ${APRUNC} ${MPISERIAL} -m cmdfile
 
   rm -f cmdfile
-  for gzfile in $(/bin/ls diag*ges*.gz)
-  do
+  for gzfile in $(/bin/ls diag*ges*.gz); do
     echo "gzip -d $gzfile && rm -f $gzfile" >> cmdfile
   done
   chmod +x cmdfile
@@ -254,27 +243,7 @@ sed -e "s/_datestring_/${CDATE}/g" \
     enkf.nml.tmp > ./enkf.nml
 
 ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_enkf.x}
-cp -p $ENKFEXEC ./enkf.x
-
-# In case there are memory issues to run enkf_mean/enkf_recenter for all
-# variables, can consider separating the enkf control variables into three
-# parts
-#if [ $ldo_enscalc_option -ne 0  ]; then # enkf_mean or enkf_recenter
-#  let i=1
-#  #for infile in $(/bin/ls ${anavinfo}_p*)
-#  for infile in $(/bin/ls ${anavinfo})
-#  do
-#    #${NCP} $infile anavinfo
-#    sed -e "s/_LEV_/${npz:-64}/g" \
-#        -e "s/_LP1_/${LEVS:-65}/g" \
-#        ${infile} > ./anavinfo
-#    ${APRUNC}  ./enkf.x < enkf.nml > stdout_p${i} 2>&1
-#    let i=i+1
-#  done
-#else
-#  ${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
-#fi
-
+${NCP} -p $ENKFEXEC ./enkf.x
 #${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
 set -o pipefail
 ${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
@@ -282,8 +251,7 @@ set +o pipefail
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile
-  for memstr in $(seq -f "mem%03g" 1 $nens)
-  do
+  for memstr in $(seq -f "mem%03g" 1 $nens); do
     mkdir -p ${RESTARTens_anl}/${memstr}
     echo "${NCP} fv3sar_tile1_${memstr}_dynvars ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc" >> cmdfile
     echo "${NCP} fv3sar_tile1_${memstr}_tracer ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc" >> cmdfile
@@ -307,7 +275,7 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   mkdir -p ${RESTARTens_anl}/anlmean
   ${NCP} fv3sar_tile1_mem001_dynvars ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_core.res.tile1.nc
   ${NCP} fv3sar_tile1_mem001_tracer ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-  #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/anlmean/
+  #${NCP} ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/anlmean/
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/anlmean/
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/anlmean/
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/anlmean/
@@ -316,8 +284,7 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc ${RESTARTens_anl}/anlmean/
   ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc ${RESTARTens_anl}/anlmean/
   rm -f cmdfile_post_dynvartracer_ens
-  for imem in $(seq 2 $nens)
-  do
+  for imem in $(seq 2 $nens); do
     memstr="mem"$(printf %03i $imem)
     memout="mem"$(printf %03i $(($imem-1)))
     mkdir -p ${RESTARTens_anl}/${memout}

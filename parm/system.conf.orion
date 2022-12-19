@@ -41,6 +41,8 @@ COMINrtofs={COMrtofs}
 ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/work/noaa/hwrf/noscrub/local/share/cartopy
 
 [holdvars]
 WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)

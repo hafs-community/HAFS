@@ -37,8 +37,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
-
-export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMgfs=${COMgfs:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}

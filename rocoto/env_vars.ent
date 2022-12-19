@@ -5,7 +5,7 @@
 -->
 
 <envar>
-  <name>envir</name>      
+  <name>envir</name>
   <value>prod</value>
 </envar>
 <envar>

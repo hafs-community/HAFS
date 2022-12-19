@@ -73,7 +73,7 @@
   per_fcst_command = "./deliver.sh %[FHOUR]",
 /
 
-&netcdflist 
+&netcdflist
   netcdfinfo%num_netcdf_vars=,
   netcdfinfo%netcdf_filename='',
   netcdfinfo%rv850name='',
