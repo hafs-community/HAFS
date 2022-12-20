@@ -9,7 +9,7 @@ module load modulefile.hafs.${target}
 module list
 
 BuildDir=${HOMEhafs}/sorc/hafs_tools.fd/sorc/build
-if [ -d ${BuildDir} ]; then 
+if [ -d ${BuildDir} ]; then
    rm -rf ${BuildDir}
 fi
 mkdir ${BuildDir}
