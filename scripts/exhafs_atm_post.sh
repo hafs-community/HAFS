@@ -46,7 +46,7 @@ MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 MPPNCCOMBINE=${MPPNCCOMBINE:-${EXEChafs}/hafs_mppnccombine.x}
 POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
 
-FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
+FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 intercom=${intercom:-${WORKhafs}/intercom/post}
 COMOUTpost=${COMOUTpost:-${COMhafs}}
 SENDCOM=${SENDCOM:-YES}
@@ -214,14 +214,15 @@ if [ ${satpost} = .true. ]; then
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
     "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
-    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8"; do
-    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
-    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" \
+    "abi_g16" "abi_g17" ; do
+    ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+    ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
   done
   for file in "Aerosol" "Cloud"; do
-    ${NLN} ${FIXcrtm}/fix-4-hafs/${file}Coeff.bin ./
+    ${NLN} ${FIXcrtm}/${file}Coeff.bin ./
   done
-  for file in ${FIXcrtm}/fix-4-hafs/*Emis*; do
+  for file in ${FIXcrtm}/*Emis*; do
     ${NLN} ${file} ./
   done
 else

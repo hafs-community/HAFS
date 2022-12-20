@@ -33,6 +33,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}

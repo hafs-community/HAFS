@@ -5,7 +5,7 @@
 set -xe
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMINhafs:-${COMgfs}}
 export DONST=${DONST:-"NO"}
@@ -244,21 +244,22 @@ ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr
 
 # Link CRTM coefficient files based on entries in satinfo file
 for file in $(awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq); do
-  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
-  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
+  ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+  ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
 done
 
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Ice/SEcategory/Big_Endian/NPOESS.IRice.EmisCoeff.bin ./NPOESS.IRice.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Snow/SEcategory/Big_Endian/NPOESS.IRsnow.EmisCoeff.bin ./NPOESS.IRsnow.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Land/SEcategory/Big_Endian/NPOESS.IRland.EmisCoeff.bin ./NPOESS.IRland.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Ice/SEcategory/Big_Endian/NPOESS.VISice.EmisCoeff.bin ./NPOESS.VISice.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Land/SEcategory/Big_Endian/NPOESS.VISland.EmisCoeff.bin ./NPOESS.VISland.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Snow/SEcategory/Big_Endian/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Water/SEcategory/Big_Endian/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/MW_Water/Big_Endian/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./AerosolCoeff.bin
-${NLN} ${FIXcrtm}/CloudCoeff/Big_Endian/CloudCoeff.bin ./CloudCoeff.bin
+${NLN} ${FIXcrtm}/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRice.EmisCoeff.bin ./NPOESS.IRice.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRsnow.EmisCoeff.bin ./NPOESS.IRsnow.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRland.EmisCoeff.bin ./NPOESS.IRland.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISice.EmisCoeff.bin ./NPOESS.VISice.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISland.EmisCoeff.bin ./NPOESS.VISland.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
+${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+#${NLN} ${FIXcrtm}/CloudCoeff.bin ./CloudCoeff.bin
 
 # If requested, link (and if tarred, de-tar obsinput.tar) into obs_input.* files
 if [ ${USE_SELECT:-NO} = "YES" ]; then

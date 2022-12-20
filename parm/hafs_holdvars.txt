@@ -57,6 +57,7 @@ export EXhafs={EXhafs}
 export JOBhafs={JOBhafs}
 export USHhafs={USHhafs}
 export FIXhafs={FIXhafs}
+export FIXcrtm={FIXcrtm}
 export WORKhafs={WORKhafs}
 export DATA={WORKhafs}
 export COMhafs={COMhafs}
