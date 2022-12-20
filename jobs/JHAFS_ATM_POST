@@ -17,7 +17,6 @@ export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-# module purge
   module use ${HOMEhafs}/sorc/hafs_post.fd/modulefiles
   module load ${machine}
   module list
