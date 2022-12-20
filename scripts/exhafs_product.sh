@@ -203,6 +203,18 @@ fi
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
+
+# Added in Dec 18,2022 just for Rare southern Atlantic storm -----------------------------------------
+#The basin ID of rare southern Atlantic storm is "SL" and this SL is used in output.atcfunix: the output from GFDL tracker.
+#But the storm in this basin is using Q in their name (e.g., 90Q).
+#Because exhafs_product.sh tries to grab the storm information from "output.atcfunix" using "grep -e Q",
+#if basin ID "SL" is used in output.atcfunix, exhafs_product.sh can't extract the storm information.
+#For this, we need to change basin ID from SL to SQ in "output.atcfunix". This allows this script file to use "grep -e Q" command.
+
+if [ $STORMBS1 = "Q" ]; then
+ sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix_grid}
+fi
+#--------------------------------------------------------------------------------------------------
 ${NCP} ${COMOUTproduct}/${all_atcfunix_grid} ${COMOUTproduct}/${all_atcfunix_grid}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix_grid}.orig ]; then
   if [ $STORMNUM == "00" ]; then
@@ -224,6 +236,12 @@ else
 fi
 
 if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+
+#--------- Also added in  Dec 18,2022 just for Rare southern Atlantic storm ------------
+if [ $STORMBS1 = "Q" ]; then
+ sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix}
+fi
+#---------------------------------------------------------------------------------------
 
 ${NCP} ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix}.orig ]; then
