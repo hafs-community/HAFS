@@ -115,7 +115,7 @@ def main():
     PARAFLAG = ( os.environ.get('RUN_ENVIR','EMC').upper() != 'NCO' )
     logger.info('Top of exhafs_launch.')
 
-    
+
     short_opts = "m:M:n"
     long_opts  = ["multistorms=",
                   "multibasins=",
@@ -146,7 +146,7 @@ def main():
         elif  k in ('-n', '--renumber'):
             renumber = False
         else:
-            assert False, "UNHANDLED OPTION" 
+            assert False, "UNHANDLED OPTION"
 
     multi_sids = list()
     logger.info('ARGS: %s'% (args[1:]))

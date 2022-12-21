@@ -6,22 +6,22 @@ set -u
 output_path="$1"
 set +u
 
-if ( ! which cdo ) ; then
+if ( ! which cdo ); then
     set +x
     echo "The \"cdo\" command isn't in your path! Go find it and rerun this job." 1>&2
     set -x
     exit 1
-fi  
+fi
 
-if ( ! which ncwa ) ; then
+if ( ! which ncwa ); then
     set +x
     echo "The \"ncwa\" command from the NetCDF Data Operators (nco) is not in your path! Go find the nco and rerun this job." 1>&2
     set -x
     exit 1
-fi  
+fi
 
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+HOMEhafs=${HOMEhafs:?}
+WORKhafs=${WORKhafs:?}
 USHhafs=${USHhafs:-${HOMEhafs}/ush}
 CDATE=${CDATE:-${YMDH}}
 
@@ -37,7 +37,7 @@ set +x
 echo "Linking ERA5 files."
 echo "Running in dir \"$PWD\""
 echo "Will link ERA5 files into $output_path"
-echo "ERA5 Date range is $now to $end" 
+echo "ERA5 Date range is $now to $end"
 set -x
 
 rm -f DATM_input* merged.nc
@@ -47,9 +47,9 @@ usefiles=''
 missing=''
 itime=0
 infinity=9999 # infinite loop guard
-while (( now <= end && itime < infinity )) ; do
+while (( now <= end && itime < infinity )); do
     infile="$DATMdir/ERA5_${now:0:8}.nc"
-    if [[ ! -s "$infile" || ! -r "$infile" ]] ; then
+    if [[ ! -s "$infile" || ! -r "$infile" ]]; then
         echo "ERA5 input file is missing: $infile" 2>&1
         missing="$missing $infile"
     else
@@ -60,15 +60,15 @@ while (( now <= end && itime < infinity )) ; do
     now=$( date -d "${now:0:4}-${now:4:2}-${now:6:2}t00:00:00+00 +24 hours" +%Y%m%d )
     itime=$(( itime+1 ))
 done
-if (( itime >= infinity )) ; then
+if (( itime >= infinity )); then
     echo "Infinite loop detected! The \"date\" command did not behave as expected. Aborting!" 1>&2
     exit 1
 fi
 
-if [[ "${missing:-}Q" != Q ]] ; then
+if [[ "${missing:-}Q" != Q ]]; then
     set +x
     echo "You are missing some ERA5 input files!"
-    for infile in $missing ; do
+    for infile in $missing; do
         echo "  missing: $infile"
     done
     echo " -> SCRIPT IS ABORTING BECAUSE INPUT FILES ARE MISSING <- "
@@ -77,7 +77,7 @@ fi
 
 set +x
 echo "ERA5 input files are:"
-for f in $usefiles ; do
+for f in $usefiles; do
     echo "  - $f"
 done
 set -x

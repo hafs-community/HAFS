@@ -42,6 +42,8 @@ COMINrtofs={COMrtofs}
 ADECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/mnt/lfs4/HFIP/hwrfv3/local/share/cartopy
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

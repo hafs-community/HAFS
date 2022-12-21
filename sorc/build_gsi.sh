@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
-cwd=`pwd`
+cwd=$(pwd)
 
 cd hafs_gsi.fd/ush/
 

@@ -13,7 +13,7 @@
   use_pbl=.true.,use_compress=.false.,nsig_ext=12,gpstop=50.,
   use_gfs_nemsio=_USE_GFS_NEMSIO_,use_gfs_ncio=_USE_GFS_NCIO_,
   print_diag_pcg=.true.,l2rwthin=.false.,hurricane_radar=.true.,
-  use_gfs_ozone=.false.,
+  use_gfs_ozone=.false.,l4densvar=_L4DENSVAR_,nhr_obsbin=_NHR_OBSBIN_,
   lrun_subdirs=.true.,
   netcdf_diag=_NETCDF_DIAG_,binary_diag=_BINARY_DIAG_,
   newpc4pred=.true., adp_anglebc=.true., angord=4,

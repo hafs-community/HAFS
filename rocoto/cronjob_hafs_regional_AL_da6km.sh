@@ -38,7 +38,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.NHRS=12 config.scrub_work=no config.scrub_com=no
 
 ## 2021 NATL storm slots
-#./run_hafs.py ${opts} 2021080100-2021100600 00L HISTORY ${confopts} # 
+#./run_hafs.py ${opts} 2021080100-2021100600 00L HISTORY ${confopts} #
 
 ## 2020 NATL storm slots
 #./run_hafs.py ${opts} 2020060112-2020060812 00L HISTORY ${confopts} # Slot 1.0: 03L

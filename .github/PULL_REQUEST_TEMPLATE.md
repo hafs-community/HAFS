@@ -24,5 +24,4 @@ Running the HAFS application-level regression tests is currently performed by co
 - [ ] Jet
 - [ ] Hera
 - [ ] Orion
-- [ ] WCOSS Dell P3
-- [ ] WCOSS Cray
+- [ ] WCOSS2

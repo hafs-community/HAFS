@@ -17,7 +17,7 @@ else
 fi
 
 target=""
-USERNAME=`echo $LOGNAME | awk '{ print tolower($0)'}`
+USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
 if [[ -d /lfs4 ]] ; then
     # We are on NOAA Jet

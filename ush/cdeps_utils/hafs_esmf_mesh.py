@@ -21,7 +21,7 @@ The following commands can be used to install required Python modules to run thi
 """)
     sys.stderr.write(str(ie))
     exit(2)
-    
+
 
 def calculate_corners(center_lat, center_lon):
     """Calculate corner coordinates by averaging neighbor cells
@@ -42,7 +42,7 @@ def calculate_corners(center_lat, center_lon):
         # get dimensions
         dims = center_lon.shape
         nlon = dims[0]
-        nlat = dims[1] 
+        nlat = dims[1]
 
         # just rename and convert to dask array
         center_lat2d = da.from_array(center_lat)
@@ -71,7 +71,7 @@ def calculate_corners(center_lat, center_lon):
           center_lat2d_ext[2:,1:-1]+
           center_lat2d_ext[2:,2:])/4.0
 
-    # this looks clockwise ordering but it is transposed and becomes counterclockwise, bit-to-bit with NCL 
+    # this looks clockwise ordering but it is transposed and becomes counterclockwise, bit-to-bit with NCL
     corner_lat = da.stack([ul.T.reshape((-1,)).T, ll.T.reshape((-1,)).T, lr.T.reshape((-1,)).T, ur.T.reshape((-1,)).T], axis=1)
 
     # calculate corner coordinates for longitude, counterclockwise order, imposing Fortran ordering
@@ -94,10 +94,10 @@ def calculate_corners(center_lat, center_lon):
           center_lon2d_ext[2:,1:-1]+
           center_lon2d_ext[2:,2:])/4.0
 
-    # this looks clockwise ordering but it is transposed and becomes counterclockwise, bit-to-bit with NCL 
+    # this looks clockwise ordering but it is transposed and becomes counterclockwise, bit-to-bit with NCL
     corner_lon = da.stack([ul.T.reshape((-1,)).T, ll.T.reshape((-1,)).T, lr.T.reshape((-1,)).T, ur.T.reshape((-1,)).T], axis=1)
 
-    return center_lat2d, center_lon2d, corner_lat, corner_lon 
+    return center_lat2d, center_lon2d, corner_lat, corner_lon
 
 def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon, mask, area=None):
     """
@@ -125,7 +125,7 @@ def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon,
         sys.exit(2)
 
     # create element connections
-    corners = dd.concat([dd.from_dask_array(c) for c in [corner_lon.T.reshape((-1,)).T, corner_lat.T.reshape((-1,)).T]], axis=1)   
+    corners = dd.concat([dd.from_dask_array(c) for c in [corner_lon.T.reshape((-1,)).T, corner_lat.T.reshape((-1,)).T]], axis=1)
     corners.columns = ['lon', 'lat']
     elem_conn = corners.compute().groupby(['lon','lat'], sort=False).ngroup()+1
     elem_conn = da.from_array(elem_conn.to_numpy())
@@ -159,7 +159,7 @@ def write_to_esmf_mesh(filename, center_lat, center_lon, corner_lat, corner_lon,
         out['elementArea'] = xr.DataArray(area.T.reshape((-1,)).T,
                                           dims=('elementCount'),
                                           attrs={'units': 'radians^2',
-                                                 'long_name': 'area weights'})     
+                                                 'long_name': 'area weights'})
 
     # add mask
     out['elementMask'] = xr.DataArray(mask.T.reshape((-1,)).T,
@@ -190,18 +190,18 @@ def write_to_scrip(filename, center_lat, center_lon, corner_lat, corner_lon, mas
     dask array doesn't support order='F' for Fortran-contiguous (row-major) order
     the workaround is to arr.T.reshape.T
     """
-    # create new dataset for output 
+    # create new dataset for output
     out = xr.Dataset()
 
-    out['grid_dims'] = xr.DataArray(np.array(center_lat.shape, dtype=np.int32), 
-                                    dims=('grid_rank',)) 
+    out['grid_dims'] = xr.DataArray(np.array(center_lat.shape, dtype=np.int32),
+                                    dims=('grid_rank',))
     out.grid_dims.encoding = {'dtype': np.int32}
 
-    out['grid_center_lat'] = xr.DataArray(center_lat.T.reshape((-1,)).T, 
+    out['grid_center_lat'] = xr.DataArray(center_lat.T.reshape((-1,)).T,
                                           dims=('grid_size'),
                                           attrs={'units': 'degrees'})
 
-    out['grid_center_lon'] = xr.DataArray(center_lon.T.reshape((-1,)).T, 
+    out['grid_center_lon'] = xr.DataArray(center_lon.T.reshape((-1,)).T,
                                           dims=('grid_size'),
                                           attrs={'units': 'degrees'})
 
@@ -215,12 +215,12 @@ def write_to_scrip(filename, center_lat, center_lon, corner_lat, corner_lon, mas
 
     # include area if it is available
     if area:
-        out['grid_area'] = xr.DataArray(area.T.reshape((-1,)).T, 
+        out['grid_area'] = xr.DataArray(area.T.reshape((-1,)).T,
                                         dims=('grid_size'),
                                         attrs={'units': 'radians^2',
                                                'long_name': 'area weights'})
 
-    out['grid_imask'] = xr.DataArray(mask.T.reshape((-1,)).T, 
+    out['grid_imask'] = xr.DataArray(mask.T.reshape((-1,)).T,
                                      dims=('grid_size'),
                                      attrs={'units': 'unitless'})
     out.grid_imask.encoding = {'dtype': np.int32}
@@ -240,7 +240,7 @@ def write_to_scrip(filename, center_lat, center_lon, corner_lat, corner_lon, mas
     # write output file
     if filename is not None:
         print('Writing {} ...'.format(filename))
-        out.to_netcdf(filename)    
+        out.to_netcdf(filename)
 
 
 def file_type(x):
@@ -283,11 +283,11 @@ def main(argv):
     parser.add_argument('--addarea'  , help='Add area field to output file, defaults to not', required=False, action='store_true')
     parser.add_argument('--double'   , help='Double precision output, defaults to float', required=False, action='store_true')
     args = parser.parse_args()
-    
+
     if args.ifile:
         ifile = args.ifile
     if args.ofile:
-        ofile = args.ofile    
+        ofile = args.ofile
     if args.oformat:
         oformat = args.oformat
     if args.overwrite:
@@ -331,8 +331,8 @@ def main(argv):
     if os.path.isfile(ifile):
         ds = xr.open_dataset(ifile, mask_and_scale=False, decode_times=False).transpose()
     else:
-        print('Input file could not find!') 
-        sys.exit(2)       
+        print('Input file could not find!')
+        sys.exit(2)
 
     # check output file
     if overwrite:
@@ -341,7 +341,7 @@ def main(argv):
             os.remove(ofile)
     else:
         if os.path.isfile(ofile):
-            print('Output file exists. Please provide --overwrite flag.') 
+            print('Output file exists. Please provide --overwrite flag.')
             sys.exit(2)
 
     # check coordinate variables
@@ -387,7 +387,7 @@ def main(argv):
             mask = ds[maskvar][:,:,0]
         else:
             mask = ds[maskvar][:]
- 
+
         # use variable to construct mask information
         if maskcal:
             fill_value = None
@@ -422,7 +422,7 @@ def main(argv):
 
     # create output file
     if oformat.lower() == 'scrip':
-        write_to_scrip(ofile, center_lat, center_lon, corner_lat, corner_lon, mask)  
+        write_to_scrip(ofile, center_lat, center_lon, corner_lat, corner_lon, mask)
     else:
         write_to_esmf_mesh(ofile, center_lat, center_lon, corner_lat, corner_lon, mask)
 

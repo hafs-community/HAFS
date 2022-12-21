@@ -1,7 +1,9 @@
 [submodule "ufs-weather-model"]
 	path = sorc/hafs_forecast.fd
-	url = https://github.com/hafs-community/ufs-weather-model.git
-    branch = support/HAFS
+	url = https://github.com/ufs-community/ufs-weather-model.git
+    branch = develop
+#   url = https://github.com/hafs-community/ufs-weather-model.git
+#   branch = support/HAFS
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
 	url = https://github.com/hafs-community/UFS_UTILS.git
@@ -21,7 +23,7 @@
 [submodule "GPLOT"]
 	path = sorc/hafs_graphics.fd/hrd_gplot
 	url = https://github.com/hafs-community/GPLOT.git
-	branch = feature/realtime2022
+	branch = support/HAFS
 [submodule "hafs_graphics"]
 	path = sorc/hafs_graphics.fd/emc_graphics
 	url = https://github.com/hafs-community/hafs_graphics.git
