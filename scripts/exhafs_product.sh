@@ -286,8 +286,12 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   mkdir -p ${DATA}/nhc_products
   cd ${DATA}/nhc_products
   ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
-  ${NCP} ${COMhafs}/storm1.holdvars.txt .
   ${NLN} ${COMhafs}/${trk_atcfunix} fort.20
+  # prepare storm_info
+  rm -f storm_info
+  echo ${CDATE} > storm_info
+  echo ${STORMID^^} >> storm_info
+  echo ${STORM^^} >> storm_info
   set +e
   set -o pipefail
   time ./hafs_nhc_products.x 2>&1 | tee ./hafs_nhc_products.out

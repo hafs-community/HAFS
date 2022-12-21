@@ -12,7 +12,7 @@
   implicit none
   
   !---parameter define
-  character*80 atcf,storm_name, skip, lower_case, lower, upper
+  character*80 atcf,storm_name,skip,lower_case,lower,upper
   character yyyy*4,mm*2,dd*2,hh*2,storm_id*3
 
   integer nmax
@@ -20,17 +20,17 @@
   parameter(nmax=200)
   integer :: i,j,k
   real, dimension(0:nmax) :: fhr,wind,press,rlat,rlon, &
-                             direct,speed                   ! storm heading and speed
-  character clat(0:nmax)*1 , clon(0:nmax)*1                 ! save W,E or N,S  
+                             direct,speed                 ! storm heading and speed
+  character clat(0:nmax)*1,clon(0:nmax)*1                 ! save W,E or N,S
   integer :: tmp1,tmp2,tmp3,tmp4,tmp5
-  character s1*1 ,s2*1
+  character s1*1,s2*1
 
-  real dlat1,dlat2,dlon1,dlon2,dis,dt, dlat,dlon
+  real dlat1,dlat2,dlon1,dlon2,dis,dt,dlat,dlon
 
   real distsp
 
   !---message head
-  character line*80,head1*72,head2*72,head3*72,     &
+  character line*80,head1*72,head2*72,head3*72, &
             head4*72,head5*72,head6*72,stmtyp(3)*19,mon(12)*3,monz*3, &
             date*10,slsh*1,headcoup*72,headnocoup*72
 
@@ -52,23 +52,12 @@
   data slsh/'/'/
 
   !------------------------------------------------------------------
-  !---read storname and stormid from storm1.holdvars.txt
-  open(10,file='storm1.holdvars.txt',status='old',err=999)
-  do i=1, 91
-    read(10,*)
-  enddo
-  read(10,'(12x,A4,A2,A2,A2)')yyyy,mm,dd,hh
-  read(10,*)
-  read(10,*)
-  read(10,*)
-  read(10,'(13x,A10)')storm_name
-  read(10,'(15x,A3)')storm_id
+  !---read yyyymmddhh, storm_id, and storm_name from the storm_info file
+  open(10,file='storm_info',status='old',err=999)
+  read(10,'(A4,A2,A2,A2)')yyyy,mm,dd,hh
+  read(10,'(A3)')storm_id
+  read(10,'(A)')storm_name
   close(10)
-
-  !---construct atcf file name
-  atcf=lower(trim(storm_name)//trim(storm_id)//'.'  &
-  &        //yyyy//mm//dd//hh//'.hafs.trak.atcfunix')
-  write(*,*)'atcf=',trim(atcf)
 
   !---example: AL, 14, 2016100706, 03, HAFS, 000, 277N,  797W, 103,  938, XX,  34, NEQ, 023 
   do i=0,nmax
