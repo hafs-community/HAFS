@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eux
-cwd=`pwd`
+cwd=$(pwd)
 
 cd hafs_utils.fd
 

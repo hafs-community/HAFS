@@ -5,7 +5,7 @@
 # The script lists the *.xml files under $HAFS_dir/rocoto directory and gets
 # the different configuration names.
 # The script looks for:
-# 1. storm1.done 2. *hafs.trac.atcfunix.all 
+# 1. storm1.done 2. *hafs.trac.atcfunix.all
 # 3. SUCCEEDED for completion task
 
 # Author: Mrinal Biswas DTC/NCAR

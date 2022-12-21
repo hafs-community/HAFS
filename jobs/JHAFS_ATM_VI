@@ -43,7 +43,7 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 NDATE=${NDATE:-ndate}
-export CDATEprior=`${NDATE} -6 $CDATE`
+export CDATEprior=$(${NDATE} -6 $CDATE)
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 
 # Deterministic or ensemble

@@ -61,9 +61,7 @@ hrd_multistorm_keygen=functools.cmp_to_key(hrd_multistorm_sorter)
 # List of known tcvitals file locations.  Each is intended to be sent
 # through a datetime.datetime.format to get the final filename.
 vitfiles=[
-    '/gpfs/dell1/nco/ops/com/gfs/prod/syndat/syndat_tcvitals.%Y',
-    '/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
-    '/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS/syndat_tcvitals.%Y',
+    '/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
     '/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y']

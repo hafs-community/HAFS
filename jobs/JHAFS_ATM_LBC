@@ -17,11 +17,8 @@ export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
-  if [[ ${machine} != "wcoss2" ]]; then
-     module purge
-  fi
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
-  module load build.${machine}.intel
+# module load build.${machine}.intel
   module list
 fi
 
@@ -36,8 +33,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
-
-export COMgfs=${COMgfs:-/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16}
+export COMgfs=${COMgfs:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}

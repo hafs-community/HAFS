@@ -95,7 +95,7 @@ do
 
     # Check the status logs for all GPLOT components.
     # If every log doesn't say "complete", set ALL_COMPLETE=0
-    GPLOT_STATUS=( `find ${WORKgplot} -name "status.*" -exec cat {} \;` )
+    GPLOT_STATUS=( $(find ${WORKgplot} -name "status.*" -exec cat {} \;) )
     ALL_COMPLETE=1
     if [ ! -z "${GPLOT_STATUS[*]}" ];
     then

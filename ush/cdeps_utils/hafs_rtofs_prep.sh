@@ -4,15 +4,15 @@ set -xe
 
 merged="${1:-merged.nc}"
 
-for exe in cdo ncks ncrename ncap2 ; do
-    if ( ! which "$exe" ) ; then
+for exe in cdo ncks ncrename ncap2; do
+    if ( ! which "$exe" ); then
         echo "The \"$exe\" command isn't in your path! Go find it and rerun this job." 1>&2
         exit 1
-    fi  
+    fi
 done
 
-HOMEhafs=${HOMEhafs:-/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+HOMEhafs=${HOMEhafs:?}
+WORKhafs=${WORKhafs:?}
 USHhafs=${USHhafs:-${HOMEhafs}/ush}
 CDATE=${CDATE:-${YMDH}}
 
@@ -35,9 +35,9 @@ set -x
 files_to_merge=''
 missing=''
 
-for fhour in $( seq 0 3 $NHRS ) ; do
+for fhour in $( seq 0 3 $NHRS ); do
     infile="$DOCNdir/rtofs_glo_2ds_${CDATE:0:8}_f"$( printf %03d $fhour ).nc
-    if [[ ! -s "$infile" || ! -r "$infile" ]] ; then
+    if [[ ! -s "$infile" || ! -r "$infile" ]]; then
         echo "RTOFS input file is missing: $infile" 2>&1
         missing="$missing $infile"
     else
@@ -45,10 +45,10 @@ for fhour in $( seq 0 3 $NHRS ) ; do
     fi
 done
 
-if [[ "${missing:-}Q" != Q ]] ; then
+if [[ "${missing:-}Q" != Q ]]; then
     set +x
     echo "You are missing some RTOFS input files!"
-    for infile in $missing ; do
+    for infile in $missing; do
         echo "  missing: $infile"
     done
     echo " -> SCRIPT IS ABORTING BECAUSE INPUT FILES ARE MISSING <- "
@@ -57,7 +57,7 @@ fi
 
 set +x
 echo "RTOFS input files are:"
-for infile in $files_to_merge ; do
+for infile in $files_to_merge; do
         echo "  - $infile"
 done
 echo "Will merge RTOFS files into $merged"
@@ -90,4 +90,4 @@ rm -f rtofs_glo_2ds_prog_v5.nc
 
 # Rejoice.
 set +x
-echo "RTOFS files successfully merged." 
+echo "RTOFS files successfully merged."
