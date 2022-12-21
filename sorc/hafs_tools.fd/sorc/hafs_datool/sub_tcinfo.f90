@@ -85,7 +85,6 @@
      lon = lat
      lat = temp1
   endif
-  if ( lon < 0. .and. lon >= -180.) lon = lon + 360.
 
   return
   end subroutine check_tc_lon_lat

@@ -12,7 +12,6 @@
   integer :: i, j, n
   integer :: ncid, varid, ndims, nvars, xtype, dimids(5), vdim(5)
   character(len=50) :: varname, dimname
-  real    :: lon_c, lon_min
 
   call nccheck(nf90_open(trim(ncfile), nf90_nowrite, ncid), 'wrong in open: '//trim(ncfile), .true.)
   call nccheck(nf90_inquire(ncid, ndims, nvars), 'wrong in inquire ncid', .true.)
@@ -31,8 +30,7 @@
   allocate(grid%grid_lon(grid%grid_x,grid%grid_y))
   call nccheck(nf90_inq_varid(ncid, 'grid_lon', varid), 'wrong in nf90_inq_varid grid_lon', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_lon), 'wrong in get data of grid_lon', .false.)
-  !where ( grid%grid_lon > 180. ) grid%grid_lon=grid%grid_lon-360.
-  call longitude_expand_360to540(grid%grid_x,grid%grid_y,grid%grid_lon)
+  where ( grid%grid_lon > 180. ) grid%grid_lon=grid%grid_lon-360.
 
   if (allocated(grid%grid_lat)) deallocate(grid%grid_lat)
   allocate(grid%grid_lat(grid%grid_x,grid%grid_y))
@@ -49,8 +47,7 @@
   allocate(grid%grid_lont(grid%grid_xt,grid%grid_yt))
   call nccheck(nf90_inq_varid(ncid, 'grid_lont', varid), 'wrong in nf90_inq_varid grid_lont', .false.)
   call nccheck(nf90_get_var(ncid, varid, grid%grid_lont), 'wrong in get data of grid_lont', .false.)
-  !where ( grid%grid_lont > 180. ) grid%grid_lont=grid%grid_lont-360.
-  call longitude_expand_360to540(grid%grid_xt,grid%grid_yt,grid%grid_lont)
+  where ( grid%grid_lont > 180. ) grid%grid_lont=grid%grid_lont-360.
 
   if (allocated(grid%grid_latt)) deallocate(grid%grid_latt)
   allocate(grid%grid_latt(grid%grid_xt,grid%grid_yt))
