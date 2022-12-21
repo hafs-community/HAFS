@@ -41,6 +41,8 @@ COMINrtofs={COMrtofs}
 ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/scratch1/NCEPDEV/hwrf/noscrub/local/share/cartopy
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)

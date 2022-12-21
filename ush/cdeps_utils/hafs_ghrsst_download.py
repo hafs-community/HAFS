@@ -96,7 +96,7 @@ def download_one_day(when):
         filename_download = filename_base+'.download.nc'
         filename_final = filename_base+'.nc'
 
-    if os.path.exists(filename_final):  
+    if os.path.exists(filename_final):
         logger.info(filename_final+': already exists. Skipping.')
         return True
 
@@ -118,7 +118,7 @@ def download_one_day(when):
             produtil.fileop.deliver_file(filename_download,filename_final,logger=logger,
                                          keep=False,verify=False,moveok=True,force=True)
             quiet_remove(filename_download)
-            quiet_remove(filename_lock) 
+            quiet_remove(filename_lock)
         except Exception as e:
             quiet_remove(filename_download)
             if request is not None:
@@ -133,7 +133,7 @@ optlist,args = getopt.getopt(sys.argv[1:],'qvb:F:',[
 if len(args)<1:
     exit(usage("No arguments provided!"))
 for optarg in optlist:
-    if optarg[0] in ['-q', '--quiet']:  
+    if optarg[0] in ['-q', '--quiet']:
         log_level = logging.WARNING
     elif optarg[0] in ['-v', '--verbose']:
         log_level = logging.DEBUG
@@ -152,7 +152,7 @@ produtil.setup.setup(level=log_level,send_dbn=False)
 # Parse the days. This loop was modified from run_hafs.py:
 for arg in args:
     if re.match('\A\d{8}\Z',arg):
-        logger.info('single date/time') 
+        logger.info('single date/time')
         # Single date/time
         dayset.add(arg)
     elif re.match('\A\d{4}\Z',arg):
@@ -207,7 +207,7 @@ while daylist:
     # Download the file:
     try:
         pick_randomly = not download_one_day(as_datetime)
-    except produtil.locking.LockHeld:   
+    except produtil.locking.LockHeld:
         logger.info(f'{day}: lock is held; move on')
         daylist.append(day)
         if iloop>=len(daylist):

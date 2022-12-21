@@ -132,7 +132,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  # GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled dual-resolution HAFS enkf ensembles + 3hourly FGAT
  # On top of the hafsv0p1aL64 configuration without ocean coupling
  # Dual-resolution ENSDA system, 3-km deterministic, 6-km ensembles, same domain coverage
- # Notes: 
+ # Notes:
  #   * need to increase the number of cores (from 200 to 800) to run the analysis jobs
  ./run_hafs.py ${opts} 2020082506-2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsv0p1aL64_full_3densda_dualres \
@@ -147,7 +147,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 ## GSIVR + GSIVR_FGAT + GSIVR_ENS + 3DEnVar with self-cycled dual-resolution HAFS enkf ensembles + 3hourly FGAT + ocean coupling
 ## On top of the hafsv0p1aL64 configuration with ocean coupling;
 ## Dual-resolution ENSDA system, 3-km deterministic, 6-km ensembles, same domain coverage
-## Notes: 
+## Notes:
 ##   * need to increase the number of cores (from 200 to 800) to run the analysis jobs
 # ./run_hafs.py ${opts} 2020082506-2020082512 00L HISTORY \
 #    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsv0p1acplL64_full_3densda_dualres \

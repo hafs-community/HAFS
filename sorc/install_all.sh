@@ -1,8 +1,9 @@
 #!/bin/sh
 set -xeu
-cwd=`pwd`
 
-CP='cp -rp'
+cwd=$(pwd)
+
+CP='/bin/cp -rp'
 
 #------------------------------------
 # INCLUDE PARTIAL BUILD
@@ -97,7 +98,7 @@ $Build_hycom_utils && {
 }
 
 #------------------------------------
-# install ww3_utils 
+# install ww3_utils
 #------------------------------------
 $Build_ww3_utils && {
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grid                ../exec/hafs_ww3_grid.x

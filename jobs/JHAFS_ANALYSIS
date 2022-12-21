@@ -18,7 +18,7 @@ export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  if [ ${machine}  = "hera" ]; then 
+  if [ ${machine}  = "hera" ]; then
     module load gsi_${machine}.intel
   else
     module load gsi_${machine}
@@ -46,13 +46,13 @@ export ENSDA=${ENSDA:-NO}
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
 
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
 
 export NDATE=${NDATE:-ndate}
 export NCP=${NCP:-"/bin/cp"}
-CDATEprior=`${NDATE} -6 $CDATE`
+CDATEprior=$(${NDATE} -6 $CDATE)
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
@@ -127,7 +127,7 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttil
 # pass over phy_data as well
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
 
-if [[ ! -z "$neststr" ]] ; then
+if [[ ! -z "$neststr" ]]; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
@@ -135,7 +135,7 @@ if [[ ! -z "$neststr" ]] ; then
 fi
 
 # Pass over the grid_mspec files for moving nest
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]]; then
   if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
     # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
     ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
@@ -198,7 +198,7 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttil
 # pass over phy_data as well
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
 
-if [[ ! -z "$neststr" ]] ; then
+if [[ ! -z "$neststr" ]]; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
@@ -206,7 +206,7 @@ if [[ ! -z "$neststr" ]] ; then
 fi
 
 # Pass over the grid_mspec files for moving nest
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]]; then
   if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
     # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
     ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/

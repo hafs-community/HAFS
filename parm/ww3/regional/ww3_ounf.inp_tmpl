@@ -1,7 +1,7 @@
 $ -------------------------------------------------------------------- $
 $ WAVEWATCH III Grid output post-processing                            $
 $--------------------------------------------------------------------- $
-$ First output time (yyyymmdd hhmmss), increment of output (s), 
+$ First output time (yyyymmdd hhmmss), increment of output (s),
 $ and number of output times.
 $
   <u:FLD_BEG>  <i:FLD_DT>  9999
@@ -19,7 +19,7 @@ $--------------------------------------------------------------------- $
 $ netCDF version [3,4]
 $        and variable type 4 [2 = SHORT, 3 = it depends , 4 = REAL]
 $ swell partitions [0 1 2 3 4 5]
-$ variables in same file [T] or not [F] 
+$ variables in same file [T] or not [F]
 $
  3 4
  0 1 2
@@ -30,9 +30,9 @@ $ File prefix
 $ number of characters in date [4(yearly),6(monthly),8(daily),10(hourly)]
 $ IX and IY ranges [regular:IX NX IY NY, unstructured:IP NP 1 1]
 $
- ww3.         
+ ww3.
  4
- 1 9999 1 9999 
+ 1 9999 1 9999
 $
 $ For each field and time a new file is generated with the file name
 $ ww3.date_xxx.nc , where date is a conventional time indicator with S3

@@ -86,6 +86,7 @@ export DATM_SOURCE={DATM_SOURCE}
 export SYNDAThafs={syndat}
 export ADECKhafs={ADECKhafs}
 export BDECKhafs={BDECKhafs}
+export cartopyDataDir={cartopyDataDir}
 
 export PARMforecast={PARMforecast}
 
