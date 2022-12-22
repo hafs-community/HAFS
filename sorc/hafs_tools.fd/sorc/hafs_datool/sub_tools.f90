@@ -770,11 +770,10 @@
 
      !--- find TC vortex relax zone
      if ( tc%vortexrep==1 .and. tc%lat>-85. .and. tc%lat<85. .and. tc%lon>=-180. .and. tc%lon<=360. ) then
+        if ( tc%lon<0.)tc%lon=tc%lon+360.
         if ( ixs>=1 .and. ixs<=src_ix .and. jxs>=1 .and. jxs<=src_jx) then
            lon180_1=src_lon(ixs,jxs)
-           if ( lon180_1 > 180. ) lon180_1 = lon180_1 -360.
            lon180_2=tc%lon
-           if ( lon180_2 > 180. ) lon180_2 = lon180_2 - 360.
            dis = earth_dist(lon180_1,src_lat(ixs,jxs),lon180_2,tc%lat)/1000.
 
            if ( abs(tc%vortexreplace_r(1)-tc%vortexreplace_r(2)) < 1.0 .or. tc%vortexreplace_r(1) < 1.0 .or. tc%vortexreplace_r(2) < 1.0 ) then
@@ -1007,5 +1006,72 @@
 !#endif
   endif
   end function lowercase
+
+!-----------------------------------------------------------------------+
+  subroutine longitude_expand_360to540(nx, ny, lon)
+
+  implicit none
+
+  integer, intent(in) :: nx, ny
+  real, dimension(nx,ny), intent(inout) :: lon
+
+  real    :: lon_c, lon_min, lon_ir, lon_il, lon_jt, lon_jb, lon_west
+  integer :: ic, jc, i0, j0
+
+  !---change grid to [0~360)
+  where ( lon >= 360. ) lon=lon-360.
+  where ( lon <    0. ) lon=lon+360.
+
+  !---if lon within [0 360), return
+  ic = int(nx/2)
+  jc = int(ny/2)
+  if ( ic < 3 .or. jc < 3 ) return
+
+  lon_c = lon(ic,jc)
+  lon_min = minval(lon)
+  if ( abs(lon_c-lon_min) < 180. ) then
+     !---the domain is within [0, 360), no change needed
+     return
+  else
+     !---find out the longitude dimension & west-boundary
+     lon_il = ( lon(ic-1,jc)+lon(ic-1,jc-1)+lon(ic-1,jc+1)+    &
+                lon(ic-2,jc)+lon(ic-2,jc-1)+lon(ic-2,jc+1) )/6.0
+     lon_ir = ( lon(ic+1,jc)+lon(ic+1,jc-1)+lon(ic+1,jc+1)+    &
+                lon(ic+2,jc)+lon(ic+2,jc-1)+lon(ic+2,jc+1) )/6.0
+     lon_jt = ( lon(ic-1,jc+1)+lon(ic,jc+1)+lon(ic+1,jc+1)+    &
+                lon(ic-1,jc+2)+lon(ic,jc+2)+lon(ic+1,jc+2) )/6.0
+     lon_jb = ( lon(ic-1,jc-1)+lon(ic,jc-1)+lon(ic+1,jc-1)+    &
+                lon(ic-1,jc-2)+lon(ic,jc-2)+lon(ic+1,jc-2) )/6.0
+
+     i0=-99
+     j0=-99
+     lon_west=0.0
+     if ( abs(lon_ir-lon_il) >= abs(lon_jt-lon_jb) ) then
+        !---nx is for longitude
+        if ( lon_il <= lon_ir ) then
+           i0=1   !left is the west-boundary
+        else
+           i0=nx  !right is the west-boundary
+        endif
+        !---find out the most west value
+        lon_west=minval(lon(i0,:))
+     else
+        !---ny is for longitude
+        if ( lon_jb <= lon_jt ) then
+           j0=1
+        else
+           j0=ny
+        endif
+        !---find out the most west value
+        lon_west=minval(lon(:,j0))
+     endif
+
+     !---add 360 to the right area
+     where ( lon < lon_west ) lon=lon+360.
+     return
+  endif
+
+  end subroutine longitude_expand_360to540
+
 
 !-----------------------------------------------------------------------+
