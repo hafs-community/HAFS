@@ -51,7 +51,7 @@ export INPdir=${INPdir:-${WORKhafs}/forecast}
 export DATA=${WORKhafs}/hrdgraphics
 
 export SENDCOM=${SENDCOM:-YES}
-export SCRUBDATA=${SCRUBDATA:-NO}
+export SCRUBDATA=${SCRUBDATA:-YES}
 
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
