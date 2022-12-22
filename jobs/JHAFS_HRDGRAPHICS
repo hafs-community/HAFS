@@ -44,6 +44,7 @@ export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
+export pubbasin2=${pubbasin2:-AL}
 export ENSDA=${ENSDA:-NO}
 
 export INPdir=${INPdir:-${WORKhafs}/forecast}
