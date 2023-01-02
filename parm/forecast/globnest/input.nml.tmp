@@ -204,6 +204,7 @@
   moninq_fac     = -1.0   ! HWRF_moninedmf
   satmedmf       = .true.
   isatmedmf      = 1
+  lseaspray      = @[lseaspray]
   rlmx           = @[rlmx_nml]
   elmx           = @[elmx_nml]
   sfc_rlm        = @[sfc_rlm_nml]

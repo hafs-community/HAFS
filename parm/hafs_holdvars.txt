@@ -243,6 +243,7 @@ export iems={iems}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
 export iaer={iaer}
+export lseaspray={lseaspray}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
