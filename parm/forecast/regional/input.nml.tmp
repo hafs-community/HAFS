@@ -289,15 +289,18 @@
   nsmooth        = 100
   ca_amplitude   = 0.35
   print_diff_pgr = .true.
+  do_ugwp        = .false.
+  do_tofd        = .false.
   gwd_opt        = 2
   do_ugwp_v0     = .false.
   do_ugwp_v1     = .false.
+  do_ugwp_v0_orog_only = .false.
+  do_ugwp_v0_nst_only  = .true.
   do_ugwp_v1_w_gsldrag = .false.
   do_ugwp_v1_orog_only = .false.
   do_gsl_drag_ls_bl    = .true.
   do_gsl_drag_ss       = .true.
   do_gsl_drag_tofd     = .true.
-  do_ugwp_v0_orog_only = .false.
 /
 
 &gfdl_cloud_microphysics_nml
