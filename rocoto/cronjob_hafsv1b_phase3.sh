@@ -99,7 +99,7 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2020100118-2020100600 25L HISTORY ${confopts} # Gamma
 #./run_hafs.py ${opts} 2020100312-2020101012 26L HISTORY ${confopts} # Delta
 #./run_hafs.py ${opts} 2020101618-2020102600 27L HISTORY ${confopts} # Epsilon
-#./run_hafs.py ${opts} 2020102412-2020102912 28L HISTORY ${confopts} # Zeta
+#./run_hafs.py ${opts} 2020102412-2020102806 28L HISTORY ${confopts} # Zeta # GFS input data missing after 2020102806
 
 #===============================================================================
  # 2022 EPAC storms
