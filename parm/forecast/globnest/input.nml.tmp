@@ -2,7 +2,7 @@
   blocksize = @[blocksize]
   chksum_debug = .false.
   dycore_only = .false.
-  avg_max_length = 3600.
+  avg_max_length = 10800.
   ccpp_suite = '@[ccpp_suite_nml]'
   ignore_rst_cksum = .true.
 /
@@ -168,7 +168,7 @@
   fhzero         = 3.
   ldiag3d        = .false.
   lradar         = .true.
-  avg_max_length = 3600.
+  avg_max_length = 10800.
   h2o_phys       = .true.
   fhcyc          = 0.
   use_ufo        = .true.
