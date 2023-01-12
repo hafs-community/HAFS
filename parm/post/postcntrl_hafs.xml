@@ -554,4 +554,64 @@
 
     </paramset>
 
+    <paramset>
+       <datset>HURSAT</datset>
+       <grid_num>32769</grid_num>
+       <sub_center>ncep_nco</sub_center>
+       <version_no>v2003</version_no>
+       <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+       <sigreftime>fcst</sigreftime>
+       <prod_status>oper</prod_status>
+       <data_type>fcst</data_type>
+       <gen_proc_type>fcst</gen_proc_type>
+       <time_range_unit>hour</time_range_unit>
+       <orig_center>nws_ncep</orig_center>
+       <gen_proc>hafs</gen_proc>
+       <packing_method>complex_packing_spatial_diff</packing_method>
+       <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+       <field_datatype>fltng_pnt</field_datatype>
+       <comprs_type>lossless</comprs_type>
+
+       <param>
+       <shortname>SBTAGR8_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTAGR9_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTAGR10_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SBTAGR13_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SSMS1715_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SSMS1716_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SSMS1717_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>SSMS1718_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+       </param>
+
+    </paramset>
+
    </postxml>
