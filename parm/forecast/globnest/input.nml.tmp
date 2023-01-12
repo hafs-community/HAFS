@@ -216,7 +216,7 @@
   do_deep        = @[do_deep_nml]
   imfshalcnv     = 2
   imfdeepcnv     = 2
-  clam_deep      = 0.1
+  clam_deep      = @[clam_deep]
   betal_deep     = 0.05
   betas_deep     = 0.05
   cdmbgwd        = 1.0,1.0,1.0,1.0
