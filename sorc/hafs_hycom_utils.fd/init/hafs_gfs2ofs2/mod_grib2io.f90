@@ -4,7 +4,7 @@ module mod_grib2io
        use params
  private
  public rdgrib
- logical, dimension(200),save :: opn=.true.
+ logical, dimension(900),save :: opn=.true.
 contains
 !
 
@@ -19,7 +19,7 @@ contains
        character (len=200) :: idxfile
 
        integer   jpdtno,jdisc,pack,xpts,ypts
-       logical, dimension(200),save :: opn=.true.
+       logical, dimension(900),save :: opn=.true.
        logical, save :: opned
        type(gribfield) :: gfld
 
