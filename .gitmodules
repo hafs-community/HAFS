@@ -6,9 +6,11 @@
     branch = feature/hafs.v1.0.0
 [submodule "UFS_UTILS"]
 	path = sorc/hafs_utils.fd
-	url = https://github.com/hafs-community/UFS_UTILS.git
+#   url = https://github.com/hafs-community/UFS_UTILS.git
 #   branch = support/HAFS
-    branch = feature/hafs.v1.0.0
+#   branch = production/hafs.v1
+    url = https://github.com/ufs-community/UFS_UTILS.git
+    branch = develop
 [submodule "gfdl-tracker"]
 	path = sorc/hafs_tracker.fd
 	url = https://github.com/hafs-community/gfdl-tracker.git
