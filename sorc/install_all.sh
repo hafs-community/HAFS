@@ -31,7 +31,6 @@ $Build_utils && {
   ${CP} hafs_utils.fd/exec/make_hgrid                ../exec/hafs_make_hgrid.x
   ${CP} hafs_utils.fd/exec/make_solo_mosaic          ../exec/hafs_make_solo_mosaic.x
   ${CP} hafs_utils.fd/exec/fregrid                   ../exec/hafs_fregrid.x
-  ${CP} hafs_utils.fd/exec/mppnccombine              ../exec/hafs_mppnccombine.x
   ${CP} hafs_utils.fd/exec/filter_topo               ../exec/hafs_filter_topo.x
   ${CP} hafs_utils.fd/exec/shave                     ../exec/hafs_shave.x
 }
