@@ -77,7 +77,7 @@ _hafsutils_analysis_update (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application 
-    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the analysis-update application.
 
@@ -117,7 +117,7 @@ _hafsutils_obs_preproc (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the obs-preproc application.
     make all
@@ -156,7 +156,7 @@ _hafsutils_change_prepbufr (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the hafs_change_prepbufr application.
     make all
@@ -197,7 +197,7 @@ _hafsutils_datool (){
 
     # Generate makefile using CMake for the application
     # BUILD_TYPE supports RELEASE OR DEBUG MODE
-    cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=RELEASE
+    cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the hafs_datool application.
     make all VERBOSE=3
@@ -237,7 +237,7 @@ _hafsutils_vi (){
 
     # Generate makefile using CMake for the application
     # BUILD_TYPE supports RELEASE OR DEBUG MODE
-    cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=RELEASE
+    cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the hafs_vi application.
     make all VERBOSE=3

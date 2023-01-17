@@ -45,7 +45,11 @@ if [ -d "${TOOLS_PATH}/build" ]; then
 fi
 mkdir ${TOOLS_PATH}/build
 cd ${TOOLS_PATH}/build
-cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+
+export BUILD_TYPE=DEBUG
+export BUILD_TYPE=${BUILD_TYPE:-RELEASE}
+
+cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 #make -j 8
 make -j 8 VERBOSE=1
 make install
