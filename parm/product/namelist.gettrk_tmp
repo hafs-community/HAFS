@@ -13,7 +13,7 @@
 
 &atcfinfo
   atcfnum = 81,
-  atcfname = "HAFS",
+  atcfname = "_RUN_",
   atcfymdh = _YMDH_,
   atcffreq = 100,
 /

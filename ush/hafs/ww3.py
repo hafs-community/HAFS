@@ -366,7 +366,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         logger=self.log()
         for lf in [ 'ww3_grid.log', 'ww3_prep_wind.log', 'ww3_prep_curr.log',
                     'ww3_strt.log', 'ww3_untarbdy.log', 'ww3_bound.log' ]:
-            comloc=self.icstr('{com}/{out_prefix}.{lf}.ww3',lf=lf)
+            comloc=self.icstr('{com}/{out_prefix}.{RUN}.{lf}.ww3',lf=lf)
             if os.path.exists(lf):
                 deliver_file(lf,comloc,keep=True,logger=logger)
 
@@ -457,16 +457,16 @@ class WW3Init(hafs.hafstask.HAFSTask):
 ########################################################################
 
 ww3postprodnames={
-    'ww3outgrd':       ( './out_grd.ww3',    '{com}/{out_prefix}.out_grd.ww3' ),
-    'ww3grb2':         ( './gribfile',       '{com}/{out_prefix}.ww3.grb2' ),
-    'ww3grb2idx':      ( './gribfile.idx',   '{com}/{out_prefix}.ww3.grb2.idx' ),
-    'ww3ounf':         ( './ww3.%Y.nc',      '{com}/{out_prefix}.ww3_ounf.nc' ),
-    'ww3outpnt':       ( './out_pnt.ww3',    '{com}/{out_prefix}.out_pnt.ww3' ),
-    'ww3ounpspec':     ( './ww3.%Y_spec.nc', '{com}/{out_prefix}.ww3_ounp_spec.nc' ),
-    'ww3outpbull':     ( './ww3_bull.tar',   '{com}/{out_prefix}.ww3_bull.tar' ),
-    'ww3outpcbull':    ( './ww3_cbull.tar',  '{com}/{out_prefix}.ww3_cbull.tar' ),
-    'ww3outpcsbull':   ( './ww3_csbull.tar', '{com}/{out_prefix}.ww3_csbull.tar' ),
-    'ww3outpspec':     ( './ww3_spec.tar',   '{com}/{out_prefix}.ww3_spec.tar' ) }
+    'ww3outgrd':       ( './out_grd.ww3',    '{com}/{out_prefix}.{RUN}.out_grd.ww3' ),
+    'ww3grb2':         ( './gribfile',       '{com}/{out_prefix}.{RUN}.ww3.grb2' ),
+    'ww3grb2idx':      ( './gribfile.idx',   '{com}/{out_prefix}.{RUN}.ww3.grb2.idx' ),
+    'ww3ounf':         ( './ww3.%Y.nc',      '{com}/{out_prefix}.{RUN}.ww3_ounf.nc' ),
+    'ww3outpnt':       ( './out_pnt.ww3',    '{com}/{out_prefix}.{RUN}.out_pnt.ww3' ),
+    'ww3ounpspec':     ( './ww3.%Y_spec.nc', '{com}/{out_prefix}.{RUN}.ww3_ounp_spec.nc' ),
+    'ww3outpbull':     ( './ww3_bull.tar',   '{com}/{out_prefix}.{RUN}.ww3_bull.tar' ),
+    'ww3outpcbull':    ( './ww3_cbull.tar',  '{com}/{out_prefix}.{RUN}.ww3_cbull.tar' ),
+    'ww3outpcsbull':   ( './ww3_csbull.tar', '{com}/{out_prefix}.{RUN}.ww3_csbull.tar' ),
+    'ww3outpspec':     ( './ww3_spec.tar',   '{com}/{out_prefix}.{RUN}.ww3_spec.tar' ) }
 
 class WW3Post(hafs.hafstask.HAFSTask):
     """Run WW3 post-process."""

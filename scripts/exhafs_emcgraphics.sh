@@ -118,7 +118,7 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run graphics for this forecast hour
 else
 
-atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 prodlog=${WORKhafs}/product/run_product.grid02.log
 FHRN=$(($FHR + $NOUTHRS))
 STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
@@ -156,9 +156,9 @@ touch $cmdfile
 #==============================================================================
 
 # Produce these figures only if product job is still running (not done yet).
-if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all ]; then
+if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all ]; then
 
-atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 
 cd ${WORKgraph}
 
@@ -328,7 +328,7 @@ done
 # Plot ATCF track and intensity figures after the product job is done
 #==============================================================================
 
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 
 # Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
 n=1
@@ -367,7 +367,7 @@ if [ ${run_ocean} = yes ]; then
 cd ${WORKgraph}
 
 # Wait for hycompost and product output
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]; do
   if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then

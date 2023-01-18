@@ -39,6 +39,7 @@
   <!-- Directory paths and experiment names. -->
   <!ENTITY WHERE_AM_I "@[WHERE_AM_I]">
   <!ENTITY PRE      "@[USHhafs]/rocoto_pre_job.sh">
+  <!ENTITY RUN      "@[RUN]">
   <!ENTITY EXPT     "@[EXPT]">
   <!ENTITY SUBEXPT  "@[SUBEXPT:-EXPT]">
   <!ENTITY HOMEhafs "@[CDSAVE]/&EXPT;">
@@ -461,7 +462,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -493,7 +494,7 @@
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -524,7 +525,7 @@
 	  <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
           </and>
         </or>
       </and>
@@ -557,7 +558,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f012</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
             </and>
           </or>
         </and>
@@ -1105,7 +1106,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1139,7 +1140,7 @@
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>
@@ -1174,7 +1175,7 @@
             <and>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/grid_spec.nc</datadep>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.hafs.trak.atcfunix.f006</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f006</datadep>
             </and>
           </or>
         </and>

@@ -12,7 +12,7 @@ export use_bufr_nr=${use_bufr_nr:-no}
 export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
 export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}

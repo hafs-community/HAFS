@@ -29,7 +29,7 @@ NDATE=${NDATE:-ndate}
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
 source ${ATPARSE}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 satpost=${satpost:-.false.}
 
 ENSDA=${ENSDA:-NO}

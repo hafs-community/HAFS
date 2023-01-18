@@ -43,7 +43,6 @@ NDATE=${NDATE:-ndate}
 WGRIB2=${WGRIB2:-wgrib2}
 GRB2INDEX=${GRB2INDEX:-grb2index}
 MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-MPPNCCOMBINE=${MPPNCCOMBINE:-${EXEChafs}/hafs_mppnccombine.x}
 POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
 
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -51,7 +50,7 @@ intercom=${intercom:-${WORKhafs}/intercom/post}
 COMOUTpost=${COMOUTpost:-${COMhafs}}
 SENDCOM=${SENDCOM:-YES}
 
-out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 output_grid=${output_grid:-rotated_latlon}
 post_gridspecs=${post_gridspecs:-""}
 trak_gridspecs=${trak_gridspecs:-""}
@@ -95,23 +94,23 @@ else
   nestdotstr=".nest$(printf '%02d' ${ng})."
 fi
 
-gridstr=".grid$(printf '%02d' ${ng})"
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
 
 outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
 postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${ng})
 trakgridspecs=$(echo ${trak_gridspecs} | cut -d, -f ${ng})
 
-grb2post=${out_prefix}.hafs${gridstr}.f${FHR3}.postgrb2
-grb2file=${out_prefix}.hafs${gridstr}.f${FHR3}.grb2
-grb2indx=${out_prefix}.hafs${gridstr}.f${FHR3}.grb2.idx
-sat_grb2post=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.postgrb2
-sat_grb2file=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.grb2
-sat_grb2indx=${out_prefix}.hafs${gridstr}.sat.f${FHR3}.grb2.idx
-trk_grb2file=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2
-trk_grb2indx=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2.ix
+grb2post=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.postgrb2
+grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
+grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
+sat_grb2post=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.postgrb2
+sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
+sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
+trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 
 fort_patcf="fort.6$(printf '%02d' ${ng})"
-trk_patcf=${out_prefix}.hafs.trak.patcf
+trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
 if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
@@ -198,7 +197,7 @@ MODELNAME='FV3R'
 fileNameFlux='${INPdir}/sfc${nestdotstr}f${FHR3}.nc'
 /
 &NAMPGB
-KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,
+KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,numx=2
 /
 EOF
 
@@ -208,6 +207,7 @@ ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
 
 if [ ${satpost} = .true. ]; then
+# ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
@@ -326,23 +326,54 @@ if [ ${satpost} = .true. ]; then
 fi
 
 # Extract hafstrk grib2 files for the tracker
-PARMlist="UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD:10 m a|ABSV:850|ABSV:700|MSLET|"
-PARMlist=${PARMlist}"HGT:900|HGT:850|HGT:800|HGT:750|HGT:700|HGT:650|HGT:600|HGT:550|HGT:500|HGT:450|HGT:400|"
-PARMlist=${PARMlist}"HGT:350|HGT:300|HGT:250|HGT:200|TMP:500|TMP:450|TMP:400|TMP:350|TMP:300|TMP:250|TMP:200"
+PARMlistp1="UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD:10 m a|ABSV:850|ABSV:700|MSLET"
+PARMlistp2="HGT:900|HGT:850|HGT:800|HGT:750|HGT:700|HGT:650|HGT:600|HGT:550|HGT:500|HGT:450|HGT:400"
+PARMlistp3="HGT:350|HGT:300|HGT:250|HGT:200|TMP:500|TMP:450|TMP:400|TMP:350|TMP:300|TMP:250|TMP:200"
+PARMlist=${PARMlistp1}"|"${PARMlistp2}"|"${PARMlistp3}
 echo ${PARMlist}
 
 ${APRUNS} ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
 
 # Create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
 if [ $ng -eq 2 ]; then
-  trkd01_grb2file=${out_prefix}.hafs.grid01.trk.f${FHR3}.grb2
-  trkd02_grb2file=${out_prefix}.hafs.grid02.trk.f${FHR3}.grb2
-  trkd12_grb2file=${out_prefix}.hafs.grid12.trk.f${FHR3}.grb2
+  gridstr01=$(echo ${out_gridnames} | cut -d, -f 1)
+  gridstr02=$(echo ${out_gridnames} | cut -d, -f 2)
+  gridstr12="merged"
+  trkd01_grb2file=${out_prefix}.${RUN}.${gridstr01}.trk.f${FHR3}.grb2
+  trkd02_grb2file=${out_prefix}.${RUN}.${gridstr02}.trk.f${FHR3}.grb2
+  trkd12_grb2file=${out_prefix}.${RUN}.${gridstr12}.trk.f${FHR3}.grb2
   opts='-set_grib_type c2 -new_grid_winds grid -new_grid_vectors "UGRD:VGRD" -new_grid_interpolation neighbor'
-  ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires
-  ${APRUNS} ${WGRIB2} ${trkd02_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires
-  ${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" \
-       -grib_out ${trkd12_grb2file}
+  rm -f cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} -match '"'${PARMlistp1}'"' ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires_p1 >  cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} -match '"'${PARMlistp2}'"' ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires_p2 >> cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires_p3 >> cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp1}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p1             >> cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp2}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p2             >> cmdfile_regrid
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
+ #echo ${APRUNS} ${WGRIB2} ${intercom}/${trkd01_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd01_grb2file}.hires >  cmdfile_regrid
+ #echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file} ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires             >> cmdfile_regrid
+  chmod +x cmdfile_regrid
+  if [ ${machine} = "wcoss2" ]; then
+    ncmd=$(cat ./cmdfile_regrid | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile_regrid
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
+  fi
+  rm -f cmdfile_merge
+ #${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires_p1 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p1 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p1 >  cmdfile_merge
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires_p2 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p2 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p2 >> cmdfile_merge
+  echo ${APRUNS} ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
+  chmod +x cmdfile_merge
+  if [ ${machine} = "wcoss2" ]; then
+    ncmd=$(cat ./cmdfile_merge | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile_merge
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile_merge
+  fi
+  cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
 
@@ -367,7 +398,6 @@ fi
 
 if [ ${gtype} = regional ]; then
 
-# Use mppnccombine to combine fragmented files if needed
 grid_spec=grid_spec${nesttilestr}.nc
 atmos_static=atmos_static${nesttilestr}.nc
 if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
@@ -382,41 +412,6 @@ fv_tracer=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
 fv_srf_wnd=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
-
-rm -f cmdfile_mppnccombine
-touch cmdfile_mppnccombine
-for file in ${INPdir}/${grid_spec} \
-            ${INPdir}/${atmos_static} \
-            ${INPdir}/${grid_mspec} \
-            ${INPdir}/${atmos_diag} \
-            ${INPdir}/RESTART/${fv_core} \
-            ${INPdir}/RESTART/${fv_tracer} \
-            ${INPdir}/RESTART/${fv_srf_wnd} \
-            ${INPdir}/RESTART/${sfc_data} \
-            ${INPdir}/RESTART/${phy_data}; do
-  if [[ -s ${file}.0000 ]]; then
-    if [ $FHR -ge 12 ] && [ ${file} == ${INPdir}/${grid_mspec} ]; then
-      echo "Skip combining ${file}"
-    else
-      rm -f ${file}
-      # Wait for file to be complete in case it is still being written
-      while [ $(( $(date +%s) - $(stat -c %Y ${file}.0000) )) -lt 20  ]; do sleep 10; done
-      echo "time ${MPPNCCOMBINE} -v -n4 -r ${file}" >> cmdfile_mppnccombine
-     #echo "time ${MPPNCCOMBINE} -v -64 -r ${file}" >> cmdfile_mppnccombine
-    fi
-  fi
-done
-
-if [ -s cmdfile_mppnccombine ]; then
-  chmod +x cmdfile_mppnccombine
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat ./cmdfile_mppnccombine | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-    $APRUNCFP -n $ncmd_max cfp ./cmdfile_mppnccombine
-  else
-    ${APRUNC} ${MPISERIAL} -m cmdfile_mppnccombine
-  fi
-fi
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then

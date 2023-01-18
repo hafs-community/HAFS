@@ -6,6 +6,8 @@
 export TZ=UTC # Orion workaround
 
 export envir={ENV[envir|-prod]}
+export NET={NET}
+export RUN={RUN}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
@@ -261,6 +263,7 @@ export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
+export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
