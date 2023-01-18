@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 
-export BUILD_TYPE=DEBUG 
+#export BUILD_TYPE=DEBUG 
 export BUILD_TYPE=RELEASE
 export BUILD_TYPE=${BUILD_TYPE:-RELEASE}
 
