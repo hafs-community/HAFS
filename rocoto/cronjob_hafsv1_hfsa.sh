@@ -11,13 +11,9 @@ EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
 #===============================================================================
 
- #hafsv1b phase3
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1b_phase3 \
-     ../parm/hafsv1b_phase3.conf"
-
-##hafsv1b phase3 72s
-#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1b_phase3_72s \
-#    ../parm/hafsv1b_phase3_72s.conf"
+ #hafsv1 hfsa
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa \
+     ../parm/hafsv1_hfsa.conf"
 
  # Technical testing for Hurricane Laura
 #./run_hafs.py ${opts} 2020082512 13L HISTORY ${confopts} \
