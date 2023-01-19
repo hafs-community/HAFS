@@ -24,7 +24,7 @@
 	path = sorc/hafs_gsi.fd
 	url = https://github.com/hafs-community/GSI.git
 #   branch = support/HAFS
-	branch = feature/hafs.v1.0.0
+	branch = production/hafs.v1
 [submodule "GPLOT"]
 	path = sorc/hafs_graphics.fd/hrd_gplot
 	url = https://github.com/hafs-community/GPLOT.git
