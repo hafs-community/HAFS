@@ -13,7 +13,7 @@ stormid=${STORMID,,}
 export NOUTHRS=${NOUTHRS:-3}
 export run_ocean=${run_ocean:-no}
 
-stormModel=${stormModel:-HAFS}
+stormModel=${stormModel:-${RUN^^}}
 #figTimeLevels=$(seq 0 42)
 trackOn=${trackOn:-False}
 
@@ -119,7 +119,7 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 else
 
 atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-prodlog=${WORKhafs}/product/run_product.grid02.log
+prodlog=${WORKhafs}/product/run_product.storm.log
 FHRN=$(($FHR + $NOUTHRS))
 STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
 STRDONE="top of output_all"
@@ -179,9 +179,9 @@ date
 #==============================================================================
 # For the atmos figures
 #==============================================================================
-for stormDomain in grid01 grid02; do
+for stormDomain in parent storm; do
 
-if [ ${stormDomain} = "grid01" ]; then
+if [ ${stormDomain} = "parent" ]; then
   figScriptAll=( \
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
@@ -232,7 +232,7 @@ if [ ${stormDomain} = "grid01" ]; then
     200 \
     850 \
     )
-elif [ ${stormDomain} = "grid02" ]; then
+elif [ ${stormDomain} = "storm" ]; then
   figScriptAll=( \
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
@@ -370,12 +370,12 @@ cd ${WORKgraph}
 atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]; do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
     sleep 60s
   fi
   n=$(( n+1 ))
