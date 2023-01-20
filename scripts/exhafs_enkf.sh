@@ -49,6 +49,8 @@ export corrlength=${corrlength:-500}
 export lnsigcutoff=${lnsigcutoff:-1.3}
 export nesttilestr=${nesttilestr:-""}
 
+export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
+
 # Diagnostic files options
 netcdf_diag=${netcdf_diag:-".true."}
 binary_diag=${binary_diag:-".false."}
@@ -75,7 +77,7 @@ else
 fi
 
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
-export DIAGens_anl=${COMhafs}/DIAG_analysis_ens
+export DIAGens_anl=${COMhafs}
 mkdir -p ${RESTARTens_anl}
 mkdir -p ${DIAGens_anl}
 
@@ -153,14 +155,14 @@ fi
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile
   memstr="ensmean"
-  RADSTAT=${DIAGens_anl}/${memstr}/analysis.radstat
-  CNVSTAT=${DIAGens_anl}/${memstr}/analysis.cnvstat
+  RADSTAT=${DIAGens_anl}/${memstr}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat
+  CNVSTAT=${DIAGens_anl}/${memstr}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat
   echo "tar -xvf $RADSTAT" >> cmdfile
   echo "tar -xvf $CNVSTAT" >> cmdfile
 
   for memstr in $(seq -f "mem%03g" 1 $nens); do
-    RADSTAT=${DIAGens_anl}/${memstr}/analysis.radstat
-    CNVSTAT=${DIAGens_anl}/${memstr}/analysis.cnvstat
+    RADSTAT=${DIAGens_anl}/${memstr}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat
+    CNVSTAT=${DIAGens_anl}/${memstr}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat
     echo "tar -xvf $RADSTAT" >> cmdfile
     echo "tar -xvf $CNVSTAT" >> cmdfile
   done
@@ -204,13 +206,15 @@ ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
-  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
+  PASSIVE_BC=.true.
+  UPD_PRED=1
+  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc ]; then
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias            satbias_in
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs.${nesttilestr}abias_pc         satbias_pc
+  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -219,10 +223,11 @@ elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
   echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
   exit 2
 else
+  PASSIVE_BC=.false.
+  UPD_PRED=0
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
-
 #
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 

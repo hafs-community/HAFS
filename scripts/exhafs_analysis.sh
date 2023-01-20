@@ -33,7 +33,7 @@ export nhr_obsbin=${nhr_obsbin:--1}
 
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
-
+export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
@@ -112,7 +112,7 @@ if [ ! ${RUN_GSI} = "YES" ]; then
 fi
 
 export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
-export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis}
+export DIAGanl=${DIAGanl:-${COMhafs}}
 mkdir -p ${RESTARTanl}
 mkdir -p ${DIAGanl}
 
@@ -272,18 +272,18 @@ fi
 fi # endif ${RUN_ENVAR}
 
 # Stat files
-RADSTAT=${RADSTAT:-${DIAGanl}/analysis${nesttilestr}.radstat}
-GSISTAT=${GSISTAT:-${DIAGanl}/analysis${nesttilestr}.gsistat}
-PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis${nesttilestr}.pcpstat}
-CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis${nesttilestr}.cnvstat}
-OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis${nesttilestr}.oznstat}
-GSISOUT=${GSISOUT:-${DIAGanl}/analysis${nesttilestr}.gsisout}
+RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
+GSISTAT=${GSISTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.gsistat}
+PCPSTAT=${PCPSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.pcpstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat}
+OZNSTAT=${OZNSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.oznstat}
+GSISOUT=${GSISOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.gsisout}
 
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
 USE_SELECT=${USE_SELECT:-"NO"}
 USE_RADSTAT=${USE_RADSTAT:-"NO"}
-SELECT_OBS=${SELECT_OBS:-${COMhafs}/obsinput${nesttilestr}.tar}
+SELECT_OBS=${SELECT_OBS:-${COMhafs}/${out_prefix}.${RUN}.${gridstr}.obsinput.tar}
 GENDIAG=${GENDIAG:-"YES"}
 DIAG_SUFFIX=${DIAG_SUFFIX:-""}
 if [ $netcdf_diag = ".true." ]; then
@@ -540,13 +540,13 @@ fi #USE_SELECT
 if [ ${online_satbias} = "yes" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
-  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
+  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias            satbias_in
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc         satbias_pc
+  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -855,8 +855,8 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out  $DIAGanl/hafs${nesttilestr}.abias
-  ${NCP} satbias_pc.out  $DIAGanl/hafs${nesttilestr}.abias_pc
+  ${NCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
+  ${NCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
 fi
 
 # If no processing error, remove $DIAG_DIR

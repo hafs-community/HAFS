@@ -263,6 +263,8 @@ export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
+export old_out_prefix={old_out_prefix}
+export old_out_prefix_nodate={old_out_prefix_nodate}
 export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
