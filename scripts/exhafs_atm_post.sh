@@ -621,7 +621,10 @@ while [ $FHR -le $NHRS ]; do
   FHR3=$(printf "%03d" "$FHR")
 done
 
-# Generate the index file for the tracker
+# Compress swath grib2 file to save disk space
+${WGRIB2} ${swath_grb2file} -set_grib_type c2 -grib_out ${swath_grb2file}.c2
+mv ${swath_grb2file}.c2 ${swath_grb2file}
+# Generate the index file for the swath grib2 file
 ${GRB2INDEX} ${swath_grb2file} ${swath_grb2indx}
 
 # Deliver to COMOUTpost
