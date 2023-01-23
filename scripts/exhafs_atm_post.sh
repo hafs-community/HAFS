@@ -521,14 +521,14 @@ ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:GUST:)'           	-rpn "0:swap:me
     -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
     -grib_out ${GUSTF}
 ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:APCP:)'           	-rpn "0:swap:merge" -grib_out ${APCPF}
-${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "$((IFHR*DHR*3600)):swap:/" \
+${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "0:*" \
     -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
     -grib_out ${PRATEF}
 ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:WIND.*max)'       	-rpn "0:swap:merge" \
     -set_metadata_str "0:0:d=+0hr:WIND:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed [m/s]:" \
     -grib_out ${WINDMAXF}
 ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:ACPCP:)'          	-rpn "0:swap:merge" -grib_out ${ACPCPF}
-${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "$((IFHR*DHR*3600)):swap:/" \
+${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "0:*" \
     -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
     -grib_out ${CPRATF}
 ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MAXUVV:)'       	-rpn "0:swap:merge" \
@@ -570,7 +570,7 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${APCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   rm ${TMPFILE}
   mv ${TMPFILE2} ${APCPF}
-  ${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "$((IFHR*DHR*3600)):swap:/" \
+  ${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
       -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
       -grib_out ${PRATEF}
   # WINDmax - peak 10 m wind
@@ -585,7 +585,7 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${ACPCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   rm ${TMPFILE}
   mv ${TMPFILE2} ${ACPCPF}
-  ${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "$((IFHR*DHR*3600)):swap:/" \
+  ${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
       -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
       -grib_out ${CPRATF}
   # DZDTmax - peak updrafts
