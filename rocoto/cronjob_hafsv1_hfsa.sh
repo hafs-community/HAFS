@@ -100,7 +100,7 @@ opts="-t -f"
 #===============================================================================
  # 2022 EPAC storms
 #./run_hafs.py ${opts} 2022052800-2022053106 01E HISTORY ${confopts} # Agatha
-#./run_hafs.py ${opts} 2022061406-2022062012 02E HISTORY ${confopts} # Blas
+#./run_hafs.py ${opts} 2022061412-2022062012 02E HISTORY ${confopts} # Blas
 #./run_hafs.py ${opts} 2022061618-2022062812 03E HISTORY ${confopts} # Celia
 #./run_hafs.py ${opts} 2022071212-2022071912 04E HISTORY ${confopts} # Bonnie
 #./run_hafs.py ${opts} 2022070918-2022071618 05E HISTORY ${confopts} # Darby
@@ -109,12 +109,14 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022072712-2022080318 08E HISTORY ${confopts} # Georgette
 #./run_hafs.py ${opts} 2022080612-2022081018 09E HISTORY ${confopts} # Howard
 #./run_hafs.py ${opts} 2022081318-2022081618 10E HISTORY ${confopts} # Ivette p1
-#./run_hafs.py ${opts} 2022082012-2022082118 10E HISTORY ${confopts} # Ivette p2
+#./run_hafs.py ${opts} 2022082012-2022082100 10E HISTORY ${confopts} # Ivette p2
+#./run_hafs.py ${opts} 2022082112-2022082118 10E HISTORY ${confopts} # Ivette p3
 #./run_hafs.py ${opts} 2022090118-2022090400 11E HISTORY ${confopts} # Javier
 #./run_hafs.py ${opts} 2022090412-2022090918 12E HISTORY ${confopts} # Kay
 #./run_hafs.py ${opts} 2022091518-2022091712 13E HISTORY ${confopts} # Lester
 #./run_hafs.py ${opts} 2022091718-2022092012 14E HISTORY ${confopts} # Madeline
-#./run_hafs.py ${opts} 2022092118-2022092818 15E HISTORY ${confopts} # Newton
+#./run_hafs.py ${opts} 2022092118-2022092518 15E HISTORY ${confopts} # Newton p1
+#./run_hafs.py ${opts} 2022092718-2022092818 15E HISTORY ${confopts} # Newton p2
 #./run_hafs.py ${opts} 2022092900-2022100318 16E HISTORY ${confopts} # Orlene
 #./run_hafs.py ${opts} 2022100318-2022100512 17E HISTORY ${confopts} # Paine
 #./run_hafs.py ${opts} 2022100918-2022101012 18E HISTORY ${confopts} # Julia
@@ -144,7 +146,7 @@ opts="-t -f"
  # 2020 EPAC storms
 #./run_hafs.py ${opts} 2020042506-2020042612 01E HISTORY ${confopts} # One
 #./run_hafs.py ${opts} 2020053012-2020053112 02E HISTORY ${confopts} # Amanda
-#./run_hafs.py ${opts} 2020062406-2020062800 03E HISTORY ${confopts} # Boris
+#./run_hafs.py ${opts} 2020062418-2020062800 03E HISTORY ${confopts} # Boris
 #./run_hafs.py ${opts} 2020062912-2020063012 04E HISTORY ${confopts} # Four
 #./run_hafs.py ${opts} 2020070612-2020071300 05E HISTORY ${confopts} # Cristina
 #./run_hafs.py ${opts} 2020071306-2020071418 06E HISTORY ${confopts} # Six
