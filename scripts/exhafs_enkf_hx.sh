@@ -347,7 +347,7 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-if [ -s $PREPQC ]; then
+if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
   $NCP -Lp $PREPQC     prepbufr
 else
   touch prepbufr
