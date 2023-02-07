@@ -19,6 +19,7 @@ export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
   if [ ${machine}  = "hera" ]; then
+    module purge
     module load gsi_${machine}.intel
   else
     module load gsi_${machine}
