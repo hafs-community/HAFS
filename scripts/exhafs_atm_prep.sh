@@ -252,7 +252,7 @@ elif [ $gtype = nest ]; then
   # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
     $DATA/orog_gsl.file1
   else
-    ${APRUNF} $DATA/orog.file1
+    ${APRUNF} $DATA/orog_gsl.file1
   fi
   wait
   #rm $DATA/orog_gsl.file1
