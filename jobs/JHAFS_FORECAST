@@ -4,68 +4,55 @@ date
 export PS4='+ $SECONDS + '
 set -xue
 
-export HOMEhafs=${HOMEhafs:?}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
-
+#############################
+# Source shell init, module, and platform 
+#############################
 source ${USHhafs}/hafs_pre_job.sh.inc
+module list
+
+#############################
+# Source relevant config files
+#   NET, RUN, RUN_GSI, HOMEhafs, WORKhafs, DATA, COM, DATMdir, DOCNdir, STORMID, CASE, ETC.
+#############################
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss2}
-export envir=${envir:-prod} # prod, para, test
-export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "${RUN_ENVIR^^}" != NCO ]; then
- #module list
- #module unload intelpython
- #module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
-  module list
-fi
-
+#############################
+# Source APRUN, job card info
+#############################
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-# Run setpdy and initialize PDY variables
-#setpdy.sh
-#. ./PDY
-export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
-
-export WORKhafs=${WORKhafs:?}
-export COMIN=${COMIN:?}
-export COMOUT=${COMOUT:?}
-export COMhafs=${COMhafs:-${COMOUT}}
-export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:?}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
-export ENSDA=${ENSDA:-NO}
-
+#############################
 # Deterministic or ensemble
+#############################
 if [ "${ENSDA}" != YES ]; then
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
   export DATA=${WORKhafs}/forecast
 else
   export ENSID=${ENSID:-001}
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   export DATA=${WORKhafs}/forecast_ens/mem${ENSID}
 fi
 
+#############################
+# Init DATA location
+#############################
 export SCRUBDATA=${SCRUBDATA:-YES}
 if [ "${SCRUBDATA}" = YES ]; then
   rm -rf $DATA
 fi
-
 mkdir -p $DATA
 cd $DATA
 
+#############################
 # Execute ex-script
+#############################
 ${HOMEhafs}/scripts/exhafs_forecast.sh
+status=$?
+[[ $status -ne 0 ]] && exit $status
 
+#############################
+# Cleanup DATA after run
+#############################
 export KEEPDATA=${KEEPDATA:-YES}
+cd ${WORKhafs}
 if [ "${KEEPDATA^^}" != YES ]; then
   rm -rf $DATA
 fi

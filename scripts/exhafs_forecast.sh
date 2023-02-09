@@ -36,6 +36,8 @@ ENSDA=${ENSDA:-NO}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ "${ENSDA}" != YES ]; then
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
   NHRS=${NHRS:-126}
   NBDYHRS=${NBDYHRS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
@@ -109,6 +111,8 @@ if [ "${ENSDA}" != YES ]; then
   output_grid_dlon=${output_grid_dlon:-0.025}
   output_grid_dlat=${output_grid_dlon:-0.025}
 else
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
     NHRS=${NHRS:-126}
@@ -391,7 +395,7 @@ elif [ $gtype = nest ]; then
   fi
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
-  exit 9
+  export err=9; err_chk
 fi
 
 ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
@@ -458,7 +462,7 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling option: cpl_atm_ocn=${cpl_atm_ocn}"
-  exit 9
+  export err=9; err_chk
 fi
 
 fi #if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
@@ -475,7 +479,7 @@ WAV_model_attribute="WAV_model = ww3"
 # NUOPC based coupling options
 if [[ $cpl_atm_wav = "nuopc"* ]]; then
   echo "FATAL ERROR: Unsupported coupling option combination: cpl_atm_wav=${cpl_atm_wav}"
-  exit 9
+  export err=9; err_chk
 # CMEPS based coupling options
 elif [[ $cpl_atm_wav = "cmeps"* ]]; then
   EARTH_component_list="EARTH_component_list: ATM WAV MED"
@@ -519,7 +523,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling option combination: cpl_atm_wav=${cpl_atm_wav}"
-  exit 9
+  export err=9; err_chk
 fi
 
 fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
@@ -597,7 +601,7 @@ elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ];
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
-  exit 9
+  export err=9; err_chk
 fi
 
 fi #if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
@@ -649,7 +653,7 @@ if [ ${run_datm} = no ]; then
 # Link the input IC and/or LBC files into the INPUT dir
 if [ ! -d $INPdir ]; then
    echo "FATAL ERROR: Input data dir does not exist: $INPdir"
-   exit 9
+   export err=9; err_chk
 fi
 
 # Link all the gfs_bndy files here for full forecast ensemble members, but the
@@ -1275,7 +1279,7 @@ elif [ $gtype = nest ]; then
   ngrids=$(( ${nest_grids} + 1 ))
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
-  exit 9
+  export err=9; err_chk
 fi
 
 for n in $(seq 1 ${ngrids}); do
