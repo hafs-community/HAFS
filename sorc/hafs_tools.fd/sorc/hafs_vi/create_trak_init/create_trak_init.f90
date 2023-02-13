@@ -36,10 +36,11 @@ program create_trak_init
   if(storm_id(3:3).eq.'W') basin='WP'
   if(storm_id(3:3).eq.'E') basin='EP'
   if(storm_id(3:3).eq.'C') basin='CP'
-  if(storm_id(3:3).eq.'A') basin='AA'
-  if(storm_id(3:3).eq.'B') basin='BB'
-  if(storm_id(3:3).eq.'P') basin='SP'
-  if(storm_id(3:3).eq.'S') basin='SI'
+  if(storm_id(3:3).eq.'A') basin='IO'
+  if(storm_id(3:3).eq.'B') basin='IO'
+  if(storm_id(3:3).eq.'P') basin='SH'
+  if(storm_id(3:3).eq.'S') basin='SH'
+  if(storm_id(3:3).eq.'Q') basin='SL'
 
   ! Set null vaules for the output (fort.30)
   lat=9999
@@ -49,6 +50,9 @@ program create_trak_init
   ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+
+    if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center (i.e.,lat=0)
+
     if(ns.eq.'S')lat=-lat
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit

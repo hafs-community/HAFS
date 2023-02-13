@@ -229,8 +229,8 @@ else
   neststr=".nest$(printf '%02d' ${ng})"
   tilestr=".tile$(printf '%d' ${ng})"
 fi
-gridstr=".grid$(printf '%02d' ${ng})"
-echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product${gridstr}.log 2>&1" >> cmdfile_product
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh > run_product.${gridstr}.log 2>&1" >> cmdfile_product
 
 done
 
@@ -245,13 +245,13 @@ if [[ $ng -eq 1 ]]; then
 else
   neststr=".nest$(printf '%02d' ${ng})"
 fi
-gridstr=".grid$(printf '%02d' ${ng})"
-cat ./run_product${gridstr}.log
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+cat ./run_product.${gridstr}.log
 #if grep "PROGRAM GETTRK   HAS ENDED" ./tracker${neststr}/hafs_gettrk.out ; then
 if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out ; then
-  echo "INFO: successfully ran run_product${gridstr}"
+  echo "INFO: successfully ran run_product.${gridstr}"
 else
-  echo "ERROR: failed running run_product${gridstr}"
+  echo "ERROR: failed running run_product.${gridstr}"
   echo "ERROR: exitting..."
   exit 1
 fi

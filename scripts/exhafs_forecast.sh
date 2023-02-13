@@ -19,7 +19,7 @@ PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
 PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
-FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
+FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
@@ -29,7 +29,7 @@ NDATE=${NDATE:-ndate}
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
 source ${ATPARSE}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 satpost=${satpost:-.false.}
 
 ENSDA=${ENSDA:-NO}
@@ -569,7 +569,7 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplwav=.true.
   cplwav2atm=.false.
   INPUT_WNDFLD="C F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
+  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -1360,14 +1360,15 @@ if [ ${write_dopost:-.false.} = .true. ]; then
       "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
       "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
       "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
-      "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8"; do
-      ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
-      ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
+      "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" \
+       "abi_g16" "abi_g17" ; do
+      ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+      ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
     done
     for file in "Aerosol" "Cloud"; do
-      ${NLN} ${FIXcrtm}/fix-4-hafs/${file}Coeff.bin ./
+      ${NLN} ${FIXcrtm}/${file}Coeff.bin ./
     done
-    for file in ${FIXcrtm}/fix-4-hafs/*Emis*; do
+    for file in ${FIXcrtm}/*Emis*; do
       ${NLN} ${file} ./
     done
   else

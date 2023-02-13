@@ -32,7 +32,7 @@ STORMID=${STORMID:-00L}
 STORMNUM=$( echo ${STORMID} | cut -c1-2)
 BASIN=${pubbasin2:-AL}
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 # GPLOT-specific variables (might go elsewhere)
 GPLOT_PARSE="${GPLOThafs}/ush/parse_atcf.sh"
@@ -90,8 +90,7 @@ do
 
     # Find and parse the ATCF file into an individual file for each storm
     # Do this even for HAFS regional to remove ".all" from file name.
-    ${GPLOT_PARSE} HAFS ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${DATE}.hafs.trak.atcfunix.all"
-    #${GPLOT_PARSE} HAFS ${CDNOSCRUB}/${SUBEXPT} ${CDNOSCRUB}/${SUBEXPT} ${BDECKhafs} ${SYNDAThafs} 0 "*${DATE}.hafs.trak.atcfunix"
+    ${GPLOT_PARSE} HAFS ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${DATE}.${RUN}.trak.atcfunix.all"
 
     # Check the status logs for all GPLOT components.
     # If every log doesn't say "complete", set ALL_COMPLETE=0
@@ -146,7 +145,6 @@ done
 if [ "${SENDCOM}" == "YES" ]; then
     #cp -rup ${WORKgplot} ${COMgplot}
     ${USHhafs}/rsync-no-vanished.sh -av --no-links --include="*/" --include="*gif" --include="*dat" --include="*structure*txt" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
-    #rsync -av --include="*hafs.trak..atcfunix" --exclude="*" ${COMhafs}/. ${COMgplot}/.
 fi
 
 # Zip up and move contents to the tape archive. Local scrubbing optional.

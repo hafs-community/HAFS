@@ -55,12 +55,7 @@
 
   geo_lat=aph/dtr
 !
-  if (geo_lon > 180.0) then
-     geo_lon=geo_lon-360.0
-  end if
-  if (geo_lon < -180.0)  then
-     geo_lon=geo_lon+360.0
-  end if
+  if (geo_lon < 0.0)  geo_lon=geo_lon+360.0
 !
   return
   end subroutine rtll
@@ -139,9 +134,7 @@
 
   lat = glatd
   lon = -glond
-
-  if (lon >  180.) lon = lon - 360.
-  if (lon < -180.) lon = lon + 360.
+  if (lon < 0.) lon = lon + 360.
 
   return
   end subroutine ijll_rotlatlon
@@ -253,13 +246,11 @@
        DO I = ITS, MIN(ITE,IDE-1)
           HLAT(I,J) = GLATH(I,J) / DTR
           HLON(I,J)= -GLONH(I,J)/DTR
-          IF(HLON(I,J) .GT. 180.) HLON(I,J) = HLON(I,J)  - 360.
-          IF(HLON(I,J) .LT. -180.) HLON(I,J) = HLON(I,J) + 360.
+          IF(HLON(I,J) .LT. 0.) HLON(I,J) = HLON(I,J) + 360.
 !
           VLAT(I,J) = GLATV(I,J) / DTR
           VLON(I,J) = -GLONV(I,J) / DTR
-          IF(VLON(I,J) .GT. 180.) VLON(I,J) = VLON(I,J)  - 360.
-          IF(VLON(I,J) .LT. -180.) VLON(I,J) = VLON(I,J) + 360.
+          IF(VLON(I,J) .LT. 0.) VLON(I,J) = VLON(I,J) + 360.
 
        ENDDO
       ENDDO

@@ -27,8 +27,13 @@ set(fc_srcs
 set(lib_name sia) 
 set(lib_dir ${CMAKE_SOURCE_DIR}/libs)
 
+if(NOT CMAKE_BUILD_TYPE)                                                                             
+    set(CMAKE_BUILD_TYPE "RELEASE")                                                                  
+endif()
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "^(Intel)$")
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -free -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -free -O0 -g -traceback -check all -convert big_endian -DLINUX -fp-model precise -assume byterecl")
 endif()
 
 add_library(${lib_name} STATIC ${fc_srcs})

@@ -252,7 +252,7 @@ elif [ $gtype = nest ]; then
   # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
     $DATA/orog_gsl.file1
   else
-    ${APRUNF} $DATA/orog.file1
+    ${APRUNF} $DATA/orog_gsl.file1
   fi
   wait
   #rm $DATA/orog_gsl.file1
@@ -583,7 +583,7 @@ input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
 input_soil_type_file="${input_sfc_climo_dir}/soil_type.statsgo.0.05.nc"
-input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.igbp.0.05.nc"
+input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.viirs.igbp.0.05.nc"
 input_vegetation_greenness_file="${input_sfc_climo_dir}/vegetation_greenness.0.144.nc"
 mosaic_file_mdl="${mosaic_file}"
 orog_dir_mdl="${out_dir}"
@@ -666,7 +666,7 @@ input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
 input_soil_type_file="${input_sfc_climo_dir}/soil_type.statsgo.0.05.nc"
-input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.igbp.0.05.nc"
+input_vegetation_type_file="${input_sfc_climo_dir}/vegetation_type.viirs.igbp.0.05.nc"
 input_vegetation_greenness_file="${input_sfc_climo_dir}/vegetation_greenness.0.144.nc"
 mosaic_file_mdl="${mosaic_file}"
 orog_dir_mdl="${out_dir}"

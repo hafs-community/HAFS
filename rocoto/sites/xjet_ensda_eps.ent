@@ -159,6 +159,7 @@
   <!ENTITY FORECAST_RESOURCES_180PE "<nodes>15:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_600PE "<nodes>50:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_680PE "<nodes>68:ppn=10:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>680</value></envar><envar><name>NCTSK</name><value>10</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_1080PE "<nodes>90:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1080</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1260PE "<nodes>105:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1260</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1320PE "<nodes>110:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1380PE "<nodes>115:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">

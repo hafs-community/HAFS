@@ -56,7 +56,7 @@ load(pathJoin("crtm", crtm_ver))
 g2_ver=os.getenv("g2_ver") or "3.4.5"
 load(pathJoin("g2", g2_ver))
 
-g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.0"
+g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 load(pathJoin("g2tmpl", g2tmpl_ver))
 
 ip_ver=os.getenv("ip_ver") or "3.3.3"
@@ -117,7 +117,8 @@ wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
 setenv("WGRIB2", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-2022.1.2/wgrib2/2.0.8/bin/wgrib2")
 
-nco_ver=os.getenv("nco_ver") or "5.0.6"
+-- nco_ver=os.getenv("nco_ver") or "5.0.6"
+nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
 
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"

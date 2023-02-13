@@ -6,7 +6,7 @@ export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export COMgfs=${COMgfs:?}
 export COMINhafs=${COMgfs:?}
 export use_bufr_nr=${use_bufr_nr:-no}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 export RUN_GSI=${RUN_GSI:-NO}
 
@@ -77,7 +77,7 @@ set +o pipefail
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.hafs.prepbufr
+  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.${RUN}.prepbufr
 fi
 
 # Deliver to intercom
@@ -122,7 +122,7 @@ ${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
   if [ -s ./tempdrop.prepbufr ]; then
-    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.hafs.tempdrop.prepbufr
+    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.${RUN}.tempdrop.prepbufr
   fi
 fi
 

@@ -37,6 +37,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
@@ -81,6 +82,7 @@ RESTARTinp=${RESTARTinp_fgat06}
 # analysis for d01
 if [ ${GSI_D01} = YES ]; then
 
+export gridstr=$(echo ${out_gridnames} | cut -d, -f 1)
 export neststr=${neststr:-""}
 export tilestr=${tilestr:-".tile1"}
 export nesttilestr=${nesttilestr:-""}
@@ -152,6 +154,7 @@ fi
 # analysis for d02
 if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
+export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
 export neststr=".nest02"
 export tilestr=".tile2"
 export nesttilestr=".nest02.tile2"

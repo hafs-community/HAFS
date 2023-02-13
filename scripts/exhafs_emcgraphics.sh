@@ -13,7 +13,7 @@ stormid=${STORMID,,}
 export NOUTHRS=${NOUTHRS:-3}
 export run_ocean=${run_ocean:-no}
 
-stormModel=${stormModel:-HAFS}
+stormModel=${stormModel:-${RUN^^}}
 #figTimeLevels=$(seq 0 42)
 trackOn=${trackOn:-False}
 
@@ -118,8 +118,8 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run graphics for this forecast hour
 else
 
-atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
-prodlog=${WORKhafs}/product/run_product.grid02.log
+atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
+prodlog=${WORKhafs}/product/run_product.storm.log
 FHRN=$(($FHR + $NOUTHRS))
 STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
 STRDONE="top of output_all"
@@ -156,9 +156,9 @@ touch $cmdfile
 #==============================================================================
 
 # Produce these figures only if product job is still running (not done yet).
-if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all ]; then
+if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all ]; then
 
-atcfFile=${COMhafs}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 
 cd ${WORKgraph}
 
@@ -179,9 +179,9 @@ date
 #==============================================================================
 # For the atmos figures
 #==============================================================================
-for stormDomain in grid01 grid02; do
+for stormDomain in parent storm; do
 
-if [ ${stormDomain} = "grid01" ]; then
+if [ ${stormDomain} = "parent" ]; then
   figScriptAll=( \
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
@@ -232,7 +232,7 @@ if [ ${stormDomain} = "grid01" ]; then
     200 \
     850 \
     )
-elif [ ${stormDomain} = "grid02" ]; then
+elif [ ${stormDomain} = "storm" ]; then
   figScriptAll=( \
     plot_mslp_wind10m.py \
     plot_tsfc_mslp_wind10m.py \
@@ -293,6 +293,28 @@ for((i=0;i<${nscripts};i++)); do
         > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
 done
 
+if [ ${satpost} = .true. ]; then
+  figScriptAll=( \
+    plot_goes_ir13.py \
+    plot_goes_wv9.py \
+    plot_ssmisf17_mw37ghz.py \
+    plot_ssmisf17_mw91ghz.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    )
+  nscripts=${#figScriptAll[*]}
+  for((i=0;i<${nscripts};i++)); do
+    fhhh="f${FHR3}"
+    echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
+    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+          > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  done
+fi
+
 done
 
 #==============================================================================
@@ -303,7 +325,7 @@ if [ ${machine} = "wcoss2" ]; then
   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
   $APRUNCFP -n $ncmd_max cfp ./$cmdfile
 else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 fi
 
 date
@@ -328,7 +350,7 @@ done
 # Plot ATCF track and intensity figures after the product job is done
 #==============================================================================
 
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 
 # Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
 n=1
@@ -367,15 +389,15 @@ if [ ${run_ocean} = yes ]; then
 cd ${WORKgraph}
 
 # Wait for hycompost and product output
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.hafs.trak.atcfunix.all
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]; do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.hafs.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -423,7 +445,7 @@ if [ ${machine} = "wcoss2" ]; then
   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
   $APRUNCFP -n $ncmd_max cfp ./$cmdfile
 else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 fi
 
 fi

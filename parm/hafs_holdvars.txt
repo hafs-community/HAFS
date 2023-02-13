@@ -6,6 +6,8 @@
 export TZ=UTC # Orion workaround
 
 export envir={ENV[envir|-prod]}
+export NET={NET}
+export RUN={RUN}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
@@ -57,6 +59,7 @@ export EXhafs={EXhafs}
 export JOBhafs={JOBhafs}
 export USHhafs={USHhafs}
 export FIXhafs={FIXhafs}
+export FIXcrtm={FIXcrtm}
 export WORKhafs={WORKhafs}
 export DATA={WORKhafs}
 export COMhafs={COMhafs}
@@ -242,6 +245,8 @@ export iems={iems}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
 export iaer={iaer}
+export lseaspray={lseaspray}
+export clam_deep={clam_deep}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
@@ -258,6 +263,9 @@ export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
+export old_out_prefix={old_out_prefix}
+export old_out_prefix_nodate={old_out_prefix_nodate}
+export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}

@@ -25,19 +25,19 @@ else
   export LEVS=${LEVS:-65}
 fi
 
-out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${CDATE}" | tr '[A-Z]' '[a-z]')}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 neststr=${neststr:-""} #".nest02"
 tilestr=${tilestr:-".tile1"} #".tile2"
-gridstr=${gridstr:-".grid01"} #".grid02"
+gridstr=${gridstr:?}
 
-trk_atcfunix=${out_prefix}.hafs.trak.atcfunix
-all_atcfunix=${out_prefix}.hafs.trak.atcfunix.all
-fhr_atcfunix=${STORMID,,}.${CDATE}.hafs.trak.atcfunix.f
+trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
+all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
+fhr_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.f
 
-trk_atcfunix_grid=${out_prefix}.hafs${gridstr}.trak.atcfunix
-all_atcfunix_grid=${out_prefix}.hafs${gridstr}.trak.atcfunix.all
-fhr_atcfunix_grid=${STORMID,,}.${CDATE}.hafs${gridstr}.trak.atcfunix.f
+trk_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix
+all_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.all
+fhr_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.f
 
 CDATE=${CDATE:-${YMDH}}
 NHRS=${NHRS:-126}
@@ -87,8 +87,8 @@ while [ $FHR -le $NHRS ]; do
   echo "FHR3="${FHR3}
   FMIN=$((${FHR} * 60))
   minstr=$(printf "%5.5d" "$FMIN" )
-  trk_grb2file=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2
-  trk_grb2indx=${out_prefix}.hafs${gridstr}.trk.f${FHR3}.grb2.ix
+  trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
+  trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
   tracker_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
   tracker_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
   ${NLN} ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
@@ -181,6 +181,7 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BMM_/${MM}/ | \
                           sed s/_BDD_/${DD}/ | \
                           sed s/_BHH_/${HH}/ | \
+                          sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 sleep 3
 # Run the vortex tracker gettrk.x
@@ -203,6 +204,18 @@ fi
 # Extract the tracking records for tmpvit
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
+
+# Added in Dec 18,2022 just for Rare southern Atlantic storm -----------------------------------------
+#The basin ID of rare southern Atlantic storm is "SL" and this SL is used in output.atcfunix: the output from GFDL tracker.
+#But the storm in this basin is using Q in their name (e.g., 90Q).
+#Because exhafs_product.sh tries to grab the storm information from "output.atcfunix" using "grep -e Q",
+#if basin ID "SL" is used in output.atcfunix, exhafs_product.sh can't extract the storm information.
+#For this, we need to change basin ID from SL to SQ in "output.atcfunix". This allows this script file to use "grep -e Q" command.
+
+if [ $STORMBS1 = "Q" ]; then
+ sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix_grid}
+fi
+#--------------------------------------------------------------------------------------------------
 ${NCP} ${COMOUTproduct}/${all_atcfunix_grid} ${COMOUTproduct}/${all_atcfunix_grid}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix_grid}.orig ]; then
   if [ $STORMNUM == "00" ]; then
@@ -224,6 +237,12 @@ else
 fi
 
 if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+
+#--------- Also added in  Dec 18,2022 just for Rare southern Atlantic storm ------------
+if [ $STORMBS1 = "Q" ]; then
+ sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix}
+fi
+#---------------------------------------------------------------------------------------
 
 ${NCP} ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix}.orig ]; then
@@ -255,8 +274,8 @@ if [ ${COMOUTproduct} = ${COMhafs} ]; then
     ${NCP} -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
   # Deliver patcf file to NOSCRUB:
-  if [ -s ${COMhafs}/${out_prefix}.hafs.trak.patcf ]; then
-    ${NCP} -p ${COMhafs}/${out_prefix}.hafs.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
+  if [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ]; then
+    ${NCP} -p ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
   fi
 fi
 
@@ -268,16 +287,21 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   mkdir -p ${DATA}/nhc_products
   cd ${DATA}/nhc_products
   ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
-  ${NCP} ${COMhafs}/storm1.holdvars.txt .
   ${NLN} ${COMhafs}/${trk_atcfunix} fort.20
+  # prepare storm_info
+  rm -f storm_info
+  echo ${CDATE} > storm_info
+  echo ${STORMID^^} >> storm_info
+  echo ${STORM^^} >> storm_info
+  echo ${RUN^^} >> storm_info
   set +e
   set -o pipefail
   time ./hafs_nhc_products.x 2>&1 | tee ./hafs_nhc_products.out
   set +o pipefail
   set -e
-  short=${out_prefix}.hafs.grib.stats.short
-  afos=${out_prefix}.hafs.afos
-  tpc=${out_prefix}.hafs.stats.tpc
+  short=${out_prefix}.${RUN}.grib.stats.short
+  afos=${out_prefix}.${RUN}.afos
+  tpc=${out_prefix}.${RUN}.stats.tpc
   if grep "ALL DONE" ./hafs_nhc_products.out; then
     ${NCP} fort.41 ${COMhafs}/${short}
     ${NCP} fort.51 ${COMhafs}/${afos}

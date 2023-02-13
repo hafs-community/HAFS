@@ -372,12 +372,12 @@
         WRITE(62)((V1(I,J,K),I=1,NX),J=1,NY,2)
       END DO
 
-      WBD=-(NX-1)*DLMD
-      SBD=-((NY-1)/2)*DPHD
+!Not used      WBD=-(NX-1)*DLMD
+!Not used      SBD=-((NY-1)/2)*DPHD
 
-      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP
-      write(*,*)'WBD,SBD,CENTRAL_LON,CENTRAL_LAT=',    &
-                 WBD,SBD,CENTRAL_LON,CENTRAL_LAT
+!Not used      write(*,*)'PT,PDTOP=',PT,PDTOP
+      write(*,*)'CENTRAL_LON,CENTRAL_LAT=',    &
+                 CENTRAL_LON,CENTRAL_LAT
       do k=1,nz1
         write(*,*)'K,ETA1,ETA2=',K,ETA1(k),ETA2(k)
       end do

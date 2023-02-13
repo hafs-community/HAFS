@@ -5,7 +5,7 @@ disk_project=hur
 ## Project hpss tape area
 tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
-cpu_account=HWRF-DEV
+cpu_account=HAFS-DEV
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
 #archive=disk:/lfs/h2/emc/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar

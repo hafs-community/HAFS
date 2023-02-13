@@ -3,7 +3,7 @@
 set -xe
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export FIXcrtm=${FIXcrtm:-${FIXhafs}/hafs-crtm-2.3.0}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
 export COMINhafs=${COMINhafs:-${COMgfs}}
 export DONST=${DONST:-"NO"}
@@ -12,7 +12,7 @@ export use_bufr_nr=${use_bufr_nr:-no}
 export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 export RUN_GSI_VR=${RUN_GSI_VR:-NO}
 export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}
@@ -33,7 +33,7 @@ export nhr_obsbin=${nhr_obsbin:--1}
 
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
-
+export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
@@ -112,7 +112,7 @@ if [ ! ${RUN_GSI} = "YES" ]; then
 fi
 
 export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
-export DIAGanl=${DIAGanl:-${COMhafs}/DIAG_analysis}
+export DIAGanl=${DIAGanl:-${COMhafs}}
 mkdir -p ${RESTARTanl}
 mkdir -p ${DIAGanl}
 
@@ -272,18 +272,18 @@ fi
 fi # endif ${RUN_ENVAR}
 
 # Stat files
-RADSTAT=${RADSTAT:-${DIAGanl}/analysis${nesttilestr}.radstat}
-GSISTAT=${GSISTAT:-${DIAGanl}/analysis${nesttilestr}.gsistat}
-PCPSTAT=${PCPSTAT:-${DIAGanl}/analysis${nesttilestr}.pcpstat}
-CNVSTAT=${CNVSTAT:-${DIAGanl}/analysis${nesttilestr}.cnvstat}
-OZNSTAT=${OZNSTAT:-${DIAGanl}/analysis${nesttilestr}.oznstat}
-GSISOUT=${GSISOUT:-${DIAGanl}/analysis${nesttilestr}.gsisout}
+RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
+GSISTAT=${GSISTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.gsistat}
+PCPSTAT=${PCPSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.pcpstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat}
+OZNSTAT=${OZNSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.oznstat}
+GSISOUT=${GSISOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.gsisout}
 
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
 USE_SELECT=${USE_SELECT:-"NO"}
 USE_RADSTAT=${USE_RADSTAT:-"NO"}
-SELECT_OBS=${SELECT_OBS:-${COMhafs}/obsinput${nesttilestr}.tar}
+SELECT_OBS=${SELECT_OBS:-${COMhafs}/${out_prefix}.${RUN}.${gridstr}.obsinput.tar}
 GENDIAG=${GENDIAG:-"YES"}
 DIAG_SUFFIX=${DIAG_SUFFIX:-""}
 if [ $netcdf_diag = ".true." ]; then
@@ -337,21 +337,22 @@ ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr
 
 # Link CRTM coefficient files based on entries in satinfo file
 for file in $(awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq); do
-  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.SpcCoeff.bin ./
-  ${NLN} ${FIXcrtm}/fix-4-hafs/${file}.TauCoeff.bin ./
+  ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+  ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
 done
 
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Ice/SEcategory/Big_Endian/NPOESS.IRice.EmisCoeff.bin ./NPOESS.IRice.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Snow/SEcategory/Big_Endian/NPOESS.IRsnow.EmisCoeff.bin ./NPOESS.IRsnow.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/IR_Land/SEcategory/Big_Endian/NPOESS.IRland.EmisCoeff.bin ./NPOESS.IRland.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Ice/SEcategory/Big_Endian/NPOESS.VISice.EmisCoeff.bin ./NPOESS.VISice.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Land/SEcategory/Big_Endian/NPOESS.VISland.EmisCoeff.bin ./NPOESS.VISland.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Snow/SEcategory/Big_Endian/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/VIS_Water/SEcategory/Big_Endian/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/EmisCoeff/MW_Water/Big_Endian/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
-${NLN} ${FIXcrtm}/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./AerosolCoeff.bin
-${NLN} ${FIXcrtm}/CloudCoeff/Big_Endian/CloudCoeff.bin ./CloudCoeff.bin
+${NLN} ${FIXcrtm}/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRice.EmisCoeff.bin ./NPOESS.IRice.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRsnow.EmisCoeff.bin ./NPOESS.IRsnow.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.IRland.EmisCoeff.bin ./NPOESS.IRland.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISice.EmisCoeff.bin ./NPOESS.VISice.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISland.EmisCoeff.bin ./NPOESS.VISland.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
+${NLN} ${FIXcrtm}/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
+${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
+${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+#${NLN} ${FIXcrtm}/CloudCoeff.bin ./CloudCoeff.bin
 
 # If requested, link (and if tarred, de-tar obsinput.tar) into obs_input.* files
 if [ ${USE_SELECT:-NO} = "YES" ]; then
@@ -430,14 +431,18 @@ MLSBF=${MLSBF:-${COMIN_OBS}/${OPREFIX}mls.tm00.bufr_d${OSUFFIX}}
 OMPSLPBF=${OMPSLPBF:-${COMIN_OBS}/${OPREFIX}ompslp.tm00.bufr_d${OSUFFIX}}
 SMIPCP=${SMIPCP:-${COMIN_OBS}/${OPREFIX}spssmi.tm00.bufr_d${OSUFFIX}}
 TMIPCP=${TMIPCP:-${COMIN_OBS}/${OPREFIX}sptrmm.tm00.bufr_d${OSUFFIX}}
-GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d${OSUFFIX}}
+if [[ ${use_bufr_nr:-no} = "no" ]]; then
+  GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d${OSUFFIX}}
+else
+  GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d.nr}
+fi
 TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-if [ -s $PREPQC ]; then
+if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
   $NCP -Lp $PREPQC     prepbufr
 else
   touch prepbufr
@@ -539,13 +544,13 @@ fi #USE_SELECT
 if [ ${online_satbias} = "yes" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
-  if [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ ! -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
+  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias ] && [ -s ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc ]; then
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias            satbias_in
-    ${NLN} ${COMhafsprior}/DIAG_analysis/hafs${nesttilestr}.abias_pc         satbias_pc
+  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
@@ -854,8 +859,8 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out  $DIAGanl/hafs${nesttilestr}.abias
-  ${NCP} satbias_pc.out  $DIAGanl/hafs${nesttilestr}.abias_pc
+  ${NCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
+  ${NCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
 fi
 
 # If no processing error, remove $DIAG_DIR

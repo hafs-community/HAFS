@@ -120,6 +120,7 @@
 ! 2.1 --- define rot-ll grid
   cen_lat = tc%lat
   cen_lon = tc%lon
+  if ( cen_lon <0. .and. cen_lon>=-180.) cen_lon=cen_lon+360.
   nx = int(radiusf/2.0/dlon+0.5)*2+1
   ny = int(radiusf/2.0/dlat+0.5)*2+1
   lon1 = - radiusf/2.0
@@ -135,6 +136,7 @@
      rot_lat = lat1 + dlat*(j-1)
      call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
   enddo; enddo
+  call longitude_expand_360to540(nx,ny,glon)
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
   !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1)
@@ -277,6 +279,7 @@
         !-----------------------------
         !---7.2 record 2: lon1,lat1,lon2,lat2,cen_lon,cen_lat
         if ( nrecord == 2 ) then
+           if ( cen_lon > 180. ) cen_lon = cen_lon - 360.
            write(*,'(i,a,6f8.3)')my_proc_id, '=== record2: ',lon1,lat1,lon2,lat2,cen_lon,cen_lat
            if ( my_proc_id == io_proc ) write(*,'(a,6f8.3)')'=== record2: ',lon1,lat1,lon2,lat2,cen_lon,cen_lat
            if ( my_proc_id == io_proc ) write(flid_out) lon1,lat1,lon2,lat2,cen_lon,cen_lat
@@ -514,10 +517,9 @@
         !--- glat=grid_yt*180./pi, grid_yt=1:2160, what is this?
         if ( nrecord == 10 ) then
            if ( my_proc_id == io_proc ) then
+              where ( glon > 180. ) glon=glon-360.
               write(*,'(a,4f8.3)')'=== record10: ',glon(1,1), glat(1,1), glon(nx,ny), glat(nx,ny)
-
 ! New change: Jul 2022 JH Shin-------------------------------------------------------------
-
           !For WPAC storms located near the west of international date line, add 360 to
           !longitude value in the eastern side of IDL (western hemisphere) so that all
           !longitude values have positive values in the VI domain.
@@ -537,9 +539,7 @@
           ! enddo; enddo
           !endif
           if ( cen_lon < -140. ) where ( glon > 0. ) glon=glon-360.
-
 ! New change: Jul 2022 JH Shin-------------------------------------------------------------
-
               write(flid_out) glon,glat,glon,glat
               if ( nd > 1 ) read(flid_in)
            endif
@@ -1043,6 +1043,7 @@
 ! 2.1 --- define rot-ll grid
   cen_lat = tc%lat
   cen_lon = tc%lon
+  if ( cen_lon<0. .and. cen_lon>=-180.)cen_lon=cen_lon+360.
   nx = int(radiusf/2.0/dlon+0.5)*2+1
   ny = int(radiusf/2.0/dlat+0.5)*2+1
   lon1 = - radiusf/2.0
@@ -1058,6 +1059,7 @@
      rot_lat = lat1 + dlat*(j-1)
      call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
   enddo; enddo
+  call longitude_expand_360to540(nx,ny,glon)
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
   !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1)
@@ -1186,6 +1188,7 @@
      nz=dims(1)
      if ( my_proc_id == 0 ) then
         !write(flid_out) nx, ny, nz
+        if ( cen_lon > 180. ) cen_lon = cen_lon - 360.
         call write_nc_dim(trim(fl_out), 'nx', nx)
         call write_nc_dim(trim(fl_out), 'ny', ny)
         call write_nc_dim(trim(fl_out), 'nz', nz)
@@ -1197,28 +1200,9 @@
         call write_nc_real0d(trim(fl_out), 'cen_lon', cen_lon, 'degree', 'center of longtitude')
         call write_nc_real0d(trim(fl_out), 'cen_lat', cen_lat, 'degree', 'center of latitude')
 
-        !----
-        !--- change: Jul 2022 JH Shin
-        !  For WPAC storms located near the west of international date line, add 360 to
-        !  longitude value in the eastern side of IDL (western hemisphere) so that all
-        !  longitude values have positive values in the VI domain.
-        !  if ( cen_lon > 0. ) then
-        !   do j = 1, ny; do i = 1, nx
-        !    if(glon(i,j).lt.0.0) glon(i,j)=glon(i,j)+360.0
-        !   enddo; enddo
-        !  endif
-          if ( cen_lon > 0. ) where ( glon < 0.) glon=glon+360.
-
-        !  For CPAC storms located near the east of international date line, subrtact 360
-        !  from longitude value in the western side of IDL (eastern hemisphere) so
-        !  that all longitude values have negative values in the VI domain.
-        !  if ( cen_lon < -140. )then
-        !   do j = 1, ny; do i = 1, nx
-        !    if(glon(i,j).gt.0.0) glon(i,j)=glon(i,j)-360.0
-        !   enddo; enddo
-        !  endif
+        where ( glon > 180. ) glon=glon-360.
+        if ( cen_lon > 0. ) where ( glon < 0.) glon=glon+360.
         if ( cen_lon < -140. ) where ( glon > 0. ) glon=glon-360.
-
         call write_nc_real(trim(fl_out), 'glon', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glon, 'degree', 'rot-ll longtitude')
         call write_nc_real(trim(fl_out), 'glat', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glat, 'degree', 'rot-ll latitude')
         allocate(dat4(nz+1,1,1,1))
@@ -1947,28 +1931,8 @@
   allocate(hlon(nx,ny), hlat(nx,ny), vlon(nx,ny), vlat(nx,ny))
   read(iunit)hlon, hlat, vlon, vlat
   close(iunit)
-! New change: Jul 2022 JH Shin
-! -------------------------------------------------------------
-
-! For WPAC storms, CONVERT positive values of western hemisphere within the VI domain
-! into negative value, IF the portion of western hemisphere (e.g., the eastern side of IDL)
-! is included in VI domain, because VI is completed
-  if ( cen_lon > 0. ) then
-     where ( hlon > 180. ) hlon=hlon-360.
-     where ( vlon > 180. ) vlon=vlon-360.
-  endif
-
-! For CPAC storms located near the east of international date line
-! CONVERT negative values of eastern hemisphere within the VI domain into positive value
-! because VI is done
-  if ( cen_lon < -140. )then
-     where ( hlon <= -180. ) hlon=hlon+360.
-     where ( vlon <= -180. ) vlon=vlon+360.
-  endif
-
-! New change: Jul 2022 JH Shin
-! -------------------------------------------------------------
-
+  call longitude_expand_360to540(nx,ny,hlon)
+  call longitude_expand_360to540(nx,ny,vlon)
 
   if (my_proc_id==0) then
      write(*, '(a,8f10.3)')' hlon,hlat(1,1; nx,1; nx,ny; 1,ny) =', &

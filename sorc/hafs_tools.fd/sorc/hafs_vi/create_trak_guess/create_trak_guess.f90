@@ -38,10 +38,11 @@ program create_trak_guess
   if(storm_id(3:3).eq.'W') basin='WP'
   if(storm_id(3:3).eq.'E') basin='EP'
   if(storm_id(3:3).eq.'C') basin='CP'
-  if(storm_id(3:3).eq.'A') basin='AA'
-  if(storm_id(3:3).eq.'B') basin='BB'
-  if(storm_id(3:3).eq.'P') basin='SP'
-  if(storm_id(3:3).eq.'S') basin='SI'
+  if(storm_id(3:3).eq.'A') basin='IO'
+  if(storm_id(3:3).eq.'B') basin='IO'
+  if(storm_id(3:3).eq.'P') basin='SH'
+  if(storm_id(3:3).eq.'S') basin='SH'
+  if(storm_id(3:3).eq.'Q') basin='SL'
 
   ! Set null vaules for the output (fort.30)
   lathr=9999
@@ -50,6 +51,8 @@ program create_trak_guess
   ! Reading fort.12 (previous HAFS forecast ATCF file)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+
+    if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center. (i.e., lat=0)
     if(ns.eq.'S')lat=-lat
     !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
     if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then
