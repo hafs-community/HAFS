@@ -191,10 +191,6 @@ if [ ${stormDomain} = "parent" ]; then
     plot_lhtflux_wind10m.py \
     plot_precip_mslp_thk.py \
     plot_reflectivity.py \
-    plot_goes_ir13.py \
-    plot_goes_wv9.py \
-    plot_ssmisf17_mw37ghz.py \
-    plot_ssmisf17_mw91ghz.py \
     plot_850mb_200mb_vws.py \
     plot_rhmidlev_hgt_wind.py \
     plot_temp_hgt_wind.py \
@@ -212,10 +208,6 @@ if [ ${stormDomain} = "parent" ]; then
     plot_streamline_wind.py \
     )
   levAll=( \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
     1003 \
     1003 \
     1003 \
@@ -250,10 +242,6 @@ elif [ ${stormDomain} = "storm" ]; then
     plot_lhtflux_wind10m.py \
     plot_precip_mslp_thk.py \
     plot_reflectivity.py \
-    plot_goes_ir13.py \
-    plot_goes_wv9.py \
-    plot_ssmisf17_mw37ghz.py \
-    plot_ssmisf17_mw91ghz.py \
     plot_rhmidlev_hgt_wind.py \
     plot_temp_hgt_wind.py \
     plot_temp_hgt_wind.py \
@@ -271,10 +259,6 @@ elif [ ${stormDomain} = "storm" ]; then
     plot_tempanomaly_hgt_wind.py \
     )
   levAll=( \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
     1003 \
     1003 \
     1003 \
@@ -308,6 +292,28 @@ for((i=0;i<${nscripts};i++)); do
   echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
         > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
 done
+
+if [ ${satpost} = .true. ]; then
+  figScriptAll=( \
+    plot_goes_ir13.py \
+    plot_goes_wv9.py \
+    plot_ssmisf17_mw37ghz.py \
+    plot_ssmisf17_mw91ghz.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    )
+  nscripts=${#figScriptAll[*]}
+  for((i=0;i<${nscripts};i++)); do
+    fhhh="f${FHR3}"
+    echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
+    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+          > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  done
+fi
 
 done
 
