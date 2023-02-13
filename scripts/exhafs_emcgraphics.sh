@@ -293,6 +293,28 @@ for((i=0;i<${nscripts};i++)); do
         > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
 done
 
+if [ ${satpost} = .true. ]; then
+  figScriptAll=( \
+    plot_goes_ir13.py \
+    plot_goes_wv9.py \
+    plot_ssmisf17_mw37ghz.py \
+    plot_ssmisf17_mw91ghz.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    )
+  nscripts=${#figScriptAll[*]}
+  for((i=0;i<${nscripts};i++)); do
+    fhhh="f${FHR3}"
+    echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
+    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+          > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  done
+fi
+
 done
 
 #==============================================================================
@@ -303,7 +325,7 @@ if [ ${machine} = "wcoss2" ]; then
   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
   $APRUNCFP -n $ncmd_max cfp ./$cmdfile
 else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 fi
 
 date
@@ -423,7 +445,7 @@ if [ ${machine} = "wcoss2" ]; then
   ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
   $APRUNCFP -n $ncmd_max cfp ./$cmdfile
 else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 fi
 
 fi
