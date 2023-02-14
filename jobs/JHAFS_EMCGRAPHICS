@@ -13,12 +13,12 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles
-  module load modulefile.graphics.run.${machine}
+  module load graphics.run.${machine}
   module list
 fi
 
@@ -39,9 +39,12 @@ export USHgraph=${USHgraph:-${HOMEgraph}/ush}
 export WORKgraph=${WORKgraph:-${COMhafs}/../../../${YMDH}/${STORMID}/emc_graphics}
 export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
 
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+
 export ADECKgraph=${ADECKhafs:?}
 export BDECKgraph=${BDECKhafs:?}
 export SYNDAThafs=${SYNDAThafs:?}
+export cartopyDataDir=${cartopyDataDir:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
@@ -63,8 +66,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_emcgraphics.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

@@ -13,12 +13,16 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  module load modulefile.ProdGSI.${machine}
+  if [ ${machine}  = "hera" ]; then
+    module load gsi_${machine}.intel
+  else
+    module load gsi_${machine}
+  fi
   module list
 fi
 
@@ -33,6 +37,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
@@ -62,8 +67,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis_vr.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

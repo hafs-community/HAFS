@@ -1,0 +1,91 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export HOMEhafs=${HOMEhafs:?}
+export USHhafs=${USHhafs:-${HOMEhafs}/ush}
+export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
+export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
+export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+
+source ${USHhafs}/hafs_pre_job.sh.inc
+source ${HOLDVARS:-storm1.holdvars.txt}
+
+export machine=${WHERE_AM_I:-wcoss2}
+export envir=${envir:-prod} # prod, para, test
+export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
+if [ "${RUN_ENVIR^^}" != NCO ]; then
+  module use ${HOMEhafs}/modulefiles
+  module load hafs.${machine}
+  module list
+fi
+
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+# Run setpdy and initialize PDY variables
+#setpdy.sh
+#. ./PDY
+export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+
+export WORKhafs=${WORKhafs:?}
+export COMIN=${COMIN:?}
+export COMOUT=${COMOUT:?}
+export COMhafs=${COMhafs:-${COMOUT}}
+
+export CDATE=${CDATE:-${YMDH}}
+export cyc=${cyc:?}
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export ENSDA=${ENSDA:-NO}
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
+
+NDATE=${NDATE:-ndate}
+export CDATEprior=$(${NDATE} -6 $CDATE)
+export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
+
+# Deterministic or ensemble
+if [ "${ENSDA}" = YES ]; then
+  export ENSID=${ENSID:-001}
+  export RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export RESTARTinp=${COMhafsprior}/RESTART
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
+  export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+else
+  export RESTARTinp=${COMhafsprior}/RESTART
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
+  export INTCOMinit=${WORKhafs}/intercom/atm_init
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi
+  export DATA=${WORKhafs}/atm_vi
+fi
+
+export SCRUBDATA=${SCRUBDATA:-YES}
+if [ "${SCRUBDATA}" = YES ]; then
+  rm -rf $DATA
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_vi.sh
+
+export KEEPDATA=${KEEPDATA:-YES}
+if [ "${KEEPDATA^^}" != YES ]; then
+  rm -rf $DATA
+fi
+
+date

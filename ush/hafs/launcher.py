@@ -18,14 +18,17 @@ tcvitals generation."""
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
 import os, re, sys, collections, random
+import numpy as np
+import xarray as xr
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
 import hafs.prelaunch
 
 from random import Random
-from produtil.fileop import isnonempty
-from produtil.run import run, exe
+from produtil.fileop import isnonempty, deliver_file
+from produtil.cd import NamedDir, TempDir
+from produtil.run import mpi, mpirun, run, runstr, checkrun, exe, bigexe, alias
 from produtil.log import jlogger
 from tcutil.numerics import to_datetime_rel, to_datetime, to_fraction
 from hafs.config import HAFSConfig
@@ -665,7 +668,12 @@ class HAFSLauncher(HAFSConfig):
             logger.info('Domain center is already set to lat=%g lon=%g'
                         %(cenla,cenlo))
             return
-        (cenlo, cenla) = self.syndat.tcutil_domain_center(logger)
+        parent_domain_center=self.getstr('config','parent_domain_center','storm')
+        if parent_domain_center=='storm':
+            (cenlo, cenla) = self.syndat.tcutil_domain_center_storm(logger)
+        else:
+            (cenlo, cenla) = self.syndat.tcutil_domain_center(logger)
+
         self.set('config','domlat',cenla)
         self.set('config','domlon',cenlo)
         logger.info('Decided on domain center lat=%g lon=%g'%(cenla,cenlo))
@@ -1082,7 +1090,6 @@ class HAFSLauncher(HAFSConfig):
         vitbase=self.choose_vitbase(storm_num)
 
         vitbasedir=os.path.dirname(vitbase)
-        print("vitbasedir",vitbasedir)
         produtil.fileop.makedirs(vitbasedir,logger=logger)
 
         logger.info('Reformat vitals...')
@@ -1118,6 +1125,28 @@ class HAFSLauncher(HAFSConfig):
         logger.info(filename+': write prior cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
+
+        tm03syndat=syndat-3 # vitals at tm03
+        # interpolate to get wmax and pmin at tm03
+        tm03syndat.wmax=int(round(oldsyndat.wmax+0.5*(syndat.wmax-oldsyndat.wmax)))
+        tm03syndat.wmax=max(min(tm03syndat.wmax, 99), 0)
+        tm03syndat.pmin=int(round(oldsyndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
+        tm03syndat.pmin=max(min(tm03syndat.pmin, 1100), 800)
+        filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
+        logger.info(filename+': write tm03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tm03syndat.as_tcvitals(), file=tmpvit)
+
+        tp03syndat=syndat+3 # vitals at tp03
+       ## extrapolate to get wmax and pmin at tp03
+       #tp03syndat.wmax=int(round(syndat.wmax+0.5*(syndat.wmax-oldsyndat.wmax)))
+       #tp03syndat.wmax=max(min(tp03syndat.wmax, 99), 0)
+       #tp03syndat.pmin=int(round(syndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
+       #tp03syndat.pmin=max(min(tp03syndat.pmin, 1100), 800)
+        filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
+        logger.info(filename+': write tp03 vitals here')
+        with open(filename,'wt') as tmpvit:
+            print(tp03syndat.as_tcvitals(), file=tmpvit)
 
     def sanity_check_archive(self,logger=None):
         """!Runs a sanity check on the archiving settings.
@@ -1412,102 +1441,148 @@ class HAFSLauncher(HAFSConfig):
         out=list()
         logger=self.log()
 
-        # Generate the output grid for the write grid component of the forecast job
-        output_grid=self.getstr('forecast','output_grid','rotated_latlon')
-        logger.info('output_grid is: %s'%(output_grid))
-        output_grid_cen_lon=self.getfloat('forecast','output_grid_cen_lon',-62.0)
-        output_grid_cen_lat=self.getfloat('forecast','output_grid_cen_lat',22.0)
-        output_grid_lon_span=self.getfloat('forecast','output_grid_lon_span',70.0)
-        output_grid_lat_span=self.getfloat('forecast','output_grid_lat_span',60.0)
-        output_grid_dlon=self.getfloat('forecast','output_grid_dlon',0.025)
-        output_grid_dlat=self.getfloat('forecast','output_grid_dlat',0.025)
-        if output_grid=='rotated_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',0.0-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',0.0-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',0.0+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',0.0+output_grid_lat_span/2.0)
-        elif output_grid=='regional_latlon':
-            output_grid_lon1=self.getfloat('forecast','output_grid_lon1',output_grid_cen_lon-output_grid_lon_span/2.0)
-            output_grid_lat1=self.getfloat('forecast','output_grid_lat1',output_grid_cen_lat-output_grid_lat_span/2.0)
-            output_grid_lon2=self.getfloat('forecast','output_grid_lon2',output_grid_cen_lon+output_grid_lon_span/2.0)
-            output_grid_lat2=self.getfloat('forecast','output_grid_lat2',output_grid_cen_lat+output_grid_lat_span/2.0)
-        else:
-            logger.error('Exiting, output_grid: %s not supported.'%(output_grid))
-            sys.exit(2)
-        self.set('holdvars','output_grid_lon1','%.6f'%(output_grid_lon1))
-        self.set('holdvars','output_grid_lat1','%.6f'%(output_grid_lat1))
-        self.set('holdvars','output_grid_lon2','%.6f'%(output_grid_lon2))
-        self.set('holdvars','output_grid_lat2','%.6f'%(output_grid_lat2))
+        # For the storm-focused nest, check (and recalculate if needed) i/jstart_nest, i/jend_nest
+        istart_nest=self.getstr('grid','istart_nest','auto').split(',')
+        jstart_nest=self.getstr('grid','jstart_nest','auto').split(',')
+        iend_nest=self.getstr('grid','iend_nest','auto').split(',')
+        jend_nest=self.getstr('grid','jend_nest','auto').split(',')
+        if "-999" in istart_nest+jstart_nest+iend_nest+jend_nest:
+            logger.info(f'Original istart_nest={istart_nest},jstart_nest={jstart_nest}')
+            logger.info(f'Original iend_nest={iend_nest},jend_nest={jend_nest}')
+            logger.info('Need to recalculate i/jstart_nest and i/jend_nest based on storm location.')
+            cres=self.getstr('grid','CASE','C512')
+            gtype=self.getstr('grid','gtype','regional')
+            stretch_fac=self.getstr('grid','stretch_fac','1.0001')
+            target_lon=self.getstr('grid','target_lon')
+            target_lat=self.getstr('grid','target_lat')
+            nest_grids=self.getint('grid','nest_grids',1)
+            parent_tile=self.getstr('grid','parent_tile').split(',')
+            refine_ratio=self.getstr('grid','refine_ratio','3').split(',')
+            npx=self.getstr('forecast','npx').split(',')
+            npy=self.getstr('forecast','npy').split(',')
+            regional_esg=self.getstr('grid','regional_esg','no')
+            idim_nest=self.getstr('grid','idim_nest').split(',')
+            jdim_nest=self.getstr('grid','jdim_nest').split(',')
+            delx_nest=self.getstr('grid','delx_nest').split(',')
+            dely_nest=self.getstr('grid','dely_nest').split(',')
+            jdim_nest=self.getstr('grid','jdim_nest').split(',')
+            halop2=self.getint('grid','halop2',5)
+            pazi=self.getfloat('grid','pazi',-180.)
+            WORKhafs=self.getstr('dir','WORKhafs','work')
+            EXEChafs=self.getstr('dir','EXEChafs','exec')
 
-        # Generate synop_gridspecs if needed
-        synop_gridspecs=self.getstr('atm_post','synop_gridspecs','auto')
-        # if synop_gridspecs=auto, then synop_gridspecs will be automatically generated based on the output grid
-        if synop_gridspecs=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon
-                latlon_dlat=output_grid_dlat
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat
-            logger.info('since synop_gridspecs is %s' %(synop_gridspecs))
-            synop_gridspecs='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs: %s' %(synop_gridspecs))
-        self.set('holdvars','synop_gridspecs',synop_gridspecs)
+            # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
+            with NamedDir(os.path.join(WORKhafs, 'launch'),logger=logger,rm_first=True) as d:
+                if gtype=='nest':
+                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
+                                          '--do_schmidt --stretch_factor', stretch_fac,
+                                          '--target_lon', target_lon, '--target_lat', target_lat]
+                    checkrun(cmd,logger=logger)
+                    deliver_file(cres+'_grid.tile6.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
+                elif gtype=='regional' and nest_grids > 1 and not regional_esg=='yes':
+                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
+                                          '--do_schmidt --stretch_factor', stretch_fac,
+                                          '--target_lon', target_lon, '--target_lat', target_lat,
+                                          '--nest_grids', 1, '--parent_tile', parent_tile[0],
+                                          '--istart_nest', istart_nest[0], '--jstart_nest', jstart_nest[0],
+                                          '--iend_nest', iend_nest[0], '--jend_nest', jend_nest[0],
+                                          '--halo 0 --great_circle_algorithm']
+                    checkrun(cmd,logger=logger)
+                    deliver_file(cres+'_grid.tile7.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
+                elif gtype=='regional' and nest_grids > 1 and regional_esg=='yes':
+                    executable=os.path.join(EXEChafs, 'hafs_regional_esg_grid.x')
+                    # generate regional esg parent grid
+                    lx=int(idim_nest[0])+halop2*2
+                    ly=int(jdim_nest[0])+halop2*2
+                    with open('./regional_grid.nml','w') as f:
+                        f.write(f'&regional_grid_nml\n')
+                        f.write(f'  plon = {target_lon}\n')
+                        f.write(f'  plat = {target_lat}\n')
+                        f.write(f'  pazi = {pazi}\n')
+                        f.write(f'  delx = {delx_nest[0]}\n')
+                        f.write(f'  dely = {dely_nest[0]}\n')
+                        f.write(f'  lx = {-lx}\n')
+                        f.write(f'  ly = {-ly}\n')
+                        f.write(f'/')
+                    cmd=exe(executable)
+                    checkrun(cmd,logger=logger)
+                    # Subset into a halo0 grid using nco ncks an alternative way is to use hafs_shave.x
+                    cmd=exe('ncks')['-O',
+                                    '-d', f'nx,{2*halop2},{2*(lx-halop2)-1}',
+                                    '-d', f'ny,{2*halop2},{2*(ly-halop2)-1}',
+                                    '-d', f'nxp,{2*halop2},{2*(lx-halop2)}',
+                                    '-d', f'nyp,{2*halop2},{2*(ly-halop2)}',
+                                    './regional_grid.nc', './parent_grid.tile.halo0.nc']
+                    checkrun(cmd,logger=logger)
+                    # An alternative way is to use hafs_shave.x to shave the grid into halo0
+                   #with open('./input.shave.grid.halo0','w') as f:
+                   #    f.write(' '.join(map(str, [idim_nest[0], jdim_nest[0],halo0,
+                   #                               "'./regional_grid.nc'", "'./parent_grid.tile.halo0.nc'"])))
+                   #executable=os.path.join(EXEChafs, 'hafs_shave.x')
+                   #cmd=exe(executable)<'./input.shave.grid.halo0'
+                   #checkrun(cmd,logger=logger)
+                else:
+                    logger.warning('Unsupported gtype.')
 
-        # Set trker_gridspecs if needed
-        trker_gridspecs=self.getstr('atm_post','trker_gridspecs','auto')
-        if trker_gridspecs=='auto':
-            logger.info('since trker_gridspecs is %s' %(trker_gridspecs))
-            trker_gridspecs=synop_gridspecs
-            logger.info('automatically generated trker_gridspecs: %s' %(trker_gridspecs))
-        self.set('holdvars','trker_gridspecs',trker_gridspecs)
+                # Get storm center lon/lat from tmpvit
+                tmpvit=os.path.join(WORKhafs,'tmpvit')
+                #syndat is a StormInfo object
+                with open(tmpvit,'rt') as f:
+                    syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
+                    syndat=syndat[0]
+                # Search the nearest index location to the storm center on the compute grid (not on the super grid)
+                grid=xr.open_dataset('./parent_grid.tile.halo0.nc')
+                dist=np.sqrt(np.mod((grid.x[::2,::2]-syndat.lon),360.)**2 + (grid.y[::2,::2]-syndat.lat)**2)
+                # Note: xloc is dim2, yloc is dim1 in the grid xarray
+                yloc,xloc=np.where(dist==dist.min())
+                logger.info(f'Storm center at compute grid: xloc={xloc}, yloc={yloc}')
+                icenter=2*xloc[0]
+                jcenter=2*yloc[0]
+                logger.info(f'Storm center at super grid: icenter={icenter}, jcenter={jcenter}')
+                if gtype=='nest':
+                    istart=int(min(max(4, icenter-(int(npx[0])-1)/int(refine_ratio[0])+1),
+                                   2*int(cres[1:])-4-2*(int(npx[0])-1)/int(refine_ratio[0])))
+                    jstart=int(min(max(4, jcenter-(int(npy[0])-1)/int(refine_ratio[0])+1),
+                                   2*int(cres[1:])-4-2*(int(npy[0])-1)/int(refine_ratio[0])))
+                    iend=int(istart-1+2*(int(npx[0])-1)/int(refine_ratio[0]))
+                    jend=int(jstart-1+2*(int(npy[0])-1)/int(refine_ratio[0]))
+                    istart_nest[0]=str(istart)
+                    jstart_nest[0]=str(jstart)
+                    iend_nest[0]=str(iend)
+                    jend_nest[0]=str(jend)
+                elif gtype=='regional':
+                    istart=int(min(max(4, icenter-(int(npx[1])-1)/int(refine_ratio[1])+1),
+                                   2*(int(npx[0])-1)-4-2*(int(npx[1])-1)/int(refine_ratio[1])))
+                    jstart=int(min(max(4, jcenter-(int(npy[1])-1)/int(refine_ratio[1])+1),
+                                   2*(int(npy[0])-1)-4-2*(int(npy[1])-1)/int(refine_ratio[1])))
+                    iend=int(istart-1+2*(int(npx[1])-1)/int(refine_ratio[1]))
+                    jend=int(jstart-1+2*(int(npy[1])-1)/int(refine_ratio[1]))
+                    istart_nest[1]=str(istart)
+                    jstart_nest[1]=str(jstart)
+                    iend_nest[1]=str(iend)
+                    jend_nest[1]=str(jend)
+                else:
+                    logger.warning('Unsupported gtype.')
 
-        # Generate synop_gridspecs_ens if needed
-        grid_ratio_ens=self.getfloat('config','GRID_RATIO_ENS',1.)
-        synop_gridspecs_ens=self.getstr('atm_post_ens','synop_gridspecs_ens','auto')
-        output_grid_dlon_ens=self.getfloat('forecast_ens','output_grid_dlon_ens',0.025)
-        output_grid_dlat_ens=self.getfloat('forecast_ens','output_grid_dlat_ens',0.025)
+                # Update i/jstart_nest and i/jend_nest
+                self.set('holdvars','istart_nest',','.join(istart_nest))
+                self.set('holdvars','jstart_nest',','.join(jstart_nest))
+                self.set('holdvars','iend_nest',','.join(iend_nest))
+                self.set('holdvars','jend_nest',','.join(jend_nest))
+                logger.info(f'Updated istart_nest={istart_nest},jstart_nest={jstart_nest}')
+                logger.info(f'Updated iend_nest={iend_nest},jend_nest={jend_nest}')
 
-        # if synop_gridspecs_ens=auto, then synop_gridspecs_ens will be automatically generated based on the output grid
-        if synop_gridspecs_ens=='auto':
-            if output_grid=='rotated_latlon':
-                latlon_lon0=output_grid_cen_lon+output_grid_lon1-9.
-                latlon_lat0=output_grid_cen_lat+output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1+18.)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            elif output_grid=='regional_latlon':
-                latlon_lon0=output_grid_lon1
-                latlon_lat0=output_grid_lat1
-                latlon_dlon=output_grid_dlon_ens
-                latlon_dlat=output_grid_dlat_ens
-                latlon_nlon=(output_grid_lon2-output_grid_lon1)/output_grid_dlon_ens
-                latlon_nlat=(output_grid_lat2-output_grid_lat1)/output_grid_dlat_ens
-            logger.info('since synop_gridspecs_ens is %s' %(synop_gridspecs_ens))
-            synop_gridspecs_ens='"latlon %f:%d:%f %f:%d:%f"'%(
-                latlon_lon0,latlon_nlon,latlon_dlon,
-                latlon_lat0,latlon_nlat,latlon_dlat)
-            logger.info('automatically generated synop_gridspecs_ens: %s' %(synop_gridspecs_ens))
-        self.set('holdvars','synop_gridspecs_ens',synop_gridspecs_ens)
-
-        # Set trker_gridspecs_ens if needed
-        trker_gridspecs_ens=self.getstr('atm_post_ens','trker_gridspecs_ens','auto')
-        if trker_gridspecs_ens=='auto':
-            logger.info('since trker_gridspecs_ens is %s' %(trker_gridspecs_ens))
-            trker_gridspecs_ens=synop_gridspecs_ens
-            logger.info('automatically generated trker_gridspecs_ens: %s' %(trker_gridspecs_ens))
-        self.set('holdvars','trker_gridspecs_ens',trker_gridspecs_ens)
+                # Update output_grid_cen_lon/lat
+                output_grid_cen_lon=self.getstr('forecast','output_grid_cen_lon').split(',')
+                output_grid_cen_lat=self.getstr('forecast','output_grid_cen_lat').split(',')
+                output_grid_cen_lon[1]=str(syndat.lon)
+                output_grid_cen_lat[1]=str(syndat.lat)
+                self.set('holdvars','output_grid_cen_lon',','.join(output_grid_cen_lon))
+                self.set('holdvars','output_grid_cen_lat',','.join(output_grid_cen_lat))
+                logger.info(f'Updated output_grid_cen_lon={output_grid_cen_lon}')
+                logger.info(f'Updated output_grid_cen_lat={output_grid_cen_lat}')
 
         run_ocean=self.getbool('config','run_ocean')
 
@@ -1530,6 +1605,15 @@ class HAFSLauncher(HAFSConfig):
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
 
+        gsi_flag=self.getbool('config','gsi_d01')
+        self.set('holdvars','cap_gsi_d01',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d02')
+        self.set('holdvars','cap_gsi_d02',('YES' if gsi_flag else 'NO'))
+
+        gsi_flag=self.getbool('config','gsi_d03')
+        self.set('holdvars','cap_gsi_d03',('YES' if gsi_flag else 'NO'))
+
         fgat_flag=self.getbool('config','run_fgat')
         self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
 
@@ -1542,9 +1626,44 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
-        reloc_flag=self.getbool('config','run_vortexinit')
-        self.set('holdvars','cap_run_vortexinit',
-                 ('YES' if reloc_flag else 'NO'))
+        atm_mvnest_flag=self.getbool('config','run_atm_mvnest')
+        self.set('holdvars','cap_run_atm_mvnest',('YES' if atm_mvnest_flag else 'NO'))
+
+        atm_mvnest_ens_flag=self.getbool('config','run_atm_mvnest_ens')
+        self.set('holdvars','cap_run_atm_mvnest_ens',('YES' if atm_mvnest_ens_flag else 'NO'))
+
+        atm_init_flag=self.getbool('config','run_atm_init')
+        self.set('holdvars','cap_run_atm_init',('YES' if atm_init_flag else 'NO'))
+
+        atm_init_fgat_flag=self.getbool('config','run_atm_init_fgat')
+        self.set('holdvars','cap_run_atm_init_fgat',('YES' if atm_init_fgat_flag else 'NO'))
+
+        atm_init_ens_flag=self.getbool('config','run_atm_init_ens')
+        self.set('holdvars','cap_run_atm_init_ens',('YES' if atm_init_ens_flag else 'NO'))
+
+        atm_vi_flag=self.getbool('config','run_atm_vi')
+        self.set('holdvars','cap_run_atm_vi',('YES' if atm_vi_flag else 'NO'))
+
+        atm_vi_fgat_flag=self.getbool('config','run_atm_vi_fgat')
+        self.set('holdvars','cap_run_atm_vi_fgat',('YES' if atm_vi_fgat_flag else 'NO'))
+
+        atm_vi_ens_flag=self.getbool('config','run_atm_vi_ens')
+        self.set('holdvars','cap_run_atm_vi_ens',('YES' if atm_vi_ens_flag else 'NO'))
+
+        atm_merge_flag=self.getbool('config','run_atm_merge')
+        self.set('holdvars','cap_run_atm_merge',('YES' if atm_merge_flag else 'NO'))
+
+        atm_merge_fgat_flag=self.getbool('config','run_atm_merge_fgat')
+        self.set('holdvars','cap_run_atm_merge_fgat',('YES' if atm_merge_fgat_flag else 'NO'))
+
+        atm_merge_ens_flag=self.getbool('config','run_atm_merge_ens')
+        self.set('holdvars','cap_run_atm_merge_ens',('YES' if atm_merge_ens_flag else 'NO'))
+
+        analysis_merge_flag=self.getbool('config','run_analysis_merge')
+        self.set('holdvars','cap_run_analysis_merge',('YES' if analysis_merge_flag else 'NO'))
+
+        analysis_merge_ens_flag=self.getbool('config','run_analysis_merge_ens')
+        self.set('holdvars','cap_run_analysis_merge_ens',('YES' if analysis_merge_ens_flag else 'NO'))
 
         gplot_flag=self.getbool('config','run_hrdgraphics')
         self.set('holdvars','cap_run_hrdgraphics',

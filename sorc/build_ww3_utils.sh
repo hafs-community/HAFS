@@ -9,7 +9,7 @@ if [ ! -d "../exec" ]; then
 fi
 
 module use ../modulefiles
-module load modulefile.hafs.${target}
+module load hafs.${target}
 module list
 
 if [ $target = hera ]; then target=hera.intel ; fi
@@ -25,7 +25,7 @@ export WW3_DIR=$( pwd -P )/model
 export WW3_BINDIR="${WW3_DIR}/bin"
 export WW3_TMPDIR=${WW3_DIR}/tmp
 export WW3_EXEDIR=${WW3_DIR}/exe
-export WW3_COMP=$target 
+export WW3_COMP=$target
 export WW3_CC=gcc
 export WW3_F90=gfortran
 export SWITCHFILE="${WW3_DIR}/esmf/switch"
@@ -52,7 +52,7 @@ echo 'WWATCH3_SOURCE   yes'                           >> $WWATCH3_ENV
 echo 'WWATCH3_LIST     yes'                           >> $WWATCH3_ENV
 echo ''                                               >> $WWATCH3_ENV
 
-${WW3_BINDIR}/w3_clean -m 
+${WW3_BINDIR}/w3_clean -m
 ${WW3_BINDIR}/w3_setup -q -c $WW3_COMP $WW3_DIR
 
 # Check NetCDF setup

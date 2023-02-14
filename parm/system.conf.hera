@@ -33,12 +33,16 @@ syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
+#COMINhafs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/scratch1/NCEPDEV/hwrf/noscrub/local/share/cartopy
 
 [holdvars]
 WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)

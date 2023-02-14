@@ -1,0 +1,86 @@
+
+SHELL          = /bin/sh
+
+NETCDF_INCLUDE = -I${NETCDF}/include
+NETCDF_LDFLAGS = -L${NETCDF}/lib -lnetcdff -lnetcdf
+HDF5_INCLUDE   = ${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5}/include}"}
+HDF5_LDFLAGS   = ${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:--L${HDF5}/lib} -lhdf5_hl -lhdf5"}
+ZLIB_INCLUDE   = ${ZLIB_INCLUDE:-"-I${ZLIB_INCLUDES:--I${ZLIB_ROOT}/include}"}
+ZLIB_LDFLAGS   = ${ZLIB_LDFLAGS:-"-L${ZLIB_LIBRARIES:--L${ZLIB_ROOT}/lib} -lz -ldl -lm"}
+
+SFC            = ifort
+SF90           = ifort -free
+SCC            = icc
+OMP_FFLAGS     = -qopenmp
+DEBUG_FLAGS    = -g -traceback -check all -fp-model precise -assume byterecl -convert big_endian
+FFLAGS         = -O3 -g -traceback -fp-model precise -assume byterecl -convert big_endian
+FFLAGS_DOUBLE2 = -integer-size 64 -real-size 64
+FFLAGS_DOUBLE  = -integer-size 32 -real-size 64
+FFLAGS_SINGLE  = -integer-size 32 -real-size 32
+CFLAGS         =
+DEBUG_CFLAGS   =
+LDFLAGS        =
+CPP            = /lib/cpp
+CPPFLAGS       = -P -traditional-cpp
+FPPFLAGS       = $(CPPFLAGS) -traditional-cpp
+FPP	       = /lib/cpp -P -traditional-cpp
+FDEFS	       =
+ARFLAGS        = -ruv
+
+DM_FC          =  mpif90 -f90=ifort
+DM_F90         =  mpif90 -free -f90=ifort
+DM_CC          =  mpicc -cc=icc
+
+FC             =  $(DM_FC)
+F90            =  $(DM_F90)
+CC             =  $(DM_CC)
+
+ESSLLIB        =  -mkl=sequential
+MASSLIB        =
+WRF_DIR        =  /work/noaa/hwrf/save/bliu/hwrftrunk202108/sorc/hwrf-utilities/../WRFV3
+
+###########################################################
+#
+# Macros, these should be generic for all machines
+
+LN		= ln -sf
+MAKE		= make -i -r
+RM		= /bin/rm -f
+CP		= /bin/cp
+AR		= ar
+MKDIR		= /bin/mkdir -p
+RANLIB		= ranlib
+
+.IGNORE:
+.SUFFIXES: .c .f .F .F90 .f90 .o .fpp
+
+# There is probably no reason to modify these rules
+.c.o:
+	$(RM) $@
+	$(CC) $(CFLAGS) -c $<
+
+.f.o:
+	$(RM) $@ $*.mod
+	$(FC) $(FFLAGS) -c $<
+
+.fpp.o:
+	$(RM) $@ $*.mod $*.f
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f && \
+	$(FC) $(FFLAGS) -c $*.f && \
+	$(RM) $*.f
+
+.F.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90 && \
+	$(F90) $(FFLAGS) -c $*.f90 && \
+	$(RM) $*.f90
+
+.F90.o:
+	$(RM) $@ $*.mod
+	$(CPP) $(FPPFLAGS) $(FDEFS)  $< > $*.f90 && \
+	$(F90) $(FFLAGS) -c $*.f90 && \
+	$(RM) $*.f90
+
+.f90.o:
+	$(RM) $@ $*.mod
+	$(F90) $(FFLAGS) -c $<

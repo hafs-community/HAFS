@@ -67,13 +67,13 @@ c
           iq(i,j)=0
 c
 c ---     'interior' q points require water on all 4 sides.
-          if (min0(ip(i,j),  ip(i-1,j),
-     &             ip(i,j-1),ip(i-1,j-1)).gt.0) iq(i,j)=1
+          if (min0(ip0(i,j),  ip0(i-1,j),
+     &             ip0(i,j-1),ip0(i-1,j-1)).gt.0) iq(i,j)=1
 c
 c ---     'promontory' q points require water on 3
 c ---     (or at least 2 diametrically opposed) sides
-          if ((ip(i  ,j).gt.0.and.ip(i-1,j-1).gt.0).or.
-     &        (ip(i-1,j).gt.0.and.ip(i  ,j-1).gt.0)    ) iq(i,j)=1
+          if ((ip0(i  ,j).gt.0.and.ip0(i-1,j-1).gt.0).or.
+     &        (ip0(i-1,j).gt.0.and.ip0(i  ,j-1).gt.0)    ) iq(i,j)=1
         enddo
       enddo
 c

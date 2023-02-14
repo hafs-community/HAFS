@@ -13,7 +13,7 @@
   use_pbl=.true.,use_compress=.false.,nsig_ext=12,gpstop=50.,
   use_gfs_nemsio=_USE_GFS_NEMSIO_,use_gfs_ncio=_USE_GFS_NCIO_,
   print_diag_pcg=.true.,l2rwthin=.false.,hurricane_radar=.true.,
-  use_gfs_ozone=.false.,
+  use_gfs_ozone=.false.,l4densvar=_L4DENSVAR_,nhr_obsbin=_NHR_OBSBIN_,
   lrun_subdirs=.true.,
   netcdf_diag=_NETCDF_DIAG_,binary_diag=_BINARY_DIAG_,
   newpc4pred=.true., adp_anglebc=.true., angord=4,
@@ -53,20 +53,20 @@
 &OBSQC
   dfact=0.75,dfact1=3.0,erradar_inflate=1.0,tdrerr_inflate=.true.,
   noiqc=.true.,c_varqc=0.03333,vadfile='prepbufr',njqc=.false.,vqc=.true.,vadwnd_l2rw_qc=.false.,
-  q_doe_a_136=1.4,
+  q_doe_a_136=0.65,
   q_doe_b_136=0.0003,
-  q_doe_a_137=1.0,
-  q_doe_b_137=0.0002,
-  t_doe_a_136=1.15,
-  t_doe_b_136=0.23,
-  t_doe_a_137=1.0,
+  q_doe_a_137=0.75,
+  q_doe_b_137=0.0003,
+  t_doe_a_136=0.75,
+  t_doe_b_136=0.2,
+  t_doe_a_137=0.7,
   t_doe_b_137=0.2,
-  uv_doe_a_236=0.75,
-  uv_doe_b_236=0.5,
-  uv_doe_a_237=0.75,
-  uv_doe_b_237=0.3,
-  uv_doe_a_213=1.0,
-  uv_doe_b_213=5.0,
+  uv_doe_a_236=0.5,
+  uv_doe_b_236=0.85,
+  uv_doe_a_237=0.5,
+  uv_doe_b_237=0.85,
+  uv_doe_a_213=0.4,
+  uv_doe_b_213=1.0,
 /
 &OBS_INPUT
   dmesh(1)=90.0,dmesh(2)=45.0,dmesh(3)=45.0,dmesh(4)=45.0,dmesh(5)=90,time_window_max=3.0,l_foreaft_thin=.false.,
@@ -167,7 +167,7 @@ OBS_INPUT::
    ahibufr        ahi         himawari8   ahi_himawari8       0.0     3     0
 ::
 &SUPEROB_RADAR
-  del_azimuth=5.,del_elev=.25,del_range=10000.,del_time=.1,elev_angle_max=5.,minnum=1,range_max=100000.,
+  del_azimuth=5.,del_elev=.25,del_range=10000.,del_time=1.0,elev_angle_max=5.,minnum=1,range_max=200000.,
   l2superob_only=.false.,radar_sites=.false.,
   radar_box=.true.,radar_rmesh=10,radar_zmesh=500,
 /
@@ -243,6 +243,9 @@ SUPEROB_RADAR::
   nlon_ens=387,
   nlat_ens=777,
   write_ens_sprd=F,
+  l_both_fv3sar_gfs_ens=_L_BOTH_FV3SAR_GFS_ENS_,
+  n_ens_gfs=_NENS_GFS_,
+  n_ens_fv3sar=_NENS_FV3SAR_,
 /
 &RAPIDREFRESH_CLDSURF
   dfi_radar_latent_heat_time_period=30.0,

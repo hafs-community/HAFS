@@ -18,7 +18,7 @@ from produtil.fileop import deliver_file, remove_file
 import hafs.launcher, hafs.config, hafs.hycom
 
 produtil.setup.setup()
- 
+
 environ_CONFhafs=os.environ.get('CONFhafs','NO_CONFhafs')
 #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
 conf=hafs.launcher.load(environ_CONFhafs)
@@ -28,8 +28,8 @@ logger.info("hycominit1 started")
 
 DATA=os.environ.get('DATA',conf.getloc('WORKhafs','.')+"/ocn_prep")
 fcstlen=conf.getint('config','NHRS',126)
-os.environ['MPISERIAL'] = conf.getloc('MPISERIAL','NONE') 
-os.environ['mpiserial'] = conf.getloc('mpiserial','NONE') 
+os.environ['MPISERIAL'] = conf.getloc('MPISERIAL','NONE')
+os.environ['mpiserial'] = conf.getloc('mpiserial','NONE')
 
 filename=DATA+"/hycominit1_state.sqlite3"
 remove_file(filename)

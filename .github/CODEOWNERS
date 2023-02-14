@@ -4,7 +4,7 @@
 # These owners will be the default owners for everything in the repo. 
 # This can be made specific to each branch simply by designating different
 # code owners in this file in different branches.
-*       @BinLiu-NOAA @evankalina @ZhanZhang-NOAA @KathrynNewman
+*       @BinLiu-NOAA @ZhanZhang-NOAA @KathrynNewman @panll
 
 # Order is important. The last matching pattern has the most precedence.  
 # So if a pull request only touches javascript files, only these owners  

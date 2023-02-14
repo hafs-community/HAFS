@@ -34,12 +34,16 @@ syndat=/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
+#COMINhafs=/lfs4/HFIP/hwrf-data/hafs-input/COMGFSv16
 COMrtofs=/lfs4/HFIP/hwrf-data/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/mnt/lfs4/HFIP/hwrfv3/local/share/cartopy
 
 ## Used when parsing hwrf_holdvars.txt to make storm*.holdvars.txt in COM
 [holdvars]

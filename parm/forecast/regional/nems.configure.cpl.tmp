@@ -1,3 +1,5 @@
+logKindFlag:            ESMF_LOGKIND_MULTI
+
 # component list
 _EARTH_component_list_
 
@@ -71,6 +73,7 @@ ALLCOMP_attributes::
 ATM_attributes::
   Verbosity = 1
   Diagnostic = 0
+  mesh_atm = _mesh_atm_
   stop_n = _end_hour_
   stop_option = nhours
   stop_ymd = -999
@@ -108,6 +111,8 @@ WAV_attributes::
   Diagnostic = 0
   OverwriteSlice = false
   merge_import = .true.
+  mesh_wav = _mesh_wav_
+  multigrid = _multigrid_
 ::
 
 # The following are only used by the hycom ocean model. #

@@ -19,7 +19,7 @@ try:
     import requests
 except ImportError as ie:
     sys.stderr.write("""You are missing the "request" module!
-You must install it to run this script. 
+You must install it to run this script.
 
   pip install request --user
 """)
@@ -87,7 +87,7 @@ def download_one_hour(when,fhour):
     filename_base = when.strftime(filename_format.format(fhour=fhour))
     url = when.strftime(url_format.format(fhour=fhour))
     filename_final = filename_base+'.nc'
-    if os.path.exists(filename_final):  
+    if os.path.exists(filename_final):
         logger.info(filename_final+': already exists. Skipping.')
         return True
 
@@ -110,7 +110,7 @@ def download_one_hour(when,fhour):
             produtil.fileop.deliver_file(filename_download,filename_final,logger=logger,
                                          keep=False,verify=False,moveok=True,force=True)
             quiet_remove(filename_download)
-            quiet_remove(filename_lock) 
+            quiet_remove(filename_lock)
         except Exception as e:
             quiet_remove(filename_download)
             if request is not None:
@@ -124,13 +124,13 @@ optlist,args = getopt.getopt(sys.argv[1:],'qveniu:b:F:',[
 if len(args)<1:
     exit(usage("No arguments provided!"))
 for optarg in optlist:
-    if optarg[0] in ['-q', '--quiet']:  
+    if optarg[0] in ['-q', '--quiet']:
         log_level = logging.WARNING
     elif optarg[0] in ['-v', '--verbose']:
         log_level = logging.DEBUG
     elif optarg[0] in ['-F', '--format']:
         filename_format = optarg[1]
-    elif optarg[0] in ['-u', '--url' ]: 
+    elif optarg[0] in ['-u', '--url' ]:
         base_url=optarg[1]
     elif optarg[0] in ['-b', '--block-size' ]:
         block_size=max(1,int(optarg[1]))
@@ -146,7 +146,7 @@ produtil.setup.setup(level=log_level,send_dbn=False)
 # Parse the days. This loop was modified from run_hafs.py:
 for arg in args:
     if re.match('\A\d{8}\Z',arg):
-        logger.info('single date/time') 
+        logger.info('single date/time')
         # Single date/time
         dayset.add(arg)
     elif re.match('\A\d{4}\Z',arg):
@@ -214,7 +214,7 @@ while hourlist:
     # Download the file:
     try:
         pick_randomly = not download_one_hour(as_datetime,fhour)
-    except produtil.locking.LockHeld:   
+    except produtil.locking.LockHeld:
         logger.info(f'{day}: lock is held; move on')
         hourlist.append(day_fhour)
         if iloop>=len(hourlist):

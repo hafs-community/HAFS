@@ -43,6 +43,7 @@
 ##      * Removing sources that are not needed or no longer used
 ##      * Merging internal libraries into a single folder with a single driver script
 ##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
+## Added hafs_datool & hafs_vi to CMake based build: Biju Thomas 2022-01-25
 #################################################################################
 
 set -x -e
@@ -76,11 +77,7 @@ _hafsutils_analysis_update (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application 
-    if [[ $target = "wcoss_cray" ]]; then
-        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-        cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_analysis_update -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the analysis-update application.
 
@@ -120,11 +117,7 @@ _hafsutils_obs_preproc (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-       cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the obs-preproc application.
     make all
@@ -163,16 +156,93 @@ _hafsutils_change_prepbufr (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    if [[ $target = "wcoss_cray" ]]; then
-       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ftn -DCMAKE_C_COMPILER=cc
-    else
-       cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc
-    fi
+    cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the hafs_change_prepbufr application.
     make all
 
     # Move the hafs_change_prepbufr application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+
+#----
+
+# FUNCTION:
+
+# _hafsutils_datool.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility datool
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsutils_datool (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    # BUILD_TYPE supports RELEASE OR DEBUG MODE
+    cmake ../hafs_datool -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
+
+    # Build the hafs_datool application.
+    make all VERBOSE=3
+
+    # Move the hafs_datool application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+#----
+
+# FUNCTION:
+
+# _hafsutils_vi.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility vi
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsutils_vi (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    # BUILD_TYPE supports RELEASE OR DEBUG MODE
+    cmake ../hafs_vi -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
+
+    # Build the hafs_vi application.
+    make all VERBOSE=3
+
+    # Move the hafs_vi application executable to the HAFS
     # utility application executables path.
     make install
 }
@@ -212,6 +282,13 @@ build_hafsutils (){
     # Build the change_prepbufr application.
 
     _hafsutils_change_prepbufr
+  
+     # Build the datool application.
+
+    _hafsutils_datool
+    
+     # Build the vi application
+    _hafsutils_vi
 
 }
 
@@ -284,12 +361,17 @@ _extlib_shtns (){
     # Define the local environment variables for the SHTNS
     # compilation.
 
-    export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
+    if [ $target = wcoss2 ]; then
+       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib64 
+    else
+       export LDFLAGS=-L${HAFS_UTILS_EXTLIBS}/lib
+    fi
     PREFIX=${HAFS_UTILS_EXTLIBS}
 
     # Configure the compile-time environment for the SHTNS application
     # build.
 
+    echo "target = " $target
     ./configure --prefix=${PREFIX}
 
     # Build the SHTNS application.
@@ -299,6 +381,11 @@ _extlib_shtns (){
     # Install the SHTNS application.
 
     make install
+
+    if [ $target = wcoss2 ]; then
+       ln -sf ${HAFS_UTILS_EXTLIBS}/lib64/libfftw3.a ${HAFS_UTILS_EXTLIBS}/lib/libfftw3.a
+       ln -sf ${HAFS_UTILS_EXTLIBS}/lib64/libfftw3.la ${HAFS_UTILS_EXTLIBS}/lib/libfftw3.la
+    fi
 }
 
 #----

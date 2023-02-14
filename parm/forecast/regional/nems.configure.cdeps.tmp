@@ -1,3 +1,5 @@
+logKindFlag:            ESMF_LOGKIND_MULTI
+
 # component list
 EARTH_component_list: MED ATM OCN
 

@@ -547,6 +547,30 @@ class StormInfo(object):
         #logging.debug('vmag=%s dt=%s dx=%s dy=%s dlat=%s dlon=%s'%(
         #        repr(vmag),repr(dt),repr(dx),repr(dy),repr(dlat),repr(dlon)))
         return copy
+
+    def tcutil_domain_center_storm(self,logger=None):
+        """!Decide domain center based on the storm location.  Returns a tuple
+        containing a pair of floats (cenlo, cenla) which are the
+        domain center longitude and latitude, respectively.  Results
+        are cached internally so future calls will not have to
+        recompute the center location.
+        @param logger a logging.Logger for log messages"""
+
+        if self._cenlo is not None and self._cenla is not None:
+            return (self._cenlo,self._cenla)
+
+        storm_lon=self.lon
+        assert(storm_lon is not None)
+        storm_lat=self.lat
+        cenlo=storm_lon
+        cenla=storm_lat
+        if logger is not None:
+            logger.info('Decided cenlo=%f cenla=%f'%(cenlo,cenla))
+            logger.info('Storm is at lon=%f lat=%f'%(storm_lon,storm_lat))
+        # Return results as a tuple:
+        ( self._cenlo, self._cenla ) = ( cenlo, cenla )
+        return ( cenlo, cenla )
+
     def tcutil_domain_center(self,logger=None):
         """!Decide domain center based on the storm location, basin,
         and, if available, the 72hr forecast location.  Returns a tuple

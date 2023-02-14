@@ -33,12 +33,16 @@ syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 ## Input GFS data directory
 COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 COMINgfs={COMgfs}
+COMINhafs={COMINgfs}
+#COMINhafs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
 COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 ## A-Deck directory for graphics
 ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
 BDECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/work/noaa/hwrf/noscrub/local/share/cartopy
 
 [holdvars]
 WHERE_AM_I=orion   ;; Which cluster?  (For setting up environment.)

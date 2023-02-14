@@ -13,12 +13,12 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
-  module load build.${machine}.intel
+# module load build.${machine}.intel
   module list
 fi
 
@@ -33,8 +33,7 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
-
-export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMgfs=${COMgfs:?}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
@@ -65,8 +64,6 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_lbc.sh
-export err=$?
-exit $err
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

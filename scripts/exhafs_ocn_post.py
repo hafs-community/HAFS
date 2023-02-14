@@ -18,7 +18,7 @@ from produtil.fileop import deliver_file, remove_file
 import hafs.launcher, hafs.config, hafs.hycom
 
 produtil.setup.setup()
- 
+
 environ_CONFhafs=os.environ.get('CONFhafs','NO_CONFhafs')
 #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
 conf=hafs.launcher.load(environ_CONFhafs)

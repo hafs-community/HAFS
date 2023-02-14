@@ -3,29 +3,22 @@
 set -xe
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export COMINhafs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
+export COMgfs=${COMgfs:?}
+export COMINhafs=${COMgfs:?}
 export use_bufr_nr=${use_bufr_nr:-no}
-export out_prefix=${out_prefix:-$(echo "${STORM}${STORMID}.${YMDH}" | tr '[A-Z]' '[a-z]')}
+export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 export RUN_GSI=${RUN_GSI:-NO}
 
-TOTAL_TASKS=${TOTAL_TASKS:-2016}
-NCTSK=${NCTSK:-12}
-NCNODE=${NCNODE:-24}
-OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-
-# Utilities
 NDATE=${NDATE:-ndate}
-export NCP=${NCP:-"/bin/cp"}
-export NMV=${NMV:-"/bin/mv"}
-export NLN=${NLN:-"/bin/ln -sf"}
-export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
-export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-export COMPRESS=${COMPRESS:-gzip}
-export UNCOMPRESS=${UNCOMPRESS:-gunzip}
-export TAR=${TAR:-tar}
+NCP=${NCP:-"/bin/cp"}
+NMV=${NMV:-"/bin/mv"}
+NLN=${NLN:-"/bin/ln -sf"}
+TAR=${TAR:-tar}
+CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
+MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+COMPRESS=${COMPRESS:-gzip}
+UNCOMPRESS=${UNCOMPRESS:-gunzip}
 
 if [ $GFSVER = PROD2021 ]; then
   export atmos="atmos/"
@@ -35,10 +28,9 @@ else
   export atmos=""
 fi
 
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
-
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
 
 if [ ${RUN_GSI} = "NO" ]; then
   echo "RUN_GSI: $RUN_GSI"
@@ -46,8 +38,8 @@ if [ ${RUN_GSI} = "NO" ]; then
   exit
 fi
 
-COMhafs=${COMhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/com/${CDATE}/${STORMID}}
-WORKhafs=${WORKhafs:-/gpfs/hps3/ptmp/${USER}/${SUBEXPT}/${CDATE}/${STORMID}}
+COMhafs=${COMhafs:?}
+WORKhafs=${WORKhafs:?}
 intercom=${intercom:-${WORKhafs}/intercom/obs_proc}
 SENDCOM=${SENDCOM:-YES}
 
@@ -78,12 +70,14 @@ ${NLN} -sf ./prepbufr.qm_typ ./fort.51
 
 # Link and run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
+set -o pipefail
+${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./hafs_change_prepbufr_qm_typ.out
+set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.hafs.prepbufr
+  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.${RUN}.prepbufr
 fi
 
 # Deliver to intercom
@@ -117,20 +111,26 @@ analdate="${yr}-${mn}-${dy}_${cyc}:00:00"
 sed -e "s/_analdate_/${analdate}/g" \
     obs-preproc.input.tmp > obs-preproc.input
 
-# Link and run the executable
+# Run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-${APRUNS} ./hafs_obs_preproc.x 1> ./hafs_obs_preproc.out 2>&1
+#set -o pipefail
+${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
+#set +o pipefail
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.tempdrop.prepbufr
+  if [ -s ./tempdrop.prepbufr ]; then
+    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${out_prefix}.${RUN}.tempdrop.prepbufr
+  fi
 fi
 
 # Deliver to intercom
 mkdir -p ${intercom}
-${NCP} -p ./tempdrop.prepbufr ${intercom}/tempdrop.prepbufr
+if [ -s ./tempdrop.prepbufr ]; then
+  ${NCP} -p ./tempdrop.prepbufr ${intercom}/hafs.tempdrop.prepbufr
+fi
 
 fi # end if [ -s ./tempdrop.filelist ]; then
 

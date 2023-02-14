@@ -13,12 +13,12 @@ export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
 source ${USHhafs}/hafs_pre_job.sh.inc
 source ${HOLDVARS:-storm1.holdvars.txt}
 
-export machine=${WHERE_AM_I:-wcoss_cray}
+export machine=${WHERE_AM_I:-wcoss2}
 export envir=${envir:-prod} # prod, para, test
 export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
 if [ "${RUN_ENVIR^^}" != NCO ]; then
   module use ${HOMEhafs}/modulefiles
-  module load modulefile.hafs.${machine}
+  module load hafs.${machine}
   module list
 fi
 
@@ -33,6 +33,8 @@ export WORKhafs=${WORKhafs:?}
 export COMIN=${COMIN:?}
 export COMOUT=${COMOUT:?}
 export COMhafs=${COMhafs:-${COMOUT}}
+
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 
 export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
@@ -63,10 +65,57 @@ mkdir -p ${COMOUTproduct}
 mkdir -p $DATA
 cd $DATA
 
-# Execute ex-script
-${HOMEhafs}/scripts/exhafs_product.sh
-export err=$?
-exit $err
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
+rm -f cmdfile_product
+# Loop for grids/domains to prepare the cmdfile
+for ng in $(seq 1 ${ngrids}); do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+  tilestr=".tile1"
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
+fi
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; ${HOMEhafs}/scripts/exhafs_product.sh \
+      > run_product.${gridstr}.log 2>&1" >> cmdfile_product
+
+done
+
+chmod +x cmdfile_product
+if [ ${machine} = "wcoss2" ]; then
+  ncmd=$(cat ./cmdfile_product | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  ${APRUNCFP} -n ${ncmd_max} cfp ./cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
+
+for ng in $(seq 1 ${ngrids}); do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+fi
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+
+cat ./run_product.${gridstr}.log
+if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
+  echo "INFO: successfully ran run_product.${gridstr}"
+else
+  echo "ERROR: failed running run_product.${gridstr}"
+  echo "ERROR: exitting..."
+  exit 1
+fi
+
+done
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then

@@ -53,9 +53,17 @@ set(exec_dir ${CMAKE_SOURCE_DIR}/../../exec)
 set(ext_dir ${CMAKE_SOURCE_DIR}/../hafs_extlibs/lib)
 set(ext_inc_dir ${CMAKE_SOURCE_DIR}/../hafs_extlibs/include)
 
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -heap-arrays -mkl=sequential -convert big_endian -assume byterecl -DLINUX")
+add_definitions(-DLINUX)
 
 add_executable(${exe_name} ${fortran_srcs})
+
+target_compile_options(${exe_name} PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -heap-arrays -mkl=sequential -convert big_endian -assume byterecl)
+
+target_link_options(${exe_name} PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -heap-arrays -mkl=sequential -convert big_endian -assume byterecl)
 
 target_include_directories(
   ${exe_name} PUBLIC
