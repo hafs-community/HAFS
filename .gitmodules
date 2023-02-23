@@ -26,7 +26,3 @@
     path = sorc/hafs_graphics.fd/emc_graphics
     url = https://github.com/hafs-community/hafs_graphics.git
     branch = support/HAFS
-[submodule "obs_preproc"]
-    path = sorc/hafs_tools.fd/sorc/hafs_obs_preproc/obs_preproc
-    url = https://github.com/hafs-community/obs-preproc.git
-    branch = support/HAFS
