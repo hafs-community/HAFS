@@ -7,7 +7,7 @@ module use ../modulefiles
 module load hafs.$target
 module list
 
-cd hafs_hycom_utils.fd/libs
+cd hafs_hycom_utils.fd/tools
 if [ -d "build" ]; then
   rm -rf build
 fi
