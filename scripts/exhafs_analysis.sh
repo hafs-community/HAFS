@@ -238,14 +238,32 @@ if [ ${RUN_ENSDA} = "YES" ]; then
     #else
       RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
     #fi
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+    fhh="06"
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     if [ ! -s ./fv3_ens_grid_spec ]; then
       ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
+    fi
+    if [ ${l4densvar:-.false.} = ".true." ]; then
+      export ENS_NSTARTHR=3
+      fhh="03"
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${PDYtm03}.${cyctm03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+      fhh="09"
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${PDYtp03}.${cyctp03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     fi
   done
 fi

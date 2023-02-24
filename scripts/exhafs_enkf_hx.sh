@@ -46,6 +46,8 @@ export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
+# Currently hardwired to .false.
+export l_both_fv3sar_gfs_ens=.false.
 
 export NDATE=${NDATE:-ndate}
 export NCP=${NCP:-"/bin/cp"}
@@ -173,7 +175,7 @@ RESTARTinp=${RESTARTinp:-${RESTARTens_inp}}
 RESTARTanl=${RESTARTanl:-${RESTARTens_anl}}
 DIAGanl=${DIAGanl:-${DIAGens_anl}}
 mkdir -p ${RESTARTanl}
-mkdir -p ${DIAGanl}
+mkdir -p ${DIAGanl}/${MEMSTR}
 
 ## Obsinput file from ensemble mean
 export SELECT_OBS=${SELECT_OBS:-${RESTARTanl}/../ensmean/${out_prefix}.${RUN}.${gridstr}.obsinput.tar}
