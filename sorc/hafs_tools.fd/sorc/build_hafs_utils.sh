@@ -273,7 +273,7 @@ build_hafsutils (){
     
     # Build the analysis-update application.
 
-    _hafsutils_analysis_update
+#    _hafsutils_analysis_update
 
     # Build the obs-preproc application.
 
@@ -413,11 +413,11 @@ build_extlibs (){
 
     # Build the FFTW application.
 
-    _extlib_fftw
+#    _extlib_fftw
 
     # Build the SHTNS application.
 
-    _extlib_shtns
+#    _extlib_shtns
 
 
     # Create a directory to contain all configure, make, and
@@ -463,10 +463,10 @@ setup_hafs_utils_build (){
 
     export HAFS_UTILS_EXTLIBS=${HAFS_UTILS_SORC}/hafs_extlibs
 
-    if [ -d "${HAFS_UTILS_EXTLIBS}/lib" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/lib; fi
-    if [ -d "${HAFS_UTILS_EXTLIBS}/bin" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/bin; fi
-    if [ -d "${HAFS_UTILS_EXTLIBS}/include" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/include; fi
-    if [ -d "${HAFS_UTILS_EXTLIBS}/logs" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/logs; fi
+#    if [ -d "${HAFS_UTILS_EXTLIBS}/lib" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/lib; fi
+#    if [ -d "${HAFS_UTILS_EXTLIBS}/bin" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/bin; fi
+#    if [ -d "${HAFS_UTILS_EXTLIBS}/include" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/include; fi
+#    if [ -d "${HAFS_UTILS_EXTLIBS}/logs" ]; then rm -Rf ${HAFS_UTILS_EXTLIBS}/logs; fi
     
     # Create a working directory to contain all HAFS utility
     # application executables.
@@ -527,7 +527,7 @@ setup_hafs_utils_build
 # (2) Build all libraries specific to numerical weather prediction
 #     (EXT) applications.
 
-build_extlibs
+#build_extlibs
 
 # (3) Build all HAFS utility applications.
 
