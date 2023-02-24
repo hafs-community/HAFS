@@ -57,7 +57,6 @@ $Build_tracker && {
 #------------------------------------
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_nhc_products.x                     ../exec/hafs_nhc_products.x
-  ${CP} hafs_tools.fd/exec/hafs_analysis_update.x                  ../exec/hafs_analysis_update.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x                      ../exec/hafs_obs_preproc.x
   ${CP} hafs_tools.fd/exec/mpiserial.x                             ../exec/hafs_mpiserial.x
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_typ.x           ../exec/hafs_change_prepbufr_qm_typ.x
