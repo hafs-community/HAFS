@@ -1,81 +1,114 @@
+extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
+extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
+extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
+extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
+extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
+
+#extern /prod/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis
+#extern /prod/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
+#extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager
+#extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
+#extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
+#extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
+#extern /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager
+#extern /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
+
 suite nco_hafs
   family hafs
     edit PROJ 'HAFS'
 #    edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hwrf.%hwrf_ver%'
     edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/lin.gan/para/packages/hafs.%hafs_ver%'
     family v1.0
-#      limit ensda_limit 20
-#      limit ensda_relocate_limit 10
-#      limit enshx_limit 5
 #      task jhwrf_alert
 #        trigger :TIME >= 0250 and :TIME < 0850
 # storm1
       family storm1
         edit STORMNUM '1'
+#        edit MORE_LAUNCH_VARS 'config.EXPT=hafs.v1.0.0 config.SUBEXPT=hafs.v1.0.0_hfsa config.NHRS=126 config.run_wave=no config.run_ocean=no'
         task jhafs_cleanup
-          trigger :TIME >= 0300 and :TIME < 0900
+#          trigger :TIME >= 0300 and :TIME < 0900
         family launch
           task jhafs_launch
-#            trigger :TIME >= 0315 and :TIME < 0915 and jhwrf_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-          
+            trigger ../jhafs_cleanup==complete
+#            trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete
             label storm1 ""
-#            event 1 NoStorm
-#            event 2 Pom
-#            event 3 Hycom
-#            event 4 Wave
-#            event 5 Gsi
-#            event 6 Ensda
+            event 1 NoStorm
+            event 3 Hycom
+            event 4 Wave
+            event 5 Analysis
         endfamily
         family prep
-#          complete jhafs_launch:NoStorm
-          trigger ./launch/jhafs_launch==complete
+          complete ./launch/jhafs_launch:NoStorm
           task jhafs_atm_prep
-#            complete ../jhwrf_launch:Pom==clear
-#            trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis == complete
-#            label method ""
-#            label wake ""
-#            event 1 Pom
+          trigger ../launch/jhafs_launch==complete
           task jhafs_atm_prep_mvnest
-#            complete ../jhwrf_launch:Hycom==clear
-#            trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis == complete
-#            label method ""
-#            label wake ""
-#            event 1 Hycom
+          trigger ../launch/jhafs_launch==complete
           task jhafs_obs_prep
+          trigger ../launch/jhafs_launch==complete
           task jhafs_ocn_prep
-          task jhafs_wav_proc
+          trigger ./jhafs_atm_prep==complete
+          task jhafs_wav_prep
+          trigger ./jhafs_atm_prep==complete
         endfamily
         family init
+          complete ./launch/jhafs_launch:NoStorm
+          trigger ./prep/jhafs_atm_prep==complete
           task jhafs_atm_ic
+            trigger ../prep/jhafs_atm_prep==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
           task jhafs_atm_ic_fgat03
+            trigger ../prep/jhafs_atm_prep==complete # and /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
           task jhafs_atm_ic_fgat06
+            trigger ../prep/jhafs_atm_prep==complete # and /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
           task jhafs_atm_ic_fgat09
+            trigger ../prep/jhafs_atm_prep==complete # and /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
           task jhafs_atm_lbc
+            trigger ../prep/jhafs_atm_prep==complete # and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
           task jhafs_atm_init
+            trigger ./jhafs_atm_ic==complete
           task jhafs_atm_init_fgat03
+            trigger ../launch/jhafs_launch==complete
           task jhafs_atm_init_fgat06
+            trigger ../launch/jhafs_launch==complete
           task jhafs_atm_init_fgat09
+            trigger ../launch/jhafs_launch==complete
           task jhafs_atm_vi
+            trigger ./jhafs_atm_init==complete
           task jhafs_atm_vi_fgat03
+            trigger ./jhafs_atm_init_fgat03==complete
           task jhafs_atm_vi_fgat06
+            trigger ./jhafs_atm_init_fgat06==complete
           task jhafs_atm_vi_fgat09
+            trigger ./jhafs_atm_init_fgat09==complete
         endfamily
         family analysis
+          complete ./launch/jhafs_launch:NoStorm
           task jhafs_analysis
+            trigger ../init/jhafs_atm_ic==complete and ../prep/jhafs_obs_prep==complete and ../launch/jhafs_launch:Analysis
           task jhafs_analysis_merge
+            trigger ./jhafs_analysis==complete
         endfamily
         family forecast 
+          complete ./launch/jhafs_launch:NoStorm
           task jhafs_forecast
+            trigger ../prep/jhafs_atm_prep_mvnest==complete and ../init==complete and ../analysis==complete
         endfamily
         family post
+          complete ./launch/jhafs_launch:NoStorm
           task jhafs_atm_post
+            trigger ../forecast==active
           task jhafs_ocn_post
+            trigger ../forecast==active
           task jhafs_wav_post
+            trigger ../forecast==active
           task jhafs_product
+            trigger ../forecast==active
+            meter gribber 0 126 126
+            meter tracker 0 126 126
+            event 1 SentTrackToNHC
           task jhafs_gempak
+            trigger ./jhafs_atm_post==complete
         endfamily
       endfamily
-#
     endfamily
   endfamily
 endsuite
