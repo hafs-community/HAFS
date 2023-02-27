@@ -3,11 +3,16 @@ set -x
 date
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+#
 # NOAA RDHPCS Jet
-HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-source /mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS/ush/hafs_pre_job.sh.inc
+#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
+#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+#
+# NOAA RDHPCS Orion
+#HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
+#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 dev="-s sites/hera.ent -f"
 PYTHON3=/apps/intel/intelpython3/bin/python3
