@@ -1,0 +1,1 @@
+"OCN", "runoff",         "liq_runoff",    "./INPUT/ocean_precip_monthly_JD.nc",    "bilinear" ,  1.0

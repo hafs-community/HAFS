@@ -2,7 +2,7 @@
   blocksize = @[blocksize]
   chksum_debug = .false.
   dycore_only = .false.
-  avg_max_length = 10800.
+  avg_max_length = 3600.
   ccpp_suite = '@[ccpp_suite_nml]'
   ignore_rst_cksum = .true.
 /
@@ -37,7 +37,7 @@
 /
 
 &fv_grid_nml
-  grid_file = 'INPUT/grid_spec.nc'
+ !grid_file = 'INPUT/grid_spec.nc'
 /
 
 &fv_core_nml
@@ -116,37 +116,13 @@
   res_latlon_dynamics = "fv3_increment.nc"
   write_3d_diags = .true.
 
-  do_schmidt = .true.
-  target_lat = @[target_lat]
-  target_lon = @[target_lon]
-  stretch_fac = @[stretch_fac]
-  regional = .true.
-  bc_update_interval = @[bc_update_interval]
-  nrows_blend = @[nrows_blend]
-  psm_bc = 1
+  nested = .true.
+  twowaynest = .true.
+  nestupdate = 7
 
   full_zs_filter = @[full_zs_filter_nml]
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
-/
-
-&fv_nest_nml
-  grid_pes = @[grid_pes]
-  tile_coarse = @[tile_coarse]
-  num_tile_top = 1
-  p_split = 1
-  nest_refine = @[refine]
-  nest_ioffsets = @[ioffset]
-  nest_joffsets = @[joffset]
-/
-
-&fv_moving_nest_nml
-  surface_dir = "INPUT/moving_nest"
-  is_moving_nest = @[is_moving_nest]
-  vortex_tracker = @[vortex_tracker]
-  ntrack = @[ntrack]
-  move_cd_x = @[move_cd_x]
-  move_cd_y = @[move_cd_y]
 /
 
 &surf_map_nml
@@ -172,7 +148,7 @@
   fhzero         = 3.
   ldiag3d        = .false.
   lradar         = .true.
-  avg_max_length = 10800.
+  avg_max_length = 3600.
   h2o_phys       = .true.
   fhcyc          = 0.
   use_ufo        = .true.
@@ -208,7 +184,6 @@
   moninq_fac     = -1.0   ! HWRF_moninedmf
   satmedmf       = .true.
   isatmedmf      = 1
-  lseaspray      = @[lseaspray]
   rlmx           = @[rlmx_nml]
   elmx           = @[elmx_nml]
   sfc_rlm        = @[sfc_rlm_nml]
@@ -220,10 +195,10 @@
   do_deep        = @[do_deep_nml]
   imfshalcnv     = 2
   imfdeepcnv     = 2
-  clam_deep      = @[clam_deep]
+  clam_deep      = 0.1
   betal_deep     = 0.05
   betas_deep     = 0.05
-  cdmbgwd        = 1.0,1.0,1.0,1.0
+  cdmbgwd        = 0.88, 0.04
   sfc_z0_type    = 6
   prslrd0        = 0.
   ivegsrc        = 1
@@ -289,18 +264,6 @@
   nsmooth        = 100
   ca_amplitude   = 0.35
   print_diff_pgr = .true.
-  do_ugwp        = .false.
-  do_tofd        = .false.
-  gwd_opt        = 2
-  do_ugwp_v0     = .false.
-  do_ugwp_v1     = .false.
-  do_ugwp_v0_orog_only = .false.
-  do_ugwp_v0_nst_only  = .true.
-  do_ugwp_v1_w_gsldrag = .false.
-  do_ugwp_v1_orog_only = .false.
-  do_gsl_drag_ls_bl    = .true.
-  do_gsl_drag_ss       = .true.
-  do_gsl_drag_tofd     = .true.
 /
 
 &gfdl_cloud_microphysics_nml
@@ -350,6 +313,16 @@
   fix_negative = .true.
   icloud_f = 1
   mp_time = 90.
+/
+
+&MOM_input_nml
+  output_directory = 'OUTPUT',
+  input_filename = 'n'
+  restart_input_dir = 'INPUT',
+  restart_output_dir = 'RESTART',
+  parameter_filename = 'INPUT/MOM_input',
+                       'INPUT/MOM_override',
+                       'INPUT/MOM_saltrestore'
 /
 
 &interpolator_nml
@@ -436,13 +409,4 @@
   knob_ugwp_ndx4lh  = 1
   knob_ugwp_version = 0
   launch_level      = 25
-/
-&MOM_input_nml
-  output_directory = 'OUTPUT',
-  input_filename = 'n'
-  restart_input_dir = 'INPUT',
-  restart_output_dir = 'RESTART',
-  parameter_filename = 'INPUT/MOM_input',
-                       'INPUT/MOM_override',
-                       'INPUT/MOM_saltrestore'
 /

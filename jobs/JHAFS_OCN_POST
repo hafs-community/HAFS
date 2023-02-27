@@ -51,7 +51,12 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
+export run_atm_datm_ocean=${run_atm_datm_ocean:-YES}
+if [ "${run_atm_datm_ocean}" = YES ]; then
+${HOMEhafs}/scripts/exhafs_mom6_post.sh
+else
 ${HOMEhafs}/scripts/exhafs_ocn_post.py
+fi
 
 export KEEPDATA=${KEEPDATA:-YES}
 if [ "${KEEPDATA^^}" != YES ]; then
