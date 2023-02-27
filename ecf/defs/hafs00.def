@@ -1,0 +1,81 @@
+suite nco_hafs
+  family hafs
+    edit PROJ 'HAFS'
+#    edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hwrf.%hwrf_ver%'
+    edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/lin.gan/para/packages/hafs.%hafs_ver%'
+    family v1.0
+#      limit ensda_limit 20
+#      limit ensda_relocate_limit 10
+#      limit enshx_limit 5
+#      task jhwrf_alert
+#        trigger :TIME >= 0250 and :TIME < 0850
+# storm1
+      family storm1
+        edit STORMNUM '1'
+        task jhafs_cleanup
+          trigger :TIME >= 0300 and :TIME < 0900
+        family launch
+          task jhafs_launch
+#            trigger :TIME >= 0315 and :TIME < 0915 and jhwrf_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+          
+            label storm1 ""
+#            event 1 NoStorm
+#            event 2 Pom
+#            event 3 Hycom
+#            event 4 Wave
+#            event 5 Gsi
+#            event 6 Ensda
+        endfamily
+        family prep
+#          complete jhafs_launch:NoStorm
+          trigger ./launch/jhafs_launch==complete
+          task jhafs_atm_prep
+#            complete ../jhwrf_launch:Pom==clear
+#            trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis == complete
+#            label method ""
+#            label wake ""
+#            event 1 Pom
+          task jhafs_atm_prep_mvnest
+#            complete ../jhwrf_launch:Hycom==clear
+#            trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis == complete
+#            label method ""
+#            label wake ""
+#            event 1 Hycom
+          task jhafs_obs_prep
+          task jhafs_ocn_prep
+          task jhafs_wav_proc
+        endfamily
+        family init
+          task jhafs_atm_ic
+          task jhafs_atm_ic_fgat03
+          task jhafs_atm_ic_fgat06
+          task jhafs_atm_ic_fgat09
+          task jhafs_atm_lbc
+          task jhafs_atm_init
+          task jhafs_atm_init_fgat03
+          task jhafs_atm_init_fgat06
+          task jhafs_atm_init_fgat09
+          task jhafs_atm_vi
+          task jhafs_atm_vi_fgat03
+          task jhafs_atm_vi_fgat06
+          task jhafs_atm_vi_fgat09
+        endfamily
+        family analysis
+          task jhafs_analysis
+          task jhafs_analysis_merge
+        endfamily
+        family forecast 
+          task jhafs_forecast
+        endfamily
+        family post
+          task jhafs_atm_post
+          task jhafs_ocn_post
+          task jhafs_wav_post
+          task jhafs_product
+          task jhafs_gempak
+        endfamily
+      endfamily
+#
+    endfamily
+  endfamily
+endsuite
