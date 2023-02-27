@@ -58,7 +58,8 @@ elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
      source /usr/share/lmod/lmod/init/$__ms_shell
 #    . /usr/share/lmod/lmod/init/sh
     target=wcoss2
-    module purge
+#   module purge # use module reset instead
+    module reset
 elif [[ -d /glade ]] ; then
     # We are on NCAR Cheyenne
     if ( ! eval module help > /dev/null 2>&1 ) ; then

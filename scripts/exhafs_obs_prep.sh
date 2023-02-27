@@ -2,35 +2,16 @@
 
 set -xe
 
-export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-export COMgfs=${COMgfs:?}
-export COMINhafs=${COMgfs:?}
-export use_bufr_nr=${use_bufr_nr:-no}
-export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
-
-export RUN_GSI=${RUN_GSI:-NO}
-
-NDATE=${NDATE:-ndate}
-NCP=${NCP:-"/bin/cp"}
-NMV=${NMV:-"/bin/mv"}
-NLN=${NLN:-"/bin/ln -sf"}
-TAR=${TAR:-tar}
-CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-COMPRESS=${COMPRESS:-gzip}
-UNCOMPRESS=${UNCOMPRESS:-gunzip}
-
-if [ $GFSVER = PROD2021 ]; then
-  export atmos="atmos/"
-elif [ $GFSVER = PROD2019 ]; then
-  export atmos=""
-else
-  export atmos=""
-fi
-
+cyc=${cyc:?}
+CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
+
+RUN_GSI=${RUN_GSI:-NO}
+use_bufr_nr=${use_bufr_nr:-no}
+out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
+atmos="atmos/"
 
 if [ ${RUN_GSI} = "NO" ]; then
   echo "RUN_GSI: $RUN_GSI"
@@ -38,12 +19,11 @@ if [ ${RUN_GSI} = "NO" ]; then
   exit
 fi
 
-COMhafs=${COMhafs:?}
-WORKhafs=${WORKhafs:?}
-intercom=${intercom:-${WORKhafs}/intercom/obs_proc}
+PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
+intercom=${intercom:-${WORKhafs}/intercom/obs_prep}
 SENDCOM=${SENDCOM:-YES}
 
-DATA=${DATA:-${WORKhafs}/obs_proc}
+DATA=${DATA:-${WORKhafs}/obs_prep}
 
 mkdir -p ${DATA}
 
@@ -70,9 +50,9 @@ ${NLN} -sf ./prepbufr.qm_typ ./fort.51
 
 # Link and run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
-set -o pipefail
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./hafs_change_prepbufr_qm_typ.out
-set +o pipefail
+${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
+status=$?; [[ $status -ne 0 ]] && exit $status
+cat ./hafs_change_prepbufr_qm_typ.out
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
@@ -114,9 +94,9 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-#set -o pipefail
-${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./hafs_obs_preproc.out
-#set +o pipefail
+${APRUNS} ./hafs_obs_preproc.x > ./hafs_obs_preproc.out 2>&1
+status=$?; [[ $status -ne 0 ]] && exit $status
+cat ./hafs_obs_preproc.out
 
 # Deliver to com
 if [ $SENDCOM = YES ]; then
@@ -134,4 +114,3 @@ fi
 
 fi # end if [ -s ./tempdrop.filelist ]; then
 
-exit

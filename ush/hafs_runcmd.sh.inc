@@ -1,5 +1,6 @@
 #==============================================================================
-# This script sets job node/core, mpi/omp envionment, and run commands.
+# This script sets job node/core, mpi/omp envionment, and run commands, as well
+# as some commonly used commands.
 #==============================================================================
 
 # Set job node/core, mpi/omp environment
@@ -13,42 +14,51 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 #export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
 
 # Set job run commands
+# APRUN:  command to run general jobs
 # APRUNS: command to run serial jobs
 # APRUNO: command to run pure openmp jobs
 # APRUNC: command to run pure mpi or mpi+omp jobs
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
 if [ "$machine" = wcoss2 ]; then
-  #export NODES=${NODES:-1}
+  export APRUN="time"
   export APRUNS="time"
   export APRUNO="time"
   export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
-  export APRUNO="time"
+  export BACKGROUND=""
 elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ]; then
+  export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
-  #export APRUNO="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
   export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
-  #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
   export APRUNF="time"
+  export APRUNCFP="time"
   export BACKGROUND="&"
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
+  export APRUN="time"
   export APRUNS="time"
   export APRUNO="time"
   export APRUNC="mpirun"
-  export APRUNF=${MPISERIAL:-mpiserial}
+  export APRUNF="${MPISERIAL:-mpiserial}"
+  export APRUNCFP="time"
   export BACKGROUND=""
 fi
 
-# Utility commands
+# Some commonly used commands
 export NCP=${NCP:-"/bin/cp"}
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
-
-# Print out environment
-env
+export TAR=${TAR:-tar}
+export NDATE=${NDATE:-ndate}
+export WGRIB2=${WGRIB2:-wgrib2}
+export GRB2INDEX=${GRB2INDEX:-grb2index}
+export COMPRESS=${COMPRESS:-gzip}
+export UNCOMPRESS=${UNCOMPRESS:-gunzip}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 
 #==============================================================================

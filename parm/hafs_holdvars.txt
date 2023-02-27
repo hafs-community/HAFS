@@ -3,11 +3,57 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
-export TZ=UTC # Orion workaround
+export TZ=UTC
+
+export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
+export storm_num={storm_num}
+export stormlabel={stormlabel}
+export STORM={vit[stormname]}
+export STORMID={vit[stormid3]}
+export pubbasin2={vit[pubbasin2]}
+export CENLO={domlon}
+export CENLA={domlat}
 
 export envir={ENV[envir|-prod]}
 export NET={NET}
 export RUN={RUN}
+export RUN_ENVIR={RUN_ENVIR}
+
+export HOMEhafs={HOMEhafs}
+export EXEChafs={EXEChafs}
+export PARMhafs={PARMhafs}
+export EXhafs={EXhafs}
+export JOBhafs={JOBhafs}
+export USHhafs={USHhafs}
+export FIXhafs={FIXhafs}
+export FIXcrtm={FIXcrtm}
+export utilexec={utilexec}
+
+export WORKhafs={WORKhafs}
+export COMhafs={COMhafs}
+export CONFhafs={CONFhafs}
+export HOLDVARS={HOLDVARS}
+
+export COMOLD={COMOLD}
+export COMIN={COMIN}
+export COMOUT={COMOUT}
+
+export COMINnhc={COMINnhc}
+export COMINjtwc={COMINjtwc}
+export COMgfs={COMgfs}
+export COMINobs={COMINobs}
+export COMINgfs={COMINgfs}
+export COMINgdas={COMINgdas}
+export COMINarch={COMINarch}
+export COMrtofs={COMrtofs}
+export COMINrtofs={COMINrtofs}
+export COMINmsg={COMINmsg}
+export COMINhafs={COMINhafs}
+
+export SYNDAThafs={syndat}
+export ADECKhafs={ADECKhafs}
+export BDECKhafs={BDECKhafs}
+export cartopyDataDir={cartopyDataDir}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
@@ -21,9 +67,6 @@ export RUN_ATM_MERGE_ENS={RUN_ATM_MERGE_ENS}
 export RUN_ATM_VI={RUN_ATM_VI}
 export RUN_ATM_VI_FGAT={RUN_ATM_VI_FGAT}
 export RUN_ATM_VI_ENS={RUN_ATM_VI_ENS}
-export RUN_GSI_VR={RUN_GSI_VR}
-export RUN_GSI_VR_FGAT={RUN_GSI_VR_FGAT}
-export RUN_GSI_VR_ENS={RUN_GSI_VR_ENS}
 export RUN_GSI={RUN_GSI}
 export RUN_FGAT={RUN_FGAT}
 export RUN_ENVAR={RUN_ENVAR}
@@ -43,33 +86,15 @@ export vi_bogus_vmax_threshold={vi_bogus_vmax_threshold}
 export vi_storm_env={vi_storm_env}
 export vi_storm_relocation={vi_storm_relocation}
 export vi_storm_modification={vi_storm_modification}
-export vi_ajust_intensity={vi_ajust_intensity}
-export vi_ajust_size={vi_ajust_size}
+export vi_adjust_intensity={vi_adjust_intensity}
+export vi_adjust_size={vi_adjust_size}
 
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}
 export warm_start_opt={warm_start_opt}
 
-export utilexec={utilexec}
-
-export HOMEhafs={HOMEhafs}
-export EXEChafs={EXEChafs}
-export PARMhafs={PARMhafs}
-export EXhafs={EXhafs}
-export JOBhafs={JOBhafs}
-export USHhafs={USHhafs}
-export FIXhafs={FIXhafs}
-export FIXcrtm={FIXcrtm}
-export WORKhafs={WORKhafs}
-export DATA={WORKhafs}
-export COMhafs={COMhafs}
-export COMIN={COMIN}
-export COMOUT={COMOUT}
-export COMINhafs={COMINhafs}
-export COMgfs={COMgfs}
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
-
 export run_datm={run_datm}
 export run_docn={run_docn}
 export run_dwav={run_dwav}
@@ -86,20 +111,7 @@ export datm_input_path={datm_input_path}
 export DOCN_SOURCE={DOCN_SOURCE}
 export DATM_SOURCE={DATM_SOURCE}
 
-export SYNDAThafs={syndat}
-export ADECKhafs={ADECKhafs}
-export BDECKhafs={BDECKhafs}
-export cartopyDataDir={cartopyDataDir}
-
 export PARMforecast={PARMforecast}
-
-export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
-
-export storm_num={storm_num}
-export stormlabel={stormlabel}
-export STORM={vit[stormname]}
-export STORMID={vit[stormid3]}
-export pubbasin2={vit[pubbasin2]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
@@ -380,22 +392,15 @@ export cpl_wav_ocn={cpl_wav_ocn}
 export wav_tasks={wav_tasks}
 export med_tasks={med_tasks}
 
-export RUN_ENVIR={RUN_ENVIR}
-export PATH=:.:$PATH:$utilexec
-
-export CONFhafs={CONFhafs}
-export HOLDVARS={HOLDVARS}
-
-export CENLO={domlon}
-export CENLA={domlat}
-
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
-    export EXPT={EXPT}
-    export SUBEXPT={SUBEXPT}
-    export WHERE_AM_I={ENVEQUIV}
-    export CDSAVE={CDSAVE}
-    export CDNOSCRUB={CDNOSCRUB}
-    export CDSCRUB={CDSCRUB}
-    export RUNhafs={RUNhafs}
+  export EXPT={EXPT}
+  export SUBEXPT={SUBEXPT}
+  export WHERE_AM_I={ENVEQUIV}
+  export CDSAVE={CDSAVE}
+  export CDNOSCRUB={CDNOSCRUB}
+  export CDSCRUB={CDSCRUB}
+  export RUNhafs={RUNhafs}
 fi
+
+export PATH=:.:$PATH:$utilexec
 

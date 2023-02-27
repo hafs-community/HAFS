@@ -1,4 +1,4 @@
-## This is the system-specific configuration file for the Hera
+## This is the system-specific configuration file for Hera
 [config]
 ## Project disk area
 disk_project=hwrf
@@ -8,35 +8,33 @@ tape_project=emc-hwrf
 cpu_account=hurricane
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
-## Specify input sources for HISTORY mode.
-input_sources=hera_sources_{GFSVER}
-## Specify the DataCatalog for FORECAST mode runs.
-fcst_catalog=hera_fcst_{GFSVER}
-
-[hafsdata]
-inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/hafsdata_{GFSVER}
-
-[hera_fcst_PROD2019]
-inputroot=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
 
 [dir]
-## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
-DOCNdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DOCN
-DATMdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DATM
 ## Save directory.  Make sure you edit this.
 CDSAVE=/scratch1/NCEPDEV/{disk_project}/save/{ENV[USER]}
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
-## Input GFS data directory
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
 COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
+COMINobs={COMgfs}
 COMINgfs={COMgfs}
-COMINhafs={COMINgfs}
-#COMINhafs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
-COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFSv2
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
+COMINmsg={COMINgfs}
+COMINhafs={COMINgfs}
+DATMdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## A-Deck directory for graphics
 ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
@@ -45,8 +43,8 @@ BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
 cartopyDataDir=/scratch1/NCEPDEV/hwrf/noscrub/local/share/cartopy
 
 [holdvars]
-WHERE_AM_I=hera    ;; Which cluster?  (For setting up environment.)
-WHICH_JET=none     ;; Which part of Jet are we on?  None; we are not on Jet.
+WHERE_AM_I=hera
+WHICH_JET=none
 
 [forecast]
 glob_layoutx=8

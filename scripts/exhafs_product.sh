@@ -2,6 +2,37 @@
 
 set -xe
 
+CDATE=${CDATE:-${YMDH}}
+
+# Sepcial settings if this is an atm_init run
+if [ ${RUN_INIT:-NO} = YES ]; then
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+  COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  NHRS_ENS=0
+elif [ ${FGAT_MODEL} = gdas ]; then
+  INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  COMOUTproduct=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  NHRS=0
+else
+  INPdir=${WORKhafs}/intercom/atm_init/post
+  COMOUTproduct=${WORKhafs}/intercom/atm_init
+  NHRS=0
+fi
+
+else
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/intercom/post_ens/mem${ENSID}
+  COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
+else
+  INPdir=${WORKhafs}/intercom/post
+  COMOUTproduct=${COMhafs}
+fi
+
+fi
+
 if [ ${ENSDA} = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
@@ -39,17 +70,6 @@ trk_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix
 all_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.all
 fhr_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.f
 
-CDATE=${CDATE:-${YMDH}}
-NHRS=${NHRS:-126}
-NOUTHRS=${NOUTHRS:-3}
-
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-WGRIB2=${WGRIB2:-wgrib2}
-GRB2INDEX=${GRB2INDEX:-grb2index}
-MPISERIAL=${MPISERIAL:-mpiserial}
-
 GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
 TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
 VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
@@ -59,6 +79,8 @@ NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_nhc_products.x}
 INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
 COMOUTproduct=${COMOUTproduct:-${COMhafs}}
+mkdir -p ${COMOUTproduct}
+mkdir -p ${DATA}
 
 tmp_vital=${WORKhafs}/tmpvit
 old_vital=${WORKhafs}/oldvit
@@ -192,12 +214,10 @@ time ./hafs_gettrk.x 2>&1 | tee ./hafs_gettrk.out
 set +o pipefail
 set -e
 
-#if grep "PROGRAM GETTRK   HAS ENDED" ./hafs_gettrk.out ; then
 if grep "top of output_all" ./hafs_gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
 else
-  echo "ERROR: exhafs_product failed running vortex tracker"
-  echo "ERROR: exitting..."
+  echo "FATAL ERROR: exhafs_product failed running vortex tracker"
   exit 1
 fi
 
@@ -205,13 +225,7 @@ fi
 STORMNUM=$(echo ${STORMID} | cut -c1-2)
 STORMBS1=$(echo ${STORMID} | cut -c3)
 
-# Added in Dec 18,2022 just for Rare southern Atlantic storm -----------------------------------------
-#The basin ID of rare southern Atlantic storm is "SL" and this SL is used in output.atcfunix: the output from GFDL tracker.
-#But the storm in this basin is using Q in their name (e.g., 90Q).
-#Because exhafs_product.sh tries to grab the storm information from "output.atcfunix" using "grep -e Q",
-#if basin ID "SL" is used in output.atcfunix, exhafs_product.sh can't extract the storm information.
-#For this, we need to change basin ID from SL to SQ in "output.atcfunix". This allows this script file to use "grep -e Q" command.
-
+# Deal with rare Southern Atlantic storms
 if [ $STORMBS1 = "Q" ]; then
  sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix_grid}
 fi
@@ -238,11 +252,10 @@ fi
 
 if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
-#--------- Also added in  Dec 18,2022 just for Rare southern Atlantic storm ------------
+# Deal with rare Southern Atlantic storms
 if [ $STORMBS1 = "Q" ]; then
  sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix}
 fi
-#---------------------------------------------------------------------------------------
 
 ${NCP} ${COMOUTproduct}/${all_atcfunix} ${COMOUTproduct}/${all_atcfunix}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix}.orig ]; then
@@ -286,7 +299,6 @@ fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   mkdir -p ${DATA}/nhc_products
   cd ${DATA}/nhc_products
-  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
   ${NLN} ${COMhafs}/${trk_atcfunix} fort.20
   # prepare storm_info
   rm -f storm_info
@@ -294,24 +306,16 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   echo ${STORMID^^} >> storm_info
   echo ${STORM^^} >> storm_info
   echo ${RUN^^} >> storm_info
-  set +e
-  set -o pipefail
-  time ./hafs_nhc_products.x 2>&1 | tee ./hafs_nhc_products.out
-  set +o pipefail
-  set -e
+  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
+  ${APRUN} ./hafs_nhc_products.x > ./hafs_nhc_products.out 2>&1
+  status=$?; [[ $status -ne 0 ]] && exit $status
   short=${out_prefix}.${RUN}.grib.stats.short
   afos=${out_prefix}.${RUN}.afos
   tpc=${out_prefix}.${RUN}.stats.tpc
-  if grep "ALL DONE" ./hafs_nhc_products.out; then
-    ${NCP} fort.41 ${COMhafs}/${short}
-    ${NCP} fort.51 ${COMhafs}/${afos}
-    ${NCP} fort.61 ${COMhafs}/${tpc}
-    echo "INFO: nhc products has been successfully generated"
-  else
-    echo "ERROR: nhc products failed"
-    echo "ERROR: exitting..."
-    exit 1
-  fi
+  ${NCP} fort.41 ${COMhafs}/${short}
+  ${NCP} fort.51 ${COMhafs}/${afos}
+  ${NCP} fort.61 ${COMhafs}/${tpc}
+  echo "INFO: nhc products has been successfully generated"
 fi
 #===============================================================================
 

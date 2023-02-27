@@ -549,7 +549,6 @@ VARS.update(SID=stid.upper(),  stormlabel=str(stormlabel),
             CASE_ROOT=case_root,
             SITE_FILE=site_file,
             FETCH_INPUT=yesno(conf.get('config','input_catalog')=='hafsdata'),
-            ARCHIVE_FV3OUT=yesno(conf.getraw('archive','fv3out','')),
             )
 
 for (key,val) in conf.items('rocotostr'):

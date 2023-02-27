@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
@@ -115,7 +115,6 @@ def main():
     PARAFLAG = ( os.environ.get('RUN_ENVIR','EMC').upper() != 'NCO' )
     logger.info('Top of exhafs_launch.')
 
-
     short_opts = "m:M:n"
     long_opts  = ["multistorms=",
                   "multibasins=",
@@ -152,10 +151,6 @@ def main():
     logger.info('ARGS: %s'% (args[1:]))
     logger.info('storm mslist, basin mblist: %s %s'% (mslist,mblist))
 
-
-    # Test to see if BASINS and/or MULTISTORM_SIDS is set
-#    basins          = os.environ.get('BASINS', None)
-#    multi_sids_env  = os.environ.get('MULTISTORM_SIDS','')
     # Parse the options and arguments.
 
     # Multistorm
@@ -180,7 +175,6 @@ def main():
                 multi_sids.append(s)
 
     logger.info('MS LIST: ' +repr(multi_sids))
-
 
     fakestorm_conf = None
     global_storm_num = 0

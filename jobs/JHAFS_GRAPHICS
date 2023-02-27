@@ -31,6 +31,15 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
+  if [ "${GRAPH}" = "EMC" ]; then
+    module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles
+    module load graphics.run.${machine}
+  elif [ "${GRAPH}" = "HRD" ]; then
+    source ${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot/modulefiles/modulefile.gplot.${machine}
+  else
+    echo "FATAL ERROR: Wrong GRAPH option ${GRAPH}, should be either EMC or HRD."
+    exit 1
+  fi
   module list
 else
   # Run by NCO on WCOSS2
@@ -53,27 +62,29 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export MERGE_TYPE=${MERGE_TYPE:-analysis}
-export ENSDA=${ENSDA:-NO}
-export ENSID=${ENSID:-000}
-export FGAT_MODEL=${FGAT_MODEL:-gfs}
-export FGAT_HR=${FGAT_HR:-00}
+export SENDCOM=${SENDCOM:-YES}
 
-# Merge analysis or init
-if [ ${MERGE_TYPE} = analysis ]; then
-  if [ "${ENSDA}" = YES ]; then
-    export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}
-  else
-    export DATA=${WORKhafs}/analysis_merge
-  fi
-elif [ ${MERGE_TYPE} = init ]; then
-  if [ ${FGAT_MODEL} = gdas ]; then
-    export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}
-  else
-    export DATA=${WORKhafs}/atm_merge
-  fi
+export HOMEgraph=${HOMEgraph:-${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics}
+export USHgraph=${USHgraph:-${HOMEgraph}/ush}
+export WORKgraph=${WORKgraph:-${WORKhafs}/emc_graphics}
+export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
+
+export ADECKgraph=${ADECKhafs:?}
+export BDECKgraph=${BDECKhafs:?}
+export SYNDAThafs=${SYNDAThafs:?}
+export cartopyDataDir=${cartopyDataDir:?}
+
+export GPLOThafs=${GPLOThafs:-${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot}
+export GPLOT_DIR=${GPLOThafs}
+
+if [ "${GRAPH}" = "EMC" ]; then
+  export DATA=${WORKgraph}
+  exscript=exhafs_emcgraphics.sh
+elif [ "${GRAPH}" = "HRD" ]; then
+  export DATA=${WORKhafs}/hrdgraphics
+  exscript=exhafs_hrdgraphics.sh
 else
-  echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
+  echo "FATAL ERROR: Wrong GRAPH option ${GRAPH}, should be either EMC or HRD."
   exit 1
 fi
 
@@ -84,7 +95,7 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_merge.sh
+${HOMEhafs}/scripts/${exscript}
 status=$?; [[ $status -ne 0 ]] && exit $status
 
 # Cleanup DATA dir
