@@ -1432,7 +1432,6 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
-        *  cap_run_gsi_vr --- capitalized version of [config] section run_gsi_vr
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1472,7 +1471,7 @@ class HAFSLauncher(HAFSConfig):
             EXEChafs=self.getstr('dir','EXEChafs','exec')
 
             # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
-            with NamedDir(os.path.join(WORKhafs, 'launch'),logger=logger,rm_first=True) as d:
+            with NamedDir(os.path.join(WORKhafs, 'launch/make_hgrid'),logger=logger,rm_first=True) as d:
                 if gtype=='nest':
                     executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
@@ -1592,15 +1591,6 @@ class HAFSLauncher(HAFSConfig):
         ocean_start_dtg_float=to_fraction(self.cycle-hycom_epoch)/(3600*24)
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
-
-        gsi_vr_flag=self.getbool('config','run_gsi_vr')
-        self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
-
-        gsi_vr_fgat_flag=self.getbool('config','run_gsi_vr_fgat')
-        self.set('holdvars','cap_run_gsi_vr_fgat',('YES' if gsi_vr_fgat_flag else 'NO'))
-
-        gsi_vr_ens_flag=self.getbool('config','run_gsi_vr_ens')
-        self.set('holdvars','cap_run_gsi_vr_ens',('YES' if gsi_vr_ens_flag else 'NO'))
 
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))

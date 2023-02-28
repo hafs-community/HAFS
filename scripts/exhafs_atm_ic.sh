@@ -4,11 +4,8 @@ set -xe
 
 nest_grids=${nest_grids:-1}
 
-CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:?}
-STORM=${STORM:?}
-STORMID=${STORMID:?}
-
+CDATE=${CDATE:-${YMDH}}
 ymd=$(echo $CDATE | cut -c 1-8)
 month=$(echo $CDATE | cut -c 5-6)
 day=$(echo $CDATE | cut -c 7-8)
@@ -17,10 +14,6 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
@@ -33,8 +26,8 @@ if [ ${ENSDA} != YES ]; then
   CASE=${CASE:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype:-regional}
-  ictype=${ictype:-gfsnemsio}
-  bctype=${bctype:-gfsnemsio}
+  ictype=${ictype:-gfsnetcdf}
+  bctype=${bctype:-gfsnetcdf}
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid
 else
@@ -42,8 +35,8 @@ else
   CASE=${CASE_ENS:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype_ens:-regional}
-  ictype=${ictype_ens:-gfsnemsio}
-  bctype=${bctype_ens:-gfsnemsio}
+  ictype=${ictype_ens:-gfsnetcdf}
+  bctype=${bctype_ens:-gfsnetcdf}
   LEVS=${LEVS_ENS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid_ens
 fi
@@ -63,22 +56,18 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export INIDIR=${COMINgdas}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
  elif [ ${FGAT_MODEL} = gdas ]; then
-  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}/atmos
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  export INIDIR=${COMINgdas}/gdas.${PDY_prior}/${cyc_prior}/atmos
  else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
- fi
-elif [ $GFSVER = "PROD2019" ]; then
- if [ ${ENSDA} = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY_prior}/${cyc_prior}/mem${ENSID}
- elif [ ${FGAT_MODEL} = gdas ]; then
-  export INIDIR=${COMgfs}/gdas.${PDY_prior}/${cyc_prior}
- else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
  fi
 else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
@@ -87,7 +76,7 @@ mkdir -p ${OUTDIR} ${DATA}
 
 FIXDIR=${DATA}/grid
 FIXCASE=${DATA}/grid/${CASE}
-mkdir -p $DATA ${FIXDIR} ${FIXCASE}
+mkdir -p ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
 ${NLN} ${GRID_intercom}/${CASE}/* ./
@@ -111,24 +100,6 @@ if [ $ictype = "gfsnetcdf" ]; then
   fi
   grib2_file_input_grid=""
   input_type="gaussian_netcdf"
-  varmap_file=""
-  fixed_files_dir_input_grid=""
-  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
-  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
-# Use gfs nemsio files from 2019 GFS (fv3gfs)
-elif [ $ictype = "gfsnemsio" ]; then
-  if [ ${ENSDA} = YES ]; then
-    atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nemsio
-    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nemsio
-  elif [ ${FGAT_MODEL} = gdas ]; then
-    atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nemsio
-    sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nemsio
-  else
-    atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nemsio
-    sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
-  fi
-  grib2_file_input_grid=""
-  input_type="gaussian_nemsio"
   varmap_file=""
   fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
@@ -185,7 +156,7 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 else
   echo "FATAL ERROR: unsupportted input data type yet."
-  exit 1
+  exit 9
 fi
 
 if [ $input_type = "grib2" ]; then
@@ -266,7 +237,7 @@ elif [ $gtype = regional ]; then
   halo_bndy=4
   halo_blend=${halo_blend}
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
+  echo "FATAL ERROR: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
 fi
 
@@ -306,6 +277,7 @@ EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
+status=$?; [[ $status -ne 0 ]] && exit $status
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
   mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
@@ -333,7 +305,7 @@ elif [ $gtype = regional ]; then
   rm $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
   rm $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
+  echo "FATAL ERROR: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
 fi
 
@@ -400,6 +372,7 @@ cat>./fort.41<<EOF
 EOF
 #${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
+status=$?; [[ $status -ne 0 ]] && exit $status
 mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
 mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
 

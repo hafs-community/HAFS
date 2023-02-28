@@ -2,6 +2,44 @@
 
 set -xe
 
+export MP_LABELIO=yes
+
+CDATE=${CDATE:-${YMDH}}
+
+# Sepcial settings if this is an atm_init run
+if [ ${RUN_INIT:-NO} = YES ]; then
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  NHRS_ENS=0
+elif [ ${FGAT_MODEL} = gdas ]; then
+  INPdir=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  NHRS=0
+else
+  INPdir=${WORKhafs}/atm_init/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init
+  intercom=${WORKhafs}/intercom/atm_init/post
+  NHRS=0
+fi
+
+else
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+  intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+else
+  INPdir=${WORKhafs}/forecast
+  COMOUTpost=${COMhafs}
+  intercom=${WORKhafs}/intercom/post 
+fi
+
+fi
+
 if [ ${ENSDA} = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
@@ -9,53 +47,34 @@ if [ ${ENSDA} = YES ]; then
   else
     NHRS=${NHRS_ENS:-6}
   fi
-  export NBDYHRS=${NBDYHRS_ENS:-3}
-  export NOUTHRS=${NOUTHRS_ENS:-3}
-  export CASE=${CASE_ENS:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export gtype=${gtype_ens:-regional}
-  export LEVS=${LEVS_ENS:-65}
-  export post_gridspecs=${post_gridspecs_ens:-""}
-  export trak_gridspecs=${trak_gridspecs_ens:-""}
-  export satpost=${satpost_ens:-".false."}
+  NBDYHRS=${NBDYHRS_ENS:-3}
+  NOUTHRS=${NOUTHRS_ENS:-3}
+  gtype=${gtype_ens:-regional}
+  post_gridspecs=${post_gridspecs_ens:-""}
+  trak_gridspecs=${trak_gridspecs_ens:-""}
+  satpost=${satpost_ens:-".false."}
 else
-  export NHRS=${NHRS:-126}
-  export NBDYHRS=${NBDYHRS:-3}
-  export NOUTHRS=${NOUTHRS:-3}
-  export CASE=${CASE:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export gtype=${gtype:-regional}
-  export LEVS=${LEVS:-65}
-  export post_gridspecs=${post_gridspecs:-""}
-  export trak_gridspecs=${trak_gridspecs:-""}
-  export satpost=${satpost:-".false."}
+  NHRS=${NHRS:-126}
+  NBDYHRS=${NBDYHRS:-3}
+  NOUTHRS=${NOUTHRS:-3}
+  gtype=${gtype:-regional}
+  post_gridspecs=${post_gridspecs:-""}
+  trak_gridspecs=${trak_gridspecs:-""}
+  satpost=${satpost:-".false."}
 fi
-
-export MP_LABELIO=yes
-
-CDATE=${CDATE:-${YMDH}}
-NHRS=${NHRS:-126}
-NOUTHRS=${NOUTHRS:-3}
-
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-WGRIB2=${WGRIB2:-wgrib2}
-GRB2INDEX=${GRB2INDEX:-grb2index}
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
-
-FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-intercom=${intercom:-${WORKhafs}/intercom/post}
-COMOUTpost=${COMOUTpost:-${COMhafs}}
-SENDCOM=${SENDCOM:-YES}
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 output_grid=${output_grid:-rotated_latlon}
-post_gridspecs=${post_gridspecs:-""}
-trak_gridspecs=${trak_gridspecs:-""}
 
+POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
+FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
+
+SENDCOM=${SENDCOM:-YES}
+intercom=${intercom:-${WORKhafs}/intercom/post}
+COMOUTpost=${COMOUTpost:-${COMhafs}}
 DATA=${DATA:-${WORKhafs}/atm_post}
+mkdir -p ${COMOUTpost} ${intercom}
+mkdir -p ${DATA}
 
 IFHR=0
 FHR=0
@@ -140,7 +159,7 @@ while [ $n -le 600 ]; do
     break
   fi
   if [ $n -ge 600 ]; then
-    echo "ERROR: waited too many times: $n. exitting"
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
   n=$((n+1))
@@ -162,7 +181,7 @@ while [ $n -le 600 ]; do
     break
   fi
   if [ $n -ge 600 ]; then
-    echo "ERROR: waited too many times: $n. exitting"
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
   n=$((n+1))
@@ -289,13 +308,7 @@ if [ ${satpost} = .true. ]; then
   echo ${WGRIB2} ${sat_grb2post}                                           ${opts} -new_grid ${postgridspecs} ${sat_grb2file} >> cmdfile
 fi
 chmod +x cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m cmdfile
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -314,7 +327,7 @@ fi
 
 else
 
-echo "ERROR: output grid: ${outputgrid} not supported exitting"
+echo "FATAL ERROR: output grid: ${outputgrid} not supported. Exiting"
 exit 1
 
 fi #if [[ "$outputgrid" = "rotated_latlon"* ]]; then
@@ -353,26 +366,14 @@ if [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp2}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p2             >> cmdfile_regrid
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
   chmod +x cmdfile_regrid
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat ./cmdfile_regrid | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-    $APRUNCFP -n $ncmd_max cfp ./cmdfile_regrid
-  else
-    ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
-  fi
+  ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
   rm -f cmdfile_merge
  #${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p1 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p1 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p1 >  cmdfile_merge
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p2 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p2 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p2 >> cmdfile_merge
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
   chmod +x cmdfile_merge
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat ./cmdfile_merge | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-    $APRUNCFP -n $ncmd_max cfp ./cmdfile_merge
-  else
-    ${APRUNC} ${MPISERIAL} -m cmdfile_merge
-  fi
+  ${APRUNC} ${MPISERIAL} -m cmdfile_merge
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
@@ -381,13 +382,11 @@ fi
 ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
 
 # Deliver to intercom
-mkdir -p ${intercom}
 mv ${trk_grb2file} ${intercom}/
 mv ${trk_grb2indx} ${intercom}/
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  mkdir -p ${COMOUTpost}
   mv ${grb2file} ${COMOUTpost}/
   mv ${grb2indx} ${COMOUTpost}/
   if [ ${satpost} = .true. ]; then
@@ -642,4 +641,3 @@ cd ${DATA}
 
 echo "post job done"
 
-exit

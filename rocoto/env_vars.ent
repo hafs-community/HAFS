@@ -5,8 +5,20 @@
 -->
 
 <envar>
+  <name>PDY</name>
+  <value><cyclestr>@Y@m@d</cyclestr></value>
+</envar>
+<envar>
+  <name>cyc</name>
+  <value><cyclestr>@H</cyclestr></value>
+</envar>
+<envar>
   <name>envir</name>
-  <value>prod</value>
+  <value>test</value>
+</envar>
+<envar>
+  <name>RUN_ENVIR</name>
+  <value>DEV</value>
 </envar>
 <envar>
   <name>WHERE_AM_I</name>

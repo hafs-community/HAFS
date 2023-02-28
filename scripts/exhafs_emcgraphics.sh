@@ -320,13 +320,7 @@ done
 #==============================================================================
 
 chmod u+x ./$cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./$cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 date
 
@@ -440,13 +434,7 @@ for((i=0;i<${nscripts};i++)); do
 done
 
 chmod u+x ./$cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./$cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 fi
 #==============================================================================
