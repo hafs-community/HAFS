@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:05:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=1G
+#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=20G
 #PBS -l debug=true
 
 model=hafs
@@ -12,16 +12,14 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export cyc="%CYC%"
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver
-
 module use ${HOMEhafs}/modulefiles/
-module load HWRF/run
+module load hafs.wcoss2
 module list
 
-${HOMEhafs}/jobs/JHWRF_LAUNCH
+${HOMEhafs}/jobs/JHAFS_LAUNCH
 
 %include <tail.h>
 
