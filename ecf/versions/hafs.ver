@@ -1,3 +1,6 @@
+export obsproc_ver="v1.1"
+export gfs_ver="v16.3.0"
+export rtofs_ver="v2.3"
 export hafs_ver="v1.0.0"
 export envvars_ver="1.0"
 export PrgEnv_intel_ver=8.1.0

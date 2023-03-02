@@ -1,10 +1,10 @@
-#PBS -N hafs%STORMNUM%_launch_%CYC%
+#PBS -N hafs%STORMNUM%_analysis_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=24G
+#PBS -l walltime=02:00:00
+#PBS -l place=vscatter:excl,select=10:ncpus=128:mpiprocs=16:ompthreads=8
 #PBS -l debug=true
 
 model=hafs
@@ -19,7 +19,7 @@ module use ${HOMEhafs}/modulefiles/
 module load hafs.wcoss2
 module list
 
-${HOMEhafs}/jobs/JHAFS_LAUNCH
+${HOMEhafs}/jobs/JHAFS_ANALYSIS
 
 %include <tail.h>
 
