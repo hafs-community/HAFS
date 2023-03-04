@@ -10,10 +10,11 @@ __all__=['set_ecflow_event', 'set_ecflow_label', 'set_ecflow_meter',
 
 ecflow_task_name=os.environ.get('ECF_NAME','')
 if ecflow_task_name:
-    from . import ecflow
+    import ecflow
     ecflow_client=ecflow.Client()
     ecflow_client.set_child_path(ecflow_task_name)
-    ecflow_client.set_child_pid(int(os.environ['ECF_RID']))
+    # ecflow_client.set_child_pid(int(os.environ['ECF_RID']))
+    ecflow_client.set_child_pid(os.environ['ECF_RID'])
     ecflow_client.set_child_password(os.environ['ECF_PASS'])
     ecflow_client.set_child_try_no(int(os.environ['ECF_TRYNO']))
 else:
