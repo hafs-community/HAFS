@@ -161,7 +161,6 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   ${NLN} ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
   # split
   # input
@@ -182,7 +181,6 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNO} ./hafs_vi_split.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -223,7 +221,6 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   fi
   initopt_guess=${initopt}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
 fi
 
@@ -266,7 +263,6 @@ if true; then
 
   ${NLN} ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
   # split
   # input
@@ -295,7 +291,6 @@ if true; then
     iflag_cold=1
   fi
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNO} ./hafs_vi_split.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -336,7 +331,6 @@ if true; then
   fi
   initopt_init=${initopt}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
 
 fi
 
@@ -376,7 +370,6 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
 
   ${NLN} ${EXEChafs}/hafs_vi_anl_bogus.x ./
   echo 6 ${pubbasin2} | ${APRUNO} ./hafs_vi_anl_bogus.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
   ${NCP} -p storm_anl_bogus storm_anl
 
 else # warm-start from prior cycle or cold start from global/parent model
@@ -423,7 +416,6 @@ else # warm-start from prior cycle or cold start from global/parent model
 
   ${NLN} ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
-  status=$?; [[ $status -ne 0 ]] && exit $status
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
   fi
@@ -456,7 +448,6 @@ else # warm-start from prior cycle or cold start from global/parent model
     iflag_cold=${iflag_cold:-0}
     ${NLN} ${EXEChafs}/hafs_vi_anl_enhance.x ./
     echo 6 ${pubbasin2} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
-    status=$?; [[ $status -ne 0 ]] && exit $status
     ${NCP} -p storm_anl_enhance storm_anl
   fi
 
@@ -498,4 +489,4 @@ done
 
 #===============================================================================
 
-exit
+date
