@@ -35,7 +35,7 @@ mkdir -p prepbufr
 cd prepbufr
 
 # Copy gfs prepbufr file
-COMIN_OBS=${COMIN_OBS:-${COMgfs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
   PREPQC=${COMIN_OBS}/gfs.t${cyc}z.prepbufr.nr
 else

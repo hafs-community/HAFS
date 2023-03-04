@@ -8,6 +8,7 @@ export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
 export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:-v1.0.0}
+export HAFS_VERSION=${hafs_ver/v/}
 export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
 export RUN_ENVIR=${RUN_ENVIR:-NCO}
@@ -26,6 +27,8 @@ export PARMhafs=$HOMEhafs/parm
 export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}}
+mkdir -p ${WORKhafs}
+cd ${WORKhafs}
 
 if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
