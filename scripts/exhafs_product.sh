@@ -229,7 +229,7 @@ STORMBS1=$(echo ${STORMID} | cut -c3)
 if [ $STORMBS1 = "Q" ]; then
  sed -i 's/SL/SQ/g' ${COMOUTproduct}/${all_atcfunix_grid}
 fi
-#--------------------------------------------------------------------------------------------------
+
 ${NCP} ${COMOUTproduct}/${all_atcfunix_grid} ${COMOUTproduct}/${all_atcfunix_grid}.orig
 if [ -s ${COMOUTproduct}/${all_atcfunix_grid}.orig ]; then
   if [ $STORMNUM == "00" ]; then
@@ -277,9 +277,9 @@ else
   fi
 fi
 
-if [ ${COMOUTproduct} = ${COMhafs} ]; then
+if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR:-nco} != "nco" ]; then
   # Deliver track file to NOSCRUB:
-  mkdir -p ${CDNOSCRUB}/${SUBEXPT}
+  mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
@@ -292,9 +292,6 @@ if [ ${COMOUTproduct} = ${COMhafs} ]; then
   fi
 fi
 
-fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
-
-#===============================================================================
 # generate nhc products
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   mkdir -p ${DATA}/nhc_products
@@ -317,7 +314,8 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   ${NCP} fort.61 ${COMhafs}/${tpc}
   echo "INFO: nhc products has been successfully generated"
 fi
-#===============================================================================
+
+fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
 cd ${DATA}
 
