@@ -12,13 +12,10 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-<<<<<<< HEAD
-=======
 export TOTAL_TASKS='18'
 export NCTSK='18'
 export OMP_THREADS='4'
 
->>>>>>> 93d458e3 (Two cycle run completed)
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver

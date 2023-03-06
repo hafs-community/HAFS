@@ -3,13 +3,8 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-<<<<<<< HEAD
-#PBS -l walltime=02:30:00
-#PBS -l place=vscatter,select=1:ncpus=721:mpiprocs=18:ompthreads=4
-=======
 #PBS -l walltime=01:30:00
 #PBS -l place=vscatter,select=1:ncpus=72:mpiprocs=18:ompthreads=4
->>>>>>> 93d458e3 (Two cycle run completed)
 #PBS -l debug=true
 
 model=hafs
@@ -17,13 +12,10 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-<<<<<<< HEAD
-=======
 export TOTAL_TASKS='18'
 export NCTSK='18'
 export OMP_THREADS='1'
 export ATM_PREP_MVNEST=YES
->>>>>>> 93d458e3 (Two cycle run completed)
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver

@@ -1,15 +1,9 @@
 #PBS -N hafs%STORMNUM%_analysis_merge_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
-<<<<<<< HEAD
-#PBS -q %QUEUE%
-#PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=02:00:00
-=======
 #PBS -q debug
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:30:00
->>>>>>> 93d458e3 (Two cycle run completed)
 #PBS -l place=vscatter,select=1:ncpus=4:mpiprocs=4:ompthreads=1:mem=100G
 #PBS -l debug=true
 
@@ -18,13 +12,10 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-<<<<<<< HEAD
-=======
 export TOTAL_TASKS='4'
 export NCTSK='4'
 export OMP_THREADS='1'
 
->>>>>>> 93d458e3 (Two cycle run completed)
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver
