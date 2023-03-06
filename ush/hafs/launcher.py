@@ -1367,7 +1367,7 @@ class HAFSLauncher(HAFSConfig):
             Default: set to value of EXPT       """
         ENV=os.environ
         logger=self.log()
-        PARAFLAG=( ENV.get('RUN_ENVIR','EMC').upper()!='NCO' )
+        PARAFLAG=( ENV.get('RUN_ENVIR','DEV').upper()!='NCO' )
 
         def set_default(section,option,default,env1=None,env2=None):
             if not self.has_option(section,option):
@@ -1393,7 +1393,7 @@ class HAFSLauncher(HAFSConfig):
         set_default('config','input_catalog','hafsdata','INPUT_CATALOG')
         set_default('dir','syndat',None,'COMINarch')
         set_default('dir','com',None,'COMOUT')
-        set_default('config','RUN_ENVIR','EMC','RUN_ENVIR')
+        set_default('config','RUN_ENVIR','DEV','RUN_ENVIR')
 
         if not self.has_option('config','cycle'):
             if 'YMDH' in ENV:

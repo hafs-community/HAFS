@@ -277,7 +277,7 @@ else
   fi
 fi
 
-if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR:-nco} != "nco" ]; then
+if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR^^} != "NCO" ]; then
   # Deliver track file to NOSCRUB:
   mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
