@@ -1,10 +1,10 @@
-#PBS -N hafs%STORMNUM%_atm_lbc_%CYC%
+#PBS -N hafs%STORMNUM%_atm_init_fgat03_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=03:30:00
-#PBS -l place=vscatter:excl,select=2:ncpus=60:mpiprocs=60:ompthreads=1
+#PBS -l walltime=02:00:00
+#PBS -l place=vscatter:excl,select=10:ncpus=120:mpiprocs=60:ompthreads=2
 #PBS -l debug=true
 
 model=hafs
@@ -12,13 +12,6 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-<<<<<<< HEAD
-=======
-export TOTAL_TASKS='120'
-export NCTSK='60'
-export OMP_THREADS='1'
-
->>>>>>> 93d458e3 (Two cycle run completed)
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver
@@ -26,7 +19,7 @@ module use ${HOMEhafs}/modulefiles/
 module load hafs.wcoss2
 module list
 
-${HOMEhafs}/jobs/JHAFS_ATM_LBC
+${HOMEhafs}/jobs/JHAFS_ATM_INIT
 
 %include <tail.h>
 

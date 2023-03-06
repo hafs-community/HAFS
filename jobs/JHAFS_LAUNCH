@@ -69,7 +69,7 @@ export COMINgfs=${COMINgfs:-$(compath.py ${envir}/gfs/${gfs_ver})}
 export COMINgdas=${COMINgdas:-$(compath.py ${envir}/gfs/${gfs_ver})}
 export COMINarch=${COMINarch:-$(compath.py ${envir}/gfs/${gfs_ver})/syndat}
 export COMINrtofs=${COMINrtofs:-$(compath.py ${envir}/rtofs/$rtofs_ver)}
-export COMINmsg=${COMINmsg:-$(compath.py ${envir}/${NET}/${hafs_ver})/inphafs}
+export COMINmsg=${COMINmsg:-$(compath.py ${envir}/${NET}/${hafs_ver})/inp${RUN}}
 
 # Decide whether this storm runs
 abort_reason=""  # if non-empty, storm does not run
@@ -123,6 +123,7 @@ cd $DATA
 
 # Set extra config options here
 # NOTE: None needed yet.
+HAFS_LAUNCH_EXTRA_CONFIG="${HOMEhafs}/parm/hafsv1_${RUN}.conf"
 configmore=" ${HAFS_LAUNCH_EXTRA_CONFIG:-}"
 
 # Execute ex-script

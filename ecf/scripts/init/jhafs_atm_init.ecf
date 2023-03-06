@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #PBS -N hafs%STORMNUM%_atm_init_%CYC%
+=======
+#PBS -N hafs%STORMNUM%_atm_init%RI_EXT%_%CYC%
+>>>>>>> 93d458e3 (Two cycle run completed)
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
@@ -12,6 +16,13 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
+<<<<<<< HEAD
+=======
+export TOTAL_TASKS='600'
+export NCTSK='60'
+export OMP_THREADS='2'
+
+>>>>>>> 93d458e3 (Two cycle run completed)
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver
@@ -19,6 +30,12 @@ module use ${HOMEhafs}/modulefiles/
 module load hafs.wcoss2
 module list
 
+<<<<<<< HEAD
+=======
+export FGAT_MODEL="%FGAT_MODEL%"
+export FGAT_HR="%FGAT_HR%"
+
+>>>>>>> 93d458e3 (Two cycle run completed)
 ${HOMEhafs}/jobs/JHAFS_ATM_INIT
 
 %include <tail.h>

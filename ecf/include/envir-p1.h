@@ -34,7 +34,7 @@ export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
 #export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/gfs:/lfs/h1/ops/para/com/obsproc
 export COMPATH=${PTMP}/${USER}/${PSLOT}/para/com/hafs
 
-export COMhafs="$(compath.py hafs/${hafs_ver})"/${SUBEXPT}/${CDATE}/${SID}
+#export COMhafs="$(compath.py hafs/${hafs_ver})"/${SUBEXPT}/${CDATE}/${SID}
 export COMOUT_PREP="$(compath.py obsproc/v1.1.0)"
 if [ -n "%PDY:%" ]; then
   export PDY=${PDY:-%PDY:%}
@@ -43,7 +43,14 @@ fi
 
 export DATAROOT=/lfs/h2/emc/stmp/${USER}/${SUBEXPT}
 #echo $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
-mkdir -p ${DATAROOT} ${COMhafs}
+mkdir -p ${DATAROOT} # ${COMhafs}
+
+export COMINgfs=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/gfs/v16.3
+export COMINgdas=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/gfs/v16.3
+export COMINrtofs=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/rtofs/v2.3
+export COMINobs=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/obsproc/v1.1
+
+
 #### export COMINobsproc=/lfs/h2/emc/global/noscrub/emc.global/dump/%RUN:%.${PDY}/%CYC:%
 #### export COMINobsproc=/lfs/h2/emc/ptmp/${USER}/${PSLOT}/para/com/obsproc/v1.1/%RUN:%.${PDY}/%CYC:%/atmos
 export COMINobsproc=/lfs/h1/ops/prod/com/obsproc/v1.1/%RUN:%.${PDY}/%CYC:%/atmos

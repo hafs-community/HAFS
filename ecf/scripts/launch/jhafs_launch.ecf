@@ -20,6 +20,24 @@ module load hafs.wcoss2
 module list
 
 ${HOMEhafs}/jobs/JHAFS_LAUNCH
+status=$?
+[[ $status -ne 0 ]] && exit $status
+
+#### test only remove before code delivery
+GDATE=$($NDATE +6 ${PDY}${cyc})
+gPDY=$(echo $GDATE | cut -c1-8)
+gcyc=$(echo $GDATE | cut -c9-10)
+num_storm=1
+if [ -f /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message${num_storm}_${gPDY}${gcyc} ]; then
+  for num_msg in $(ls /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message?_${gPDY}${gcyc}); do
+    echo $num_msg
+    cd /lfs/h2/emc/ptmp/lin.gan/v1.0.0/para/com/hafs/v1.0/inphfsa
+    mv message${num_storm} message${num_storm}-OLD
+    cp /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message${num_storm}_${gPDY}${gcyc} message${num_storm}
+    num_storm=$((num_storm+1))
+  done
+fi
+####
 
 %include <tail.h>
 
