@@ -8,7 +8,6 @@ tape_project=emc-hwrf
 cpu_account=HAFS-DEV
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
-#archive=disk:/lfs/h2/emc/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar
 
 input_catalog=wcoss_fcst_nco
 
@@ -16,12 +15,11 @@ HAFS_VERSION={ENV[HAFS_VERSION]}  ;; Specify NCO HWRF version number
 EXPT=hwrf.v{HAFS_VERSION}         ;; Override default EXPT with NCO name
 SUBEXPT=hwrf.v{HAFS_VERSION}      ;; should match EXPT
 
-
 [dir]
-## Save directory.  Make sure you edit this.
-CDSAVE={ENV[OPSROOT]}
 HOMEhafs={ENV[HOMEhafs]}
 WORKhafs={ENV[WORKhafs]}
+## Save directory.  Make sure you edit this.
+CDSAVE={ENV[OPSROOT]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
 CDNOSCRUB={ENV[WORKhafs]}
 ## Scrubbed directory for large work files.  Make sure you edit this.
