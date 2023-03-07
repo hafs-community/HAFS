@@ -10,13 +10,13 @@ suite nco_hafs
   inlimit /totality_limit:TOTALITY
   family primary
     edit hafs_ver 'v1.0.0'
-    edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/%EMC_USER%/para/packages/hafs.%hafs_ver%'
+    edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs.%hafs_ver%'
     edit NET 'hafs'
     edit PROJ 'HAFS'
     edit PROJENVIR 'DEV'
     edit MACHINE_SITE 'development'
     edit ENVIR 'prod'
-    edit QUEUE 'dev'
+    edit QUEUE 'pridev'
     edit QUEUE_ARCH 'dev_transfer'
     edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/hafs.%hafs_ver%/para/com/output/%ENVIR%/today'    
     family 00
