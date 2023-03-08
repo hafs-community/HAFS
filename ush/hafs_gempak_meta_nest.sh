@@ -446,9 +446,8 @@ fi
 
 ${NCP} -p ${COMIN}/${statfile} ./
 
-numlines=$(wc -l $statfile)
+numlines=$(cat $statfile | wc -l)
 cnt=1
-
 while [ $cnt -le $numlines ]; do
   line=$( head -n $cnt $statfile | tail -1)
   ishour=`echo $line | cut -c1-5`
@@ -459,7 +458,7 @@ while [ $cnt -le $numlines ]; do
 done
 
 for nested_grid in ${DATA}/${NET}/${NET}n_${PDY}${cyc}f???_${storm_id}; do
-  fhr=$(echo $nested_grid | awk -F_ '{print $2}' | awk -Ff '{print $2}')
+  fhr=$( printf "%d" $(echo $nested_grid | rev | cut -c5-7 | rev) )
   np=$((fhr / 6))
   np=$((np+1))
 
