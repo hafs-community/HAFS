@@ -2,7 +2,6 @@ help([[
 loads HAFS prerequisites on Cactus and Dogwood
 ]])
 
--- First, look for libraries in "prod" space
 PrgEnv_intel_ver=os.getenv("PrgEnv_intel_ver") or "8.3.3"
 load(pathJoin("PrgEnv-intel", PrgEnv_intel_ver))
 
@@ -81,7 +80,6 @@ load(pathJoin("ncio", ncio_ver))
 pio_ver=os.getenv("pio_ver") or "2.5.3"
 load(pathJoin("pio", pio_ver))
 
--- Second, look for libraries in "para"
 setenv("HPC_OPT", "/apps/ops/para/libs")
 prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
 prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.7")
@@ -89,7 +87,6 @@ prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304
 ncdiag_ver=os.getenv("ncdiag_ver") or "1.0.0"
 load(pathJoin("ncdiag", ncdiag_ver))
 
--- Finally, look for libraries in "dev" space
 prepend_path("MODULEPATH", "/apps/dev/lmodules/intel/19.1.3.304")
 prepend_path("MODULEPATH", "/apps/dev/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.9")
 
