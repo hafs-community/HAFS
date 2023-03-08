@@ -118,6 +118,9 @@ load(pathJoin("grib_util", grib_util_ver))
 wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8_wmo"
 load(pathJoin("wgrib2", wgrib2_ver))
 
+gempak_ver=os.getenv("gempak_ver") or "7.14.1"
+load(pathJoin("gempak", gempak_ver))
+
 cfp_ver=os.getenv("cfp_ver") or "2.0.4"
 load(pathJoin("cfp", cfp_ver))
 
