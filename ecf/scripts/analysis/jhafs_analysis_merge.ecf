@@ -1,7 +1,7 @@
 #PBS -N hafs%STORMNUM%_analysis_merge_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
-#PBS -q debug
+#PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:30:00
 #PBS -l place=vscatter,select=1:ncpus=4:mpiprocs=4:ompthreads=1:mem=100G
