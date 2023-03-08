@@ -428,7 +428,22 @@ status=$?; [[ $status -ne 0 ]] && exit $status
 # Get the ASCII file that contains track information.  This will be used to create the TRACK
 # in the metafile.  It is important that this file below exist each time.
 
-statfile="${storm_id}.${PDY}${cyc}.${RUN}.grib.stats.short"
+statfile="${out_prefix}.${RUN}.grib.stats.short"
+attempts=1
+while [ $attempts -le 360 ]; do
+  if [ -f ${COMIN}/${statfile} ]; then
+    sleep 3s
+    break
+  else
+    sleep 10s
+    attempts=$((attempts+1))
+  fi
+done
+if [ $attempts -gt 360 ] && [ ! -f ${COMIN}/${statfile} ]; then
+  echo "FATAL ERROR: ${COMIN}/${statfile} still not available after waiting 60 minutes... exiting"
+  exit 1
+fi
+
 ${NCP} -p ${COMIN}/${statfile} ./
 
 numlines=$(wc -l $statfile)

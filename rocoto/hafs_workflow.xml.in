@@ -923,8 +923,8 @@
       <and>
         <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
-          <taskdep task="atm_post" state="RUNNING"/>
-          <taskdep task="atm_post"/>
+          <taskdep task="product" state="RUNNING"/>
+          <taskdep task="product"/>
         </or>
       </and>
     </dependency>
