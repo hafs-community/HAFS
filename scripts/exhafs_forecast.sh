@@ -185,19 +185,19 @@ else # Otherwise this a regular forecast run
 if [ "${ENSDA}" = YES ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
-  RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
+  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}}
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
+  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART}
 fi
 
 # Different warm_start_opt options for determinist/ensemble forecast
 if [ ${ENSDA} != "YES" ]; then # for deterministic forecast
 
-if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/RESTART/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/${old_out_prefix}.RESTART/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMOLD}/RESTART
+  RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
 fi
 if [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
@@ -227,9 +227,9 @@ fi
 
 else # for ENSDA member forecast
 
-if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/RESTART_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMOLD}/RESTART_ens/mem${ENSID}
+  RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
 fi
 if [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes

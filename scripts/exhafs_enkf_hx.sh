@@ -97,7 +97,7 @@ export REDUCE_DIAG=".true."
 if [ ${HX_ENS} != YES ]; then
   export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}
 else
-  export RESTARTens_inp=${COMOLD}/RESTART_ens/${MEMSTR}
+  export RESTARTens_inp=${COMOLD}/${old_out_prefix}.RESTART_ens/${MEMSTR}
 fi
 
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens/${MEMSTR}

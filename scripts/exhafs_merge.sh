@@ -41,12 +41,12 @@ elif [ ${MERGE_TYPE} = init ]; then
 
 merge_method=${atm_merge_method:-vortexreplace}
 if [ ${FGAT_MODEL} = gdas ]; then
-  RESTARTsrc=${COMOLD}/RESTART
+  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
   CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 else
-  RESTARTsrc=${COMOLD}/RESTART
+  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
   RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
 fi

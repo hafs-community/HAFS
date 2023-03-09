@@ -3,6 +3,12 @@
 set -xe
 
 CDATE=${CDATE:-${YMDH}}
+YYYY=$(echo $CDATE | cut -c 1-4)
+CC=$(echo $CDATE | cut -c 1-2)
+YY=$(echo $CDATE | cut -c 3-4)
+MM=$(echo $CDATE | cut -c 5-6)
+DD=$(echo $CDATE | cut -c 7-8)
+HH=$(echo $CDATE | cut -c 9-10)
 
 # Sepcial settings if this is an atm_init run
 if [ ${RUN_INIT:-NO} = YES ]; then
@@ -191,12 +197,6 @@ fi
 chmod +x ./deliver.sh
 
 # Prepare the input namelist
-CC=$(echo $CDATE | cut -c 1-2)
-YY=$(echo $CDATE | cut -c 3-4)
-MM=$(echo $CDATE | cut -c 5-6)
-DD=$(echo $CDATE | cut -c 7-8)
-HH=$(echo $CDATE | cut -c 9-10)
-
 ${NCP} ${PARMhafs}/product/namelist.gettrk_tmp ./
 cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BYY_/${YY}/ | \
@@ -292,6 +292,23 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR^^} != "NCO" ]; then
   fi
 fi
 
+# Deliver atcf track file
+if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
+  mkdir -p ${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}
+  atcfncep="${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}/ncep_a${hafsbasin2,,}${STORMNUM}${YYYY}.dat"
+  ${NCP} ${COMhafs}/${trk_atcfunix} ${atcfncep}
+  if [ "${SENDDBN^^}" = "YES" ]; then
+    $DBNROOT/bin/dbn_alert MODEL NHC_ATCF_${RUN^^} $job ${atcfncep}
+  fi
+  if [ "${RUN_ENVIR^^}" = "NCO" ]; then
+    ecflow_client --event SentTrackToNHC
+  fi
+
+  mkdir -p ${COMhafs}/global
+  atcfglobal="${COMhafs}/global/tracks.atcfunix.${YY}"
+  cut -c1-112 ${COMhafs}/${trk_atcfunix} > ${atcfglobal}
+fi
+
 # generate nhc products
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   mkdir -p ${DATA}/nhc_products
@@ -310,8 +327,20 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   afos=${out_prefix}.${RUN}.afos
   tpc=${out_prefix}.${RUN}.stats.tpc
   ${NCP} fort.41 ${COMhafs}/${short}
+  if [ "${SENDDBN^^}" = "YES" ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${short}
+  fi
   ${NCP} fort.51 ${COMhafs}/${afos}
+  if [ "${SENDDBN^^}" = "YES" ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_AFOS $job ${COMhafs}/${afos}
+  fi
+  if [ "${EMAIL_SDM^^}" = "YES" ]; then
+    echo "Placeholder to send an email to SDM"
+  fi
   ${NCP} fort.61 ${COMhafs}/${tpc}
+  if [ "${SENDDBN^^}" = "YES" ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_STATS $job ${COMhafs}/${tpc}
+  fi
   echo "INFO: nhc products has been successfully generated"
 fi
 

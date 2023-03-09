@@ -57,7 +57,7 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 ymdprior=$(echo ${CDATEprior} | cut -c1-8)
 hhprior=$(echo ${CDATEprior} | cut -c9-10)
 
-export RESTARTens_inp=${COMOLD}/RESTART_ens
+export RESTARTens_inp=${COMOLD}/${old_out_prefix}.RESTART_ens
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 export DIAGens_anl=${COMhafs}
 mkdir -p ${RESTARTens_anl}
