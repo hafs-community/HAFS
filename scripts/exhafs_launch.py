@@ -227,6 +227,11 @@ def main():
         with open(holdvars,'wt') as f:
             f.write(conf.make_holdvars())
 
+        holdvars2=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.holdvars.txt')
+        logger.info(holdvars2+': write holdvars here as well')
+        with open(holdvars2,'wt') as f:
+            f.write(conf.make_holdvars())
+
         if conf.has_option('config','startfile'):
             startfile=conf.getstr('config','startfile')
             logger.info(startfile+': Write holdvars and conf location here.')

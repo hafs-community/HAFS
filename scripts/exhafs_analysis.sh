@@ -116,9 +116,9 @@ else
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
   else
-    RESTARTinp_fgat03=${COMOLD}/RESTART
-    RESTARTinp_fgat06=${COMOLD}/RESTART
-    RESTARTinp_fgat09=${COMOLD}/RESTART
+    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
   fi
 fi
 RESTARTinp=${RESTARTinp_fgat06}
@@ -195,7 +195,7 @@ fi
 if [ ${RUN_ENSDA} = "YES" ]; then
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
   do
-    RESTARTens=${COMOLD}/RESTART_ens/mem${mem}
+    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
     fhh="06"
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk

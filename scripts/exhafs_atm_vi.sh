@@ -16,21 +16,21 @@ FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
 if [ "${ENSDA}" = YES ]; then
-  export RESTARTinp=${COMOLD}/RESTART_ens/mem${ENSID}
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
   export CDATE=${CDATE:-${YMDH}}
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export RESTARTinp=${COMOLD}/RESTART
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
 else
-  export RESTARTinp=${COMOLD}/RESTART
+  export RESTARTinp=${COMOLD}/${out_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
   export INTCOMinit=${WORKhafs}/intercom/atm_init
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init
@@ -135,8 +135,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-  if [ -e ${COMOLD}/${STORMID,,}.${CDATEprior}.${RUN}.trak.atcfunix.all ]; then
-    ${NCP} ${COMOLD}/${STORMID,,}.${CDATEprior}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ]; then
+    ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \

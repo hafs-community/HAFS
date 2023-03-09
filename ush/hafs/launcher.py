@@ -628,6 +628,10 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         with open(sfile,'wt') as f:
             conf.write(f)
 
+    confloc2=conf.getdir('com')+'/'+conf.getstr('config','out_prefix')+'.'+conf.getstr('config','RUN')+'.conf'
+    logger.info('%s: save hafs.conf here as well'%(confloc2,))
+    produtil.fileop.deliver_file(confloc,confloc2,keep=True,logger=logger)
+
     return conf
 
 class HAFSLauncher(HAFSConfig):
@@ -1110,6 +1114,10 @@ class HAFSLauncher(HAFSConfig):
         produtil.fileop.makedirs(comdir,logger=logger)
         logger.info('deliver renumberlog '+filename+' to '+comdir)
         produtil.fileop.deliver_file(filename,comdir,keep=True,logger=logger)
+        comfile=comdir+'/'+self.getstr('config','out_prefix')+'.'+self.getstr('config','RUN')+'.vitals.renumberlog'
+        logger.info('also deliver renumberlog '+filename+' to '+comfile)
+        produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
+
         filename=vitbase+'.oldid'
         logger.info(filename+': write vitals with original ID')
         with open(filename,'wt') as vitalsout:
@@ -1120,6 +1128,10 @@ class HAFSLauncher(HAFSConfig):
         logger.info(filename+': write current cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.syndat.as_tcvitals(), file=tmpvit)
+
+        comfile=comdir+'/'+self.getstr('config','out_prefix')+'.'+self.getstr('config','RUN')+'.storm_vit'
+        logger.info('deliver tmpvit '+filename+' to '+comfile)
+        produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
 
         filename=os.path.join(self.getdir('WORKhafs'),'oldvit')
         logger.info(filename+': write prior cycle vitals here')

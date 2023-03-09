@@ -388,10 +388,22 @@ mv ${trk_grb2indx} ${intercom}/
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
   mv ${grb2file} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${grb2file}
+  fi
   mv ${grb2indx} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${grb2indx}
+  fi
   if [ ${satpost} = .true. ]; then
     mv ${sat_grb2file} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+      $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${sat_grb2file}
+    fi
     mv ${sat_grb2indx} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+      $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${sat_grb2indx}
+    fi
   fi
 fi
 
@@ -630,7 +642,13 @@ ${GRB2INDEX} ${swath_grb2file} ${swath_grb2indx}
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMOUTpost}
   mv ${swath_grb2file} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${swath_grb2file}
+  fi
   mv ${swath_grb2indx} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${swath_grb2indx}
+  fi
 fi
 
 fi
