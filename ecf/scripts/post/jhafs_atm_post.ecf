@@ -1,4 +1,4 @@
-#PBS -N hafs%STORMNUM%_atm_post_%CYC%
+#PBS -N %RUN%%STORMNUM%_atm_post_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%

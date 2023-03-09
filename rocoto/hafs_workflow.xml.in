@@ -87,6 +87,7 @@
   <!ENTITY RUN_WAVE "@[RUN_WAVE]">
   <!ENTITY RUN_DATM "@[RUN_DATM]">
   <!ENTITY RUN_DOCN "@[RUN_DOCN]">
+  <!ENTITY RUN_GEMPAK "@[RUN_GEMPAK:-NO]">
   <!ENTITY RUN_HRDGRAPHICS "@[RUN_HRDGRAPHICS:-NO]">
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
@@ -902,6 +903,33 @@
       </and>
     </dependency>
   </task>
+
+@** if RUN_GEMPAK==YES
+  <task name="gempak" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_GEMPAK</command>
+    <jobname>hafs_gempak_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_gempak.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &GEMPAK_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+     <!-- Start the tracker if the atm_post is running or if it has
+          already completed and we are not using a data atmosphere. -->
+      <and>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <or>
+          <taskdep task="atm_post" state="RUNNING"/>
+          <taskdep task="atm_post"/>
+        </or>
+      </and>
+    </dependency>
+  </task>
+@** endif
 
 @** if RUN_ENSDA==YES
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">

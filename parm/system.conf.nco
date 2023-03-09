@@ -12,12 +12,13 @@ archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.ta
 input_catalog=wcoss_fcst_nco
 
 HAFS_VERSION={ENV[HAFS_VERSION]}  ;; Specify NCO HWRF version number
-EXPT=hwrf.v{HAFS_VERSION}         ;; Override default EXPT with NCO name
-SUBEXPT=hwrf.v{HAFS_VERSION}      ;; should match EXPT
+EXPT=hafs.v{HAFS_VERSION}         ;; Override default EXPT with NCO name
+SUBEXPT=hafs.v{HAFS_VERSION}      ;; should match EXPT
 
 [dir]
 HOMEhafs={ENV[HOMEhafs]}
 WORKhafs={ENV[WORKhafs]}
+COMhafs={ENV[COMhafs]}
 ## Save directory.  Make sure you edit this.
 CDSAVE={ENV[OPSROOT]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.

@@ -1,10 +1,10 @@
-#PBS -N hafs%STORMNUM%_launch_%CYC%
+#PBS -N %RUN%%STORMNUM%_launch_%CYC%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=24G
+#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=2G
 #PBS -l debug=true
 
 model=hafs
@@ -24,18 +24,12 @@ status=$?
 [[ $status -ne 0 ]] && exit $status
 
 #### test only remove before code delivery
+cd /lfs/h2/emc/ptmp/emc.hur/v1.0.0/para/com/hafs/v1.0/inp${RUN}
 GDATE=$($NDATE +6 ${PDY}${cyc})
 gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
-num_storm=1
-if [ -f /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message${num_storm}_${gPDY}${gcyc} ]; then
-  for num_msg in $(ls /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message?_${gPDY}${gcyc}); do
-    cd /lfs/h2/emc/ptmp/emc.hur/v1.0.0/para/com/hafs/v1.0/inphfsa
-#    echo ${num_storm} > nstorms
-#    mv message${num_storm} message${num_storm}-OLD
-#    cp /lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/hafs/v1.0/inphfsa/message${num_storm}_${gPDY}${gcyc} message${num_storm}
-    num_storm=$((num_storm+1))
-  done
+if [ -f message${storm_num}_${gPDY}${gcyc} ]; then
+  cp message${storm_num}_${gPDY}${gcyc} message${storm_num}
 fi
 ####
 

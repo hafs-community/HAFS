@@ -5,6 +5,7 @@ export jobid=${jobid:-$job.$PBS_JOBID}
 export RUN_ENVIR=nco
 export envir=%ENVIR%
 export MACHINE_SITE=%MACHINE_SITE%
+export RUN=%RUN%
 
 if [ -n "%SENDCANNEDDBN:%" ]; then export SENDCANNEDDBN=${SENDCANNEDDBN:-%SENDCANNEDDBN:%}; fi
 export SENDCANNEDDBN=${SENDCANNEDDBN:-"NO"}
@@ -25,7 +26,7 @@ if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoam
 
 PTMP=/lfs/h2/emc/ptmp
 PSLOT=${hafs_ver:-hafs.v1.0.0}
-SUBEXPT=${SUBEXPT:-hafs.v1.0.0_hfsa}
+#SUBEXPT=${SUBEXPT:-hafs.v1.0.0_hfsa}
 SID=${SID:-13L}
 
 export COMROOT=${PTMP}/${USER}/${PSLOT}/para/com
@@ -41,7 +42,7 @@ if [ -n "%PDY:%" ]; then
   export CDATE=${PDY}%CYC:%
 fi
 
-export DATAROOT=/lfs/h2/emc/stmp/${USER}/${SUBEXPT}
+export DATAROOT=/lfs/h2/emc/stmp/${USER}/hafs
 #echo $ROTDIR/%RUN:%.${PDY}/%CYC:%/atmos
 mkdir -p ${DATAROOT} # ${COMhafs}
 

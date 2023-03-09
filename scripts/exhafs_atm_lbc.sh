@@ -171,14 +171,20 @@ fi
 
 # Check and wait for the input data
 n=1
-while [ $n -le 30 ]; do
+while [ $n -le 360 ]; do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${atm_files_input_grid}) )) -lt 10  ]; do sleep 10; done
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${sfc_files_input_grid}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 1s
+    sleep 3s
     break
   else
-    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
-    sleep 60s
+    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
   fi
   n=$(( n+1 ))
 done

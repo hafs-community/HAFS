@@ -117,6 +117,9 @@ wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
 setenv("WGRIB2", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-2022.1.2/wgrib2/2.0.8/bin/wgrib2")
 
+gempak_ver=os.getenv("gempak_ver") or "7.4.2"
+load(pathJoin("gempak", gempak_ver))
+
 -- nco_ver=os.getenv("nco_ver") or "5.0.6"
 nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))

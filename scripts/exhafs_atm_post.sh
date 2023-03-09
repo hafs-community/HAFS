@@ -149,16 +149,16 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
 n=1
-while [ $n -le 600 ]; do
+while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 60"
-    sleep 60s
+    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
     sleep 3s
     break
   fi
-  if [ $n -ge 600 ]; then
+  if [ $n -ge 360 ]; then
     echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
@@ -169,18 +169,18 @@ else
 
 # Wait for model output
 n=1
-while [ $n -le 600 ]; do
+while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/logf${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 60"
-    sleep 60s
+    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
     sleep 3s
     break
   fi
-  if [ $n -ge 600 ]; then
+  if [ $n -ge 360 ]; then
     echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
@@ -435,7 +435,7 @@ fi
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]]; then
   # Pass over the grid_mspec files for moving nest (useful for storm cycling)
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10; done
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10s; done
     if [ ! -L ${INPdir}/${grid_mspec} ]; then
       mv ${INPdir}/${grid_mspec} ${INPdir}/RESTART/${grid_mspec}
       ${NLN} ${INPdir}/RESTART/${grid_mspec} ${INPdir}/${grid_mspec}
