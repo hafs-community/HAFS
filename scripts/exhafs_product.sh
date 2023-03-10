@@ -277,6 +277,14 @@ else
   fi
 fi
 
+if [ ${COMOUTproduct} = ${COMhafs} ] && [ "${SENDDBN^^}" = "YES" ]; then
+  if [ $STORMNUM == "00" ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${all_atcfunix}
+  else
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${trk_atcfunix}
+  fi
+fi
+
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR^^} != "NCO" ]; then
   # Deliver track file to NOSCRUB:
   mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
@@ -292,8 +300,15 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR^^} != "NCO" ]; then
   fi
 fi
 
-# Deliver atcf track file
+# Generate storm_info file and deliver atcf track file
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
+  # Generate storm_info file
+  fstorminfo=${COMhafs}/${out_prefix}.${RUN}.storm_info
+  echo ${STORM,,}${STORMID,,} > ${fstorminfo}
+  if [ "${SENDDBN^^}" = "YES" ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${fstorminfo}
+  fi
+  # Deliver atcf ncep file
   mkdir -p ${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}
   atcfncep="${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}/ncep_a${hafsbasin2,,}${STORMNUM}${YYYY}.dat"
   ${NCP} ${COMhafs}/${trk_atcfunix} ${atcfncep}
@@ -303,10 +318,10 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   if [ "${RUN_ENVIR^^}" = "NCO" ]; then
     ecflow_client --event SentTrackToNHC
   fi
-
+  # Cat atcf global file
   mkdir -p ${COMhafs}/global
   atcfglobal="${COMhafs}/global/tracks.atcfunix.${YY}"
-  cut -c1-112 ${COMhafs}/${trk_atcfunix} > ${atcfglobal}
+  cut -c1-112 ${COMhafs}/${trk_atcfunix} >> ${atcfglobal}
 fi
 
 # generate nhc products

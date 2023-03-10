@@ -399,9 +399,9 @@
     <dependency>
       <and>
         <taskdep task="atm_init"/>
-	<or>
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
         </or>
       </and>
     </dependency>
@@ -429,9 +429,9 @@
     <dependency>
       <and>
         <taskdep task="atm_init_fgat#FGAT_HR#"/>
-	<or>
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+          <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
         </or>
       </and>
     </dependency>
@@ -458,7 +458,7 @@
 	<or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
           </and>
         </or>
@@ -490,7 +490,7 @@
 	<or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
           </and>
         </or>
@@ -689,26 +689,26 @@
       <and>
         <taskdep task="atm_ic"/>
         <taskdep task="obs_prep"/>
-	<streq><left>&RUN_GSI;</left><right>YES</right></streq>
+        <streq><left>&RUN_GSI;</left><right>YES</right></streq>
 @** if RUN_ATM_VI_FGAT==YES
-	<or>
+        <or>
           <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
           <metataskdep metatask="atm_vi_fgat"/>
         </or>
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
-	<or>
+        <or>
           <strneq><left>&RUN_ATM_MERGE_FGAT;</left><right>YES</right></strneq>
           <metataskdep metatask="atm_merge_fgat"/>
         </or>
 @** endif
-	<or>
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
-	  <and>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
-            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART/grid_spec.nc</datadep>
+	      <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/grid_spec.nc</datadep>
 @** if RUN_ENSDA==YES
-            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
+            <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
 @** endif
           </and>
         </or>
@@ -1050,7 +1050,7 @@
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f006</datadep>
             </and>
           </or>
@@ -1084,7 +1084,7 @@
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <and>
-              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+              <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART_ens/mem#MEM#/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
               <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/product_ens/mem#MEM#/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f006</datadep>
             </and>
           </or>
@@ -1160,7 +1160,7 @@
         <taskdep task="atm_prep_ens"/>
         <cycleexistdep cycle_offset="-6:00:00"/>
         <streq><left>&RUN_ENKF;</left><right>YES</right></streq>
-        <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;</cyclestr>/RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
+        <sh>if [[ $(/bin/ls -l <cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART_ens/mem*/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc | wc -l) -ge &ENS_SIZE; ]]; then exit 0; else exit 1; fi</sh>
       </and>
     </dependency>
   </task>
