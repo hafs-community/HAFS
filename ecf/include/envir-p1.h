@@ -26,6 +26,7 @@ if [[ ! " prod para test " =~ " ${envir} " && " ops.prod ops.para " =~ " $(whoam
 
 PTMP=/lfs/h2/emc/ptmp
 PSLOT=${hafs_ver:-hafs.v1.0.0}
+#PSLOT=hafs.${hafs_ver}
 #SUBEXPT=${SUBEXPT:-hafs.v1.0.0_hfsa}
 SID=${SID:-13L}
 

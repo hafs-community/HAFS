@@ -28,9 +28,9 @@ cd /lfs/h2/emc/ptmp/emc.hur/v1.0.0/para/com/hafs/v1.0/inp${RUN}
 GDATE=$($NDATE +6 ${PDY}${cyc})
 gPDY=$(echo $GDATE | cut -c1-8)
 gcyc=$(echo $GDATE | cut -c9-10)
-if [ -f message${storm_num}_${gPDY}${gcyc} ]; then
-  cp message${storm_num}_${gPDY}${gcyc} message${storm_num}
-fi
+#if [ -f message${storm_num}_${gPDY}${gcyc} ]; then
+#  cp message${storm_num}_${gPDY}${gcyc} message${storm_num}
+#fi
 ####
 
 %include <tail.h>
