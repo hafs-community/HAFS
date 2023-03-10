@@ -31,6 +31,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
+  module load gempak
   module list
 else
   # Run by NCO on WCOSS2
