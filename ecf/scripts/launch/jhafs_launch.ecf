@@ -15,10 +15,10 @@ export cyc="%CYC%"
 export storm_num="%STORMNUM%"
 
 # versions file for hafs sets $model_ver and $code_ver
-module use ${HOMEhafs}/modulefiles/
-module load hafs.wcoss2
+#module use ${HOMEhafs}/modulefiles/
+#module load hafs.wcoss2
 module list
-
+exit 9
 ${HOMEhafs}/jobs/JHAFS_LAUNCH
 status=$?
 [[ $status -ne 0 ]] && exit $status

@@ -24,7 +24,8 @@ fi
 
 modelhome=%PACKAGEHOME:%
 eval "export HOME${model:?'model undefined'}=$modelhome"
-eval "versionfile=\$HOME${model}/ecf/versions/hafs.ver"
+# eval "versionfile=\$HOME${model}/ecf/versions/hafs.ver"
+eval "versionfile=\$HOME${model}/versions/run.ver"
 if [ -f "$versionfile" ]; then 
   . $versionfile 
 fi
