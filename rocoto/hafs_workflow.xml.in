@@ -504,7 +504,7 @@
 
 @** if gtype==regional
   <metatask name="atm_lbc">
-    <var name="group">001 002 003 004 005 006</var>
+    <var name="group">1</var>
     <task name="atm_lbc#group#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ATM_LBC</command>
       <jobname>hafs_atm_lbc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -516,7 +516,7 @@
       &CORES_EXTRA;
       &ATM_LBC_RESOURCES;
       &ENV_VARS;
-      <envar><name>BC_GROUPN</name><value>6</value></envar>
+      <envar><name>BC_GROUPN</name><value>1</value></envar>
       <envar><name>BC_GROUPI</name><value>#group#</value></envar>
 
       <dependency>
@@ -807,30 +807,34 @@
     </dependency>
   </task>
 
-  <task name="atm_post" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_ATM_POST</command>
-    <jobname>hafs_atm_post_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_atm_post.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_PE;</queue>
-    &PE_EXTRA;
-    &CORES_EXTRA;
-    &ATM_POST_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-      <!-- Start the atm_post if the forecast is running or if it has
-           already completed and we are not using a data atmosphere. -->
-      <and>
-        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
-        <or>
-          <taskdep task="forecast" state="RUNNING"/>
-          <taskdep task="forecast"/>
-        </or>
-      </and>
-    </dependency>
-  </task>
+  <metatask name="atm_post">
+    <var name="group">1 2</var>
+    <task name="atm_post#group#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ATM_POST</command>
+      <jobname>hafs_atm_post#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_atm_post#group#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &CORES_EXTRA;
+      &ATM_POST_RESOURCES;
+      &ENV_VARS;
+      <envar><name>POST_GROUPN</name><value>2</value></envar>
+      <envar><name>POST_GROUPI</name><value>#group#</value></envar>
+      <dependency>
+        <!-- Start the atm_post if the forecast is running or if it has
+             already completed and we are not using a data atmosphere. -->
+        <and>
+          <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+          <or>
+            <taskdep task="forecast" state="RUNNING"/>
+            <taskdep task="forecast"/>
+          </or>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
 
 @** if RUN_OCEAN==YES
   <task name="ocn_post" maxtries="&MAX_TRIES;">
@@ -897,8 +901,32 @@
       <and>
         <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
-          <taskdep task="atm_post" state="RUNNING"/>
-          <taskdep task="atm_post"/>
+          <taskdep task="atm_post1" state="RUNNING"/>
+          <taskdep task="atm_post1"/>
+          <taskdep task="atm_post2" state="RUNNING"/>
+          <taskdep task="atm_post2"/>
+        </or>
+      </and>
+    </dependency>
+  </task>
+
+  <task name="output" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OUTPUT</command>
+    <jobname>hafs_output_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_output.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &OUTPUT_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <or>
+          <taskdep task="product"/>
         </or>
       </and>
     </dependency>
@@ -918,8 +946,6 @@
     &ENV_VARS;
 
     <dependency>
-     <!-- Start the tracker if the atm_post is running or if it has
-          already completed and we are not using a data atmosphere. -->
       <and>
         <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
@@ -1098,7 +1124,7 @@
   <metatask name="atm_lbc_ens">
     <var name="MEM">&ENSIDS;</var>
     <metatask name="atm_lbcgrp_ens">
-      <var name="group">001</var>
+      <var name="group">1</var>
       <task name="atm_lbc#group#_ens#MEM#" maxtries="&MAX_TRIES;">
         <command>&JOBhafs;/JHAFS_ATM_LBC</command>
         <jobname>hafs_atm_lbc#group#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1468,7 +1494,7 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="atm_post"/>
+        <metataskdep metatask="atm_post"/>
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_post"/>
 @** endif
@@ -1476,6 +1502,10 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
+        <taskdep task="output"/>
+@** if RUN_GEMPAK==YES
+        <taskdep task="gempak"/>
+@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1508,7 +1538,7 @@
     <dependency>
       <and>
         <taskdep task="forecast"/>
-        <taskdep task="atm_post"/>
+        <metataskdep metatask="atm_post"/>
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_post"/>
 @** endif
@@ -1516,6 +1546,10 @@
         <taskdep task="wav_post"/>
 @** endif
         <taskdep task="product"/>
+        <taskdep task="output"/>
+@** if RUN_GEMPAK==YES
+        <taskdep task="gempak"/>
+@** endif
 @** if RUN_HRDGRAPHICS==YES
         <taskdep task="hrdgraphics"/>
 @** endif
@@ -1617,8 +1651,18 @@
     <dependency>
       <or>
         <and>
-          <taskdep task="atm_post"/>
+          <metataskdep metatask="atm_post"/>
+@** if RUN_OCEAN==YES
+          <taskdep task="ocn_post"/>
+@** endif
+@** if RUN_WAVE==YES
+          <taskdep task="wav_post"/>
+@** endif
           <taskdep task="product"/>
+          <taskdep task="output"/>
+@** if RUN_GEMPAK==YES
+          <taskdep task="gempak"/>
+@** endif
         </and>
 
         <!-- Allow a scrubbed cycle to complete.  This is needed to

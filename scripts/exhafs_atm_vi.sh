@@ -30,7 +30,7 @@ elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
 else
-  export RESTARTinp=${COMOLD}/${out_out_prefix}.RESTART
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
   export INTCOMinit=${WORKhafs}/intercom/atm_init
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init
@@ -159,7 +159,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   # output
   ${NLN} ./trak.fnl.all fort.30
 
-  ${NLN} ${EXEChafs}/hafs_vi_create_trak_guess.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
@@ -175,7 +175,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} storm_pert fort.71
   ${NLN} storm_radius fort.85
 
-  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
@@ -197,7 +197,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} storm_size_p fort.14
   ${NLN} storm_sym fort.23
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -261,7 +261,7 @@ if true; then
   # output
   ${NLN} ./trak.fnl.all fort.30
 
-  ${NLN} ${EXEChafs}/hafs_vi_create_trak_init.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
@@ -280,7 +280,7 @@ if true; then
   ${NLN} storm_pert fort.71
   ${NLN} storm_radius fort.85
 
-  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -307,7 +307,7 @@ if true; then
   ${NLN} storm_size_p fort.14
   ${NLN} storm_sym fort.23
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -368,7 +368,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   # output
   ${NLN} storm_anl_bogus                       fort.56
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_bogus.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
   echo 6 ${pubbasin2} | ${APRUNO} ./hafs_vi_anl_bogus.x
   ${NCP} -p storm_anl_bogus storm_anl
 
@@ -414,7 +414,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_combine.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
@@ -446,7 +446,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} storm_anl_enhance                     fort.56
 
     iflag_cold=${iflag_cold:-0}
-    ${NLN} ${EXEChafs}/hafs_vi_anl_enhance.x ./
+    ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
     echo 6 ${pubbasin2} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
     ${NCP} -p storm_anl_enhance storm_anl
   fi

@@ -205,7 +205,7 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BHH_/${HH}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
-sleep 3
+sleep 3s
 # Run the vortex tracker gettrk.x
 ${NCP} -p ${GETTRKEXEC} ./hafs_gettrk.x
 set +e
@@ -285,29 +285,8 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ "${SENDDBN^^}" = "YES" ]; then
   fi
 fi
 
-if [ ${COMOUTproduct} = ${COMhafs} ] && [ ${RUN_ENVIR^^} != "NCO" ]; then
-  # Deliver track file to NOSCRUB:
-  mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
-  if [ -s ${COMhafs}/${all_atcfunix} ]; then
-    ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
-  fi
-  if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ]; then
-    ${NCP} -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
-  fi
-  # Deliver patcf file to NOSCRUB:
-  if [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ]; then
-    ${NCP} -p ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
-  fi
-fi
-
-# Generate storm_info file and deliver atcf track file
+# Deliver atcf track file
 if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
-  # Generate storm_info file
-  fstorminfo=${COMhafs}/${out_prefix}.${RUN}.storm_info
-  echo ${STORM,,}${STORMID,,} > ${fstorminfo}
-  if [ "${SENDDBN^^}" = "YES" ]; then
-    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${fstorminfo}
-  fi
   # Deliver atcf ncep file
   mkdir -p ${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}
   atcfncep="${COMhafs}/atcf/${hafsbasin2,,}${STORMNUM}${YYYY}/ncep_a${hafsbasin2,,}${STORMNUM}${YYYY}.dat"
@@ -349,9 +328,6 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_AFOS $job ${COMhafs}/${afos}
   fi
-  if [ "${EMAIL_SDM^^}" = "YES" ]; then
-    echo "Placeholder to send an email to SDM"
-  fi
   ${NCP} fort.61 ${COMhafs}/${tpc}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_STATS $job ${COMhafs}/${tpc}
@@ -362,5 +338,3 @@ fi
 fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
 cd ${DATA}
-
-echo "product job done"

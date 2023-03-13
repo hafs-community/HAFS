@@ -140,7 +140,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         logger=self.log()
         for prodname,stuff in self._products.items():
             (prod,localpath)=stuff
-            prod.deliver(frominfo=localpath,keep=False,logger=logger)
+            prod.deliver(frominfo=localpath,keep=True,logger=logger)
 
     def run(self):
         """Runs the WW3 initialization"""
