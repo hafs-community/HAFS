@@ -15,6 +15,7 @@ else:
 import produtil.setup, produtil.datastore, produtil.fileop
 from produtil.datastore import Datastore
 from produtil.fileop import deliver_file, remove_file
+from produtil.ecflow import set_ecflow_event
 import hafs.launcher, hafs.config, hafs.ww3
 
 produtil.setup.setup()
@@ -48,5 +49,6 @@ ds=Datastore(filename,logger=logger)
 ww3initworkdir=DATA+"/ww3init"
 ww3init=hafs.ww3.WW3Init(dstore=ds,conf=conf,section='ww3init',taskname='ww3init',workdir=ww3initworkdir,fcstlen=fcstlen)
 ww3init.run()
+set_ecflow_event('Wave',logger=logger)
 
 logger.info("ww3init done")
