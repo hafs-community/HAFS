@@ -100,7 +100,7 @@ status=$?; [[ $status -ne 0 ]] && exit $status
 #===============================================================================
 # post
 
-export TOTAL_TASKS=120
+export TOTAL_TASKS=240
 export OMP_NUM_THREADS=1
 source ${USHhafs}/hafs_runcmd.sh.inc
 

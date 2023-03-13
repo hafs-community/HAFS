@@ -12,6 +12,7 @@ export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
 export RUN_ENVIR=${RUN_ENVIR:-NCO}
 
+export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export SENDDBN_NTC=${SENDDBN_NTC:-NO}
 export SENDECF=${SENDECF:-NO}
@@ -53,17 +54,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export ENSDA=${ENSDA:-NO}
-export ENSID=${ENSID:-001}
-export BC_GROUPN=${BC_GROUPN:-1}
-export BC_GROUPI=$( printf "%d" "${BC_GROUPI:-1}" )
-
-# Deterministic or ensemble
-if [ ${ENSDA} != YES ]; then
-  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}
-else
-  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}_ens/mem${ENSID}
-fi
+export DATA=${WORKhafs}/output
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
@@ -72,7 +63,7 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_lbc.sh
+${HOMEhafs}/scripts/exhafs_output.sh
 status=$?; [[ $status -ne 0 ]] && exit $status
 
 # Cleanup DATA dir

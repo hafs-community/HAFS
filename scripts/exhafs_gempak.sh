@@ -59,7 +59,7 @@ while [ $n -le 360 ]; do
     sleep 10s
   else
     echo "${GBFILE}, ${GBINDX} ready, continue"
-    sleep 3s
+    sleep 1s
     break
   fi
   if [ $n -ge 360 ]; then

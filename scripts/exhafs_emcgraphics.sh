@@ -134,11 +134,11 @@ while [ $n -le 600 ]; do
       sleep 1s
       break
 	else
-      echo "GFDL tracker has not processed this time level, sleep 60"
+      echo "GFDL tracker has not processed this time level, sleep 60s"
       sleep 60s
     fi
   else
-    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
+    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -350,7 +350,7 @@ atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]; do
   if [ ! -f ${atcfFile} ]; then
-    echo "${atcfFile} not ready, sleep 60"
+    echo "${atcfFile} not ready, sleep 60s"
     sleep 60s
   else
     echo "${atcfFile} exist, do graphics"
@@ -391,7 +391,7 @@ while [ $n -le 600 ]; do
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))

@@ -12,6 +12,7 @@ export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
 export RUN_ENVIR=${RUN_ENVIR:-NCO}
 
+export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export SENDDBN_NTC=${SENDDBN_NTC:-NO}
 export SENDECF=${SENDECF:-NO}
@@ -55,12 +56,13 @@ source ${HOLDVARS}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
-export SENDCOM=${SENDCOM:-YES}
+export POST_GROUPN=${POST_GROUPN:-1}
+export POST_GROUPI=$( printf "%d" "${POST_GROUPI:-1}" )
 
 if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/atm_post_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_post${POST_GROUPI}_ens/mem${ENSID}
 else
-  export DATA=${WORKhafs}/atm_post
+  export DATA=${WORKhafs}/atm_post${POST_GROUPI}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
