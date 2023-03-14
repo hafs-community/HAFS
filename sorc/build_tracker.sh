@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eux
+source ../versions/build.ver  > /dev/null 2>&1
 
 #export BUILD_TYPE=DEBUG 
 export BUILD_TYPE=RELEASE

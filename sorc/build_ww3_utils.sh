@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eux
+source ../versions/build.ver  > /dev/null 2>&1 
 
 script_dir=$(dirname "${BASH_SOURCE[0]}")
 cd "${script_dir}" || exit 1
