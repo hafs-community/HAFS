@@ -51,6 +51,6 @@ ds=Datastore(filename,logger=logger)
 hycominit2workdir=DATA+"/hycominit2"
 hycominit2=hafs.hycom.HYCOMInit2(dstore=ds,conf=conf,section='hycominit2',taskname='hycominit2',workdir=hycominit2workdir,fcstlen=fcstlen)
 hycominit2.run()
-set_ecflow_event('Wave',logger=logger)
+set_ecflow_event('Ocean',logger=logger)
 
 logger.info("hycominit2 done")
