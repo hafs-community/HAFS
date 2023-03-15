@@ -17,8 +17,21 @@ export storm_num="%STORMNUM%"
 # versions file for hafs sets $model_ver and $code_ver
 #module use ${HOMEhafs}/modulefiles/
 #module load hafs.wcoss2
+
+module load PrgEnv-intel/${PrgEnv_intel_ver}
+module load craype/${craype_ver}
+module load intel/${intel_ver}
+module load cray-mpich/${cray_mpich_ver}
+module load cray-pals/${cray_pals_ver}
+module load hdf5/${hdf5_ver}
+module load netcdf/${netcdf_ver}
+module load python/${python_ver}
+module load crtm/${crtm_ver}
+module load udunits/${udunits_ver}
+module load gsl/${gsl_ver}
+module load nco/${nco_ver}
 module list
-exit 9
+
 ${HOMEhafs}/jobs/JHAFS_LAUNCH
 status=$?
 [[ $status -ne 0 ]] && exit $status

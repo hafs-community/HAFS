@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter:excl,select=1:ncpus=24:mpiprocs=24:ompthreads=1
+#PBS -l place=vscatter:excl,select=1:ncpus=1:mpiprocs=1:ompthreads=1
 #PBS -l debug=true
 
 model=hafs
@@ -12,15 +12,20 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='24'
-export NCTSK='24'
+export TOTAL_TASKS='1'
+export NCTSK='1'
 export OMP_THREADS='1'
 
 export storm_num="%STORMNUM%"
 
-# versions file for hafs sets $model_ver and $code_ver
-module use ${HOMEhafs}/modulefiles/
-module load hafs.wcoss2
+module load PrgEnv-intel/${PrgEnv_intel_ver}
+module load craype/${craype_ver}
+module load intel/${intel_ver}
+module load cray-mpich/${cray_mpich_ver}
+module load cray-pals/${cray_pals_ver}
+module load hdf5/${hdf5_ver}
+module load netcdf/${netcdf_ver}
+module load python/${python_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_OBS_PREP

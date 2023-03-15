@@ -3,8 +3,8 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:15:00
-#PBS -l place=vscatter:excl,select=1:ncpus=80:mpiprocs=4:ompthreads=20
+#PBS -l walltime=00:20:00
+#PBS -l place=vscatter:excl,select=1:ncpus=108:mpiprocs=8:ompthreads=16
 #PBS -l debug=true
 
 model=hafs
@@ -12,15 +12,21 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='4'
-export NCTSK='4'
-export OMP_THREADS='20'
+export TOTAL_TASKS='8'
+export NCTSK='8'
+export OMP_THREADS='16'
 
 export storm_num="%STORMNUM%"
 
-# versions file for hafs sets $model_ver and $code_ver
-module use ${HOMEhafs}/modulefiles/
-module load hafs.wcoss2
+module load PrgEnv-intel/${PrgEnv_intel_ver}
+module load craype/${craype_ver}
+module load intel/${intel_ver}
+module load cray-mpich/${cray_mpich_ver}
+module load cray-pals/${cray_pals_ver}
+module load hdf5/${hdf5_ver}
+module load netcdf/${netcdf_ver}
+module load python/${python_ver}
+module load libjpeg/${libjpeg_ver}
 module list
 
 export FGAT_MODEL="%FGAT_MODEL%"
