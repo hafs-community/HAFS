@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eux
-if [ $target = wcoss2 ]; then source ../versions/build.ver; fi 
+source ./machine-setup.sh > /dev/null 2>&1
+if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 cwd=$(pwd)
 
 cd hafs_utils.fd
