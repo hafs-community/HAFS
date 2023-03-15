@@ -27,5 +27,6 @@ export wrf_io_ver=1.2.0
 export ncio_ver=1.0.0
 export pio_ver=2.5.3
 export ncdiag_ver=1.0.0
+export gftl_shared_ver=1.5.0
 export esmf_ver=8.3.0b09
 export mapl_ver=2.23.1-esmf-8.3.0b09

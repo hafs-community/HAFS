@@ -13,6 +13,7 @@ export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
 export RUN_ENVIR=${RUN_ENVIR:-NCO}
 
+export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export SENDDBN_NTC=${SENDDBN_NTC:-NO}
 export SENDECF=${SENDECF:-NO}
