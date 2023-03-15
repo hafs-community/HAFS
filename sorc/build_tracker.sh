@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eux
-source ../versions/build.ver  > /dev/null 2>&1
+if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
 #export BUILD_TYPE=DEBUG 
 export BUILD_TYPE=RELEASE
