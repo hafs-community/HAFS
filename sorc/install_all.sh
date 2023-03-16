@@ -57,7 +57,6 @@ $Build_tracker && {
 #------------------------------------
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_nhc_products.x                     ../exec/hafs_nhc_products.x
-  ${CP} hafs_tools.fd/exec/hafs_analysis_update.x                  ../exec/hafs_analysis_update.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x                      ../exec/hafs_obs_preproc.x
   ${CP} hafs_tools.fd/exec/mpiserial.x                             ../exec/hafs_mpiserial.x
   ${CP} hafs_tools.fd/exec/hafs_change_prepbufr_qm_typ.x           ../exec/hafs_change_prepbufr_qm_typ.x
@@ -105,21 +104,12 @@ $Build_ww3_utils && {
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prep                ../exec/hafs_ww3_prep.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outf                ../exec/hafs_ww3_outf.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_outp                ../exec/hafs_ww3_outp.x
-  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_trck                ../exec/hafs_ww3_trck.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_grib                ../exec/hafs_ww3_grib.x
-  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gspl                ../exec/hafs_ww3_gspl.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_gint                ../exec/hafs_ww3_gint.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outf                 ../exec/hafs_gx_outf.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/gx_outp                 ../exec/hafs_gx_outp.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_systrk              ../exec/hafs_ww3_systrk.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bound               ../exec/hafs_ww3_bound.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_shel                ../exec/hafs_ww3_shel.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_multi               ../exec/hafs_ww3_multi.x
-# ${CP} hafs_forecast.fd/WW3/model/exec/ww3_sbs1                ../exec/hafs_ww3_sbs1.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_prnc                ../exec/hafs_ww3_prnc.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounf                ../exec/hafs_ww3_ounf.x
   ${CP} hafs_forecast.fd/WW3/model/exec/ww3_ounp                ../exec/hafs_ww3_ounp.x
-  ${CP} hafs_forecast.fd/WW3/model/exec/ww3_bounc               ../exec/hafs_ww3_bounc.x
 }
 
 

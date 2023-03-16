@@ -1,3 +1,0 @@
-make[1]: Entering directory `/scratch1/NCEPDEV/hwrf/save/Biju.Thomas/hafs_cmake_hpc_stack/sorc/hafs_tools.fd/sorc/hafs_nwplibs/src/shtns'
-rm -f *.mod *.o >& /dev/null
-make[1]: Leaving directory `/scratch1/NCEPDEV/hwrf/save/Biju.Thomas/hafs_cmake_hpc_stack/sorc/hafs_tools.fd/sorc/hafs_nwplibs/src/shtns'

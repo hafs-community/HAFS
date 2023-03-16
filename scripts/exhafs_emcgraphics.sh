@@ -134,11 +134,11 @@ while [ $n -le 600 ]; do
       sleep 1s
       break
 	else
-      echo "GFDL tracker has not processed this time level, sleep 60"
+      echo "GFDL tracker has not processed this time level, sleep 60s"
       sleep 60s
     fi
   else
-    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60"
+    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -293,18 +293,34 @@ for((i=0;i<${nscripts};i++)); do
         > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
 done
 
+if [ ${satpost} = .true. ]; then
+  figScriptAll=( \
+    plot_goes_ir13.py \
+    plot_goes_wv9.py \
+    plot_ssmisf17_mw37ghz.py \
+    plot_ssmisf17_mw91ghz.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    )
+  nscripts=${#figScriptAll[*]}
+  for((i=0;i<${nscripts};i++)); do
+    fhhh="f${FHR3}"
+    echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
+    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+          > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  done
+fi
+
 done
 
 #==============================================================================
 
 chmod u+x ./$cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./$cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
-else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 date
 
@@ -334,7 +350,7 @@ atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
 n=1
 while [ $n -le 600 ]; do
   if [ ! -f ${atcfFile} ]; then
-    echo "${atcfFile} not ready, sleep 60"
+    echo "${atcfFile} not ready, sleep 60s"
     sleep 60s
   else
     echo "${atcfFile} exist, do graphics"
@@ -375,7 +391,7 @@ while [ $n -le 600 ]; do
     sleep 1s
     break
   else
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60"
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -418,13 +434,7 @@ for((i=0;i<${nscripts};i++)); do
 done
 
 chmod u+x ./$cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./$cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
-else
-  ${APRUNC} ${MPISERIAL} ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 fi
 #==============================================================================

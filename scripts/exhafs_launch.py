@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
@@ -112,9 +112,8 @@ def main():
     hafs.launcher module to create the initial directory structure and
     conf file."""
     logger=logging.getLogger('exhafs_launch')
-    PARAFLAG = ( os.environ.get('RUN_ENVIR','EMC').upper() != 'NCO' )
+    PARAFLAG = ( os.environ.get('RUN_ENVIR','DEV').upper() != 'NCO' )
     logger.info('Top of exhafs_launch.')
-
 
     short_opts = "m:M:n"
     long_opts  = ["multistorms=",
@@ -152,10 +151,6 @@ def main():
     logger.info('ARGS: %s'% (args[1:]))
     logger.info('storm mslist, basin mblist: %s %s'% (mslist,mblist))
 
-
-    # Test to see if BASINS and/or MULTISTORM_SIDS is set
-#    basins          = os.environ.get('BASINS', None)
-#    multi_sids_env  = os.environ.get('MULTISTORM_SIDS','')
     # Parse the options and arguments.
 
     # Multistorm
@@ -180,7 +175,6 @@ def main():
                 multi_sids.append(s)
 
     logger.info('MS LIST: ' +repr(multi_sids))
-
 
     fakestorm_conf = None
     global_storm_num = 0
@@ -221,7 +215,7 @@ def main():
 
         conf.sanity_check()
 
-        if os.environ.get('RUN_ENVIR','EMC').upper()=='NCO':
+        if os.environ.get('RUN_ENVIR','DEV').upper()=='NCO':
             message=conf.strinterp('wcoss_fcst_nco','{messages}/message{storm_num}')
             if os.path.exists(message):
                 alert=produtil.dbnalert.DBNAlert(['MODEL','HAFS_MESSAGE','{job}',
@@ -233,6 +227,11 @@ def main():
         with open(holdvars,'wt') as f:
             f.write(conf.make_holdvars())
 
+        holdvars2=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.holdvars.txt')
+        logger.info(holdvars2+': write holdvars here as well')
+        with open(holdvars2,'wt') as f:
+            f.write(conf.make_holdvars())
+
         if conf.has_option('config','startfile'):
             startfile=conf.getstr('config','startfile')
             logger.info(startfile+': Write holdvars and conf location here.')
@@ -242,15 +241,15 @@ def main():
 
     Gsi=conf.getbool('config','run_gsi')
     #c.alter(ecf_name,'change','event','Gsi','set' if Gsi else 'clear')
-    if Gsi: set_ecflow_event('Gsi',logger)
+    if Gsi: set_ecflow_event('Analysis',logger)
 
     Hycom=conf.getbool('config','run_ocean') and \
-         conf.getstr('config','ocean_model')=='HYCOM'
+         conf.getstr('config','ocean_model').upper()=='HYCOM'
     #c.alter(ecf_name,'change','event','Hycom','set' if Hycom else 'clear')
-    if Hycom: set_ecflow_event('Hycom',logger)
+    if Hycom: set_ecflow_event('Ocean',logger)
 
     Wave=conf.getbool('config','run_wave') and \
-         conf.getstr('config','wave_model')=='WW3'
+         conf.getstr('config','wave_model').upper()=='WW3'
     #c.alter(ecf_name,'change','event','Wave','set' if Wave else 'clear')
     if Wave: set_ecflow_event('Wave',logger)
 

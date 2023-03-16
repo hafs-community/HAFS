@@ -55,7 +55,7 @@ cp $executable .
 echo $tile > grid_info.dat
 echo $res >> grid_info.dat
 echo $halo >> grid_info.dat
-time $executable < grid_info.dat
+${APRUNO} $executable < grid_info.dat
 
 if [ $? -ne 0 ]; then
   echo "ERROR in running $executable "

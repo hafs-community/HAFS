@@ -16,7 +16,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -35,7 +34,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -54,7 +52,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=yes config.run_atm_merge_fgat=yes config.run_atm_merge_ens=no \
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -73,7 +70,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=yes config.run_atm_merge_fgat=yes config.run_atm_merge_ens=no \
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.gsi_d01=yes config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -92,7 +88,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=no config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -111,7 +106,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=no config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -130,7 +124,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=no config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -150,7 +143,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=no config.run_atm_init_fgat=no config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=no config.run_atm_vi_fgat=no config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=no config.run_fgat=no config.run_envar=no \
      config.gsi_d01=no config.gsi_d02=no \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \

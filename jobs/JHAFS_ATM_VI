@@ -4,87 +4,83 @@ date
 export PS4='+ $SECONDS + '
 set -xue
 
-export HOMEhafs=${HOMEhafs:?}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+export cycle=${cycle:-t${cyc:?}z}
+export storm_num=${storm_num:-1}
+export stormlabel=${stormlabel:-storm$storm_num}
+export hafs_ver=${hafs_ver:-v1.0.0}
+export NET=${NET:-hafs}
+export RUN=${RUN:-hfsa}
+export RUN_ENVIR=${RUN_ENVIR:-NCO}
 
-source ${USHhafs}/hafs_pre_job.sh.inc
-source ${HOLDVARS:-storm1.holdvars.txt}
+export SENDCOM=${SENDCOM:-YES}
+export SENDDBN=${SENDDBN:-NO}
+export SENDDBN_NTC=${SENDDBN_NTC:-NO}
+export SENDECF=${SENDECF:-NO}
+export EMAIL_SDM=${EMAIL_SDM:-NO}
+export SCRUBDATA=${SCRUBDATA:-YES}
+export KEEPDATA=${KEEPDATA:-YES}
 
-export machine=${WHERE_AM_I:-wcoss2}
-export envir=${envir:-prod} # prod, para, test
-export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use ${HOMEhafs}/modulefiles
-  module load hafs.${machine}
+export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
+export USHhafs=$HOMEhafs/ush
+export EXEChafs=$HOMEhafs/exec
+export PARMhafs=$HOMEhafs/parm
+export FIXhafs=$HOMEhafs/fix
+
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}}
+
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  # Detect platform and load modules if not run by NCO
+  source ${USHhafs}/hafs_pre_job.sh.inc
+  export machine=${WHERE_AM_I:-wcoss2}
   module list
+else
+  # Run by NCO on WCOSS2
+  export machine=${WHERE_AM_I:-wcoss2}
+  # Prepend $USHhafs to python package search path
+  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+  # Initialize PDY
+# setpdy.sh # only needed for the launch job
+  # Get PDY
+  source ${WORKhafs}/PDY
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-# Run setpdy and initialize PDY variables
-#setpdy.sh
-#. ./PDY
-export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+env
 
-export WORKhafs=${WORKhafs:?}
-export COMIN=${COMIN:?}
-export COMOUT=${COMOUT:?}
-export COMhafs=${COMhafs:-${COMOUT}}
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:?}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
+source ${HOLDVARS}
+
 export ENSDA=${ENSDA:-NO}
+export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
-NDATE=${NDATE:-ndate}
-export CDATEprior=$(${NDATE} -6 $CDATE)
-export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
-
 # Deterministic or ensemble
 if [ "${ENSDA}" = YES ]; then
-  export ENSID=${ENSID:-001}
-  export RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
-  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
-  export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
-  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
-  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
   export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-  export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
-  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
-  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}
-  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
 else
-  export RESTARTinp=${COMhafsprior}/RESTART
-  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
-  export INTCOMinit=${WORKhafs}/intercom/atm_init
-  export RESTARTinit=${WORKhafs}/intercom/RESTART_init
-  export RESTARTout=${WORKhafs}/intercom/RESTART_vi
   export DATA=${WORKhafs}/atm_vi
 fi
 
-export SCRUBDATA=${SCRUBDATA:-YES}
-if [ "${SCRUBDATA}" = YES ]; then
+if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
 fi
-
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_vi.sh
+status=$?; [[ $status -ne 0 ]] && exit $status
 
-export KEEPDATA=${KEEPDATA:-YES}
-if [ "${KEEPDATA^^}" != YES ]; then
+# Cleanup DATA dir
+cd ${WORKhafs}
+if [ "${KEEPDATA:-YES}" != "YES" ]; then
   rm -rf $DATA
 fi
 

@@ -25,6 +25,8 @@ c
       double precision time3(3)
 c
       real, parameter :: flag = 2.0**100
+c      real, parameter :: Nan = 0.0
+      real, parameter :: Nan = -1.0E38
 c
 c --- 'lhycom' -- hycom (vs micom) input file
 c --- 'trcout' -- tracer input
@@ -674,8 +676,8 @@ c
       do 77 i=1,ii
 c
       if (temp(i,j,2) .lt. 26.) then
-        z26c(i,j)=NaN
-        ohcs(i,j)=NaN
+        z26c(i,j)=Nan
+        ohcs(i,j)=Nan
       else
 	pmid=.5*(p(i,j,1)+p(i,j,2))
         tmid=.5*(temp(i,j,2)+temp(i,j,4))
@@ -712,7 +714,8 @@ c          endif
 c
 c ---  estimate Z20
        if (temp(i,j,2) .lt. 20.) then
-        z20c(i,j)=0.
+c        z20c(i,j)=0.
+        z20c(i,j)=Nan
        else
         pmid=.5*(p(i,j,1)+p(i,j,2))
         tmid=.5*(temp(i,j,2)+temp(i,j,4))
@@ -1022,7 +1025,7 @@ c --- 'ohcio ' = ocean heat content I/O unit (0 no I/O)
            if ((ip(i,j).ne.0).and.(ohcs(i,j).ge.0.)) then
              ohcs(i,j)=ohcs(i,j)*ckjcm2
            else
-             ohcs(i,j)=NaN
+             ohcs(i,j)=Nan
            endif
          enddo
         enddo
@@ -1048,7 +1051,7 @@ c --- 'z26io ' = depth of 26C isotherm I/O unit (0 no I/O)
            if ((ip(i,j).ne.0).and.(z26c(i,j).ge.0.)) then
              z26c(i,j)=z26c(i,j)
            else
-             z26c(i,j)=NaN
+             z26c(i,j)=Nan
            endif
          enddo
         enddo
@@ -1074,7 +1077,7 @@ c --- 'z20io ' = depth of 20C isotherm I/O unit (0 no I/O)
            if ((ip(i,j).ne.0).and.(z20c(i,j).ge.0.)) then
              z20c(i,j)=z20c(i,j)
            else
-             z20c(i,j)=NaN
+             z20c(i,j)=Nan
            endif
          enddo
         enddo

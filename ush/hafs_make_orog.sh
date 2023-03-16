@@ -104,7 +104,7 @@ echo  $mtnres $lonb $latb $jcap $NR $NF1 $NF2 $efac $blat > INPS
 echo $OUTGRID >> INPS
 echo $orogfile >> INPS
 cat INPS
-time $executable < INPS
+${APRUNO} $executable < INPS
 
 if [ $? -ne 0 ]; then
   echo "ERROR in running $executable "

@@ -6,13 +6,14 @@ __all__ = ['WW3Init', 'WW3Post']
 
 import os, re
 import produtil.datastore, produtil.fileop, produtil.cd, produtil.run, produtil.log
-import produtil.cluster
+import produtil.cluster, produtil.dbnalert
 import tcutil.numerics
 import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
 
 from produtil.datastore import FileProduct, RUNNING, COMPLETED, FAILED, UpstreamFile
 from produtil.fileop import make_symlink, deliver_file, wait_for_files
+from produtil.dbnalert import DBNAlert
 from produtil.cd import NamedDir, TempDir
 from produtil.run import mpi, mpirun, run, runstr, checkrun, exe, bigexe, alias
 from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction, to_timedelta
@@ -139,7 +140,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         logger=self.log()
         for prodname,stuff in self._products.items():
             (prod,localpath)=stuff
-            prod.deliver(frominfo=localpath,keep=False,logger=logger)
+            prod.deliver(frominfo=localpath,keep=True,logger=logger)
 
     def run(self):
         """Runs the WW3 initialization"""
@@ -528,6 +529,9 @@ class WW3Post(hafs.hafstask.HAFSTask):
         logger=self.log()
         redirect=self.confbool('redirect',True)
         self.state=RUNNING
+        # The line below makes a DBNAlert object, which can be reused for the later alerts.
+        alerter=produtil.dbnalert.DBNAlert(['MODEL','{type}','{job}','{location}'])
+        modelrun=self.icstr('{RUN}').upper()
         try:
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
@@ -569,8 +573,10 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     checkrun(bigexe(wgrib2)['-s','gribfile'] > indexfile,logger=logger)
                     (prod,localpath)=self._products['ww3grb2']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2')
                     (prod,localpath)=self._products['ww3grb2idx']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2_WIDX')
                # For point output ww3_outp
                 ww3_outp_bull_post=self.confstr('ww3_outp_bull_post','yes',section='ww3post')
                 ww3_outp_spec_post=self.confstr('ww3_outp_spec_post','yes',section='ww3post')
@@ -646,10 +652,13 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcsbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                     # For point spec output
                     if ww3_outp_spec_post == 'yes':
                         fileout=[]
@@ -699,6 +708,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpspec']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                 # Additional ww3post products
                 # For field output in netcdf format
                 ww3_ounf_post=self.confstr('ww3_ounf_post','yes',section='ww3post')

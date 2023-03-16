@@ -69,7 +69,7 @@ messagedir=[]
 
 ##@var PARAFLAG
 # True = we are not NCEP Central Operations ($RUN_ENVIR!=NCO in environment)
-PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','EMC').upper() )
+PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','DEV').upper() )
 
 ##@var basins_needed
 # In format=cycles_needed mode, the list of one-letter basins needed.

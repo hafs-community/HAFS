@@ -628,6 +628,10 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         with open(sfile,'wt') as f:
             conf.write(f)
 
+    confloc2=conf.getdir('com')+'/'+conf.getstr('config','out_prefix')+'.'+conf.getstr('config','RUN')+'.conf'
+    logger.info('%s: save hafs.conf here as well'%(confloc2,))
+    produtil.fileop.deliver_file(confloc,confloc2,keep=True,logger=logger)
+
     return conf
 
 class HAFSLauncher(HAFSConfig):
@@ -1110,6 +1114,10 @@ class HAFSLauncher(HAFSConfig):
         produtil.fileop.makedirs(comdir,logger=logger)
         logger.info('deliver renumberlog '+filename+' to '+comdir)
         produtil.fileop.deliver_file(filename,comdir,keep=True,logger=logger)
+        comfile=comdir+'/'+self.getstr('config','out_prefix')+'.'+self.getstr('config','RUN')+'.vitals.renumberlog'
+        logger.info('also deliver renumberlog '+filename+' to '+comfile)
+        produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
+
         filename=vitbase+'.oldid'
         logger.info(filename+': write vitals with original ID')
         with open(filename,'wt') as vitalsout:
@@ -1120,6 +1128,10 @@ class HAFSLauncher(HAFSConfig):
         logger.info(filename+': write current cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.syndat.as_tcvitals(), file=tmpvit)
+
+        comfile=comdir+'/'+self.getstr('config','out_prefix')+'.'+self.getstr('config','RUN')+'.storm_vit'
+        logger.info('deliver tmpvit '+filename+' to '+comfile)
+        produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
 
         filename=os.path.join(self.getdir('WORKhafs'),'oldvit')
         logger.info(filename+': write prior cycle vitals here')
@@ -1367,7 +1379,7 @@ class HAFSLauncher(HAFSConfig):
             Default: set to value of EXPT       """
         ENV=os.environ
         logger=self.log()
-        PARAFLAG=( ENV.get('RUN_ENVIR','EMC').upper()!='NCO' )
+        PARAFLAG=( ENV.get('RUN_ENVIR','DEV').upper()!='NCO' )
 
         def set_default(section,option,default,env1=None,env2=None):
             if not self.has_option(section,option):
@@ -1393,7 +1405,7 @@ class HAFSLauncher(HAFSConfig):
         set_default('config','input_catalog','hafsdata','INPUT_CATALOG')
         set_default('dir','syndat',None,'COMINarch')
         set_default('dir','com',None,'COMOUT')
-        set_default('config','RUN_ENVIR','EMC','RUN_ENVIR')
+        set_default('config','RUN_ENVIR','DEV','RUN_ENVIR')
 
         if not self.has_option('config','cycle'):
             if 'YMDH' in ENV:
@@ -1432,7 +1444,6 @@ class HAFSLauncher(HAFSConfig):
         a few custom derived variables:
 
         *  cap_run_gsi --- capitalized version of [config] section run_gsi
-        *  cap_run_gsi_vr --- capitalized version of [config] section run_gsi_vr
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1472,7 +1483,7 @@ class HAFSLauncher(HAFSConfig):
             EXEChafs=self.getstr('dir','EXEChafs','exec')
 
             # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
-            with NamedDir(os.path.join(WORKhafs, 'launch'),logger=logger,rm_first=True) as d:
+            with NamedDir(os.path.join(WORKhafs, 'launch/make_hgrid'),logger=logger,rm_first=True) as d:
                 if gtype=='nest':
                     executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
@@ -1592,15 +1603,6 @@ class HAFSLauncher(HAFSConfig):
         ocean_start_dtg_float=to_fraction(self.cycle-hycom_epoch)/(3600*24)
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
-
-        gsi_vr_flag=self.getbool('config','run_gsi_vr')
-        self.set('holdvars','cap_run_gsi_vr',('YES' if gsi_vr_flag else 'NO'))
-
-        gsi_vr_fgat_flag=self.getbool('config','run_gsi_vr_fgat')
-        self.set('holdvars','cap_run_gsi_vr_fgat',('YES' if gsi_vr_fgat_flag else 'NO'))
-
-        gsi_vr_ens_flag=self.getbool('config','run_gsi_vr_ens')
-        self.set('holdvars','cap_run_gsi_vr_ens',('YES' if gsi_vr_ens_flag else 'NO'))
 
         gsi_flag=self.getbool('config','run_gsi')
         self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
