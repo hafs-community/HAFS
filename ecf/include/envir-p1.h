@@ -64,6 +64,6 @@ export COMINobsproc=/lfs/h1/ops/prod/com/obsproc/v1.1/%RUN:%.${PDY}/%CYC:%/atmos
 ####   stop.
 prod_machine_Current=`grep primary /lfs/h1/ops/prod/config/prodmachinefile|awk 'BEGIN { FS = ":" } ; { print $2 }'`
 echo "Current production machine is $prod_machine_Current"
-if [[ "$prod_machine_Current" == cactus ]]; then
-  err_exit "Production switch is in place. All parallel jobs set to fail."
-fi
+#if [[ "$prod_machine_Current" == cactus ]]; then
+#  err_exit "Production switch is in place. All parallel jobs set to fail."
+#fi
