@@ -352,6 +352,7 @@ PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
 PREPQCPF=${PREPQCPF:-${COMIN_OBS}/${OPREFIX}prepbufr.acft_profiles${OSUFFIX}}
 NSSTBF=${NSSTBF:-${COMIN_OBS}/${OPREFIX}nsstbufr${OSUFFIX}}
 SATWND=${SATWND:-${COMIN_OBS}/${OPREFIX}satwnd.tm00.bufr_d${OSUFFIX}}
+HRSATWND=${HRSATWND:-${COMIN_OBS}/${OPREFIX}hrsatwnd.tm00.bufr_d${OSUFFIX}}
 OSCATBF=${OSCATBF:-${COMIN_OBS}/${OPREFIX}oscatw.tm00.bufr_d${OSUFFIX}}
 RAPIDSCATBF=${RAPIDSCATBF:-${COMIN_OBS}/${OPREFIX}rapidscatw.tm00.bufr_d${OSUFFIX}}
 GSNDBF=${GSNDBF:-${COMIN_OBS}/${OPREFIX}goesnd.tm00.bufr_d${OSUFFIX}}
@@ -420,7 +421,12 @@ else
 fi
 #$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
-$NLN $SATWND           satwndbufr
+# Current GSI source code need to cat satwnd and hrsatwnd into one bufr
+if [-s $SATWND] && [ -s $HRSATWND ]; then
+  cat $SATWND $HRSATWND > satwndbufr
+else
+  $NLN $SATWND           satwndbufr
+fi
 ##$NLN $OSCATBF          oscatbufr
 ##$NLN $RAPIDSCATBF      rapidscatbufr
 ##$NLN $GSNDBF           gsndrbufr
