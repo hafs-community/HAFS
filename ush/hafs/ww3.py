@@ -238,7 +238,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 have_restart=False
                 oldrst='(unknown)'
                 try:
-                    oldrst=self.icstr('{oldcom}/{oldvit[stormid3lc]}.restart.f006.ww3')
+                    oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
                     if produtil.fileop.isnonempty(oldrst):
                         produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
                         have_restart=True
