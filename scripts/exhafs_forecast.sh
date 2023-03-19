@@ -28,6 +28,7 @@ PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
+FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
 NCP=${NCP:-'/bin/cp'}
@@ -444,6 +445,7 @@ fi
 if [ ${ocean_model} = mom6 ]; then
   OCN_model_component="OCN_model: mom6"
   OCN_model_attribute="OCN_model = mom6"
+fi
 #BL_e
 
 OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
@@ -1198,8 +1200,6 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ];  then
   ${NLN} ${FIXmom6}/INPUT/salt_restore_PHC2.nc INPUT/salt_restore_PHC2.nc
   ${NLN} ${FIXmom6}/INPUT/ocean_hgrid.nc INPUT/ocean_hgrid.nc
   ${NLN} ${FIXmom6}/INPUT/ocean_topog.nc INPUT/ocean_topog.nc
-  ${NLN} ${FIXmom6}/INPUT/oro_data.nc INPUT/oro_data.nc
-  ${NLN} ${FIXmom6}/INPUT/oro_data.tile7.halo4.nc INPUT/oro_data.tile7.halo4.nc
   ${NLN} ${FIXmom6}/INPUT/seawifs_1998-2006_smoothed_hat10_correct.nc INPUT/seawifs_1998-2006_smoothed_hat10_correct.nc
   ${NLN} ${FIXmom6}/INPUT/tidal_amplitude_hat10.nc INPUT/tidal_amplitude_hat10.nc
   ${NLN} ${FIXmom6}/INPUT/topog.nc  INPUT/topog.nc
