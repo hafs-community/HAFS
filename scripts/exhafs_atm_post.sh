@@ -139,11 +139,13 @@ fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
+if [ "${RUN_ENVIR^^}" != "NCO" ] && \
+   [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
    [ ${INPdir}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
+echo "not running by NCO"
 echo "post done file ${INPdir}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"

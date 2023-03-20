@@ -26,7 +26,7 @@ module load cray-pals/${cray_pals_ver}
 module load hdf5/${hdf5_ver}
 module load netcdf/${netcdf_ver}
 module load python/${python_ver}
-module load libjpeg/${libjpeg_ver}
+#module load libjpeg/${libjpeg_ver}
 module list
 
 export FGAT_MODEL="%FGAT_MODEL%"

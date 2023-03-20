@@ -157,15 +157,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -303,15 +307,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -449,15 +457,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -595,15 +607,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -741,15 +757,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -887,15 +907,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1033,15 +1057,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1180,15 +1208,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1324,15 +1356,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1468,15 +1504,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1612,15 +1652,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1756,15 +1800,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -1916,15 +1964,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2062,15 +2114,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2208,15 +2264,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2354,15 +2414,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2500,15 +2564,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2646,15 +2714,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2792,15 +2864,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -2939,15 +3015,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3083,15 +3163,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3227,15 +3311,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3371,15 +3459,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3515,15 +3607,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3674,15 +3770,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3819,15 +3919,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -3964,15 +4068,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4109,15 +4217,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4254,15 +4366,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4399,15 +4515,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4544,15 +4664,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4690,15 +4814,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4833,15 +4961,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -4976,15 +5108,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5119,15 +5255,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5262,15 +5402,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5421,15 +5565,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5566,15 +5714,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5711,15 +5863,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -5856,15 +6012,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6001,15 +6161,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6146,15 +6310,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6291,15 +6459,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6437,15 +6609,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6580,15 +6756,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6723,15 +6903,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -6866,15 +7050,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
@@ -7009,15 +7197,19 @@ suite nco_hafs
               family post
                 complete ./launch/jhafs_launch:NoStorm
                 task jhafs_atm_post1
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '1'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_atm_post2
+                  edit POST_GROUPN '2'
+                  edit POST_GROUPI '2'
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
                   trigger ../forecast==active or ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
-                  trigger ../forecast==active or ../forecast==complete
+                  trigger ../forecast==complete
                 task jhafs_product
                   trigger ./jhafs_atm_post1==active or ./jhafs_atm_post1==complete or ./jhafs_atm_post2==active or ./jhafs_atm_post2==complete
                   event 1 SentTrackToNHC
