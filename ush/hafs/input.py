@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 
 """!Obtains input data needed by various subclasses of
 hafs.hafstask.HAFSTask.

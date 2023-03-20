@@ -352,6 +352,7 @@ PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
 PREPQCPF=${PREPQCPF:-${COMIN_OBS}/${OPREFIX}prepbufr.acft_profiles${OSUFFIX}}
 NSSTBF=${NSSTBF:-${COMIN_OBS}/${OPREFIX}nsstbufr${OSUFFIX}}
 SATWND=${SATWND:-${COMIN_OBS}/${OPREFIX}satwnd.tm00.bufr_d${OSUFFIX}}
+HRSATWND=${HRSATWND:-${COMIN_OBS}/${OPREFIX}hrsatwnd.tm00.bufr_d${OSUFFIX}}
 OSCATBF=${OSCATBF:-${COMIN_OBS}/${OPREFIX}oscatw.tm00.bufr_d${OSUFFIX}}
 RAPIDSCATBF=${RAPIDSCATBF:-${COMIN_OBS}/${OPREFIX}rapidscatw.tm00.bufr_d${OSUFFIX}}
 GSNDBF=${GSNDBF:-${COMIN_OBS}/${OPREFIX}goesnd.tm00.bufr_d${OSUFFIX}}
@@ -420,7 +421,12 @@ else
 fi
 #$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
-$NLN $SATWND           satwndbufr
+# Current GSI source code need to cat satwnd and hrsatwnd into one bufr
+if [-s $SATWND] && [ -s $HRSATWND ]; then
+  cat $SATWND $HRSATWND > satwndbufr
+else
+  $NLN $SATWND           satwndbufr
+fi
 ##$NLN $OSCATBF          oscatbufr
 ##$NLN $RAPIDSCATBF      rapidscatbufr
 ##$NLN $GSNDBF           gsndrbufr
@@ -490,23 +496,23 @@ fi
 fi
 
 # HAFS specific observations
+INTCOMobs=${WORKhafs}/intercom/obs_prep
 # Use updated prepbufr if exists
-if [ -s ${WORKhafs}/intercom/obs_prep/hafs.prepbufr ]; then
-  ${NCP} ${WORKhafs}/intercom/obs_prep/hafs.prepbufr prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.prepbufr ]; then
+  ${NCP} ${INTCOMobs}/${NET}.t${cyc}z.prepbufr prepbufr
 fi
 # cat tempdrop.prepbufr with drifting correction into prepbufr
-if [ -s ${WORKhafs}/intercom/obs_prep/hafs.tempdrop.prepbufr ]; then
-  cat ${WORKhafs}/intercom/obs_prep/hafs.tempdrop.prepbufr >> prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr ]; then
+  cat ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr >> prepbufr
 fi
-COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d hdobbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d hdobbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
 fi
 
 fi #USE_SELECT

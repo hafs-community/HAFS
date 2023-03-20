@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Functions called automatically before a cycle is launched.
 
 This module contains utility functions for the hafs.launcher.launch()

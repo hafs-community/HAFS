@@ -87,7 +87,9 @@ fi
 archbase="${COMgraph}/figures"
 archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
 
-mkdir -p ${WORKgraph}
+intercompost=${WORKhafs}/intercom/post
+intercomgraph=${WORKhafs}/intercom/emc_graphics
+mkdir -p ${WORKgraph} ${intercomgraph}
 cd ${WORKgraph}
 
 IFHR=0
@@ -109,10 +111,10 @@ DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
 
 # Check if graphics has processed this forecast hour previously
-if [ -s ${WORKhafs}/forecast/graphf${FHR3} ] && \
-   [ ${WORKhafs}/forecast/graphf${FHR3} -nt ${WORKhafs}/forecast/postf${FHR3} ]; then
+if [ -s ${intercomgraph}/graphf${FHR3} ] && \
+   [ ${intercomgraph}/graphf${FHR3} -nt ${intercompost}/postf${FHR3} ]; then
 
-echo "graph message ${WORKhafs}/forecast/graphf${FHR3} exist and newer than ${WORKhafs}/forecast/postf${FHR3}"
+echo "graph message ${intercomgraph}/graphf${FHR3} exist and newer than ${intercompost}/postf${FHR3}"
 echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 
 # Otherwise run graphics for this forecast hour
@@ -127,8 +129,8 @@ STRDONE="top of output_all"
 # Wait for post and product output
 n=1
 while [ $n -le 600 ]; do
-  if [ -f ${WORKhafs}/forecast/postf${FHR3} ] && [ -f ${atcfFile} ]; then
-    echo "${WORKhafs}/forecast/postf${FHR3} and ${atcfFile} exist"
+  if [ -f ${intercompost}/postf${FHR3} ] && [ -f ${atcfFile} ]; then
+    echo "${intercompost}/postf${FHR3} and ${atcfFile} exist"
     if grep -q "$STRDONE" ${prodlog} || grep -q "$STRFHRN" ${prodlog}; then
       echo "GFDL tracker succeeded or has processed this time level, do graphics."
       sleep 1s
@@ -138,7 +140,7 @@ while [ $n -le 600 ]; do
       sleep 60s
     fi
   else
-    echo "${WORKhafs}/forecast/postf${FHR3} or ${atcfFile} not ready, sleep 60s"
+    echo "${intercompost}/postf${FHR3} or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -327,7 +329,7 @@ date
 cd ${WORKgraph}
 
 # Write out the graphics done message file
-echo 'done' > ${WORKhafs}/forecast/graphf${FHR3}
+echo 'done' > ${intercomgraph}/graphf${FHR3}
 
 fi
 # End if for checking if graphics has processed this forecast hour previously

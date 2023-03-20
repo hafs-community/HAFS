@@ -35,7 +35,7 @@ if [ ${RUN_ENVIR^^} != "NCO" ]; then
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
-  if [ -s ${COMhafs}/${trk_atcfunix} ] && [ $STORMNUM != "00" ]; then
+  if [ -s ${COMhafs}/${trk_atcfunix} ] && [ "${STORMID:0:2}" != "00" ]; then
     ${NCP} -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
   if [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ]; then

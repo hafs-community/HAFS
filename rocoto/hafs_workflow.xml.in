@@ -807,6 +807,31 @@
     </dependency>
   </task>
 
+  <task name="unpost" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_UNPOST</command>
+    <jobname>hafs_unpost_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_unpost.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_SERIAL;</queue>
+    &SERIAL_EXTRA;
+    <cores>1</cores>
+    &CORES_EXTRA;
+    <envar><name>TOTAL_TASKS</name><value>1</value></envar>
+    <walltime>00:05:00</walltime>
+    &MEMORY;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Start the unpost if the forecast is running or if it has
+           already completed. -->
+      <or>
+        <taskdep task="forecast" state="RUNNING"/>
+        <taskdep task="forecast"/>
+      </or>
+    </dependency>
+  </task>
+
   <metatask name="atm_post">
     <var name="group">1 2</var>
     <task name="atm_post#group#" maxtries="&MAX_TRIES;">
@@ -831,6 +856,7 @@
             <taskdep task="forecast" state="RUNNING"/>
             <taskdep task="forecast"/>
           </or>
+          <taskdep task="unpost"/>
         </and>
       </dependency>
     </task>
@@ -850,12 +876,15 @@
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the ocn_post if the forecast is running or if it has
-           already completed. -->
-      <or>
-        <taskdep task="forecast" state="RUNNING"/>
-        <taskdep task="forecast"/>
-      </or>
+      <and>
+        <!-- Start the ocn_post if the forecast is running or if it has
+             already completed. -->
+        <or>
+          <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast"/>
+        </or>
+        <taskdep task="unpost"/>
+      </and>
     </dependency>
   </task>
 @** endif
@@ -874,11 +903,14 @@
     &ENV_VARS;
 
     <dependency>
-      <!-- Start the wav_post if the forecast is running or if it has
-           already completed. -->
-      <or>
-        <taskdep task="forecast"/>
-      </or>
+      <and>
+        <!-- Start the wav_post if the forecast is running or if it has
+             already completed. -->
+        <or>
+          <taskdep task="forecast"/>
+        </or>
+        <taskdep task="unpost"/>
+      </and>
     </dependency>
   </task>
 @** endif

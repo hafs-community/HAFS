@@ -1064,6 +1064,8 @@ if [ ${run_wave} = yes ]; then
   POFILETYPE=0
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
   atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
+  # link 6-hr ww3 restart file from COMhafs for output, needed for warm-start waves for the next forecast cycle
+  ${NLN} ${COMhafs}/${out_prefix}.${RUN}.ww3.restart.f006 ./${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${RUN_INIT:-NO} = NO ]; then

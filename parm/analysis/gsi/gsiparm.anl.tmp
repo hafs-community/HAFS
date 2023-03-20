@@ -82,6 +82,7 @@ OBS_INPUT::
    prepbufr       uv          null        uv                  0.0     0     0
    prepbufr_profl uv          null        uv                  0.0     0     0
    satwndbufr     uv          null        uv                  0.0     0     0
+   hrsatwndbufr   uv          null        uv                  0.0     0     0
    prepbufr       spd         null        spd                 0.0     0     0
    prepbufr       dw          null        dw                  0.0     0     0
    radarbufr      rw          null        rw                  0.0     0     0
