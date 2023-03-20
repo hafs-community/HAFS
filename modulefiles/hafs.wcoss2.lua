@@ -104,12 +104,6 @@ load(pathJoin("nco", nco_ver))
 bufr_dump_ver=os.getenv("bufr_dump_ver") or "1.1.2"
 load(pathJoin("bufr_dump", bufr_dump_ver))
 
-ncio_ver=os.getenv("ncio_ver") or "1.0.0"
-load(pathJoin("ncio", ncio_ver)) 
-
-pio_ver=os.getenv("pio_ver") or "2.5.3"
-load(pathJoin("pio", pio_ver))
-
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
@@ -119,6 +113,12 @@ prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304
 
 ncdiag_ver=os.getenv("ncdiag_ver") or "1.0.0"
 load(pathJoin("ncdiag", ncdiag_ver))
+
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio", ncio_ver))
+
+pio_ver=os.getenv("pio_ver") or "2.5.7"
+load(pathJoin("pio", pio_ver))
 
 prepend_path("MODULEPATH", "/apps/dev/lmodules/intel/19.1.3.304")
 prepend_path("MODULEPATH", "/apps/dev/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.9")
