@@ -38,7 +38,7 @@ if [ "${ENSDA}" = YES ]; then
 else
   INPdir=${WORKhafs}/forecast
   COMOUTpost=${COMhafs}
-  intercom=${WORKhafs}/intercom/post 
+  intercom=${WORKhafs}/intercom/post
 fi
 
 fi
@@ -83,6 +83,39 @@ FHRB=$(( $((${POST_GROUPI:-1}-1)) * ${NOUTHRS} ))
 FHRI=$(( ${POST_GROUPN:-1} * ${NOUTHRS} ))
 FHRE=${NHRS}
 
+# If desired, deletes all the post output files in COMOUTpost and intercom
+if [ "${POST_CLEANUP^^}" = "YES" ]; then
+  FHR=${FHRB:-0}
+  FHR3=$(printf "%03d" "$FHR")
+  # Loop for forecast hours
+  while [ $FHR -le $NHRS ]; do
+    if [ ${gtype} = nest ]; then
+      ngrids=$((${nest_grids} + 1))
+    else
+      ngrids=${nest_grids}
+    fi
+    # Loop for grids/domains
+    for ng in $(seq 1 ${ngrids}); do
+      gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+      grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
+      grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
+      sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
+      sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+      trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
+      trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
+      rm -f ${COMOUTpost}/${grb2file} ${COMOUTpost}/${grb2indx}
+      rm -f ${COMOUTpost}/${sat_grb2file} ${COMOUTpost}/${sat_grb2indx}
+      rm -f ${intercom}/${trk_grb2file} ${intercom}/${trk_grb2indx}
+    done
+    # End loop for grids/domains
+    FHR=$(($FHR + $FHRI))
+    FHR3=$(printf "%03d" "$FHR")
+  done
+  # End loop for forecast hours
+fi
+# End if for POST_CLEANUP
+
+# Start actual post
 IFHR=0
 FHR=${FHRB:-0}
 FHR2=$(printf "%02d" "$FHR")
@@ -139,12 +172,12 @@ fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
-   [ ${INPdir}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
+if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
+   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
-echo "post done file ${INPdir}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -469,7 +502,7 @@ fi
 fi #if [ ${gtype} = regional ]; then
 
 # Write out the postdone message file
-echo 'done' > ${INPdir}/post${nestdotstr}f${FHR3}
+echo 'done' > ${intercom}/post${nestdotstr}f${FHR3}
 
 cd ${DATA}
 

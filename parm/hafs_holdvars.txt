@@ -39,6 +39,8 @@ export COMOLD={COMOLD}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
 
+export DCOMROOT={DCOMROOT}
+export DCOM={DCOM}
 export COMINnhc={COMINnhc}
 export COMINjtwc={COMINjtwc}
 export COMgfs={COMgfs}

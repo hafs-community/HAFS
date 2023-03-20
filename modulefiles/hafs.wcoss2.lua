@@ -101,6 +101,9 @@ load(pathJoin("gsl", gsl_ver))
 nco_ver=os.getenv("nco_ver") or "4.9.7"
 load(pathJoin("nco", nco_ver))
 
+bufr_dump_ver=os.getenv("bufr_dump_ver") or "1.1.2"
+load(pathJoin("bufr_dump", bufr_dump_ver))
+
 ncio_ver=os.getenv("ncio_ver") or "1.0.0"
 load(pathJoin("ncio", ncio_ver)) 
 

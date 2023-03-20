@@ -56,6 +56,7 @@ source ${HOLDVARS}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
+export POST_CLEANUP=${POST_CLEANUP:-NO}
 export POST_GROUPN=${POST_GROUPN:-1}
 export POST_GROUPI=$( printf "%d" "${POST_GROUPI:-1}" )
 

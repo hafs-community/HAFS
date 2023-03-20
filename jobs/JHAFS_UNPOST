@@ -35,7 +35,6 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   module list
 else
   # Run by NCO on WCOSS2
-  export OBS_DUMP=${OBS_DUMP:-YES}
   export machine=${WHERE_AM_I:-wcoss2}
   # Prepend $USHhafs to python package search path
   export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
@@ -55,9 +54,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export OBS_DUMP=${OBS_DUMP:-NO}
-
-export DATA=${WORKhafs}/obs_prep
+export DATA=${WORKhafs}/unpost
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
@@ -66,7 +63,7 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_obs_prep.sh
+${HOMEhafs}/scripts/exhafs_unpost.sh
 status=$?; [[ $status -ne 0 ]] && exit $status
 
 # Cleanup DATA dir

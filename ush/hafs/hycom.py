@@ -1,8 +1,7 @@
+#! /usr/bin/env python3
 
 """HYCOM related initialization and post-processing jobs."""
-# Updates Biju Thomas on 05/26/2022
-#     Added cfp option for WCOSS2
-#     Updated command.preview file's inputs consistent for getarg() function in gfs2ofs2(BT)
+
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
 import tarfile
 import produtil.fileop, produtil.log
@@ -1082,19 +1081,14 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         with open('command.file.preview','wt') as cfpf:
             cfpf.write(''.join(commands))
 
-        clustername=produtil.cluster.name()
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
-        if clustername in ('cactus','dogwood'):
-            cfp_path=produtil.fileop.find_exe('cfp')
-            cmd2=mpirun(mpi(cfp_path)['./command.file.preview'],allranks=True)
-        else:
-            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-            if mpiserial_path=='*MISSING*':
-                mpiserial_path=self.getexe('mpiserial','*MISSING*')
-            if mpiserial_path=='*MISSING*':
-                mpiserial_path=produtil.fileop.find_exe('mpiserial')
-            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
+        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+            mpiserial_path=self.getexe('mpiserial','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+            mpiserial_path=produtil.fileop.find_exe('mpiserial')
+        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
 
         with open('listflx.dat','wt') as listflxf:
@@ -1122,16 +1116,12 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
             commands.append('%s %d > %s 2>&1\n'%(cmd,i,gfs2ofs_out))
         with open('command.file.preview_gfs2ofs','wt') as fid:
             fid.write(''.join(commands))
-        if clustername in ('cactus','dogwood'):
-            cfp_path=produtil.fileop.find_exe('cfp')
-            cmd2=mpirun(mpi(cfp_path)['./command.file.preview_gfs2ofs'],allranks=True)
-        else:
-            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-            if mpiserial_path=='*MISSING*':
-                 mpiserial_path=self.getexe('mpiserial','*MISSING*')
-            if mpiserial_path=='*MISSING*':
-                 mpiserial_path=produtil.fileop.find_exe('mpiserial')
-            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
+        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+             mpiserial_path=self.getexe('mpiserial','*MISSING*')
+        if mpiserial_path=='*MISSING*':
+             mpiserial_path=produtil.fileop.find_exe('mpiserial')
+        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
         checkrun(cmd2)
         self.ofs_timeinterp_forcing(logger)
 
@@ -1321,6 +1311,29 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
     def __init__(self,dstore,conf,section,fcstlen=126,**kwargs):
         super(HYCOMPost,self).__init__(dstore,conf,section,**kwargs)
         self.fcstlen=fcstlen
+        self._ncks_path=False
+
+    def copy_ncks(self,source,target):
+        ncks=self.ncks_path
+        logger=self.log()
+        produtil.fileop.remove_file(target,logger=logger)
+        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+                 logger=logger)
+
+    @property
+    def ncks_path(self):
+        """Returns the path to ncks.  Returns None if ncks cannot be
+        found.  This function will only search for ncks once, and will
+        cache the result.  Set self._ncks_path=False to force a
+        recheck."""
+        if self._ncks_path is False:
+            ncks=self.getexe('ncks','')
+            if not self._ncks_path:
+                ncks=produtil.fileop.find_exe('ncks',raise_missing=False)
+            assert(ncks is None or
+                   (isinstance(ncks,str) and ncks!=''))
+            self._ncks_path=ncks
+        return self._ncks_path
 
     def run(self):
       """Called from the ocean post job to run the HyCOM post."""
@@ -1419,7 +1432,8 @@ NetCDF
         outfileNC=outfile+'.nc'
         archv2data=alias(exe(self.getexe('hafs_archv3z2nc')).env(CDF051=outfileNC))
         checkrun(archv2data<'infile',logger=logger)
-        deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+       #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+        self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
         navtime=3
         epsilon=.1
@@ -1479,7 +1493,8 @@ NetCDF
                 outfileNC=outfile+'.nc'
                 archv2data=alias(exe(self.getexe('hafs_archv2data3z')).env(CDF051=outfileNC))
                 checkrun(archv2data<'infile',logger=logger)
-                deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+               #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+                self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
             # convert 3-hrly archs.[ab] to .nc
             notabin='archs.%s'%(archtimestring)
@@ -1533,7 +1548,8 @@ NetCDF
             outfileNC=outfile+'.nc'
             archv2data=alias(exe(self.getexe('hafs_archv2data2d')).env(CDF001=outfileNC))
             checkrun(archv2data<'infile',logger=logger)
-            deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+           #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+            self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
             # this is the frequency of files
             navtime+=3

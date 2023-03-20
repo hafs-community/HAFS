@@ -496,23 +496,23 @@ fi
 fi
 
 # HAFS specific observations
+INTCOMobs=${WORKhafs}/intercom/obs_prep
 # Use updated prepbufr if exists
-if [ -s ${WORKhafs}/intercom/obs_prep/hafs.prepbufr ]; then
-  ${NCP} ${WORKhafs}/intercom/obs_prep/hafs.prepbufr prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.prepbufr ]; then
+  ${NCP} ${INTCOMobs}/${NET}.t${cyc}z.prepbufr prepbufr
 fi
 # cat tempdrop.prepbufr with drifting correction into prepbufr
-if [ -s ${WORKhafs}/intercom/obs_prep/hafs.tempdrop.prepbufr ]; then
-  cat ${WORKhafs}/intercom/obs_prep/hafs.tempdrop.prepbufr >> prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr ]; then
+  cat ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr >> prepbufr
 fi
-COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d hdobbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d hdobbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
 fi
 
 fi #USE_SELECT

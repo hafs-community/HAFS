@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Creates the initial HAFS directory structure, loads information into each job.
 
 This module is used to create the initial HAFS conf file in the

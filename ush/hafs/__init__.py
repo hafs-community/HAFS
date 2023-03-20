@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace hafs
 # Defines classes that know how to run all parts of the HAFS system.
 #

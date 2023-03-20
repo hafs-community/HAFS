@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Base class of tasks run by HAFS.
 
 This module contains the HAFSTask class, a subclass of

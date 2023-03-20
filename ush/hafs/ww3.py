@@ -1,12 +1,12 @@
+#! /usr/bin/env python3
+
 """This module handles WW3 related scripts for HAFS system."""
-# Updates Biju Thomas on 07/30/2022
-#     Added cfp option for WCOSS2
 
 __all__ = ['WW3Init', 'WW3Post']
 
 import os, re
 import produtil.datastore, produtil.fileop, produtil.cd, produtil.run, produtil.log
-import produtil.cluster, produtil.dbnalert
+import produtil.dbnalert
 import tcutil.numerics
 import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
@@ -571,6 +571,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     wgrib2=self.getexe('wgrib2')
                     logger.info('ww3post: Generating grib idx file for gribfile')
                     checkrun(bigexe(wgrib2)['-s','gribfile'] > indexfile,logger=logger)
+                    os.system('chmod -x '+indexfile) # Remove the -x permission
                     (prod,localpath)=self._products['ww3grb2']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                     alerter(location=prod.location, type=modelrun+'_WW3GB2')
@@ -629,17 +630,12 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         cmdfname='command.file.ww3outpbull'
                         with open(cmdfname,'wt') as cfpf:
                             cfpf.write('\n'.join(commands))
-                        clustername=produtil.cluster.name()
                         threads=os.environ['TOTAL_TASKS']
                         logger.info('ww3_outp_bull total threads: %s ',threads)
-                        if clustername in ('cactus','dogwood'):
-                            cfp_path=produtil.fileop.find_exe('cfp')
-                            cmd2=mpirun(mpi(cfp_path)[cmdfname],allranks=True)
-                        else:
-                            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-                            if mpiserial_path=='*MISSING*':
-                                mpiserial_path=self.getexe('mpiserial')
-                            cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
+                        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+                        if mpiserial_path=='*MISSING*':
+                            mpiserial_path=self.getexe('mpiserial')
+                        cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
                         checkrun(cmd2)
                         # Tar the outputs and diliver to com dir
                         cmd=exe('tar')['-cvf', 'ww3_bull.tar'][filebull]
@@ -691,15 +687,10 @@ class WW3Post(hafs.hafstask.HAFSTask):
                             cfpf.write('\n'.join(commands))
                         threads=os.environ['TOTAL_TASKS']
                         logger.info('ww3_outp_spec total threads: %s ',threads)
-                        clustername=produtil.cluster.name()
-                        if clustername in ('cactus','dogwood'):
-                            cfp_path=produtil.fileop.find_exe('cfp')
-                            cmd2=mpirun(mpi(cfp_path)[cmdfname],allranks=True)
-                        else:
-                            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-                            if mpiserial_path=='*MISSING*':
-                                mpiserial_path=self.getexe('mpiserial')
-                            cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
+                        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+                        if mpiserial_path=='*MISSING*':
+                            mpiserial_path=self.getexe('mpiserial')
+                        cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
                         checkrun(cmd2)
                         # Tar the outputs and deliver to com dir
                         cmd=exe('tar')['-cvf', 'ww3_spec.tar'][fileout]

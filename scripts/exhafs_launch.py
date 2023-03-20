@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
