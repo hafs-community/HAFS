@@ -9,7 +9,9 @@ CDATE=${CDATE:-${YMDH}}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 output_grid=${output_grid:-rotated_latlon}
 
+EMAIL_SDM=${EMAIL_SDM:-NO}
 SENDCOM=${SENDCOM:-YES}
+
 DATA=${DATA:-${WORKhafs}/output}
 mkdir -p ${DATA}
 
@@ -22,9 +24,13 @@ if [ "${SENDDBN^^}" = "YES" ]; then
   $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${fstorminfo}
 fi
 
-# Email SDM about AFOS
-if [ "${EMAIL_SDM^^}" = "YES" ]; then
-  echo "Placeholder to send an email to SDM regarding AFOS"
+# Email SDM about AFOS if run by NCO on WCOSS2
+afosfile=${COMhafs}/${out_prefix}.${RUN}.afos
+if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
+  HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-${USER}@noaa.gov}
+  HAFS_TRACK_EMAIL_LIST=${HAFS_TRACK_EMAIL_LIST:-${USER}@noaa.gov}
+  subject="${cyc}Z ${RUN^^} Output for Tropical System ${STORM} (${STORMID^^})"
+  mail.py -s "${subject}" -v "${HAFS_TRACK_EMAIL_LIST}" < ${afosfile}
 fi
 
 # Deliver track file to NOSCRUB if not run by NCO

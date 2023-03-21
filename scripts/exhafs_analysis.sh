@@ -421,12 +421,8 @@ else
 fi
 #$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
-# Current GSI source code need to cat satwnd and hrsatwnd into one bufr
-if [-s $SATWND] && [ -s $HRSATWND ]; then
-  cat $SATWND $HRSATWND > satwndbufr
-else
-  $NLN $SATWND           satwndbufr
-fi
+$NLN $SATWND           satwndbufr
+$NLN $HRSATWND         hrsatwndbufr
 ##$NLN $OSCATBF          oscatbufr
 ##$NLN $RAPIDSCATBF      rapidscatbufr
 ##$NLN $GSNDBF           gsndrbufr
