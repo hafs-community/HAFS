@@ -20,6 +20,7 @@ export crtm_ver=2.4.0
 export g2_ver=3.4.5
 export g2tmpl_ver=1.10.2
 export bufr_ver=11.6.0
+export bufr_dump_ver=1.1.2
 export ip_ver=3.3.3
 export sp_ver=2.3.3
 export w3emc_ver=2.9.2
