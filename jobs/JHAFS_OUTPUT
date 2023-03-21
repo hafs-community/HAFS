@@ -54,6 +54,9 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
+export HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-${USER}@noaa.gov}
+export HAFS_TRACK_EMAIL_LIST=${HAFS_TRACK_EMAIL_LIST:-${USER}@noaa.gov}
+
 export DATA=${WORKhafs}/output
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
