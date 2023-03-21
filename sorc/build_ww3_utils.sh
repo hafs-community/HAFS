@@ -4,8 +4,8 @@ source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 cwd=$(pwd)
 
-script_dir=$(dirname "${BASH_SOURCE[0]}")
-cd "${script_dir}" || exit 1
+script_dir=${cwd}
+cd ${script_dir}
 
 export RT_COMPILER="intel"
 source "${script_dir}/hafs_forecast.fd/tests/detect_machine.sh"
