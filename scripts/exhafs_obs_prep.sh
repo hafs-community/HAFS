@@ -10,8 +10,6 @@ dy=$(echo $CDATE | cut -c7-8)
 
 atmos="atmos/"
 COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-export FIX_PATH=${BUFR_DUMPLIST:?}/fix
-export TANK=${TANK:-${DCOMROOT:?}}
 RUN_GSI=${RUN_GSI:-NO}
 use_bufr_nr=${use_bufr_nr:-no}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
@@ -83,6 +81,9 @@ rm -f ${intercom}/${NFdropsonde}
 rm -f ${intercom}/${NFtempdrop}
 
 if [ $OBS_DUMP = YES ]; then
+
+export TANK=${TANK:-${DCOMROOT:?}}
+export FIX_PATH=${BUFR_DUMPLIST:?}/fix
 
 # Dump TDR data
 BDATE=$( $NDATE -24 $CDATE )
