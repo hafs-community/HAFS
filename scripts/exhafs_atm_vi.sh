@@ -69,6 +69,15 @@ vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
 cd $DATA
 # Stage 0.1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
+  echo "INFO: vmax_vit of ${vmax_vit} >= ${vi_warm_start_vmax_threshold} m/s"
+  echo "INFO: expecting warm-start from prior cycle's storm vortex if exists."
+  if [ -d ${RESTARTinp} ]; then
+    echo "INFO: ${RESTARTinp} exists, will warm-start from prior cycle's storm vortex."
+  else
+    echo "WARNING: ${RESTARTinp} does not exists, will cold-start storm vortex."
+  fi
+fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
   for vortexradius in 30 45; do
     if [[ ${vortexradius} == 30 ]]; then
@@ -141,8 +150,6 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
-    # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
-    # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
@@ -243,8 +250,6 @@ if true; then
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
-    # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
-    # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
@@ -344,6 +349,8 @@ cd ${work_dir}
 
 # Bogus a storm if prior cycle does not exist and tcvital intensity >= vi_bogus_vmax_threshold (e.g., 33 m/s)
 if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/storm_pert_new ]; then
+
+  echo "WARNING: Bogus storm vortex since prior cycle does not exist and vmax_vit of ${vmax_vit} >= ${vi_bogus_vmax_threshold}"
 
   pert=init
   senv=$pert
