@@ -77,7 +77,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
   else
     echo "WARNING: ${RESTARTinp} does not exists, will cold-start storm vortex."
   fi
-if
+fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
   for vortexradius in 30 45; do
     if [[ ${vortexradius} == 30 ]]; then
