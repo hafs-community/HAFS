@@ -26,8 +26,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_vida: atm_init+atm_vi+fgat+3denvar+anal_merge and cycling storm perturbation
  conf_h3bs_vida="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_vida \
@@ -44,8 +44,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_dacycst: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling storm
  conf_h3bs_dacycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_dacycst \
@@ -62,8 +62,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_dacycdm: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling whole domain
  conf_h3bs_dacycdm="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_dacycdm \
@@ -80,8 +80,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_vicycst: atm_init+atm_vi+anal_merge and cycling storm
  conf_h3bs_vicycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_vicycst \
@@ -98,8 +98,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_vi: atm_init+atm_vi+anal_merge and cycling storm perturbation
  conf_h3bs_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_vi \
@@ -116,8 +116,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs_init: warmstart from the coldstart atm_init (initialized from gfs analysis)
  conf_h3bs_init="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs_init \
@@ -135,8 +135,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3bs: coldstart from gfs analysis
  conf_h3bs="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3bs \
@@ -154,8 +154,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # Choose the configuration to run
 #confopts="${conf_h3bs_vidacycst}"

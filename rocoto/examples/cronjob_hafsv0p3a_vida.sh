@@ -26,7 +26,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_vida: atm_init+atm_vi+fgat+d02_3denvar+anal_merge and cycling storm perturbation
  conf_v0p3a_vida="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_vida \
@@ -43,7 +43,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_dacycst: atm_init+atm_merge+fgat+d02_3denvar+anal_merge and cycling storm
  conf_v0p3a_dacycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_dacycst \
@@ -60,7 +60,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_dacycdm: atm_init+atm_merge+fgat+d02_3denvar+anal_merge and cycling domain
  conf_v0p3a_dacycdm="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_dacycdm \
@@ -77,7 +77,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_vicycst: atm_init+atm_vi+anal_merge and cycling storm
  conf_v0p3a_vicycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_vicycst \
@@ -94,7 +94,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_vi: atm_init+atm_vi+anal_merge and cycling storm perturbation
  conf_v0p3a_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_vi \
@@ -111,7 +111,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a_init: warmstart from the coldstart atm_init (initialized from gfs analysis)
  conf_v0p3a_init="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a_init \
@@ -129,7 +129,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # v0p3a: coldstart from gfs analysis
  conf_v0p3a="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v0p3a \
@@ -147,7 +147,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3a.conf"
+     ../parm/tests/hafsv0p3a.conf"
 
  # Choose the configuration to run
 #confopts="${conf_v0p3a_vidacycst}"

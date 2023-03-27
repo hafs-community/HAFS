@@ -12,6 +12,8 @@ export NCNODE=${NCNODE:-$(($NCTSK * $OMP_NUM_THREADS))}
 export KMP_AFFINITY=disabled
 export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 #export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
+# Avoild "NetCDF: HDF error"
+export HDF5_USE_FILE_LOCKING=FALSE
 
 # Set job run commands
 # APRUN:  command to run general jobs
