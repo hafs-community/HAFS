@@ -1370,8 +1370,6 @@ class HAFSLauncher(HAFSConfig):
         * EXhafs --- the location of the HAFS scripts directory
         * PARMhafs --- the location of the HAFS parm/ directory
         * EXEChafs --- the location of the HAFS exec/ directory
-        * utilexec --- the location of the HAFS nwport/exec or
-            /nwprod/exec directory
 
         If set, these variables will be copied to the [config] section:
         * EXPT --- optional: the experiment identifier, which must be
@@ -1433,7 +1431,6 @@ class HAFSLauncher(HAFSConfig):
         dirset('EXEChafs','exec')
         dirset('JOBhafs','jobs')
         dirset('PARMhafs','parm')
-        #dirset('utilexec','util/exec',NWPROD)
 
     def make_holdvars(self,part1='{PARMhafs}/hafs_holdvars.txt',part2=None):
         """!Creates the com/storm*.holdvars.txt file

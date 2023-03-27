@@ -46,10 +46,3 @@ cartopyDataDir=/mnt/lfs4/HFIP/hwrfv3/local/share/cartopy
 WHERE_AM_I=jet
 WHICH_JET=k
 
-[forecast]
-write_groups=1
-write_tasks_per_group=80
-
-[rocotostr]
-FORECAST_RESOURCES=FORECAST_RESOURCES_regional_{forecast/layoutx}x{forecast/layouty}io{forecast/write_groups}x{forecast/write_tasks_per_group}_omp2
-

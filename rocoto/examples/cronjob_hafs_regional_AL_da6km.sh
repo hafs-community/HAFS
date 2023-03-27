@@ -26,8 +26,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.online_satbias=yes \
-     ../parm/hafsv0p3_regional_AL_da6km.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_AL_da6km.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # Choose the configuration to run
  confopts="${confh2db}"
