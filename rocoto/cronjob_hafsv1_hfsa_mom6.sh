@@ -25,8 +25,7 @@ opts="-t -f"
 
  #hafsv1 hfsa
  confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_mom6_0326 \
-     ../parm/hafsv1_hfsa_mom6.conf \
-     ../parm/hafs_mom6.conf"
+     ../parm/hafsv1_hfsa_mom6.conf"
 
  # Technical testing for Hurricane Laura
 ./run_hafs.py ${opts} 2020082512 13L HISTORY ${confopts} \
