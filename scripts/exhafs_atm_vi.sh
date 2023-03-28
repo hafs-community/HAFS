@@ -2,6 +2,7 @@
 
 set -xe
 
+vi_force_cold_start=${vi_force_cold_start:-no}
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
 vi_storm_env=${vi_storm_env:-init} # init: from gfs/gdas init; pert: from the same source for the storm perturbation
@@ -67,6 +68,10 @@ vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
 cd $DATA
+
+# Force to cold start storm vortex if desired
+if [[ ${vi_force_cold_start} != "yes" ]]; then
+
 # Stage 0.1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
@@ -77,7 +82,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
   else
     echo "WARNING: ${RESTARTinp} does not exists, will cold-start storm vortex."
   fi
-if
+fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
   for vortexradius in 30 45; do
     if [[ ${vortexradius} == 30 ]]; then
@@ -104,6 +109,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     fi
   done
 fi
+
+fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
 
 cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
@@ -135,6 +142,9 @@ done
 #===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+
+# Force to cold start storm vortex if desired
+if [[ ${vi_force_cold_start} != "yes" ]]; then
 
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
@@ -230,6 +240,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
 
 fi
+
+fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
 
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model

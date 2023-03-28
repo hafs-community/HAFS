@@ -13,7 +13,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 #===============================================================================
  # ensda_eps: fgat+3denvar+enkf
  confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_ensda_eps \
-     ../parm/hafs_2022_regional_ensda_eps_AL.conf"
+     ../parm/tests/hafs_2022_regional_ensda_eps_AL.conf"
 
  ./run_hafs.py ${opts} 2020082506-2020082518 00L HISTORY ${confopts} \
      config.NHRS=120 config.ENS_SIZE=20 config.scrub_work=no config.scrub_com=no \
