@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:30:00
-#PBS -l place=vscatter:excl,select=4:ncpus=120:mpiprocs=6:ompthreads=20
+#PBS -l place=vscatter:excl,select=2:ncpus=60:mpiprocs=6:ompthreads=10
 #PBS -l debug=true
 
 model=hafs
@@ -12,9 +12,9 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='24'
+export TOTAL_TASKS='12'
 export NCTSK='6'
-export OMP_THREADS='20'
+export OMP_THREADS='10'
 
 export storm_num="%STORMNUM%"
 
