@@ -1,8 +1,8 @@
 #!/bin/sh
 
 set -xe
-
 vi_force_cold_start=${vi_force_cold_start:-no}
+vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
 vi_storm_env=${vi_storm_env:-init} # init: from gfs/gdas init; pert: from the same source for the storm perturbation
@@ -64,13 +64,40 @@ tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
 
+cd $DATA
+
+# Skip atm_vi if vmax is weaker than vi_min_wind_for_init (e.g., 9 m/s)
+if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
+
+echo "INFO: vmax_vit of ${vmax_vit} <= ${vi_min_wind_for_init} m/s"
+echo "INFO: skip vortex initialization for weak storms."
+
+mkdir -p ${RESTARTout}
+if [ -d ${RESTARTinit} ]; then
+  RESTARTdst=${RESTARTinit}
+elif [ -d ${RESTARTmrg} ]; then
+  RESTARTdst=${RESTARTmrg}
+else
+  RESTARTdst=${RESTARTinp}
+fi
+${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+
+echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
+echo "INFO: exiting after skipping vortex initialization ..."
+exit
+
+fi
+
 #===============================================================================
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
 cd $DATA
 
 # Force to cold start storm vortex if desired
-if [[ ${vi_force_cold_start} != "yes" ]]; then
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
 # Stage 0.1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)

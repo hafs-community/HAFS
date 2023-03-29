@@ -10,6 +10,7 @@ import produtil.dbnalert
 import tcutil.numerics
 import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
+import hafs.launcher, hafs.config
 
 from produtil.datastore import FileProduct, RUNNING, COMPLETED, FAILED, UpstreamFile
 from produtil.fileop import make_symlink, deliver_file, wait_for_files
@@ -236,21 +237,27 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     logger.error('Not implemented yet')
 
                 have_restart=False
-                oldrst='(unknown)'
-                try:
-                    oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
-                    if produtil.fileop.isnonempty(oldrst):
-                        produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
-                        have_restart=True
-                        produtil.log.jlogger.info('%s: warm start for wave'%(oldrst,))
+                if os.environ.get('ww3_force_cold_start','no').lower() == 'yes':
+                    logger.warning('ww3_force_cold_start is yes and will generate restart.ww3.')
+                else:
+                    oldrst='(unknown)'
+                    oldconffile=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.conf')
+                    if produtil.fileop.isnonempty(oldconffile):
+                        logger.info('%s: prior cycle exists.'%(oldconffile,))
+                        oldconf=hafs.launcher.load(oldconffile)
+                        oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
+                        if not oldconf.getbool('config','run_wave'):
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run wave.')
+                        elif not oldconf.getstr('config','wave_model').lower() == 'ww3':
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run WW3.')
+                        elif produtil.fileop.isnonempty(oldrst):
+                            produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
+                            have_restart=True
+                            logger.info('%s: warm start from prior cycle 6-h output restart file.'%(oldrst,))
+                        else:
+                            logger.critical('restart.ww3: exiting because piror cycle %s is missing or empty.'%(oldrst,))
                     else:
-                        produtil.log.jlogger.warning(
-                            'restart.ww3: will generate restart.ww3 because %s is missing '
-                            'or empty.'%(oldrst,))
-                except Exception as ee:
-                    produtil.log.jlogger.warning(
-                        'restart.ww3: will generate restart.ww3 because %s is missing '
-                        'or could not be copied; %s'%(oldrst,str(ee)),exc_info=True)
+                        logger.info('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:

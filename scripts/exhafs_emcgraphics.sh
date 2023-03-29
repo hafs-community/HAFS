@@ -431,7 +431,7 @@ trackOn=True
 
 for((i=0;i<${nscripts};i++)); do
   echo ${figScriptAll[$i]}
-  echo "${APRUNS} ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $trackOn ${figScriptAll[$i]} \
+  echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $trackOn ${figScriptAll[$i]} \
         > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.log 2>&1" >> $cmdfile
 done
 
