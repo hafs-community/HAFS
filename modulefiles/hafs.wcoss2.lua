@@ -107,15 +107,15 @@ load(pathJoin("bufr_dump", bufr_dump_ver))
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
-setenv("HPC_OPT", "/apps/ops/para/libs")
-prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
-prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.7")
-
 ncdiag_ver=os.getenv("ncdiag_ver") or "1.0.0"
 load(pathJoin("ncdiag", ncdiag_ver))
 
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
 load(pathJoin("ncio", ncio_ver))
+
+setenv("HPC_OPT", "/apps/ops/para/libs")
+prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
+prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.7")
 
 pio_ver=os.getenv("pio_ver") or "2.5.7"
 load(pathJoin("pio", pio_ver))
