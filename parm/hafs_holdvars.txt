@@ -83,7 +83,7 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
-export vi_force_cold_start={vi_force_cold_start}
+export vi_min_wind_for_init={vi_min_wind_for_init}
 export vi_warm_start_vmax_threshold={vi_warm_start_vmax_threshold}
 export vi_bogus_vmax_threshold={vi_bogus_vmax_threshold}
 export vi_storm_env={vi_storm_env}
