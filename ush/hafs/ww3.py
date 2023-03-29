@@ -4,7 +4,7 @@
 
 __all__ = ['WW3Init', 'WW3Post']
 
-import os, re
+import os, sys, re
 import produtil.datastore, produtil.fileop, produtil.cd, produtil.run, produtil.log
 import produtil.dbnalert
 import tcutil.numerics
@@ -244,7 +244,8 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     oldconffile=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.conf')
                     if produtil.fileop.isnonempty(oldconffile):
                         logger.info('%s: prior cycle exists.'%(oldconffile,))
-                        oldconf=hafs.launcher.load(oldconffile)
+                        oldconf=hafs.launcher.HAFSLauncher()
+                        oldconf.read(oldconffile)
                         oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
                         if not oldconf.getbool('config','run_wave'):
                             logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run wave.')
@@ -255,7 +256,9 @@ class WW3Init(hafs.hafstask.HAFSTask):
                             have_restart=True
                             logger.info('%s: warm start from prior cycle 6-h output restart file.'%(oldrst,))
                         else:
-                            logger.critical('restart.ww3: exiting because piror cycle %s is missing or empty.'%(oldrst,))
+                            logger.critical('FATAL ERROR: exiting because piror cycle %s is missing or empty.'%(oldrst,))
+                            logger.critical('FATAL ERROR: if desired, set force_cold_start or ww3_force_cold_start = yes can bypass this failure.')
+                            sys.exit(2)
                     else:
                         logger.info('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
