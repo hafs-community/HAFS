@@ -14,7 +14,6 @@ export RUN_ENVIR=${RUN_ENVIR:-NCO}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
-export SENDDBN_NTC=${SENDDBN_NTC:-NO}
 export SENDECF=${SENDECF:-NO}
 export EMAIL_SDM=${EMAIL_SDM:-NO}
 export SCRUBDATA=${SCRUBDATA:-YES}
@@ -54,6 +53,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
+export vi_force_cold_start=${vi_force_cold_start:-${force_cold_start:-no}}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}

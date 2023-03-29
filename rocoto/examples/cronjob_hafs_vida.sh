@@ -24,8 +24,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3db_vida: atm_init+atm_vi+fgat+3denvar+anal_merge and cycling storm perturbation
  confh3db_vida="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vida \
@@ -41,8 +41,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3db_cycst: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling storm
  confh3db_cycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_cycst \
@@ -57,8 +57,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3db_cycdm: atm_init+atm_merge+fgat+3denvar+anal_merge and cycling whole domain
  confh3db_cycdm="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_cycdm \
@@ -73,8 +73,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3db_vicycst: atm_init+atm_vi+anal_merge and cycling storm
  confh3db_vicycst="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vicycst \
@@ -90,8 +90,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3db_vi: atm_init+atm_vi and cycling storm perturbation
  confh3db_vi="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3db_vi \
@@ -107,8 +107,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # h3da_init: warmstart from the coldstart atm_init (initialized from gfs analysis)
  confh3da_init="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3da_init \
@@ -122,8 +122,8 @@ opts="-t -f"
      config.NHRS=126 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafs_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafs_hycom.conf"
 
  # h3da: coldstart from gfs analysis directly
  confh3da="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_h3da \
@@ -138,8 +138,8 @@ opts="-t -f"
      forecast.restart_interval=240 \
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
-     ../parm/hafsv0p3_regional_storm.conf \
-     ../parm/hafsv0p3_hycom.conf"
+     ../parm/tests/hafsv0p3_regional_storm.conf \
+     ../parm/tests/hafsv0p3_hycom.conf"
 
  # Choose the configuration to run
 #confopts="${confh3db_vidacycst}"

@@ -11,12 +11,18 @@ EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
 #===============================================================================
 
- #hafsv1 hfsa
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa \
-     ../parm/hafsv1_hfsa.conf"
+## HFSB with production computation resources on WCOSS2
+#opts="-t -s sites/wcoss2_prod.ent -f"
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb ../parm/hfsb.conf"
+## Technical testing for Hurricane Ida
+#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
- # Technical testing for Hurricane Laura
-#./run_hafs.py ${opts} 2020082512 13L HISTORY ${confopts} \
+## HFSB with dev computation resources
+#opts="-t -f"
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb_dev ../parm/hfsb_dev.conf"
+## Technical testing for Hurricane Ida
+#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 #===============================================================================

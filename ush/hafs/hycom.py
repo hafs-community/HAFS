@@ -310,7 +310,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         hycom_domain=self.confstr('hycom_domain','small')
         basin=self.storminfo.pubbasin2
         Application=None
-        if hycom_domain=='large' and basin in ['AL', 'EP', 'CP']:
+        if hycom_domain=='large' and basin in ['AL', 'EP', 'CP', 'SL', 'LS']:
             Application='nhc_basin'
         elif hycom_domain=='large' and basin in ['WP', 'IO']:
             Application='jtnh_basin'
