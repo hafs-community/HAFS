@@ -647,6 +647,13 @@
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
 @** endif
         </and>
+        <or>
+          <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+	      <and>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.ww3.restart.f006</datadep>
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.&RUN;.trak.atcfunix.f012</datadep>
+          </and>
+        </or>
       </and>
     </dependency>
   </task>
