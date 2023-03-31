@@ -6,11 +6,11 @@ CDATE=${CDATE:-${YMDH}}
 STORM=${STORM:-FAKE}
 STORMID=${STORMID:-00L}
 #BL_b
-run_atm_datm_ocean=${run_atm_datm_ocean:-yes}
-if [ ${run_atm_datm_ocean} = yes ]; then
-OMP_NUM_THREADS=1
-APRUNC="srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK}"
-fi
+#run_atm_datm_ocean=${run_atm_datm_ocean:-yes}
+#if [ ${run_atm_datm_ocean} = yes ]; then
+#OMP_NUM_THREADS=1
+#APRUNC="srun --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK}"
+#fi
 #BL_n
 YMD=$(echo ${CDATE} | cut -c1-8)
 yr=$(echo $CDATE | cut -c1-4)
@@ -343,8 +343,9 @@ fi
 # Ocean coupling related settings
 run_ocean=${run_ocean:-no}
 #BL_b
+#run_ocean=yes
 ocean_model=mom6
-cpl_atm_ocn=cmeps_atm_datm_ocn
+#cpl_atm_ocn=cmeps_atm_datm_ocn
 cpl_atm_ocn=${cpl_atm_ocn:-cmeps_atm_datm_ocn}
 #BL_n
 ocean_model=${ocean_model:-hycom}
@@ -355,6 +356,7 @@ cpl_atm_wav=${cpl_atm_wav:-cmeps_1way_1to2}
 cpl_wav_ocn=${cpl_wav_ocn:-cmeps_sidebyside}
 ocn_tasks=${ocn_tasks:-120}
 med_tasks=${med_tasks:-${ocn_tasks}}
+dat_tasks=${dat_tasks:-${ocn_tasks}}
 wav_tasks=${wav_tasks:-120}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
@@ -410,24 +412,24 @@ fi
 ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 
 #BL_b
-if [ ${run_atm_datm_ocean} = yes ] && [ ${run_wave} != yes ]; then
-ATM_model_component="ATM_model: fv3"
-DAT_model_component="DAT_model: datm"
-OCN_model_component="OCN_model: mom6"
-WAV_model_component=""
-ATM_model_attribute="ATM_model = fv3"
-DAT_model_attribute="DAT_model = datm"
-OCN_model_attribute="OCN_model = mom6"
-WAV_model_attribute=""
-EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
-OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
-  if [ $quilting = .true. ]; then
-    MED_tasks=$(($ATM_tasks-$write_groups*$write_tasks_per_group))
-  else
-    MED_tasks=$ATM_tasks
-  fi
-    DAT_tasks=$MED_tasks
-fi
+#if [ ${run_atm_datm_ocean} = yes ] && [ ${run_wave} != yes ]; then
+#ATM_model_component="ATM_model: fv3"
+#DAT_model_component="DAT_model: datm"
+#OCN_model_component="OCN_model: mom6"
+#WAV_model_component=""
+#ATM_model_attribute="ATM_model = fv3"
+#DAT_model_attribute="DAT_model = datm"
+#OCN_model_attribute="OCN_model = mom6"
+#WAV_model_attribute=""
+#EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
+#OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
+#  if [ $quilting = .true. ]; then
+#    MED_tasks=$(($ATM_tasks-$write_groups*$write_tasks_per_group))
+#  else
+#    MED_tasks=$ATM_tasks
+#  fi
+#    DAT_tasks=$MED_tasks
+#fi
 #BL_n
 
 if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
@@ -501,17 +503,18 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
 #BL_b
  elif [ $cpl_atm_ocn = cmeps_atm_datm_ocn ]; then
     EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
-    MED_model_component="MED_model: cmeps"
-    MED_model_attribute="MED_model=cmeps"
-    MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($MED_tasks-1)))
+    #MED_model_component="MED_model: cmeps"
+    #MED_model_attribute="MED_model=cmeps"
+    #MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" 0 $(($MED_tasks-1)))
 
     DAT_model_component="DAT_model: datm"
     DAT_model_attribute="DAT_model=datm"
-    DAT_petlist_bounds=$(printf "DAT_petlist_bounds: %04d %04d" 0 $(($DAT_tasks-1)))
+    #DAT_petlist_bounds=$(printf "DAT_petlist_bounds: %04d %04d" 0 $(($DAT_tasks-1)))
+    DAT_petlist_bounds=$(printf "DAD_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$dat_tasks-1)))
 
-    OCN_model_component="OCN_model: mom6"
-    OCN_model_attribute="OCN_model=mom6"
-    OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
+    #OCN_model_component="OCN_model: mom6"
+    #OCN_model_attribute="OCN_model=mom6"
+    #OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
     cplflx=.true.
     cplocn2atm=.true.
 #BL_n
@@ -1068,6 +1071,8 @@ fi
 if [ ${ocean_model} = mom6 ]; then
   if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
     ${NCP} ${PARMforecast}/../regional_mom6/nems.configure.mom6.tmp ./nems.configure.tmp
+  else
+    ${NCP} ${PARMforecast}/../regional_mom6/nems.configure.atmonly ./nems.configure.tmp
   fi
 fi
 #BL_e
