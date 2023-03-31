@@ -108,7 +108,7 @@ load(pathJoin("grib_util", grib_util_ver))
 
 wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
-setenv("WGRIB2", "/apps/wgrib-2.0.8/wgrib2/wgrib2")
+setenv("WGRIB2", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5.274/impi-2018.0.4/wgrib2/2.0.8/bin/wgrib2")
 
 gempak_ver=os.getenv("gempak_ver") or "7.4.2"
 load(pathJoin("gempak", gempak_ver))
