@@ -284,6 +284,7 @@ export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
+export trkd12_combined={trkd12_combined}
 
 # atm_init related items
 export ccpp_suite_regional_init={ccpp_suite_regional_init}

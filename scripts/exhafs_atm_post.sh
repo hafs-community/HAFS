@@ -387,8 +387,8 @@ echo ${PARMlist}
 
 ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
 
-# Create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
-if [ $ng -eq 2 ]; then
+# If desired, create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
+if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   gridstr01=$(echo ${out_gridnames} | cut -d, -f 1)
   gridstr02=$(echo ${out_gridnames} | cut -d, -f 2)
   gridstr12="merged"

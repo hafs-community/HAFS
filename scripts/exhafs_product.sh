@@ -198,11 +198,18 @@ chmod +x ./deliver.sh
 
 # Prepare the input namelist
 ${NCP} ${PARMhafs}/product/namelist.gettrk_tmp ./
+if [ ${trkd12_combined:-no} = "no" ] && [ "${tilestr}" = ".tile${nest_grids}" ] && \
+   [[ "${is_moving_nest}" = *".true."* ]]; then
+  NESTTYP="movable"
+else
+  NESTTYP="fixed"
+fi
 cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BYY_/${YY}/ | \
                           sed s/_BMM_/${MM}/ | \
                           sed s/_BDD_/${DD}/ | \
                           sed s/_BHH_/${HH}/ | \
+                          sed s/_NESTTYP_/${NESTTYP:-fixed}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 sleep 3s

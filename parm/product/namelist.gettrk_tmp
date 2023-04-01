@@ -8,7 +8,7 @@
   inp%modtyp = "regional",
   inp%lt_units = "hours",
   inp%file_seq = "multi",
-  inp%nesttyp = "fixed",
+  inp%nesttyp = "_NESTTYP_",
 /
 
 &atcfinfo
