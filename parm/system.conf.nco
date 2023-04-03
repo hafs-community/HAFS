@@ -1,13 +1,5 @@
 ## This is the system-specific configuration file for WCOSS2 run by NCO with Ecflow workflow
 [config]
-## Project disk area
-disk_project=hur
-## Project hpss tape area
-tape_project=emc-hwrf
-## CPU account name for submitting jobs to the batch system.
-cpu_account=HAFS-DEV
-## Archive path
-archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
 
 input_catalog=wcoss_fcst_nco
 
@@ -40,14 +32,14 @@ COMrtofs={ENV[COMINrtofs]}
 COMINrtofs={ENV[COMINrtofs]}
 COMINmsg={ENV[COMINmsg]}
 COMINhafs={COMINgfs}
-DATMdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
-DOCNdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DOCN
+DATMdir=/not/used/in/production
+DOCNdir=/not/used/in/production
 ## A-Deck directory for graphics
-ADECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/aid
+ADECKhafs=/not/used/in/production
 ## B-Deck directory for graphics
-BDECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/btk
+BDECKhafs=/not/used/in/production
 ## cartopyDataDir directory for graphics
-cartopyDataDir=/lfs/h2/emc/hur/noscrub/local/share/cartopy
+cartopyDataDir=/not/used/in/production
 
 [holdvars]
 WHERE_AM_I=wcoss2

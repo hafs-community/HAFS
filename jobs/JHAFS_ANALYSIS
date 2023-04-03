@@ -7,10 +7,10 @@ set -xue
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
 export stormlabel=${stormlabel:-storm$storm_num}
-export hafs_ver=${hafs_ver:-v1.0.0}
+export hafs_ver=${hafs_ver:-v1.0}
 export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
-export RUN_ENVIR=${RUN_ENVIR:-NCO}
+export RUN_ENVIR=${RUN_ENVIR:-dev}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -149,9 +149,9 @@ if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".
   fi
 fi
 
-fi
+fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
 
-fi
+fi #end if [ ${GSI_D01} = YES ]; then
 
 #===============================================================================
 # Run analysis for d02 if needed
@@ -215,9 +215,9 @@ if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".
   fi
 fi
 
-fi
+fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
 
-fi
+fi #end if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
 #===============================================================================
 date
