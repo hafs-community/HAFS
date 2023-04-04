@@ -23,3 +23,6 @@ module list
 ${HOMEhafs}/jobs/JHAFS_CLEANUP
 
 %include <tail.h>
+
+%manual
+%end

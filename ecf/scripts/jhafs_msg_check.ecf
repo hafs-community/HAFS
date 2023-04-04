@@ -25,3 +25,6 @@ export HAFS_SDM_EMAIL_LIST=${HAFS_SDM_EMAIL_LIST:-"sdm@noaa.gov"}
 ${HOMEhafs}/jobs/JHAFS_MSG_CHECK
 
 %include <tail.h>
+
+%manual
+%end
