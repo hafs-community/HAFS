@@ -96,6 +96,9 @@ unset __ms_function_name
 export WHERE_AM_I=${target}
 
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
+  if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
+    source ${HOMEhafs}/versions/run.ver
+  fi
   module use ${HOMEhafs}/modulefiles
   module load hafs.${WHERE_AM_I}
 fi
