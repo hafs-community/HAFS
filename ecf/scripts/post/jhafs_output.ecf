@@ -32,8 +32,8 @@ module load wgrib2/${wgrib2_ver}
 module list
 
 export EMAIL_SDM=YES
-export HAFS_EMAIL_FROM=nco.spa@noaa.gov
-export HAFS_TRACK_EMAIL_LIST=sdm@noaa.gov
+export HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-"nco.spa@noaa.gov"}
+export HAFS_TRACK_EMAIL_LIST=${HAFS_TRACK_EMAIL_LIST:-"sdm@noaa.gov"}
 
 ${HOMEhafs}/jobs/JHAFS_OUTPUT
 

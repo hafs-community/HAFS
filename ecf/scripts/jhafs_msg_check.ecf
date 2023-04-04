@@ -19,8 +19,8 @@ export OMP_THREADS='1'
 module list
 
 export EMAIL_SDM=YES
-export HAFS_EMAIL_FROM=nco.spa@noaa.gov
-export HAFS_SDM_EMAIL_LIST=sdm@noaa.gov
+export HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-"nco.spa@noaa.gov"}
+export HAFS_SDM_EMAIL_LIST=${HAFS_SDM_EMAIL_LIST:-"sdm@noaa.gov"}
 
 ${HOMEhafs}/jobs/JHAFS_MSG_CHECK
 

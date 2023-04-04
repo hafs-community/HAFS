@@ -22,6 +22,7 @@ if [ -d /apps/ops/prod ]; then # On WCOSS2
   set -x
 fi
 
+# Setting the model package location
 modelhome=%PACKAGEHOME:%
 eval "export HOME${model:?'model undefined'}=$modelhome"
 # eval "versionfile=\$HOME${model}/ecf/versions/hafs.ver"
@@ -30,6 +31,7 @@ if [ -f "$versionfile" ]; then
   . $versionfile 
 fi
 
+# Source run version file
 modelver=$(echo ${modelhome} | perl -pe "s:.*?/${model}\.(v[\d\.a-z]+).*:\1:")
 eval "export ${model}_ver=$modelver"
 

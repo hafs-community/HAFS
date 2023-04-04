@@ -30,6 +30,7 @@ module list
 
 export FGAT_MODEL="%FGAT_MODEL%"
 export FGAT_HR="%FGAT_HR%"
+export force_cold_start=NO
 
 ${HOMEhafs}/jobs/JHAFS_ATM_VI
 

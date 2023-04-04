@@ -1,16 +1,16 @@
-extern /totality_limit:TOTALITY
 extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
+extern /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
 extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
 extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
 extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
 extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
 extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
+extern /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager
 
-suite nco_hafs
-  inlimit /totality_limit:TOTALITY
+suite prod_hafs
   family primary
     edit hafs_ver 'v1.0.0'
-    edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs.%hafs_ver%'
+    edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs-rt.%hafs_ver%'
     edit NET 'hafs'
     edit PROJ 'HAFS'
     edit PROJENVIR 'DEV'
@@ -18,14 +18,14 @@ suite nco_hafs
     edit ENVIR 'prod'
     edit QUEUE 'pridev'
     edit QUEUE_ARCH 'dev_transfer'
-    edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/hafs.%hafs_ver%/para/com/output/%ENVIR%/today'    
+    edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/hafs-rt.%hafs_ver%/para/com/output/%ENVIR%/today'    
     family 00
       edit CYC '00'
       family hafs
         family v1.0
+          edit RUN 'hafs'
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           task jhafs_msg_check
-            defstatus complete
             trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
@@ -33,20 +33,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -60,7 +56,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -185,20 +180,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -211,8 +202,7 @@ suite nco_hafs
                   trigger ../init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
+                  trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -337,20 +327,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -364,7 +350,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -489,20 +474,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -516,7 +497,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -641,20 +621,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -793,20 +769,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -820,7 +792,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -945,20 +916,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1100,20 +1067,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1250,20 +1213,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1277,7 +1236,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1400,20 +1358,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1427,7 +1381,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1550,20 +1503,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1577,7 +1526,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1700,20 +1648,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/18/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 03:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 03:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1855,8 +1799,7 @@ suite nco_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_alert
-            defstatus complete
+          task jhafs_msg_check
             trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
@@ -1864,20 +1807,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -1891,7 +1830,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2016,20 +1954,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2168,20 +2102,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2195,7 +2125,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2320,20 +2249,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2347,7 +2272,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2472,20 +2396,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2499,7 +2419,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2624,20 +2543,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2776,20 +2691,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2803,7 +2714,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2931,20 +2841,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -2958,7 +2864,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3081,20 +2986,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3108,7 +3009,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3231,20 +3131,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3258,7 +3154,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3381,20 +3276,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3408,7 +3299,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3531,20 +3421,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/00/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 09:00
               family launch
                 task jhafs_launch
-#                 trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-                  trigger ../jhafs_cleanup==complete
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 09:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3686,8 +3572,7 @@ suite nco_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_alert
-            defstatus complete
+          task jhafs_msg_check
             trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
@@ -3695,19 +3580,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3721,7 +3603,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3846,19 +3727,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -3872,7 +3750,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3997,19 +3874,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4023,7 +3897,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4148,19 +4021,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4174,7 +4044,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4299,19 +4168,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4325,7 +4191,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4450,19 +4315,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4476,7 +4338,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4601,19 +4462,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4627,7 +4485,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4755,19 +4612,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4781,7 +4635,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -4904,19 +4757,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -4930,7 +4780,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5053,19 +4902,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5079,7 +4925,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5202,19 +5047,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5228,7 +5070,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5351,19 +5192,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/06/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 15:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5377,7 +5215,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5505,8 +5342,7 @@ suite nco_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_alert
-            defstatus complete
+          task jhafs_msg_check
             trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
@@ -5514,19 +5350,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5540,7 +5373,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5665,19 +5497,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5816,19 +5645,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5842,7 +5668,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -5967,19 +5792,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -5993,7 +5815,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6118,19 +5939,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6144,7 +5962,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6269,19 +6086,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6295,7 +6109,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6420,19 +6233,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6446,7 +6256,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6574,19 +6383,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6600,7 +6406,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6723,19 +6528,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6749,7 +6551,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -6872,19 +6673,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -6898,7 +6696,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -7021,19 +6818,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -7047,7 +6841,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -7170,19 +6963,16 @@ suite nco_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                defstatus complete
-                #### development only
-                trigger /nco_hafs/primary/12/hafs/v1.0/hfsa/storm1/post/jhafs_product==complete
-#               trigger :TIME >= 0300 and :TIME < 0900
+                time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete
-#                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
                   event 3 Wave
                   event 4 Analysis
+                  time 21:15
               endfamily
               family prep
                 complete ./launch/jhafs_launch:NoStorm
@@ -7196,7 +6986,6 @@ suite nco_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear

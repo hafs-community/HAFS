@@ -36,6 +36,8 @@ module load wgrib2/${wgrib2_ver}
 module load cfp/${cfp_ver}
 module list
 
+export force_cold_start=NO
+
 ${HOMEhafs}/jobs/JHAFS_WAV_PREP
 
 %include <tail.h>
