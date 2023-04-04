@@ -1,15 +1,15 @@
-extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
-extern /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
-extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
-extern /cycled_v16_3/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
-extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
-extern /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
-extern /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager
+extern /prod/primary/00/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
+extern /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
+extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
+extern /prod/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
+extern /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+extern /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post126
+extern /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager
 
 suite prod_hafs
   family primary
-    edit hafs_ver 'v1.0.0'
+    edit hafs_ver 'v1.0'
     edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs-rt.%hafs_ver%'
     edit NET 'hafs'
     edit PROJ 'HAFS'
@@ -36,7 +36,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -183,7 +183,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -330,7 +330,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -477,7 +477,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -624,7 +624,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -772,7 +772,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -919,7 +919,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1070,7 +1070,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1216,7 +1216,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1361,7 +1361,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1506,7 +1506,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1651,7 +1651,7 @@ suite prod_hafs
                 time 03:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1810,7 +1810,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1957,7 +1957,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2105,7 +2105,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2252,7 +2252,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2399,7 +2399,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2546,7 +2546,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2694,7 +2694,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2844,7 +2844,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2989,7 +2989,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3134,7 +3134,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3279,7 +3279,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3424,7 +3424,7 @@ suite prod_hafs
                 time 09:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3583,7 +3583,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3730,7 +3730,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3877,7 +3877,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4024,7 +4024,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4171,7 +4171,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4318,7 +4318,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4465,7 +4465,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4615,7 +4615,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4760,7 +4760,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4905,7 +4905,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5050,7 +5050,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5195,7 +5195,7 @@ suite prod_hafs
                 time 15:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5353,7 +5353,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5500,7 +5500,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5648,7 +5648,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5795,7 +5795,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5942,7 +5942,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6089,7 +6089,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6236,7 +6236,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6386,7 +6386,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6531,7 +6531,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6676,7 +6676,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6821,7 +6821,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6966,7 +6966,7 @@ suite prod_hafs
                 time 21:00
               family launch
                 task jhafs_launch
-                  trigger ../jhafs_cleanup==complete and /cycled_v16_3/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ../jhafs_cleanup==complete and /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
