@@ -33,6 +33,10 @@ two_days=to_timedelta(3600*24*2)
 # A datetime.timedelta that represents positive 6 hours
 six_hours=to_timedelta(3600*6)
 
+def cmp(a, b):
+    """ Python3 does not have cmp funtion """
+    return (a > b) - (a < b)
+
 class Revital:
     """!This class reads one or more tcvitals files and rewrites them
     as requested."""
@@ -238,7 +242,7 @@ class Revital:
         self.carqdat[longstormid]=cdat
 
     def clean_up_vitals(self,name_number_checker=None,
-                        basin_center_checker=None,vitals_key=None):
+                        basin_center_checker=None,vitals_cmp=None):
         """!Calls the tcutil.storminfo.clean_up_vitals on this object's
         vitals.  The optional arguments are passed to
         tcutil.storminfo.clean_up_vitals.
@@ -246,7 +250,7 @@ class Revital:
         @param name_number_checker a function like
           tcutil.storminfo.name_number_okay() for validating the storm
           name and number
-        @param vitals_key a key generator for ordering tcutil.storminfo.StormInfo objects
+        @param vitals_cmp a cmp-like function for ordering tcutil.storminfo.StormInfo objects
         @param basin_center_checker a function like
           tcutil.storminfo.basin_center_okay() for checking the storm
           basin and forecast center (RSMC)
@@ -255,7 +259,7 @@ class Revital:
         self.vitals=tcutil.storminfo.clean_up_vitals(
             self.vitals,name_number_checker=name_number_checker,
             basin_center_checker=basin_center_checker,
-            vitals_key=vitals_key)
+            vitals_cmp=vitals_cmp)
         self.is_cleaned=True
 
     ##################################################################
@@ -298,7 +302,7 @@ class Revital:
         logger=self.logger
         debug=self.debug and logger is not None
         renumbered=False
-        for stormid in list(lastvit.keys()): # keys will change; need a copy
+        for stormid in list(lastvit.keys()):
             othervit=lastvit[stormid]
             if threshold:
                 old_id=getattr(othervit,'old_stnum',0)
@@ -562,15 +566,16 @@ class Revital:
                 continue
             vital.set_stormtype(carq[when])
 
-    def sort_by_function(self,keyfun):
-        """!Resorts the vitals using the specified key generator.
-        @param keyfun a key generator for comparing tcutil.storminfo.StormInfo objects"""
-        self.vitals=sorted(self.vitals,key=keyfun)
+    def sort_by_function(self,cmpfun):
+        """!Resorts the vitals using the specified cmp-like function.
+        @param cmpfun a cmp-like function for comparing tcutil.storminfo.StormInfo objects"""
+        self.vitals=sorted(self.vitals,key=functools.cmp_to_key(cmpfun))
+#        self.vitals=sorted(self.vitals,cmp=cmpfun)
 
     def sort_by_storm(self):
         """!Resorts the vitals by storm instead of date.  See
-        tcutil.storminfo.vit_key_by_storm for details."""
-        self.vitals=sorted(self.vitals,key=tcutil.storminfo.vit_key_by_storm)
+        tcutil.storminfo.vit_cmp_by_storm for details."""
+        self.vitals=sorted(self.vitals,cmp=tcutil.storminfo.vit_cmp_by_storm)
     def __iter__(self):
         """!Iterates over all vitals, yielding StormInfo objects for
         each one."""
@@ -654,6 +659,48 @@ class Revital:
                 print('%s %s "TCVT"'%(vit.longstormid.lower(),vit.YMDH), file=stream)
             else:
                 print(vit.line, file=stream)
+
+    def hrd_multistorm_sorter(self,a,b):
+        """!A drop-in replacement for "cmp" that can be used for sorting or
+        comparison.  Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is
+        made in this order:
+
+        Edited by GJA on 08-29-2017 -- Added logic to prefer Atlantic storm
+        over East Pacific storm if the class (i.e., invest vs. non-invest)
+        is the same.
+
+        1) User priority (a.userprio): lower (priority 1) is "more
+        important" than higher numbers (priority 9999 is fill value).
+
+        2) Invest vs. non-invest: invest is less important
+
+        3) Atlantic vs. East Pacific: Atlantic is more important
+
+        4) wind: stronger wind is more important than weaker wind
+
+        5) North Atlantic (L) storms: farther west is more important
+
+        6) North East Pacific (E) storms: farther East is more important
+
+        If all of the above values are equal, 0 is returned."""
+        a_userprio=getattr(a,'userprio',9999)
+        b_userprio=getattr(b,'userprio',9999)
+        a_invest=1 if (a.stormname=='INVEST') else 0
+        b_invest=1 if (b.stormname=='INVEST') else 0
+        a_basin=1  if (a.basin1=='E') else 0
+        b_basin=1  if (b.basin1=='E') else 0
+
+        c = cmp(a_userprio,b_userprio) or\
+            cmp(a_invest,b_invest) or\
+            cmp(a_basin,b_basin) or\
+            -cmp(a.wmax,b.wmax) or\
+            (a.basin1=='L' and b.basin1=='L' and cmp(a.lon,b.lon)) or \
+            (a.basin1=='E' and b.basin1=='E' and -cmp(a.lon,b.lon))
+        return c
+
+    def multistorm_priority(self):
+        """!Does nothing."""
+        pass
 
     def hrd_multistorm_cmp(self,a,b):
         return hrd_multistorm_cmp(a,b)

@@ -321,71 +321,8 @@ class InputSource(object):
     However, only one DataCatalog is examined at a time.  All threads
     work on that one DataCatalog until all data that can be obtained
     from it is done.  Then the threads exit, and new ones are spawned
-    to examine the next DataCatalog.
+    to examine the next DataCatalog."""
 
-    For example, suppose you are on the Jet supercomputer running a
-    HISTORY (retrospective) simulation.  You set up this configuration
-    section in your hafs.conf config file:
-    @code{.conf}
-      [jet_sources_prod2019]
-      jet_hist_PROD2019%location  = file:///
-      jet_hist_PROD2019%histprio=90
-      jet_hist_PROD2019%fcstprio=90
-
-      prod15_data_sp%location=htar://
-      prod15_data_sp%histprio=59
-      prod15_data_sp%dates=2019011218-2019123118
-
-      [jet_hist_PROD2019]
-      @inc=gfs2019_naming
-      inputroot2019=/lfs4/HFIP/hafs-data/hafs-input
-      gfs={inputroot2019}/HISTORY/GFS.{aYYYY}/{aYMDH}/
-      gfs_sfcanl = gfs.t{aHH}z.sfcanl
-
-      [prod15_data_sp]
-      inputroot=/NCEPPROD/2year/hpssprod/runhistory/rh{aYYYY}/{aYYYY}{aMM}/{aYMD}
-      gfs={inputroot}/
-      gfs_sfcanl = {gfs_tar}#./gfs.t{aHH}z.sfcanl
-
-      [hafsdata]
-      inputroot=/lfs4/HFIP/hafsv3/John.Doe/hafsdata
-      gfs={inputroot}/hafs.{aYMDH}/
-      gfs_sfcanl = gfs.t{aHH}z.sfcanl
-    @endcode
-    and this is the code:
-    @code{.py}
-      is=InputSource(conf,"jet_sources_prod2019","2019071806")
-      hafsdata=DataCatalog(conf,"hafsdata")
-      is.get([
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071800"},
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071806"},
-         {"dataset":"gfs", "item":"gfs_sfcanl","atime"="2019071812"} ],
-         hafsdata,realtime=False)
-    @endcode
-
-    In this example, the InputSource will look for three GFS surface
-    analysis files.  It will search two possible locations for them:
-    the on-disk Jet "PROD2019" history location and the NCO production
-    tape files.  The disk location will be searched first because its
-    history priority is 90, while the tape area has a priority of 59.
-
-    Three files will show up eventually:
-
-    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071800/gfs.t00z.sfcanl
-    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071806/gfs.t06z.sfcanl
-    * /lfs4/HFIP/hwrfv3/John.Doe/hafsdata/hafs.2019071812/gfs.t12z.sfcanl
-
-    Each file will come from either here:
-
-    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071800/gfs.t00z.sfcanl
-    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071806/gfs.t06z.sfcanl
-    * /lfs4/HFIP/hwrf-data/hafs-input/HISTORY/GFS.2019071812/gfs.t12z.sfcanl
-
-    or here:
-
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071800gfs.tar ./gfs.t00z.sfcanl
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071806gfs.tar ./gfs.t06z.sfcanl
-    * htar -xf /NCEPPROD/2year/hpssprod/runhistory/rh2019/201907/20190718/2019071812gfs.tar ./gfs.t12z.sfcanl    """
     def __init__(self,conf,section,anltime,htar=None,logger=None,hsi=None):
         """!InputSource constructor.
         @param conf    the hafs.config.HAFSConfig to use for

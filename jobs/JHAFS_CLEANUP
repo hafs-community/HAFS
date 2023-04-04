@@ -7,14 +7,14 @@ set -xue
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
 export stormlabel=${stormlabel:-storm$storm_num}
-export hafs_ver=${hafs_ver:-v1.0.0}
+export hafs_ver=${hafs_ver:-v1.0}
 export NET=${NET:-hafs}
 export RUN=${RUN:-hfsa}
-export RUN_ENVIR=${RUN_ENVIR:-NCO}
+export RUN_ENVIR=${RUN_ENVIR:-dev}
 
-export DATA=${DATA:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}}
-echo "INFO: Cleaning up $DATA"
-rm -rf $DATA
-echo "INFO: Cleanup of $DATA complete"
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}}
+echo "INFO: Cleaning up $WORKhafs"
+rm -rf $WORKhafs
+echo "INFO: Cleanup of $WORKhafs complete"
 
 date

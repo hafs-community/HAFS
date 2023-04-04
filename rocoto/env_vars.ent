@@ -18,7 +18,7 @@
 </envar>
 <envar>
   <name>RUN_ENVIR</name>
-  <value>DEV</value>
+  <value>dev</value>
 </envar>
 <envar>
   <name>WHERE_AM_I</name>

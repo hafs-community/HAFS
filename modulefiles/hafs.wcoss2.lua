@@ -59,7 +59,7 @@ load(pathJoin("g2tmpl", g2tmpl_ver))
 bufr_ver=os.getenv("bufr_ver") or "11.7.0"
 load(pathJoin("bufr", bufr_ver))
 
-ip_ver=os.getenv("ip_ver") or "3.3.3"
+ip_ver=os.getenv("ip_ver") or "4.0.0"
 load(pathJoin("ip", ip_ver))
 
 sp_ver=os.getenv("sp_ver") or "2.3.3"
@@ -113,24 +113,14 @@ load(pathJoin("ncdiag", ncdiag_ver))
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
 load(pathJoin("ncio", ncio_ver))
 
-setenv("HPC_OPT", "/apps/ops/para/libs")
-prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304")
-prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.7")
+prepend_path("MODULEPATH", "/apps/dev/lmodules/intel/19.1.3.304")
+prepend_path("MODULEPATH", "/apps/dev/lmodules/intel_cray_mpich/19.1.3.304/cray-mpich/8.1.4")
 
-pio_ver=os.getenv("pio_ver") or "2.5.7"
+pio_ver=os.getenv("pio_ver") or "2.5.10"
 load(pathJoin("pio", pio_ver))
 
-prepend_path("MODULEPATH", "/apps/dev/lmodules/intel/19.1.3.304")
-prepend_path("MODULEPATH", "/apps/dev/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.9")
-
-gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.5.0"
-load(pathJoin("gftl_shared", gftl_shared_ver))
-
-esmf_ver=os.getenv("esmf_ver") or "8.3.0b09"
+esmf_ver=os.getenv("esmf_ver") or "8.4.1"
 load(pathJoin("esmf", esmf_ver))
-
-mapl_ver=os.getenv("mapl_ver") or "2.23.1-esmf-8.3.0b09"
-load(pathJoin("mapl", mapl_ver))
 
 prepend_path("MODULEPATH", "/apps/ops/test/nco/modulefiles")
 
