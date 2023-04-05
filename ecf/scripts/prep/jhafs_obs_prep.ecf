@@ -1,0 +1,37 @@
+#PBS -N %RUN%%STORMNUM%_obs_prep_%CYC%
+#PBS -j oe
+#PBS -S /bin/bash
+#PBS -q %QUEUE%
+#PBS -A %PROJ%-%PROJENVIR%
+#PBS -l walltime=00:15:00
+#PBS -l place=vscatter:excl,select=1:ncpus=1:mpiprocs=1:ompthreads=1
+#PBS -l debug=true
+
+model=hafs
+export cyc="%CYC%"
+%include <head.h>
+%include <envir-p1.h>
+
+export TOTAL_TASKS='1'
+export NCTSK='1'
+export OMP_THREADS='1'
+
+export storm_num="%STORMNUM%"
+
+module load PrgEnv-intel/${PrgEnv_intel_ver}
+module load craype/${craype_ver}
+module load intel/${intel_ver}
+module load cray-mpich/${cray_mpich_ver}
+module load cray-pals/${cray_pals_ver}
+module load hdf5/${hdf5_ver}
+module load netcdf/${netcdf_ver}
+module load python/${python_ver}
+module load bufr_dump/${bufr_dump_ver}
+module list
+
+${HOMEhafs}/jobs/JHAFS_OBS_PREP
+
+%include <tail.h>
+
+%manual
+%end

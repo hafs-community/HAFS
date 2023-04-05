@@ -1,0 +1,30 @@
+#PBS -N %RUN%_msg_check_%CYC%
+#PBS -j oe
+#PBS -S /bin/bash
+#PBS -q %QUEUE%
+#PBS -A %PROJ%-%PROJENVIR%
+#PBS -l walltime=00:15:00
+#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:ompthreads=1
+#PBS -l debug=true
+
+model=hafs
+export cyc="%CYC%"
+%include <head.h>
+%include <envir-p1.h>
+
+export TOTAL_TASKS='1'
+export NCTSK='1'
+export OMP_THREADS='1'
+
+module list
+
+export EMAIL_SDM=YES
+export HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-"nco.spa@noaa.gov"}
+export HAFS_SDM_EMAIL_LIST=${HAFS_SDM_EMAIL_LIST:-"sdm@noaa.gov"}
+
+${HOMEhafs}/jobs/JHAFS_MSG_CHECK
+
+%include <tail.h>
+
+%manual
+%end

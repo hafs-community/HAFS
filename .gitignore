@@ -10,6 +10,7 @@
 *~
 *.db
 *.db.bak
+*.swp
 system.conf
 fix/
 rocoto/*.xml
