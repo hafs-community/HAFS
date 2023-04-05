@@ -31,10 +31,6 @@ if [ -f "$versionfile" ]; then
   . $versionfile 
 fi
 
-# Source run version file
-modelver=$(echo ${modelhome} | perl -pe "s:.*?/${model}\.(v[\d\.a-z]+).*:\1:")
-eval "export ${model}_ver=$modelver"
-
 export envir=%ENVIR%
 export MACHINE_SITE=%MACHINE_SITE%
 export RUN_ENVIR=${RUN_ENVIR:-nco}

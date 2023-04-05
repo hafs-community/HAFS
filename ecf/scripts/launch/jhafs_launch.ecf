@@ -29,8 +29,6 @@ module load nco/${nco_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_LAUNCH
-status=$?
-[[ $status -ne 0 ]] && exit $status
 
 %include <tail.h>
 

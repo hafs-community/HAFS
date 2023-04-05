@@ -23,12 +23,11 @@ suite prod_hafs
       edit CYC '00'
       family hafs
         family v1.0
-          edit RUN 'hafs'
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_msg_check
-            trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
+            task jhafs_msg_check
+              trigger :TIME >= 0250 and :TIME < 0850
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
@@ -644,7 +643,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -939,7 +937,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1090,7 +1087,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1671,7 +1667,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1799,10 +1794,10 @@ suite prod_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_msg_check
-            trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
+            task jhafs_msg_check
+              trigger :TIME >= 0850 and :TIME < 1450
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
@@ -1977,7 +1972,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -2566,7 +2560,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3444,7 +3437,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -3572,10 +3564,10 @@ suite prod_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_msg_check
-            trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
+            task jhafs_msg_check
+              trigger :TIME >= 1450 and :TIME < 2050
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
@@ -5342,10 +5334,10 @@ suite prod_hafs
       family hafs
         family v1.0
           edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
-          task jhafs_msg_check
-            trigger :TIME >= 0250 and :TIME < 0850
           family hfsa
             edit RUN 'hfsa'
+            task jhafs_msg_check
+              trigger :TIME >= 2050 and :TIME < 0250
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
@@ -5520,7 +5512,6 @@ suite prod_hafs
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete
-                  #### trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
