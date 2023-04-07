@@ -9,8 +9,8 @@ extern /prod/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager
 
 suite prod_hafs
   family primary
-    edit hafs_ver 'v1.0'
-    edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs-rt.%hafs_ver%'
+    edit hafs_ver 'v1.0.0'
+    edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/para/packages/hafs.%hafs_ver%'
     edit NET 'hafs'
     edit PROJ 'HAFS'
     edit PROJENVIR 'DEV'
@@ -18,7 +18,7 @@ suite prod_hafs
     edit ENVIR 'prod'
     edit QUEUE 'pridev'
     edit QUEUE_ARCH 'dev_transfer'
-    edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/hafs-rt.%hafs_ver%/para/com/output/%ENVIR%/today'    
+    edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/ecflow_hafs/para/output/prod/today' 
     family 00
       edit CYC '00'
       family hafs
@@ -201,7 +201,7 @@ suite prod_hafs
                   trigger ../init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger /prod/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
+                  trigger ./jhafs_atm_prep==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
