@@ -43,4 +43,3 @@ export COMINgdas=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/gfs/v16.3
 export COMINrtofs=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/rtofs/v2.3
 export COMINobs=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/com/obsproc/v1.1
 export DCOMROOT=/lfs/h2/emc/hafstemp/CANNED_input_for_HAFS/dcom
-export COMINobsproc=/lfs/h1/ops/prod/com/obsproc/v1.1/%RUN:%.${PDY}/%CYC:%/atmos
