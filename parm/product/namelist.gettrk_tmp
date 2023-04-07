@@ -19,9 +19,10 @@
 /
 
 &trackerinfo
-  trkrinfo%eastbd=339.0,
-  trkrinfo%northbd=40.0,
-  trkrinfo%southbd=7.0,
+  trkrinfo%eastbd=,
+  trkrinfo%westbd=,
+  trkrinfo%northbd=,
+  trkrinfo%southbd=,
   trkrinfo%contint=1.0,
   trkrinfo%type = "tracker",
   trkrinfo%mslpthresh = 0.0015,
@@ -33,7 +34,7 @@
   trkrinfo%gridtype = "regional",
   trkrinfo%contint = 100.0,
   trkrinfo%want_oci = T,
-  trkrinfo%out_vit = "y",
+  trkrinfo%out_vit = "n",
   trkrinfo%use_land_mask = "y",
   trkrinfo%read_separate_land_mask_file="n",
   trkrinfo%inp_data_type = "grib",
