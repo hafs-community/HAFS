@@ -95,9 +95,12 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
+# The following section is only used for the Rocoto workflow
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
     source ${HOMEhafs}/versions/run.ver
+    module use /apps/ops/test/nco/modulefiles/core
+    module load rocoto/${rocoto_ver:-"1.3.5"}
   fi
   module use ${HOMEhafs}/modulefiles
   module load hafs.${WHERE_AM_I}

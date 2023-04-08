@@ -122,11 +122,6 @@ load(pathJoin("pio", pio_ver))
 esmf_ver=os.getenv("esmf_ver") or "8.4.1"
 load(pathJoin("esmf", esmf_ver))
 
-prepend_path("MODULEPATH", "/apps/ops/test/nco/modulefiles")
-
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.5"
-load(pathJoin("core", "rocoto", rocoto_ver))
-
 setenv("CC", "cc")
 setenv("CXX", "CC")
 setenv("FC", "ftn")
