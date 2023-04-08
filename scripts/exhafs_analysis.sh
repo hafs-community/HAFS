@@ -346,6 +346,7 @@ if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 
 # Link GFS/GDAS input and observation files
 COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
@@ -409,7 +410,7 @@ else
   GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d.nr}
 fi
 #TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
-TCVITL=${TCVITL:-${COMINgfs}/${OPREFIX}syndata.tcvitals.tm00}
+TCVITL=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
