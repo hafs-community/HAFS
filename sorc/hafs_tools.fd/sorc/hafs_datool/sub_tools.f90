@@ -866,12 +866,12 @@
         write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         if ( gw(i,j)%dst_points > 0 ) then
            if (debug_level>20) write(*,'(a,  90i13)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
-           if (debug_level>20) write(*,'(a,90f13.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-           write(*,'(a,90f13.4)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+           if (debug_level>20) write(*,'(a,90f)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
+           write(*,'(a,90f)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
         else
            write(*,'(a)')     '--             no dst point'
         endif
-        write(*,'(a,f13.4)')    '--          remaped value: ', fdat_out(i,j,k,n)
+        write(*,'(a,f)')    '--          remaped value: ', fdat_out(i,j,k,n)
      endif
 
   enddo; enddo; enddo; enddo
