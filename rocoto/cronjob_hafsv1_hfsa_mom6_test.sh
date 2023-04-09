@@ -3,12 +3,12 @@ set -x
 date
 
 # NOAA RDHPCS Hera
-HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 #
 # NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
+source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 #
 # NOAA RDHPCS Orion
 #HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
@@ -24,7 +24,7 @@ opts="-t -f"
 #===============================================================================
 
  #hafsv1 hfsa
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_mom6_0327 \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_mom6_test4 \
      ../parm/hafsv1_hfsa_mom6_test.conf"
 
  # Technical testing for Hurricane Laura

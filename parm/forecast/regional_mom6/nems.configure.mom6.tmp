@@ -22,7 +22,7 @@ MED_attributes::
   DAT_model = datm
   OCN_model = mom6
   MED_model = cmeps
-  history_n = 6
+  history_n = 24
   history_option = nhours
   history_ymd = -999
   coupling_mode = hafs_mom6
@@ -38,10 +38,8 @@ ATM_attributes::
   Diagnostic = 0
   mesh_atm = unset
   DumpFields = false
-  history_n = 6
+  history_n = 24
   history_option = nhours
-  #stop_n = 24
-  #stop_option = nhours
   stop_ymd = -999
   write_restart_at_endofrun = .true.
 ::
@@ -54,8 +52,6 @@ DAT_attributes::
   mesh_atm = DATM_INPUT/hafs_gfs_mesh.nc
   diro = "."
   logfile = atm.log
-  #stop_n = 24
-  #stop_option = nhours
   stop_ymd = -999
   #write_restart_at_endofrun = .true.
 ::
@@ -71,19 +67,10 @@ OCN_attributes::
   history_option = nhours
   merge_import = .true.
   skip_first_import = .true.
-  #mesh_ocn = hat10_210129_ESMFmesh_py_orig.nc
   mesh_ocn = hafs_mom6_mesh.nc
   #import_diagnostics = .true.
   #import_setting = flexible
 ::
-
-# WAV #
-#WAV_attributes::
-#  Verbosity = 1
-#  Diagnostic = 0
-#  OverwriteSlice = false
-#  merge_import = .true.
-#::
 
 # Run Sequence #
 runSeq::
@@ -122,7 +109,7 @@ ALLCOMP_attributes::
   ScalarFieldName = cpl_scalars
   start_type = startup
   case_name = ufs.hafs
-  restart_n = 6
+  restart_n = 24
   restart_option = nhours
   restart_ymd = -999
   use_mommesh = true
