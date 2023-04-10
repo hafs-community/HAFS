@@ -66,6 +66,12 @@ contains
         ! init the pointer to null
         nullify(p)
 
+        if (present(str)) then
+           allocate(character(len=len(str)) :: strBuffer)
+        else
+           allocate(character(len=1) :: strBuffer)
+           strBuffer=""
+        endif
         ! select the file unit to use
         if (present(unit) .and. present(file)) then
             u = unit
