@@ -217,9 +217,9 @@ def main():
 
         if os.environ.get('RUN_ENVIR','DEV').upper()=='NCO':
             message=conf.strinterp('wcoss_fcst_nco','{messages}/message{storm_num}')
+            alert_type=conf.strinterp('config','{RUN}_MESSAGE').upper()
             if os.path.exists(message):
-                alert=produtil.dbnalert.DBNAlert(['MODEL','HAFS_MESSAGE','{job}',
-                                                  message])
+                alert=produtil.dbnalert.DBNAlert(['MODEL',alert_type,'{job}',message])
                 alert()
 
         holdvars=conf.strinterp('dir','{com}/{stormlabel}.holdvars.txt')

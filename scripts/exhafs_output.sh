@@ -27,10 +27,10 @@ fi
 # Email SDM about AFOS if run by NCO on WCOSS2
 afosfile=${COMhafs}/${out_prefix}.${RUN}.afos
 if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
-  HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-${USER}@noaa.gov}
-  HAFS_TRACK_EMAIL_LIST=${HAFS_TRACK_EMAIL_LIST:-${USER}@noaa.gov}
-  subject="${cyc}Z ${RUN^^} Output for Tropical System ${STORM} (${STORMID^^})"
-  mail.py -s "${subject}" -v "${HAFS_TRACK_EMAIL_LIST}" < ${afosfile}
+  MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
+  MAILTO=${MAILTO:-"sdm@noaa.gov"}
+  subject="${cyc}Z ${RUN^^} Output for ${basinname:-} Tropical System ${STORM} (${STORMID^^})"
+  mail.py -s "${subject}" -v "${MAILTO}" < ${afosfile}
 fi
 
 # Deliver track file to NOSCRUB if not run by NCO
