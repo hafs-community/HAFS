@@ -5,15 +5,15 @@ export PS4='+ $SECONDS + '
 set -xue
 
 export cycle=${cycle:-t${cyc:?}z}
-export hafs_ver=${hafs_ver:-v1.0}
-export NET=${NET:-hafs}
-export RUN=${RUN:-hfsa}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
 export envir=${envir:-test}
 export RUN_ENVIR=${RUN_ENVIR:-DEV}
 
 export EMAIL_SDM=${EMAIL_SDM:-NO}
-export HAFS_EMAIL_FROM=${HAFS_EMAIL_FROM:-"nco.spa@noaa.gov"}
-export HAFS_SDM_EMAIL_LIST=${HAFS_SDM_EMAIL_LIST:-"sdm@noaa.gov"}
+export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
 
 export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
 export USHhafs=$HOMEhafs/ush

@@ -12,6 +12,7 @@ export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 export hafsbasin2={vit[tcutilbasin2]}
 export pubbasin2={vit[pubbasin2]}
+export basinname="{vit[basinname]}"
 export CENLO={domlon}
 export CENLA={domlat}
 

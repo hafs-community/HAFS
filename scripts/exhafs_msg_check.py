@@ -40,8 +40,8 @@ def read_alert_message(alert_file):
 
 def main():
     logger=logging.getLogger('Sending_Alert_Email')
-    email_from=os.environ.get('HAFS_EMAIL_FROM', 'nco.spa@noaa.gov')
-    alert_email_list=os.environ.get('HAFS_SDM_EMAIL_LIST','sdm@noaa.gov')
+    email_from=os.environ.get('MAILFROM', 'nco.spa@noaa.gov')
+    alert_email_list=os.environ.get('MAILTO','sdm@noaa.gov')
     messagedir=os.environ.get('COMINmsg')
     nhcdir=os.environ.get('COMINnhc')
     jtwcdir=os.environ.get('COMINjtwc')

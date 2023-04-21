@@ -221,7 +221,7 @@ GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}
 if [ ${SENDCOM:-YES} = "YES" ]; then
   ${NCP} -p grid.nmeta ${GMETAF}
   if [ ${SENDDBN:-NO} = "YES" ]; then
-    $DBNROOT/bin/dbn_alert MODEL HAFS_METAFILE $job ${GMETAF}
+    $DBNROOT/bin/dbn_alert MODEL $(echo ${RUN} | tr [a-z] [A-Z])_METAFILE $job ${GMETAF}
   fi
 fi
 

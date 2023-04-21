@@ -21,6 +21,18 @@
   <value>dev</value>
 </envar>
 <envar>
+  <name>hafs_ver</name>
+  <value>v1.0.0</value>
+</envar>
+<envar>
+  <name>NET</name>
+  <value>hafs</value>
+</envar>
+<envar>
+  <name>RUN</name>
+  <value>&RUN;</value>
+</envar>
+<envar>
   <name>WHERE_AM_I</name>
   <value>&WHERE_AM_I;</value>
 </envar>

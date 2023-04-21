@@ -7,18 +7,20 @@ set -xue
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
 export stormlabel=${stormlabel:-storm$storm_num}
-export hafs_ver=${hafs_ver:-v1.0}
+export hafs_ver=${hafs_ver:?}
 export HAFS_VERSION=${hafs_ver/v/}
-export NET=${NET:-hafs}
-export RUN=${RUN:-hfsa}
-export RUN_ENVIR=${RUN_ENVIR:-dev}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export SENDECF=${SENDECF:-NO}
 export EMAIL_SDM=${EMAIL_SDM:-NO}
 export SCRUBDATA=${SCRUBDATA:-YES}
-export KEEPDATA=${KEEPDATA:-YES}
+# HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
+#export KEEPDATA=${KEEPDATA:-YES}
+export KEEPDATA=YES
 
 export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
 export USHhafs=$HOMEhafs/ush
@@ -26,7 +28,7 @@ export EXEChafs=$HOMEhafs/exec
 export PARMhafs=$HOMEhafs/parm
 export FIXhafs=$HOMEhafs/fix
 
-export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}}
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 mkdir -p ${WORKhafs}
 cd ${WORKhafs}
 
