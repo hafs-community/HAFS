@@ -31,7 +31,6 @@ set(fortran_srcs
 set(fortran_srcs1 ${fortran_srcs} archv2data2d.f)
 set(fortran_srcs2 ${fortran_srcs} archv2data3z.f)
 
-set(ilib_dir ${CMAKE_SOURCE_DIR}/libs/build/src)
 set(exe_name1 hafs_archv2ncdf2d)
 set(exe_name2 hafs_archv2ncdf3z)
 
@@ -51,29 +50,20 @@ add_executable(${exe_name2} ${fortran_srcs2})
 
 add_definitions(-DLITTLE_ENDIAN -DWRF -DLINUX -DSERIAL_IO -DNAN2003 -DTIMER -DRELO)
 
-target_include_directories(${exe_name1} PUBLIC 
-  ${ilib_dir}/ofs_mods
-  ${CMAKE_SOURCE_DIR}/init/hafs_archv2nc)
-target_include_directories(${exe_name2} PUBLIC 
-  ${ilib_dir}/ofs_mods
-  ${CMAKE_SOURCE_DIR}/init/hafs_archv2nc)
-
 target_link_libraries(
   ${exe_name1}
   NetCDF::NetCDF_Fortran
   NetCDF::NetCDF_C
   w3nco::w3nco_4
   w3emc::w3emc_4
-  bacio::bacio_4
-  MPI::MPI_Fortran)
+  bacio::bacio_4)
 target_link_libraries(
   ${exe_name2}
   NetCDF::NetCDF_Fortran
   NetCDF::NetCDF_C
   w3nco::w3nco_4
   w3emc::w3emc_4
-  bacio::bacio_4
-  MPI::MPI_Fortran)
+  bacio::bacio_4)
 
 install(TARGETS ${exe_name1} DESTINATION ${exe_dir})
 install(TARGETS ${exe_name2} DESTINATION ${exe_dir})
