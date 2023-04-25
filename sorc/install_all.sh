@@ -93,6 +93,8 @@ $Build_hycom_utils && {
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_archv2restart.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_restart2restart.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_timeinterp_forcing.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf3z                   ../exec/hafs_archv2ncdf3z.x
+  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf2d                   ../exec/hafs_archv2ncdf2d.x
 }
 
 #------------------------------------
