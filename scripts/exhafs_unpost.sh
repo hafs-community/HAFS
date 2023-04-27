@@ -5,7 +5,6 @@ set -xe
 CDATE=${CDATE:-${YMDH}}
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
-intercom=${intercom:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/unpost}
 
 mkdir -p ${DATA}
@@ -15,8 +14,8 @@ cd ${DATA}
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.atm.f???.grb2*
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.sat.f???.grb2*
 rm -f ${COMhafs}/${out_prefix}.${RUN}.trak.patcf
-rm -f ${intercom}/${out_prefix}.${RUN}.*.trk.f???.grb2*
-rm -f ${intercom}/post*f???
+rm -f ${WORKhafs}/intercom/post/${out_prefix}.${RUN}.*.trk.f???.grb2*
+rm -f ${WORKhafs}/intercom/post/post*f???
 
 # Remove ocn_post com output
 if [ ${run_ocean} = yes ]; then
@@ -54,5 +53,6 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.*.swath.grb2*
 # Remove gempak com output
 rm -f ${COMhafs}/gempak/${STORMID,,}/${RUN}*_${STORMID,,}
 rm -f ${COMhafs}/gempak/${STORMID,,}/meta/${RUN}*_${STORMID,,}*
+rm -f ${WORKhafs}/intercom/gempak/*.done
 
 cd ${DATA}
