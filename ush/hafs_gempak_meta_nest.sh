@@ -13,19 +13,21 @@ maxlat=-90
 minlon=180
 maxlon=-180
 
+intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
+
 for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   nested_grid=${DATA}/${NET}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}
   # Make sure gempak files are ready
   attempts=1
   while [ $attempts -le 120 ]; do
-    if [ -f $nested_grid.done ]; then
+    if [ -f ${intercom}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       break
     else
       sleep 10
       attempts=$((attempts+1))
     fi
   done
-  if [ $attempts -gt 120 ] && [ ! -f $nested_grid.done ]; then
+  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
     echo "FATAL ERROR: $nested_grid still not available after waiting 20 minutes... exiting"
     exit 1
   fi
@@ -82,14 +84,14 @@ for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   # Make sure gempak files are ready
   attempts=1
   while [ $attempts -le 120 ]; do
-    if [ -f $full_domain.done ]; then
+    if [ -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       break
     else
       sleep 10
       attempts=$((attempts+1))
     fi
   done
-  if [ $attempts -gt 120 ] && [ ! -f $full_domain.done ]; then
+  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
     echo "FATAL ERROR: $full_domain still not available after waiting 20 minutes... exiting"
     exit 1
   fi

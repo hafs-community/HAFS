@@ -8,20 +8,21 @@ mkdir -p $DATA/grid
 cd $DATA/grid
 
 device="NC | grid.nmeta"
+intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
 
 # Make sure gempak files are ready
 for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   full_domain=${DATA}/${NET}p/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}
   attempts=1
   while [ $attempts -le 120 ]; do
-    if [ -f $full_domain.done ]; then
+    if [ -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       break
     else
       sleep 10
       attempts=$((attempts+1))
     fi
   done
-  if [ $attempts -gt 120 ] && [ ! -f $full_domain.done ]; then
+  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
     echo "FATAL ERROR: $full_domain still not available after waiting 20 minutes... exiting"
     exit 1
   fi
