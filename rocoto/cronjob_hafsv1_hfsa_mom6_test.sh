@@ -3,12 +3,12 @@ set -x
 date
 
 # NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
+source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 #
 # NOAA RDHPCS Jet
-HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
+#source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 #
 # NOAA RDHPCS Orion
 #HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
@@ -24,12 +24,12 @@ opts="-t -f"
 #===============================================================================
 
  #hafsv1 hfsa
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_mom6_test4 \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_mom6_test \
      ../parm/hafsv1_hfsa_mom6_test.conf"
 
  # Technical testing for Hurricane Laura
 ./run_hafs.py ${opts} 2020082512 13L HISTORY ${confopts} \
-    config.NHRS=6 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
+    config.NHRS=3 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
 
 #===============================================================================
  # 2022 NATL Storms
