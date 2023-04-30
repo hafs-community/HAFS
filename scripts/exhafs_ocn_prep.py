@@ -15,6 +15,7 @@ else:
 import produtil.setup, produtil.datastore, produtil.fileop
 from produtil.datastore import Datastore
 from produtil.fileop import deliver_file, remove_file
+from produtil.ecflow import set_ecflow_event
 import hafs.launcher, hafs.config, hafs.hycom
 
 produtil.setup.setup()
@@ -50,5 +51,6 @@ ds=Datastore(filename,logger=logger)
 hycominit2workdir=DATA+"/hycominit2"
 hycominit2=hafs.hycom.HYCOMInit2(dstore=ds,conf=conf,section='hycominit2',taskname='hycominit2',workdir=hycominit2workdir,fcstlen=fcstlen)
 hycominit2.run()
+set_ecflow_event('Ocean',logger=logger)
 
 logger.info("hycominit2 done")

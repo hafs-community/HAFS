@@ -2,10 +2,26 @@
 
 set -xe
 
+CDATE=${CDATE:-${YMDH}}
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+CDATEprior=$(${NDATE} -6 $CDATE)
+ymdprior=$(echo ${CDATEprior} | cut -c1-8)
+hhprior=$(echo ${CDATEprior} | cut -c9-10)
+CDATEtm03=$(${NDATE} -3 $CDATE)
+ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+CDATEtp03=$(${NDATE} +3 $CDATE)
+ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
+
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-export COMgfs=${COMgfs:-/gpfs/dell1/nco/ops/com/gfs/para}
-export COMINhafs=${COMINhafs:-${COMgfs}}
+export COMINgfs=${COMINgfs:?}
+export COMINgdas=${COMINgdas:?}
+export COMINobs=${COMINobs:?}
+export COMINhafs=${COMINhafs:-${COMINgfs}}
 export DONST=${DONST:-"NO"}
 export LEVS=${LEVS:-65}
 export use_bufr_nr=${use_bufr_nr:-no}
@@ -14,9 +30,6 @@ export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
-export RUN_GSI_VR=${RUN_GSI_VR:-NO}
-export RUN_GSI_VR_FGAT=${RUN_GSI_VR_FGAT:-NO}
-export RUN_GSI_VR_ENS=${RUN_GSI_VR_ENS:-NO}
 export RUN_GSI=${RUN_GSI:-NO}
 export RUN_FGAT=${RUN_FGAT:-NO}
 export FGAT=${FGAT:-NO}
@@ -38,16 +51,8 @@ export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
-export NDATE=${NDATE:-ndate}
-export NCP=${NCP:-"/bin/cp"}
-export NMV=${NMV:-"/bin/mv"}
-export NLN=${NLN:-"/bin/ln -sf"}
-export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
-export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-export COMPRESS=${COMPRESS:-gzip}
-export UNCOMPRESS=${UNCOMPRESS:-gunzip}
 
 if [ $GFSVER = PROD2021 ]; then
   export atmos="atmos/"
@@ -60,50 +65,15 @@ elif [ $GFSVER = PROD2019 ]; then
   export USE_GFS_NCIO=.false.
   GSUFFIX=${GSUFFIX:-.nemsio}
 else
-  export atmos=""
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
+  export atmos="atmos/"
+  export USE_GFS_NEMSIO=.false.
+  export USE_GFS_NCIO=.true.
+  GSUFFIX=${GSUFFIX:-.nc}
 fi
 
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
-
-yr=$(echo $CDATE | cut -c1-4)
-mn=$(echo $CDATE | cut -c5-6)
-dy=$(echo $CDATE | cut -c7-8)
-
-CDATEprior=$(${NDATE} -6 $CDATE)
-yrprior=$(echo ${CDATEprior} | cut -c1-4)
-mnprior=$(echo ${CDATEprior} | cut -c5-6)
-dyprior=$(echo ${CDATEprior} | cut -c7-8)
-hhprior=$(echo ${CDATEprior} | cut -c9-10)
-cycprior=$(echo ${CDATEprior} | cut -c9-10)
-PDYprior=$(echo ${CDATEprior} | cut -c1-8)
-
-CDATEtm03=$(${NDATE} -3 $CDATE)
-PDYtm03=$(echo ${CDATEtm03} | cut -c1-8)
-cyctm03=$(echo ${CDATEtm03} | cut -c9-10)
-CDATEtm02=$(${NDATE} -2 $CDATE)
-PDYtm02=$(echo ${CDATEtm02} | cut -c1-8)
-cyctm02=$(echo ${CDATEtm02} | cut -c9-10)
-CDATEtm01=$(${NDATE} -1 $CDATE)
-PDYtm01=$(echo ${CDATEtm01} | cut -c1-8)
-cyctm01=$(echo ${CDATEtm01} | cut -c9-10)
-
-CDATEtp03=$(${NDATE} +3 $CDATE)
-PDYtp03=$(echo ${CDATEtp03} | cut -c1-8)
-cyctp03=$(echo ${CDATEtp03} | cut -c9-10)
-CDATEtp02=$(${NDATE} +2 $CDATE)
-PDYtp02=$(echo ${CDATEtp02} | cut -c1-8)
-cyctp02=$(echo ${CDATEtp02} | cut -c9-10)
-CDATEtp01=$(${NDATE} +1 $CDATE)
-PDYtp01=$(echo ${CDATEtp01} | cut -c1-8)
-cyctp01=$(echo ${CDATEtp01} | cut -c9-10)
-
-export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
-export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 if [ ! ${RUN_GSI} = "YES" ]; then
   echo "RUN_GSI: ${RUN_GSI} is not YES"
@@ -124,10 +94,6 @@ if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
   RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi_fgat09
-elif [ ${RUN_GSI_VR_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_analysis_vr_fgat03
-  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr_fgat06
-  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_analysis_vr_fgat09
 elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge_fgat03
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
@@ -141,10 +107,6 @@ else
     RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi
-  elif [ ${RUN_GSI_VR} = "YES" ]; then
-    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_analysis_vr
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_analysis_vr
-    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_analysis_vr
   elif [ ${RUN_ATM_MERGE} = "YES" ]; then
     RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
@@ -154,33 +116,33 @@ else
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
   else
-    RESTARTinp_fgat03=${COMhafsprior}/RESTART
-    RESTARTinp_fgat06=${COMhafsprior}/RESTART
-    RESTARTinp_fgat09=${COMhafsprior}/RESTART
+    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
   fi
 fi
 RESTARTinp=${RESTARTinp_fgat06}
 
 if [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
-  echo "Warning: First guess for DA/Analysis missing"
-  echo "Warning: Do nothing, Exiting"
+  echo "WARNING: First guess for DA/Analysis missing"
+  echo "WARNING: Do nothing, Exiting"
   exit
 fi
 
 if [ ${RUN_FGAT} = "YES" ]; then
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.coupler.res ./coupler.res_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res${neststr}.nc ./fv3_akbk_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_03
-  ${NLN} ${RESTARTinp_fgat03}/${PDYtm03}.${cyctm03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.coupler.res ./coupler.res_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}.nc ./fv3_akbk_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_03
+  ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_03
 
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.coupler.res ./coupler.res_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res${neststr}.nc ./fv3_akbk_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_09
-  ${NLN} ${RESTARTinp_fgat09}/${PDYtp03}.${cyctp03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.coupler.res ./coupler.res_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}.nc ./fv3_akbk_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.sfc_data${nesttilestr}.nc ./fv3_sfcdata_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc ./fv3_srfwnd_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ./fv3_dynvars_09
+  ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_tracer.res${neststr}${tilestr}.nc ./fv3_tracer_09
 fi
 
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ./coupler.res
@@ -212,20 +174,20 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
     if [ $USE_GFS_NEMSIO = .true. ]; then
-    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
+      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
+      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
     fi
     fi
     if [ $USE_GFS_NCIO = .true. ]; then
-    if [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMgfs}/enkfgdas.${PDYprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
+      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
+      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
     fi
     fi
-    echo "./ensemble_data/enkfgdas.${PDYprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
+    echo "./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
   done
 fi
@@ -233,19 +195,33 @@ fi
 if [ ${RUN_ENSDA} = "YES" ]; then
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
   do
-    #if [ ${RUN_GSI_VR_ENS} = "YES" ]; then
-    #  RESTARTens=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${mem}
-    #else
-      RESTARTens=${COMhafsprior}/RESTART_ens/mem${mem}
-    #fi
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR06_ens_mem${mem}-coupler.res
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR06_ens_mem${mem}-fv3_akbk
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR06_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR06_ens_mem${mem}-fv3_tracer
+    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+    fhh="06"
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     if [ ! -s ./fv3_ens_grid_spec ]; then
       ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
+    fi
+    if [ ${l4densvar:-.false.} = ".true." ]; then
+      export ENS_NSTARTHR=3
+      fhh="03"
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+      fhh="09"
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     fi
   done
 fi
@@ -291,13 +267,8 @@ if [ $netcdf_diag = ".true." ]; then
 fi
 DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
 DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
-if [ ${machine} = "wcoss2" ]; then
-  USE_MPISERIAL=${USE_MPISERIAL:-"NO"}
-  USE_CFP=${USE_CFP:-"YES"}
-else
-  USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
-  USE_CFP=${USE_CFP:-"NO"}
-fi
+USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
+USE_CFP=${USE_CFP:-"NO"}
 CFP_MP=${CFP_MP:-"NO"}
 nm=""
 if [ $CFP_MP = "YES" ]; then
@@ -374,13 +345,15 @@ fi
 if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 
 # Link GFS/GDAS input and observation files
-COMIN_OBS=${COMIN_OBS:-${COMgfs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
 PREPQCPF=${PREPQCPF:-${COMIN_OBS}/${OPREFIX}prepbufr.acft_profiles${OSUFFIX}}
 NSSTBF=${NSSTBF:-${COMIN_OBS}/${OPREFIX}nsstbufr${OSUFFIX}}
 SATWND=${SATWND:-${COMIN_OBS}/${OPREFIX}satwnd.tm00.bufr_d${OSUFFIX}}
+SATWHR=${SATWHR:-${COMIN_OBS}/${OPREFIX}satwhr.tm00.bufr_d${OSUFFIX}}
 OSCATBF=${OSCATBF:-${COMIN_OBS}/${OPREFIX}oscatw.tm00.bufr_d${OSUFFIX}}
 RAPIDSCATBF=${RAPIDSCATBF:-${COMIN_OBS}/${OPREFIX}rapidscatw.tm00.bufr_d${OSUFFIX}}
 GSNDBF=${GSNDBF:-${COMIN_OBS}/${OPREFIX}goesnd.tm00.bufr_d${OSUFFIX}}
@@ -436,7 +409,8 @@ if [[ ${use_bufr_nr:-no} = "no" ]]; then
 else
   GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d.nr}
 fi
-TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
+#TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
+TCVITL=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
@@ -450,6 +424,7 @@ fi
 #$NLN $PREPQC           prepbufr
 ##$NLN $PREPQCPF         prepbufr_profl
 $NLN $SATWND           satwndbufr
+$NLN $SATWHR           satwhrbufr
 ##$NLN $OSCATBF          oscatbufr
 ##$NLN $RAPIDSCATBF      rapidscatbufr
 ##$NLN $GSNDBF           gsndrbufr
@@ -519,23 +494,23 @@ fi
 fi
 
 # HAFS specific observations
+INTCOMobs=${WORKhafs}/intercom/obs_prep
 # Use updated prepbufr if exists
-if [ -s ${WORKhafs}/intercom/obs_proc/hafs.prepbufr ]; then
-  ${NCP} ${WORKhafs}/intercom/obs_proc/hafs.prepbufr prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.prepbufr ]; then
+  ${NCP} ${INTCOMobs}/${NET}.t${cyc}z.prepbufr prepbufr
 fi
 # cat tempdrop.prepbufr with drifting correction into prepbufr
-if [ -s ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr ]; then
-  cat ${WORKhafs}/intercom/obs_proc/hafs.tempdrop.prepbufr >> prepbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr ]; then
+  cat ${INTCOMobs}/${NET}.t${cyc}z.tempdrop.prepbufr >> prepbufr
 fi
-COMINhafs_obs=${COMINhafs_obs:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.hdob.tm00.bufr_d hdobbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.hdob.tm00.bufr_d hdobbufr
 fi
-if [ -s ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d ]; then
-  ${NLN} ${COMINhafs_obs}/hafs.t${cyc}z.tldplr.tm00.bufr_d tldplrbufr
+if [ -s ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d ]; then
+  ${NLN} ${INTCOMobs}/${NET}.t${cyc}z.nexrad.tm00.bufr_d l2rwbufr
 fi
 
 fi #USE_SELECT
@@ -544,30 +519,23 @@ fi #USE_SELECT
 if [ ${online_satbias} = "yes" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
-  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+  if [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
-    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
-    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
-    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
+    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  elif [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
-    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    echo "FATAL ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
   fi
 else
   PASSIVE_BC=.false.
   UPD_PRED=0
-  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
-
-#
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
-
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf003.nemsio  gfs_sigf03
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf006.nemsio  gfs_sigf06
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.atmf009.nemsio  gfs_sigf09
 
 # Diagnostic files
 # if requested, link GSI diagnostic file directories for use later
@@ -627,7 +595,6 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 #-------------------------------------------------------------------
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
-
 set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
 set +o pipefail

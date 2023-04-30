@@ -26,18 +26,12 @@ else
   export LEVS=${LEVS:-65}
 fi
 
-export NDATE=${NDATE:-ndate}
-export NCP=${NCP:-"/bin/cp"}
-export NMV=${NMV:-"/bin/mv"}
-export NLN=${NLN:-"/bin/ln -sf"}
-export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-
 if [ $GFSVER = PROD2021 ]; then
   export atmos="atmos/"
 elif [ $GFSVER = PROD2019 ]; then
   export atmos=""
 else
-  export atmos=""
+  export atmos="atmos/"
 fi
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
@@ -55,27 +49,15 @@ export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 netcdf_diag=${netcdf_diag:-".true."}
 binary_diag=${binary_diag:-".false."}
 
+CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
-
 CDATEprior=$(${NDATE} -6 $CDATE)
-yrprior=$(echo ${CDATEprior} | cut -c1-4)
-mnprior=$(echo ${CDATEprior} | cut -c5-6)
-dyprior=$(echo ${CDATEprior} | cut -c7-8)
+ymdprior=$(echo ${CDATEprior} | cut -c1-8)
 hhprior=$(echo ${CDATEprior} | cut -c9-10)
-cycprior=$(echo ${CDATEprior} | cut -c9-10)
-PDYprior=$(echo ${CDATEprior} | cut -c1-8)
 
-export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
-export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
-
-if [ ${RUN_GSI_VR_ENS} = YES ]; then
-  export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens
-else
-  export RESTARTens_inp=${COMhafsprior}/RESTART_ens
-fi
-
+export RESTARTens_inp=${COMOLD}/${old_out_prefix}.RESTART_ens
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 export DIAGens_anl=${COMhafs}
 mkdir -p ${RESTARTens_anl}
@@ -208,28 +190,26 @@ ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
-  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+  if [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
-    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-    ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
-    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
-    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
+    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  elif [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
-    echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
+    echo "FATAL ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
   fi
 elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
-  echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
+  echo "FATAL ERROR: Cannot run online satbias correction without EnVar. Exiting script."
   exit 2
 else
   PASSIVE_BC=.false.
   UPD_PRED=0
-  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-  ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
+  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
-#
-#${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
 # Make enkf namelist
 ${NCP} ${PARMgsi}/enkf.nml.tmp ./

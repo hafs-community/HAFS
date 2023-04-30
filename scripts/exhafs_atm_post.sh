@@ -2,6 +2,47 @@
 
 set -xe
 
+export MP_LABELIO=yes
+
+CDATE=${CDATE:-${YMDH}}
+
+# Sepcial settings if this is an atm_init run
+if [ ${RUN_INIT:-NO} = YES ]; then
+
+# Turn off satpost for atm_init run to save time
+satpost=.false.
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  NHRS_ENS=0
+elif [ ${FGAT_MODEL} = gdas ]; then
+  INPdir=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  NHRS=0
+else
+  INPdir=${WORKhafs}/atm_init/forecast
+  COMOUTpost=${WORKhafs}/intercom/atm_init
+  intercom=${WORKhafs}/intercom/atm_init/post
+  NHRS=0
+fi
+
+else
+
+if [ "${ENSDA}" = YES ]; then
+  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+  intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+else
+  INPdir=${WORKhafs}/forecast
+  COMOUTpost=${COMhafs}
+  intercom=${WORKhafs}/intercom/post
+fi
+
+fi
+
 if [ ${ENSDA} = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
@@ -9,56 +50,74 @@ if [ ${ENSDA} = YES ]; then
   else
     NHRS=${NHRS_ENS:-6}
   fi
-  export NBDYHRS=${NBDYHRS_ENS:-3}
-  export NOUTHRS=${NOUTHRS_ENS:-3}
-  export CASE=${CASE_ENS:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export gtype=${gtype_ens:-regional}
-  export LEVS=${LEVS_ENS:-65}
-  export post_gridspecs=${post_gridspecs_ens:-""}
-  export trak_gridspecs=${trak_gridspecs_ens:-""}
-  export satpost=${satpost_ens:-".false."}
+  NBDYHRS=${NBDYHRS_ENS:-3}
+  NOUTHRS=${NOUTHRS_ENS:-3}
+  gtype=${gtype_ens:-regional}
+  post_gridspecs=${post_gridspecs_ens:-""}
+  trak_gridspecs=${trak_gridspecs_ens:-""}
+  satpost=${satpost_ens:-".false."}
 else
-  export NHRS=${NHRS:-126}
-  export NBDYHRS=${NBDYHRS:-3}
-  export NOUTHRS=${NOUTHRS:-3}
-  export CASE=${CASE:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export gtype=${gtype:-regional}
-  export LEVS=${LEVS:-65}
-  export post_gridspecs=${post_gridspecs:-""}
-  export trak_gridspecs=${trak_gridspecs:-""}
-  export satpost=${satpost:-".false."}
+  NHRS=${NHRS:-126}
+  NBDYHRS=${NBDYHRS:-3}
+  NOUTHRS=${NOUTHRS:-3}
+  gtype=${gtype:-regional}
+  post_gridspecs=${post_gridspecs:-""}
+  trak_gridspecs=${trak_gridspecs:-""}
+  satpost=${satpost:-".false."}
 fi
-
-export MP_LABELIO=yes
-
-CDATE=${CDATE:-${YMDH}}
-NHRS=${NHRS:-126}
-NOUTHRS=${NOUTHRS:-3}
-
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-WGRIB2=${WGRIB2:-wgrib2}
-GRB2INDEX=${GRB2INDEX:-grb2index}
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
-
-FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-intercom=${intercom:-${WORKhafs}/intercom/post}
-COMOUTpost=${COMOUTpost:-${COMhafs}}
-SENDCOM=${SENDCOM:-YES}
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 output_grid=${output_grid:-rotated_latlon}
-post_gridspecs=${post_gridspecs:-""}
-trak_gridspecs=${trak_gridspecs:-""}
 
+POSTEXEC=${POSTEXEC:-${EXEChafs}/hafs_post.x}
+FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
+
+SENDCOM=${SENDCOM:-YES}
+intercom=${intercom:-${WORKhafs}/intercom/post}
+COMOUTpost=${COMOUTpost:-${COMhafs}}
 DATA=${DATA:-${WORKhafs}/atm_post}
+mkdir -p ${COMOUTpost} ${intercom}
+mkdir -p ${DATA}
 
+FHRB=$(( $((${POST_GROUPI:-1}-1)) * ${NOUTHRS} ))
+FHRI=$(( ${POST_GROUPN:-1} * ${NOUTHRS} ))
+FHRE=${NHRS}
+
+# If desired, deletes all the post output files in COMOUTpost and intercom
+if [ "${POST_CLEANUP^^}" = "YES" ]; then
+  FHR=${FHRB:-0}
+  FHR3=$(printf "%03d" "$FHR")
+  # Loop for forecast hours
+  while [ $FHR -le $NHRS ]; do
+    if [ ${gtype} = nest ]; then
+      ngrids=$((${nest_grids} + 1))
+    else
+      ngrids=${nest_grids}
+    fi
+    # Loop for grids/domains
+    for ng in $(seq 1 ${ngrids}); do
+      gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+      grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
+      grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
+      sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
+      sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+      trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
+      trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
+      rm -f ${COMOUTpost}/${grb2file} ${COMOUTpost}/${grb2indx}
+      rm -f ${COMOUTpost}/${sat_grb2file} ${COMOUTpost}/${sat_grb2indx}
+      rm -f ${intercom}/${trk_grb2file} ${intercom}/${trk_grb2indx}
+    done
+    # End loop for grids/domains
+    FHR=$(($FHR + $FHRI))
+    FHR3=$(printf "%03d" "$FHR")
+  done
+  # End loop for forecast hours
+fi
+# End if for POST_CLEANUP
+
+# Start actual post
 IFHR=0
-FHR=0
+FHR=${FHRB:-0}
 FHR2=$(printf "%02d" "$FHR")
 FHR3=$(printf "%03d" "$FHR")
 
@@ -113,12 +172,12 @@ fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
-if [ -s ${INPdir}/post${nestdotstr}f${FHR3} ] && \
-   [ ${INPdir}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
+if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
+   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
-echo "post done file ${INPdir}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -130,17 +189,17 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
 n=1
-while [ $n -le 600 ]; do
+while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 60"
-    sleep 60s
+    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
-    sleep 3s
+    sleep 1s
     break
   fi
-  if [ $n -ge 600 ]; then
-    echo "ERROR: waited too many times: $n. exitting"
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
   n=$((n+1))
@@ -150,19 +209,19 @@ else
 
 # Wait for model output
 n=1
-while [ $n -le 600 ]; do
+while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/logf${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 60"
-    sleep 60s
+    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
-    sleep 3s
+    sleep 1s
     break
   fi
-  if [ $n -ge 600 ]; then
-    echo "ERROR: waited too many times: $n. exitting"
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
     exit 1
   fi
   n=$((n+1))
@@ -289,13 +348,7 @@ if [ ${satpost} = .true. ]; then
   echo ${WGRIB2} ${sat_grb2post}                                           ${opts} -new_grid ${postgridspecs} ${sat_grb2file} >> cmdfile
 fi
 chmod +x cmdfile
-if [ ${machine} = "wcoss2" ]; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m cmdfile
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -314,7 +367,7 @@ fi
 
 else
 
-echo "ERROR: output grid: ${outputgrid} not supported exitting"
+echo "FATAL ERROR: output grid: ${outputgrid} not supported. Exiting"
 exit 1
 
 fi #if [[ "$outputgrid" = "rotated_latlon"* ]]; then
@@ -334,8 +387,8 @@ echo ${PARMlist}
 
 ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
 
-# Create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
-if [ $ng -eq 2 ]; then
+# If desired, create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
+if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   gridstr01=$(echo ${out_gridnames} | cut -d, -f 1)
   gridstr02=$(echo ${out_gridnames} | cut -d, -f 2)
   gridstr12="merged"
@@ -353,26 +406,14 @@ if [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp2}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p2             >> cmdfile_regrid
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
   chmod +x cmdfile_regrid
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat ./cmdfile_regrid | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-    $APRUNCFP -n $ncmd_max cfp ./cmdfile_regrid
-  else
-    ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
-  fi
+  ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
   rm -f cmdfile_merge
  #${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p1 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p1 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p1 >  cmdfile_merge
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p2 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p2 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p2 >> cmdfile_merge
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
   chmod +x cmdfile_merge
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat ./cmdfile_merge | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-    $APRUNCFP -n $ncmd_max cfp ./cmdfile_merge
-  else
-    ${APRUNC} ${MPISERIAL} -m cmdfile_merge
-  fi
+  ${APRUNC} ${MPISERIAL} -m cmdfile_merge
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
@@ -381,18 +422,28 @@ fi
 ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
 
 # Deliver to intercom
-mkdir -p ${intercom}
 mv ${trk_grb2file} ${intercom}/
 mv ${trk_grb2indx} ${intercom}/
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  mkdir -p ${COMOUTpost}
   mv ${grb2file} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${grb2file}
+  fi
   mv ${grb2indx} ${COMOUTpost}/
+  if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+    $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${grb2indx}
+  fi
   if [ ${satpost} = .true. ]; then
     mv ${sat_grb2file} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+      $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${sat_grb2file}
+    fi
     mv ${sat_grb2indx} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+      $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${sat_grb2indx}
+    fi
   fi
 fi
 
@@ -436,7 +487,7 @@ fi
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]]; then
   # Pass over the grid_mspec files for moving nest (useful for storm cycling)
   if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10; done
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10s; done
     if [ ! -L ${INPdir}/${grid_mspec} ]; then
       mv ${INPdir}/${grid_mspec} ${INPdir}/RESTART/${grid_mspec}
       ${NLN} ${INPdir}/RESTART/${grid_mspec} ${INPdir}/${grid_mspec}
@@ -451,7 +502,7 @@ fi
 fi #if [ ${gtype} = regional ]; then
 
 # Write out the postdone message file
-echo 'done' > ${INPdir}/post${nestdotstr}f${FHR3}
+echo 'done' > ${intercom}/post${nestdotstr}f${FHR3}
 
 cd ${DATA}
 
@@ -462,7 +513,7 @@ done
 # End loop for grids/domains
 
 IFHR=$(($IFHR + 1))
-FHR=$(($FHR + $NOUTHRS))
+FHR=$(($FHR + $FHRI))
 FHR2=$(printf "%02d" "$FHR")
 FHR3=$(printf "%03d" "$FHR")
 
@@ -471,175 +522,3 @@ done
 
 cd ${DATA}
 
-#===============================================================================
-# Produce swath grib2 products for peak gust, precipitation rate from
-# accumulated total precipitation, peak 10 m wind, convective precipitation
-# rate from accumulated convective precipitation, peak updraft, peak downdraft,
-# updraft helicity in the lower troposphere (2000-5000 m), updraft helicity
-# near the surface (0-3000 m).
-# From Lew.Gramer@noaa.gov, 2023-01-19
-
-# Currently swath grib2 products are based on the parent domain grib2 output only
-if [ ${swathpost:-.true.} = .true. ] && [ ${COMOUTpost} = ${COMhafs} ] ; then
-
-DATA_SWATH=${DATA}/swath
-rm -rf ${DATA_SWATH}
-mkdir -p ${DATA_SWATH}
-cd ${DATA_SWATH}
-
-# currently only deal with parent domain)
-gridstr=$(echo ${out_gridnames} | cut -d, -f 1)
-
-swath_grb2file=${out_prefix}.${RUN}.${gridstr}.swath.grb2
-swath_grb2indx=${out_prefix}.${RUN}.${gridstr}.swath.grb2.idx
-rm -f ${swath_grb2file} ${swath_grb2indx}
-# temporary grib2 files
-GUSTF="./gust.grb2"
-APCPF="./apcp.grb2"
-PRATEF="./prate.grb2"
-WINDMAXF="./windmax.grb2"
-ACPCPF="./acpcp.grb2"
-CPRATF="./cprat.grb2"
-MAXUVVF="./maxuvv.grb2"
-MAXDVVF="./maxdvv.grb2"
-UPHLSFCF="./uphlsfc.grb2"
-UPHLTROF="./uphltro.grb2"
-TMPFILE="./tmpfile.grb2"
-TMPFILE2="./tmpfile2.grb2"
-rm -f ${GUSTF} ${APCPF} ${PRATEF} ${WINDMAXF} ${ACPCPF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLSFCF} ${UPHLTROF}
-
-# Deal with forecast F000
-DHR=$NOUTHRS
-IFHR=0
-FHR=0
-FHR3=$(printf "%03d" "$FHR")
-grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
-swath_grb2fhhh=${out_prefix}.${RUN}.${gridstr}.swath.f${FHR3}.grb2
-
-# Replace UNKNOWN values in GRB2 messages of interest with 0; convert PCP accs to PRATEs
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:GUST:)'           	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
-    -grib_out ${GUSTF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:APCP:)'           	-rpn "0:swap:merge" -grib_out ${APCPF}
-${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "0:*" \
-    -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
-    -grib_out ${PRATEF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:WIND.*max)'       	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:WIND:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed [m/s]:" \
-    -grib_out ${WINDMAXF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:ACPCP:)'          	-rpn "0:swap:merge" -grib_out ${ACPCPF}
-${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "0:*" \
-    -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
-    -grib_out ${CPRATF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MAXUVV:)'       	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:DZDT:0-400 mb above ground:0-$((IFHR*DHR)) hour max fcst::Vertical Velocity (Geometric) [m/s]:" \
-    -grib_out ${MAXUVVF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MAXDVV:)'       	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:DZDT:0-400 mb above ground:0-$((IFHR*DHR)) hour min fcst::Vertical Velocity (Geometric) [m/s]:" \
-    -grib_out ${MAXDVVF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MXUPHL:5000-2000 m)' 	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:UPHL:5000-2000 m above ground:0-0 hour max fcst::Updraft Helicity [m^2/s^2]:" \
-    -grib_out ${UPHLTROF}
-${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MXUPHL:3000-0 m)'   	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:UPHL:3000-0 m above ground:0-0 hour max fcst::Updraft Helicity [m^2/s^2]:" \
-    -grib_out ${UPHLSFCF}
-
-#cat ${GUSTF} ${PRATEF} ${WINDMAXF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLTROF} ${UPHLSFCF} >> ${swath_grb2fhhh}
-
-# Loop for other forecast hours
-IFHR=$(($IFHR + 1))
-FHR=$(($FHR + $NOUTHRS))
-FHR3=$(printf "%03d" "$FHR")
-
-while [ $FHR -le $NHRS ]; do
-  grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
-  swath_grb2fhhh=${out_prefix}.${RUN}.${gridstr}.swath.f${FHR3}.grb2
-  # MAXIMIZE, MINIMIZE, or ACCUMULATE current 3-hourly values with
-  # persistent intermediate swath files (e.g., GUSTF) for each variable.
-  # GUST - peak wind gust
-  # Replace UNKNOWN values with 0, change variable name, metadata
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:GUST:)'         	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
-      -grib_out ${TMPFILE}
-  # Max with previous swath intermediate file
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${GUSTF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${GUSTF}
-  # PRATE - accumulated total precipitation
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:APCP:)'         	-rpn "0:swap:merge" -grib_out ${TMPFILE}
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${APCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${APCPF}
-  ${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
-      -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
-      -grib_out ${PRATEF}
-  # WINDmax - peak 10 m wind
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:WIND.*max)'     	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:WIND:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed [m/s]:" \
-      -grib_out ${TMPFILE}
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${WINDMAXF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${WINDMAXF}
-  # CPRAT - accumulated convective precipitation
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:ACPCP:)'        	-rpn "0:swap:merge" -grib_out ${TMPFILE}
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${ACPCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${ACPCPF}
-  ${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
-      -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
-      -grib_out ${CPRATF}
-  # DZDTmax - peak updrafts
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MAXUVV:)'       	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:DZDT:0-400 mb above ground:0-$((IFHR*DHR)) hour max fcst::Vertical Velocity (Geometric) [m/s]:" \
-      -grib_out ${TMPFILE}
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${MAXUVVF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${MAXUVVF}
-  # DZDTmin - peak downdrafts
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MAXDVV:)'       	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:DZDT:0-400 mb above ground:0-$((IFHR*DHR)) hour min fcst::Vertical Velocity (Geometric) [m/s]:" \
-      -grib_out ${TMPFILE}
-  ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${MAXDVVF} -rpn "rcl_1:min" -grib_out ${TMPFILE2}
-  rm ${TMPFILE}
-  mv ${TMPFILE2} ${MAXDVVF}
-  # UPHLtro - updraft helicity in the lower troposphere
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MXUPHL:5000-2000 m)' 	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:UPHL:5000-2000 m above ground:$(((IFHR-1)*DHR))-$((IFHR*DHR)) hour max fcst::Updraft Helicity [m^2/s^2]:" \
-      -grib_out ${TMPFILE}
-  mv ${TMPFILE} ${UPHLTROF}
-  # UPHLsfc - updraft helicity in the surface layer
-  ${WGRIB2} ${COMOUTpost}/${grb2file} -match '(:MXUPHL:3000-0 m)'   	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:UPHL:3000-0 m above ground:$(((IFHR-1)*DHR))-$((IFHR*DHR)) hour max fcst::Updraft Helicity [m^2/s^2]:" \
-      -grib_out ${TMPFILE}
-  mv ${TMPFILE} ${UPHLSFCF}
- #cat ${GUSTF} ${PRATEF} ${WINDMAXF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLTROF} ${UPHLSFCF} > ${swath_grb2fhhh}
-  cat ${GUSTF} ${PRATEF} ${WINDMAXF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLTROF} ${UPHLSFCF} >> ${swath_grb2file}
-
-  # next forecast hour
-  IFHR=$(($IFHR + 1))
-  FHR=$(($FHR + $NOUTHRS))
-  FHR3=$(printf "%03d" "$FHR")
-done
-
-# Compress swath grib2 file to save disk space
-${WGRIB2} ${swath_grb2file} -set_grib_type c2 -grib_out ${swath_grb2file}.c2
-mv ${swath_grb2file}.c2 ${swath_grb2file}
-# Generate the index file for the swath grib2 file
-${GRB2INDEX} ${swath_grb2file} ${swath_grb2indx}
-
-# Deliver to COMOUTpost
-if [ $SENDCOM = YES ]; then
-  mkdir -p ${COMOUTpost}
-  mv ${swath_grb2file} ${COMOUTpost}/
-  mv ${swath_grb2indx} ${COMOUTpost}/
-fi
-
-fi
-
-#===============================================================================
-
-cd ${DATA}
-
-echo "post job done"
-
-exit

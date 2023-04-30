@@ -69,41 +69,21 @@ messagedir=[]
 
 ##@var PARAFLAG
 # True = we are not NCEP Central Operations ($RUN_ENVIR!=NCO in environment)
-PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','EMC').upper() )
+PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','DEV').upper() )
 
 ##@var basins_needed
 # In format=cycles_needed mode, the list of one-letter basins needed.
 
 ########################################################################
-# THIS SECTION NEEDS HARD-CODED PATHS FOR EMC ##########################
-# HARD-CODED PATHS ARE PROTECTED BY RUN_ENVIR!=NCO BLOCK ###############
 def set_para_paths():
     """!Sets tcvitals and message file locations for non-NCO runs."""
     global tcvlocs, messagedir, inputs
-    tcvlocs=[
-        "/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/work/noaa/hwrf/noscrub/input/SYNDAT",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT",
-        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
-        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT",
-        "/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS",
-        "/lfs/h2/emc/hur/noscrub/input/SYNDAT",
-        ]
-    messagedir=[
-        "/work/noaa/hwrf/noscrub/input/MESSAGES",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
-        "/lfs1/HFIP/hwrf-vd/hwrf-input/MESSAGES",
-        "/lfs/h2/emc/hur/noscrub/input/MESSAGES",
-        ]
-    if 'CASE_ROOT' in os.environ and os.environ['CASE_ROOT']=='FORECAST':
-        tcvlocs=['/lfs/h1/ops/prod/com/gfs/v16.3/syndat']
-    else:
-        tcvlocs.append('/lfs/h1/ops/prod/com/gfs/v16.3/syndat')
     if 'SYNDAThafs' in os.environ:
         tcvlocs=[os.environ['SYNDAThafs'],]
+    else:
+        logger.error('Fatal Error: cannot find the needed environment variable of SYNDAThafs.')
+        exit(2)
 
-# END OF SECTION WITH HARD-CODED PATHS #################################
 ########################################################################
 
 usage_message='''tcutil_generate_vitals.py version 5.7.1

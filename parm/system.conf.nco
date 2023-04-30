@@ -1,0 +1,47 @@
+## This is the system-specific configuration file for WCOSS2 run by NCO with Ecflow workflow
+[config]
+
+input_catalog=wcoss_fcst_nco
+
+RUN={ENV[RUN]}
+HAFS_VERSION={ENV[HAFS_VERSION]}
+EXPT=hafs.v{HAFS_VERSION}
+SUBEXPT=hafs.v{HAFS_VERSION}
+
+[dir]
+HOMEhafs={ENV[HOMEhafs]}
+WORKhafs={ENV[WORKhafs]}
+COMhafs={ENV[COMhafs]}
+CDSAVE={ENV[OPSROOT]}
+CDNOSCRUB={ENV[WORKhafs]}
+CDSCRUB={ENV[WORKhafs]}
+syndat={ENV[COMINarch]}
+oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+com={ENV[COMIN]}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT]}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs={ENV[COMINgfs]}
+COMINobs={ENV[COMINobs]}
+COMINgfs={ENV[COMINgfs]}
+COMINgdas={ENV[COMINgdas]}
+COMINarch={ENV[COMINarch]}
+COMrtofs={ENV[COMINrtofs]}
+COMINrtofs={ENV[COMINrtofs]}
+COMINmsg={ENV[COMINmsg]}
+COMINhafs={COMINgfs}
+DATMdir=/not/used/in/production
+DOCNdir=/not/used/in/production
+## A-Deck directory for graphics
+ADECKhafs=/not/used/in/production
+## B-Deck directory for graphics
+BDECKhafs=/not/used/in/production
+## cartopyDataDir directory for graphics
+cartopyDataDir=/not/used/in/production
+
+[holdvars]
+WHERE_AM_I=wcoss2
+WHICH_JET=none
+

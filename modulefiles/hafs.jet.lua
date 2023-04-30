@@ -86,15 +86,6 @@ load(pathJoin("mapl", mapl_ver))
 bufr_ver=os.getenv("bufr_ver") or "11.7.0"
 load(pathJoin("bufr", bufr_ver))
 
-gfsio_ver=os.getenv("gfsio_ver") or "1.4.1"
-load(pathJoin("gfsio", gfsio_ver))
-
-landsfcutil_ver=os.getenv("landsfcutil_ver") or "2.4.1"
-load(pathJoin("landsfcutil", landsfcutil_ver))
-
-nemsiogfs_ver=os.getenv("nemsiogfs_ver") or "2.5.3"
-load(pathJoin("nemsiogfs", nemsiogfs_ver))
-
 sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
 load(pathJoin("sfcio", sfcio_ver))
 
@@ -117,15 +108,18 @@ wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
 setenv("WGRIB2", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-2022.1.2/wgrib2/2.0.8/bin/wgrib2")
 
+gempak_ver=os.getenv("gempak_ver") or "7.4.2"
+load(pathJoin("gempak", gempak_ver))
+
 -- nco_ver=os.getenv("nco_ver") or "5.0.6"
 nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
-load(pathJoin("rocoto", rocoto_ver))
-
 cdo_ver=os.getenv("cdo_ver") or "1.9.10"
 load(pathJoin("cdo", cdo_ver))
+
+rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
+load(pathJoin("rocoto", rocoto_ver))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")

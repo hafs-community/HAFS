@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!This module provides two different ways to generate Fortran
 namelist files from HAFSConfig sections:
 

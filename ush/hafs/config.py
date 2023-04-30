@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!parses UNIX conf files and makes the result readily available
 
 The hafs.config module reads configuration information for the HAFS

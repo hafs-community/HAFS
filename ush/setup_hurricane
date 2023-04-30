@@ -1,0 +1,37 @@
+#!/bin/sh
+
+HOMEhafs=$(dirname $(dirname $(readlink -f "$0")))
+USHhafs=$HOMEhafs/ush
+
+source $HOMEhafs/versions/run.ver
+
+if [ -n "$1" ]; then
+    if [ "$1" = "prod" ] || [ "$1" = "para" ] || [ "$1" = "test" ] || [ "$1" = "dev" ] ; then
+        export envir=$1
+    else
+        >&2 echo "'$1' is not a valid environment.  Enter 'prod', 'para' or 'test'."
+        exit 1
+    fi
+fi
+
+set -x
+
+module load prod_envir prod_util
+
+env
+
+export SETUP_HURRICANE_LOG=${SETUP_HURRICANE_LOG:-}
+export DCOMROOT=${DCOMROOT:?}
+export COMINarch=${COMINarch:-$(compath.py ${envir}/gfs/${gfs_ver})/syndat}
+export COMINmsg_hfsa=${COMINmsg_hfsa:-$(compath.py ${envir}/hafs/${hafs_ver})/inphfsa}
+export COMINmsg_hfsb=${COMINmsg_hfsb:-$(compath.py ${envir}/hafs/${hafs_ver})/inphfsb}
+
+if [[ "$envir" == test || "$envir" == dev ]] ; then
+    # In dev & test mode, allow arguments for enabling
+    # setup_hurricane's test modes.
+    shift
+    python3 ${USHhafs}/setup_hurricane.py "$@"
+else
+    python3 ${USHhafs}/setup_hurricane.py
+fi
+

@@ -16,23 +16,23 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ./run_hafs.py ${opts} 2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn \
      config.NHRS=6 ${scrubopt} \
-     ../parm/hafs_regional_static.conf \
-     ../parm/hafs_hycom.conf
+     ../parm/tests/hafs_regional_static.conf \
+     ../parm/tests/hafs_hycom.conf
 
  # Regional static NATL basin-focused configuration with atm-wav coupling
  ./run_hafs.py ${opts} 2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_wav \
      config.NHRS=6 ${scrubopt} \
-     ../parm/hafs_regional_static.conf \
-     ../parm/hafs_ww3.conf \
+     ../parm/tests/hafs_regional_static.conf \
+     ../parm/tests/hafs_ww3.conf \
      forecast.cpl_atm_wav=cmeps_2way
 
 ## Regional static NATL basin-focused configuration with atm-ocn-wav coupling
 #./run_hafs.py ${opts} 2020082512 00L HISTORY \
 #    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn_wav \
 #    config.NHRS=6 ${scrubopt} \
-#    ../parm/hafs_regional_static.conf \
-#    ../parm/hafs_hycom_ww3.conf \
+#    ../parm/tests/hafs_regional_static.conf \
+#    ../parm/tests/hafs_hycom_ww3.conf \
 #    forecast.cpl_atm_ocn=cmeps_2way \
 #    forecast.cpl_atm_wav=cmeps_2way
 
@@ -40,8 +40,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ./run_hafs.py ${opts} 2019082900 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_ocn_wav \
      config.NHRS=24 ${scrubopt} \
-     ../parm/hafs_regional_static_C192s1n4.conf \
-     ../parm/hafs_hycom_ww3.conf \
+     ../parm/tests/hafs_regional_static_C192s1n4.conf \
+     ../parm/tests/hafs_hycom_ww3.conf \
      forecast.cpl_atm_ocn=cmeps_2way \
      forecast.cpl_atm_wav=cmeps_2way
 
@@ -49,7 +49,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ./run_hafs.py ${opts} 2020082512 13L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm_ocn_wav \
      config.NHRS=6 ${scrubopt} \
-     ../parm/hafs_hycom_ww3.conf \
+     ../parm/tests/hafs_hycom_ww3.conf \
      forecast.cpl_atm_ocn=cmeps_2way \
      forecast.cpl_atm_wav=cmeps_2way
 
@@ -65,7 +65,7 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_gsi=yes config.run_envar=yes \
      gsi.use_bufr_nr=yes \
      config.NHRS=12 ${scrubopt} \
-     ../parm/hafs_regional_da_C192s1n4.conf
+     ../parm/tests/hafs_regional_da_C192s1n4.conf
 
  # Regional storm-focused moving-nesting configuration with vortex initialization and domain 02 data assimilation
  #   atm_init+atm_vi+fgat+d02_3denvar+anal_merge and cycling storm perturbation
@@ -74,7 +74,6 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
      config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
      config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
-     config.run_gsi_vr=no config.run_gsi_vr_fgat=no config.run_gsi_vr_ens=no \
      config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
      config.gsi_d01=no config.gsi_d02=yes \
      config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
@@ -85,8 +84,8 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
      config.GRID_RATIO_ENS=2 \
      gsi.use_bufr_nr=yes \
      gsi.grid_ratio_fv3_regional=1 \
-     ../parm/hafsv0p3_regional_mvnest.conf \
-     ../parm/hafsv0p3_hycom.conf
+     ../parm/tests/hafsv0p3_regional_mvnest.conf \
+     ../parm/tests/hafsv0p3_hycom.conf
 
 #===============================================================================
 
@@ -94,14 +93,14 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ./run_hafs.py ${opts} 2020082512 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static \
      config.NHRS=6 ${scrubopt} \
-     ../parm/hafs_globnest_static.conf
+     ../parm/tests/hafs_globnest_static.conf
 
  # Global-nesting storm-focused configuration (atm-only) with GFS grib2ab format IC/BC
  ./run_hafs.py ${opts} 2020082512 13L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_grib2ab \
      config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
      config.NHRS=6 ${scrubopt} \
-     ../parm/hafs_globnest.conf
+     ../parm/tests/hafs_globnest.conf
 
 #===============================================================================
 

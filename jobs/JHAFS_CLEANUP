@@ -1,0 +1,20 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export cycle=${cycle:-t${cyc:?}z}
+export storm_num=${storm_num:-1}
+export stormlabel=${stormlabel:-storm$storm_num}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
+
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
+echo "INFO: Cleaning up $WORKhafs"
+rm -rf $WORKhafs
+echo "INFO: Cleanup of $WORKhafs complete"
+
+date

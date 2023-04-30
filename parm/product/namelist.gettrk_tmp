@@ -8,7 +8,7 @@
   inp%modtyp = "regional",
   inp%lt_units = "hours",
   inp%file_seq = "multi",
-  inp%nesttyp = "fixed",
+  inp%nesttyp = "_NESTTYP_",
 /
 
 &atcfinfo
@@ -19,6 +19,11 @@
 /
 
 &trackerinfo
+  trkrinfo%eastbd=,
+  trkrinfo%westbd=,
+  trkrinfo%northbd=,
+  trkrinfo%southbd=,
+  trkrinfo%contint=1.0,
   trkrinfo%type = "tracker",
   trkrinfo%mslpthresh = 0.0015,
   trkrinfo%use_backup_mslp_grad_check = "y",
@@ -29,8 +34,9 @@
   trkrinfo%gridtype = "regional",
   trkrinfo%contint = 100.0,
   trkrinfo%want_oci = T,
-  trkrinfo%out_vit = "y",
+  trkrinfo%out_vit = "n",
   trkrinfo%use_land_mask = "y",
+  trkrinfo%read_separate_land_mask_file="n",
   trkrinfo%inp_data_type = "grib",
   trkrinfo%gribver = 2,
   trkrinfo%g2_jpdtn = 0,
@@ -50,7 +56,9 @@
 &structinfo
   structflag = "n",
   ikeflag = "n",
-  radii_pctile=95.0
+  radii_pctile=95.0,
+  radii_free_pass_pctile=67.0,
+  radii_width_thresh=15.0
 /
 
 &fnameinfo
@@ -76,6 +84,7 @@
 &netcdflist
   netcdfinfo%num_netcdf_vars=,
   netcdfinfo%netcdf_filename='',
+  netcdfinfo%netcdf_lsmask_filename='',
   netcdfinfo%rv850name='',
   netcdfinfo%rv700name='',
   netcdfinfo%u850name='',

@@ -43,7 +43,7 @@ set(fortran_srcs1 ${fortran_srcs} archv2data2d.f)
 set(fortran_srcs2 ${fortran_srcs} archv2data3z.f)
 set(fortran_srcs3 ${fortran_srcs} archv3z2nc.f)
 
-set(ilib_dir ${CMAKE_SOURCE_DIR}/libs/build/src)
+set(ilib_dir ${CMAKE_SOURCE_DIR}/tools/build/src)
 set(exe_name1 hafs_archv2data2d)
 set(exe_name2 hafs_archv2data3z)
 set(exe_name3 hafs_archv3z2nc)

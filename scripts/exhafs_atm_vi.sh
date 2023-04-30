@@ -1,31 +1,49 @@
 #!/bin/sh
 
 set -xe
-
+vi_force_cold_start=${vi_force_cold_start:-no}
+vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
 vi_storm_env=${vi_storm_env:-init} # init: from gfs/gdas init; pert: from the same source for the storm perturbation
 vi_storm_relocation=${vi_storm_relocation:-yes}
 vi_storm_modification=${vi_storm_modification:-yes}
-vi_ajust_intensity=${vi_adjust_intensity:-yes}
-vi_ajust_size=${vi_adjust_size:-yes}
+vi_adjust_intensity=${vi_adjust_intensity:-yes}
+vi_adjust_size=${vi_adjust_size:-yes}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
 
-CDATE=${CDATE:-$YMDH}
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+if [ "${ENSDA}" = YES ]; then
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
+  export CDATE=${CDATE:-${YMDH}}
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
+  export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+else
+  export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
+  export INTCOMinit=${WORKhafs}/intercom/atm_init
+  export RESTARTinit=${WORKhafs}/intercom/RESTART_init
+  export RESTARTout=${WORKhafs}/intercom/RESTART_vi
+  export CDATE=${CDATE:-${YMDH}}
+fi
+
+CDATEprior=$(${NDATE} -6 $YMDH)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
 
-RESTARTinp=${RESTARTinp:-${COMhafsprior}/RESTART}
-RESTARTmrg=${RESTARTmrg:-${WORKhafs}/intercom/RESTART_merge}
-INTCOMinit=${INTCOMinit:-${WORKhafs}/intercom/atm_init}
-RESTARTinit=${RESTARTinit:-${WORKhafs}/intercom/RESTART_init}
-RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART_vi}
-
 DATA=${DATA:-${WORKhafs}/atm_vi}
+mkdir -p ${DATA}
 
 cd $DATA
 # Prepare tcvitals file
@@ -46,12 +64,52 @@ tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
 
+cd $DATA
+
+# Skip atm_vi if vmax is weaker than vi_min_wind_for_init (e.g., 9 m/s)
+if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
+
+echo "INFO: vmax_vit of ${vmax_vit} <= ${vi_min_wind_for_init} m/s"
+echo "INFO: skip vortex initialization for weak storms."
+
+mkdir -p ${RESTARTout}
+if [ -d ${RESTARTinit} ]; then
+  RESTARTdst=${RESTARTinit}
+elif [ -d ${RESTARTmrg} ]; then
+  RESTARTdst=${RESTARTmrg}
+else
+  RESTARTdst=${RESTARTinp}
+fi
+${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+
+echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
+echo "INFO: exiting after skipping vortex initialization ..."
+exit
+
+fi
+
 #===============================================================================
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
 cd $DATA
+
+# Force to cold start storm vortex if desired
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+
 # Stage 0.1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
+if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
+  echo "INFO: vmax_vit of ${vmax_vit} >= ${vi_warm_start_vmax_threshold} m/s"
+  echo "INFO: expecting warm-start from prior cycle's storm vortex if exists."
+  if [ -d ${RESTARTinp} ]; then
+    echo "INFO: ${RESTARTinp} exists, will warm-start from prior cycle's storm vortex."
+  else
+    echo "WARNING: ${RESTARTinp} does not exists, will cold-start storm vortex."
+  fi
+fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
   for vortexradius in 30 45; do
     if [[ ${vortexradius} == 30 ]]; then
@@ -71,12 +129,15 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+    status=$?; [[ $status -ne 0 ]] && exit $status
     if [[ ${nest_grids} -gt 1 ]]; then
       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
+
+fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
 
 cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
@@ -98,6 +159,7 @@ for vortexradius in 30 45; do
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+  status=$?; [[ $status -ne 0 ]] && exit $status
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -108,6 +170,9 @@ done
 # Stage 1: Process prior cycle's vortex if exists and if storm intensity is
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 
+# Force to cold start storm vortex if desired
+if [[ ${vi_force_cold_start} != "yes" ]]; then
+
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
   # create_trak and split
@@ -116,14 +181,12 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-  if [ -e ${COMhafsprior}/${STORMID,,}.${CDATEprior}.${RUN}.trak.atcfunix.all ]; then
-    ${NCP} ${COMhafsprior}/${STORMID,,}.${CDATEprior}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ]; then
+    ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
-    # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
-    # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
@@ -140,7 +203,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   # output
   ${NLN} ./trak.fnl.all fort.30
 
-  ${NLN} ${EXEChafs}/hafs_vi_create_trak_guess.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
 
   # split
@@ -156,7 +219,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} storm_pert fort.71
   ${NLN} storm_radius fort.85
 
-  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
@@ -178,7 +241,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} storm_size_p fort.14
   ${NLN} storm_sym fort.23
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -205,6 +268,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
 fi
 
+fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
+
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model
 
@@ -224,8 +289,6 @@ if true; then
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
-    # | grep -E "^${STORMBS1^^}.,|^.${STORMBS1^^}," \
-    # | grep -E "HAFS, 00.," > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
@@ -242,7 +305,7 @@ if true; then
   # output
   ${NLN} ./trak.fnl.all fort.30
 
-  ${NLN} ${EXEChafs}/hafs_vi_create_trak_init.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
 
   # split
@@ -261,7 +324,7 @@ if true; then
   ${NLN} storm_pert fort.71
   ${NLN} storm_radius fort.85
 
-  ${NLN} ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -288,7 +351,7 @@ if true; then
   ${NLN} storm_size_p fort.14
   ${NLN} storm_sym fort.23
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -326,6 +389,8 @@ cd ${work_dir}
 # Bogus a storm if prior cycle does not exist and tcvital intensity >= vi_bogus_vmax_threshold (e.g., 33 m/s)
 if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/storm_pert_new ]; then
 
+  echo "WARNING: Bogus storm vortex since prior cycle does not exist and vmax_vit of ${vmax_vit} >= ${vi_bogus_vmax_threshold}"
+
   pert=init
   senv=$pert
   # anl_bogus
@@ -349,7 +414,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   # output
   ${NLN} storm_anl_bogus                       fort.56
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_bogus.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
   echo 6 ${pubbasin2} | ${APRUNO} ./hafs_vi_anl_bogus.x
   ${NCP} -p storm_anl_bogus storm_anl
 
@@ -395,7 +460,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
 
-  ${NLN} ${EXEChafs}/hafs_vi_anl_combine.x ./
+  ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
@@ -427,7 +492,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} storm_anl_enhance                     fort.56
 
     iflag_cold=${iflag_cold:-0}
-    ${NLN} ${EXEChafs}/hafs_vi_anl_enhance.x ./
+    ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
     echo 6 ${pubbasin2} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
     ${NCP} -p storm_anl_enhance storm_anl
   fi
@@ -465,8 +530,9 @@ for nd in $(seq 1 ${nest_grids}); do
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --nestdoms=$((${nd}-1)) \
       --out_dir=${RESTARTout}
+  status=$?; [[ $status -ne 0 ]] && exit $status
 done
 
 #===============================================================================
 
-exit
+date

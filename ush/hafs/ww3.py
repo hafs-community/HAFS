@@ -1,18 +1,20 @@
+#! /usr/bin/env python3
+
 """This module handles WW3 related scripts for HAFS system."""
-# Updates Biju Thomas on 07/30/2022
-#     Added cfp option for WCOSS2
 
 __all__ = ['WW3Init', 'WW3Post']
 
-import os, re
+import os, sys, re
 import produtil.datastore, produtil.fileop, produtil.cd, produtil.run, produtil.log
-import produtil.cluster
+import produtil.dbnalert
 import tcutil.numerics
 import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
+import hafs.launcher, hafs.config
 
 from produtil.datastore import FileProduct, RUNNING, COMPLETED, FAILED, UpstreamFile
 from produtil.fileop import make_symlink, deliver_file, wait_for_files
+from produtil.dbnalert import DBNAlert
 from produtil.cd import NamedDir, TempDir
 from produtil.run import mpi, mpirun, run, runstr, checkrun, exe, bigexe, alias
 from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction, to_timedelta
@@ -139,7 +141,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         logger=self.log()
         for prodname,stuff in self._products.items():
             (prod,localpath)=stuff
-            prod.deliver(frominfo=localpath,keep=False,logger=logger)
+            prod.deliver(frominfo=localpath,keep=True,logger=logger)
 
     def run(self):
         """Runs the WW3 initialization"""
@@ -235,21 +237,30 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     logger.error('Not implemented yet')
 
                 have_restart=False
-                oldrst='(unknown)'
-                try:
-                    oldrst=self.icstr('{oldcom}/{oldvit[stormid3lc]}.restart.f006.ww3')
-                    if produtil.fileop.isnonempty(oldrst):
-                        produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
-                        have_restart=True
-                        produtil.log.jlogger.info('%s: warm start for wave'%(oldrst,))
+                if os.environ.get('ww3_force_cold_start','no').lower() == 'yes':
+                    logger.warning('ww3_force_cold_start is yes and will generate restart.ww3.')
+                else:
+                    oldrst='(unknown)'
+                    oldconffile=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.conf')
+                    if produtil.fileop.isnonempty(oldconffile):
+                        logger.info('%s: prior cycle exists.'%(oldconffile,))
+                        oldconf=hafs.launcher.HAFSLauncher()
+                        oldconf.read(oldconffile)
+                        oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
+                        if not oldconf.getbool('config','run_wave'):
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run wave.')
+                        elif not oldconf.getstr('config','wave_model').lower() == 'ww3':
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run WW3.')
+                        elif produtil.fileop.isnonempty(oldrst):
+                            produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
+                            have_restart=True
+                            logger.info('%s: warm start from prior cycle 6-h output restart file.'%(oldrst,))
+                        else:
+                            logger.critical('FATAL ERROR: exiting because piror cycle %s is missing or empty.'%(oldrst,))
+                            logger.critical('FATAL ERROR: if desired, set force_cold_start or ww3_force_cold_start = yes can bypass this failure.')
+                            sys.exit(2)
                     else:
-                        produtil.log.jlogger.warning(
-                            'restart.ww3: will generate restart.ww3 because %s is missing '
-                            'or empty.'%(oldrst,))
-                except Exception as ee:
-                    produtil.log.jlogger.warning(
-                        'restart.ww3: will generate restart.ww3 because %s is missing '
-                        'or could not be copied; %s'%(oldrst,str(ee)),exc_info=True)
+                        logger.info('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:
@@ -528,6 +539,9 @@ class WW3Post(hafs.hafstask.HAFSTask):
         logger=self.log()
         redirect=self.confbool('redirect',True)
         self.state=RUNNING
+        # The line below makes a DBNAlert object, which can be reused for the later alerts.
+        alerter=produtil.dbnalert.DBNAlert(['MODEL','{type}','{job}','{location}'])
+        modelrun=self.icstr('{RUN}').upper()
         try:
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
@@ -567,10 +581,13 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     wgrib2=self.getexe('wgrib2')
                     logger.info('ww3post: Generating grib idx file for gribfile')
                     checkrun(bigexe(wgrib2)['-s','gribfile'] > indexfile,logger=logger)
+                    os.system('chmod -x '+indexfile) # Remove the -x permission
                     (prod,localpath)=self._products['ww3grb2']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2')
                     (prod,localpath)=self._products['ww3grb2idx']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2_WIDX')
                # For point output ww3_outp
                 ww3_outp_bull_post=self.confstr('ww3_outp_bull_post','yes',section='ww3post')
                 ww3_outp_spec_post=self.confstr('ww3_outp_spec_post','yes',section='ww3post')
@@ -623,17 +640,12 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         cmdfname='command.file.ww3outpbull'
                         with open(cmdfname,'wt') as cfpf:
                             cfpf.write('\n'.join(commands))
-                        clustername=produtil.cluster.name()
                         threads=os.environ['TOTAL_TASKS']
                         logger.info('ww3_outp_bull total threads: %s ',threads)
-                        if clustername in ('cactus','dogwood'):
-                            cfp_path=produtil.fileop.find_exe('cfp')
-                            cmd2=mpirun(mpi(cfp_path)[cmdfname],allranks=True)
-                        else:
-                            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-                            if mpiserial_path=='*MISSING*':
-                                mpiserial_path=self.getexe('mpiserial')
-                            cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
+                        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+                        if mpiserial_path=='*MISSING*':
+                            mpiserial_path=self.getexe('mpiserial')
+                        cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
                         checkrun(cmd2)
                         # Tar the outputs and diliver to com dir
                         cmd=exe('tar')['-cvf', 'ww3_bull.tar'][filebull]
@@ -646,10 +658,13 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcsbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                     # For point spec output
                     if ww3_outp_spec_post == 'yes':
                         fileout=[]
@@ -682,15 +697,10 @@ class WW3Post(hafs.hafstask.HAFSTask):
                             cfpf.write('\n'.join(commands))
                         threads=os.environ['TOTAL_TASKS']
                         logger.info('ww3_outp_spec total threads: %s ',threads)
-                        clustername=produtil.cluster.name()
-                        if clustername in ('cactus','dogwood'):
-                            cfp_path=produtil.fileop.find_exe('cfp')
-                            cmd2=mpirun(mpi(cfp_path)[cmdfname],allranks=True)
-                        else:
-                            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-                            if mpiserial_path=='*MISSING*':
-                                mpiserial_path=self.getexe('mpiserial')
-                            cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
+                        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+                        if mpiserial_path=='*MISSING*':
+                            mpiserial_path=self.getexe('mpiserial')
+                        cmd2=mpirun(mpi(mpiserial_path)['-m',cmdfname],allranks=True)
                         checkrun(cmd2)
                         # Tar the outputs and deliver to com dir
                         cmd=exe('tar')['-cvf', 'ww3_spec.tar'][fileout]
@@ -699,6 +709,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpspec']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                 # Additional ww3post products
                 # For field output in netcdf format
                 ww3_ounf_post=self.confstr('ww3_ounf_post','yes',section='ww3post')
