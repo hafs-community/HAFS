@@ -102,6 +102,12 @@
   <!ENTITY FORECAST_RESOURCES_regional_48x30io1x80_ocn60_omp2 "<nodes>79:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1580</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_48x40io1x80_ocn60_omp2 "<nodes>103:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2060</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!-- FORECAST_RESOURCES for regional MOM6 coupling -->
+  <!ENTITY FORECAST_RESOURCES_regional_20x12io1x60_ocn60_omp1 "<nodes>9:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>40</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ENS_RESOURCES_regional_20x12io1x60_ocn60_omp1 "<nodes>9:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>40</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_20x12io1x60_ocn60_omp2 "<nodes>18:ppn=40:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ENS_RESOURCES_regional_20x12io1x60_ocn60_omp2 "<nodes>18:ppn=40:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
   <!ENTITY FORECAST_RESOURCES_regional_20x15io1x140_ocn60_omp2 "<nodes>25:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>500</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_40x30io1x140_ocn60_omp2 "<nodes>70:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1400</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_40x30io1x140_med60_wav60_omp2 "<nodes>73:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1460</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
@@ -147,6 +153,10 @@
   <!ENTITY FORECAST_RESOURCES_regnest2 "<nodes>9:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regnest3 "<nodes>12:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest_atm_mom6_omp2 "<nodes>12:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest_atm_mom6_omp1 "<nodes>12:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>40</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest_atm_mom6_omp1 "<nodes>12:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest_atm_mom6_omp2 "<nodes>12:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>40</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest "<nodes>8:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>160</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_C96_regional_1mvnest_atm_ocn "<nodes>11:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>220</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_C512_regional_1mvnest "<nodes>96:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">

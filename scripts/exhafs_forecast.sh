@@ -15,6 +15,7 @@ PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
+FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
@@ -272,6 +273,10 @@ fi
 
 # Ocean coupling related settings
 run_ocean=${run_ocean:-no}
+#BL_b
+ocean_model=mom6
+cpl_atm_ocn=cmeps_atm_datm_ocn
+#BL_n
 ocean_model=${ocean_model:-hycom}
 run_wave=${run_wave:-no}
 wave_model=${wave_model:-ww3}
@@ -280,6 +285,7 @@ cpl_atm_wav=${cpl_atm_wav:-cmeps_1way_1to2}
 cpl_wav_ocn=${cpl_wav_ocn:-cmeps_sidebyside}
 ocn_tasks=${ocn_tasks:-120}
 med_tasks=${med_tasks:-${ocn_tasks}}
+dat_tasks=${dat_tasks:-${ocn_tasks}}
 wav_tasks=${wav_tasks:-120}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
@@ -337,11 +343,21 @@ ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
 
 ATM_model_component="ATM_model: fv3"
-OCN_model_component="OCN_model: hycom"
 WAV_model_component=""
 ATM_model_attribute="ATM_model = fv3"
-OCN_model_attribute="OCN_model = hycom"
 WAV_model_attribute=""
+
+#BL_b
+if [ ${ocean_model} = hycom ]; then
+  OCN_model_component="OCN_model: hycom"
+  OCN_model_attribute="OCN_model = hycom"
+fi
+if [ ${ocean_model} = mom6 ]; then
+  OCN_model_component="OCN_model: mom6"
+  OCN_model_attribute="OCN_model = mom6"
+fi
+#BL_e
+
 OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
 
 # NUOPC based coupling options
@@ -392,6 +408,16 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
     cplflx=.true.
     cplocn2atm=.false.
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n ATM\n OCN"
+#BL_b
+  elif [ $cpl_atm_ocn = cmeps_atm_datm_ocn ]; then
+    EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
+
+    DAT_model_component="DAT_model: datm"
+    DAT_model_attribute="DAT_model=datm"
+    DAT_petlist_bounds=$(printf "DAD_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$dat_tasks-1)))
+    cplflx=.true.
+    cplocn2atm=.true.
+#BL_n
   fi
 # Currently unsupported coupling option combinations
 else
@@ -462,8 +488,8 @@ fi
 
 fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 
-if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
-
+#BL_b
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]] && ${run_wave} = yes ]; then
 EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
 ATM_model_component="ATM_model: fv3"
 OCN_model_component="OCN_model: hycom"
@@ -538,7 +564,8 @@ else
   exit 9
 fi
 
-fi #if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
+fi #if [ ${run_ocean} = yes ] && [${ocean_model}=hycom]] && [ ${run_wave} = yes ]; then
+#BL_n
 
 # CDEPS data models
 if [ ${run_datm} = yes ]; then
@@ -699,16 +726,35 @@ fi
 cd ..
 
 # Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and nems.configure
-${NCP} ${PARMforecast}/diag_table.tmp .
-if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
-else
-  ${NCP} ${PARMforecast}/field_table .
+#BL_b
+if [ ${ocean_model} = hycom ]; then
+  ${NCP} ${PARMforecast}/diag_table.tmp .
+  if [ ${imp_physics:-11} = 8 ]; then
+    ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+  else
+    ${NCP} ${PARMforecast}/field_table .
+  fi
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+  ${NCP} ${PARMforecast}/model_configure.tmp .
+  ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
-${NCP} ${PARMforecast}/model_configure.tmp .
-${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+#BL_n
+
+#BL_b
+if [ ${ocean_model} = mom6 ]; then
+  ${NCP} ${PARMforecast}/../regional_mom6/diag_table.tmp .
+  if [ ${imp_physics:-11} = 8 ]; then
+    ${NCP} ${PARMforecast}/../regional_mom6/field_table_thompson ./field_table
+  else
+    ${NCP} ${PARMforecast}/../regional_mom6/field_table .
+  fi
+  ${NCP} ${PARMforecast}/../regional_mom6/input.nml.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/input_nest.nml.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/model_configure.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/nems.configure.atmonly ./nems.configure
+fi
+#BL_n
 
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
@@ -874,32 +920,62 @@ fi
 cd ..
 
 # Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and nems.configure
-${NCP} ${PARMforecast}/diag_table.tmp .
-if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
-else
-  ${NCP} ${PARMforecast}/field_table .
+#BL_b
+if [ ${ocean_model} = hycom ]; then
+  ${NCP} ${PARMforecast}/diag_table.tmp .
+  if [ ${imp_physics:-11} = 8 ]; then
+    ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+  else
+    ${NCP} ${PARMforecast}/field_table .
+  fi
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+  ${NCP} ${PARMforecast}/model_configure.tmp .
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
-${NCP} ${PARMforecast}/model_configure.tmp .
+if [ ${ocean_model} = mom6 ]; then
+  ${NCP} ${PARMforecast}/../regional_mom6/diag_table.tmp .
+  if [ ${imp_physics:-11} = 8 ]; then
+    ${NCP} ${PARMforecast}/../regional_mom6/field_table_thompson ./field_table
+  else
+    ${NCP} ${PARMforecast}/../regional_mom6/field_table .
+  fi
+  ${NCP} ${PARMforecast}/../regional_mom6/input.nml.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/input_nest.nml.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/model_configure.tmp .
+  ${NCP} ${PARMforecast}/../regional_mom6/data_table ./data_table
+fi
+#BL_n
 
-if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
-  ${NCP} ${PARMforecast}/nems.configure.cpl.tmp ./nems.configure.tmp
-else
-  ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+#BL_b
+if [ ${ocean_model} = hycom ]; then
+  if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
+    ${NCP} ${PARMforecast}/nems.configure.cpl.tmp ./nems.configure.tmp
+  else
+    ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+  fi
 fi
+if [ ${ocean_model} = mom6 ]; then
+  if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
+    ${NCP} ${PARMforecast}/../regional_mom6/nems.configure.mom6.tmp ./nems.configure.tmp
+  else
+    ${NCP} ${PARMforecast}/../regional_mom6/nems.configure.atmonly ./nems.configure.tmp
+  fi
+fi
+#BL_e
 
 sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "s/_ATM_model_component_/${ATM_model_component}/g" \
+    -e "s/_DAT_model_component_/${DAT_model_component}/g" \
     -e "s/_OCN_model_component_/${OCN_model_component}/g" \
     -e "s/_WAV_model_component_/${WAV_model_component}/g" \
     -e "s/_MED_model_component_/${MED_model_component}/g" \
     -e "s/_ATM_model_attribute_/${ATM_model_attribute}/g" \
+    -e "s/_DAT_model_attribute_/${DAT_model_attribute}/g" \
     -e "s/_OCN_model_attribute_/${OCN_model_attribute}/g" \
     -e "s/_WAV_model_attribute_/${WAV_model_attribute}/g" \
     -e "s/_MED_model_attribute_/${MED_model_attribute}/g" \
     -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+    -e "s/_DAT_petlist_bounds_/${DAT_petlist_bounds}/g" \
     -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
     -e "s/_WAV_petlist_bounds_/${WAV_petlist_bounds}/g" \
     -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
@@ -993,7 +1069,57 @@ fi # if not cdeps datm
 
 if [ $gtype = regional ]; then
 
-if [ ${run_ocean} = yes ]; then
+#BL_b
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ];  then
+  # link mom6 related files
+  #${NLN} ${WORKhafs}/intercom/mom6/mom6_settings mom6_settings
+  #mom6_basin=$(grep RUNmodIDout ./mom6_settings | cut -c20-)
+  # link IC/BC
+  ${NLN} ${WORKhafs}/intercom/mom6/rtofs_ts_ic.nc INPUT/rtofs_ts_ic.nc
+  ${NLN} ${WORKhafs}/intercom/mom6/rtofs_ssh_ic.nc INPUT/rtofs_ssh_ic.nc
+  ${NLN} ${WORKhafs}/intercom/mom6/obc*nc INPUT/
+  # link fix
+  ${NLN} ${FIXmom6}/INPUT/analysis_vgrid_lev51.nc INPUT/analysis_vgrid_lev51.nc 
+  ${NLN} ${FIXmom6}/INPUT/geothermal_davies2013_hat10.nc INPUT/geothermal_davies2013_hat10.nc
+  ${NLN} ${FIXmom6}/INPUT/land_mosaic.nc INPUT/land_mosaic.nc
+  ${NLN} ${FIXmom6}/INPUT/ocean_mosaic.nc INPUT/ocean_mosaic.nc
+  ${NLN} ${FIXmom6}/INPUT/mosaic.nc INPUT/mosaic.nc
+  ${NLN} ${FIXmom6}/INPUT/ocean_precip_monthly_JD.nc INPUT/ocean_precip_monthly_JD.nc
+  ${NLN} ${FIXmom6}/INPUT/MOM_input INPUT/MOM_input
+  ${NLN} ${FIXmom6}/INPUT/MOM_override INPUT/MOM_override
+  ${NLN} ${FIXmom6}/INPUT/MOM_saltrestore INPUT/MOM_saltrestore
+  ${NLN} ${FIXmom6}/INPUT/salt_restore_PHC2.nc INPUT/salt_restore_PHC2.nc
+  ${NLN} ${FIXmom6}/INPUT/ocean_hgrid.nc INPUT/ocean_hgrid.nc
+  ${NLN} ${FIXmom6}/INPUT/ocean_topog.nc INPUT/ocean_topog.nc
+  ${NLN} ${FIXmom6}/INPUT/seawifs_1998-2006_smoothed_hat10_correct.nc INPUT/seawifs_1998-2006_smoothed_hat10_correct.nc
+  ${NLN} ${FIXmom6}/INPUT/tidal_amplitude_hat10.nc INPUT/tidal_amplitude_hat10.nc
+  ${NLN} ${FIXmom6}/INPUT/topog.nc  INPUT/topog.nc
+  ${NLN} ${FIXmom6}/INPUT/vgrid.nc  INPUT/vgrid.nc
+  ${NLN} ${FIXmom6}/INPUT/mom6_grid/grid_spec.nc  grid_spec.nc
+  ${NLN} ${FIXmom6}/INPUT/mom6_grid/hafs_mom6_mesh.nc  hafs_mom6_mesh.nc
+# Prepare CDEPS input and fix files if required.
+  mkdir -p DATM_INPUT OUTPUT
+  ${NCP} ${FIXhafs}/fix_cdeps/meshes/hafs_gfs_mesh.nc DATM_INPUT/hafs_gfs_mesh.nc
+  ${NCP} ${WORKhafs}/intercom/mom6/gfs_global_*nc DATM_INPUT/ 
+# Generate datm.streams from template specific to the model:
+  ${NCP} ${PARMhafs}/cdeps/GFS_HAFS/datm_gfs_hafs.streams datm.streams
+    for file in DATM_INPUT/gfs_global_*nc ; do
+      if [[ -s "$file" ]] ; then
+      sed -i "/^stream_data_files01:/ s/$/\ \"DATM_INPUT\/$(basename $file)\"/" datm.streams
+      fi
+    done
+    endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+    sed -i "s/_yearFirst_/$yr/g" datm.streams
+    sed -i "s/_yearLast_/$endyr/g" datm.streams
+    sed -i "s/_mesh_atm_/DATM_INPUT\/hafs_gfs_mesh.nc/g" datm.streams
+
+# Generate datm_in from templates:
+    ${NCP} ${PARMhafs}/cdeps/GFS_HAFS/datm_in .
+    sed -i "s/_mesh_atm_/DATM_INPUT\/hafs_gfs_mesh.nc/g" datm_in
+fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ];  then
+
+#BL_b
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ];  then
   # link hycom related files
   ${NLN} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
   hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)

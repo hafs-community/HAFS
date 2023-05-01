@@ -112,6 +112,12 @@
   <!ENTITY FORECAST_RESOURCES_regional_48x30io1x140_ocn60_omp2 "<nodes>82:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1640</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_regional_48x40io1x140_ocn60_omp2 "<nodes>106:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2120</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!-- FORECAST_RESOURCES for regional MOM6 coupling -->
+  <!ENTITY FORECAST_RESOURCES_regional_20x12io1x60_ocn60_omp1 "<nodes>15:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>24</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ENS_RESOURCES_regional_20x12io1x60_ocn60_omp1 "<nodes>15:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>24</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_regional_20x12io1x60_ocn60_omp2 "<nodes>30:ppn=24:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ENS_RESOURCES_regional_20x12io1x60_ocn60_omp2 "<nodes>30:ppn=24:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+
   <!-- FORECAST_RESOURCES for CDEPS DATM with regional HYCOM coupling -->
   <!ENTITY FORECAST_RESOURCES_regional_10x8io1x40_ocn120_omp1 "<nodes>10:ppn=24:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:00:00</walltime>">
 
