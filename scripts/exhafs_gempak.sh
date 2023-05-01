@@ -7,6 +7,9 @@ export fstart=0
 export finc=6
 export fend=${NHRS:-126}
 
+intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
+mkdir -p ${intercom}
+
 cd ${DATA}
 mkdir -p $DATA/${NET} $DATA/${NET}p
 mkdir -p ${COMOUT}/gempak/${storm_id}/meta
@@ -51,6 +54,23 @@ fi
 
 mkdir -p ${DATAgempak}
 cd ${DATAgempak}
+
+# Check if gempak has processed this forecast hour previously
+if [ -e ${intercom}/${GDOUTF}.done ] && \
+   [ ${intercom}/${GDOUTF}.done -nt ${GBINDX} ] && \
+   [ -s ${GPOUTF} ]; then
+
+# Symbolically link ${GDOUTF} and ${GDOUTF}.done files needed by gempak meta file generation.
+${NLN} ${GPOUTF} ./${GDOUTF}
+${NLN} ${intercom}/${GDOUTF}.done ./
+
+echo "gempak done file ${intercom}/${GDOUTF}.done exist and newer than ${GBINDX}"
+echo "gempak product ${GPOUTF} exist"
+echo "skip gempak for forecast hour ${fhr3}"
+
+# Otherwise run gempak for this forecast hour
+else
+
 # Wait for model output
 n=1
 while [ $n -le 360 ]; do
@@ -93,8 +113,6 @@ status=$?; [[ $status -ne 0 ]] && exit $status
 ls -l $GDOUTF
 status=$?; [[ $status -ne 0 ]] && exit $status
 
-touch $GDOUTF.done
-
 ${GEMEXE}/gpend
 status=$?; [[ $status -ne 0 ]] && exit $status
 
@@ -104,6 +122,11 @@ if [ "${SENDCOM^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GEMPAK $job $GPOUTF
   fi
 fi
+
+touch ${intercom}/$GDOUTF.done
+
+fi
+# End if for checking if gempak has processed this forecast hour previously
 
 done # End loop for grids/domains
 

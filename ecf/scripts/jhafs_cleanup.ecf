@@ -8,6 +8,7 @@
 #PBS -l debug=true
 
 model=hafs
+export NET="%NET%"
 export RUN="%RUN%"
 export cyc="%CYC%"
 %include <head.h>
