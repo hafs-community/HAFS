@@ -50,6 +50,10 @@ cd $DATA
 #mom6 ic
 #${USHhafs}/mom6_ic.sh $CDATE
 #./mom6_ic.sh $CDATE
+if [ ${machine} = "wcoss2" ]; then
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/rtofs_ssh_ic.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/rtofs_ts_ic.nc ${OUTDIR}
+fi
 if [ ${machine} = "hera" ]; then
 ln -sf /scratch1/NCEPDEV/hwrf/noscrub/Bin.Li/hafs-ic-bc/rtofs_ssh_ic.nc ${OUTDIR}
 ln -sf /scratch1/NCEPDEV/hwrf/noscrub/Bin.Li/hafs-ic-bc/rtofs_ts_ic.nc ${OUTDIR}
@@ -66,6 +70,17 @@ fi
 #mom6 lbc
 #${USHhafs}/mom6_lbc.sh $CDATE
 #./mom6_lbc.sh $CDATE
+if [ ${machine} = "wcoss2" ]; then
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ssh_east.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ssh_north.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ssh_south.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ts_east.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ts_north.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_ts_south.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_uv_east.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_uv_north.nc ${OUTDIR}
+ln -sf /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/hafs-ic-bc/obc_uv_south.nc ${OUTDIR}
+fi
 if [ ${machine} = "hera" ]; then
 ln -sf /scratch1/NCEPDEV/hwrf/noscrub/Bin.Li/hafs-ic-bc/obc_ssh_east.nc ${OUTDIR}
 ln -sf /scratch1/NCEPDEV/hwrf/noscrub/Bin.Li/hafs-ic-bc/obc_ssh_north.nc ${OUTDIR}
@@ -103,6 +118,9 @@ fi
 #${USHhafs}/gfs_global_forcing.sh $CDATE
 #./gfs_global_forcing.sh $CDATE
 # final output forcing files are in OUTDIR
+if [ ${machine} = "wcoss2" ]; then
+cp /lfs/h2/emc/nems/noscrub/bin.li/hafs_mom6/DATM_INPUT/gfs_global_2020082512.nc ${OUTDIR}
+fi
 if [ ${machine} = "hera" ]; then
 cp /scratch1/NCEPDEV/stmp2/Bin.Li/hafs_mom6_tmp/test_2020082512_126h/DATM_INPUT/gfs_global_2020082512.nc ${OUTDIR}
 #mv gfs_global_forcing$CDATE.nc ${OUTDIR}/gfs_global_forcing$CDATE.nc
