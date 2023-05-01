@@ -14,7 +14,8 @@ mkdir -p ${FIXhafs}
 cd ${FIXhafs}
 mkdir -p fix_fv3
 if [ ${target} == "wcoss2" ]; then
-  FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  #FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  FIXROOT=/lfs/h2/emc/nems/bin.li/noscrub/hafs_mom6/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "hera" ]; then
   #FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
   FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/Bin.Li/hafs-fix-files/hafs-${FIXversion}-fix/fix
