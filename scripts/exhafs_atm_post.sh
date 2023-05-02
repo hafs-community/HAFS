@@ -173,11 +173,11 @@ trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
 if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
-   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
+   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/log.atm.f${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
-echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/log.atm.f${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -190,11 +190,11 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 # Wait for model output
 n=1
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
     sleep 1s
     break
   fi
@@ -210,13 +210,13 @@ else
 # Wait for model output
 n=1
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || \
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
     sleep 1s
     break
   fi

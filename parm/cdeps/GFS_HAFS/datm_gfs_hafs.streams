@@ -12,4 +12,4 @@ stream_vectors01:          "Faxd_taux:Faxd_tauy"
 stream_mesh_file01:        "_mesh_atm_"
 stream_lev_dimname01:      null
 stream_data_files01:       
-stream_data_variables01:   "VGRD_10maboveground Sa_mask" "SWVDR Faxd_swvdr" "SWVDF Faxd_swvdf" "SWNDR Faxd_swndr" "SWNDF Faxd_swndf" "NETLW_surface Faxd_lwnet" "SHTFL_surface Faxd_sen" "LHTFL_surface Faxd_lat" "PRATE_surface Faxd_rain" "UFLX_surface Faxd_taux" "VFLX_surface Faxd_tauy"
+stream_data_variables01:   "SWVDR Faxd_swvdr" "SWVDF Faxd_swvdf" "SWNDR Faxd_swndr" "SWNDF Faxd_swndf" "NETLW_surface Faxd_lwnet" "SHTFL_surface Faxd_sen" "LHTFL_surface Faxd_lat" "PRATE_surface Faxd_rain" "UFLX_surface Faxd_taux" "VFLX_surface Faxd_tauy"
