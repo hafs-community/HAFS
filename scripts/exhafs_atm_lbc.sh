@@ -188,6 +188,28 @@ while [ $n -le 360 ]; do
   n=$(( n+1 ))
 done
 
+# Check and wait for the pgrb2b input data if needed.
+if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
+
+n=1
+while [ $n -le 360 ]; do
+  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
+    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+    break
+  else
+    echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
+  fi
+  n=$(( n+1 ))
+done
+
+fi
+
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
     # Use both ${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} and ${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} files

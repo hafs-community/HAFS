@@ -4,6 +4,7 @@ extern /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:r
 extern /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
 extern /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
 extern /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
+extern /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis
 
 extern /prod_clone/primary/06/gfs/v16.3/gfs/atmos/analysis/jgfs_atmos_analysis:release_fcst
 extern /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
@@ -35,9 +36,9 @@ suite para_hafs
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit VER 'v1.0.0'
+        edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
@@ -52,15 +53,15 @@ suite para_hafs
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
-              trigger :TIME >= 0250 and :TIME < 0850
+              trigger :TIME >= 0240 and :TIME < 0850
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -75,19 +76,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -97,16 +98,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger  /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -204,10 +208,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -222,19 +226,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -244,16 +248,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -351,10 +358,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -369,19 +376,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -391,16 +398,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -498,10 +508,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -516,19 +526,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -538,16 +548,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -645,10 +658,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -663,19 +676,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -685,16 +698,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -792,10 +808,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -810,19 +826,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -832,16 +848,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -939,10 +958,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -957,19 +976,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -979,16 +998,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1089,10 +1111,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1107,19 +1129,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1129,16 +1151,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1234,10 +1259,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1252,19 +1277,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1274,16 +1299,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1379,10 +1407,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1397,19 +1425,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1419,16 +1447,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1524,10 +1555,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1542,19 +1573,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1564,16 +1595,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1669,10 +1703,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 0300 and :TIME < 0900
+                trigger :TIME >= 0250 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0315 and :TIME < 0915 and ../jhafs_cleanup==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0305 and :TIME < 0900 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1687,19 +1721,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1709,16 +1743,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1822,9 +1859,9 @@ suite para_hafs
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit VER 'v1.0.0'
+        edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
@@ -1839,15 +1876,15 @@ suite para_hafs
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
-              trigger :TIME >= 0850 and :TIME < 1450
+              trigger :TIME >= 0840 and :TIME < 1450
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1862,19 +1899,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -1884,16 +1921,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -1991,10 +2031,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2009,19 +2049,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2031,16 +2071,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2138,10 +2181,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2156,19 +2199,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2178,16 +2221,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2285,10 +2331,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2303,19 +2349,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2325,16 +2371,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2432,10 +2481,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2450,19 +2499,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2472,16 +2521,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2579,10 +2631,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2597,19 +2649,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2619,16 +2671,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2726,10 +2781,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2744,19 +2799,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2766,16 +2821,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -2876,10 +2934,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -2894,19 +2952,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -2916,16 +2974,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3021,10 +3082,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3039,19 +3100,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3061,16 +3122,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3166,10 +3230,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3184,19 +3248,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3206,16 +3270,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3311,10 +3378,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3329,19 +3396,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3351,16 +3418,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3456,10 +3526,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 0900 and :TIME < 1500
+                trigger :TIME >= 0850 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0915 and :TIME < 1515 and ../jhafs_cleanup==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 0905 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3474,19 +3544,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3496,16 +3566,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/00/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3609,9 +3682,9 @@ suite para_hafs
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit VER 'v1.0.0'
+        edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
@@ -3626,15 +3699,15 @@ suite para_hafs
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
-              trigger :TIME >= 1450 and :TIME < 2050
+              trigger :TIME >= 1440 and :TIME < 2050
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3649,19 +3722,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3671,16 +3744,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3778,10 +3854,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3796,19 +3872,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3818,16 +3894,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -3925,10 +4004,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -3943,19 +4022,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -3965,16 +4044,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4072,10 +4154,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4090,19 +4172,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4112,16 +4194,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4219,10 +4304,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4237,19 +4322,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4259,16 +4344,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4366,10 +4454,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4384,19 +4472,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4406,16 +4494,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4513,10 +4604,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4531,19 +4622,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4553,16 +4644,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4663,10 +4757,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4681,19 +4775,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4703,16 +4797,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4808,10 +4905,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4826,19 +4923,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4848,16 +4945,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -4953,10 +5053,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -4971,19 +5071,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -4993,16 +5093,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5098,10 +5201,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5116,19 +5219,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5138,16 +5241,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5243,10 +5349,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger :TIME >= 1500 and :TIME < 2100
+                trigger :TIME >= 1450 and :TIME < 2100
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 1515 and :TIME < 2115 and ../jhafs_cleanup==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger :TIME >= 1505 and :TIME < 2100 and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5261,19 +5367,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/12/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5283,16 +5389,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/06/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5396,9 +5505,9 @@ suite para_hafs
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit VER 'v1.0.0'
+        edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
@@ -5413,15 +5522,15 @@ suite para_hafs
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
-              trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0250)
+              trigger ((:TIME >= 2040 and :TIME < 2359 ) or :TIME < 0250)
             family storm1
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5436,19 +5545,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5458,16 +5567,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5565,10 +5677,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5583,19 +5695,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5605,16 +5717,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5712,10 +5827,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5730,19 +5845,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5752,16 +5867,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -5859,10 +5977,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5877,19 +5995,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -5899,16 +6017,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6006,10 +6127,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6024,19 +6145,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6046,16 +6167,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6153,10 +6277,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm6 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6171,19 +6295,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6193,16 +6317,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6300,10 +6427,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm7 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6318,19 +6445,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6340,16 +6467,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6450,10 +6580,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6468,19 +6598,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6490,16 +6620,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6595,10 +6728,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6613,19 +6746,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6635,16 +6768,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6740,10 +6876,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm3 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6758,19 +6894,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6780,16 +6916,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -6885,10 +7024,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm4 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -6903,19 +7042,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -6925,16 +7064,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
@@ -7030,10 +7172,10 @@ suite para_hafs
               edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
-                trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
+                trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2115 and :TIME < 2359 ) or :TIME < 0315) and ../jhafs_cleanup==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
+                  trigger ((:TIME >= 2105 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm5 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -7048,19 +7190,19 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init==complete
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
-                  trigger ./jhafs_atm_prep==complete
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                   event 1 Wave
               endfamily
               family init
                 complete ./launch/jhafs_launch:NoStorm
-                trigger ./prep/jhafs_atm_prep==complete
+                trigger ./prep/jhafs_atm_prep==complete and /prod_clone/primary/18/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post000
                 task jhafs_atm_ic
                   edit RI_EXT ''
                   edit FGAT_MODEL ''
@@ -7070,16 +7212,19 @@ suite para_hafs
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '06'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
                 task jhafs_atm_ic_fgat09
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
+                  trigger /prod_clone/primary/12/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
                   edit RI_EXT ''
