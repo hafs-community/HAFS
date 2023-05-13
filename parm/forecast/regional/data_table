@@ -1,0 +1,1 @@
+"OCN", "runoff",         "liq_runoff",    "./INPUT/ocean_runoff_monthly.nc",    "bilinear" ,  1.0

@@ -1,11 +1,6 @@
-##############################################
-#####  NEMS Run-Time Configuration File  #####
-##############################################
+logKindFlag:            ESMF_LOGKIND_MULTI_ON_ERROR
 
-# ESMF #
-logKindFlag: ESMF_LOGKIND_MULTI_ON_ERROR
-
-# EARTH #
+# component list
 EARTH_component_list: MED ATM DAT OCN
 EARTH_attributes::
   Verbosity = 0
@@ -49,7 +44,7 @@ _DAT_petlist_bounds_
 DAT_attributes::
   Verbosity = 0
   DumpFields = false
-  mesh_atm = DATM_INPUT/hafs_gfs_mesh.nc
+  mesh_atm = datm_gfs_mesh.nc
   diro = "."
   logfile = atm.log
   stop_ymd = -999
@@ -67,7 +62,7 @@ OCN_attributes::
   history_option = nhours
   merge_import = .true.
   skip_first_import = .true.
-  mesh_ocn = hafs_mom6_mesh.nc
+  mesh_ocn = mom6_mesh.nc
   #import_diagnostics = .true.
   #import_setting = flexible
 ::

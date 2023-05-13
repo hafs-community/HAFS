@@ -75,7 +75,16 @@ if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
 fi
 
 if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
-  ${HOMEhafs}/scripts/exhafs_mom6_prep.sh
+    module list
+    module unload esmf
+    module list
+    if [ "${machine}" == orion ] ; then
+      module use /work/noaa/hwrf/save/maristiz/modulefiles
+      module load modulefile.OBC.run.orion
+      export ESMFMKFILE=/work/noaa/hwrf/save/maristiz/miniconda3/envs/OBC_env/lib/esmf.mk
+      export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
+    fi
+  ${HOMEhafs}/scripts/exhafs_ocn_prep.sh
   status=$?; [[ $status -ne 0 ]] && exit $status
 fi
 
