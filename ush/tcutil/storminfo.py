@@ -606,7 +606,6 @@ class StormInfo(object):
         if ilat >= 40: cenla=35.0
         if ilat >= 44: cenla=40.0
         if ilat >= 50: cenla=45.0
-        if ilat >= 55: cenla=50.0
         if storm_lat<0: cenla=-cenla
 
         # Decide the center longitude.

@@ -2232,7 +2232,7 @@
                  ke=min(iz,my_proc_id*nm+nm)
                  if ( ks >= 1 .and. ks <= iz .and. ke >= 1 .and. ke <= iz ) then
                     allocate(dat44(ix+nv-1, iy+2-nv, ke-ks+1, 1))
-                    call mpi_recv(dat44, size(dat43), mpi_real, io_proc, 200*nv+ks, comm, status, ierr)
+                    call mpi_recv(dat44, size(dat44), mpi_real, io_proc, 200*nv+ks, comm, status, ierr)
                  endif
               endif  !if ( my_proc_id == io_proc ) then
 
