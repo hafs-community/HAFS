@@ -2,16 +2,18 @@
 
 # Usage: ./hafs_mom6_obc_from_rtofs.py inputdir outputdir ssh_file_in ts_file_in uv_file_in lon_name_in lat_name_in hgrid_out_file lon_name_hgrid_out lat_name_hgrid_out
 
+import sys
 import argparse
+import time as Time
 import numpy as np
 import xarray as xr
 import netCDF4 as nc
-#import ESMF as ESMF
-import esmpy as ESMF
-from scipy import interpolate
-import time as Time
-import sys
+try:
+    import esmpy as ESMF
+except ImportError or ModuleNotFoundError:
+    import ESMF as ESMF
 
+from scipy import interpolate
 from lib_obc_segments import obc_segment
 from lib_obc_variable import obc_variable
 from lib_obc_vectvariable import obc_vectvariable

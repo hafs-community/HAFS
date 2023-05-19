@@ -1,8 +1,11 @@
-import numpy as np
-#import ESMF as ESMF
-import esmpy as ESMF
-from scipy import interpolate
+
 import time as ptime
+import numpy as np
+try:
+    import esmpy as ESMF
+except ImportError or ModuleNotFoundError:
+    import ESMF as ESMF
+from scipy import interpolate
 
 import lib_ioncdf as ncdf
 import lib_common as lc

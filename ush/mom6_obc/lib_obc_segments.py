@@ -1,8 +1,11 @@
-import numpy as np
-#import ESMF as ESMF
-import esmpy as ESMF
-import lib_ioncdf as ncdf
 
+import numpy as np
+try:
+    import esmpy as ESMF
+except ImportError or ModuleNotFoundError:
+    import ESMF as ESMF
+
+import lib_ioncdf as ncdf
 
 class obc_segment():
     ''' A class describing an open boundary condtion segment '''

@@ -1,13 +1,13 @@
+
 import numpy as np
-#import ESMF as ESMF
-import esmpy as ESMF
+try:
+    import esmpy as ESMF
+except ImportError or ModuleNotFoundError:
+    import ESMF as ESMF
 from scipy import interpolate
-import time as ptime
 
 import lib_ioncdf as ncdf
 import lib_common as lc
-
-
 
 class obc_variable():
     ''' A class describing an open boundary condition variable

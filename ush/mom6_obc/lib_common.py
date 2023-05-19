@@ -1,5 +1,5 @@
-import numpy as np
 
+import numpy as np
 
 def distance_on_unit_sphere(lat1, long1, lat2, long2):
     ''' compute the distance on the sphere between points (or arrays)'''

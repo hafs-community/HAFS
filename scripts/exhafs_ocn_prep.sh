@@ -187,15 +187,8 @@ ${NCP} -p ${outnc_uv} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc
 #==============================================================================
 
 # Generate MOM6 OBC from RTOFS
-
-mkdir -p ${WORKhafs}/ocn_prep/mom6_obc
-cd ${WORKhafs}/ocn_prep/mom6_obc
-
-# Link global RTOFS depth and grid files
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.a regional.depth.a
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.b regional.depth.b
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.grid.a regional.grid.a
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.grid.b regional.grid.b
+mkdir -p ${DATA}/mom6_init
+cd ${DATA}/mom6_init
 
 IFHR=0
 FHR=0
@@ -211,26 +204,6 @@ NOBCHRS=24
 #MM=$(echo $NEWDATE | cut -c5-6)
 #DD=$(echo $NEWDATE | cut -c7-8)
 #HH=$(echo $NEWDATE | cut -c9-10)
-
-# Link global RTOFS analysis or forecast files
-if [ -e ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a ]; then
-  ${NLN} ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a archv_in.a
-elif [ -e ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a.tgz ]; then
-  tar -xpvzf ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a.tgz
-  ${NLN} rtofs_glo.t00z.${type}${hour}.archv.a archv_in.a
-else
-  echo "FATAL ERROR: ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a does not exist."
-  echo "FATAL ERROR: ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.a.tgz does not exist either."
-  echo "FATAL ERROR: Cannot generate MOM6 IC. Exiting"
-  exit 1
-fi
-if [ -e ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.b ]; then
-  ${NLN} ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.b archv_in.b
-else
-  echo "FATAL ERROR: ${COMINrtofs}/rtofs.$ymd/rtofs_glo.t00z.${type}${hour}.archv.b does not exist."
-  echo "FATAL ERROR: Cannot generate MOM6 IC. Exiting"
-  exit 1
-fi
 
 # Define output file names
 outnc_2d=ocean_ssh_obc.nc
