@@ -82,6 +82,7 @@ def proc(date_s, length_hours, gfs_folder, tmp):
                 nfcst_hr = int((date_end - date_iforc).total_seconds()/(3600*3)) + 3
                 files_nc = ''
                 for n in np.arange(nfcst_hr):
+                    hafs_fcst_hr = str(int(n*3))
                     fdate = date_iforc + n*timedelta(hours = 3)
                     delta_t = int((fdate - date_ini).total_seconds()/3600)
                     # We need to shift - 3 hours the time to account for the fact
@@ -95,6 +96,9 @@ def proc(date_s, length_hours, gfs_folder, tmp):
                     print('delta_t=',delta_t)
                     print('shifted_time=',shifted_time)
                     y, m, d, h, fcst_hr = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t)
+                    if n == np.max(np.arange(nfcst_hr)):
+                        print('Last forecast hour')
+                        fcst_hr = str(int(fcst_hr) - 3)
                     file_gfs = gfs_folder + '/gfs.'+y+m+d+'/'+h+'/atmos/gfs.t'+h+'z.pgrb2.0p25.f'+fcst_hr
                     print(file_gfs)
                     if os.path.exists(file_gfs):
@@ -104,10 +108,11 @@ def proc(date_s, length_hours, gfs_folder, tmp):
                     else:
                         raise Exception("file was not found on disk")
                     gfs_var_name = var.split('"')[1].split(':')[0][1:-1]
-                    tmp_gfs_nc = 'gfs_global_' +y+m+d+h+ '_f' + fcst_hr + '_' + gfs_var_name + '.nc'
+                    tmp_gfs_nc = 'gfs_global_' +y+m+d+h+ '_f' + hafs_fcst_hr + '_' + gfs_var_name + '.nc'
                     # Change from wgrib2 to netcdf
                     cmd = 'wgrib2 ' + file_gfs + ' -match ' + var + ' -netcdf ' + tmp_gfs_nc
                     os.system(cmd)
+
                     # Open ncfile
                     ncfile = nc.Dataset(tmp_gfs_nc,'a')
                     # Add calendar type to time variable
@@ -124,17 +129,19 @@ def proc(date_s, length_hours, gfs_folder, tmp):
 
                 print('Concatenating netcdf files for different forecast times')
                 cmd = 'ncrcat ' + files_nc + ' gfs_global_' +y+m+d+h+ '_' + gfs_var_name + '.nc'
+                print(cmd)
                 os.system(cmd)
                 os.system('rm ' + 'gfs_global_' +y+m+d + '*_f*' + gfs_var_name + '.nc')
-
+  
             if type == 1:
                 print('Instantaneous fields')
                 print(var)
                 # date_iforc is equeal to cycle tile for instantaneos fields
                 date_iforc = date_ini - timedelta(hours = 0)
-                nfcst_hr = int((date_end - date_iforc).total_seconds()/(3600*3)) + 3
+                nfcst_hr = int((date_end - date_iforc).total_seconds()/(3600*3)) + 2
                 files_nc = ''
                 for n in np.arange(nfcst_hr):
+                    hafs_fcst_hr = str(int(n*3))
                     fdate = date_iforc + n*timedelta(hours = 3)
                     delta_t = int((fdate - date_ini).total_seconds()/3600)
                     # No shifting in time is needed because these are
@@ -157,10 +164,11 @@ def proc(date_s, length_hours, gfs_folder, tmp):
                     else:
                         raise Exception("file was not found on disk")
                     gfs_var_name = var.split('"')[1].split(':')[0][1:-1]
-                    tmp_gfs_nc = 'gfs_global_' +y+m+d+h+ '_f' + fcst_hr + '_' + gfs_var_name + '.nc'
+                    tmp_gfs_nc = 'gfs_global_' +y+m+d+h+ '_f' + hafs_fcst_hr + '_' + gfs_var_name + '.nc'
                     # Change from wgrib2 to netcdf
                     cmd = 'wgrib2 ' + file_gfs + ' -match ' + var + ' -netcdf ' + tmp_gfs_nc
                     os.system(cmd)
+
                     # Open ncfile
                     ncfile = nc.Dataset(tmp_gfs_nc,'a')
                     # Add calendar type to time variable
@@ -177,6 +185,7 @@ def proc(date_s, length_hours, gfs_folder, tmp):
 
                 print('Concatenating netcdf files for different forecast times')
                 cmd = 'ncrcat ' + files_nc + ' gfs_global_' +y+m+d+h+ '_' + gfs_var_name + '.nc'
+                print(cmd)
                 os.system(cmd)
                 os.system('rm ' + 'gfs_global_' +y+m+d + '*_f*' + gfs_var_name + '.nc')
 
@@ -275,6 +284,15 @@ if __name__ == "__main__":
     gfs_folder = args.source
     tmp = args.tmp
 
+    print("Preparing forcing file to cover forcast period of")
+    print(" Start: ", date_s)
+    print(" Length: ", length_hours)
+    print(' ')
+
+    date_ini = date_s
+    date_end = date_ini + timedelta(hours = length_hours)
+
     proc(date_s = args.date, length_hours = args.length_hours,
          gfs_folder = args.source,tmp = args.tmp)
+
 
