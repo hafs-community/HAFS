@@ -69,11 +69,12 @@ n=1
 while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ]; then
-    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
-    sleep 10s
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 20s"
+    sleep 20s
   else
-    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ready, do ocn post"
-    sleep 1s
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc exist"
+    echo "Wait ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc to be old enough, then do ocn post"
+	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc) )) -lt 20 ]; do sleep 20; done
     break
   fi
   if [ $n -ge 360 ]; then
