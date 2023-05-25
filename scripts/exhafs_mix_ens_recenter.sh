@@ -1,12 +1,13 @@
 #!/bin/sh
 # exhafs_enkf.sh: Depend upon the value of ldo_enscalc_option, this script can
 # perform the EnKF mean, update, and recenter functions by running the GSI's
-# enkf.x in different modes. 
-# ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean 
-# ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the ensemble members 
-# ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber analysis around the deterministic EnVar analysis 
+# enkf.x in different modes.
+# ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean
+# ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the ensemble members
+# ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber analysis around the deterministic EnVar analysis
 
 set -xe
+
 
 let "tt = $GDAS_MIX_ENS_SIZE + 1"
 TOTAL_TASKS=$tt #${TOTAL_TASKS:-2016}
@@ -21,13 +22,14 @@ if [ ${ENSDA} = YES ]; then
   export NBDYHRS=${NBDYHRS_ENS:-3}
   export NOUTHRS=${NOUTHRS_ENS:-3}
   export CASE=${CASE_ENS:-C768}
-  export CRES=`echo $CASE | cut -c 2-`
+  export CRES=$(echo $CASE | cut -c 2-)
   export gtype=${gtype_ens:-regional}
   export LEVS=${LEVS_ENS:-65}
+else
+  exit
 fi
 
-# Utilities
-NDATE=${NDATE:-ndate}
+export NDATE=${NDATE:-ndate}
 export NCP=${NCP:-"/bin/cp"}
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
@@ -42,198 +44,106 @@ else
 fi
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
-##export ldo_enscalc_option=${ldo_enscalc_option:-1}
-export nens=${GDAS_MIX_ENS_SIZE:-40}         # <-- !!
-#export nens_HAFS=${ENS_SIZE:-40}            # <-- !!
-#export nens_GDAS=${GDAS_MIX_ENS_SIZE:-40}   # <-- !!
-export ONLINE_SATBIAS=${ONLINE_SATBIAS:-NO}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
+export ldo_enscalc_option=${ldo_enscalc_option:-1}
+export nens=${GDAS_MIX_ENS_SIZE:-40}   # <-- !!
+export online_satbias=${online_satbias:-no}
 export corrlength=${corrlength:-500}
 export lnsigcutoff=${lnsigcutoff:-1.3}
+export nesttilestr=${nesttilestr:-""}
+
+export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
+
+#### KKUROSAWA
+###if [ ${MIX_DA_FLAG} = YES ]; then          
+###  export nens=${SUM_MIX_ENS_SIZE:-40}      
+###else
+###  export nens=${ENS_SIZE:-40}
+###fi
+###export nens_HAFS=${ENS_SIZE:-40}           
+###export nens_GDAS=${GDAS_MIX_ENS_SIZE:-40}  
 
 # Diagnostic files options
 netcdf_diag=${netcdf_diag:-".true."}
 binary_diag=${binary_diag:-".false."}
 
-yr=`echo $CDATE | cut -c1-4`
-mn=`echo $CDATE | cut -c5-6`
-dy=`echo $CDATE | cut -c7-8`
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
 
-CDATEprior=`${NDATE} -6 $CDATE`
-yrprior=`echo ${CDATEprior} | cut -c1-4`
-mnprior=`echo ${CDATEprior} | cut -c5-6`
-dyprior=`echo ${CDATEprior} | cut -c7-8`
-hhprior=`echo ${CDATEprior} | cut -c9-10`
-cycprior=`echo ${CDATEprior} | cut -c9-10`
-PDYprior=`echo ${CDATEprior} | cut -c1-8`
+CDATEprior=$(${NDATE} -6 $CDATE)
+yrprior=$(echo ${CDATEprior} | cut -c1-4)
+mnprior=$(echo ${CDATEprior} | cut -c5-6)
+dyprior=$(echo ${CDATEprior} | cut -c7-8)
+hhprior=$(echo ${CDATEprior} | cut -c9-10)
+cycprior=$(echo ${CDATEprior} | cut -c9-10)
+PDYprior=$(echo ${CDATEprior} | cut -c1-8)
 
 export COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
 export WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
-##if [ ${RUN_GSI_VR_ENS} = YES ]; then
-##  #export RESTARTens_inp=${COMhafs}/RESTART_analysis_vr_ens
-##  export RESTARTens_inp=${WORKhafs}/intercom/RESTART_analysis_vr_ens
-##else
-  export RESTARTens_inp=${COMhafsprior}/RESTART_ens                 # guess of enkf
-  export RESTARTens_inp_gdas=${WORKhafs}/intercom/restart_gdas_ens  # converted gdas
-  export OUT_BASE_DIR=${WORKhafs}/intercom/mix_ens_recenter         # out
-##fi 
-
-#export RESTARTens_anl=${COMhafs}/RESTART_analysis_ens
-export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens     # results of enkf_mean
+export RESTARTens_inp=${COMhafsprior}/RESTART_ens
+export RESTARTens_inp_gdas=${WORKhafs}/intercom/restart_gdas_ens  # converted gdas
+export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
+export OUT_BASE_DIR=${WORKhafs}/intercom/mix_ens_recenter_ens       # out
+export DIAGens_anl=${COMhafs}
 mkdir -p ${RESTARTens_anl}
+mkdir -p ${DIAGens_anl}
 
-##DATA=${DATA:-${WORKhafs}/enkf_mean}
-##mkdir -p ${DATA}
-##cd ${DATA}
-
-##if [ $ldo_enscalc_option -eq 1 ] || [ $ldo_enscalc_option -eq 0 ]; then # enkf_mean or enkf_update
-##  # prepare ensemble mean files
-##  memstr="mem001"
-##  ensmean="ensmean"
-##  cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${ensmean}_tracer
-##  cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${ensmean}_dynvars
-##  #dynvar_list="delp,DZ,phis,T,u,ua,v,va,W"
-##  dynvar_list=$(ncks --trd -m fv3sar_tile1_${ensmean}_dynvars | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort | grep -v 'Time' | grep -v 'axis' | paste -sd "," -)
-##  #tracer_list="cld_amt,graupel,ice_wat,liq_wat,o3mr,rainwat,snowwat,sphum"
-##  tracer_list=$(ncks --trd -m fv3sar_tile1_${ensmean}_tracer  | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort | grep -v 'Time' | grep -v 'axis' | paste -sd "," -)
-##  ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3sar_tile1_${ensmean}_tracer
-##  # somehow the yaxis_2 get default values, the following line is a temporary workaround
-##  ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_tracer
-##  ncks -A -v ${tracer_list} fv3sar_tile1_${ensmean}_tracer fv3sar_tile1_${ensmean}_dynvars
-##  mv fv3sar_tile1_${ensmean}_dynvars fv3sar_tile1_${ensmean}_dynvartracer
-##  rm -f fv3sar_tile1_${ensmean}_tracer
-##  # For the enkf_update step, copy the ensemble mean generated by the enkf_mean step
-##  if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
-##    ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_dynvartracer fv3sar_tile1_ensmean_dynvartracer
-##  fi
-##  cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
-##  cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.sfc_data.nc fv3_sfcdata
-##  cp ${RESTARTens_inp}/${memstr}/grid_spec.nc fv3sar_tile1_grid_spec.nc
-##  # prepare ensemble member files
-##  rm -f cmdfile_prep_dynvartracer_ens
-##  for memstr in $(seq -f 'mem%03g' 1 $nens)
-##  do
-##    cat > ./prep_dynvartracer_ens${memstr}.sh << EOFprep
-###!/bin/sh
-##set -x
-##    cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${memstr}_dynvars 
-##    cp ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${memstr}_tracer
-##    ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3sar_tile1_${memstr}_tracer
-##    # somehow the yaxis_2 get default values, the following line is a temporary workaround
-##    ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_tracer
-##    ncks -A -v $tracer_list fv3sar_tile1_${memstr}_tracer fv3sar_tile1_${memstr}_dynvars
-##    mv fv3sar_tile1_${memstr}_dynvars fv3sar_tile1_${memstr}_dynvartracer
-##    rm -f fv3sar_tile1_${memstr}_tracer
-##EOFprep
-##    chmod +x ./prep_dynvartracer_ens${memstr}.sh
-##    echo "./prep_dynvartracer_ens${memstr}.sh" >> cmdfile_prep_dynvartracer_ens
-##  done
-##  chmod +x cmdfile_prep_dynvartracer_ens
-##  ${APRUNC} ${MPISERIAL} -m cmdfile_prep_dynvartracer_ens
-##else # enkf_recenter
-  ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc                               fv3sar_tile1_grid_spec.nc
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc           fv3sar_tile1_akbk.nc
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res              coupler.res
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.tile1.nc     fv3_dynvars  # ensmean
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc   fv3_tracer   # ensmean
-##  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3_dynvars  # VAR
-##  ${NCP} ${COMhafs}/RESTART_analysis/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3_tracer # VAR
-  #dynvar_list="delp,DZ,phis,T,u,ua,v,va,W"
-  dynvar_list=$(ncks --trd -m fv3_dynvars | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort | grep -v 'Time' | grep -v 'axis' | paste -sd "," -)
-  #tracer_list="cld_amt,graupel,ice_wat,liq_wat,o3mr,rainwat,snowwat,sphum"
-  tracer_list=$(ncks --trd -m fv3_tracer  | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort | grep -v 'Time' | grep -v 'axis' | paste -sd "," -)
-
-  ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3_tracer
-  # somehow the yaxis_2 get default values, the following line is a temporary workaround
-  ncks --no-abc -A -v yaxis_2 fv3_dynvars fv3_tracer
-  ncks -A -v ${tracer_list} fv3_tracer fv3_dynvars 
+# enkf_recenter
+  ${NCP} ${RESTARTens_anl}/grid_spec.nc                                         fv3sar_tile1_grid_spec.nc
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_core.res.nc                     fv3sar_tile1_akbk.nc
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.coupler.res                        coupler.res
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc   fv3_dynvars
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3_tracer
   # mem001 from deterministic EnVar analysis
   # The assumption is that the deterministic and ensemble domains are identical but with different grid resolutions
   # Also, the grid spacing ratio between the deterministic and ensemble domains is 1:GRID_RATIO_ENS, where GRID_RATIO_ENS can be 1, 2, 3, 4, 5, etc.
-  if [ ${GRID_RATIO_ENS:-1} -eq 1 ]; then
+#  if [ ${GRID_RATIO_ENS:-1} -eq 1 ]; then
     # the deterministic and ensemble domains are identical and with the same grid resolution
-    mv fv3_dynvars fv3sar_tile1_mem001_dynvartracer
-  else 
-    # subset every GRID_RATIO_ENS grid points to obtain the deterministic EnVar analysis in ensemble resolution
-    ncks -d xaxis_1,,,${GRID_RATIO_ENS} -d xaxis_2,,,${GRID_RATIO_ENS} \
-         -d yaxis_1,,,${GRID_RATIO_ENS} -d yaxis_2,,,${GRID_RATIO_ENS} \
-         fv3_dynvars fv3sar_tile1_mem001_dynvartracer
-  fi
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_dynvartracer fv3sar_tile1_ensmean_dynvartracer
+    mv fv3_dynvars fv3sar_tile1_mem001_dynvars
+    mv fv3_tracer fv3sar_tile1_mem001_tracer
+#  else
+#    # subset every GRID_RATIO_ENS grid points to obtain the deterministic EnVar analysis in ensemble resolution
+#    ncks -d xaxis_1,,,${GRID_RATIO_ENS} -d xaxis_2,,,${GRID_RATIO_ENS} \
+#         -d yaxis_1,,,${GRID_RATIO_ENS} -d yaxis_2,,,${GRID_RATIO_ENS} \
+#         fv3_dynvars fv3sar_tile1_mem001_dynvars
+#    ncks -d xaxis_1,,,${GRID_RATIO_ENS} \
+#         -d yaxis_1,,,${GRID_RATIO_ENS} \
+#         fv3_tracer fv3sar_tile1_mem001_tracer
+#  fi
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_ensmean_dynvars
+  ${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_ensmean_tracer
+
   # copy ensemble member files
   rm -f cmdfile
   let "nens0 = $nens"
   let "nens = $nens + 1"
-  for imem in $(seq 1 $nens0)
-  do
+  for imem in $(seq 1 $nens0); do
+#    memchar="mem"$(printf %03i $imem)
     let "memin = $imem + 1"
     meminchar="mem"$(printf %03i $memin)
-
-####    if [ $imem -gt $nens_HAFS ]; then # GDAS
-    ####  gdas_imem=`expr $imem - $nens_HAFS`
-      gdas_imem=`expr $imem - 0`
-      gdas_memstr="mem"$(printf %03i $gdas_imem)
-      cat > cmdfile_$meminchar << EOFprep
+    gdas_imem=`expr $imem - 0`
+    gdas_memstr="mem"$(printf %03i $gdas_imem)
+    cat > cmdfile_$meminchar << EOFprep
 #!/bin/sh
 set -x
       ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_core.res.tile1.nc   fv3sar_tile1_${meminchar}_dynvars
       ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_tracer.res.tile1.nc fv3sar_tile1_${meminchar}_tracer
       ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3sar_tile1_${meminchar}_tracer
       # somehow the yaxis_2 get default values, the following line is a temporary workaround
-      ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${meminchar}_dynvars  fv3sar_tile1_${meminchar}_tracer
-      ncks -A -v ${tracer_list} fv3sar_tile1_${meminchar}_tracer fv3sar_tile1_${meminchar}_dynvars
-      mv fv3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_dynvartracer
-      rm -f v3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_tracer
+ #     ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${meminchar}_dynvars  fv3sar_tile1_${meminchar}_tracer
+ #     ncks -A -v ${tracer_list} fv3sar_tile1_${meminchar}_tracer fv3sar_tile1_${meminchar}_dynvars
+ #     mv fv3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_dynvartracer
+ #     rm -f v3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_tracer
 EOFprep
-####    else # HAFS
-####      memchar="mem"$(printf %03i $imem)
-####      cat > cmdfile_$meminchar << EOFprep
-#####!/bin/sh
-####set -x
-####      ${NCP} ${RESTARTens_inp}/${memchar}/${PDY}.${cyc}0000.fv_core.res.tile1.nc   fv3sar_tile1_${meminchar}_dynvars
-####      ${NCP} ${RESTARTens_inp}/${memchar}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${meminchar}_tracer
-####      ncrename -d yaxis_1,yaxis_2 -v yaxis_1,yaxis_2 fv3sar_tile1_${meminchar}_tracer
-####      # somehow the yaxis_2 get default values, the following line is a temporary workaround
-####      ncks --no-abc -A -v yaxis_2 fv3sar_tile1_${meminchar}_dynvars  fv3sar_tile1_${meminchar}_tracer
-####      ncks -A -v ${tracer_list} fv3sar_tile1_${meminchar}_tracer fv3sar_tile1_${meminchar}_dynvars
-####      mv fv3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_dynvartracer
-####      rm -f v3sar_tile1_${meminchar}_dynvars fv3sar_tile1_${meminchar}_tracer
-####EOFprep
-####    fi
+  #  echo "${NCP} ${RESTARTens_anl}/${memchar}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${meminchar}_dynvars" >> cmdfile
+  #  echo "${NCP} ${RESTARTens_anl}/${memchar}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${meminchar}_tracer" >> cmdfile
     chmod +x cmdfile_$meminchar
     echo "./cmdfile_$meminchar" >> cmdfile
-##    echo "${NCP} ${RESTARTens_anl}/${memchar}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${meminchar}_dynvartracer" >> cmdfile
   done
   chmod +x cmdfile
   ${APRUNC} ${MPISERIAL} -m cmdfile
-##fi
-
-##if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
-##  rm -f cmdfile
-##  memstr="ensmean"
-##  RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
-##  CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
-##  echo "tar -xvf $RADSTAT" >> cmdfile
-##  echo "tar -xvf $CNVSTAT" >> cmdfile
-##
-##  for memstr in $(seq -f "mem%03g" 1 $nens)
-##  do
-##    RADSTAT=${RESTARTens_anl}/${memstr}/analysis.radstat
-##    CNVSTAT=${RESTARTens_anl}/${memstr}/analysis.cnvstat
-##    echo "tar -xvf $RADSTAT" >> cmdfile
-##    echo "tar -xvf $CNVSTAT" >> cmdfile
-##  done
-##
-##  chmod +x cmdfile
-##  ${APRUNC} ${MPISERIAL} -m cmdfile
-##  
-##  rm -f cmdfile
-##  for gzfile in $(/bin/ls diag*ges*.gz) 
-##  do
-##    echo "gzip -d $gzfile && rm -f $gzfile" >> cmdfile
-##  done
-##  chmod +x cmdfile
-##  ${APRUNC} ${MPISERIAL} -m cmdfile
 ##fi
 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
@@ -246,11 +156,11 @@ ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
 #checkgfs $NLN $HYBENSINFO   hybens_info
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
-##if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
+#if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
-##else # enkf_update
-##  anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
-##fi
+#else # enkf_update
+#  anavinfo=${PARMgsi}/hafs_anavinfo.tmp
+#fi
 #${NCP} ${anavinfo} ./anavinfo
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
@@ -262,51 +172,34 @@ ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
-# Workflow will read from previous cycles for satbias predictors if ONLINE_SATBIAS is set to yes
-if [ ${ONLINE_SATBIAS} = "YES" ]; then
-  if [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ ! -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
+# Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
+  PASSIVE_BC=.true.
+  UPD_PRED=1
+  if [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
     ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
-  elif [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_out ] && [ -s ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out ]; then
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_out            satbias_in
-    ${NLN} ${COMhafsprior}/RESTART_analysis/satbias_hafs_pc.out         satbias_pc
+  elif [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
+    ${NLN} ${COMhafsprior}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
   else
     echo "ERROR: Either source satbias_in or source satbias_pc does not exist. Exiting script."
     exit 2
   fi
+elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
+  echo "ERROR: Cannot run online satbias correction without EnVar. Exiting script."
+  exit 2
 else
+  PASSIVE_BC=.false.
+  UPD_PRED=0
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
   ${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
 #
 #${NLN} ${COMgfs}/gdas.$PDYprior/${hhprior}/${atmos}gdas.t${hhprior}z.abias_air       satbias_air
 
-
-# KKUROSAWA
-RTPS=${RTPS_PARA:-0.85}
-MIN_RES=${MIN_RES:-0.00}
-##if [ ${LPF_FLAG} = yes ]; then # LPF
-##  analpertwtnh=0.00
-##  analpertwtsh=0.00
-##  analpertwttr=0.00
-##  LPF_flag=.true.
-##elif [ ${LPF_FLAG} = no ]; then # EnKF
-  analpertwtnh=$RTPS
-  analpertwtsh=$RTPS
-  analpertwttr=$RTPS
-  min_res=$MIN_RES
-  LPF_flag=.false.
-  ldo_enscalc_option=2
-##else #
-##  analpertwtnh=-9999.9
-##  analpertwtsh=-9999.9
-##  analpertwttr=-9999.9
-##  LPF_flag=.false.
-##fi
-
-
-
+ldo_enscalc_option=2  #recenter
 
 # Make enkf namelist
 ${NCP} ${PARMgsi}/enkf.nml.tmp ./
@@ -322,144 +215,56 @@ sed -e "s/_datestring_/${CDATE}/g" \
     -e "s/_ldo_enscalc_option_/${ldo_enscalc_option}/g" \
     -e "s/_nx_res_/$((${npx_ens:-$npx}-1))/g" \
     -e "s/_ny_res_/$((${npy_ens:-$npy}-1))/g" \
-    -e "s/_analpertwtnh_/${analpertwtnh}/g" \
-    -e "s/_analpertwtsh_/${analpertwtsh}/g" \
-    -e "s/_analpertwttr_/${analpertwttr}/g" \
-    -e "s/_LPF_flag_/${LPF_flag}/g" \
-    -e "s/_min_res_/${min_res}/g" \
     enkf.nml.tmp > ./enkf.nml
 
 ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_enkf.x}
-cp -p $ENKFEXEC ./enkf.x
-
-# In case there are memory issues to run enkf_mean/enkf_recenter for all
-# variables, can consider separating the enkf control variables into three
-# parts
-#if [ $ldo_enscalc_option -ne 0  ]; then # enkf_mean or enkf_recenter
-#  let i=1
-#  #for infile in $(/bin/ls ${anavinfo}_p*)
-#  for infile in $(/bin/ls ${anavinfo})
-#  do
-#    #${NCP} $infile anavinfo
-#    sed -e "s/_LEV_/${npz:-64}/g" \
-#        -e "s/_LP1_/${LEVS:-65}/g" \
-#        ${infile} > ./anavinfo
-#    ${APRUNC}  ./enkf.x < enkf.nml > stdout_p${i} 2>&1
-#    let i=i+1
-#  done
-#else
-#  ${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
-#fi
-
-# KKUROSAWA
-##if [ ${DA_FLAG} = yes ]; then # DA
-  ${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
-##fi
+${NCP} -p $ENKFEXEC ./enkf.x
 #${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
+set -o pipefail
+${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
+set +o pipefail
 
-##if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
-##  rm -f cmdfile
-##  for memstr in $(seq -f "mem%03g" 1 $nens)
-##  do
-##    mkdir -p ${RESTARTens_anl}/${memstr}
-##    echo "${NCP} fv3sar_tile1_${memstr}_dynvartracer ${RESTARTens_anl}/${memstr}/anl_dynvartracer_${PDY}.${cyc}0000.fv_core.res.tile1.nc" >> cmdfile  
-##  done
-##  chmod +x cmdfile
-##  ${APRUNC} ${MPISERIAL} -m cmdfile
-##elif  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean 
-##  memstr="ensmean"
-##  mkdir -p ${RESTARTens_anl}/${memstr}
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_core.res.tile1.nc ${RESTARTens_anl}/${memstr}/
-##  ncks -A -v $dynvar_list fv3sar_tile1_mem001_dynvartracer ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memstr}/
-##  ncks -A -v $tracer_list fv3sar_tile1_mem001_dynvartracer ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-##  ncks --no-abc -O -x -v yaxis_2 ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-##  ${NCP} fv3sar_tile1_mem001_dynvartracer ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_dynvartracer # used by recenter 
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/${memstr}/
-##  #${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.phy_data.nc ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/grid_spec.nc ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/oro_data.nc ${RESTARTens_anl}/${memstr}/
-##  ${NCP} ${RESTARTens_inp}/mem001/atmos_static.nc ${RESTARTens_anl}/${memstr}/
-##elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
-##  mkdir -p ${RESTARTens_anl}/anlmean
-  OUTDIR_MEAN=${OUT_BASE_DIR}/ensmean
-  rm -rf $OUTDIR_MEAN
-  mkdir -p $OUTDIR_MEAN
-  cp ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.tile1.nc    ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-  ncks -A -v $dynvar_list fv3sar_tile1_mem001_dynvartracer               ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-  cp ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc  ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-  ncks -A -v $tracer_list fv3sar_tile1_mem001_dynvartracer               ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-  ncks --no_abc -O -x -v yaxis_2 ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-  #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res             ${OUTDIR_MEAN} 
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc          ${OUTDIR_MEAN}
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${OUTDIR_MEAN}
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.sfc_data.nc             ${OUTDIR_MEAN}
-  ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc                              ${OUTDIR_MEAN}
-  ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc                               ${OUTDIR_MEAN}
-  ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc                           ${OUTDIR_MEAN}
+OUTDIR_MEAN=${OUT_BASE_DIR}/ensmean
+rm -rf $OUTDIR_MEAN
+mkdir -p $OUTDIR_MEAN
+${NCP} fv3sar_tile1_mem001_dynvars ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
+${NCP} fv3sar_tile1_mem001_tracer ${OUTDIR_MEAN}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.coupler.res             ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_core.res.nc          ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/${PDY}.${cyc}0000.sfc_data.nc             ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/grid_spec.nc                              ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/oro_data.nc                               ${OUTDIR_MEAN}
+${NCP} ${RESTARTens_anl}/atmos_static.nc                           ${OUTDIR_MEAN}
 
-  rm -f cmdfile_post_dynvartracer_ens
-####  let "tmp_nens_HAFS = $nens_HAFS + 1"
-  for imem in $(seq 2 $nens) # 2-121
-  do
-    memstr="mem"$(printf %03i $imem)
-    memout="mem"$(printf %03i $(($imem-1)))
-##    mkdir -p ${RESTARTens_anl}/${memout}
-    OUTDIR_MEM=$OUT_BASE_DIR/${memout}
-    rm -rf $OUTDIR_MEM
-    mkdir -p $OUTDIR_MEM
-
- ####   if [ $imem -gt $tmp_nens_HAFS ]; then # GDAS
- ####     gdas_imem=`expr $imem - $tmp_nens_HAFS`
-      gdas_imem=`expr $imem - 1`
-      gdas_memstr="mem"$(printf %03i $gdas_imem)
-      tmp_memout="mem001" # <-- !!
-      cat > ./post_dynvartracer_ens${memout}.sh << EOFpost
-  #!/bin/sh
-  set -x
-      cp ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_core.res.tile1.nc           $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-      ncks -A -v $dynvar_list fv3sar_tile1_${memstr}_dynvartracer             $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-      cp ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_tracer.res.tile1.nc         $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-      ncks -A -v $tracer_list fv3sar_tile1_${memstr}_dynvartracer             $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-      ncks --no_abc -O -x -v yaxis_2 $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-      ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_core.res.nc             $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.nc
-      ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/out.sfc.tile7.nc           $OUTDIR_MEM/${PDY}.${cyc}0000.sfc_data.nc
-      ${NCP} ${RESTARTens_inp}/${tmp_memout}/grid_spec.nc                         $OUTDIR_MEM     # <-- !!
-      ${NCP} ${RESTARTens_inp}/${tmp_memout}/oro_data.nc                          $OUTDIR_MEM     # <-- !!
-      ${NCP} ${RESTARTens_inp}/${tmp_memout}/atmos_static.nc                      $OUTDIR_MEM     # <-- !!
-      ${NCP} ${RESTARTens_inp}/${tmp_memout}/${PDY}.${cyc}0000.coupler.res        $OUTDIR_MEM     # <-- !!
-##      ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc $OUTDIR_MEM/ # <-- !!
+rm -f cmdfile_post_dynvartracer_ens
+for imem in $(seq 2 $nens); do
+  memstr="mem"$(printf %03i $imem)
+  memout="mem"$(printf %03i $(($imem-1)))
+  OUTDIR_MEM=$OUT_BASE_DIR/${memout}
+#  mkdir -p ${RESTARTens_anl}/${memout}
+  rm -rf $OUTDIR_MEM
+  mkdir -p $OUTDIR_MEM
+  gdas_imem=`expr $imem - 1`
+  gdas_memstr="mem"$(printf %03i $gdas_imem)
+  tmp_memout="mem001" # <-- !!
+   cat > ./post_dynvartracer_ens${memout}.sh << EOFpost
+#!/bin/sh
+set -x
+    ${NCP} fv3sar_tile1_${memstr}_dynvars           $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.tile1.nc
+    ${NCP} fv3sar_tile1_${memstr}_tracer         $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+    ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/fv_core.res.nc             $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.nc
+    ${NCP} ${RESTARTens_inp_gdas}/${gdas_memstr}/out.sfc.tile7.nc           $OUTDIR_MEM/${PDY}.${cyc}0000.sfc_data.nc
+    ${NCP} ${RESTARTens_inp}/${tmp_memout}/grid_spec.nc                         $OUTDIR_MEM     # <-- !!
+    ${NCP} ${RESTARTens_inp}/${tmp_memout}/oro_data.nc                          $OUTDIR_MEM     # <-- !!
+    ${NCP} ${RESTARTens_inp}/${tmp_memout}/atmos_static.nc                      $OUTDIR_MEM     # <-- !!
+    ${NCP} ${RESTARTens_inp}/${tmp_memout}/${PDY}.${cyc}0000.coupler.res        $OUTDIR_MEM     # <-- !!
+#    ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc $OUTDIR_MEM/ # <-- !!
 EOFpost
-####    else # HAFS
-####      cat > ./post_dynvartracer_ens${memout}.sh << EOFpost
-####  #!/bin/sh
-####  set -x
-####      cp ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_core.res.tile1.nc           $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-####      ncks -A -v $dynvar_list fv3sar_tile1_${memstr}_dynvartracer                     $OUTDIR_MEM/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-####      cp ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc         $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-####      ncks -A -v $tracer_list fv3sar_tile1_${memstr}_dynvartracer                     $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-####      ncks --no_abc -O -x -v yaxis_2 $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc $OUTDIR_MEM/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
-####      #cp ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/${memout}/
-####      ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.coupler.res                $OUTDIR_MEM/ 
-####      ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_core.res.nc             $OUTDIR_MEM/
-####      ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc    $OUTDIR_MEM/
-####      ${NCP} ${RESTARTens_inp}/${memout}/${PDY}.${cyc}0000.sfc_data.nc                $OUTDIR_MEM/
-####      ${NCP} ${RESTARTens_inp}/${memout}/grid_spec.nc                                 $OUTDIR_MEM/
-####      ${NCP} ${RESTARTens_inp}/${memout}/oro_data.nc                                  $OUTDIR_MEM/
-####      ${NCP} ${RESTARTens_inp}/${memout}/atmos_static.nc                              $OUTDIR_MEM/
-####EOFpost
-####    fi
-    chmod +x ./post_dynvartracer_ens${memout}.sh 
-    echo "./post_dynvartracer_ens${memout}.sh" >> cmdfile_post_dynvartracer_ens
-  done
-  chmod +x cmdfile_post_dynvartracer_ens
-  ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
-##else
-##  echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"
-##fi
+  chmod +x ./post_dynvartracer_ens${memout}.sh
+  echo "./post_dynvartracer_ens${memout}.sh" >> cmdfile_post_dynvartracer_ens
+done
+chmod +x cmdfile_post_dynvartracer_ens
+${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
 
 exit

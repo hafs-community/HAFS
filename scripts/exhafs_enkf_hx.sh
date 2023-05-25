@@ -160,7 +160,7 @@ else
       else
         export tmp_ENSID=`expr $ENSID - $nens_HAFS`
         export tmp_MEMSTR="mem"$(printf %03i ${tmp_ENSID})
-        export RESTARTens_inp=${WORKhafs}/intercom/mix_ens_recenter/${tmp_MEMSTR}   # GDAS
+        export RESTARTens_inp=${WORKhafs}/intercom/mix_ens_recenter_ens/${tmp_MEMSTR}   # GDAS
       fi
     else
       export RESTARTens_inp=${COMhafsprior}/RESTART_ens/${MEMSTR}
@@ -197,6 +197,7 @@ if [ ${MIX_DA_FLAG} = YES ]; then           # KKUROSAWA
     ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd 
   fi
 fi
+#${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3_srfwnd #Knisely
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3_dynvars
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3_tracer
 
@@ -596,6 +597,7 @@ if [ ${MIX_DA_FLAG} = YES ]; then           # KKUROSAWA
     ${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
   fi
 fi
+#${NCP} ./fv3_srfwnd ${RESTARTanl}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc #Knisely
 ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
 

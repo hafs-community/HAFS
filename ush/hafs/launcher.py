@@ -1,4 +1,4 @@
-"""!Creates the initial HAFS directory structure, loads information into each job.
+"""!Creates the initial HAFS directory structure, loads information into each job. Knisely edits
 
 This module is used to create the initial HAFS conf file in the
 first HAFS job via the hafs.launcher.launch().  The hafs.launcher.load()
@@ -1626,6 +1626,15 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
+        recenter_flag=self.getbool('config','run_recenter') #Knisely
+        self.set('holdvars','cap_run_recenter',('YES' if recenter_flag else 'NO'))  #Knisely
+
+        long_forecast_ens_flag=self.getbool('config','run_long_forecast_ens') #Knisely
+        self.set('holdvars','cap_run_long_forecast_ens',('YES' if long_forecast_ens_flag else 'NO'))  #Knisely
+
+        run_mix_ens_da_flag=self.getbool('config','run_mix_ens_da') #Knisely
+        self.set('holdvars','cap_run_mix_ens_da',('YES' if run_mix_ens_da_flag else 'NO'))  #Knisely
+
         atm_mvnest_flag=self.getbool('config','run_atm_mvnest')
         self.set('holdvars','cap_run_atm_mvnest',('YES' if atm_mvnest_flag else 'NO'))
 
@@ -1668,6 +1677,14 @@ class HAFSLauncher(HAFSConfig):
         gplot_flag=self.getbool('config','run_hrdgraphics')
         self.set('holdvars','cap_run_hrdgraphics',
                  ('YES' if gplot_flag else 'NO'))
+
+        # KKUROSAWA #Knisely
+        recenter_flag=self.getbool('config','run_recenter')
+        self.set('holdvars','cap_run_recenter',('YES' if recenter_flag else 'NO'))
+        long_forecast_ens_flag=self.getbool('config','run_long_forecast_ens')
+        self.set('holdvars','cap_run_long_forecast_ens',('YES' if long_forecast_ens_flag else 'NO'))
+        mix_ens_da_flag=self.getbool('config','run_mix_ens_da')
+        self.set('holdvars','cap_run_mix_ens_da',('YES' if mix_ens_da_flag else 'NO'))
 
         with open(self.strinterp('dir',part1),'rt') as f:
             for line in f:

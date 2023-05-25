@@ -11,8 +11,8 @@
 
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
-  <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
+  <!ENTITY MAX_TRIES_BIG_JOBS "2"> <!-- forecast or other huge jobs -->
+  <!ENTITY MAX_TRIES "2"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -914,7 +914,7 @@
       <and>
         <streq><left>&RUN_DATM;</left><right>NO</right></streq>
         <or>
-          <taskdep task="forecast" state="RUNNING"/>
+          <!--<taskdep task="forecast" state="RUNNING"/>-->
           <taskdep task="forecast"/>
         </or>
       </and>
@@ -938,7 +938,7 @@
       <!-- Start the ocn_post if the forecast is running or if it has
            already completed. -->
       <or>
-        <taskdep task="forecast" state="RUNNING"/>
+        <!--<taskdep task="forecast" state="RUNNING"/>-->
         <taskdep task="forecast"/>
       </or>
     </dependency>
