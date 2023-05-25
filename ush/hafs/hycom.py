@@ -1431,7 +1431,8 @@ NetCDF
                 notabin='archv.%s'%(archtimestring)
                 logfile=''.join([notabin,'.txt'])
                 timesslept=0
-                sleepmax=180
+                #sleepmax=180
+                sleepmax=500
                 while timesslept<sleepmax:
                     if os.path.exists("../../forecast/"+logfile):
                         break

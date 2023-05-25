@@ -31,11 +31,11 @@ if [ "${LONG_FORECAST_ENS_FLAG}" = YES ]; then
     NHRS=$NHRS_ENS_LONG
 fi
 
-TOTAL_TASKS=${TOTAL_TASKS:-1}
-NCTSK=${NCTSK:-1}
-NCNODE=${NCNODE:-24}
-OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
+#TOTAL_TASKS=${TOTAL_TASKS:-1}
+#NCTSK=${NCTSK:-1}
+#NCNODE=${NCNODE:-24}
+#OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+#APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
 neststr=${neststr:-""} #".nest02"
