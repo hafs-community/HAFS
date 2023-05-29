@@ -411,7 +411,6 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n ATM\n OCN"
   elif [ $cpl_atm_ocn = cmeps_atm_datm_ocn ]; then
     EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
-
     DAT_model_component="DAT_model: datm"
     DAT_model_attribute="DAT_model = datm"
     DAT_petlist_bounds=$(printf "DAT_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$dat_tasks-1)))

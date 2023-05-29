@@ -50,11 +50,24 @@ YYYY=$(echo $NEWDATE | cut -c1-4)
 MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
+ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
+
+if [ $FHR -lt $NHRS ]; then
+  NEWDATEn=$(${NDATE} +$((${FHR}+${NOUTHRS})) $CDATE)
+else
+  NEWDATEn=${NEWDATE}
+fi
+YYYYn=$(echo $NEWDATEn | cut -c1-4)
+MMn=$(echo $NEWDATEn | cut -c5-6)
+DDn=$(echo $NEWDATEn | cut -c7-8)
+HHn=$(echo $NEWDATEn | cut -c9-10)
+ocnoutn=ocn_${YYYYn}_${MMn}_${DDn}_${HHn}.nc
 
 ocnpost=${out_prefix}.${RUN}.mom6.f${FHR3}.nc
 
 # Check if post has processed this forecast hour previously
 if [ -s ${intercom}/ocnpostf${FHR3} ] && \
+   [ -s ${INPdir}/log.atm.f${FHR3} ] && \
    [ ${intercom}/ocnpostf${FHR3} -nt ${INPdir}/log.atm.f${FHR3} ] && \
    [ -s ${COMOUTpost}/${ocnpost} ]; then
 
@@ -68,13 +81,14 @@ else
 n=1
 while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
-     [ ! -s ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ]; then
-    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 20s"
+     [ ! -s ${INPdir}/${ocnout} ] || \
+     [ ! -s ${INPdir}/${ocnoutn} ]; then
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, or ${INPdir}/${ocnoutn} not ready, sleep 20s"
     sleep 20s
   else
-    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc exist"
-    echo "Wait ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc to be old enough, then do ocn post"
-	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc) )) -lt 20 ]; do sleep 20; done
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, and ${INPdir}/${ocnoutn} exist"
+    echo "Wait ${INPdir}/${ocnout} to be old enough, then do ocn post"
+	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ocnout}) )) -lt 20 ]; do sleep 20; done
     break
   fi
   if [ $n -ge 360 ]; then
@@ -86,7 +100,7 @@ done
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  ${NCP} -p ${INPdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ${COMOUTpost}/${ocnpost}
+  ${NCP} -p ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
 fi
 
 # Write out the ocnpostdone message file
