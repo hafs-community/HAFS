@@ -446,7 +446,7 @@ if [ $attempts -gt 360 ] && [ ! -f ${COMIN}/${statfile} ]; then
   exit 1
 fi
 
-${NCP}  ${COMIN}/${statfile} ./
+${NCP} ${COMIN}/${statfile} ./
 #${NCP} -p ${COMIN}/${statfile} ./
 
 numlines=$(cat $statfile | wc -l)

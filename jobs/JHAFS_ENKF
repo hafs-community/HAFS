@@ -73,7 +73,7 @@ elif [ ${ldo_enscalc_option} -eq 2 ]; then
 else
   echo "FATAL ERROR: wrong ldo_enscalc_option of ${ldo_enscalc_option}"
   exit 1
-if
+fi
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
