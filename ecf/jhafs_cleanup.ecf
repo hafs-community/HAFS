@@ -27,4 +27,18 @@ ${HOMEhafs}/jobs/JHAFS_CLEANUP
 %include <tail.h>
 
 %manual
+TASK cleanup
+
+PURPOSE: Deletes the HAFS hfsa or hfsb working directory left behind by the same
+cycle yesterday.  This job saves a minute or so of runtime that used
+to take up the beginning of the launch job.
+
+TROBLESHOOTING: 
+
+PROBLEM: Job has hung?
+
+This job should not take longer than 5 minutes; all it does is an "rm
+-rf".  If the job takes more than 5 minutes, then it is likely that
+there is a filesystem problem.
+
 %end

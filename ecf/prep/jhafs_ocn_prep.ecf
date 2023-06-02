@@ -1,9 +1,9 @@
-#PBS -N %RUN%%STORMNUM%_wav_prep_%CYC%%VER:""%
+#PBS -N %RUN%%STORMNUM%_ocn_prep_%CYC%%VER:""%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=01:00:00
+#PBS -l walltime=00:30:00
 #PBS -l place=vscatter:excl,select=1:ncpus=40:mpiprocs=40:ompthreads=1
 #PBS -l debug=true
 
@@ -38,7 +38,7 @@ module load wgrib2/${wgrib2_ver}
 module load cfp/${cfp_ver}
 module list
 
-${HOMEhafs}/jobs/JHAFS_WAV_PREP
+${HOMEhafs}/jobs/JHAFS_OCN_PREP
 
 %include <tail.h>
 

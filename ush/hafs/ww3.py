@@ -118,21 +118,21 @@ class WW3Init(hafs.hafstask.HAFSTask):
         ende=to_datetime_rel(epsilon,etime)
         when=atime
         fhour=0
-        maxwait=self.confint('max_grib_wait',3600)
+        maxwait=self.confint('max_grib_wait',900)
         sleeptime=self.confint('grib_sleep_time',20)
         min_size=self.confint('min_grib_size',1)
         min_mtime_age=self.confint('min_grib_age',30)
         while when<ende:
             thefile=dc.locate(dataset=dataset,item=item,ftime=when,atime=atime,**self.taskvars)
-            if self.realtime:
-                waited=wait_for_files(
-                    [thefile],logger,maxwait=maxwait,sleeptime=sleeptime,
-                    min_size=min_size,min_mtime_age=min_mtime_age)
-                if not waited:
-                    msg='%s: did not exist or was too small after %d seconds'%(
-                        thefile,min_size)
-                    self.log().error(msg)
-                    raise hafs.exceptions.WW3InputError(msg)
+            waited=wait_for_files(
+                [thefile],logger,maxwait=maxwait,sleeptime=sleeptime,
+                min_size=min_size,min_mtime_age=min_mtime_age)
+            if not waited:
+                msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(
+                    thefile,maxwait)
+                self.log().error(msg)
+                raise hafs.exceptions.WW3InputError(msg)
+                sys.exit(2)
             yield thefile
             fhour=fhour+interval/3600
             when=to_datetime_rel(interval,when)
