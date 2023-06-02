@@ -17,7 +17,7 @@ export SENDDBN=${SENDDBN:-NO}
 export SENDECF=${SENDECF:-NO}
 export EMAIL_SDM=${EMAIL_SDM:-NO}
 export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
-export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov"}
 export SCRUBDATA=${SCRUBDATA:-YES}
 # HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
 #export KEEPDATA=${KEEPDATA:-YES}
