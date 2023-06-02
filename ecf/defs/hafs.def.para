@@ -27,10 +27,9 @@ extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager
 extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
 extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
 
-suite para_hafs
+suite para
   family primary
     family 00
-      edit CYC '00'
       family hafs
         defstatus complete
         edit QUEUE_ARCH 'prod_transfer'
@@ -39,15 +38,6 @@ suite para_hafs
 #       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        # Begin for EMC TEST
-        edit MACHINE_SITE 'development'
-        edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
-        edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
-        # End for EMC TEST
         family v1.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
@@ -1853,7 +1843,6 @@ suite para_hafs
     endfamily            # family 00
 
     family 06
-      edit CYC '06'
       family hafs
         defstatus complete
         edit QUEUE_ARCH 'prod_transfer'
@@ -1862,15 +1851,6 @@ suite para_hafs
 #       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        # Begin for EMC TEST
-        edit MACHINE_SITE 'development'
-        edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
-        edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
-        # End for EMC TEST
         family v1.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
@@ -3676,7 +3656,6 @@ suite para_hafs
     endfamily            # family 06
 
     family 12
-      edit CYC '12'
       family hafs
         defstatus complete
         edit QUEUE_ARCH 'prod_transfer'
@@ -3685,15 +3664,6 @@ suite para_hafs
 #       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        # Begin for EMC TEST
-        edit MACHINE_SITE 'development'
-        edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
-        edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
-        # End for EMC TEST
         family v1.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
@@ -5499,7 +5469,6 @@ suite para_hafs
     endfamily            # family 12
 
     family 18
-      edit CYC '18'
       family hafs
         defstatus complete
         edit QUEUE_ARCH 'prod_transfer'
@@ -5508,15 +5477,6 @@ suite para_hafs
 #       edit hafs_ver 'v1.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        # Begin for EMC TEST
-        edit MACHINE_SITE 'development'
-        edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
-        edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
-        # End for EMC TEST
         family v1.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa

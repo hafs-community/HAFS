@@ -950,6 +950,8 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         atime=atime0
         rinput=self.rtofs_inputs
         glocset=0
+        maxwait=self.confint('max_grib_wait',900)
+        sleeptime=self.confint('grib_sleep_time',20)
         for itry in range(0,-10,-1):
             if time>atime+epsilon:
 
@@ -964,18 +966,21 @@ export gridno={gridno}\n'''.format(**self.__dict__))
                             repr(atmosds),repr(grid),repr(time),
                             repr(gloc)))
                     return (gloc)
-                if itry<=-9:
-                    if wait_for_files([gloc],logger=logger,maxwait=60,sleeptime=5):
+                if itry<=0:
+                    if wait_for_files([gloc],logger=logger,maxwait=maxwait,sleeptime=sleeptime):
                        logger.info('%s %s %s => %s'%(
                             repr(atmosds),repr(grid),repr(time),
                             repr(gloc)))
                        return (gloc)
                     else:
-                       logger.warning('%s : do not exist or empty'%(gloc))
+                       msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(gloc,maxwait)
+                       logger.error(msg)
+                       raise hafs.exceptions.NoOceanData(msg)
+                       sys.exit(2)
             else:
                 logger.warning('%s<=%s+%s'%(repr(time),repr(atime),repr(epsilon)))
             atime=atime-sixhrs
-        msg='Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
+        msg='FATAL ERROR: Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
         self.log().error(msg)
         raise hafs.exceptions.NoOceanData(msg)
 

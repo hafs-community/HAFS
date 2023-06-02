@@ -104,9 +104,9 @@ else
     abort_reason="Message file cycle $mYMDH is not current cycle $PDY$cyc."
   fi
   # Under NCO environment, HFSB only runs NHC/CPHC storms
-  if [[ "${RUN_ENVIR^^}" = "NCO" ]] && [[ "${RUN^^}" = "HFSB" ]] && [[ "$center" != "NHC" ]]; then
-    abort_reason="The storm in $message file is not a NHC storm for ${RUN^^} to run."
-  fi
+   if [[ "${RUN_ENVIR^^}" = "NCO" ]] && [[ "${RUN^^}" = "HFSB" ]] && [[ "$center" != "NHC" ]]; then
+     abort_reason="The storm in $message file is not a NHC storm for ${RUN^^} to run."
+   fi
 fi
 
 if [[ -n "$abort_reason" ]]; then
