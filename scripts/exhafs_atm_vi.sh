@@ -185,8 +185,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
-    grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
-      > trak.atcfunix.tmp
+    if grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
+      echo "trak.atcfunix.tmp generated."
+    else
+      touch trak.atcfunix.tmp
+    fi
   else
     touch trak.atcfunix.tmp
   fi
