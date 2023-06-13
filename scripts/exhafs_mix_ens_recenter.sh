@@ -122,6 +122,7 @@ mkdir -p ${DIAGens_anl}
   for imem in $(seq 1 $nens0); do
 #    memchar="mem"$(printf %03i $imem)
     let "memin = $imem + 1"
+  #  let "memin = $imem + 0"
     meminchar="mem"$(printf %03i $memin)
     gdas_imem=`expr $imem - 0`
     gdas_memstr="mem"$(printf %03i $gdas_imem)
