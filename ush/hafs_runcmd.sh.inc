@@ -14,6 +14,10 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 #export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
 # Avoild "NetCDF: HDF error"
 export HDF5_USE_FILE_LOCKING=FALSE
+# Special command needed on Orion to avoid unexpected job failures
+if [ "$machine" = orion ]; then
+  ulimit -s unlimited
+fi
 
 # Set job run commands
 # APRUN:  command to run general jobs
