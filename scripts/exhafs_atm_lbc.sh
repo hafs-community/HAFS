@@ -15,6 +15,7 @@ cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
+ENS=${ENS:-99}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
@@ -58,7 +59,16 @@ fi
 if [ ${ENSDA} = YES ]; then
   CDUMP=gdas # gfs or gdas
 else
-  CDUMP=gfs # gfs or gdas
+#ZZ  CDUMP=gfs # gfs or gdas
+   if [ $ENS -eq 99 ] ; then
+      CDUMP=gfs               # gfs or gdas
+   else
+      if [ $ENS -eq 00 ] ; then
+      CDUMP=gec${ENS}
+      else
+      CDUMP=gep${ENS}
+   fi
+   fi
 fi
 
 if [ $GFSVER = "PROD2021" ]; then
@@ -66,8 +76,13 @@ if [ $GFSVER = "PROD2021" ]; then
     export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
     export INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
   else
-    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-    export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+    if [ ${ENS} -eq 99 ] ; then
+      export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+    else
+      export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+    fi
   fi
 else
   echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
@@ -83,6 +98,12 @@ FHRE=${FHRE:-${NHRS}}
 FHRI=${FHRI:-${NBDYHRS}}
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
+
+if [ $FHR -le 99 ] ; then
+FHRGEFS=$( printf "%02d" "$FHR" )
+else
+FHRGEFS=$( printf "%03d" "$FHR" )
+fi
 
 # Loop for forecast hours
 while [ $FHR -le ${FHRE} ]; do
@@ -154,6 +175,25 @@ elif [ $bctype = "gfsgrib2_0p50" ]; then
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
+elif [ $bctype = "gefsgrib2_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2ab_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2abf${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
 elif [ $bctype = "gfsgrib2_1p00" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
@@ -217,6 +257,9 @@ if [ $input_type = "grib2" ]; then
         > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
         | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+  elif [ $bctype = gefsgrib2ab_0p50 ]; then
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2bf${FHRGEFS} > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
     ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi

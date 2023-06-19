@@ -17,6 +17,7 @@ cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
+ENS=${ENS:-99}
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
@@ -62,8 +63,13 @@ if [ $GFSVER = "PROD2021" ]; then
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
   export INIDIR=${COMINgdas}/gdas.${PDY_prior}/${cyc_prior}/atmos
  else
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
-  export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+    if [ ${ENS} -eq 99 ] ; then
+      export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
+      export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+    else
+      export INIDIR=${COMgfs}/${PDY}${cyc}/${ENS}
+      export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+    fi
  fi
 else
   echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
@@ -84,7 +90,21 @@ ${NLN} ${GRID_intercom}/${CASE}/* ./
 cd $DATA
 
 FHR3="000"
-CDUMP=gfs # gfs or gdas
+FHRGEFS="00"
+#ZZ CDUMP=gfs # gfs or gdas
+if [ ${ENSDA} = YES ]; then
+ CDUMP=gdas                   # gfs or gdas
+else
+   if [ $ENS -eq 99 ] ; then
+      CDUMP=gfs               # gfs or gdas
+   else
+      if [ $ENS -eq 00 ] ; then
+      CDUMP=gec${ENS}
+      else
+      CDUMP=gep${ENS}
+   fi
+   fi
+fi
 
 # Use gfs netcdf files from GFSv16
 if [ $ictype = "gfsnetcdf" ]; then
@@ -144,6 +164,26 @@ elif [ $ictype = "gfsgrib2_0p50" ]; then
   fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
+# Use gefs 0.50 degree grib2 files
+elif [ $bctype = "gefsgrib2ab_0p50" ]; then
+  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS}
+  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2abf${FHRGEFS}
+  input_type="grib2"
+  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  tracers='"sphum","liq_wat","o3mr"'
+  tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
 elif [ $ictype = "gfsgrib2_1p00" ]; then
   atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
@@ -166,6 +206,9 @@ if [ $input_type = "grib2" ]; then
         > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
         | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+  elif [ $bctype = gefsgrib2ab_0p50 ]; then
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2af${FHRGEFS} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2bf${FHRGEFS} > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
     ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi
