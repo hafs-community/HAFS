@@ -18,6 +18,7 @@ opts="-t -f -s sites/hera_ensemble.ent"
  confopts="config.EXPT=${EXPT} config.SUBEXPT=H223_ensemble_cloud \
      ../parm/hafs_2023_ensemble_AL.conf "
 
+#for ens in 00 01 02 03
 for ens in 03
 do
 
