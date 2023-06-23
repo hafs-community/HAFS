@@ -63,7 +63,7 @@ while [[ ${ALL_COMPLETE} -eq 0 ]]; do
 
   # Find and parse the ATCF file into an individual file for each storm
   # Do this even for HAFS regional to remove ".all" from file name.
-  ${GPLOT_PARSE} HAFS ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${DATE}.${RUN}.trak.atcfunix.all"
+  ${GPLOT_PARSE} ${RUN^^} ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${DATE}.${RUN}.trak.atcfunix.all"
 
   # Check the status logs for all GPLOT components.
   # If every log doesn't say "complete", set ALL_COMPLETE=0
@@ -81,14 +81,14 @@ while [[ ${ALL_COMPLETE} -eq 0 ]]; do
 
   # Check that the final HAFS output has been post-processed by atm_post.
   # If not, set ALL_COMPLETE=0
-  if [ ! -f ${WORKhafs}/forecast/postf${NHR3} ]; then
+  if [ ! -f ${WORKhafs}/intercom/post/postf${NHR3} ]; then
     ALL_COMPLETE=0
     echo "This file doesn't exist --> ${WORKhafs}/forecast/postf${NHR3}"
     echo "That means the final HAFS output has not been post-processed by atm_post."
   fi
 
   # Deliver all new and modified graphics to COMhafs/graphics
-  ${USHhafs}/rsync-no-vanished.sh -av --no-links --include="*/" --include="*gif" --include="*dat" --include="*structure*txt" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+  ${USHhafs}/rsync-no-vanished.sh -av --no-links --include="*/" --include="*gif" --include="*dat" --include="*structure*txt" --include="*.nc" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
 
   # If all status logs are complete and the final output has been processed
   # by atm_post, then exit with success!
@@ -110,7 +110,7 @@ done
 
 # Now that everything is complete, move all graphics to the $COMhafs directory.
 if [ "${SENDCOM}" == "YES" ]; then
-  ${USHhafs}/rsync-no-vanished.sh -av --no-links --include="*/" --include="*gif" --include="*dat" --include="*structure*txt" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
+  ${USHhafs}/rsync-no-vanished.sh -av --no-links --include="*/" --include="*gif" --include="*dat" --include="*structure*txt" --include="*.nc" --exclude="*" ${WORKgplot}/. ${COMgplot}/.
 fi
 
 echo "graphics job done"
