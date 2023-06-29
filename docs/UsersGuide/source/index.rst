@@ -11,13 +11,14 @@ Welcome to the HAFS User's Guide
    :maxdepth: 3
 
    Introduction
+   QuickStart
    GuidanceDocs
    CodeManagement
    RepositoryManagement
    Submodules
    Workflow
    Prerequisites
-   Install
+   ExtQuickStart
    RegressionTest
    BasicSteps
    UsefulResources
