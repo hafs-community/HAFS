@@ -20,7 +20,7 @@ opts="-t -f -s sites/hera_ensemble.ent"
      ../parm/hafs_2023_ensemble_hycom_AL.conf "
 
 #for ens in 00 01 02 03
-for ens in 00
+for ens in 11
 do
 
 if [ $ens -eq 00 ] ; then
@@ -29,7 +29,7 @@ if [ $ens -eq 00 ] ; then
      config.EXPT=${EXPT} config.SUBEXPT=${SUBEXPT}_${ens} config.ENS=${ens} \
      config.do_sppt=.F. config.do_shum=.F. config.do_skeb=.F. \
      forecast.write_groups=3 forecast.write_tasks_per_group=20 rocotostr.FORECAST_RESOURCES=FORECAST_RESOURCES_300PE \
-     forecast.all_tasks=300 forecast.atm_tasks=240 rocotostr.\
+     forecast.all_tasks=300 forecast.atm_tasks=240 \
      dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/input/GEFS \
      dir.COMgfs_ocean=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16 \
      hycominit1.atmos2_dataset=gfs_ocean hycominit2.atmos2_dataset=gfs_ocean
