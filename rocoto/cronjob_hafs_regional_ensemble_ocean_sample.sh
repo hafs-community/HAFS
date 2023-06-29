@@ -20,7 +20,7 @@ opts="-t -f -s sites/hera_ensemble.ent"
      ../parm/hafs_2023_ensemble_hycom_AL.conf "
 
 #for ens in 00 01 02 03
-for ens in 02
+for ens in 00
 do
 
 if [ $ens -eq 00 ] ; then
