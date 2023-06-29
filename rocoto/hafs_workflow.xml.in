@@ -55,6 +55,7 @@
 
   <!ENTITY GFSVER   "@[GFSVER:-PROD2019]">
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
+  <!ENTITY COMgfs_ocean   "@[COMgfs_ocean:-&WORKhafs;/hafsdata]">
   <!ENTITY COMrtofs "@[COMrtofs:-&WORKhafs;/hafsdata]">
 
   <!-- The output conf file for each cycle: -->
@@ -642,7 +643,7 @@
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
 @** endif
 @** if GFSVER==PROD2021
-          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs_ocean;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
 @** endif
         </and>
       </and>
