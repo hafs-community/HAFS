@@ -306,8 +306,8 @@ MED_model_attribute=${MED_model_attribute:-""}
 pubbasin2=${pubbasin2:-AL}
 if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
-# ocean_domain=nhc
-  ocean_domain=hat10
+  ocean_domain=nhc
+# ocean_domain=hat10
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
@@ -1046,14 +1046,13 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_hgrid.nc INPUT/ocean_hgrid.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_topog.nc INPUT/ocean_topog.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_mosaic.nc INPUT/ocean_mosaic.nc
-# ${NLN} ${FIXmom6}/${ocean_domain}/land_mosaic.nc INPUT/land_mosaic.nc
-# ${NLN} ${FIXmom6}/${ocean_domain}/mosaic.nc INPUT/mosaic.nc
-# ${NLN} ${FIXmom6}/${ocean_domain}/ocean_precip_monthly.nc INPUT/ocean_precip_monthly.nc
-  ${NLN} ${FIXmom6}/${ocean_domain}/runoff.daitren.clim.v20180328.nc INPUT/ocean_runoff_monthly.nc
-  ${NLN} ${FIXmom6}/${ocean_domain}/seawifs_1998-2006_smoothed.nc INPUT/ocean_chla.nc
-  ${NLN} ${FIXmom6}/${ocean_domain}/geothermal_davies2013.nc INPUT/ocean_geothermal.nc
-  ${NLN} ${FIXmom6}/${ocean_domain}/tidal_amplitude.nc INPUT/ocean_tidal_amplitude.nc
-  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_salt_restore.nc INPUT/ocean_salt_restore.nc
+# ${NLN} ${FIXmom6}/${ocean_domain}/ocean_geothermal.nc INPUT/ocean_geothermal.nc
+# ${NLN} ${FIXmom6}/${ocean_domain}/ocean_tidal_amplitude.nc INPUT/ocean_tidal_amplitude.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_chla.nc INPUT/ocean_chla.nc
+  ${NLN} ${FIXmom6}/runoff.daitren.clim.v20180328.nc INPUT/ocean_runoff_monthly.nc
+  ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sss_04_fill0.nc INPUT/ocean_salt_restore.nc
+# ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sst_04_fill0.nc INPUT/ocean_sst_restore.nc
+
   # Ocean mesh
   ${NLN} ${FIXmom6}/${ocean_domain}/mom6_mesh.nc ./mom6_mesh.nc
   # Atmospheric forcings from GFS

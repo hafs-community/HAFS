@@ -22,11 +22,12 @@ cyc_prior=`echo ${CDATEprior} | cut -c9-10`
 pubbasin2=${pubbasin2:-AL}
 if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
-# ocean_domain=nhc
-  ocean_domain=hat10
-  # Need to input the number of grid points for the latq and lonq dimension
-  nlatq=634
-  nlonq=1136
+  ocean_domain=nhc
+  nlatq=965
+  nlonq=2414
+# ocean_domain=hat10
+# nlatq=634
+# nlonq=1136
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
   # Need to input the number of grid points for the latq and lonq dimension
@@ -177,7 +178,10 @@ cp tmp_uv.nc test_uv.nc
 ncap2 -s 'where (u > 100.0 ) u=0.0' test_uv.nc test_uv_u0.nc
 ncap2 -s 'where (v > 100.0 ) v=0.0' test_uv_u0.nc test_uv_00.nc
 
-mv test_uv_00.nc ${outnc_uv}
+ncap2 -s 'u=u;u(:,:,:,0)=u(:,:,:,1)' test_uv_00.nc test_uv_01.nc
+ncap2 -s 'v=v;v(:,:,0,:)=v(:,:,1,:)' test_uv_01.nc test_uv_02.nc
+
+mv test_uv_02.nc ${outnc_uv}
 
 # Deliver to intercom
 ${NCP} -p ${outnc_2d} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc

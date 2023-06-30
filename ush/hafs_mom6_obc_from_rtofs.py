@@ -63,10 +63,10 @@ if __name__ == "__main__":
 
     #############################################################
     # ---------- define segments on MOM grid -----------------------
-    north = obc_segment('segment_001',hgrid_out_file,istart=Nx,iend=0, jstart=Ny,jend=Ny)
-    south = obc_segment('segment_002',hgrid_out_file,istart=0, iend=Nx,jstart=0, jend=0 )
-    east  = obc_segment('segment_003',hgrid_out_file,istart=Nx, iend=Nx, jstart=0,jend=Ny )
-    west  = obc_segment('segment_004',hgrid_out_file,istart=0, iend=0, jstart=0,jend=Ny )
+    north = obc_segment('segment_001',hgrid_out_file,istart=Nx,iend=0,jstart=Ny,jend=Ny)
+    south = obc_segment('segment_002',hgrid_out_file,istart=0,iend=Nx,jstart=0,jend=0)
+    east  = obc_segment('segment_003',hgrid_out_file,istart=Nx,iend=Nx,jstart=0,jend=Ny)
+    west  = obc_segment('segment_004',hgrid_out_file,istart=0,iend=0,jstart=Ny,jend=0)
 
     # ---------- define variables on each segment ------------------
     temp_south = obc_variable(south,'temp',geometry='surface',obctype='radiation',use_locstream=True)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     interp_u2s_east_weight, interp_v2s_east_weight = vel_east.interpolate_from(uv_file_in,'u','v',frame=0,depthname='Depth',timename='MT',coord_names_u=['Longitude','Latitude'],coord_names_v=['Longitude','Latitude'])
 
-    interp_u2s_west_weight, interp_v2s_west_weight = vel_east.interpolate_from(uv_file_in,'u','v',frame=0,depthname='Depth',timename='MT',coord_names_u=['Longitude','Latitude'],coord_names_v=['Longitude','Latitude'])
+    interp_u2s_west_weight, interp_v2s_west_weight = vel_west.interpolate_from(uv_file_in,'u','v',frame=0,depthname='Depth',timename='MT',coord_names_u=['Longitude','Latitude'],coord_names_v=['Longitude','Latitude'])
 
     #################################################################
     # Regridding
