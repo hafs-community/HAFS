@@ -1296,31 +1296,40 @@ for n in $(seq 1 ${ngrids}); do
   fi
   lon_span=$(echo ${output_grid_lon_span} | cut -d , -f ${n})
   lat_span=$(echo ${output_grid_lat_span} | cut -d , -f ${n})
-  dlon=$(echo ${output_grid_dlon} | cut -d , -f ${n})
-  dlat=$(echo ${output_grid_dlat} | cut -d , -f ${n})
-  lon1=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}-${lon_span}/2.0") )
-  lat1=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}-${lat_span}/2.0") )
-  lon2=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}+${lon_span}/2.0") )
-  lat2=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}+${lat_span}/2.0") )
-  imo=$( printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${dlon} + 1") )
-  jmo=$( printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${dlat} + 1") )
+  lat1=$(echo ${output_grid_lat1} | cut -d , -f ${n})
+  lat2=$(echo ${output_grid_lat2} | cut -d , -f ${n})
+  if [[ "$outputgrid" == lambert_conformal ]]; then
+      nxtmp=$(echo ${output_grid_nx:-""} | cut -d , -f ${n})
+      nytmp=$(echo ${output_grid_ny:-""} | cut -d , -f ${n})
+      imo=${nxtmp}
+      jmo=${nytmp}
+      eval NX${nstr}=${nxtmp}
+      eval NY${nstr}=${nytmp}
+      eval DX${nstr}=$(echo ${output_grid_dx:-""} | cut -d , -f ${n})
+      eval DY${nstr}=$(echo ${output_grid_dy:-""} | cut -d , -f ${n})
+      eval STDLAT1${nstr}=$(echo ${output_grid_stdlat1:-""} | cut -d , -f ${n})
+      eval STDLAT2${nstr}=$(echo ${output_grid_stdlat2:-""} | cut -d , -f ${n})
+  else
+      dlon=$(echo ${output_grid_dlon} | cut -d , -f ${n})
+      dlat=$(echo ${output_grid_dlat} | cut -d , -f ${n})
+      lon1=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}-${lon_span}/2.0") )
+      lat1=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}-${lat_span}/2.0") )
+      lon2=$( printf "%.6f" $(bc <<< "scale=6; ${clontmp}+${lon_span}/2.0") )
+      lat2=$( printf "%.6f" $(bc <<< "scale=6; ${clattmp}+${lat_span}/2.0") )
+      jmo=$( printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${dlat} + 1") )
+      imo=$( printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${dlon} + 1") )
+      eval LON2${nstr}=${lon2}
+      eval LAT2${nstr}=${lat2}
+      eval DLON${nstr}=${dlon}
+      eval DLAT${nstr}=${dlat}
+      eval IMO${nstr}=${imo}
+      eval JMO${nstr}=${jmo}
+  fi
   eval OUTPUT_GRID${nstr}=${outputgrid}
   eval CEN_LON${nstr}=${clon}
   eval CEN_LAT${nstr}=${clat}
   eval LON1${nstr}=${lon1}
   eval LAT1${nstr}=${lat1}
-  eval LON2${nstr}=${lon2}
-  eval LAT2${nstr}=${lat2}
-  eval DLON${nstr}=${dlon}
-  eval DLAT${nstr}=${dlat}
-  eval IMO${nstr}=${imo}
-  eval JMO${nstr}=${jmo}
-  eval STDLAT1${nstr}=$(echo ${output_grid_stdlat1:-""} | cut -d , -f ${n})
-  eval STDLAT2${nstr}=$(echo ${output_grid_stdlat2:-""} | cut -d , -f ${n})
-  eval NX${nstr}=$(echo ${output_grid_nx:-""} | cut -d , -f ${n})
-  eval NY${nstr}=$(echo ${output_grid_ny:-""} | cut -d , -f ${n})
-  eval DX${nstr}=$(echo ${output_grid_dx:-""} | cut -d , -f ${n})
-  eval DY${nstr}=$(echo ${output_grid_dy:-""} | cut -d , -f ${n})
 done
 
 for n in $(seq $((${ngrids}+1)) 6); do

@@ -242,7 +242,26 @@ fi
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
 
-if [ ${postgridspecs} = auto ]; then
+if [[ "$postgridspecs" == auto && "$outputgrid" == lambert_conformal ]] ; then
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f ${ng})
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f ${ng})
+  lon_span=$(echo ${output_grid_lon_span} | cut -d , -f ${ng})
+  lat_span=$(echo ${output_grid_lat_span} | cut -d , -f ${ng})
+  outputgrid_nx=$(echo ${output_grid_nx} | cut -d , -f ${ng})
+  outputgrid_ny=$(echo ${output_grid_ny} | cut -d , -f ${ng})
+  outputgrid_dx=$(echo ${output_grid_dx} | cut -d , -f ${ng})
+  outputgrid_dy=$(echo ${output_grid_dy} | cut -d , -f ${ng})
+  outputgrid_stdlat1=$(echo ${output_grid_stdlat1} | cut -d , -f ${ng})
+  outputgrid_stdlat2=$(echo ${output_grid_stdlat2} | cut -d , -f ${ng})
+  outputgrid_lon0=$(printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0"))
+  outputgrid_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
+
+  postgridspecs="lambert:$clon:$outputgrid_stdlat1:$outputgrid_stdlat2 $outputgrid_lon0:$outputgrid_nx:$outputgrid_dx $outputgrid_lat0:$outputgrid_ny:$outputgrid_dy"
+
+  unset clon clat lon_span lat_span outputgrid_nx outputgrid_ny
+  unset outputgrid_dx outputgrid_dy outputgrid_stdlat1 outputgrid_stdlat2
+  unset outputgrid_lon0 outputgrid_lat0
+elif [ ${postgridspecs} = auto ]; then
   clon=$(echo ${output_grid_cen_lon} | cut -d , -f 1)
   clat=$(echo ${output_grid_cen_lat} | cut -d , -f 1)
   lon_span=$(echo ${output_grid_lon_span} | cut -d , -f 1)
@@ -259,13 +278,29 @@ if [ ${postgridspecs} = auto ]; then
   latlon_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
   latlon_nlat=$(printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}"))
   postgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
-fi
+  unset clon clat lon_span lat_span latlon_dlon latlon_dlat latlon_lon0
+  unset latlon_nlon latlon_lat0 latlon_nlat
+fi # if [[ "$postgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
-if [ ${trakgridspecs} = auto ]; then
+if [[ "$trakgridspecs" == auto && "$outputgrid" == lambert_conformal ]] ; then
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f ${ng})
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f ${ng})
+  lon_span=$(echo ${trak_grid_lon_span} | cut -d , -f ${ng})
+  lat_span=$(echo ${trak_grid_lat_span} | cut -d , -f ${ng})
+  latlon_dlon=$(printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${ng}))
+  latlon_dlat=$(printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${ng}))
+  latlon_lon0=$(printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0"))
+  latlon_nlon=$(printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${latlon_dlon}"))
+  latlon_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
+  latlon_nlat=$(printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}"))
+  trakgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
+  unset clon clat lon_span lat_span latlon_dlon latlon_dlat latlon_lon0
+  unset latlon_nlon latlon_lat0 latlon_nlat
+elif [ ${trakgridspecs} = auto ]; then
   trakgridspecs=${postgridspecs}
-fi
+fi # if [[ "$trakgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
-if [[ "$outputgrid" = "rotated_latlon"* ]]; then
+if [[ "$outputgrid" = "rotated_latlon"* || "$outputgrid" == lambert_conformal ]]; then
 
 # For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2
