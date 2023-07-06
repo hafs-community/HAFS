@@ -67,7 +67,7 @@ FRAZIL = True                   !   [Boolean] default = False
                                 ! If true, water freezes if it gets too cold, and the accumulated heat deficit
                                 ! is returned in the surface state.  FRAZIL is only used if
                                 ! ENABLE_THERMODYNAMICS is true.
-!DO_GEOTHERMAL = True            !   [Boolean] default = False
+DO_GEOTHERMAL = True            !   [Boolean] default = False
                                 ! If true, apply geothermal heating.
 BOUND_SALINITY = True           !   [Boolean] default = False
                                 ! If true, limit salinity to being positive. (The sea-ice model may ask for more
@@ -694,7 +694,7 @@ EPBL_IS_ADDITIVE = False        !   [Boolean] default = True
 
 ! === module MOM_tidal_mixing ===
 ! Vertical Tidal Mixing Parameterization
-INT_TIDE_DISSIPATION = False    !   [Boolean] default = False
+INT_TIDE_DISSIPATION = True     !   [Boolean] default = False
                                 ! If true, use an internal tidal dissipation scheme to drive diapycnal mixing,
                                 ! along the lines of St. Laurent et al. (2002) and Simmons et al. (2004).
 INT_TIDE_PROFILE = "POLZIN_09"  ! default = "STLAURENT_02"
@@ -715,7 +715,7 @@ KAPPA_H2_FACTOR = 0.84          !   [nondim] default = 1.0
 TKE_ITIDE_MAX = 0.1             !   [W m-2] default = 1000.0
                                 ! The maximum internal tide energy source available to mix above the bottom
                                 ! boundary layer with INT_TIDE_DISSIPATION.
-READ_TIDEAMP = False            !   [Boolean] default = False
+READ_TIDEAMP = True             !   [Boolean] default = False
                                 ! If true, read a file (given by TIDEAMP_FILE) containing the tidal amplitude
                                 ! with INT_TIDE_DISSIPATION.
 TIDEAMP_FILE = "ocean_tidal_amplitude.nc" ! default = "tideamp.nc"

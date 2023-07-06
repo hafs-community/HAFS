@@ -1046,8 +1046,8 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_hgrid.nc INPUT/ocean_hgrid.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_topog.nc INPUT/ocean_topog.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_mosaic.nc INPUT/ocean_mosaic.nc
-# ${NLN} ${FIXmom6}/${ocean_domain}/ocean_geothermal.nc INPUT/ocean_geothermal.nc
-# ${NLN} ${FIXmom6}/${ocean_domain}/ocean_tidal_amplitude.nc INPUT/ocean_tidal_amplitude.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_geothermal.nc INPUT/ocean_geothermal.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_tidal_amplitude.nc INPUT/ocean_tidal_amplitude.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_chla.nc INPUT/ocean_chla.nc
   ${NLN} ${FIXmom6}/runoff.daitren.clim.v20180328.nc INPUT/ocean_runoff_monthly.nc
   ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sss_04_fill0.nc INPUT/ocean_salt_restore.nc
