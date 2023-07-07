@@ -121,7 +121,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     work_dir=${DATA}/prep_guess
     mkdir -p ${work_dir}
     cd ${work_dir}
-    ${APRUNC} ${DATOOL} hafsvi_preproc \
+    ${APRUNM} ${DATOOL} hafsvi_preproc \
         --in_dir=${RESTARTinp} \
         --debug_level=1 --interpolation_points=5 \
         --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
@@ -151,7 +151,7 @@ for vortexradius in 30 45; do
   work_dir=${DATA}/prep_init
   mkdir -p ${work_dir}
   cd ${work_dir}
-  ${APRUNC} ${DATOOL} hafsvi_preproc \
+  ${APRUNM} ${DATOOL} hafsvi_preproc \
       --in_dir=${RESTARTinit} \
       --debug_level=1 --interpolation_points=5 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
@@ -526,7 +526,7 @@ ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 for nd in $(seq 1 ${nest_grids}); do
-  ${APRUNC} ${DATOOL} hafsvi_postproc \
+  ${APRUNM} ${DATOOL} hafsvi_postproc \
       --in_file=${DATA}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
       --relaxzone=30 \
