@@ -11,96 +11,61 @@ opts="-t -f"
 scrubopt="config.scrub_work=no config.scrub_com=no"
 
 #===============================================================================
+ # HAFS application regression tests for operational configurations using development computation resources
 
- # Regional static NATL basin-focused configuration with atm-ocn coupling
- ./run_hafs.py ${opts} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn \
+ # HAFSv1 HFSA with two-way atm-ocn coupling and one-way atm-wav coupling
+ ./run_hafs.py ${opts} 2020082512-2020082518 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_hfsa_dev_ww3 \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hfsa_dev_ww3.conf
+
+ # HAFSv1 HFSB with two-way atm-ocn coupling 
+ ./run_hafs.py ${opts} 2020082512-2020082518 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_hfsb_dev \
+     config.NHRS=12 ${scrubopt} \
+     ../parm/hfsb_dev.conf
+ 
+#===============================================================================
+ # HAFS application regression tests for experimental regional configurations
+
+ # Regional standalone storm-focused configuration with ESG grid and GFS grib2ab input
+ ./run_hafs.py ${opts} 2020082512 13L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm \
      config.NHRS=6 ${scrubopt} \
-     ../parm/tests/hafs_regional_static.conf \
-     ../parm/tests/hafs_hycom.conf
+     ../parm/rt_conf/hafs_regional_atm.conf
 
- # Regional static NATL basin-focused configuration with atm-wav coupling
- ./run_hafs.py ${opts} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_wav \
-     config.NHRS=6 ${scrubopt} \
-     ../parm/tests/hafs_regional_static.conf \
-     ../parm/tests/hafs_ww3.conf \
-     forecast.cpl_atm_wav=cmeps_2way
-
-## Regional static NATL basin-focused configuration with atm-ocn-wav coupling
-#./run_hafs.py ${opts} 2020082512 00L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_atm_ocn_wav \
-#    config.NHRS=6 ${scrubopt} \
-#    ../parm/tests/hafs_regional_static.conf \
-#    ../parm/tests/hafs_hycom_ww3.conf \
-#    forecast.cpl_atm_ocn=cmeps_2way \
-#    forecast.cpl_atm_wav=cmeps_2way
-
- # Regional low-resolution static NATL basin-focused configuration with atm-ocn-wav coupling
- ./run_hafs.py ${opts} 2019082900 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_ocn_wav \
-     config.NHRS=24 ${scrubopt} \
-     ../parm/tests/hafs_regional_static_C192s1n4.conf \
-     ../parm/tests/hafs_hycom_ww3.conf \
-     forecast.cpl_atm_ocn=cmeps_2way \
-     forecast.cpl_atm_wav=cmeps_2way
-
- # Regional storm-focused configuration with atm-ocn-wav coupling
+ # Regional standalone storm-focused configuration with ESG grid and atm-ocn-wav coupling
  ./run_hafs.py ${opts} 2020082512 13L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm_ocn_wav \
      config.NHRS=6 ${scrubopt} \
-     ../parm/tests/hafs_hycom_ww3.conf \
-     forecast.cpl_atm_ocn=cmeps_2way \
-     forecast.cpl_atm_wav=cmeps_2way
+     ../parm/rt_conf/hafs_regional_atm_ocn_wav.conf
 
- # Regional storm-focused configuration (atm-only) with GFS grib2ab format IC/BC
- ./run_hafs.py ${opts} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_atm_only \
-     config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
-     config.NHRS=6 ${scrubopt}
+ # Regional standalone low-resolution static basin-focused configuration with atm-ocn-wav coupling
+ ./run_hafs.py ${opts} 2020082512 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_ocn_wav \
+     config.NHRS=6 ${scrubopt} \
+     ../parm/rt_conf/hafs_regional_static_C192s1n4_atm_ocn_wav.conf
 
- # Regional low-resolution static NATL basin-focused configuration with 3DEnVar with GDAS ensembles
+ # Regional standalone low-resolution static basin-focused configuration with 3DEnVar using GDAS ensembles
  ./run_hafs.py ${opts} 2020082506-2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_da_C192s1n4_3denvar \
-     config.run_gsi=yes config.run_envar=yes \
-     gsi.use_bufr_nr=yes \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_3denvar \
      config.NHRS=12 ${scrubopt} \
-     ../parm/tests/hafs_regional_da_C192s1n4.conf
-
- # Regional storm-focused moving-nesting configuration with vortex initialization and domain 02 data assimilation
- #   atm_init+atm_vi+fgat+d02_3denvar+anal_merge and cycling storm perturbation
- ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_mvnest_vida \
-     config.run_atm_init=yes config.run_atm_init_fgat=yes config.run_atm_init_ens=no \
-     config.run_atm_merge=no config.run_atm_merge_fgat=no config.run_atm_merge_ens=no \
-     config.run_atm_vi=yes config.run_atm_vi_fgat=yes config.run_atm_vi_ens=no \
-     config.run_gsi=yes config.run_fgat=yes config.run_envar=yes \
-     config.gsi_d01=no config.gsi_d02=yes \
-     config.run_ensda=no config.ENS_SIZE=40 config.run_enkf=no \
-     config.run_analysis_merge=yes config.run_analysis_merge_ens=no \
-     vi.vi_storm_env=init \
-     atm_merge.atm_merge_method=vortexreplace analysis_merge.analysis_merge_method=vortexreplace \
-     config.NHRS=12 ${scrubopt} \
-     config.GRID_RATIO_ENS=2 \
-     gsi.use_bufr_nr=yes \
-     gsi.grid_ratio_fv3_regional=1 \
-     ../parm/tests/hafsv0p3_regional_mvnest.conf \
-     ../parm/tests/hafsv0p3_hycom.conf
+     ../parm/rt_conf/hafs_regional_static_C192s1n4_atm_3denvar.conf
 
 #===============================================================================
+ # HAFS application regression tests for experimental global-nesting configurations
 
- # Global-nesting static NATL basin-focused configuration (atm-only)
- ./run_hafs.py ${opts} 2020082512 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static \
-     config.NHRS=6 ${scrubopt} \
-     ../parm/tests/hafs_globnest_static.conf
-
- # Global-nesting storm-focused configuration (atm-only) with GFS grib2ab format IC/BC
+ # Global-nesting storm-focused configuration
  ./run_hafs.py ${opts} 2020082512 13L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_grib2ab \
-     config.ictype=gfsgrib2ab_0p25 forecast.nstf_n2=1 \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_atm \
      config.NHRS=6 ${scrubopt} \
-     ../parm/tests/hafs_globnest.conf
+     ../parm/rt_conf/hafs_globnest_atm.conf
+
+ # Global-nesting static basin-focused configuration with GFS grib2ab input
+ ./run_hafs.py ${opts} 2020082512 00L HISTORY \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_globnest_static_atm \
+     config.NHRS=6 ${scrubopt} \
+     ../parm/rt_conf/hafs_globnest_static_atm.conf
 
 #===============================================================================
 
