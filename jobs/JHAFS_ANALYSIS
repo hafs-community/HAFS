@@ -37,6 +37,9 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   if [ ${machine}  = "hera" ]; then
     module load gsi_${machine}.intel
   else
+    if [ ${machine}  = "jet" ]; then
+      module purge
+    fi
     module load gsi_${machine}
   fi
   module list
