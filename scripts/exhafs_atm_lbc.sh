@@ -99,14 +99,15 @@ FHRI=${FHRI:-${NBDYHRS}}
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
 
+
+# Loop for forecast hours
+while [ $FHR -le ${FHRE} ]; do
+
 if [ $FHR -le 99 ] ; then
 FHRGEFS=$( printf "%02d" "$FHR" )
 else
 FHRGEFS=$( printf "%03d" "$FHR" )
 fi
-
-# Loop for forecast hours
-while [ $FHR -le ${FHRE} ]; do
 
 date
 hour_name=${FHR3}
