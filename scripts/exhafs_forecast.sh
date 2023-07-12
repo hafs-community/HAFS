@@ -307,7 +307,11 @@ pubbasin2=${pubbasin2:-AL}
 if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
   ocean_domain=nhc
+  nxglobal=2413
+  nyglobal=964
 # ocean_domain=hat10
+#  nxglobal=1135
+#  nyglobal=633
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
@@ -1065,6 +1069,7 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   sed -i -e "s/_yearFirst_/$yr/g" -e "s/_yearLast_/$endyr/g" datm.streams
   # datm_in
   ${NCP} ${PARMhafs}/cdeps/datm_gfs_in ./datm_in
+  sed -i -e "s/_nx_global_/$nxglobal/g" -e "s/_ny_global_/$nyglobal/g" datm_in
 fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
 
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then

@@ -6,9 +6,9 @@
   flds_presaero = .false.
   flds_wiso = .false.
   iradsw = 1
-  model_maskfile = "datm_gfs_mesh.nc"
-  model_meshfile = "datm_gfs_mesh.nc"
-  nx_global = 1440
-  ny_global = 721
+  model_maskfile = "mom6_mesh.nc"
+  model_meshfile = "mom6_mesh.nc"
+  nx_global = _nx_global_
+  ny_global = _ny_global_
   restfilm = "null"
 /
