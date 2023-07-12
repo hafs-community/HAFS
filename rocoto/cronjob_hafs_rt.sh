@@ -8,7 +8,7 @@ source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
-scrubopt="config.scrub_work=no config.scrub_com=no"
+scrubopt="config.scrub_work=no config.scrub_com=no config.archive=none"
 
 #===============================================================================
  # HAFS application regression tests for operational configurations using development computation resources
