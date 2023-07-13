@@ -387,8 +387,7 @@
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
                           grid_dst%grid_xt, grid_dst%grid_y, lat_dst, lon_dst, x_oini, y_oini)
 
-  write(*,'(a3, 2i6, 2f11.2,2i11, 2f11.2)')' u:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j), &
-     lon_src(x_oini(i,j),y_oini(i,j)), lat_src(x_oini(i,j),y_oini(i,j))
+  write(*,'(a3, 2i6, 2f11.2,2i11)')' u:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j)
 
   allocate(gwt%gwt_u(grid_dst%grid_xt, grid_dst%grid_y))  !grid_weight_info
   call cal_grid_weight(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
@@ -422,8 +421,7 @@
   call search_nearst_grid(grid_src%grid_x, grid_src%grid_yt, lat_src, lon_src, &
                           grid_dst%grid_x, grid_dst%grid_yt, lat_dst, lon_dst, x_oini, y_oini)
 
-  write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' v:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j), &
-     lon_src(x_oini(i,j),y_oini(i,j)), lat_src(x_oini(i,j),y_oini(i,j))
+  write(*,'(a3,2i6, 2f11.2,2i11)')' v:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j)
 
   allocate(gwt%gwt_v(grid_dst%grid_x, grid_dst%grid_yt))  !grid_weight_info
   call cal_grid_weight(grid_src%grid_x, grid_src%grid_yt, lat_src, lon_src, &
@@ -866,12 +864,12 @@
         write(*,'(a,90f)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         if ( gw(i,j)%dst_points > 0 ) then
            if (debug_level>20) write(*,'(a,  90i13)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
-           if (debug_level>20) write(*,'(a,90f13.4)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
-           write(*,'(a,90f13.4)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
+           if (debug_level>20) write(*,'(a,90f)')'--             dst_weight: ', ((gw(i,j)%dst_weight(n1)),n1=1,gw(i,j)%dst_points)
+           write(*,'(a,90f)')    '--             dst_values: ', ( fdat_dst(gw(i,j)%dst_x(n1),gw(i,j)%dst_y(n1),k,n),n1=1,gw(i,j)%dst_points)
         else
            write(*,'(a)')     '--             no dst point'
         endif
-        write(*,'(a,f13.4)')    '--          remaped value: ', fdat_out(i,j,k,n)
+        write(*,'(a,f)')    '--          remaped value: ', fdat_out(i,j,k,n)
      endif
 
   enddo; enddo; enddo; enddo

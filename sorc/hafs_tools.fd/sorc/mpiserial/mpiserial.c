@@ -43,6 +43,14 @@ AUTHORSHIP:
     - rearranged immediate exit logic to avoid an MPI_Abort in one
       rank while others are in a global communication
 
+ 2023 Feb - Sam Trahan additions:
+    - use clock_gettime if available since gettimeofday provides does not
+      provide microseconds on WCOSS2. Fall back to gettimeofday if there
+      are no suitable clocks or if clock_gettime fails.
+    - default sleep time is now 1 second in case of that failure again
+    - minimum resolution is dependent on clock_getres; uses 1 second for
+      gettimeofday
+
 ---------
 
 CALLING CONVENTION: This program can be called in one of two different
@@ -114,7 +122,8 @@ non-zero status.
 
 ////////////////////////////////////////////////////////////////////////
 
-static double g_event_loop_sleep_time=0.5;
+static double g_event_loop_sleep_time=1;
+static double g_clock_resolution=1;
 
 static const char *MPISERIAL_VERSION="3.0";
 
@@ -169,6 +178,7 @@ static int scr_verbosity(void);
 static char *get_nonempty_env(const char *c);
 static void lsf_signal_workaround();
 static char *append_args(const int argc,const char * const * const argv);
+static int test_clock(clockid_t clk_id);
 static double doubletime();
 static void doublesleep(double s);
 static void checkpoint_message(int verbosity,int rc,int running,int max_rc,
@@ -494,12 +504,55 @@ static char *append_args(const int argc,const char * const * const argv) {
 
 ////////////////////////////////////////////////////////////////////////
 
+static int test_clock(clockid_t clk_id) {
+  /* Does this clock exist, and does it support fractional seconds? */
+  struct timespec res = { 0, 0 };
+  
+  if(clock_gettime(clk_id, &res))
+    /* Clock does not exist or error */
+    return 0;
+
+  if(!res.tv_nsec)
+    /* Clock has second precision */
+    return 0;
+
+  double resolution = 1e-9*res.tv_nsec;
+  if(resolution < g_clock_resolution)
+    g_clock_resolution = resolution;
+  if(g_clock_resolution < 1e-5)
+    g_clock_resolution = 1e-5;
+
+  return 1;
+}
+
+////////////////////////////////////////////////////////////////////////
+
 static double doubletime() {
   /* Return the time since the UNIX epoch in seconds, with nanosecond
      precision. */
-  struct timeval nowmilli = { 0, 0};
+  static int use_gettimeofday = -1;
+  static clockid_t clk_id = 0;
+  
+  if(use_gettimeofday<0) {
+    use_gettimeofday=0;
+    if(test_clock(CLOCK_MONOTONIC))
+      clk_id=CLOCK_MONOTONIC;
+    else if(test_clock(CLOCK_REALTIME))
+      clk_id=CLOCK_REALTIME;
+    else
+      use_gettimeofday=1;
+  }
+
+  if(!use_gettimeofday) {
+    struct timespec tp = { 0, 0 };
+    int err=clock_gettime(clk_id, &tp);
+    if(!err && tp.tv_nsec)
+      return 1e-9*tp.tv_nsec + tp.tv_sec;
+  }
+  
+  struct timeval nowmilli = { 0, 0 };
   gettimeofday(&nowmilli,NULL);
-  return (  (double)nowmilli.tv_sec + (double)nowmilli.tv_usec/1e6 );
+  return 1e-6*nowmilli.tv_usec + nowmilli.tv_sec;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1320,8 +1373,8 @@ void determine_settings(int i_argc,char **i_argv,char **p_command,
         usage("-S requires an argument\n");
       if(sscanf(optarg,"%lf",&g_event_loop_sleep_time)<1)
         usage("-S %s: cannot parse sleep time\n",optarg);
-      if(g_event_loop_sleep_time<1e-5)
-        g_event_loop_sleep_time=1e-5;
+      if(g_event_loop_sleep_time<g_clock_resolution)
+        g_event_loop_sleep_time=g_clock_resolution;
       if(g_event_loop_sleep_time>600)
         g_event_loop_sleep_time=600;
       message(world_rank ? 3 : 1,

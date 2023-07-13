@@ -3,17 +3,11 @@
 set -xe
 
 CDATE=${CDATE:-${YMDH}}
-STORM=${STORM:-FAKE}
-STORMID=${STORMID:-00L}
 YMD=$(echo ${CDATE} | cut -c1-8)
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo ${CDATE} | cut -c9-10)
-
-CDATEprior=$(${NDATE} -6 $CDATE)
-COMhafsprior=${COMhafsprior:-${COMhafs}/../../${CDATEprior}/${STORMID}}
-WORKhafsprior=${WORKhafsprior:-${WORKhafs}/../../${CDATEprior}/${STORMID}}
 
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
 PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
@@ -23,92 +17,14 @@ FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
 source ${ATPARSE}
 
-out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
-satpost=${satpost:-.false.}
-
 ENSDA=${ENSDA:-NO}
+ENSID=${ENSID:-000}
 
-# Set options specific to the deterministic/ensemble forecast
-if [ "${ENSDA}" != YES ]; then
-  NHRS=${NHRS:-126}
-  NBDYHRS=${NBDYHRS:-3}
-  NOUTHRS=${NOUTHRS_ENS:-3}
-  CASE=${CASE:-C768}
-  CRES=$(echo $CASE | cut -c 2-)
-  gtype=${gtype:-regional}
-  LEVS=${LEVS:-65}
-  stretch_fac=${stretch_fac:-1.0001}
-  target_lon=${target_lon:--62.0}
-  target_lat=${target_lat:-22.0}
-  refine_ratio=${refine_ratio:-4}
-  nest_grids=${nest_grids:-1}
-  parent_grid_num=${parent_grid_num:-1}
-  parent_tile=${parent_tile:-6}
-  refine_ratio=${refine_ratio:-4}
-  istart_nest=${istart_nest:-46}
-  jstart_nest=${jstart_nest:-238}
-  iend_nest=${iend_nest:-1485}
-  jend_nest=${jend_nest:-1287}
-  deflate_level=${deflate_level:--1}
-  ccpp_suite_regional=${ccpp_suite_regional:-FV3_HAFS_v1}
-  ccpp_suite_glob=${ccpp_suite_glob:-FV3_HAFS_v1}
-  ccpp_suite_nest=${ccpp_suite_nest:-FV3_HAFS_v1}
-  dt_atmos=${dt_atmos:-90}
-  restart_interval=${restart_interval:-6}
-  quilting=${quilting:-.true.}
-  write_groups=${write_groups:-3}
-  write_tasks_per_group=${write_tasks_per_group:-72}
-  write_dopost=${write_dopost:-.false.}
-  output_history=${output_history:-.true.}
-  glob_k_split=${glob_k_split:-1}
-  glob_n_split=${glob_n_split:-7}
-  glob_layoutx=${glob_layoutx:-12}
-  glob_layouty=${glob_layouty:-12}
-  glob_npx=${glob_npx:-769}
-  glob_npy=${glob_npy:-769}
-  glob_io_layoutx=${glob_io_layoutx:-1}
-  glob_io_layouty=${glob_io_layouty:-10}
-  glob_full_zs_filter=${glob_full_zs_filter:-.true.}
-  glob_n_zs_filter=${glob_n_zs_filter:-1}
-  glob_n_del2_weak=${glob_n_del2_weak:-20}
-  glob_max_slope=${glob_max_slope:-0.25}
-  glob_rlmx=${glob_rlmx:-300.}
-  glob_elmx=${glob_elmx:-300.}
-  glob_sfc_rlm=${glob_sfc_rlm:-1}
-  glob_tc_pbl=${glob_tc_pbl:-0}
-  glob_shal_cnv=${glob_shal_cnv:-.true.}
-  glob_do_deep=${glob_do_deep:-.true.}
-  k_split=${k_split:-4}
-  n_split=${n_split:-5}
-  layoutx=${layoutx:-40}
-  layouty=${layouty:-30}
-  npx=${npx:-2881}
-  npy=${npy:-1921}
-  io_layoutx=${io_layoutx:-1}
-  io_layouty=${io_layouty:-10}
-  full_zs_filter=${full_zs_filter:-.true.}
-  n_zs_filter=${n_zs_filter:-1}
-  n_del2_weak=${n_del2_weak:-20}
-  max_slope=${max_slope:-0.25}
-  rlmx=${rlmx:-300.}
-  elmx=${elmx:-300.}
-  sfc_rlm=${sfc_rlm:-1}
-  tc_pbl=${tc_pbl:-0}
-  shal_cnv=${shal_cnv:-.true.}
-  do_deep=${do_deep:-.true.}
-  do_sppt=${do_sppt:-.false.}
-  do_shum=${do_shum:-.false.}
-  do_skeb=${do_skeb:-.false.}
-  npz=${npz:-64}
-  output_grid_dlon=${output_grid_dlon:-0.025}
-  output_grid_dlat=${output_grid_dlon:-0.025}
-else
+# Reset options specific to the ensemble forecast if needed
+if [ "${ENSDA}" = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
     NHRS=${NHRS:-126}
@@ -118,22 +34,12 @@ else
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
-  CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype_ens:-regional}
   LEVS=${LEVS_ENS:-65}
   stretch_fac=${stretch_fac_ens:-1.0001}
   target_lon=${target_lon_ens:--62.0}
   target_lat=${target_lat_ens:-22.0}
   refine_ratio=${refine_ratio_ens:-4}
-# nest_grids=${nest_grids:-1}
-# parent_grid_num=${parent_grid_num:-1}
-# parent_tile=${parent_tile:-6}
-# refine_ratio=${refine_ratio:-4}
-# istart_nest=${istart_nest:-46}
-# jstart_nest=${jstart_nest:-238}
-# iend_nest=${iend_nest:-1485}
-# jend_nest=${jend_nest:-1287}
-  deflate_level=${deflate_level:--1}
   ccpp_suite_regional=${ccpp_suite_regional_ens:-FV3_HAFS_v1}
   ccpp_suite_glob=${ccpp_suite_glob_ens:-FV3_HAFS_v1}
   ccpp_suite_nest=${ccpp_suite_nest_ens:-FV3_HAFS_v1}
@@ -237,19 +143,61 @@ if [ ${warm_start_opt} -eq 0 ]; then
   RESTARTinp="UNNEEDED"
 fi
 
-if [ ${run_init:-no} = yes ]; then
-  is_moving_nest=$(echo ${is_moving_nest} | sed -e 's/.true./.false./g' -e 's/.T./.F./g')
-  output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
-fi
+# Sepcial settings if this is an atm_init forecast run
+if [ ${RUN_INIT:-NO} = YES ]; then
 
-if [ ${run_init:-no} = no ]; then
+if [ "${ENSDA}" = YES ]; then
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  RESTARTout=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+elif [ ${FGAT_MODEL} = gdas ]; then
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+else
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  RESTARTout=${WORKhafs}/intercom/RESTART_init
+fi
+NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
+NHRS_ENS=$(awk "BEGIN {print ${dt_atmos}/3600}")
+restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
+warm_start_opt=0
+run_ocean=no
+run_wave=no
+ccpp_suite_regional=${ccpp_suite_regional_init:-$ccpp_suite_regional}
+ccpp_suite_glob=${ccpp_suite_glob_init:-$ccpp_suite_glob}
+ccpp_suite_nest=${ccpp_suite_nest_init:-$ccpp_suite_nest}
+nstf_n1=${nstf_n1_init:-$nstf_n1}
+nstf_n2=${nstf_n2_init:-$nstf_n2}
+nstf_n3=${nstf_n3_init:-$nstf_n3}
+nstf_n4=${nstf_n4_init:-$nstf_n4}
+nstf_n5=${nstf_n5_init:-$nstf_n5}
+glob_layoutx=${glob_layoutx_init:-$glob_layoutx}
+glob_layouty=${glob_layouty_init:-$glob_layouty}
+layoutx=${layoutx_init:-$layoutx}
+layouty=${layouty_init:-$layouty}
+is_moving_nest=$(echo ${is_moving_nest} | sed -e 's/.true./.false./g' -e 's/.T./.F./g')
+output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
+
+else # Otherwise this a regular forecast run
+
+if [ "${ENSDA}" = YES ]; then
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}}
+else
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART}
+fi
 
 # Different warm_start_opt options for determinist/ensemble forecast
 if [ ${ENSDA} != "YES" ]; then # for deterministic forecast
 
-if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/${old_out_prefix}.RESTART/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafsprior}/RESTART
+  RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
 fi
 if [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
@@ -266,11 +214,6 @@ if [ ${RUN_ATM_VI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi
   #warm_start_opt=3
 fi
-if [ ${RUN_GSI_VR} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
-  warmstart_from_restart=yes
-  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr
-  #warm_start_opt=4
-fi
 if [ ${RUN_GSI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis
@@ -284,9 +227,9 @@ fi
 
 else # for ENSDA member forecast
 
-if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMhafsprior}/RESTART_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${warm_start_opt} -eq -1 ] && [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
-  RESTARTinp=${COMhafsprior}/RESTART_ens/mem${ENSID}
+  RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
 fi
 if [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
@@ -303,11 +246,6 @@ if [ ${RUN_ATM_VI_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi_ens/mem${
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
   #warm_start_opt=3
 fi
-if [ ${RUN_GSI_VR_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
-  warmstart_from_restart=yes
-  RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_vr_ens/mem${ENSID}
-  #warm_start_opt=4
-fi
 if [ ${RUN_ENKF} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
@@ -321,7 +259,7 @@ fi
 
 fi # ${ENSDA} != "YES"
 
-fi # ${run_init} = "no"
+fi # ${RUN_INIT} = "NO"
 
 # For warm start from restart files
 if [ ${warmstart_from_restart} = yes ]; then
@@ -623,23 +561,13 @@ elif [ ${run_docn} = yes ]; then
   runSeq_ALL="" # not used yet
 fi
 
+cd ${DATA}
+
 # Prepare the output RESTART dir
-if [ ${ENSDA} = YES ]; then
-  RESTARTout=${RESTARTout:-${COMhafs}/RESTART_ens/mem${ENSID}}
-  mkdir -p ${RESTARTout}
+mkdir -p ${RESTARTout}
+if [ ! -e ./RESTART ]; then
   ${NLN} ${RESTARTout} RESTART
-elif [ ${RUN_GSI} = YES ] || [ ${RUN_GSI_VR} = YES ] || [ ${RUN_ATM_VI} = YES ] || [ ${RUN_ATM_MERGE} = YES ]; then
-  RESTARTout=${RESTARTout:-${COMhafs}/RESTART}
-  mkdir -p ${RESTARTout}
-  ${NLN} ${RESTARTout} RESTART
-else
-  RESTARTout=${RESTARTout:-./RESTART}
-  mkdir -p ${RESTARTout}
-  if [ ! -e ./RESTART ]; then
-    ${NLN} ${RESTARTout} RESTART
-  fi
 fi
-# Clean up old RESTART files if exist
 rm -f RESTART/*
 
 mkdir -p INPUT
@@ -660,9 +588,9 @@ fi
 
 ${NLN} ${INPdir}/*.nc INPUT/
 
-if [ ${run_init:-no} = yes ]; then
+if [ ${RUN_INIT:-NO} = YES ]; then
   cd INPUT/
-  ${NLN} gfs_bndy.tile7.000.nc gfs_bndy.tile7.003.nc
+  ${NLN} gfs_bndy.tile7.000.nc gfs_bndy.tile7.$(printf "%03d" "$NBDYHRS").nc
   cd ../
 fi
 
@@ -746,7 +674,7 @@ for itile in $(seq 7 ${ntiles}); do
 done
 
 # moving nest
-if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]] ; then
+if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
   mkdir -p moving_nest
   cd moving_nest
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
@@ -1078,8 +1006,6 @@ if [ ${run_ocean} = yes ]; then
   ${NLN} forcing.presur.b forcing.mslprs.b
   # link hycom limits
   ${NLN} ${WORKhafs}/intercom/hycominit/limits .
- ## create hycom limits
- #${USHhafs}/hafs_hycom_limits.py ${CDATE}
   # link fix
   ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
   ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
@@ -1138,9 +1064,11 @@ if [ ${run_wave} = yes ]; then
   POFILETYPE=0
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
   atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
+  # link 6-hr ww3 restart file from COMhafs for output, needed for warm-start waves for the next forecast cycle
+  ${NLN} ${COMhafs}/${out_prefix}.${RUN}.ww3.restart.f006 ./${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3
 fi #if [ ${run_wave} = yes ]; then
 
-if [ ${run_init:-no} = no ]; then
+if [ ${RUN_INIT:-NO} = NO ]; then
 
 # Pass along the grid_spec.nc, atmos_static.nc, oro_data.nc
 if [ ${ENSDA} = YES ]; then
@@ -1165,7 +1093,7 @@ else
   fi
 fi
 
-fi #if [ ${run_init:-no} = no ]; then
+fi #if [ ${RUN_INIT:-NO} = NO ]; then
 
 fi #if [ $gtype = nest ]; then
 
@@ -1331,7 +1259,7 @@ done
 atparse < model_configure.tmp > model_configure
 
 # Generate diag_table
-if [ ${run_init:-no} = yes ]; then
+if [ ${RUN_INIT:-NO} = YES ]; then
   GRID_MSPEC_INT=-1
   ATMOS_DIAG_INT=-1
 else
@@ -1342,7 +1270,7 @@ if [ ${run_datm} = no ]; then
   atparse < diag_table.tmp > diag_table
 fi
 # Remove the grid_mspec lines if it is not a moving nesting configuration
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] || [[ ${run_init:-no} = yes ]]; then
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] || [[ ${RUN_INIT:-NO} = YES ]]; then
   echo "This is a moving nesting configuration"
 else
   sed -i -e "/grid_mspec/d" diag_table
@@ -1352,7 +1280,7 @@ fi
 if [ ${write_dopost:-.false.} = .true. ]; then
   ${NCP} ${PARMhafs}/post/itag ./itag
   ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
-  if [ ${satpost} = .true. ]; then
+  if [ ${satpost:-.false.} = .true. ]; then
     ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
     ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
     # Link crtm fix files
@@ -1383,7 +1311,9 @@ ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
-#${APRUNC} ./hafs_forecast.x 1>forecast.out 2>forecast.err
+#${APRUNC} ./hafs_forecast.x > forecast.log 2>&1
+#status=$?; [[ $status -ne 0 ]] && exit $status
+#cat forecast.log
 set -o pipefail
 ${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
 set +o pipefail
@@ -1403,7 +1333,7 @@ if [ -s fv_core.res.nc ]; then
   for file in $(/bin/ls -1 fv*.nc* phy_data*.nc* sfc_data*.nc* coupler.res); do
     mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file}
   done
-  if [ ${run_init:-no} = yes ]; then
+  if [ ${RUN_INIT:-NO} = YES ]; then
     sed -i -e "3s/.*/  ${yrnhrs}    $(echo ${mnnhrs}|sed 's/^0/ /')    $(echo ${dynhrs}|sed 's/^0/ /')    $(echo ${hhnhrs}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ${YMDnhrs}.${hhnhrs}0000.coupler.res
   fi
 fi

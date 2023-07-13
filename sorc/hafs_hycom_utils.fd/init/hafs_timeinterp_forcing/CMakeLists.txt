@@ -3,14 +3,12 @@
 # Biju Thomas
 # Email: biju.thomas@noaa.gov
 #=======================================================================
-#/mnt/lfs4/HFIP/hwrfv3/Biju.Thomas/hafs_couplehycom/sorc/hafs_hycom_utils.fd/build/libs/src/ofs_mods/libofs_mods.a
-#  ${ilib_dir}/ofs_mods/libofs_mods.a
 
 set(fortran_srcs
   get_abfld1.f
   timeinterp_forcing.f90)
 
-set(ilib_dir ${CMAKE_SOURCE_DIR}/libs/build/src)
+set(ilib_dir ${CMAKE_SOURCE_DIR}/tools/build/src)
 set(exe_name hafs_timeinterp_forcing)
 
 set(exe_dir ${CMAKE_SOURCE_DIR}/exec)

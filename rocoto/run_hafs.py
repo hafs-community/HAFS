@@ -549,7 +549,6 @@ VARS.update(SID=stid.upper(),  stormlabel=str(stormlabel),
             CASE_ROOT=case_root,
             SITE_FILE=site_file,
             FETCH_INPUT=yesno(conf.get('config','input_catalog')=='hafsdata'),
-            ARCHIVE_FV3OUT=yesno(conf.getraw('archive','fv3out','')),
             )
 
 for (key,val) in conf.items('rocotostr'):
@@ -633,10 +632,8 @@ if clustername in ('cactus','dogwood'):
 else:
     WHERE_AM_I=clustername
 
-#   '--login', '-c', '. %s/machine-setup.sh ; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
-#   %( shbackslash(USHhafs), shbackslash(outdb),
 cmd = exe('sh') [
-    '--login', '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
+    '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
     %( shbackslash(USHhafs), shbackslash(outdb),
        shbackslash(outxml) ) ] .env(QUIET_PRE_JOB='YES',
                                     HOMEhafs=HOMEhafs,

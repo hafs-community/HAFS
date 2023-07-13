@@ -4,145 +4,96 @@ date
 export PS4='+ $SECONDS + '
 set -xue
 
-export HOMEhafs=${HOMEhafs:?}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+export cycle=${cycle:-t${cyc:?}z}
+export storm_num=${storm_num:-1}
+export stormlabel=${stormlabel:-storm$storm_num}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
 
-source ${USHhafs}/hafs_pre_job.sh.inc
-source ${HOLDVARS:-storm1.holdvars.txt}
+export SENDCOM=${SENDCOM:-YES}
+export SENDDBN=${SENDDBN:-NO}
+export SENDECF=${SENDECF:-NO}
+export EMAIL_SDM=${EMAIL_SDM:-NO}
+export SCRUBDATA=${SCRUBDATA:-YES}
+# HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
+#export KEEPDATA=${KEEPDATA:-YES}
+export KEEPDATA=YES
 
-export machine=${WHERE_AM_I:-wcoss2}
-export envir=${envir:-prod} # prod, para, test
-export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use ${HOMEhafs}/sorc/hafs_utils.fd/modulefiles
-# module load build.${machine}.intel
+export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
+export USHhafs=$HOMEhafs/ush
+export EXEChafs=$HOMEhafs/exec
+export PARMhafs=$HOMEhafs/parm
+export FIXhafs=$HOMEhafs/fix
+
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
+
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  # Detect platform and load modules if not run by NCO
+  source ${USHhafs}/hafs_pre_job.sh.inc
+  export machine=${WHERE_AM_I:-wcoss2}
   module list
+else
+  # Run by NCO on WCOSS2
+  export machine=${WHERE_AM_I:-wcoss2}
+  # Prepend $USHhafs to python package search path
+  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+  # Initialize PDY
+# setpdy.sh # only needed for the launch job
+  # Get PDY
+  source ${WORKhafs}/PDY
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-# Run setpdy and initialize PDY variables
-#setpdy.sh
-#. ./PDY
-export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+env
 
-export WORKhafs=${WORKhafs:?}
-export COMIN=${COMIN:?}
-export COMOUT=${COMOUT:?}
-export COMhafs=${COMhafs:-${COMOUT}}
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:?}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
+source ${HOLDVARS}
+
 export ENSDA=${ENSDA:-NO}
 export ATM_PREP_MVNEST=${ATM_PREP_MVNEST:-NO}
 
-if [[ ${ATM_PREP_MVNEST} != YES ]]; then
+if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
 
 # Deterministic or ensemble
-if [ ${ENSDA} = YES ]; then
-  export CASE=${CASE_ENS:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export gtype=${gtype_ens:-regional}
-  export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
-  export LEVS=${LEVS_ENS:-65}
-  export istart_nest=${istart_nest_ens:-46}
-  export jstart_nest=${jstart_nest_ens:-238}
-  export iend_nest=${iend_nest_ens:-1485}
-  export jend_nest=${jend_nest_ens:-1287}
-  export stretch_fac=${stretch_fac_ens:-1.0001}
-  export target_lon=${target_lon_ens:--62.0}
-  export target_lat=${target_lat_ens:-22.0}
-  export refine_ratio=${refine_ratio_ens:-4}
-  export regional_esg=${regional_esg_ens:-no}
-  export idim_nest=${idim_nest_ens:-1320}
-  export jdim_nest=${jdim_nest_ens:-1320}
-  export delx_nest=${delx_nest_ens:-0.03}
-  export dely_nest=${dely_nest_ens:-0.03}
-  export halop2=${halop2_ens:-5}
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
+if [ ${ENSDA:-NO} = YES ]; then
   export DATA=${WORKhafs}/atm_prep_ens
 else
-  export CASE=${CASE:-C768}
-  export CRES=$(echo $CASE | cut -c 2-)
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
   export DATA=${WORKhafs}/atm_prep
 fi
 
-export SCRUBDATA=${SCRUBDATA:-YES}
-if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA
+else # Moving nest is enabled
+
+if [[ "${is_moving_nest}" = *".true."* ]]; then
+  export DATA=${WORKhafs}/atm_prep_mvnest1res
 fi
 
-mkdir -p $OUTDIR $DATA
+fi
+
+if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+  rm -rf $DATA
+fi
+mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-if [[ "${run_datm:-no}" == yes ]] ; then
-    ${HOMEhafs}/scripts/exhafs_datm_prep.sh
-    export err=$?
+if [[ "${run_datm:-no}" = "yes" ]]; then
+  ${HOMEhafs}/scripts/exhafs_datm_prep.sh
+  status=$?; [[ $status -ne 0 ]] && exit $status
 else
-    ${HOMEhafs}/scripts/exhafs_atm_prep.sh
-    export err=$?
+  ${HOMEhafs}/scripts/exhafs_atm_prep.sh
+  status=$?; [[ $status -ne 0 ]] && exit $status
 fi
 
-export KEEPDATA=${KEEPDATA:-YES}
-if [ "${KEEPDATA^^}" != YES ]; then
+# Cleanup DATA dir
+cd ${WORKhafs}
+if [ "${KEEPDATA:-YES}" != "YES" ]; then
   rm -rf $DATA
-fi
-
-elif [[ ${ATM_PREP_MVNEST} = YES ]]; then
-
-# If moving nest is enabled
-if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]] ; then
-
-export CASE=${CASE_mvnest1res:-C768}
-export CRES=$(echo $CASE | cut -c 2-)
-export gtype=${gtype_mvnest1res:-regional}
-export gridfixdir=${gridfixdir_mvnest1res:-'/let/hafs_grid/generate/grid_mvnest1res'}
-export LEVS=${LEVS_ENS:-65}
-export stretch_fac=${stretch_fac_mvnest1res:-1.0001}
-export target_lon=${target_lon_mvnest1res:--62.0}
-export target_lat=${target_lat_mvnest1res:-22.0}
-export refine_ratio=${refine_ratio_mvnest1res:-4}
-export nest_grids=${nest_grids_mvnest1res:-1}
-export parent_grid_num=${parent_grid_num_mvnest1res:-1}
-export parent_tile=${parent_tile_mvnest1res:-1}
-export istart_nest=${istart_nest_mvnest1res:-46}
-export jstart_nest=${jstart_nest_mvnest1res:-238}
-export iend_nest=${iend_nest_mvnest1res:-1485}
-export jend_nest=${jend_nest_mvnest1res:-1287}
-export regional_esg=${regional_esg_mvnest1res:-no}
-export idim_nest=${idim_nest_mvnest1res:-3960}
-export jdim_nest=${jdim_nest_mvnest1res:-3960}
-export delx_nest=${delx_nest_mvnest1res:-0.01}
-export dely_nest=${dely_nest_mvnest1res:-0.01}
-export halop2=${halop2_mvnest1res:-15}
-
-export OUTDIR=${WORKhafs}/intercom/grid_mvnest1res/${CASE}
-export DATA=${WORKhafs}/atm_prep_mvnest1res
-
-export SCRUBDATA=${SCRUBDATA:-YES}
-if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA
-fi
-
-mkdir -p $OUTDIR $DATA
-cd $DATA
-
-${HOMEhafs}/scripts/exhafs_atm_prep.sh
-
-export KEEPDATA=${KEEPDATA:-YES}
-if [ "${KEEPDATA^^}" != YES ]; then
-  rm -rf $DATA
-fi
-
-fi
-
 fi
 
 date

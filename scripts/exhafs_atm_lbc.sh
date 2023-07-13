@@ -2,11 +2,8 @@
 
 set -xe
 
-CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
-STORM=${STORM:-FAKE}
-STORMID=${STORMID:-00L}
-
+CDATE=${CDATE:-${YMDH}}
 ymd=$(echo $CDATE | cut -c 1-8)
 month=$(echo $CDATE | cut -c 5-6)
 day=$(echo $CDATE | cut -c 7-8)
@@ -15,10 +12,6 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
@@ -29,8 +22,8 @@ if [ ${ENSDA} != YES ]; then
   CASE=${CASE:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype:-regional}
-  ictype=${ictype:-gfsnemsio}
-  bctype=${bctype:-gfsnemsio}
+  ictype=${ictype:-gfsnetcdf}
+  bctype=${bctype:-gfsnetcdf}
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
@@ -41,8 +34,8 @@ else
   CASE=${CASE_ENS:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype_ens:-regional}
-  ictype=${ictype_ens:-gfsnemsio}
-  bctype=${bctype_ens:-gfsnemsio}
+  ictype=${ictype_ens:-gfsnetcdf}
+  bctype=${bctype_ens:-gfsnetcdf}
   LEVS=${LEVS_ENS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid_ens
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS_ENS} ))
@@ -70,18 +63,15 @@ fi
 
 if [ $GFSVER = "PROD2021" ]; then
   if [ ${ENSDA} = YES ]; then
-    export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+    export INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
   else
-    export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
-  fi
-elif [ $GFSVER = "PROD2019" ]; then
-  if [ ${ENSDA} = YES ]; then
-    export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/mem${ENSID}
-  else
-    export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+    export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
   fi
 else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
@@ -120,22 +110,6 @@ if [ $bctype = "gfsnetcdf" ]; then
   fi
   grib2_file_input_grid=""
   input_type="gaussian_netcdf"
-  varmap_file=""
-  fixed_files_dir_input_grid=""
-  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
-  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
-# Use gfs nemsio files from 2019 GFS (fv3gfs)
-elif [ $bctype = "gfsnemsio" ]; then
-  if [ ${ENSDA} = YES ]; then
-    atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nemsio
-    sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nemsio
-  else
-    atm_files_input_grid=${CDUMP}.t${cyc}z.atmf${FHR3}.nemsio
-    #sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcf${FHR3}.nemsio
-    sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
-  fi
-  grib2_file_input_grid=""
-  input_type="gaussian_nemsio"
   varmap_file=""
   fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
@@ -191,23 +165,50 @@ elif [ $bctype = "gfsgrib2_1p00" ]; then
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
-  echo "ERROR: unsupportted input data type yet."
-  exit 1
+  echo "FATAL ERROR: unsupportted input data type yet."
+  exit 9
 fi
 
 # Check and wait for the input data
 n=1
-while [ $n -le 30 ]; do
+while [ $n -le 360 ]; do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${atm_files_input_grid}) )) -lt 10  ]; do sleep 10; done
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${sfc_files_input_grid}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 1s
     break
   else
-    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
-    sleep 60s
+    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
   fi
   n=$(( n+1 ))
 done
+
+# Check and wait for the pgrb2b input data if needed.
+if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
+
+n=1
+while [ $n -le 360 ]; do
+  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
+    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+    break
+  else
+    echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
+  fi
+  n=$(( n+1 ))
+done
+
+fi
 
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
@@ -262,7 +263,7 @@ if [ $gtype = regional ]; then
   halo_bndy=4
   halo_blend=${halo_blend:-0}
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
+  echo "FATAL ERROR: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
 fi
 
@@ -302,6 +303,7 @@ EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
+status=$?; [[ $status -ne 0 ]] && exit $status
 # Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then

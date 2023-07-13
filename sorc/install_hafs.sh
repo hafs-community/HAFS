@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
+
+# RUN_ENVIR of nco or dev
+RUN_ENVIR=${RUN_ENVIR:-${1:-dev}}
+
 cwd=$(pwd)
 
 cd ${cwd}
@@ -12,16 +16,21 @@ cd ${cwd}
 ./install_all.sh
 
 # Link fix files
-./link_fix.sh
+./link_fix.sh ${RUN_ENVIR}
 
 # Copy system.conf file under parm
 cd ${cwd}/../parm
 
-if [ ! -e system.conf ]; then
-  echo "Copying system.conf. Please check and updated it if needed."
-  cp -p system.conf.${target} system.conf
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  if [ ! -e system.conf ]; then
+    echo "Copying system.conf. Please check and update it if needed."
+    cp -p system.conf.${target} system.conf
+  else
+    echo "system.conf already exists. Will not overwrite."
+  fi
 else
-  echo "system.conf already exists."
+  echo "Copying system.conf.${RUN_ENVIR,,} into system.conf. Will overwrite even it already exists."
+  cp -p system.conf.${RUN_ENVIR,,} system.conf
 fi
 
 cd ${cwd}

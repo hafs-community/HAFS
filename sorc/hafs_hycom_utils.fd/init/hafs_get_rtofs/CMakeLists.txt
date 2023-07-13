@@ -8,7 +8,7 @@ set(fortran_srcs
   module_get_rtofs.f90
   get_rtofs.f90)
 
-set(ilib_dir ${CMAKE_SOURCE_DIR}/libs/build/src)
+set(ilib_dir ${CMAKE_SOURCE_DIR}/tools/build/src)
 set(exe_name hafs_get_rtofs)
 
 set(exe_dir ${CMAKE_SOURCE_DIR}/exec)

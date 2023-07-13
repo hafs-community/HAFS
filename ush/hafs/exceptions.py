@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Exceptions raised by the hafs package
 
 This module contains exceptions raised by the hafs package."""

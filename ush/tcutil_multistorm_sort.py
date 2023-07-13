@@ -57,18 +57,6 @@ def hrd_multistorm_sorter(a,b):
 
 hrd_multistorm_keygen=functools.cmp_to_key(hrd_multistorm_sorter)
 
-##@var vitfiles
-# List of known tcvitals file locations.  Each is intended to be sent
-# through a datetime.datetime.format to get the final filename.
-vitfiles=[
-    '/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
-    '/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS/syndat_tcvitals.%Y',
-    '/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y',
-    '/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS/syndat_tcvitals.%Y']
-
-if 'SYNDAThafs' in os.environ:
-    vitfiles=[os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y',]
-
 def main(args):
     """!Set up logging, reads vitals, outputs storm list."""
 
@@ -97,6 +85,13 @@ def main(args):
         userprios[storm]=int(userprio)
 
     rv=tcutil.revital.Revital(logger=logger)
+
+    if 'SYNDAThafs' in os.environ:
+        vitfiles=[os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y',]
+    else:
+        logger.error('Fatal Error: cannot find the needed environment variable of SYNDAThafs.')
+        exit(2)
+
     rv.readfiles([ cyc.strftime(v) for v in vitfiles ],
                   raise_all=False)
     #rv.renumber(threshold=14)
@@ -114,7 +109,8 @@ def main(args):
             logger.info('User priority for %s is %d'%(v.stormid3,userprio))
             setattr(v,'userprio',userprio)
 
-    rv.sort_by_function(hrd_multistorm_keygen)
+#   rv.sort_by_function(hrd_multistorm_keygen)
+    rv.sort_by_function(hrd_multistorm_sorter)
     for v in rv:
         print(v.as_tcvitals())
 
