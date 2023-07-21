@@ -5,7 +5,7 @@
 #   url = https://github.com/ufs-community/ufs-weather-model.git
 #   branch = develop
     url = https://github.com/binli2337/ufs-weather-model
-    branch = feature/hafsv1_mom6_202304
+    branch = feature/hafsv1_mom6_202307
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
     url = https://github.com/hafs-community/UFS_UTILS.git
