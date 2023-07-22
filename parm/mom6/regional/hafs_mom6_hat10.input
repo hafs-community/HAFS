@@ -46,11 +46,11 @@ THICKNESSDIFFUSE = True         !   [Boolean] default = False
 THICKNESSDIFFUSE_FIRST = True   !   [Boolean] default = False
                                 ! If true, do thickness diffusion before dynamics. This is only used if
                                 ! THICKNESSDIFFUSE is true.
-DT = 180.0                      !   [s]
+DT = 360.0                      !   [s]
                                 ! The (baroclinic) dynamics time step.  The time-step that is actually used will
                                 ! be an integer fraction of the forcing time-step (DT_FORCING in ocean-only mode
                                 ! or the coupling timestep in coupled mode.)
-DT_THERM = 180.0                !   [s] default = 3600.0
+DT_THERM = 360.0                !   [s] default = 3600.0
                                 ! The thermodynamic and tracer advection time step. Ideally DT_THERM should be
                                 ! an integer multiple of DT and less than the forcing or coupling time-step,
                                 ! unless THERMO_SPANS_COUPLING is true, in which case DT_THERM can be an integer
@@ -632,7 +632,7 @@ BT_PROJECT_VELOCITY = True      !   [Boolean] default = False
                                 ! velocities, with weights of (1-BEBT) and BEBT.
 DYNAMIC_SURFACE_PRESSURE = True !   [Boolean] default = False
                                 ! If true, add a dynamic pressure due to a viscous ice shelf, for instance.
-DT_BT_FILTER = 350              !   [sec or nondim] default = -0.25
+DT_BT_FILTER = 360              !   [sec or nondim] default = -0.25
                                 ! A time-scale over which the barotropic mode solutions are filtered, in seconds
                                 ! if positive, or as a fraction of DT if negative. When used this can never be
                                 ! take to be longer than 2*dt.  Set this to 0 to apply no filtering.
