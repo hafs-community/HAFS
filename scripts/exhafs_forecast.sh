@@ -16,7 +16,11 @@ FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
-FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
+if [ ocean_model = "hycom" ]; then
+  FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_hycom.x}
+else
+  FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
+fi
 
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
 source ${ATPARSE}
