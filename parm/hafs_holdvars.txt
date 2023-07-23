@@ -300,6 +300,8 @@ export glob_layoutx_init={glob_layoutx_init}
 export glob_layouty_init={glob_layouty_init}
 export layoutx_init={layoutx_init}
 export layouty_init={layouty_init}
+export write_groups_init={write_groups_init}
+export write_tasks_per_group_init={write_tasks_per_group_init}
 
 # ENSDA related items
 export ENS_SIZE={ENS_SIZE}

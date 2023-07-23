@@ -12,7 +12,6 @@ opts="-t -f"
 #===============================================================================
 
 ## HFSB with production computation resources on WCOSS2
-#opts="-t -s sites/wcoss2_prod.ent -f"
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb ../parm/hfsb.conf"
 ## Technical testing for Hurricane Ida
 #./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
