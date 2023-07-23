@@ -182,6 +182,8 @@ glob_layoutx=${glob_layoutx_init:-$glob_layoutx}
 glob_layouty=${glob_layouty_init:-$glob_layouty}
 layoutx=${layoutx_init:-$layoutx}
 layouty=${layouty_init:-$layouty}
+write_groups=${write_groups_init:-$write_groups}
+write_tasks_per_group=${write_tasks_per_group_init:-$write_tasks_per_group}
 is_moving_nest=$(echo ${is_moving_nest} | sed -e 's/.true./.false./g' -e 's/.T./.F./g')
 output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
 
