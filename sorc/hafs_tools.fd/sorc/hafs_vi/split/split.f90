@@ -28,8 +28,14 @@
 ! Variables on hybrid coordinate
 
       REAL(4), ALLOCATABLE :: T1(:,:,:),Q1(:,:,:)
+      REAL(4), ALLOCATABLE :: QC(:,:,:),QR(:,:,:),QS(:,:,:)
+      REAL(4), ALLOCATABLE :: QI(:,:,:),QG(:,:,:)
+      REAL(4), ALLOCATABLE :: NCI(:,:,:),NCR(:,:,:)
+      REAL(4), ALLOCATABLE :: QC2(:,:,:),QR2(:,:,:),QS2(:,:,:)
+      REAL(4), ALLOCATABLE :: QI2(:,:,:),QG2(:,:,:),DZDT2(:,:,:)
+      REAL(4), ALLOCATABLE :: NCI2(:,:,:),NCR2(:,:,:)
       REAL(4), ALLOCATABLE :: U1(:,:,:),V1(:,:,:),DZDT(:,:,:)
-      REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:)
+      REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:),T0(:,:,:)
       REAL(4), ALLOCATABLE :: GLON(:,:),GLAT(:,:)
       REAL(4), ALLOCATABLE :: PD(:,:),ETA1(:),ETA2(:)
       REAL(4), ALLOCATABLE :: HGTSFC3(:,:)
@@ -44,7 +50,7 @@
 
 
       REAL(4),ALLOCATABLE :: ZM1(:,:,:),PM1(:,:,:),HV(:,:,:)
-      REAL(4),ALLOCATABLE :: ZMV1(:,:,:),PMV1(:,:,:)
+      REAL(4),ALLOCATABLE :: ZMV1(:,:,:),PMV1(:,:,:),PM0(:,:,:)
       REAL(4),ALLOCATABLE :: TV1(:,:,:)
 !
 ! Variables on P surface
@@ -59,16 +65,19 @@
       REAL(4),ALLOCATABLE :: UVTQ(:,:,:,:)
       REAL(4),ALLOCATABLE :: work_1(:),work_2(:)
 
+      integer(4), ALLOCATABLE :: itag(:,:)
+
       REAL(4) CENTRAL_LON,CENTRAL_LAT,WBD,SBD
 
       integer, external :: omp_get_max_threads
 
       integer :: ICLAT,ICLON,CLAT_VIT,CLON_VIT
       character :: SN,EW
+      integer :: ivi_cloud
 
       integer KMX,KS850,JCT1,ICT1,NZ1,NY1,NX1,KMAX,I360
       integer KUNIT,IUNIT,IFLAG_COLD,ITIM,N,JPX,IPX,NCHT
-      integer L,KST
+      integer L,KST,icen,jcen
 
       real COEF3,COEF2,PI,PI_DEG
       real SDT,SDIF,PT,PDTOP,PSFX,DTEMP,ES,QS1,QSK,W1,W
@@ -84,7 +93,7 @@
       pi_deg=180./pi
 ! read data
 
-      READ(5,*)ITIM,IBGS,IVOBS,iflag_cold,crfactor
+      READ(5,*)ITIM,IBGS,IVOBS,iflag_cold,crfactor,ivi_cloud
 
       IUNIT=26
       KUNIT=56
@@ -126,7 +135,7 @@
       ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
       ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
       ALLOCATE ( Z1(NX,NY,NZ1),P1(NX,NY,NZ1) )
-      ALLOCATE ( GLON(NX,NY),GLAT(NX,NY) )
+      ALLOCATE ( GLON(NX,NY),GLAT(NX,NY),itag(NX,NY) )
       ALLOCATE ( PD(NX,NY),ETA1(NZ1),ETA2(NZ1) )
 
       ALLOCATE ( HLON(NX,NY),HLAT(NX,NY) )
@@ -138,7 +147,14 @@
       ALLOCATE ( TMV1(NX,NY) )
 
       ALLOCATE ( ZM1(NX,NY,NZ),PM1(NX,NY,NZ),TV1(NX,NY,NZ) )
-      ALLOCATE ( ZMV1(NX,NY,NZ),PMV1(NX,NY,NZ) )
+      ALLOCATE ( ZMV1(NX,NY,NZ),PMV1(NX,NY,NZ),PM0(NX,NY,NZ) )
+      ALLOCATE ( QC(NX,NY,NZ),QR(NX,NY,NZ),QI(NX,NY,NZ) )
+      ALLOCATE ( QS(NX,NY,NZ),QG(NX,NY,NZ),T0(NX,NY,NZ) )
+      ALLOCATE ( NCI(NX,NY,NZ),NCR(NX,NY,NZ) )
+      ALLOCATE ( QC2(NX,NY,NZ),QR2(NX,NY,NZ),QI2(NX,NY,NZ) )
+      ALLOCATE ( QS2(NX,NY,NZ),QG2(NX,NY,NZ),DZDT2(NX,NY,NZ) )
+      ALLOCATE ( NCI2(NX,NY,NZ),NCR2(NX,NY,NZ) )
+
 
       READ(IUNIT) LON1,LAT1,LON2,LAT2,CENTRAL_LON,CENTRAL_LAT
       READ(IUNIT) PM1
@@ -156,8 +172,25 @@
       READ(IUNIT) !land
       READ(IUNIT) !sfrc
       READ(IUNIT) !C101
+      if(ivi_cloud.ge.1)then
+       READ(IUNIT) QC
+       READ(IUNIT) QR
+       READ(IUNIT) QI
+       READ(IUNIT) QS
+       READ(IUNIT) QG
+       if(ivi_cloud.eq.2)then
+        print*,'Thompson scheme cloud ice & rain number concentrations'
+        READ(IUNIT) NCI    ! cloud ice water number concentration
+        READ(IUNIT) NCR    ! rain number concentration
+       endif
+      endif
 
       CLOSE(IUNIT)
+
+      PM0=PM1
+      T0=T1
+      ! Original PM1 will be save as PM0 for re-interploation into
+      ! newly adjusted PM0
 
 !
       DO J=1,NY
@@ -680,6 +713,137 @@
         END DO
       END DO
 
+
+!-------------------------------------------------------------------------
+      if(ivi_cloud.ge.1)then
+! From PM0 to PM1
+! As PM1 is newly adjusted in the core region of hurricanes,
+! cloud and vertical velocity fields in the PM0 are interpoloated into
+! newly adjusted model pressure level PM1, where fields are changed
+! To save computational time, this is done 500x500 with respect to
+! domain center
+! QC,QR,QI,QS,QG,DZDT: variables in the old PM1 (i.e.,PM0) level
+! QC2,QR2,QI2,QS2,QG2,DZDT2: variables in the newly adjusted model
+! pressure level PM1
+      itag=0
+      icen=(nx+1)/2
+      jcen=(ny+1)/2
+!$omp parallel do &
+!$omp& private(i,j,k)
+      do k=1,nz
+       do j=jcen-250,jcen+250
+        do i=icen-250,icen+250
+        if( abs(T1(I,J,K)-T0(I,J,K)).ne.0.0 ) itag(i,j)=1
+        enddo
+       enddo
+      enddo
+
+! put the variables and only core region will be replaced
+      QC2=QC
+      QR2=QR
+      QS2=QS
+      QG2=QG
+      QI2=QI
+      DZDT2=DZDT
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+      DO J=jcen-250,jcen+250
+        DO I=icen-250,icen+250
+        nloop2: DO N=1,NZ
+            IF(PM1(I,J,N).GE.PM0(I,J,1))THEN            ! Below PM1(I,J,1)
+             if(itag(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,1)
+              QR2(I,J,N)=QR(I,J,1)
+              QS2(I,J,N)=QS(I,J,1)
+              QG2(I,J,N)=QG(I,J,1)
+              QI2(I,J,N)=QI(I,J,1)
+              DZDT2(I,J,N)=DZDT(I,J,1)
+             endif
+            ELSE IF(PM1(I,J,N).LE.PM0(I,J,NZ))THEN
+             if(itag(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,NZ)
+              QR2(I,J,N)=QR(I,J,NZ)
+              QS2(I,J,N)=QS(I,J,NZ)
+              QG2(I,J,N)=QG(I,J,NZ)
+              QI2(I,J,N)=QI(I,J,NZ)
+              DZDT2(I,J,N)=DZDT(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PM1(I,J,N).LE.PM0(I,J,K).and.PM1(I,J,N).GT.PM0(I,J,K+1))THEN
+                  W1=ALOG(1.*PM0(I,J,K+1))-ALOG(1.*PM0(I,J,K))
+                  W=(ALOG(1.*PM1(I,J,N))-ALOG(1.*PM0(I,J,K)))/W1
+                  if(itag(i,j).eq.1)then
+                   QC2(I,J,N)=QC(I,J,K)+ &
+                           (QC(I,J,K+1)-QC(I,J,K))*W
+                   QR2(I,J,N)=QR(I,J,K)+ &
+                           (QR(I,J,K+1)-QR(I,J,K))*W
+                   QS2(I,J,N)=QS(I,J,K)+ &
+                           (QS(I,J,K+1)-QS(I,J,K))*W
+                   QG2(I,J,N)=QG(I,J,K)+ &
+                           (QG(I,J,K+1)-QG(I,J,K))*W
+                   QI2(I,J,N)=QI(I,J,K)+ &
+                           (QI(I,J,K+1)-QI(I,J,K))*W
+                   DZDT2(I,J,N)=DZDT(I,J,K)+ &
+                           (DZDT(I,J,K+1)-DZDT(I,J,K))*W
+                  endif
+                  cycle nloop2
+                END IF
+              END DO
+            END IF
+          END DO nloop2
+        END DO
+      END DO
+      endif
+
+! Same interpolation for two additional Thompson microphysics variables
+      if(ivi_cloud.ge.2)then  !For Thompson microphysics
+       NCI2=NCI
+       NCR2=NCR
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+       DO J=jcen-250,jcen+250
+        DO I=icen-250,icen+250
+        nloop3: DO N=1,NZ
+            IF(PM1(I,J,N).GE.PM0(I,J,1))THEN            ! Below PM1(I,J,1)
+             if(itag(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,1)
+              NCR2(I,J,N)=NCR(I,J,1)
+             endif
+            ELSE IF(PM1(I,J,N).LE.PM0(I,J,NZ))THEN
+             if(itag(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,NZ)
+              NCR2(I,J,N)=NCR(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PM1(I,J,N).LE.PM0(I,J,K).and.PM1(I,J,N).GT.PM0(I,J,K+1))THEN
+                  W1=ALOG(1.*PM0(I,J,K+1))-ALOG(1.*PM0(I,J,K))
+                  W=(ALOG(1.*PM1(I,J,N))-ALOG(1.*PM0(I,J,K)))/W1
+                  if(itag(i,j).eq.1)then
+                   NCI2(I,J,N)=NCI(I,J,K)+ &
+                           (NCI(I,J,K+1)-NCI(I,J,K))*W
+                   NCR2(I,J,N)=NCR(I,J,K)+ &
+                           (NCR(I,J,K+1)-NCR(I,J,K))*W
+                  endif
+                  cycle nloop3
+                END IF
+              END DO
+            END IF
+          END DO nloop3
+        END DO
+       END DO
+
+      endif  !For Thompson microphysics
+
+!-------------------------------------------------------------------
+      if(ivi_cloud.eq.0) DZDT2=DZDT
+      ! If cloud relocation is off, simply output DZDT from
+      ! origonal data
+!-------------------------------------------------------------------
+
       DO K=1,NZ+1
         WRITE(61)((Z1(I,J,K),I=1,NX),J=1,NY,2)
       END DO
@@ -724,7 +888,7 @@
       WRITE(KUNIT) Q1
       WRITE(KUNIT) U1
       WRITE(KUNIT) V1
-      WRITE(KUNIT) DZDT
+      WRITE(KUNIT) DZDT2
       WRITE(KUNIT) Z1
       WRITE(KUNIT) HLON,HLAT,VLON,VLAT
       WRITE(KUNIT) P1
@@ -733,7 +897,17 @@
       WRITE(KUNIT) ETA2
       WRITE(KUNIT) USC
       WRITE(KUNIT) VSC
-
+      if(ivi_cloud.ge.1)then
+       WRITE(KUNIT) QC2
+       WRITE(KUNIT) QR2
+       WRITE(KUNIT) QI2
+       WRITE(KUNIT) QS2
+       WRITE(KUNIT) QG2
+       if(ivi_cloud.eq.2)then
+        WRITE(KUNIT) NCI2
+        WRITE(KUNIT) NCR2
+       endif
+      endif
 
       DEALLOCATE ( ZM1,PM1,TV1 )
 
