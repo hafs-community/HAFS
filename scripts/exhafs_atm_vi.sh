@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -xe
+vi_cloud=${vi_cloud:-0}
 vi_force_cold_start=${vi_force_cold_start:-no}
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
@@ -128,6 +129,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --tcvital=${tcvital} \
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
+        --vi_cloud=${vi_cloud} \
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
     status=$?; [[ $status -ne 0 ]] && exit $status
     if [[ ${nest_grids} -gt 1 ]]; then
@@ -158,6 +160,7 @@ for vortexradius in 30 45; do
       --tcvital=${tcvital} \
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
+      --vi_cloud=${vi_cloud} \
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
   status=$?; [[ $status -ne 0 ]] && exit $status
   if [[ ${nest_grids} -gt 1 ]]; then
@@ -227,7 +230,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNO} ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -337,7 +340,7 @@ if true; then
     ibgs=2
     iflag_cold=1
   fi
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNO} ./hafs_vi_split.x
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -409,16 +412,16 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
   ${NLN} storm_anl_bogus                       fort.56
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
-  echo 6 ${pubbasin2} | ${APRUNO} ./hafs_vi_anl_bogus.x
+  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x
   ${NCP} -p storm_anl_bogus storm_anl
 
 else # warm-start from prior cycle or cold start from global/parent model
@@ -464,7 +467,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   gfs_flag=${gfs_flag:-6}
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_combine.x
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
   fi
@@ -486,9 +489,9 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output
@@ -496,7 +499,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
-    echo 6 ${pubbasin2} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
+    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_enhance.x
     ${NCP} -p storm_anl_enhance storm_anl
   fi
 
@@ -532,6 +535,7 @@ for nd in $(seq 1 ${nest_grids}); do
       --relaxzone=30 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --nestdoms=$((${nd}-1)) \
+      --vi_cloud=${vi_cloud} \
       --out_dir=${RESTARTout}
   status=$?; [[ $status -ne 0 ]] && exit $status
 done
