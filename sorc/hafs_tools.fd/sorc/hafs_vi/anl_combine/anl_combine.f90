@@ -1962,6 +1962,10 @@
        write(*,*) 'Complete the relocation/cycling of cloud&DZDT fields'
       ENDIF
 
+      DEALLOCATE(qrp2,qcp2,qsp2,qgp2,qip2)
+      DEALLOCATE(NCRP2,NCIP2)
+      DEALLOCATE(dzdtp2)
+      DEALLOCATE(QC2,QR2,QI2,QG2,QS2,DZDT2,NCI2,NCR2)
 !++++++++++++++++ End of Cycling the cloud from HAFS forecast +++++++++++++++++++++++
 
 !     open(778,file='cloud-121lev.dat',form='unformatted',recl=nx*ny*4)
