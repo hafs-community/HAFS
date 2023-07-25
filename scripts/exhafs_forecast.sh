@@ -16,7 +16,7 @@ FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
-if [ ocean_model = "hycom" ]; then
+if [ ${ocean_model} = "hycom" ]; then
   FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_hycom.x}
 else
   FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
@@ -743,6 +743,9 @@ ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
 ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
 
+# NoahMP table file
+${NCP} ${PARMforecast}/noahmptable.tbl .
+
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
 grid_pes="${glob_pes}"
@@ -916,6 +919,9 @@ fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
+
+# NoahMP table file
+${NCP} ${PARMforecast}/noahmptable.tbl .
 
 if [ ${ocean_model} = hycom ]; then
   if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
