@@ -17,7 +17,7 @@ MED_attributes::
   DAT_model = datm
   OCN_model = mom6
   MED_model = cmeps
-  history_n = 24
+  history_n = 240
   history_option = nhours
   history_ymd = -999
   coupling_mode = hafs_mom6
@@ -33,7 +33,7 @@ ATM_attributes::
   Diagnostic = 0
   mesh_atm = unset
   DumpFields = false
-  history_n = 24
+  history_n = 240
   history_option = nhours
   stop_ymd = -999
   write_restart_at_endofrun = .true.
@@ -84,7 +84,6 @@ runSeq::
   DAT
   OCN
   MED med_phases_restart_write
-  MED med_phases_history_write
 @
 ::
 
@@ -104,7 +103,7 @@ ALLCOMP_attributes::
   ScalarFieldName = cpl_scalars
   start_type = startup
   case_name = ufs.hafs
-  restart_n = 24
+  restart_n = 240
   restart_option = nhours
   restart_ymd = -999
   use_mommesh = true
