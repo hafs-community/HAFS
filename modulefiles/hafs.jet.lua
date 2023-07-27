@@ -12,7 +12,7 @@ load(pathJoin("cmake", cmake_ver))
 prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hwrfv3/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))
 
-prepend_path("MODULEPATH", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack.epic/libs/intel/2022.1.2/modulefiles/stack")
+prepend_path("MODULEPATH", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/modulefiles/stack")
 
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
@@ -111,9 +111,10 @@ setenv("WGRIB2", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-2022.1.2/wgrib2
 gempak_ver=os.getenv("gempak_ver") or "7.4.2"
 load(pathJoin("gempak", gempak_ver))
 
--- nco_ver=os.getenv("nco_ver") or "5.0.6"
-nco_ver=os.getenv("nco_ver") or "4.9.3"
+nco_ver=os.getenv("nco_ver") or "5.0.6"
+--nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
+prepend_path("PATH", "/apps/nco/4.9.3/gnu/9.2.0/bin")
 
 cdo_ver=os.getenv("cdo_ver") or "1.9.10"
 load(pathJoin("cdo", cdo_ver))
