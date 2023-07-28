@@ -290,9 +290,11 @@ fi
 
 # Run post
 ${NCP} -p ${POSTEXEC} ./hafs_post.x
-set -o pipefail
-${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
-set +o pipefail
+#ZZset -o pipefail
+#${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
+#ZZset +o pipefail
+${APRUNC} ./hafs_post.x < itag > ./outpost_${NEWDATE} 2>&1 
+cat ./outpost_${NEWDATE}
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
