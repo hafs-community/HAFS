@@ -17,10 +17,10 @@ stormModel=${stormModel:-${RUN^^}}
 #figTimeLevels=$(seq 0 42)
 trackOn=${trackOn:-False}
 
-modelLabels="['BEST','OFCL','${stormModel}','HWRF','HMON','AVNO']"
-modelColors="['black','red','cyan','purple','green','blue']"
-modelMarkers="['hr','.','.','.','.','.']"
-modelMarkerSizes="[18,15,15,15,15,15]"
+modelLabels="['BEST','OFCL','${stormModel}','HWRF','AVNO']"
+modelColors="['black','red','cyan','#FF80FF','blue']"
+modelMarkers="['hr','.','.','.','.']"
+modelMarkerSizes="[18,15,15,15,15]"
 nset=""
 
 stormname=${STORM}
@@ -377,10 +377,85 @@ fi
 date
 
 #==============================================================================
+# Plot some atmosphere figures after the product and output jobs are done
+#==============================================================================
+
+cd ${WORKgraph}
+
+# Wait for product and output
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
+n=1
+while [ $n -le 600 ]; do
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx ] && [ -f ${atcfFile} ]; then
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx and ${atcfFile} exist"
+    sleep 1s
+    break
+  else
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx or ${atcfFile} not ready, sleep 60s"
+    sleep 60s
+  fi
+  n=$(( n+1 ))
+done
+
+#Generate the cmdfile
+cmdfile='cmdfile_output'
+rm -f $cmdfile
+touch $cmdfile
+
+fhhhAll=$(seq -f "f%03g" 0 $NOUTHRS $NHRS)
+# Loop for forecast hours
+for fhhh in ${fhhhAll}; do
+
+for stormDomain in storm; do
+
+if [ ${stormDomain} = "storm" ]; then
+  figScriptAll=( \
+    plot_crs_sn_wind.py \
+    plot_crs_sn_rh_tempanomaly.py \
+    plot_crs_sn_reflectivity.py \
+    plot_crs_we_wind.py \
+    plot_crs_we_rh_tempanomaly.py \
+    plot_crs_we_reflectivity.py \
+    plot_azimuth_wind.py \
+    plot_azimuth_tempanomaly.py \
+    plot_azimuth_rh_q.py \
+    plot_azimuth_reflectivity.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    1003 \
+    )
+fi
+
+nscripts=${#figScriptAll[*]}
+
+for((i=0;i<${nscripts};i++)); do
+  echo ${figScriptAll[$i]} ${levAll[$i]}
+  echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} $fhhh > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1 || exit 0" >> $cmdfile
+done
+
+done
+
+done
+# End loop for forecast hours
+
+chmod u+x ./$cmdfile
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
+
+date
+
+#==============================================================================
 # For the ocean figures
 #==============================================================================
 
-if [ ${run_ocean} = yes ]; then
+if [ ${run_ocean} = yes ] && [ ${ocean_model,,} = hycom ]; then
 
 cd ${WORKgraph}
 
@@ -438,7 +513,84 @@ done
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
+fi #if [ ${run_ocean} = yes ] && [ ${ocean_model,,} = hycom ]; then
+
+#==============================================================================
+# For the wave figures
+#==============================================================================
+
+if [ ${run_wave} = yes ]; then
+
+cd ${WORKgraph}
+
+# Wait for wave_post and product output
+atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
+n=1
+while [ $n -le 600 ]; do
+  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.ww3.grb2.idx ] && [ -f ${atcfFile} ]; then
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.ww3.grb2.idx and ${atcfFile} exist"
+    sleep 1s
+    break
+  else
+    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.ww3.grb2.idx or ${atcfFile} not ready, sleep 60s"
+    sleep 60s
+  fi
+  n=$(( n+1 ))
+done
+
+#Generate the cmdfile
+cmdfile='cmdfile_wave'
+rm -f $cmdfile
+touch $cmdfile
+
+fhhhAll=$(seq -f "f%03g" 0 $NOUTHRS $NHRS)
+# Loop for forecast hours
+for fhhh in ${fhhhAll}; do
+
+for stormDomain in parent storm; do
+
+if [ ${stormDomain} = "parent" ]; then
+  figScriptAll=( \
+    plot_wave_hs.py \
+    plot_wave_tm.py \
+    plot_wave_tp.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    )
+elif [ ${stormDomain} = "storm" ]; then
+  figScriptAll=( \
+    plot_wave_hs.py \
+    plot_wave_tm.py \
+    plot_wave_tp.py \
+    )
+  levAll=( \
+    1003 \
+    1003 \
+    1003 \
+    )
 fi
+
+nscripts=${#figScriptAll[*]}
+
+for((i=0;i<${nscripts};i++)); do
+  echo ${figScriptAll[$i]} ${levAll[$i]}
+  echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} $fhhh > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+done
+
+done
+
+done
+
+chmod u+x ./$cmdfile
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
+
+date
+
+fi # if [ ${run_wave} = yes ]; then
+
 #==============================================================================
 
 date
