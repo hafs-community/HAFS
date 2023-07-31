@@ -16,28 +16,30 @@ opts="-t -f -s sites/hera_ensemble.ent"
 
  # hafsv0p2a phase2
  confopts="config.EXPT=${EXPT} config.SUBEXPT=H223_ensemble_cloud \
-     ../parm/hafs_2023_ensemble_AL.conf "
+     ../parm/hafs_2023_ensemble_AL.conf \
+     config.cpu_account=aoml-hafs1 config.disk_project=hwrf \
+     dir.CDSAVE=/scratch1/NCEPDEV/{disk_project}/save/{ENV[USER]} \
+     dir.CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak \
+     dir.CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}"
 
 #for ens in 00 01 02 03
-for ens in 20
+for ens in 09
 do
 
 if [ $ens -eq 00 ] ; then
-# ./run_hafs.py -t ${opts} 2020081918 00L HISTORY \
- ./run_hafs.py -t ${opts} 2022092400 00L HISTORY \
-     ${confopts} ${scrubopt} config.cpu_account=aoml-hafs1 \
+ ./run_hafs.py -t ${opts} 2020081918 00L HISTORY \
+     ${confopts} ${scrubopt} \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_${ens} config.ENS=${ens} \
-     config.do_sppt=.F. config.do_shum=.F. config.do_skeb=.F. \
+     forecast.do_sppt=.false. forecast.do_shum=.false. forecast.do_skeb=.false. \
      forecast.write_groups=3 forecast.write_tasks_per_group=20 rocotostr.FORECAST_RESOURCES=FORECAST_RESOURCES_240PE \
-     forecast.all_tasks=240 forecast.atm_tasks=240 \
+     forecast.all_tasks=240 forecast.atm_tasks=240 config.NHRS=126 \
      dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/input/GEFS
 else
-# ./run_hafs.py -t ${opts} 2020081918 00L HISTORY \
- ./run_hafs.py -t ${opts} 2022092400 00L HISTORY \
-     ${confopts} ${scrubopt} config.cpu_account=aoml-hafs1 \
+ ./run_hafs.py -t ${opts} 2020081918 00L HISTORY \
+     ${confopts} ${scrubopt} \
      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_${ens} config.ENS=${ens} \
      forecast.write_groups=3 forecast.write_tasks_per_group=20 rocotostr.FORECAST_RESOURCES=FORECAST_RESOURCES_240PE \
-     forecast.all_tasks=240 forecast.atm_tasks=240 \
+     forecast.all_tasks=240 forecast.atm_tasks=240 config.NHRS=126 \
      dir.COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/input/GEFS
 fi
 
