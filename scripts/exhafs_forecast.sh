@@ -320,8 +320,12 @@ if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ]
 #  nyglobal=633
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
+  nxglobal=1938
+  nyglobal=937
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
   ocean_domain=jtsh
+  nxglobal=2689
+  nyglobal=756
 else
   echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
   exit 1

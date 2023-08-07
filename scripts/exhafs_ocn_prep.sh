@@ -30,14 +30,12 @@ if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ]
 # nlonq=1136
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
-  # Need to input the number of grid points for the latq and lonq dimension
-  nlatq=634
-  nlonq=1136
+  nlatq=938
+  nlonq=1939
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
   ocean_domain=jtsh
-  # Need to input the number of grid points for the latq and lonq dimension
-  nlatq=634
-  nlonq=1136
+  nlatq=757
+  nlonq=2690
 else
   echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
   exit 1
@@ -64,8 +62,19 @@ mkdir -p ${DATA}/mom6_init
 cd ${DATA}/mom6_init
 
 # Link global RTOFS depth and grid files
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.a regional.depth.a
-${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.b regional.depth.b
+if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
+   [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
+  ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.a regional.depth.a
+  ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.b regional.depth.b
+elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ] || \
+     [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
+  ${NLN} ${FIXhafs}/fix_mom6/fix_gofs/depth_GLBb0.08_09m11ob.a regional.depth.a
+  ${NLN} ${FIXhafs}/fix_mom6/fix_gofs/depth_GLBb0.08_09m11ob.b regional.depth.b
+else
+  echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
+  exit 1
+fi
+
 ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.grid.a regional.grid.a
 ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.grid.b regional.grid.b
 
