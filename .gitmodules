@@ -13,7 +13,8 @@
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
     url = https://github.com/hafs-community/gfdl-tracker.git
-    branch = support/HAFS
+#   branch = support/HAFS
+    branch = support/hafs.v1.1.0
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
     url = https://github.com/hafs-community/GSI.git
