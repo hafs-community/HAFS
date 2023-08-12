@@ -35,6 +35,7 @@ else:
 
 import produtil.setup, produtil.log, produtil.run, produtil.cd
 import hafs.launcher
+import os
 from produtil.log import postmsg, jlogger
 from produtil.run import batchexe, checkrun, run
 from produtil.cd import NamedDir
@@ -63,46 +64,55 @@ def main_disk():
         postmsg('hafs_archive disk step has nothing to do when archiving is '
                 'disabled.')
         return
-    with NamedDir(conf.getdir('com')):
-        flist=[ filename+'\n' for filename in glob.glob('*') ]
-        flist.sort()
-        files=''.join(flist)
-        assert(len(files)>0)
-        if archive.lower()=='none':
-            postmsg('Archiving is disabled: archive=none')
-            return
-        elif archive[0:5]=='disk:':
-            path=archive[5:]
-            if makethedir:
-                adir=os.path.dirname(path)
-                if not os.path.exists(adir):
-                    produtil.fileop.makedirs(adir,logger=logger)
-            flags='-cvp'
-            if path[-3:]=='.gz' or path[-4:]=='.tgz':
-                flags+='z'
-            cmd=batchexe(conf.getexe('tar'))[flags+'f',path,'-T','-'] << files
-        elif archive[0:5]=='hpss:':
-            logger.info('HPSS archiving enabled.')
-            logger.info('Nothing to do in the disk archiving step.')
-            logger.info('Returning successfully after doing nothing.')
-            postmsg('hafs_archive disk step does nothing when using htar '
-                    'archives.')
-            return
-        elif archive[0:5]=='hpsz:':
-            path=conf.strinterp('config','{WORKhafs}/stage-archive.tar.gz')
-            flags='-cvp'
-            if path[-3:]=='.gz' or path[-4:]=='.tgz':
-                flags+='z'
-            cmd=batchexe(conf.getexe('tar'))[flags+'f',path,'-T','-'] << files
-        else:
-            jlogger.error('Ignoring invalid archive method %s in %s'
-                          %(archive[0:4],archive))
-            return
+    if archive[0:4]=='aws:':
+        path=archive[4:]
+        flag0='s3'
+        flag1='cp'
+        flag2='--recursive'
+        cmd=batchexe(conf.getexe('aws'))[flag0, flag1, conf.getdir('com')+'/', path, flag2 ]
         checkrun(cmd,logger=logger)
-        donefile=path+'.done'
-        with open(donefile,'wt') as f:
-            f.write('hafs_archive disk step completed\n')
-    postmsg('hafs_archive disk step completed')
+        postmsg('hafs_archive s3 bucket step completed')
+    else:
+        with NamedDir(conf.getdir('com')):
+            flist=[ filename+'\n' for filename in glob.glob('*') ]
+            flist.sort()
+            files=''.join(flist)
+            assert(len(files)>0)
+            if archive.lower()=='none':
+                postmsg('Archiving is disabled: archive=none')
+                return
+            elif archive[0:5]=='disk:':
+                path=archive[5:]
+                if makethedir:
+                    adir=os.path.dirname(path)
+                    if not os.path.exists(adir):
+                        produtil.fileop.makedirs(adir,logger=logger)
+                flags='-cvp'
+                if path[-3:]=='.gz' or path[-4:]=='.tgz':
+                    flags+='z'
+                cmd=batchexe(conf.getexe('tar'))[flags+'f',path,'-T','-'] << files
+            elif archive[0:5]=='hpss:':
+                logger.info('HPSS archiving enabled.')
+                logger.info('Nothing to do in the disk archiving step.')
+                logger.info('Returning successfully after doing nothing.')
+                postmsg('hafs_archive disk step does nothing when using htar '
+                        'archives.')
+                return
+            elif archive[0:5]=='hpsz:':
+                path=conf.strinterp('config','{WORKhafs}/stage-archive.tar.gz')
+                flags='-cvp'
+                if path[-3:]=='.gz' or path[-4:]=='.tgz':
+                    flags+='z'
+                cmd=batchexe(conf.getexe('tar'))[flags+'f',path,'-T','-'] << files
+            else:
+                jlogger.error('Ignoring invalid archive method %s in %s'
+                              %(archive[0:4],archive))
+                return
+            checkrun(cmd,logger=logger)
+            donefile=path+'.done'
+            with open(donefile,'wt') as f:
+                f.write('hafs_archive disk step completed\n') 
+            postmsg('hafs_archive disk step completed')
 
 def main_tape():
     """!Main program for tape archiving.

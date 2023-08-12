@@ -1176,6 +1176,8 @@ class HAFSLauncher(HAFSConfig):
         missing=False
         if archive[0:5]=='hpss:' or archive[0:5]=='hpsz:':
             logger.info('Cannot hsi -P ls / so skipping archive check.')
+        elif archive[0:4]=='aws:':
+            logger.info('Cannot aws s3 ls / so skipping archive check.')
         elif archive[0:5]=='disk:':
             if os.path.exists(adir):
                 if os.path.isdir(adir):

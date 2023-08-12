@@ -4,11 +4,12 @@
 
   <!-- Set some variables for use later: -->
 
-  <!ENTITY COM_SCRUB_TIME "10800">
+  <!ENTITY COM_SCRUB_TIME "3600">
   <!ENTITY WORK_SCRUB_TIME "3600">
   <!ENTITY CYCLE_THROTTLE "5">
   <!ENTITY TASK_THROTTLE "120">
-
+  <!ENTITY MAX_TRIES_BIG_JOBS "2"> 
+  <!ENTITY MAX_TRIES "2">
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
@@ -180,7 +181,7 @@
         <!-- AND... don't start until 3:20 past the synoptic time.  The
         GFS does not start until then, so there is little point to
         starting earlier. -->
-        <timedep><cyclestr offset="3:20:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <timedep><cyclestr offset="4:50:00">@Y@m@d@H@M@S</cyclestr></timedep>
       </and>
     </dependency>
 
@@ -192,13 +193,12 @@
   </task>
 
   <task name="input" maxtries="&MAX_TRIES_TRANSFER;">
-    <command>&PRE; &EXhafs;/exhafs_input.py</command>
+    <command>&JOBhafs;/JHAFS_INPUT</command>
     <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_input.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
-    &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
@@ -210,7 +210,7 @@
       <and>
         <taskdep task="launch"/>
         <streq><left>&FETCH_INPUT;</left><right>YES</right></streq>
-        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <!--streq><left>&RUN_DATM;</left><right>NO</right></streq-->
       </and>
     </dependency>
   </task>
@@ -250,7 +250,7 @@
 
     <dependency>
       <and>
-        <taskdep task="launch"/>
+        <taskdep task="input"/>
       </and>
     </dependency>
   </task>
@@ -523,7 +523,7 @@
 
 @** if gtype==regional
   <metatask name="atm_lbc">
-    <var name="group">1</var>
+    <var name="group">001 002 003 004 005 006</var>
     <task name="atm_lbc#group#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ATM_LBC</command>
       <jobname>hafs_atm_lbc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -535,7 +535,7 @@
       &CORES_EXTRA;
       &ATM_LBC_RESOURCES;
       &ENV_VARS;
-      <envar><name>BC_GROUPN</name><value>1</value></envar>
+      <envar><name>BC_GROUPN</name><value>6</value></envar>
       <envar><name>BC_GROUPI</name><value>#group#</value></envar>
 
       <dependency>
@@ -575,6 +575,9 @@
           </and>
 @** endif
 @** endif
+          <and>
+            <taskdep task="atm_ic"/>
+          </and>
         </and>
       </dependency>
     </task>
@@ -1550,13 +1553,12 @@
 @** endif
 
   <task name="archive_disk" maxtries="&MAX_TRIES_TRANSFER;">
-    <command>&PRE; &EXhafs;/exhafs_archive.py</command>
+    <command>&JOBhafs;/JHAFS_ARCHIVE</command>
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_archive_disk.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
-    &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
@@ -1600,7 +1602,6 @@
     <account>&ACCOUNT;</account>
     &RESERVATION;
     <queue>&QUEUE_SERVICE;</queue>
-    &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
@@ -1611,6 +1612,7 @@
 
     <dependency>
       <and>
+        <strneq><left>&WHERE_AM_I;</left><right>aws</right></strneq>
         <taskdep task="forecast"/>
         <metataskdep metatask="atm_post"/>
 @** if RUN_OCEAN==YES

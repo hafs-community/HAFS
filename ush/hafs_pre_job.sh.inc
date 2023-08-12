@@ -16,7 +16,7 @@ else
   __ms_shell=sh
 fi
 
-target=""
+target="aws"
 USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
 if [[ -d /lfs4 ]] ; then
@@ -29,6 +29,25 @@ if [[ -d /lfs4 ]] ; then
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
+elif [[ -d /hafs ]] ; then
+  # We are on AWS 
+  if ( ! eval module help > /dev/null 2>&1 ) ; then
+    echo load the module command 1>&2
+    source /apps/lmod/lmod/init/$__ms_shell
+  fi
+  target=aws
+  module purge
+  module use /apps/modules/modulefiles
+  module load cmake/3.20.1
+  module load rocoto/1.3.3
+  module load intel/2022.1.2
+  module use /apps/modules/modulefamilies/intel
+  module load impi/2022.1
+  module use /hafs/modules
+  module load hpc-stack/1.2.0
+  module load nco/4.9.3
+  module use /apps/lmod/lmod/modulefiles/Core
+  module list
 elif [[ -d /scratch1/NCEPDEV ]] ; then
   # We are on NOAA Hera
   if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -100,8 +119,8 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
     source ${HOMEhafs}/versions/run.ver
     module use /apps/ops/test/nco/modulefiles/core
-    module load rocoto/${rocoto_ver:-"1.3.5"}
+    module load rocoto/${rocoto_ver:-"1.3.3"}
   fi
-  module use ${HOMEhafs}/modulefiles
-  module load hafs.${WHERE_AM_I}
+#  module use ${HOMEhafs}/modulefiles
+#  module load hafs.${WHERE_AM_I}
 fi

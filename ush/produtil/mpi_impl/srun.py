@@ -25,7 +25,8 @@ class Implementation(ImplementationBase):
     
     @staticmethod
     def name():
-        return 'srun'
+        return 'mpirun'
+        #return 'srun'
 
     @staticmethod
     def detect(srun_path=None,mpiserial_path=None,logger=None,force=False,silent=False,scontrol_path=None,**kwargs):
@@ -35,9 +36,11 @@ class Implementation(ImplementationBase):
         but no slurm resources are available."""
         if srun_path is None:
             if force:
-                srun_path='srun'
+                srun_path='/apps/oneapi/mpi/2021.5.1/bin/mpirun'
+                #srun_path='srun'
             else:
-                srun_path=produtil.fileop.find_exe('srun',raise_missing=True)
+                srun_path=produtil.fileop.find_exe('/apps/oneapi/mpi/2021.5.1/bin/mpirun',raise_missing=True)
+                #srun_path=produtil.fileop.find_exe('srun',raise_missing=True)
         if scontrol_path is None:
             if force:
                 scontrol_path='scontrol'
@@ -137,13 +140,15 @@ class Implementation(ImplementationBase):
             raise MPIThreadsMixed('Cannot mix different thread counts for different executables or blocks of MPI ranks in impi')
 
 
-        srun_args=[self.srun_path,'--export=ALL','--cpu_bind=core']
+        srun_args=[self.srun_path,' ']
+        #srun_args=[self.srun_path,'--mpi=pmi2','--export=ALL','--cpu_bind=core']
 
         if label_io:
             srun_args.append('--label')
     
         if arg.nranks()==1 and allranks:
-            srun_args.append('--distribution=block:block')
+            srun_args.append(' ')
+            #srun_args.append('--distribution=block:block')
             arglist=[ str(a) for a in arg.to_arglist(
                     pre=srun_args,before=[],between=[])]
             return produtil.prog.Runner(arglist)

@@ -6,7 +6,7 @@ prodcution machine identifying logic for WCOSS2 (Biju Thomas 10/12/2022)"""
 #List of symbols exported by "from produtil.cluster import *"
 __all__=['Cluster','where','longname','name','group_quotas','acl_support',
          'no_access_control','use_acl_for_rstdata','ncepprod',
-         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAWCOSS']
+         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAAWS','NOAAWCOSS']
 
 import time, socket, os, re
 
@@ -100,6 +100,8 @@ def where():
             here=WCOSS2()
         elif os.path.exists('/lustre/f2'):
             here=NOAAGAEA()
+        elif os.path.exists('/hafs'):
+            here=NOAAAWS()
         else:
             here=Cluster(False,False,False,'noname','noname')
     return here
@@ -184,6 +186,13 @@ class NOAAHera(Cluster):
     def __init__(self):
         super(NOAAHera,self).__init__(False,False,False,'hera',
                                       'hera.rdhpcs.noaa.gov')
+
+class NOAAAWS(Cluster):
+    """!Represents the NOAA AWS cluster.  Does not allow ACLs,
+    assumes no group quotas (fileset quotas instead)."""
+    def __init__(self):
+        super(NOAAAWS,self).__init__(False,False,False,'aws',
+                                      'aws.rdhpcs.noaa.gov')
 
 class UCARYellowstone(Cluster):
     """!Represents the Yellowstone cluster.  Does not allow ACLs,

@@ -7,5 +7,6 @@
 <!ENTITY % xjet             SYSTEM      "xjet.ent">
 <!ENTITY % kjet             SYSTEM      "kjet.ent">
 <!ENTITY % hera             SYSTEM      "hera.ent">
+<!ENTITY % aws              SYSTEM      "aws.ent">
 <!ENTITY % orion            SYSTEM      "orion.ent">
 <!ENTITY % wcoss2           SYSTEM      "wcoss2.ent">

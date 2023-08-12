@@ -1,0 +1,51 @@
+## This is the system-specific configuration file for Hera
+[config]
+## Project disk area
+disk_project=hwrf
+## Project hpss tape area
+tape_project=emc-hwrf
+## CPU account name for submitting jobs to the batch system.
+cpu_account=hurricane
+## Archive path
+#archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+archive=aws:s3://noaa-hfip-none-ca-hafs-ens/
+
+[dir]
+## Save directory.  Make sure you edit this.
+CDSAVE=/hafs/hafs_runs/{disk_project}/save
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/hafs/hafs_runs/{disk_project}/noscrub/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/hafs/hafs_runs/{disk_project}/scrub
+## Syndat directory for finding which cycles to run
+syndat=/hafs/hafs_runs/hwrf/noscrub/input/SYNDAT-PLUS
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs=/hafs/hafs_runs/hwrf/noscrub/input/COMGFSv16
+COMgfs_ocean=/hafs/hafs_runs/hwrf/noscrub/input/COMGFSv16
+COMINobs={COMgfs}
+COMINgfs={COMgfs}
+COMINgfs_ocean={COMgfs_ocean}
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs=/hafs/hafs_runs/hwrf/noscrub/input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+COMINmsg={COMINgfs}
+COMINhafs={COMINgfs}
+DATMdir=/hafs/hafs_runs/{disk_project}/noscrub/DATM
+DOCNdir=/hafs/hafs_runs/{disk_project}/noscrub/DOCN
+## A-Deck directory for graphics
+ADECKhafs=/hafs/hafs_runs/hwrf/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/hafs/hafs_runs/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/hafs/hafs_runs/hwrf/noscrub/local/share/cartopy
+
+[holdvars]
+WHERE_AM_I=aws
+WHICH_JET=none
+
