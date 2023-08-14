@@ -1309,6 +1309,10 @@ for n in $(seq 1 ${ngrids}); do
       eval DY${nstr}=$(echo ${output_grid_dy:-""} | cut -d , -f ${n})
       eval STDLAT1${nstr}=$(echo ${output_grid_stdlat1:-""} | cut -d , -f ${n})
       eval STDLAT2${nstr}=$(echo ${output_grid_stdlat2:-""} | cut -d , -f ${n})
+      lon1=$(echo ${output_grid_lon1} | cut -d , -f ${n})
+      lon2=$(echo ${output_grid_lon2} | cut -d , -f ${n})
+      eval LON2${nstr}=${lon1}
+      eval LAT2${nstr}=${lat1}
   else
       dlon=$(echo ${output_grid_dlon} | cut -d , -f ${n})
       dlat=$(echo ${output_grid_dlat} | cut -d , -f ${n})
