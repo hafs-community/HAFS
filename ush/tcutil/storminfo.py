@@ -29,6 +29,11 @@ __all__=[ 'current_century', 'StormInfoError', 'InvalidBasinError',
 import re, datetime, math, fractions, logging, copy
 import tcutil.numerics, tcutil.constants
 import pdb
+from functools import cmp_to_key
+
+def cmp(a, b):
+    """ Python3 does not have cmp funtion """
+    return (a > b) - (a < b)
 
 ##@var current_century
 # The first two digits of the year: the thousands and hundreds
@@ -134,8 +139,8 @@ def basin_center_okay(vl):
             if vital.lat<0: continue  # should be in N hemisphere but is not
         yield vital
 
-def vit_key_by_storm(storminfo):
-    """!A key generator for StormInfo objects intended to be used with
+def vit_cmp_by_storm(a,b):
+    """!A cmp comparison for StormInfo objects intended to be used with
     sorted().  This is intended to be used on cleaned vitals returned
     by clean_up_vitals.  For other purposes, use vitcmp.
 
@@ -146,34 +151,33 @@ def vit_key_by_storm(storminfo):
       4. Break ties by retaining original order ("stable sort").
 
     @param a,b StormInfo objects to order"""
-    key=(storminfo.when.year,storminfo.longstormid,storminfo.when)
-    return key
+    c=cmp(a.when.year,b.when.year)
+    if c==0: c=cmp(a.longstormid,b.longstormid)
+    if c==0: c=cmp(a.when,b.when)
+    return c
 
-def vitkey(a):
-    """!A key generator for StormInfo objects intended to be used with
-    sorted().  This is intended for situations that need storm IDs
-    reverse sorted, such as during the renumbering code.
+def vitcmp(a,b):
+    """!A cmp comparison for StormInfo objects intended to be used with
+    sorted().
 
-    @param storminfo StormInfo objects for which a key is required.
-
-    @returns a tuple for comparing via the "less than" operator.
-
+    @param a,b StormInfo objects to order.
     Uses the following method:
 
       1. Sort numerically by date/time.
-      2. Break ties by a reverse sort by integer storm number.  This
-         places Invest (90s) first.
-      3. Break ties by a reverse lexical sort by basin letter (ie.: L before E)
-      4. Break ties by ASCII lexical sort by center (ie.: JTWC first,
+      2. Break ties by a reverse sort by stormid.  This places Invest
+         (90s) first.
+      3. Break ties by ASCII lexical sort by center (ie.: JTWC first,
          NHC second)
-      5. Break ties by placing vitals WITH 34kt wind radii after those
+      4. Break ties by placing vitals WITH 34kt wind radii after those
          without.
-      6. Break ties by placing vitals with a full line (through 64kt
+      5. Break ties by placing vitals with a full line (through 64kt
          radii) last
-      7. Break ties by retaining original order ("stable sort").
-    """
-    key=(a.when,-a.stnum,-ord(a.basin1),a.center,a.have34kt)
-    return key
+      6. Break ties by retaining original order ("stable sort")."""
+    c=cmp(a.when,b.when)
+    if c==0: c=-cmp(a.stormid3,b.stormid3)
+    if c==0: c=cmp(a.center,b.center)
+    if c==0: c=cmp(a.have34kt,b.have34kt)
+    return c
 
 def storm_key(vit):
     """!Generates a hashable key for hashing StormInfo objects
@@ -188,8 +192,8 @@ def storm_key(vit):
     @returns a tuple (center,stormid4,when) from the corresponding members of vit"""
     return (vit.center, vit.stormid4, vit.when)
 
-def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vitals_key=None):
-    """!Given a list of StormInfo, sorts using the vitkey key function,
+def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vitals_cmp=None):
+    """!Given a list of StormInfo, sorts using the vitcmp comparison,
     discards suspect storm names and numbers as per name_number_okay,
     and discards invalid basin/center combinations as per
     basin_center_okay.  Lastly, loops over all lines keeping only the
@@ -203,17 +207,17 @@ def clean_up_vitals(vitals,name_number_checker=None,basin_center_checker=None,vi
       for determining which storm names and numbers are acceptable
     @param basin_center_checker A function that looks like basin_center_okay()
       for determining which basins and RSMCs are okay.
-    @param vitals_key a key generator for ordering two StormInfo objects"""
+    @param vitals_cmp a cmp-like function for ordering two StormInfo objects"""
 
     if name_number_checker is None:
         name_number_checker=name_number_okay
     if basin_center_checker is None:
         basin_center_checker=basin_center_okay
-    if vitals_key is None:
-        vitals_key=vitkey
+    if vitals_cmp is None:
+        vitals_cmp=vitcmp
 
     # Sort vitals using above described method:
-    sortvitals=sorted(vitals,key=vitals_key)
+    sortvitals=sorted(vitals,key=cmp_to_key(vitals_cmp))
     vitals=sortvitals
 
     # Discard suspect storm names and numbers:
@@ -321,8 +325,7 @@ def parse_tcvitals(fd,logger=None,raise_all=False):
         try:
             out.append(StormInfo('tcvitals',line.rstrip('\n')))
         except (StormInfoError,ValueError) as e:
-#            if logger is not None:
-#                logger.warning(str(e))
+            #if logger is not None: logger.warning(str(e))
             if raise_all: raise
     return out
 
@@ -603,7 +606,6 @@ class StormInfo(object):
         if ilat >= 40: cenla=35.0
         if ilat >= 44: cenla=40.0
         if ilat >= 50: cenla=45.0
-        if ilat >= 55: cenla=50.0
         if storm_lat<0: cenla=-cenla
 
         # Decide the center longitude.

@@ -2,35 +2,85 @@
 
 set -xe
 
-CDATE=${CDATE:-${YMDH}}
-cyc=${cyc:-00}
-STORM=${STORM:-FAKE}
-STORMID=${STORMID:-00L}
+if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
 
-export CASE=${CASE:-C768}
+# Deterministic or ensemble
+if [ ${ENSDA:-NO} = YES ]; then
+  export CASE=${CASE_ENS:-C768}
+  export gtype=${gtype_ens:-regional}
+  export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
+  export LEVS=${LEVS_ENS:-65}
+  export istart_nest=${istart_nest_ens:-46}
+  export jstart_nest=${jstart_nest_ens:-238}
+  export iend_nest=${iend_nest_ens:-1485}
+  export jend_nest=${jend_nest_ens:-1287}
+  export stretch_fac=${stretch_fac_ens:-1.0001}
+  export target_lon=${target_lon_ens:--62.0}
+  export target_lat=${target_lat_ens:-22.0}
+  export refine_ratio=${refine_ratio_ens:-4}
+  export regional_esg=${regional_esg_ens:-no}
+  export idim_nest=${idim_nest_ens:-1320}
+  export jdim_nest=${jdim_nest_ens:-1320}
+  export delx_nest=${delx_nest_ens:-0.03}
+  export dely_nest=${dely_nest_ens:-0.03}
+  export halop2=${halop2_ens:-5}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
+else
+  export CASE=${CASE:-C768}
+  export gtype=${gtype:-regional}
+  export LEVS=${LEVS:-65}
+  export istart_nest=${istart_nest:-46}
+  export jstart_nest=${jstart_nest:-238}
+  export iend_nest=${iend_nest:-1485}
+  export jend_nest=${jend_nest:-1287}
+  export stretch_fac=${stretch_fac:-1.0001}
+  export target_lon=${target_lon:--62.0}
+  export target_lat=${target_lat:-22.0}
+  export refine_ratio=${refine_ratio:-4}
+  export regional_esg=${regional_esg:-no}
+  export idim_nest=${idim_nest:-1320}
+  export jdim_nest=${jdim_nest:-1320}
+  export delx_nest=${delx_nest:-0.03}
+  export dely_nest=${dely_nest:-0.03}
+  export halop2=${halop2:-5}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
+fi
+
+else # Moving nest is enabled
+
+if [[ "${is_moving_nest}" = *".true."* ]]; then
+  export CASE=${CASE_mvnest1res:-C768}
+  export gtype=${gtype_mvnest1res:-regional}
+  export gridfixdir=${gridfixdir_mvnest1res:-'/let/hafs_grid/generate/grid_mvnest1res'}
+  export LEVS=${LEVS_ENS:-65}
+  export stretch_fac=${stretch_fac_mvnest1res:-1.0001}
+  export target_lon=${target_lon_mvnest1res:--62.0}
+  export target_lat=${target_lat_mvnest1res:-22.0}
+  export refine_ratio=${refine_ratio_mvnest1res:-4}
+  export nest_grids=${nest_grids_mvnest1res:-1}
+  export parent_grid_num=${parent_grid_num_mvnest1res:-1}
+  export parent_tile=${parent_tile_mvnest1res:-1}
+  export istart_nest=${istart_nest_mvnest1res:-46}
+  export jstart_nest=${jstart_nest_mvnest1res:-238}
+  export iend_nest=${iend_nest_mvnest1res:-1485}
+  export jend_nest=${jend_nest_mvnest1res:-1287}
+  export regional_esg=${regional_esg_mvnest1res:-no}
+  export idim_nest=${idim_nest_mvnest1res:-3960}
+  export jdim_nest=${jdim_nest_mvnest1res:-3960}
+  export delx_nest=${delx_nest_mvnest1res:-0.01}
+  export dely_nest=${dely_nest_mvnest1res:-0.01}
+  export halop2=${halop2_mvnest1res:-15}
+  export OUTDIR=${WORKhafs}/intercom/grid_mvnest1res/${CASE}
+fi
+
+fi
+
 export CRES=$(echo $CASE | cut -c 2-)
-export gtype=${gtype:-regional}
-export LEVS=${LEVS:-65}
-export istart_nest=${istart_nest:-46}
-export jstart_nest=${jstart_nest:-238}
-export iend_nest=${iend_nest:-1485}
-export jend_nest=${jend_nest:-1287}
-export stretch_fac=${stretch_fac:-1.0001}
-export target_lon=${target_lon:--62.0}
-export target_lat=${target_lat:-22.0}
-export refine_ratio=${refine_ratio:-4}
 export res=${res:-$CRES}
 export halo=${halo:-3}
 export halop1=${halop1:-4}
 export halo0=${halo0:-0}
 export NTRAC=7
-
-export regional_esg=${regional_esg:-no}
-export idim_nest=${idim_nest:-1320}
-export jdim_nest=${jdim_nest:-1320}
-export delx_nest=${delx_nest:-0.03}
-export dely_nest=${dely_nest:-0.03}
-export halop2=${halop2:-5}
 export pazi=${pazi:--180.}
 
 export FIXam=${FIXhafs}/fix_am
@@ -38,11 +88,6 @@ export FIXorog=${FIXhafs}/fix_orog
 export FIXfv3=${FIXhafs}/fix_fv3
 export FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-
-export APRUN=time
 if [ ${regional_esg} = yes ]; then
   export MAKEHGRIDEXEC=${EXEChafs}/hafs_regional_esg_grid.x
 else
@@ -66,6 +111,7 @@ export script_dir=${USHhafs}
 export exec_dir=${EXEChafs}
 export out_dir=${OUTDIR:-${WORKhafs}/intercom/grid}
 export DATA=${DATA:-${WORKhafs}/atm_prep}
+mkdir -p ${out_dir}
 
 # If gridfixdir is specified and exists, use the grid fix files directly
 if [ -d $gridfixdir ]; then
@@ -110,7 +156,7 @@ elif [ $gtype = nest -o $gtype = regional ]; then
     echo "using regional esg grid: ${regional_esg}"
   fi
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
+  echo "FATAL ERROR: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
   exit 1
 fi
 
@@ -139,26 +185,17 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-
-  echo "${APRUNO} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  if [ ${machine} = "wcoss2" ]; then
-     ncmd=$(cat $DATA/orog.file1 | wc -l)
-     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  #  $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
-     $DATA/orog.file1
-  else
-     ${APRUNF} $DATA/orog.file1
-  fi
+  time $DATA/orog.file1
   wait
   #rm $DATA/orog.file1
 
@@ -167,25 +204,17 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   # Run multiple tiles simulatneously for the gsl orography
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 1 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 2 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 3 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 1 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 2 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 3 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog_gsl.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog_gsl.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
-    $DATA/orog_gsl.file1
-  else
-    ${APRUNF} $DATA/orog_gsl.file1
-  fi
+  time $DATA/orog_gsl.file1
   wait
   #rm $DATA/orog_gsl.file1
 
@@ -199,7 +228,6 @@ elif [ $gtype = nest ]; then
   export ntiles=$((6 + ${nest_grids}))
   date
   echo "............ execute $MAKEGRIDSSH ................."
-  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
        $nest_grids \
        "$parent_tile" \
@@ -212,23 +240,15 @@ elif [ $gtype = nest ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "${APRUNO} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   for itile in $(seq 2 $ntiles); do
-    echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
-    $DATA/orog.file1
-  else
-    ${APRUNF} $DATA/orog.file1
-  fi
+  time $DATA/orog.file1
   wait
   #rm $DATA/orog.file1
 
@@ -237,23 +257,15 @@ elif [ $gtype = nest ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   # Run multiple tiles simulatneously for the gsl orography
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 1 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 1 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
   for itile in $(seq 2 $ntiles); do
-    echo "${APRUNO} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+    echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog_gsl.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog_gsl.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
-    $DATA/orog_gsl.file1
-  else
-    ${APRUNF} $DATA/orog_gsl.file1
-  fi
+  time $DATA/orog_gsl.file1
   wait
   #rm $DATA/orog_gsl.file1
 
@@ -275,7 +287,6 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
 
   else
 
-  #${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest $jstart_nest $iend_nest $jend_nest $halo $script_dir
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat \
        $nest_grids \
        "$parent_tile" \
@@ -291,23 +302,15 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   for itile in $(seq 8 $ntiles); do
-    echo "${APRUNO} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
-    $DATA/orog.file1
-  else
-    ${APRUNF} $DATA/orog.file1
-  fi
+  time $DATA/orog.file1
   wait
   #rm $DATA/orog.file1
 
@@ -316,23 +319,15 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   # Run multiple tiles simulatneously for the gsl orography
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
   for itile in $(seq 8 $ntiles); do
-    echo "${APRUNO} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
+    echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog_gsl.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog_gsl.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
-    $DATA/orog_gsl.file1
-  else
-    ${APRUNF} $DATA/orog_gsl.file1
-  fi
+  time $DATA/orog_gsl.file1
   wait
   #rm $DATA/orog_gsl.file1
 
@@ -403,27 +398,18 @@ if [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGSSH ................."
-  #echo "$MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA " >$DATA/orog.file1
-  echo "${APRUNO} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog.file1
-    $DATA/orog.file1
-  else
-    ${APRUNF} $DATA/orog.file1
-  fi
+  time $DATA/orog.file1
   wait
   #rm $DATA/orog.file1
 
   date
   echo "............ execute $FILTERTOPOSSH .............."
-  ${APRUNS} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
+  ${APRUN} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
 
   echo "............ execute shave to reduce grid and orography files to required compute size .............."
   cd $filter_dir
@@ -433,8 +419,6 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halop1 \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog
   echo $npts_cgx $npts_cgy $halop1 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid
 
-  #aprun -n 1 -N 1 -j 1 -d 1 -cc depth $exec_dir/shave.x <input.shave.orog
-  #aprun -n 1 -N 1 -j 1 -d 1 -cc depth $exec_dir/shave.x <input.shave.grid
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid
 
@@ -467,20 +451,12 @@ if [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
-  echo "${APRUNO} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
+  echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
-  #aprun -j 1 -n 4 -N 4 -d 6 -cc depth cfp $DATA/orog_gsl.file1
-  if [ ${machine} = "wcoss2" ]; then
-    ncmd=$(cat $DATA/orog_gsl.file1 | wc -l)
-    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  # $APRUNCFP  -n $ncmd_max cfp $DATA/orog_gsl.file1
-    $DATA/orog_gsl.file1
-  else
-    ${APRUNF} $DATA/orog_gsl.file1
-  fi
+  time $DATA/orog_gsl.file1
   wait
   #rm $DATA/orog_gsl.file1
 
@@ -571,7 +547,7 @@ elif [ $gtype = regional ]; then
   fi
   the_orog_files='"'${CASE}'_oro_data.tile'${tile}'.nc"'
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest or regional"
+  echo "FATAL ERROR: Please specify grid type with 'gtype' as uniform, stretch, nest or regional"
   exit 1
 fi
 
@@ -594,15 +570,11 @@ snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
 /
 EOF
-more ./fort.41
 
-#APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
 if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
-#$APRUNC $SFCCLIMOEXEC
-
 rc=$?
 
 if [[ $rc == 0 ]]; then
@@ -677,15 +649,11 @@ snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
 /
 EOF
-more ./fort.41
 
-#APRUNC="srun --ntasks=6 --ntasks-per-node=6 --cpus-per-task=1"
 if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
-#$APRUNC $SFCCLIMOEXEC
-
 rc=$?
 
 if [[ $rc == 0 ]]; then

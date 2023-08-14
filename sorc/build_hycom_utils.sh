@@ -1,13 +1,14 @@
 #!/bin/sh
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
+if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 cwd=$(pwd)
 
 module use ../modulefiles
 module load hafs.$target
 module list
 
-cd hafs_hycom_utils.fd/libs
+cd hafs_hycom_utils.fd/tools
 if [ -d "build" ]; then
   rm -rf build
 fi

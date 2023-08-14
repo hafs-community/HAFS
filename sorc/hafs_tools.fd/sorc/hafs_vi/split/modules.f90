@@ -55,7 +55,7 @@
 
  module tr
  implicit none
- integer, parameter:: nsg=720000
+ integer, parameter:: nsg=7200000
  integer,save:: IB,ING(NSG),JNG(NSG)
  end module tr
 

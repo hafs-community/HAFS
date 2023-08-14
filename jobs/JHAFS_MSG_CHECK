@@ -1,0 +1,50 @@
+#!/bin/sh
+
+date
+export PS4='+ $SECONDS + '
+set -xue
+
+export cycle=${cycle:-t${cyc:?}z}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export envir=${envir:-test}
+export RUN_ENVIR=${RUN_ENVIR:-DEV}
+
+export EMAIL_SDM=${EMAIL_SDM:-NO}
+export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
+
+export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
+export USHhafs=$HOMEhafs/ush
+export EXEChafs=$HOMEhafs/exec
+export PARMhafs=$HOMEhafs/parm
+export FIXhafs=$HOMEhafs/fix
+
+# Prepend $USHhafs to python package search path
+export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+
+export DATA=${DATA:-${DATAROOT}/${jobid}}
+mkdir -p $DATA
+cd $DATA
+
+# Initialize PDY
+setpdy.sh
+# Get PDY
+. ./PDY
+
+export COMINnhc=${COMINnhc:-${DCOMROOT}/nhc/atcf/ncep}
+export COMINjtwc=${COMINjtwc:-${DCOMROOT}/${PDY}/wtxtbul/storm_data}
+export COMINmsg=${COMINmsg:-$(compath.py ${envir}/${NET}/${hafs_ver})/inp${RUN}}
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_msg_check.py "${PDY:2:6}" "$cyc"
+status=$?; [[ $status -ne 0 ]] && exit $status
+
+# Cleanup DATA dir
+cd ${DATAROOT}
+if [ "${KEEPDATA:-YES}" != "YES" ]; then
+  rm -rf $DATA
+fi
+
+date

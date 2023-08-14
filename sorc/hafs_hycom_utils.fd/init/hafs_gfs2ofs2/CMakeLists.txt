@@ -17,7 +17,7 @@ set(fortran_srcs
   intp.f90
   cd.f90)
 
-set(ilib_dir ${CMAKE_SOURCE_DIR}/libs/build/src)
+set(ilib_dir ${CMAKE_SOURCE_DIR}/tools/build/src)
 set(exe_name hafs_gfs2ofs2)
 
 set(exe_dir ${CMAKE_SOURCE_DIR}/exec)
