@@ -1,7 +1,7 @@
 &nam_enkf
    datestring="_datestring_",datapath="./",
    analpertwtnh=0.85,analpertwtsh=0.85,analpertwttr=0.85,
-   covinflatemax=1.e2,covinflatemin=1,pseudo_rh=.true.,iassim_order=0,
+   covinflatemax=1.e2,covinflatemin=1,pseudo_rh=_pseudo_rh_,iassim_order=0,
    corrlengthnh=_corrlength_,corrlengthsh=_corrlength_,corrlengthtr=_corrlength_,
    lnsigcutoffnh=_lnsigcutoff_,lnsigcutoffsh=_lnsigcutoff_,lnsigcutofftr=_lnsigcutoff_,
    lnsigcutoffpsnh=_lnsigcutoff_,lnsigcutoffpssh=_lnsigcutoff_,lnsigcutoffpstr=_lnsigcutoff_,
@@ -15,7 +15,7 @@
    use_gfs_nemsio=.false.,use_gfs_ncio=.false.,imp_physics=11,lupp=.false.,
    univaroz=.false.,adp_anglebc=.true.,angord=4,use_edges=.false.,emiss_bc=.true.,
    letkf_flag=.false.,nobsl_max=10000,denkf=.false.,getkf=.false.,
-   nhr_anal=6,nhr_state=6,use_qsatensmean=.false.,
+   nhr_anal=6,nhr_state=6,
    lobsdiag_forenkf=.false.,
    write_spread_diag=.false.,
    modelspace_vloc=.false.,
