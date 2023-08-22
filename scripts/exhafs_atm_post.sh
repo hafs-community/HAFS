@@ -171,13 +171,14 @@ trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
+logf=$( ls -1 ${INPdir}/log*f${FHR3} || echo "MISSING" )
+postdone=${intercom}/post${nestdotstr}f${FHR3}
 # Check if post has processed this forecast hour previously
-if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
-   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
-   [ -s ${COMOUTpost}/${grb2file} ] && \
-   [ -s ${COMOUTpost}/${grb2indx} ]; then
+if [[ "$logf" -ne "MISSING" && -s "$postdone" && \
+   "$postdone" -nt "$logf" &&  -s ${COMOUTpost}/${grb2file} && \
+   -s ${COMOUTpost}/${grb2indx} ]]; then
 
-echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file $postdone exist and newer than $logf"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -189,12 +190,14 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
 n=1
+hurf=${INPdir}/HURPRS${neststr}.GrbF${FHR2}
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+  logf=$( ls -1 ${INPdir}/log*f${FHR3} || echo "MISSING" )
+  if [[ "$logf" -eq MISSING || ! -s "$logf" || ! -s "$hurf" ]]; then
+    echo "${INPdir}/log*f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
+    echo "$logf, $hurf ready, continue"
     sleep 1s
     break
   fi
@@ -209,14 +212,15 @@ else
 
 # Wait for model output
 n=1
+atmf=${INPdir}/atm${nestdotstr}f${FHR3}.nc
+sfcf=${INPdir}/sfc${nestdotstr}f${FHR3}.nc
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || \
-     [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
-     [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+  logf=$( ls -1 ${INPdir}/log*f${FHR3} || echo "MISSING" )
+  if [[ "$logf" -eq MISSING || ! -s "$logf" || ! -s "$atmf" || ! -s "$sfcf" ]]; then
+    echo "${INPdir}/log*f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
+    echo "$logf, $atmf, $sfcf ready, do post"
     sleep 1s
     break
   fi
