@@ -619,6 +619,7 @@ ${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
 ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+${NLN} $PARMhafs/noahmptable.tbl .
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
@@ -701,7 +702,7 @@ cd ..
 # Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and nems.configure
 ${NCP} ${PARMforecast}/diag_table.tmp .
 if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+  ${NCP} ${PARMforecast}/field_table_thompson_aero ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
@@ -731,6 +732,8 @@ for n in $(seq 1 ${nest_grids}); do
   joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
 done
 
+imfshalcnv=${glob_imfshalcnv:-2}
+imfdeepcnv=${glob_imfdeepcnv:-2}
 ccpp_suite_nml=${ccpp_suite_glob}
 layoutx_nml=${glob_layoutx}
 layouty_nml=${glob_layouty}
@@ -751,6 +754,24 @@ tc_pbl_nml=${glob_tc_pbl:-0}
 shal_cnv_nml=${glob_shal_cnv:-.true.}
 do_deep_nml=${glob_do_deep:-.true.}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
+ltaerosol=${ltaerosol:-.false.}
+satmedmf=${satmedmf:-.true.}
+do_mynnedmf=${do_mynnedmf:-.false.}
+do_mynnsfclay=${do_mynnsfclay:-.false.}
+cdmbgwd=${cdmbgwd:-1.0,1.0,1.0,1.0}
+iopt_sfc=${iopt_sfc:-3}
+gwd_opt=${gwd_opt:-2}
+do_ugwp_v0=${do_ugwp_v0:-.false.}
+do_ugwp_v1=${do_ugwp_v1:-.false.}
+do_ugwp_v0_orog_only=${do_ugwp_v0_orog_only:-.false.}
+do_ugwp_v0_nst_only=${do_ugwp_v0_nst_only:-.true.}
+do_ugwp_v1_w_gsldrag=${do_ugwp_v1_w_gsldrag:-.false.}
+do_ugwp_v1_orog_only=${do_ugwp_v1_orog_only:-.false.}
+do_gsl_drag_ls_bl=${do_gsl_drag_ls_bl:-.true.}
+do_gsl_drag_ss=${do_gsl_drag_ss:-.true.}
+do_gsl_drag_tofd=${do_gsl_drag_tofd:-.true.}
+bl_mynn_tkeadvect=${bl_mynn_tkeadvect:-.false.}
+
 atparse < input.nml.tmp > input.nml
 
 for n in $(seq 1 ${nest_grids}); do

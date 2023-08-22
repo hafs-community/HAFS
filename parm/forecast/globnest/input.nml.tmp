@@ -175,7 +175,7 @@
   pre_rad        = .false.
   imp_physics    = @[imp_physics]
   iovr           = @[iovr]
-  ltaerosol      = .false.
+  ltaerosol      = @[ltaerosol]
   ttendlim       = -999
   dt_inner       = @[dt_inner]
   sedi_semi      = .true.
@@ -202,7 +202,10 @@
   hybedmf        = .false.
   hurr_pbl       = .true. ! HWRF moninedmf
   moninq_fac     = -1.0   ! HWRF_moninedmf
-  satmedmf       = .true.
+  do_mynnedmf    = @[do_mynnedmf]
+  do_mynnsfclay  = @[do_mynnsfclay]
+  bl_mynn_tkeadvect = @[bl_mynn_tkeadvect]
+  satmedmf       = @[satmedmf]
   isatmedmf      = 1
   lseaspray      = @[lseaspray]
   rlmx           = @[rlmx_nml]
@@ -214,12 +217,12 @@
   cnvcld         = .true.
   shal_cnv       = @[shal_cnv_nml] !Shallow convection
   do_deep        = @[do_deep_nml]
-  imfshalcnv     = 2
-  imfdeepcnv     = 2
+  imfshalcnv     = @[imfshalcnv]
+  imfdeepcnv     = @[imfdeepcnv]
   clam_deep      = @[clam_deep]
   betal_deep     = 0.05
   betas_deep     = 0.05
-  cdmbgwd        = 1.0,1.0,1.0,1.0
+  cdmbgwd        = @[cdmbgwd]
   sfc_z0_type    = 6
   prslrd0        = 0.
   ivegsrc        = 1
@@ -230,7 +233,7 @@
   iopt_crs       = 2
   iopt_btr       = 1
   iopt_run       = 1
-  iopt_sfc       = 3
+  iopt_sfc       = @[iopt_sfc]
   iopt_frz       = 1
   iopt_inf       = 1
   iopt_rad       = 3
@@ -287,16 +290,16 @@
   print_diff_pgr = .true.
   do_ugwp        = .false.
   do_tofd        = .false.
-  gwd_opt        = 2
-  do_ugwp_v0     = .false.
-  do_ugwp_v1     = .false.
-  do_ugwp_v0_orog_only = .false.
-  do_ugwp_v0_nst_only  = .true.
-  do_ugwp_v1_w_gsldrag = .false.
-  do_ugwp_v1_orog_only = .false.
-  do_gsl_drag_ls_bl    = .true.
-  do_gsl_drag_ss       = .true.
-  do_gsl_drag_tofd     = .true.
+  gwd_opt        = @[gwd_opt]
+  do_ugwp_v0     = @[do_ugwp_v0]
+  do_ugwp_v1     = @[do_ugwp_v1]
+  do_ugwp_v0_orog_only = @[do_ugwp_v0_orog_only]
+  do_ugwp_v0_nst_only  = @[do_ugwp_v0_nst_only]
+  do_ugwp_v1_w_gsldrag = @[do_ugwp_v1_w_gsldrag]
+  do_ugwp_v1_orog_only = @[do_ugwp_v1_orog_only]
+  do_gsl_drag_ls_bl    = @[do_gsl_drag_ls_bl]
+  do_gsl_drag_ss       = @[do_gsl_drag_ss]
+  do_gsl_drag_tofd     = @[do_gsl_drag_tofd]
 /
 
 &gfdl_cloud_microphysics_nml
