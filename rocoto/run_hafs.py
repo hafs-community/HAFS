@@ -633,7 +633,7 @@ else:
     WHERE_AM_I=clustername
 
 cmd = exe('sh') [
-    '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
+    '-c', '. %s/hafs_pre_job.sh.inc; which ruby ; which rocotorun ; rocotorun --verbose=10 -d %s -w %s'
     %( shbackslash(USHhafs), shbackslash(outdb),
        shbackslash(outxml) ) ] .env(QUIET_PRE_JOB='YES',
                                     HOMEhafs=HOMEhafs,
