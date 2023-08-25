@@ -7,8 +7,8 @@ set -x
 
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
-SUBEXPT=C96
-conf=../parm/WaterInTheWestC96.conf
+SUBEXPT=$EXPT
+conf=../parm/WaterInTheWest.conf
 opts="-t -f"
 scrubopt="config.scrub_work=no config.scrub_com=no"
  # 3DEnVar with GDAS ensembles
