@@ -19,8 +19,8 @@ program create_trak_init
   implicit none
   character(len=2)      :: part1,num,basin
   character(len=3)      :: part2,storm_id
-  character(len=1)      :: ns,ew
-  integer               :: ihour,idat,ifh,lat,lon,stat
+  character(len=1)      :: ns,ew,ns2,ew2
+  integer               :: ihour,idat,ifh,lat,lon,stat,idat2,ihour2,lat2,lon2
 
   integer               :: iargc
 
@@ -46,6 +46,10 @@ program create_trak_init
   lat=9999
   lon=9999
   ifh=-1
+
+  ! Read TCvital first
+    read(11,13) part2,idat2,ihour2,lat2,ns2,lon2,ew2
+    if(ns2.eq.'S')lat2=-lat2
 
   ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
   do
@@ -73,9 +77,18 @@ program create_trak_init
     else
       print*, 'Using tcvital information because lat and lon values of atcfunix is odd'
     endif
-    read(11,13) part2,idat,ihour,lat,ns,lon,ew
-    if(ns.eq.'S')lat=-lat
+    idat=idat2
+    ihour=ihour2
+    lat=lat2
+    lon=lon2
+    ew=ew2
+    ns=ns2
   endif
+
+  ! Only for TCs near date line: near the date line (180E or 180W), longitude of tcvital (ew2) and
+  ! that of ATCF (ew) could be different. In this case, convent longitude as following.
+  ! Then, split.f90 will handle rest of things
+  if(ew2.ne.ew) lon=3600-lon
 
   write(*,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
   write(30,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
