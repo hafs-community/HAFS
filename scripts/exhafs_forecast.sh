@@ -15,7 +15,12 @@ PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
-FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
+FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
+if [ ${ocean_model} = "hycom" ]; then
+  FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_hycom.x}
+else
+  FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
+fi
 
 ATPARSE=${ATPARSE:-${USHhafs}/hafs_atparse.sh}
 source ${ATPARSE}
@@ -177,6 +182,8 @@ glob_layoutx=${glob_layoutx_init:-$glob_layoutx}
 glob_layouty=${glob_layouty_init:-$glob_layouty}
 layoutx=${layoutx_init:-$layoutx}
 layouty=${layouty_init:-$layouty}
+write_groups=${write_groups_init:-$write_groups}
+write_tasks_per_group=${write_tasks_per_group_init:-$write_tasks_per_group}
 is_moving_nest=$(echo ${is_moving_nest} | sed -e 's/.true./.false./g' -e 's/.T./.F./g')
 output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
 
@@ -280,6 +287,7 @@ cpl_atm_wav=${cpl_atm_wav:-cmeps_1way_1to2}
 cpl_wav_ocn=${cpl_wav_ocn:-cmeps_sidebyside}
 ocn_tasks=${ocn_tasks:-120}
 med_tasks=${med_tasks:-${ocn_tasks}}
+dat_tasks=${dat_tasks:-${ocn_tasks}}
 wav_tasks=${wav_tasks:-120}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
@@ -300,6 +308,28 @@ ATM_model_attribute=${ATM_model_attribute:-"ATM_model = fv3"}
 OCN_model_attribute=${OCN_model_attribute:-""}
 WAV_model_attribute=${WAV_model_attribute:-""}
 MED_model_attribute=${MED_model_attribute:-""}
+
+pubbasin2=${pubbasin2:-AL}
+if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
+   [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
+  ocean_domain=nhc
+  nxglobal=2413
+  nyglobal=964
+# ocean_domain=hat10
+#  nxglobal=1135
+#  nyglobal=633
+elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
+  ocean_domain=jtnh
+  nxglobal=1938
+  nyglobal=937
+elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
+  ocean_domain=jtsh
+  nxglobal=2689
+  nyglobal=756
+else
+  echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
+  exit 1
+fi
 
 # CDEPS related settings
 run_datm=${run_datm:-no}
@@ -337,11 +367,12 @@ ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
 
 ATM_model_component="ATM_model: fv3"
-OCN_model_component="OCN_model: hycom"
 WAV_model_component=""
 ATM_model_attribute="ATM_model = fv3"
-OCN_model_attribute="OCN_model = hycom"
 WAV_model_attribute=""
+OCN_model_component="OCN_model: ${ocean_model}"
+OCN_model_attribute="OCN_model = ${ocean_model}"
+
 OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
 
 # NUOPC based coupling options
@@ -392,6 +423,13 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
     cplflx=.true.
     cplocn2atm=.false.
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n ATM\n OCN"
+  elif [ $cpl_atm_ocn = cmeps_atm_datm_ocn ]; then
+    EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
+    DAT_model_component="DAT_model: datm"
+    DAT_model_attribute="DAT_model = datm"
+    DAT_petlist_bounds=$(printf "DAT_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$dat_tasks-1)))
+    cplflx=.true.
+    cplocn2atm=.true.
   fi
 # Currently unsupported coupling option combinations
 else
@@ -462,8 +500,7 @@ fi
 
 fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 
-if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
-
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} = yes ]; then
 EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
 ATM_model_component="ATM_model: fv3"
 OCN_model_component="OCN_model: hycom"
@@ -538,7 +575,7 @@ else
   exit 9
 fi
 
-fi #if [ ${run_ocean} = yes ] && [ ${run_wave} = yes ]; then
+fi #if [ ${run_ocean} = yes ] && [${ocean_model}=hycom] && [ ${run_wave} = yes ]; then
 
 # CDEPS data models
 if [ ${run_datm} = yes ]; then
@@ -710,6 +747,9 @@ ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
 ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+
+# NoahMP table file
+${NCP} ${PARMforecast}/noahmptable.tbl .
 
 ngrids=$(( ${nest_grids} + 1 ))
 glob_pes=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
@@ -905,22 +945,39 @@ ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
 
-if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
-  ${NCP} ${PARMforecast}/nems.configure.cpl.tmp ./nems.configure.tmp
+# NoahMP table file
+${NCP} ${PARMforecast}/noahmptable.tbl .
+
+if [ ${ocean_model} = hycom ]; then
+  if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
+    ${NCP} ${PARMforecast}/nems.configure.cpl.tmp ./nems.configure.tmp
+  else
+    ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+  fi
+elif [ ${ocean_model} = mom6 ]; then
+  if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
+    ${NCP} ${PARMforecast}/nems.configure.mom6.tmp ./nems.configure.tmp
+    ${NCP} ${PARMforecast}/data_table ./
+  else
+    ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+  fi
 else
-  ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+  echo "WARNING: unknow ocean model of ${ocean_model}"
 fi
 
 sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "s/_ATM_model_component_/${ATM_model_component}/g" \
+    -e "s/_DAT_model_component_/${DAT_model_component}/g" \
     -e "s/_OCN_model_component_/${OCN_model_component}/g" \
     -e "s/_WAV_model_component_/${WAV_model_component}/g" \
     -e "s/_MED_model_component_/${MED_model_component}/g" \
     -e "s/_ATM_model_attribute_/${ATM_model_attribute}/g" \
+    -e "s/_DAT_model_attribute_/${DAT_model_attribute}/g" \
     -e "s/_OCN_model_attribute_/${OCN_model_attribute}/g" \
     -e "s/_WAV_model_attribute_/${WAV_model_attribute}/g" \
     -e "s/_MED_model_attribute_/${MED_model_attribute}/g" \
     -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
+    -e "s/_DAT_petlist_bounds_/${DAT_petlist_bounds}/g" \
     -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
     -e "s/_WAV_petlist_bounds_/${WAV_petlist_bounds}/g" \
     -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
@@ -1014,7 +1071,45 @@ fi # if not cdeps datm
 
 if [ $gtype = regional ]; then
 
-if [ ${run_ocean} = yes ]; then
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+  mkdir -p OUTPUT
+  # MOM_input
+  ${NLN} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.input ./MOM_input
+  # Ocean IC and OBC
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_ic.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_*.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_*.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_*.nc INPUT/
+  # Ocean fix files
+  ${NLN} ${FIXmom6}/ocean_vgrid_lev55.nc INPUT/ocean_vgrid.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_hgrid.nc INPUT/ocean_hgrid.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_topog.nc INPUT/ocean_topog.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_mosaic.nc INPUT/ocean_mosaic.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_geothermal.nc INPUT/ocean_geothermal.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_tidal_amplitude.nc INPUT/ocean_tidal_amplitude.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/ocean_chla.nc INPUT/ocean_chla.nc
+  ${NLN} ${FIXmom6}/runoff.daitren.clim.v20180328.nc INPUT/ocean_runoff_monthly.nc
+  ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sss_04_fill0.nc INPUT/ocean_salt_restore.nc
+# ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sst_04_fill0.nc INPUT/ocean_sst_restore.nc
+
+  # Ocean mesh
+  ${NLN} ${FIXmom6}/${ocean_domain}/mom6_mesh.nc ./mom6_mesh.nc
+  # Atmospheric forcings from GFS
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_forcings.nc INPUT/ocean_forcings.nc 
+  # DATM gfs mesh
+  ${NLN} ${FIXhafs}/fix_cdeps/meshes/datm_gfs_mesh.nc ./datm_gfs_mesh.nc
+  # Generate datm.streams
+  ${NCP} ${PARMhafs}/cdeps/datm_gfs.streams datm.streams
+  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+  sed -i -e "s/_yearFirst_/$yr/g" -e "s/_yearLast_/$endyr/g" datm.streams
+  # datm_in
+  ${NCP} ${PARMhafs}/cdeps/datm_gfs_in ./datm_in
+  sed -i -e "s/_nx_global_/$nxglobal/g" -e "s/_ny_global_/$nyglobal/g" datm_in
+fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
   # link hycom related files
   ${NLN} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
   hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
@@ -1052,7 +1147,7 @@ if [ ${run_ocean} = yes ]; then
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
   ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocn_tasks} patch.input
-fi #if [ ${run_ocean} = yes ]; then
+fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
 
 if [ ${run_wave} = yes ]; then
   # link ww3 related files
@@ -1363,9 +1458,11 @@ yrnhrs=$(echo $CDATEnhrs | cut -c1-4)
 mnnhrs=$(echo $CDATEnhrs | cut -c5-6)
 dynhrs=$(echo $CDATEnhrs | cut -c7-8)
 hhnhrs=$(echo ${CDATEnhrs} | cut -c9-10)
-if [ -s fv_core.res.nc ]; then
-  for file in $(/bin/ls -1 fv*.nc* phy_data*.nc* sfc_data*.nc* coupler.res); do
-    mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file}
+if [ -s ${YMDnhrs}.${hhnhrs}*.fv_core.res.nc ]; then
+  for file in $(/bin/ls -1 ${YMDnhrs}.${hhnhrs}*.fv*.nc* ${YMDnhrs}.${hhnhrs}*.phy_data*.nc* ${YMDnhrs}.${hhnhrs}*.sfc_data*.nc* ${YMDnhrs}.${hhnhrs}*.coupler.res); do
+    if [ ! -s ${YMDnhrs}.${hhnhrs}0000.${file:16} ]; then
+      mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file:16}
+    fi
   done
   if [ ${RUN_INIT:-NO} = YES ]; then
     sed -i -e "3s/.*/  ${yrnhrs}    $(echo ${mnnhrs}|sed 's/^0/ /')    $(echo ${dynhrs}|sed 's/^0/ /')    $(echo ${hhnhrs}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ${YMDnhrs}.${hhnhrs}0000.coupler.res

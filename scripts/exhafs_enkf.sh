@@ -171,8 +171,10 @@ ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
+  pseudo_rh=.false.
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
 else # enkf_update
+  pseudo_rh=.true.
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 fi
 #${NCP} ${anavinfo} ./anavinfo
@@ -221,6 +223,7 @@ sed -e "s/_datestring_/${CDATE}/g" \
     -e "s/_nlats_/$((${npy_ens:-$npy}-1))/g" \
     -e "s/_nlevs_/${npz_ens:-$npz}/g" \
     -e "s/_nanals_/${nens}/g" \
+    -e "s/_pseudo_rh_/${pseudo_rh:-.false.}/g" \
     -e "s/_netcdf_diag_/${netcdf_diag}/g" \
     -e "s/_ldo_enscalc_option_/${ldo_enscalc_option}/g" \
     -e "s/_nx_res_/$((${npx_ens:-$npx}-1))/g" \

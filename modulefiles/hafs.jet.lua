@@ -83,7 +83,7 @@ load(pathJoin("yafyaml", yafyaml_ver))
 mapl_ver=os.getenv("mapl_ver") or "2.22.0-esmf-8.3.0b09"
 load(pathJoin("mapl", mapl_ver))
 
-bufr_ver=os.getenv("bufr_ver") or "11.6.0"
+bufr_ver=os.getenv("bufr_ver") or "11.7.0"
 load(pathJoin("bufr", bufr_ver))
 
 sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
@@ -111,9 +111,10 @@ setenv("WGRIB2", "/lfs4/HFIP/hfv3gfs/nwprod/hpc-stack/libs/intel-2022.1.2/wgrib2
 gempak_ver=os.getenv("gempak_ver") or "7.4.2"
 load(pathJoin("gempak", gempak_ver))
 
--- nco_ver=os.getenv("nco_ver") or "5.0.6"
-nco_ver=os.getenv("nco_ver") or "4.9.3"
+nco_ver=os.getenv("nco_ver") or "5.0.6"
+--nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
+prepend_path("PATH", "/apps/nco/4.9.3/gnu/9.2.0/bin")
 
 cdo_ver=os.getenv("cdo_ver") or "1.9.10"
 load(pathJoin("cdo", cdo_ver))

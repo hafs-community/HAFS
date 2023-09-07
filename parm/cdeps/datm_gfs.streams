@@ -1,0 +1,15 @@
+stream_info:               GFS_HAFS
+taxmode01:                 limit
+mapalgo01:                 bilinear
+tInterpAlgo01:             linear
+readMode01:                single
+dtlimit01:                 1.0
+stream_offset01:           0
+yearFirst01:               _yearFirst_
+yearLast01:                _yearLast_
+yearAlign01:               _yearFirst_
+stream_vectors01:          "Faxd_taux:Faxd_tauy"
+stream_mesh_file01:        "datm_gfs_mesh.nc"
+stream_lev_dimname01:      null
+stream_data_files01:       "INPUT/ocean_forcings.nc"
+stream_data_variables01:   "SWVDR_surface Faxd_swvdr" "SWVDF_surface Faxd_swvdf" "SWNDR_surface Faxd_swndr" "SWNDF_surface Faxd_swndf" "NETLW_surface Faxd_lwnet" "SHTFL_surface Faxd_sen" "LHTFL_surface Faxd_lat" "PRATE_surface Faxd_rain" "UFLX_surface Faxd_taux" "VFLX_surface Faxd_tauy"
