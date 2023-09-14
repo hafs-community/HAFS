@@ -1,7 +1,7 @@
 [submodule "ufs-weather-model"]
     path = sorc/hafs_forecast.fd
     url = https://github.com/SamuelTrahanNOAA/ufs-weather-model.git
-    branch = ar-joe-physics
+    branch = support-hafs-RRFSv2c3
 #    url = https://github.com/hafs-community/ufs-weather-model.git
 #    branch = support/hafs.v1.1.0
 #   url = https://github.com/ufs-community/ufs-weather-model.git
