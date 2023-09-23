@@ -23,3 +23,4 @@ Welcome to the HAFS User's Guide
    BasicSteps
    UsefulResources
    CDEPS
+   Glossary

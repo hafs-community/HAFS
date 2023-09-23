@@ -4,15 +4,15 @@
 Useful Resources
 ****************
 
-- GFS global workflow GitHub `repository <https://github.com/NOAA-EMC/global-workflow>`_ and `wiki <https://github.com/NOAA-EMC/global-workflow/wiki>`_
-- `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/ufs-v1.0.0/>`_
-- `CCPP Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v4.0/sci_doc/index.html>`_
-- `UFS-UTILS <https://github.com/NOAA-EMC/UFS_UTILS>`_ `chgres_cube documentation <https://ufs-utils.readthedocs.io/en/latest/>`_
+- GFS global-workflow GitHub `repository <https://github.com/NOAA-EMC/global-workflow>`__ and `wiki <https://github.com/NOAA-EMC/global-workflow/wiki>`__
+- `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/ufs-v1.0.0/>`__
+- `CCPP Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v4.0/sci_doc/index.html>`__
+- `UFS-UTILS <https://github.com/NOAA-EMC/UFS_UTILS>`__ `chgres_cube documentation <https://ufs-utils.readthedocs.io/en/latest/>`__
 
-  - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`_ *
+  - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`__ *
 
-- `UFS Short-Range Weather App Users Guide <https://ufs-srweather-app.readthedocs.io/en/ufs-v1.0.0/>`_
-- UPP (`EMC_post <https://github.com/NOAA-EMC/EMC_post/>`_)
+- `UFS Short-Range Weather App Users Guide <https://ufs-srweather-app.readthedocs.io/en/ufs-v1.0.0/>`__
+- UPP (`EMC_post <https://github.com/NOAA-EMC/EMC_post/>`__)
 
   - `UPP Documentation <https://upp.readthedocs.io/en/latest/index.html>`_
 

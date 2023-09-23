@@ -35,13 +35,13 @@ Build and Install HAFS
 Parts of install_hafs.sh
 ------------------------
 
-* ``machine-setup.sh`` Determine shell, Identify machine, and Load modules
+* ``machine-setup.sh`` Determine shell, identify machine, and load modules
 
 * ``build_all.sh`` Compile components: forecast, post, tracker, utils, tools, hycom, ww3, and gsi
 
-* ``install_all.sh`` Copy executables to exec directory
+* ``install_all.sh`` Copy executables to ``exec`` directory
 
-* ``link_fix.sh`` Link fix files (fix files are available on disk)
+* ``link_fix.sh`` Link fix files (fix files are available on disk on supported platforms)
 
 ===================
 Run the HAFS System
@@ -53,29 +53,34 @@ Edit system.conf
 
 .. code-block:: console
 
-    cd HAFS/parm
+    cd /path/to/HAFS/parm
     cp system.conf.<system> system.conf
     vi system.conf
 
 Edit the following:
 
-* ``disk_project``
+* ``disk_project``: Disk space project name. 
 
-* ``tape_project``
+* ``tape_project``: :term:`HPSS` project name.
 
-* ``cpu_account``
+* ``cpu_account``: CPU account name for submitting jobs to the batch system (may be the same as ``disk_project``)
 
-* ``archive=disk`` Archive location (make sure you have write permission)
+* ``archive=disk``: Archive location (make sure you have write permission)
 
-* ``CDSAVE`` Code parent directory
+* ``CDSAVE``: HAFS parent directory
 
-* ``CDNOSCRUB`` Track files will be copied to this location - contents won’t be scrubbed (make sure you have write permission)
+* ``CDNOSCRUB``: Track files will be copied to this location --- contents will not be scrubbed (user must have write permission)
 
-* ``CDSCRUB`` If scrub set to yes, this will be removed (make sure you have write permission)
+* ``CDSCRUB`` If scrub is set to yes, this directory will be removed (user must have write permission)
 
 ----------------------------
 XML File to Run the Workflow
 ----------------------------
+
+.. code-block:: console
+
+    cd /path/to/HAFS/rocoto
+    vi system.conf
 
 In ``HAFS/rocoto/hafs_workflow.xml.in`` the following can be modified to set the number of cycles and tasks.
 
@@ -87,11 +92,11 @@ In ``HAFS/rocoto/hafs_workflow.xml.in`` the following can be modified to set the
 Edit the Cron Job Driver Script
 -------------------------------
 
-Change the cron job driver script to set up your experiment and storm
+Change the cron job driver script to set up your experiment and storm.
 
 .. code-block:: console
 
-    cd ../rocoto
+    cd /path/to/HAFS/rocoto
     vi cronjob_hafs.sh
 
 Make sure you check ``HOMEhafs`` and edit as appropriate.
@@ -100,13 +105,13 @@ Make sure you check ``HOMEhafs`` and edit as appropriate.
 Run HAFS
 --------
 
-Add the driver script in your cron tasks or simply run the driver script
+Add the driver script in your cron tasks or simply run the driver script.
 
 .. code-block:: console
 
     ./cronjob_hafs.sh
 
-To add the script to your cron
+To add the script to your cron:
 
 .. code-block:: console
 
