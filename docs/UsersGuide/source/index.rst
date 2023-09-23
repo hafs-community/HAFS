@@ -15,9 +15,7 @@ Welcome to the HAFS User's Guide
    GuidanceDocs
    CodeManagement
    RepositoryManagement
-   Submodules
-   Workflow
-   Prerequisites
+   TechnicalOverview
    ExtQuickStart
    RegressionTest
    BasicSteps
