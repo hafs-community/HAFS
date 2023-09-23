@@ -135,16 +135,16 @@ After the above steps are complete, submit the cron script repeatedly (or add th
 
 .. _fig_datm:
 
-.. figure:: images/hafs_cdeps_workflow_datm.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_cdeps_workflow_datm.png
+    :width: 50 %
     :alt: HAFS-CDEPS workflow for DATM
 
     Schematic diagram of the HAFS-CDEPS workflow for DATM. Blue text indicates the jobs that will run. Gray text indicates jobs that only run when data models are not used.
 
 .. _fig_docn:
 
-.. figure:: images/hafs_cdeps_workflow_docn.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_cdeps_workflow_docn.png
+    :width: 50 %
     :alt: HAFS-CDEPS workflow for DOCN
 
     Schematic diagram of the HAFS-CDEPS workflow for DOCN. Blue text indicates the jobs that will run. Gray text indicates jobs that only run when data models are not used.

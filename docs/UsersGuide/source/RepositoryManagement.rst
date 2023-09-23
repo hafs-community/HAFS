@@ -19,8 +19,8 @@ The authoritative HAFS repository:
 
     - The HAFS repo only hosts major feature branches (e.g., feature/hafs_nesting) require active group collaborations, while individual feature branches are suggested to use personal HAFS forks
 
-.. figure:: images/hafs_branching_diagram.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_branching_diagram.png
+    :width: 50 %
     :alt: Example HAFS Branching Diagram
 
     Example HAFS Branching Diagram

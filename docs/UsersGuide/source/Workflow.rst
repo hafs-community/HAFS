@@ -4,6 +4,6 @@
 HAFS Workflow Schematic
 ***********************
 
-.. figure:: images/hafs_workflow_schematic.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_workflow_schematic.png
+    :width: 50 %
     :alt: HAFS Workflow Schematic

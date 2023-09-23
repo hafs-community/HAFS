@@ -123,8 +123,8 @@ HAFS Directory Structure
 
 The following shows the names of the files and directories in the ``HAFS`` directory.
 
-.. figure:: images/hafs_directory_structure.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_directory_structure.png
+    :width: 50 %
     :alt: HAFS directory names and explanations (updated 06/29/2023)
 
 ==================
@@ -133,8 +133,8 @@ HAFS Configuration
 
 Look in ``HAFS/parm/hafs.conf`` to determine what physics suites are running.
 
-.. figure:: images/hafs_ccpp_suites.png
-    :scale: 50%
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_ccpp_suites.png
+    :width: 50%
     :alt: CCPP suites listed in hafs.conf (updated 06/29/2023)
 
 To determine what physics schemes are included in the suites mentioned above:
@@ -158,8 +158,8 @@ Two types of nesting configurations are available: (i) regional* and (ii) globne
 
   * ``HAFS/parm/forecast/globnest/input.nml.tmp``
 
-.. figure:: images/hafs_namelist_files.png
-    :scale: 50 %
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_namelist_files.png
+    :width: 50 %
     :alt: Example namelist file for HAFS (updated 06/29/2023)
 
 \* operational implementation
