@@ -1,8 +1,8 @@
 .. _BasicSteps:
 
-********************************************
-Basic Steps Working with the HAFS Repository
-********************************************
+************************************************************
+Introduction to Working with the HAFS Repository in GitHub
+************************************************************
 
 (Please see the :ref:`Prerequisites`)
 
