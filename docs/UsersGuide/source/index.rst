@@ -12,13 +12,11 @@ Welcome to the HAFS User's Guide
 
    Introduction
    QuickStart
-   GuidanceDocs
-   CodeManagement
    RepositoryManagement
    TechnicalOverview
    ExtQuickStart
    RegressionTest
    BasicSteps
-   UsefulResources
    CDEPS
+   ReferenceMaterials
    Glossary
