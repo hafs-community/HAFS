@@ -4,7 +4,13 @@
 HAFS Quick Start Guide
 **********************
 
-Currently, the HAFS application works on these NOAA HPC platforms: wcoss_dell_p3, wcoss_cray, hera, jet, orion.
+Currently, the HAFS application works on the following NOAA HPC platforms: 
+
+* wcoss_dell_p3
+* wcoss_cray
+* hera
+* jet
+* orion
 
 =================================
 Clone and Checkout the Repository
@@ -25,7 +31,7 @@ Build and Install HAFS
 
 .. code-block:: console
 
-    cd HAFS/sorc
+    cd /path/to/HAFS/sorc
     ./install_hafs.sh > install_hafs.log 2>&1
 
 .. Hint::
@@ -51,15 +57,19 @@ Run the HAFS System
 Edit system.conf
 ----------------
 
+To configure an experiment, run: 
+
 .. code-block:: console
 
     cd /path/to/HAFS/parm
     cp system.conf.<system> system.conf
     vi system.conf
 
+where ``<system>`` is replaced by the name of one of the supported platforms listed :ref:`above <QuickStart>`.
+
 Edit the following:
 
-* ``disk_project``: Disk space project name. 
+* ``disk_project``: Project name for disk space. 
 
 * ``tape_project``: :term:`HPSS` project name.
 
@@ -84,34 +94,34 @@ XML File to Run the Workflow
 
 In ``HAFS/rocoto/hafs_workflow.xml.in`` the following can be modified to set the number of cycles and tasks.
 
-* ``<!ENTITY CYCLE THROTTLE “5”>`` How many cycles can be activated at one time
-* ``<!ENTITY TASK_THROTTLE “120”>`` How many tasks can be activated at one time
-* ``<!ENTITY MAX_TRIES “1”>`` Maximum number of tries for all tasks
+* ``<!ENTITY CYCLE THROTTLE “5”>``: The number of cycles that can be activated at one time
+* ``<!ENTITY TASK_THROTTLE “120”>``: The number of tasks that can be activated at one time
+* ``<!ENTITY MAX_TRIES “1”>``: The maximum number of tries for all tasks
 
 -------------------------------
 Edit the Cron Job Driver Script
 -------------------------------
 
-Change the cron job driver script to set up your experiment and storm.
+Change the cron job driver script to set up the experiment and storm.
 
 .. code-block:: console
 
     cd /path/to/HAFS/rocoto
     vi cronjob_hafs.sh
 
-Make sure you check ``HOMEhafs`` and edit as appropriate.
+Make sure to check ``HOMEhafs`` and edit as appropriate.
 
 --------
 Run HAFS
 --------
 
-Add the driver script in your cron tasks or simply run the driver script.
+Add the driver script to cron or simply run the driver script.
 
 .. code-block:: console
 
     ./cronjob_hafs.sh
 
-To add the script to your cron:
+To add the script to cron:
 
 .. code-block:: console
 

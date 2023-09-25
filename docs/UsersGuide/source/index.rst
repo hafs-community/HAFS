@@ -14,7 +14,7 @@ Welcome to the HAFS User's Guide
    QuickStart
    TechnicalOverview
    RepositoryManagement
-   BasicSteps
+   GitHubBasicSteps
    ExtQuickStart
    RegressionTest
    CDEPS
