@@ -13,7 +13,6 @@ Welcome to the HAFS User's Guide
    Introduction
    QuickStart
    TechnicalOverview
-   RepositoryManagement
    GitHubBasicSteps
    ExtQuickStart
    RegressionTest
