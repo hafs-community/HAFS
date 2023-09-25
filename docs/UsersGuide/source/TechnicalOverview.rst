@@ -57,11 +57,26 @@ The HAFS repository only hosts major feature branches (e.g., ``feature/hafs_nest
 
     Example HAFS Branching Diagram
 
+.. _dir-structure:
+
+========================
+HAFS Directory Structure
+========================
+
+The following shows the names of the files and directories in the ``HAFS`` repository.
+
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_directory_structure.png
+    :width: 50 %
+    :alt: HAFS directory names and explanations (updated 06/29/2023)
+
+
 .. _Submodules:
 
 ================
 HAFS Submodules
 ================
+
+HAFS contains the following subcomponents:
 
 .. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_submodules.png
     :width: 75 %
