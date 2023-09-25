@@ -4,27 +4,21 @@
 Regression Test
 ***************
 
-Example HAFS workflow regression tests can be seen in **rocoto/cronjob_hafs_rt.sh**.
+Users can view example HAFS workflow regression tests in ``rocoto/cronjob_hafs_rt.sh``.
 
-To run the hafs workflow level regression tests:
-
-.. code-block:: console
-
-    cd ../rocoto
-
-Change the cron job driver script for the regression tests and enable the tests you want run
+To run the HAFS workflow-level regression tests, first navigate to the ``rocoto`` directory.
 
 .. code-block:: console
 
-    vi cronjob_hafs_rt.sh
+    cd /path/to/HAFS/rocoto
 
-Add the driver script in your cron tasks or simply run the driver script
+Open ``cronjob_hafs_rt.sh`` (e.g., ``vi cronjob_hafs_rt.sh``), change the :term:`cron` job driver script for the regression tests, and enable the tests you want run. Then, add the driver script to your cron table or simply run the driver script.
 
 .. code-block:: console
 
     ./cronjob_hafs_rt.sh
 
-Run the following script to check whether the regression tests finished succesfully or not
+Run the following script to check whether the regression tests finished succesfully or not.
 
 .. code-block:: console
 
