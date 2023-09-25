@@ -25,6 +25,8 @@ Select the branch to clone by setting the ``<-b BRANCH>`` option to the branch n
 .. note::
    ``develop`` is the default branch.
 
+.. _build-install:
+
 ======================
 Build and Install HAFS
 ======================

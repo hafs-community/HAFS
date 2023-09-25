@@ -32,6 +32,9 @@ Glossary
    DOCN
       DOCN is the *Data Ocean* component of :term:`CDEPS`. It uses static ocean forcing files (derived from observations or previous ocean model runs) instead of output from an active ocean model. This reduces the complexity and computational cost associated with coupling to an active ocean model. The *Data Ocean* component is particularly useful when employing computationally intensive Data Assimilation (DA) techniques to update atmospheric fields in a coupled model. In general, use of DOCN in place of :term:`MOM6` or :term:`HYCOM` can be appropriate when users are running a coupled model and only want certain components of the model to be active. More information about DOCN is available in the `CDEPS Documentation <https://escomp.github.io/CDEPS/versions/master/html/docn.html>`__.
 
+   DWAV
+      DWAV is the *Data Wave* component of :term:`CDEPS`. It uses static wave forcing files (derived from observations or previous wave model runs) instead of output from an active wave model. This reduces the complexity and computational cost associated with coupling to an active wave model. The *Data Wave* component is particularly useful when employing computationally intensive Data Assimilation (DA) techniques to update atmospheric fields in a coupled model. In general, use of DWAV in place of :term:`WW3` can be appropriate when users are running a coupled model and only want certain components of the model to be active. More information about DWAV is available in the `CDEPS Documentation <https://escomp.github.io/CDEPS/versions/master/html/dwav.html>`__.
+
    dycore
    dynamical core
       Global atmospheric model based on fluid dynamics principles, including Euler's equations of motion.
@@ -66,6 +69,9 @@ Glossary
    NCEP
       National Centers for Environmental Prediction (NCEP) is an arm of the National Weather Service
       consisting of nine centers. More information can be found at https://www.ncep.noaa.gov.
+
+   netCDF
+      NetCDF (`Network Common Data Form <https://www.unidata.ucar.edu/software/netcdf/>`__) is a file format and community standard for storing multidimensional scientific data. It includes a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data.
 
    NUOPC
    National Unified Operational Prediction Capability
@@ -103,4 +109,10 @@ Glossary
       A prognostic model that can be used for short- and medium-range research and
       operational forecasts. It can be an atmosphere-only model or an atmospheric
       model coupled with one or more additional components, such as a wave or ocean model. HAFS uses the `UFS Weather Model <https://github.com/ufs-community/ufs-weather-model>`__.
+
+   WW3
+   WWIII
+   WaveWatch III
+      WAVEWATCH III (WW3) is a community wave modeling framework that includes the latest scientific advancements in the field of wind-wave modeling and dynamics. The core of the framework consists of the WAVEWATCH III third-generation wave model (WAVE-height, WATer depth and Current Hindcasting), developed at NOAA/:term:`NCEP`. WAVEWATCH III differs from its predecessors in many important points such as governing equations, model structure, numerical methods and physical parameterizations. The model code is publicly available on GitHub at https://github.com/NOAA-EMC/WW3. 
+
 
