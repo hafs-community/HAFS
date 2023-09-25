@@ -34,6 +34,8 @@ Before users can perform a DATM run with ERA5, they must create a Climate Data S
 
 There are no prerequisites to downloading supported datasets for DOCN.
 
+.. _data-download:
+
 =============
 Data Download
 =============
@@ -183,22 +185,22 @@ Appendix B: Considerations for Adding a New Dataset
 
 While it is impossible to formally support every dataset in HAFS-CDEPS, developers who wish to use a dataset of their own choosing are encouraged to follow these steps:
 
-#. To prepare a data atmosphere experiment from a custom dataset, consider running the DATM with ERA5 first so that you have a reference. Likewise, if preparing a data ocean experiment, run the DOCN with either OISST or GHRSST data first.
+#. To prepare a data atmosphere experiment from a custom dataset, consider running DATM with ERA5 first so that you have a reference. Likewise, if preparing a data ocean experiment, run DOCN with either OISST or GHRSST data first.
 
-#. You may wish to write your own script (or modify the existing scripts) to download the dataset of interest. See the three ``ush/cdeps_utils/*download.py`` scripts. You should also set ``DATMdir`` or ``DOCNdir`` in ``./parm/system.conf`` to the location of your staged data.
+#. You may wish to write your own script (or modify the existing scripts) to download the dataset of interest. See the three ``ush/cdeps_utils/hafs_*_download.py`` scripts mentioned in :numref:`Section %s <data-download>`. You should also set ``DATMdir`` or ``DOCNdir`` in ``./parm/system.conf`` to the location of your staged data.
 
 #. The input data you provide must be in :term:`netCDF` format, and the time axis in the file(s) must be CF-1.0 compliant.
 
-#. You will probably need to modify ``scripts/exhafs_datm_prep.sh`` or ``scripts/exhafs_docn_prep.sh`` to add a new data source and corresponding script to the workflow to preprocess your data files. Alternatively, if you have already preprocessed your data outside of the workflow and simply need to copy them to the working directory, you could simply modify an existing if statement in the script. For example, for a DOCN run,
+#. You will probably need to modify ``scripts/exhafs_datm_prep.sh`` or ``scripts/exhafs_docn_prep.sh`` to add a new data source and corresponding script to the workflow to preprocess your data files. Alternatively, if you have already preprocessed your data outside of the workflow and simply need to copy the data to the working directory, you can simply modify an existing ``if`` statement in the script. For example, for a DOCN run:
 
-    .. code-block:: console
+   .. code-block:: console
 
-        if [[ "$docn_source" == OISST ]] ; then    			
-        $USHhafs/produtil_deliver.py -c "$DOCNdir/my_dataset.nc" "$docn_input_path/DOCN_input_00000.nc"
+      if [[ "$docn_source" == OISST ]] ; then    			
+      $USHhafs/produtil_deliver.py -c "$DOCNdir/my_dataset.nc" "$docn_input_path/DOCN_input_00000.nc"
 
-    where ``my_dataset.nc`` is your input dataset. This command will copy your input data file from DOCNdir to the correct working directory during the ocn_prep job.
+   where ``my_dataset.nc`` is your input dataset. This command will copy your input data file from ``DOCNdir`` to the correct working directory during the ``ocn_prep`` job.
 
-#. The mapping between the variable names in your dataset and the names used internally by CDEPS is described by the **stream_data_variables** keys in ``./parm/cdeps/datm_era5.streams`` (DATM) and ``./parm/cdeps/docn_oisst.streams`` and ``./parm/cdeps/docn_ghrsst.streams`` (DOCN). You should make the first entry in each pair of variable names correspond to the name of the variable in your dataset.
+#. The mapping between the variable names in your dataset and the names used internally by CDEPS is described by the ``stream_data_variables`` keys in ``./parm/cdeps/datm_era5.streams`` (DATM) and ``./parm/cdeps/docn_oisst.streams`` and ``./parm/cdeps/docn_ghrsst.streams`` (DOCN). You should make the first entry in each pair of variable names correspond to the name of the variable in your dataset.
 
 #. For a run that couples DATM to HYCOM, the variables that must be present in your input dataset (along with the expected units) are as follows:
 
