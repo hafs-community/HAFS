@@ -11,10 +11,10 @@ Welcome to the HAFS User's Guide
    :maxdepth: 3
 
    Introduction
-   QuickStart
    TechnicalOverview
-   GitHubBasicSteps
+   QuickStart
    ExtQuickStart
+   GitHubBasicSteps
    RegressionTest
    CDEPS
    ReferenceMaterials
