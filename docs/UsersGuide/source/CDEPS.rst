@@ -4,6 +4,10 @@
 Using CDEPS in HAFS
 *******************
 
+.. attention::
+
+   This capability is not currently being developed, maintained, or tested, but the information in this chapter is provided as a starting point for interested developers. 
+
 ============
 Introduction
 ============
