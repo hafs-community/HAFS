@@ -1410,8 +1410,8 @@ if [ ${write_dopost:-.false.} = .true. ]; then
   ${NCP} ${PARMhafs}/post/itag ./itag
   ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
   if [ ${satpost:-.false.} = .true. ]; then
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
+    ${NCP} ${postxconfig_satpost} ./postxconfig-NT.txt
+    ${NCP} ${postxconfig_satpost} ./postxconfig-NT_FH00.txt
     # Link crtm fix files
     for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
       "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
@@ -1429,8 +1429,8 @@ if [ ${write_dopost:-.false.} = .true. ]; then
       ${NLN} ${file} ./
     done
   else
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT_FH00.txt
+    ${NCP} ${postxconfig_nosat} ./postxconfig-NT.txt
+    ${NCP} ${postxconfig_nosat} ./postxconfig-NT_FH00.txt
   fi
 fi
 

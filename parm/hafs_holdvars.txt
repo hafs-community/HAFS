@@ -289,6 +289,7 @@ export do_gsl_drag_ls_bl={do_gsl_drag_ls_bl}
 export do_gsl_drag_ss={do_gsl_drag_ss}
 export do_gsl_drag_tofd={do_gsl_drag_tofd}
 export bl_mynn_tkeadvect={bl_mynn_tkeadvect}
+export lightning_threat={lightning_threat}
 
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
@@ -417,6 +418,9 @@ export output_grid_dlat_ens={output_grid_dlat_ens}
 export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
+
+export postxconfig_satpost="{postxconfig_satpost}"
+export postxconfig_nosat="{postxconfig_nosat}"
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}

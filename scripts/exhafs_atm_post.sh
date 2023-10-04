@@ -271,8 +271,7 @@ ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
 
 if [ ${satpost} = .true. ]; then
-# ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_satpost} ./postxconfig-NT.txt
   # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
@@ -290,7 +289,7 @@ if [ ${satpost} = .true. ]; then
     ${NLN} ${file} ./
   done
 else
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_nosat} ./postxconfig-NT.txt
 fi
 
 # Run post
