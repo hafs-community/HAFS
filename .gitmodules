@@ -30,3 +30,7 @@
     path = sorc/hafs_graphics.fd/emc_graphics
     url = https://github.com/hafs-community/hafs_graphics.git
     branch = support/HAFS
+[submodule "sorc/hafs_graphics.fd/pygraf"]
+    path = sorc/hafs_graphics.fd/pygraf
+    url = https://github.com/SamuelTrahanNOAA/pygraf
+    branch = hafs-ar
