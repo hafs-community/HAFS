@@ -1,1 +1,0 @@
-../../sorc/hafs_post.fd/parm/postxconfig-NT-hafs_rrfs.txt
