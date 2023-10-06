@@ -40,7 +40,7 @@ from produtil.run import batchexe, checkrun, run
 from produtil.cd import NamedDir
 
 def main_disk():
-    """!Main program for disk archiving.  
+    """!Main program for disk archiving.
 
     Creates an on-disk archiving for one of two cases:
     * disk:/path/to/archive.tar.gz --- generates an on-disk *.tar.gz
@@ -105,7 +105,7 @@ def main_disk():
     postmsg('hafs_archive disk step completed')
 
 def main_tape():
-    """!Main program for tape archiving.  
+    """!Main program for tape archiving.
 
     Does one of two things:
 
@@ -161,7 +161,7 @@ def main_tape():
             flags='-cvp'
             cmd=batchexe(conf.getexe('htar'))[flags+'f',path,'-L','-'] << files
         elif archive[0:5]=='hpsz:':
-            
+
             topath=archive[5:]
             frompath=conf.strinterp('config',
                                     '{WORKhafs}/stage-archive.tar.gz')

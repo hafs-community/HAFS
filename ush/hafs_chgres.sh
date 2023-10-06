@@ -71,7 +71,7 @@
 #                   defaults to input sigma file value
 #     REGIONAL      Process stand-alone regional grid.  When '1', remove halo
 #                   from grids and create an atmospheric boundary file.
-#                   When '2', create boundary file only.  When '0', 
+#                   When '2', create boundary file only.  When '0',
 #                   do neither (process as normal for a global grid).
 #                   Default is '0'.
 #     HALO          When processing a stand-alone regional grid, this
@@ -370,7 +370,7 @@ else
  while [ $tile -le $ntiles ]; do
   ln -sf ${FIXfv3}/C${CRES}/C${CRES}_grid.tile${tile}.nc chgres.fv3.grd.t${tile}
   ln -sf ${FIXfv3}/C${CRES}/C${CRES}_oro_data.tile${tile}.nc chgres.fv3.orog.t${tile}
-  tile=`expr $tile + 1 `
+  tile=$(($tile + 1))
  done
 fi
 

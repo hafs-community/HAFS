@@ -2,30 +2,16 @@
 
 set -xe
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-
-TOTAL_TASKS=${TOTAL_TASKS:-2016}
-NCTSK=${NCTSK:-12}
-NCNODE=${NCNODE:-24}
-OMP_NUM_THREADS=${OMP_NUM_THREADS:-2}
-APRUNC=${APRUNC:-"aprun -b -j1 -n${TOTAL_TASKS} -N${NCTSK} -d${OMP_NUM_THREADS} -cc depth"}
-
-CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
-STORM=${STORM:-FAKE}
-STORMID=${STORMID:-00L}
+CDATE=${CDATE:-${YMDH}}
+ymd=$(echo $CDATE | cut -c 1-8)
+month=$(echo $CDATE | cut -c 5-6)
+day=$(echo $CDATE | cut -c 7-8)
+hour=$(echo $CDATE | cut -c 9-10)
+CDATEprior=$(${NDATE} -6 $CDATE)
+PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
+cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-ymd=`echo $CDATE | cut -c 1-8`
-month=`echo $CDATE | cut -c 5-6`
-day=`echo $CDATE | cut -c 7-8`
-hour=`echo $CDATE | cut -c 9-10`
-CDATEprior=`${NDATE} -6 $CDATE`
-PDY_prior=`echo ${CDATEprior} | cut -c1-8`
-cyc_prior=`echo ${CDATEprior} | cut -c9-10`
-
-WGRIB2=${WGRIB2:-wgrib2}
 CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
@@ -34,10 +20,10 @@ ENSDA=${ENSDA:-NO}
 if [ ${ENSDA} != YES ]; then
   NBDYHRS=${NBDYHRS:-3}
   CASE=${CASE:-C768}
-  CRES=`echo $CASE | cut -c 2-`
+  CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype:-regional}
-  ictype=${ictype:-gfsnemsio}
-  bctype=${bctype:-gfsnemsio}
+  ictype=${ictype:-gfsnetcdf}
+  bctype=${bctype:-gfsnetcdf}
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
@@ -46,10 +32,10 @@ if [ ${ENSDA} != YES ]; then
 else
   NBDYHRS=${NBDYHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
-  CRES=`echo $CASE | cut -c 2-`
+  CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype_ens:-regional}
-  ictype=${ictype_ens:-gfsnemsio}
-  bctype=${bctype_ens:-gfsnemsio}
+  ictype=${ictype_ens:-gfsnetcdf}
+  bctype=${bctype_ens:-gfsnetcdf}
   LEVS=${LEVS_ENS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid_ens
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS_ENS} ))
@@ -70,25 +56,22 @@ if [ "${gtype}" != "regional" ]; then
 fi
 
 if [ ${ENSDA} = YES ]; then
- CDUMP=gdas                   # gfs or gdas
+  CDUMP=gdas # gfs or gdas
 else
- CDUMP=gfs                   # gfs or gdas
+  CDUMP=gfs # gfs or gdas
 fi
 
 if [ $GFSVER = "PROD2021" ]; then
- if [ ${ENSDA} = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
- else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc/atmos
- fi
-elif [ $GFSVER = "PROD2019" ]; then
- if [ ${ENSDA} = YES ]; then
-  export INIDIR=${COMgfs}/enkfgdas.${PDY}/${cyc}/mem${ENSID}
- else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
- fi
+  if [ ${ENSDA} = YES ]; then
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+    export INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
+  else
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+    export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  fi
 else
-  export INIDIR=${COMgfs}/gfs.$PDY/$cyc
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
@@ -98,13 +81,11 @@ mkdir -p ${OUTDIR} ${DATA}
 FHRB=${FHRB:-${NBDYHRS}}
 FHRE=${FHRE:-${NHRS}}
 FHRI=${FHRI:-${NBDYHRS}}
-
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
 
 # Loop for forecast hours
-while [ $FHR -le ${FHRE} ];
-do
+while [ $FHR -le ${FHRE} ]; do
 
 date
 hour_name=${FHR3}
@@ -114,7 +95,7 @@ FIXCASE=${DATA_BC}/grid/${CASE}
 mkdir -p $DATA_BC ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
-ln -sf ${GRID_intercom}/${CASE}/* ./
+${NLN} ${GRID_intercom}/${CASE}/* ./
 
 cd ${DATA_BC}
 
@@ -129,22 +110,6 @@ if [ $bctype = "gfsnetcdf" ]; then
   fi
   grib2_file_input_grid=""
   input_type="gaussian_netcdf"
-  varmap_file=""
-  fixed_files_dir_input_grid=""
-  tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
-  tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
-# Use gfs nemsio files from 2019 GFS (fv3gfs)
-elif [ $bctype = "gfsnemsio" ]; then
-  if [ ${ENSDA} = YES ]; then
-    atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nemsio
-    sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nemsio
-  else
-    atm_files_input_grid=${CDUMP}.t${cyc}z.atmf${FHR3}.nemsio
-    #sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcf${FHR3}.nemsio
-    sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nemsio
-  fi
-  grib2_file_input_grid=""
-  input_type="gaussian_nemsio"
   varmap_file=""
   fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
@@ -200,85 +165,109 @@ elif [ $bctype = "gfsgrib2_1p00" ]; then
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
-  echo "ERROR: unsupportted input data type yet."
-  exit 1
+  echo "FATAL ERROR: unsupportted input data type yet."
+  exit 9
 fi
 
 # Check and wait for the input data
 n=1
-while [ $n -le 30 ]
- do
+while [ $n -le 360 ]; do
   if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${atm_files_input_grid}) )) -lt 10  ]; do sleep 10; done
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${sfc_files_input_grid}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
-    sleep 1s
     break
   else
-    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 60"
-    sleep 60s
+    echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
   fi
   n=$(( n+1 ))
 done
 
+# Check and wait for the pgrb2b input data if needed.
+if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
+
+n=1
+while [ $n -le 360 ]; do
+  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
+    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+    break
+  else
+    echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+    exit 1
+  fi
+  n=$(( n+1 ))
+done
+
+fi
+
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
     # Use both ${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} and ${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} files
-    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} > ./${grib2_file_input_grid}_tmp
-    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
-    #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} \
+        > ./${grib2_file_input_grid}_tmp
+    ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
+        | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
   else
-    ln -sf ${INIDIR}/${grib2_file_input_grid} ./
-    #${WGRIB2} ${grib2_file_input_grid} -inv ./chgres.inv
+    ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi
   INPDIR="./"
 else
   if [ ${ENSDA} = YES ]; then
-   ln -sf ${INIDIR}/${atm_files_input_grid} ./
-   ln -sf ${INIDIR}/${sfc_files_input_grid} ./
-   INPDIR="./"
+    ${NLN} ${INIDIR}/${atm_files_input_grid} ./
+    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
+    INPDIR="./"
   else
-   INPDIR=${INIDIR}
+    INPDIR=${INIDIR}
   fi
 fi
 
 if [ $gtype = regional ]; then
-# set the links to use the 4 halo grid and orog files
-# these are necessary for creating the boundary data
-#
- ln -sf $FIXDIR/$CASE/${CASE}_grid.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_grid.tile7.nc
- ln -sf $FIXDIR/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_greenness.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_greenness.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.soil_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.soil_type.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.slope_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.slope_type.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.substrate_temperature.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.substrate_temperature.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.facsf.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.facsf.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.maximum_snow_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.maximum_snow_albedo.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
- ln -sf $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
-
- mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
- orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
- convert_atm=.true.
-
- if [ $REGIONAL -eq 1 ]; then
-   regional=1
-   convert_sfc=.true.
-   convert_nst=.true.
- elif [ $REGIONAL -eq 2 ]; then
-   regional=2
-   convert_sfc=.false.
-   convert_nst=.false.
- else
-   echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
- fi
- halo_bndy=4
- halo_blend=${halo_blend:-0}
+# Set the links to use the 4 halo grid and orog files, which are necessary for creating the boundary data
+  ${NLN} $FIXDIR/$CASE/${CASE}_grid.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_grid.tile7.nc
+  ${NLN} $FIXDIR/$CASE/${CASE}_oro_data.tile7.halo4.nc $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_greenness.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_greenness.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.soil_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.soil_type.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.slope_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.slope_type.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.substrate_temperature.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.substrate_temperature.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.facsf.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.facsf.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.maximum_snow_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.maximum_snow_albedo.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.snowfree_albedo.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.snowfree_albedo.tile7.nc
+  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}.vegetation_type.tile7.halo4.nc $FIXDIR/$CASE/${CASE}.vegetation_type.tile7.nc
+  if [ $nest_grids -gt 1 ]; then
+    ${NLN} $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
+  fi
+  mosaic_file_target_grid="$FIXDIR/$CASE/${CASE}_mosaic.nc"
+  orog_files_target_grid='"'${CASE}'_oro_data.tile7.halo4.nc"'
+  convert_atm=.true.
+  if [ $REGIONAL -eq 1 ]; then
+    regional=1
+    convert_sfc=.true.
+    convert_nst=.true.
+  elif [ $REGIONAL -eq 2 ]; then
+    regional=2
+    convert_sfc=.false.
+    convert_nst=.false.
+  else
+    echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
+  fi
+  halo_bndy=4
+  halo_blend=${halo_blend:-0}
 else
-  echo "Error: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
+  echo "FATAL ERROR: please specify grid type with 'gtype' as uniform, stretch, nest, or regional"
   exit 9
 fi
 
-# create namelist and run chgres_cube
-#
+# Create namelist and run chgres_cube
 cat>./fort.41<<EOF
 &config
  mosaic_file_target_grid="${mosaic_file_target_grid}"
@@ -312,14 +301,10 @@ cat>./fort.41<<EOF
 /
 EOF
 
-
-cp -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
-#${APRUNC} ${CHGRESCUBEEXEC}
-
-#
-# move output files to save directory
-#
+status=$?; [[ $status -ne 0 ]] && exit $status
+# Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then
     mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
@@ -333,8 +318,8 @@ if [ $gtype = regional ]; then
   fi
 fi
 
-FHR=`expr $FHR + ${FHRI}`
-FHR3=$( printf "%03d" "$FHR" )
+FHR=$(($FHR + ${FHRI}))
+FHR3=$(printf "%03d" "$FHR")
 
 done
 # End loop for forecast hours

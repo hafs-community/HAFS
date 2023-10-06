@@ -26,3 +26,4 @@ find_package(ZLIB REQUIRED)
 find_package(MPI REQUIRED) 
 
 add_subdirectory(sorc/mpiserial)
+add_subdirectory(sorc/hafs_nhc_products)

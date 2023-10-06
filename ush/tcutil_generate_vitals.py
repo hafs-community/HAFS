@@ -69,44 +69,21 @@ messagedir=[]
 
 ##@var PARAFLAG
 # True = we are not NCEP Central Operations ($RUN_ENVIR!=NCO in environment)
-PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','EMC').upper() )
+PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','DEV').upper() )
 
 ##@var basins_needed
 # In format=cycles_needed mode, the list of one-letter basins needed.
 
 ########################################################################
-# THIS SECTION NEEDS HARD-CODED PATHS FOR EMC ##########################
-# HARD-CODED PATHS ARE PROTECTED BY RUN_ENVIR!=NCO BLOCK ###############
 def set_para_paths():
     """!Sets tcvitals and message file locations for non-NCO runs."""
     global tcvlocs, messagedir, inputs
-    tcvlocs=[
-        "/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/work/noaa/hwrf/noscrub/input/SYNDAT",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT",
-        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
-        "/lfs3/HFIP/hwrf-data/hwrf-input/SYNDAT",
-        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT-PLUS",
-        "/lfs4/HFIP/hwrf-data/hwrf-input/SYNDAT",
-        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT-PLUS",
-        "/gpfs/hps3/emc/hwrf/noscrub/input/SYNDAT",
-        "/gpfs/dell1/nco/ops/com/gfs/prod/syndat",
-        ]
-    messagedir=[
-        "/work/noaa/hwrf/noscrub/input/MESSAGES",
-        "/scratch1/NCEPDEV/hwrf/noscrub/input/MESSAGES",
-        "/lfs1/HFIP/hwrf-vd/hwrf-input/MESSAGES",
-        "/gpfs/hps/nco/ops/com/hur/prod/inpdata"
-        ]
-    if 'CASE_ROOT' in os.environ and os.environ['CASE_ROOT']=='FORECAST':
-        tcvlocs=['/gpfs/dell1/nco/ops/com/gfs/prod/syndat']
-    else:
-        tcvlocs.append('/gpfs/dell1/nco/ops/com/gfs/prod/syndat')
     if 'SYNDAThafs' in os.environ:
         tcvlocs=[os.environ['SYNDAThafs'],]
+    else:
+        logger.error('Fatal Error: cannot find the needed environment variable of SYNDAThafs.')
+        exit(2)
 
-# END OF SECTION WITH HARD-CODED PATHS #################################
 ########################################################################
 
 usage_message='''tcutil_generate_vitals.py version 5.7.1

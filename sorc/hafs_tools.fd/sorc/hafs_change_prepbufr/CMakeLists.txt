@@ -28,11 +28,33 @@ find_package(MPI REQUIRED)
 message("TYPE CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 set(exec_dir ${CMAKE_SOURCE_DIR}/../../exec)
 
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -msse2 -fp-model precise -assume byterecl -convert big_endian")
-
 add_executable(hafs_change_prepbufr_rm_typ_in_circle.x change_prepbufr_rm_typ_in_circle.f)
 add_executable(hafs_change_prepbufr_qm_in_circle.x change_prepbufr_qm_in_circle.f)
 add_executable(hafs_change_prepbufr_qm_typ.x change_prepbufr_qm_typ.f)
+
+target_compile_options(hafs_change_prepbufr_rm_typ_in_circle.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+
+target_compile_options(hafs_change_prepbufr_qm_in_circle.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+
+target_compile_options(hafs_change_prepbufr_qm_typ.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+
+target_link_options(hafs_change_prepbufr_rm_typ_in_circle.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+
+target_link_options(hafs_change_prepbufr_qm_in_circle.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+
+target_link_options(hafs_change_prepbufr_qm_typ.x PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_link_libraries(
   hafs_change_prepbufr_rm_typ_in_circle.x

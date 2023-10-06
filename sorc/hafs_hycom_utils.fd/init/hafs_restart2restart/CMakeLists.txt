@@ -13,11 +13,18 @@ set(exe_name hafs_restart2restart)
 
 set(exe_dir ${CMAKE_SOURCE_DIR}/exec)
 
-if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+if(NOT CMAKE_BUILD_TYPE)                                                                             
+    set(CMAKE_BUILD_TYPE "RELEASE")                                                                  
 endif()
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
+  set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+  set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -O0 -g -traceback -check all -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+endif()
+
 if(CMAKE_C_COMPILER_ID MATCHES "^(Intel)$")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -cc=icc -O0")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -cc=icc -O0")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -cc=icc -O0 -g")
 endif()
 
 add_executable(${exe_name} ${fc_srcs})

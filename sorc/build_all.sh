@@ -13,7 +13,7 @@ export USE_PREINST_LIBS="true"
 # END USER DEFINED STUFF
 #------------------------------------
 
-build_dir=`pwd`
+build_dir=$(pwd)
 logs_dir=$build_dir/logs
 mkdir -p $logs_dir
 mkdir -p ../exec
@@ -50,11 +50,11 @@ echo " .... Building post .... "
 }
 
 #------------------------------------
-# build vortextracker
+# build tracker
 #------------------------------------
-$Build_vortextracker && {
-echo " .... Building vortextracker .... "
-./build_vortextracker.sh > $logs_dir/build_vortextracker.log 2>&1
+$Build_tracker && {
+echo " .... Building tracker .... "
+./build_tracker.sh > $logs_dir/build_tracker.log 2>&1
 }
 
 #------------------------------------
@@ -90,7 +90,7 @@ echo " .... Building hycom_utils .... "
 }
 
 #------------------------------------
-# build ww3_utils 
+# build ww3_utils
 #------------------------------------
 $Build_ww3_utils && {
 echo " .... Building ww3_utils .... "

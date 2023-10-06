@@ -4,7 +4,7 @@
  declare -a Build_prg=("Build_libs"
                        "Build_forecast" \
                        "Build_post" \
-                       "Build_vortextracker" \
+                       "Build_tracker" \
                        "Build_utils" \
                        "Build_tools" \
                        "Build_hycom_utils" \

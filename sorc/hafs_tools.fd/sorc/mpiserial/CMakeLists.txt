@@ -10,8 +10,15 @@ set(cc_srcs
 set(exe_name mpiserial.x)
 set(exec_dir ${CMAKE_SOURCE_DIR}/exec)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'")
+add_definitions(-DLINUX -DUNDERSCORE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong="long long")
+
 add_executable(${exe_name} ${cc_srcs})
+
+target_compile_options(${exe_name} PRIVATE 
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-g> -O0)
+
+target_link_options(${exe_name} PRIVATE 
+   $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-g> -O0)
 
 #target_include_directories(
 #  ${exe_name} PUBLIC

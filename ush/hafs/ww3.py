@@ -1,29 +1,35 @@
+#! /usr/bin/env python3
+
 """This module handles WW3 related scripts for HAFS system."""
 
 __all__ = ['WW3Init', 'WW3Post']
 
-import os, re
+import os, sys, re
 import produtil.datastore, produtil.fileop, produtil.cd, produtil.run, produtil.log
+import produtil.dbnalert
 import tcutil.numerics
 import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
+import hafs.launcher, hafs.config
 
 from produtil.datastore import FileProduct, RUNNING, COMPLETED, FAILED, UpstreamFile
 from produtil.fileop import make_symlink, deliver_file, wait_for_files
+from produtil.dbnalert import DBNAlert
 from produtil.cd import NamedDir, TempDir
 from produtil.run import mpi, mpirun, run, runstr, checkrun, exe, bigexe, alias
 from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction, to_timedelta
 from hafs.exceptions import WW3InputError
 
-prodnames={ 
-    'mod_def':       ( './mod_def.ww3', '{com}/{out_prefix}.mod_def.ww3' ),
-    'wind':          ( './wind.ww3', '{com}/{out_prefix}.wind.ww3' ),
-    'current':       ( './current.ww3', '{com}/{out_prefix}.current.ww3' ),
-    'restart':       ( './restart.ww3', '{com}/{out_prefix}.restart_init.ww3' ),
-    'ww3_shel':      ( './ww3_shel.inp', '{com}/{out_prefix}.ww3_shel.inp' ) }
+prodnames={
+    'mod_def':       ( './mod_def.ww3', '{intercom}/ww3/mod_def.ww3' ),
+    'ww3_mesh':      ( './ww3_mesh.nc', '{intercom}/ww3/ww3_mesh.nc' ),
+    'wind':          ( './wind.ww3', '{intercom}/ww3/wind.ww3' ),
+    'current':       ( './current.ww3', '{intercom}/ww3/current.ww3' ),
+    'restart':       ( './restart.ww3', '{intercom}/ww3/restart_init.ww3' ) }
+#   'ww3_shel':      ( './ww3_shel.inp', '{intercom}/ww3/ww3_shel.inp' ) }
 
 ########################################################################
-class WW3Init(hafs.hafstask.HAFSTask): 
+class WW3Init(hafs.hafstask.HAFSTask):
     def __init__(self,dstore,conf,section,taskname=None,fcstlen=126,
                  outstep=21600, pntstep=21600, rststep=21600, **kwargs):
         """Creates a WW3Init
@@ -49,8 +55,8 @@ class WW3Init(hafs.hafstask.HAFSTask):
         self._products=dict()
         atime=tcutil.numerics.to_datetime(self.conf.cycle)
         ww3_bdy=self.confstr('ww3_bdy','no')
-        if ww3_bdy == 'yes': 
-            prodnames['nest']=( './nest.ww3', '{com}/{out_prefix}.nest.ww3' )
+        if ww3_bdy == 'yes':
+            prodnames['nest']=( './nest.ww3', '{intercom}/ww3/nest.ww3' )
         with self.dstore.transaction():
             for prodname,filepaths in prodnames.items():
                 (localpath,compath)=filepaths
@@ -82,7 +88,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             yield dict(self.taskvars,dataset=dataset,item=item,ftime=when,atime=atime)
             when=to_datetime_rel(interval,when)
         ww3_bdy=self.confstr('ww3_bdy','no')
-        if ww3_bdy == 'yes': 
+        if ww3_bdy == 'yes':
             atime=to_datetime(self.conf.cycle)
             wtime=to_datetime_rel(-6*3600,atime)
             dataset=self.confstr('gfswave_dataset','gfswave')
@@ -91,7 +97,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             yield dict(self.taskvars,dataset=dataset,item=item,ftime=when,atime=when,optional=True)
         ww3_rst=self.confstr('ww3_rst','no')
         print('ww3_rst=%s'%(ww3_rst))
-        if ww3_rst == 'yes' or ww3_rst == 'always': 
+        if ww3_rst == 'yes' or ww3_rst == 'always':
             atime=to_datetime(self.conf.cycle)
             wtime=to_datetime_rel(-6*3600,atime)
             dataset=self.confstr('gdaswave_dataset','gdaswave')
@@ -112,21 +118,21 @@ class WW3Init(hafs.hafstask.HAFSTask):
         ende=to_datetime_rel(epsilon,etime)
         when=atime
         fhour=0
-        maxwait=self.confint('max_grib_wait',3600)
+        maxwait=self.confint('max_grib_wait',900)
         sleeptime=self.confint('grib_sleep_time',20)
         min_size=self.confint('min_grib_size',1)
         min_mtime_age=self.confint('min_grib_age',30)
         while when<ende:
             thefile=dc.locate(dataset=dataset,item=item,ftime=when,atime=atime,**self.taskvars)
-            if self.realtime:
-                waited=wait_for_files(
-                    [thefile],logger,maxwait=maxwait,sleeptime=sleeptime,
-                    min_size=min_size,min_mtime_age=min_mtime_age)
-                if not waited:
-                    msg='%s: did not exist or was too small after %d seconds'%(
-                        thefile,min_size)
-                    self.log().error(msg)
-                    raise hafs.exceptions.WW3InputError(msg)
+            waited=wait_for_files(
+                [thefile],logger,maxwait=maxwait,sleeptime=sleeptime,
+                min_size=min_size,min_mtime_age=min_mtime_age)
+            if not waited:
+                msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(
+                    thefile,maxwait)
+                self.log().error(msg)
+                raise hafs.exceptions.WW3InputError(msg)
+                sys.exit(2)
             yield thefile
             fhour=fhour+interval/3600
             when=to_datetime_rel(interval,when)
@@ -135,7 +141,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         logger=self.log()
         for prodname,stuff in self._products.items():
             (prod,localpath)=stuff
-            prod.deliver(frominfo=localpath,keep=False,logger=logger)
+            prod.deliver(frominfo=localpath,keep=True,logger=logger)
 
     def run(self):
         """Runs the WW3 initialization"""
@@ -148,7 +154,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             dummywind=True
         else:
             # Wrong usegfswind value
-            logger.warning('Wrong usegfswind value: %s. Assume usegfswind=yes.' 
+            logger.warning('Wrong usegfswind value: %s. Assume usegfswind=yes.'
                            'Set dummywind to False.'%(usegfswind,))
             usegfswind='yes'
             dummywind=False
@@ -163,7 +169,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     make_symlink(s,t,force=True,logger=logger)
                 deliver_file(self.icstr('{grid_inp}'),'ww3_grid.inp',keep=True,logger=logger)
                 link(self.icstr('{grid_bot}'),'.')
-                if ww3_bdy == 'yes': 
+                if ww3_bdy == 'yes':
                     link(self.icstr('{grid_msk2}'),self.icstr('./ww3_grid_{vit[basin1lc]}.msk'))
                 else:
                     link(self.icstr('{grid_msk}'),'.')
@@ -173,13 +179,15 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 cmd=exe('./ww3_grid')
                 if redirect: cmd = cmd>='ww3_grid.log'
                 checkrun(cmd,logger=logger)
+                # Copy over the pre-generated grid mesh file
+                deliver_file(self.icstr('{grid_mesh}'),'./ww3_mesh.nc')
 
-                if usegfswind == 'yes': 
-                    # Extract gfs wind from gfs grib2 data 
-                    ncfile='gfs.uvgrd10m.nc' 
+                if usegfswind == 'yes':
+                    # Extract gfs wind from gfs grib2 data
+                    ncfile='gfs.uvgrd10m.nc'
                     produtil.fileop.remove_file(ncfile,logger=logger)
                     cmd=alias(bigexe(self.getexe('wgrib2','wgrib2')))
-                    for f in self.gfsgrib2iter(): 
+                    for f in self.gfsgrib2iter():
                         logger.info('Extracting wind at 10 m from %s'%(f))
                         subset=''
                         for line in runstr(cmd[f],logger=logger).splitlines(True):
@@ -195,7 +203,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                         produtil.log.jlogger.warning(
                             'ww3init: will use dummy wind because %s is missing '
                             'or empty.'%(ncfile,))
-                        
+
                 if dummywind:
                     # Run ww3_prep for dummy wind
                     deliver_file(self.icstr('{wind_inp}'),'ww3_prep.inp',keep=True,logger=logger)
@@ -229,23 +237,32 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     logger.error('Not implemented yet')
 
                 have_restart=False
-                oldrst='(unknown)'
-                try:
-                    oldrst=self.icstr('{oldcom}/{oldvit[stormid3lc]}.restart.f006.ww3')
-                    if produtil.fileop.isnonempty(oldrst):
-                        produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
-                        have_restart=True
-                        produtil.log.jlogger.info('%s: warm start for wave'%(oldrst,))
+                if os.environ.get('ww3_force_cold_start','no').lower() == 'yes':
+                    logger.warning('ww3_force_cold_start is yes and will generate restart.ww3.')
+                else:
+                    oldrst='(unknown)'
+                    oldconffile=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.conf')
+                    if produtil.fileop.isnonempty(oldconffile):
+                        logger.info('%s: prior cycle exists.'%(oldconffile,))
+                        oldconf=hafs.launcher.HAFSLauncher()
+                        oldconf.read(oldconffile)
+                        oldrst=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.ww3.restart.f006')
+                        if not oldconf.getbool('config','run_wave'):
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run wave.')
+                        elif not oldconf.getstr('config','wave_model').lower() == 'ww3':
+                            logger.info('restart.ww3: will generate restart.ww3 because prior cycle did not run WW3.')
+                        elif produtil.fileop.isnonempty(oldrst):
+                            produtil.fileop.deliver_file(oldrst,'restart.ww3',logger=logger)
+                            have_restart=True
+                            logger.info('%s: warm start from prior cycle 6-h output restart file.'%(oldrst,))
+                        else:
+                            logger.critical('FATAL ERROR: exiting because piror cycle %s is missing or empty.'%(oldrst,))
+                            logger.critical('FATAL ERROR: if desired, set force_cold_start or ww3_force_cold_start = yes can bypass this failure.')
+                            sys.exit(2)
                     else:
-                        produtil.log.jlogger.warning(
-                            'restart.ww3: will generate restart.ww3 because %s is missing '
-                            'or empty.'%(oldrst,))
-                except Exception as ee:
-                    produtil.log.jlogger.warning(
-                        'restart.ww3: will generate restart.ww3 because %s is missing '
-                        'or could not be copied; %s'%(oldrst,str(ee)),exc_info=True)
+                        logger.info('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
-                if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always': 
+                if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:
                         with NamedDir('ww3gint',keep=True,logger=logger) as nameddir:
                             logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m gridi from gdaswave')
@@ -283,7 +300,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     if redirect: cmd = cmd>='ww3_strt.log'
                     checkrun(cmd,logger=logger)
 
-                if ww3_bdy == 'yes': 
+                if ww3_bdy == 'yes':
                     try:
                         logger.info('ww3_bound: generating ww3 boundary condition')
                         self.get_ww3bdy_inputs()
@@ -300,52 +317,52 @@ class WW3Init(hafs.hafstask.HAFSTask):
                             'ww3_bound: will run without input boundary condition because ww3_bound '
                             'did not run successfully.',exc_info=True)
 
-                if redirect: self._copy_log()
+               #if redirect: self._copy_log()
 
-                # Prepare ww3_shel.inp
-                ni=hafs.namelist.NamelistInserter(self.conf,self.section)
-                shel_inp=self.icstr('{shel_inp}')
-                atime=to_datetime(self.conf.cycle) # sim start time
-                etime=to_datetime_rel(self.fcstlen*3600,atime) # sim end time
-                flddt=int(self.outstep)
-                pntdt=int(self.pntstep)
-                #flddt=self.conf.getint('forecast_products','ww3_output_step',10800)
-                #pntdt=self.conf.getint('forecast_products','ww3_pntout_step',10800)
-                if pntdt > 0:
-                    # Point output requested, need to provide buoy information
-                    buoy_inp=self.icstr('{buoy_inp}')
-                    with open(buoy_inp,'r') as bf:
-                        #Read the file content and take out the eof character in the end.
-                        buoyfile=bf.read()[:-1]
-                elif pntdt == 0:
-                    # Point output no requested, no further info needed
-                    buoyfile='$'
-                else:
-                    # Wrong pntdt value
-                    logger.warning('Wrong ww3_pntout_step value: %d. Set ww3_pntout_step = 0'%(pntdt,))
-                    pntdt=0
-                    self.pntout=0
-                    buoyfile='$'
-                ci=self.conf.getfloat('config','cycling_interval',6)
-                retime=to_datetime_rel(ci*3600*1,atime) # restart end time
-                invars=dict()
-                invars.update(RUN_BEG=atime.strftime('%Y%m%d %H%M%S'),
-                              RUN_END=etime.strftime('%Y%m%d %H%M%S'),
-                              FLD_BEG=atime.strftime('%Y%m%d %H%M%S'),
-                              FLD_END=etime.strftime('%Y%m%d %H%M%S'),
-                              FLD_DT=int(flddt), 
-                              PNT_BEG=atime.strftime('%Y%m%d %H%M%S'),
-                              PNT_END=etime.strftime('%Y%m%d %H%M%S'),
-                              PNT_DT=int(pntdt), 
-                              BUOY_FILE=buoyfile,
-                              RST_BEG=atime.strftime('%Y%m%d %H%M%S'),
-                              RST_END=retime.strftime('%Y%m%d %H%M%S'),
-                              RST_DT=int(self.rststep) )
+               ## Prepare ww3_shel.inp
+               #ni=hafs.namelist.NamelistInserter(self.conf,self.section)
+               #shel_inp=self.icstr('{shel_inp}')
+               #atime=to_datetime(self.conf.cycle) # sim start time
+               #etime=to_datetime_rel(self.fcstlen*3600,atime) # sim end time
+               #flddt=int(self.outstep)
+               #pntdt=int(self.pntstep)
+               ##flddt=self.conf.getint('forecast_products','ww3_output_step',10800)
+               ##pntdt=self.conf.getint('forecast_products','ww3_pntout_step',10800)
+               #if pntdt > 0:
+               #    # Point output requested, need to provide buoy information
+               #    buoy_inp=self.icstr('{buoy_inp}')
+               #    with open(buoy_inp,'r') as bf:
+               #        #Read the file content and take out the eof character in the end.
+               #        buoyfile=bf.read()[:-1]
+               #elif pntdt == 0:
+               #    # Point output no requested, no further info needed
+               #    buoyfile='$'
+               #else:
+               #    # Wrong pntdt value
+               #    logger.warning('Wrong ww3_pntout_step value: %d. Set ww3_pntout_step = 0'%(pntdt,))
+               #    pntdt=0
+               #    self.pntout=0
+               #    buoyfile='$'
+               #ci=self.conf.getfloat('config','cycling_interval',6)
+               #retime=to_datetime_rel(ci*3600*1,atime) # restart end time
+               #invars=dict()
+               #invars.update(RUN_BEG=atime.strftime('%Y%m%d %H%M%S'),
+               #              RUN_END=etime.strftime('%Y%m%d %H%M%S'),
+               #              FLD_BEG=atime.strftime('%Y%m%d %H%M%S'),
+               #              FLD_END=etime.strftime('%Y%m%d %H%M%S'),
+               #              FLD_DT=int(flddt),
+               #              PNT_BEG=atime.strftime('%Y%m%d %H%M%S'),
+               #              PNT_END=etime.strftime('%Y%m%d %H%M%S'),
+               #              PNT_DT=int(pntdt),
+               #              BUOY_FILE=buoyfile,
+               #              RST_BEG=atime.strftime('%Y%m%d %H%M%S'),
+               #              RST_END=retime.strftime('%Y%m%d %H%M%S'),
+               #              RST_DT=int(self.rststep) )
 
-                with open(shel_inp,'rt') as nf:
-                    with open('ww3_shel.inp','wt') as of:
-                        of.write(ni.parse(nf,logger=logger,source=shel_inp,
-                                          raise_all=True,atime=self.conf.cycle,**invars))
+               #with open(shel_inp,'rt') as nf:
+               #    with open('ww3_shel.inp','wt') as of:
+               #        of.write(ni.parse(nf,logger=logger,source=shel_inp,
+               #                          raise_all=True,atime=self.conf.cycle,**invars))
 
                 self.deliver_products()
             self.state=COMPLETED
@@ -353,19 +370,19 @@ class WW3Init(hafs.hafstask.HAFSTask):
             logger.error('Unhandled exception in wave init: %s'
                          %(str(e),),exc_info=True)
             self.state=FAILED
-            self._copy_log()
+           #self._copy_log()
             raise
 
     def _copy_log(self):
         logger=self.log()
-        for lf in [ 'ww3_grid.log', 'ww3_prep_wind.log', 'ww3_prep_curr.log', 
+        for lf in [ 'ww3_grid.log', 'ww3_prep_wind.log', 'ww3_prep_curr.log',
                     'ww3_strt.log', 'ww3_untarbdy.log', 'ww3_bound.log' ]:
-            comloc=self.icstr('{com}/{out_prefix}.{lf}.ww3',lf=lf)
+            comloc=self.icstr('{com}/{out_prefix}.{RUN}.{lf}.ww3',lf=lf)
             if os.path.exists(lf):
                 deliver_file(lf,comloc,keep=True,logger=logger)
 
     def get_ww3bdy_inputs(self):
-        """!Obtains WW3 input boundary condition data, links or copies to ww3init dir. 
+        """!Obtains WW3 input boundary condition data, links or copies to ww3init dir.
 
         WW3 input boundary data comes from previous cycle's gfswave."""
         logger=self.log()
@@ -404,7 +421,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             return
 
     def get_ww3rst_inputs(self):
-        """!Obtains global gdaswave restart file, links or copies to ww3init dir. 
+        """!Obtains global gdaswave restart file, links or copies to ww3init dir.
 
         WW3 input restart file comes from current cycle's gdaswave."""
         logger=self.log()
@@ -450,17 +467,17 @@ class WW3Init(hafs.hafstask.HAFSTask):
 
 ########################################################################
 
-ww3postprodnames={ 
-    'ww3outgrd':       ( './out_grd.ww3',    '{com}/{out_prefix}.out_grd.ww3' ),
-    'ww3grb2':         ( './gribfile',       '{com}/{out_prefix}.ww3.grb2' ),
-    'ww3grb2idx':      ( './gribfile.idx',   '{com}/{out_prefix}.ww3.grb2.idx' ),
-    'ww3ounf':         ( './ww3.%Y.nc',      '{com}/{out_prefix}.ww3_ounf.nc' ),
-    'ww3outpnt':       ( './out_pnt.ww3',    '{com}/{out_prefix}.out_pnt.ww3' ),
-    'ww3ounpspec':     ( './ww3.%Y_spec.nc', '{com}/{out_prefix}.ww3_ounp_spec.nc' ),
-    'ww3outpbull':     ( './ww3_bull.tar',   '{com}/{out_prefix}.ww3_bull.tar' ),
-    'ww3outpcbull':    ( './ww3_cbull.tar',  '{com}/{out_prefix}.ww3_cbull.tar' ),
-    'ww3outpcsbull':   ( './ww3_csbull.tar', '{com}/{out_prefix}.ww3_csbull.tar' ),
-    'ww3outpspec':     ( './ww3_spec.tar',   '{com}/{out_prefix}.ww3_spec.tar' ) }
+ww3postprodnames={
+    'ww3outgrd':       ( './out_grd.ww3',    '{com}/{out_prefix}.{RUN}.out_grd.ww3' ),
+    'ww3grb2':         ( './gribfile',       '{com}/{out_prefix}.{RUN}.ww3.grb2' ),
+    'ww3grb2idx':      ( './gribfile.idx',   '{com}/{out_prefix}.{RUN}.ww3.grb2.idx' ),
+    'ww3ounf':         ( './ww3.%Y.nc',      '{com}/{out_prefix}.{RUN}.ww3_ounf.nc' ),
+    'ww3outpnt':       ( './out_pnt.ww3',    '{com}/{out_prefix}.{RUN}.out_pnt.ww3' ),
+    'ww3ounpspec':     ( './ww3.%Y_spec.nc', '{com}/{out_prefix}.{RUN}.ww3_ounp_spec.nc' ),
+    'ww3outpbull':     ( './ww3_bull.tar',   '{com}/{out_prefix}.{RUN}.ww3_bull.tar' ),
+    'ww3outpcbull':    ( './ww3_cbull.tar',  '{com}/{out_prefix}.{RUN}.ww3_cbull.tar' ),
+    'ww3outpcsbull':   ( './ww3_csbull.tar', '{com}/{out_prefix}.{RUN}.ww3_csbull.tar' ),
+    'ww3outpspec':     ( './ww3_spec.tar',   '{com}/{out_prefix}.{RUN}.ww3_spec.tar' ) }
 
 class WW3Post(hafs.hafstask.HAFSTask):
     """Run WW3 post-process."""
@@ -502,7 +519,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
         checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
                  logger=logger)
 
-    @property 
+    @property
     def ncks_path(self):
         """Returns the path to ncks.  Returns None if ncks cannot be
         found.  This function will only search for ncks once, and will
@@ -512,7 +529,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
             ncks=self.getexe('ncks','')
             if not self._ncks_path:
                 ncks=produtil.fileop.find_exe('ncks',raise_missing=False)
-            assert(ncks is None or 
+            assert(ncks is None or
                    (isinstance(ncks,str) and ncks!=''))
             self._ncks_path=ncks
         return self._ncks_path
@@ -522,10 +539,13 @@ class WW3Post(hafs.hafstask.HAFSTask):
         logger=self.log()
         redirect=self.confbool('redirect',True)
         self.state=RUNNING
+        # The line below makes a DBNAlert object, which can be reused for the later alerts.
+        alerter=produtil.dbnalert.DBNAlert(['MODEL','{type}','{job}','{location}'])
+        modelrun=self.icstr('{RUN}').upper()
         try:
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
-                ww3moddef=self.icstr('{com}/{out_prefix}.mod_def.ww3')
+                ww3moddef=self.icstr('{intercom}/ww3/mod_def.ww3')
                 if not os.path.exists(ww3moddef):
                     logger.error('%s: mod_def.ww3 not yet available from forecast'%(
                             ww3moddef,))
@@ -561,10 +581,13 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     wgrib2=self.getexe('wgrib2')
                     logger.info('ww3post: Generating grib idx file for gribfile')
                     checkrun(bigexe(wgrib2)['-s','gribfile'] > indexfile,logger=logger)
+                    os.system('chmod -x '+indexfile) # Remove the -x permission
                     (prod,localpath)=self._products['ww3grb2']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2')
                     (prod,localpath)=self._products['ww3grb2idx']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                    alerter(location=prod.location, type=modelrun+'_WW3GB2_WIDX')
                # For point output ww3_outp
                 ww3_outp_bull_post=self.confstr('ww3_outp_bull_post','yes',section='ww3post')
                 ww3_outp_spec_post=self.confstr('ww3_outp_spec_post','yes',section='ww3post')
@@ -582,10 +605,10 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     buoys=ww3_outp_info[indices[0]+1:indices[1]-2]
                     # For point bullitin output
                     if ww3_outp_bull_post == 'yes':
-                        filebull=[] 
-                        filecbull=[] 
-                        filecsbull=[] 
-                        filelog=[] 
+                        filebull=[]
+                        filecbull=[]
+                        filecsbull=[]
+                        filelog=[]
                         commands=list()
                         for i, buoy in enumerate(buoys):
                             ipnt=i+1
@@ -635,14 +658,17 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                         (prod,localpath)=self._products['ww3outpcsbull']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                     # For point spec output
                     if ww3_outp_spec_post == 'yes':
-                        fileout=[] 
-                        filelog=[] 
+                        fileout=[]
+                        filelog=[]
                         commands=list()
                         ww3tstr=self.conf.cycle.strftime('%y%m%d%H')
                         for i, buoy in enumerate(buoys):
@@ -683,6 +709,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                         checkrun(cmd,logger=logger)
                         (prod,localpath)=self._products['ww3outpspec']
                         prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
+                        alerter(location=prod.location, type=modelrun+'_WW3TAR')
                 # Additional ww3post products
                 # For field output in netcdf format
                 ww3_ounf_post=self.confstr('ww3_ounf_post','yes',section='ww3post')

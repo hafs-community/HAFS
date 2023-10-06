@@ -4,40 +4,63 @@ date
 export PS4='+ $SECONDS + '
 set -xue
 
-export HOMEhafs=${HOMEhafs:?}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+export cycle=${cycle:-t${cyc:?}z}
+export storm_num=${storm_num:-1}
+export stormlabel=${stormlabel:-storm$storm_num}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
 
-source ${USHhafs}/hafs_pre_job.sh.inc
-source ${HOLDVARS:-storm1.holdvars.txt}
+export SENDCOM=${SENDCOM:-YES}
+export SENDDBN=${SENDDBN:-NO}
+export SENDECF=${SENDECF:-NO}
+export EMAIL_SDM=${EMAIL_SDM:-NO}
+export SCRUBDATA=${SCRUBDATA:-YES}
+# HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
+#export KEEPDATA=${KEEPDATA:-YES}
+export KEEPDATA=YES
 
-export machine=${WHERE_AM_I:-wcoss_cray}
-export envir=${envir:-prod} # prod, para, test
-export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "${RUN_ENVIR^^}" != NCO ]; then
+export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
+export USHhafs=$HOMEhafs/ush
+export EXEChafs=$HOMEhafs/exec
+export PARMhafs=$HOMEhafs/parm
+export FIXhafs=$HOMEhafs/fix
+
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
+
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  # Detect platform and load modules if not run by NCO
+  source ${USHhafs}/hafs_pre_job.sh.inc
+  export machine=${WHERE_AM_I:-wcoss2}
   module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-  module load modulefile.ProdGSI.${machine}
+  if [ ${machine}  = "hera" ]; then
+    module load gsi_${machine}.intel
+  else
+    module load gsi_${machine}
+  fi
   module list
+else
+  # Run by NCO on WCOSS2
+  export machine=${WHERE_AM_I:-wcoss2}
+  # Prepend $USHhafs to python package search path
+  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+  # Initialize PDY
+# setpdy.sh # only needed for the launch job
+  # Get PDY
+  source ${WORKhafs}/PDY
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-# Run setpdy and initialize PDY variables
-#setpdy.sh
-#. ./PDY
-export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+env
 
-export WORKhafs=${WORKhafs:?}
-export COMIN=${COMIN:?}
-export COMOUT=${COMOUT:?}
-export COMhafs=${COMhafs:-${COMOUT}}
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
-export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:?}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
+source ${HOLDVARS}
+
 export ENSDA=${ENSDA:-NO}
 export HX_ENS=${HX_ENS:-NO}
 
@@ -51,21 +74,19 @@ fi
 
 export DATA=${WORKhafs}/enkf_hx/${MEMSTR}
 
-export SCRUBDATA=${SCRUBDATA:-YES}
-if [ "${SCRUBDATA}" = YES ]; then
+if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
 fi
-
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_enkf_hx.sh
-export err=$?
-exit $err
+status=$?; [[ $status -ne 0 ]] && exit $status
 
-export KEEPDATA=${KEEPDATA:-YES}
-if [ "${KEEPDATA^^}" != YES ]; then
+# Cleanup DATA dir
+cd ${WORKhafs}
+if [ "${KEEPDATA:-YES}" != YES ]; then
   rm -rf $DATA
 fi
 

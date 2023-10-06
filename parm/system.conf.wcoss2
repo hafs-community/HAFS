@@ -1,0 +1,49 @@
+## This is the system-specific configuration file for WCOSS2
+[config]
+## Project disk area
+disk_project=hur
+## Project hpss tape area
+tape_project=emc-hwrf
+## CPU account name for submitting jobs to the batch system.
+cpu_account=HAFS-DEV
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archive=disk:/lfs/h2/emc/ptmp/{ENV[USER]}/{SUBEXPT}_archive/{out_prefix}.tar
+
+[dir]
+## Save directory.  Make sure you edit this.
+CDSAVE=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/save
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/lfs/h2/emc/ptmp/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat=/lfs/h2/emc/hur/noscrub/input/SYNDAT-PLUS
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={DCOMROOT}/nhc/atcf/ncep
+COMINjtwc={DCOMROOT}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs=/lfs/h2/emc/hur/noscrub/hafs-input/COMGFSv16
+COMINobs={COMgfs}
+COMINgfs={COMgfs}
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+COMINmsg={ENV[COMINmsg|-/lfs/h1/ops/prod/com/hwrf/v13.2/inphwrf]}
+COMINhafs={COMINgfs}
+DATMdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DOCN
+## A-Deck directory for graphics
+ADECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/lfs/h2/emc/hur/noscrub/emc.hur/trak/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/lfs/h2/emc/hur/noscrub/local/share/cartopy
+
+[holdvars]
+WHERE_AM_I=wcoss2
+WHICH_JET=none
+

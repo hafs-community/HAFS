@@ -3,31 +3,23 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
-export TZ=UTC # Orion workaround
+export TZ=UTC
+
+export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
+export storm_num={storm_num}
+export stormlabel={stormlabel}
+export STORM={vit[stormname]}
+export STORMID={vit[stormid3]}
+export hafsbasin2={vit[tcutilbasin2]}
+export pubbasin2={vit[pubbasin2]}
+export basinname="{vit[basinname]}"
+export CENLO={domlon}
+export CENLA={domlat}
 
 export envir={ENV[envir|-prod]}
-
-export storm_num={storm_num}
-export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
-export RUN_VORTEXINIT={RUN_VORTEXINIT}
-export RUN_GSI_VR={RUN_GSI_VR}
-export RUN_GSI_VR_FGAT={RUN_GSI_VR_FGAT}
-export RUN_GSI_VR_ENS={RUN_GSI_VR_ENS}
-export RUN_GSI={RUN_GSI}
-export RUN_FGAT={RUN_FGAT}
-export RUN_ENVAR={RUN_ENVAR}
-export RUN_ENSDA={RUN_ENSDA}
-export RUN_ENKF={RUN_ENKF}
-export GSID01={GSID01}
-export GSID02={GSID02}
-export GSID03={GSID03}
-export FGATSTR={FGATSTR}
-export FGATINV={FGATINV}
-export FGATEND={FGATEND}
-
-export warm_start_opt={warm_start_opt}
-
-export utilexec={utilexec}
+export NET={NET}
+export RUN={RUN}
+export RUN_ENVIR={RUN_ENVIR}
 
 export HOMEhafs={HOMEhafs}
 export EXEChafs={EXEChafs}
@@ -36,15 +28,77 @@ export EXhafs={EXhafs}
 export JOBhafs={JOBhafs}
 export USHhafs={USHhafs}
 export FIXhafs={FIXhafs}
+export FIXcrtm={FIXcrtm}
+
 export WORKhafs={WORKhafs}
-export DATA={WORKhafs}
 export COMhafs={COMhafs}
+export CONFhafs={CONFhafs}
+export HOLDVARS={HOLDVARS}
+
+export COMOLD={COMOLD}
 export COMIN={COMIN}
 export COMOUT={COMOUT}
+
+export DCOMROOT={DCOMROOT}
+export DCOM={DCOM}
+export COMINnhc={COMINnhc}
+export COMINjtwc={COMINjtwc}
 export COMgfs={COMgfs}
+export COMINobs={COMINobs}
+export COMINgfs={COMINgfs}
+export COMINgdas={COMINgdas}
+export COMINarch={COMINarch}
+export COMrtofs={COMrtofs}
+export COMINrtofs={COMINrtofs}
+export COMINmsg={COMINmsg}
+export COMINhafs={COMINhafs}
+
+export SYNDAThafs={syndat}
+export ADECKhafs={ADECKhafs}
+export BDECKhafs={BDECKhafs}
+export cartopyDataDir={cartopyDataDir}
+
+export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
+export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
+export RUN_ATM_MVNEST_ENS={RUN_ATM_MVNEST_ENS}
+export RUN_ATM_INIT={RUN_ATM_INIT}
+export RUN_ATM_INIT_FGAT={RUN_ATM_INIT_FGAT}
+export RUN_ATM_INIT_ENS={RUN_ATM_INIT_ENS}
+export RUN_ATM_MERGE={RUN_ATM_MERGE}
+export RUN_ATM_MERGE_FGAT={RUN_ATM_MERGE_FGAT}
+export RUN_ATM_MERGE_ENS={RUN_ATM_MERGE_ENS}
+export RUN_ATM_VI={RUN_ATM_VI}
+export RUN_ATM_VI_FGAT={RUN_ATM_VI_FGAT}
+export RUN_ATM_VI_ENS={RUN_ATM_VI_ENS}
+export RUN_GSI={RUN_GSI}
+export RUN_FGAT={RUN_FGAT}
+export RUN_ENVAR={RUN_ENVAR}
+export RUN_ENSDA={RUN_ENSDA}
+export RUN_ENKF={RUN_ENKF}
+export RUN_ANALYSIS_MERGE={RUN_ANALYSIS_MERGE}
+export RUN_ANALYSIS_MERGE_ENS={RUN_ANALYSIS_MERGE_ENS}
+export GSI_D01={GSI_D01}
+export GSI_D02={GSI_D02}
+export GSI_D03={GSI_D03}
+export FGATSTR={FGATSTR}
+export FGATINV={FGATINV}
+export FGATEND={FGATEND}
+
+export vi_min_wind_for_init={vi_min_wind_for_init}
+export vi_warm_start_vmax_threshold={vi_warm_start_vmax_threshold}
+export vi_bogus_vmax_threshold={vi_bogus_vmax_threshold}
+export vi_storm_env={vi_storm_env}
+export vi_storm_relocation={vi_storm_relocation}
+export vi_storm_modification={vi_storm_modification}
+export vi_adjust_intensity={vi_adjust_intensity}
+export vi_adjust_size={vi_adjust_size}
+
+export atm_merge_method={atm_merge_method}
+export analysis_merge_method={analysis_merge_method}
+export warm_start_opt={warm_start_opt}
+
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}
-
 export run_datm={run_datm}
 export run_docn={run_docn}
 export run_dwav={run_dwav}
@@ -61,26 +115,18 @@ export datm_input_path={datm_input_path}
 export DOCN_SOURCE={DOCN_SOURCE}
 export DATM_SOURCE={DATM_SOURCE}
 
-export SYNDAThafs={syndat}
-export ADECKhafs={ADECKhafs}
-export BDECKhafs={BDECKhafs}
-
 export PARMforecast={PARMforecast}
-
-export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
-
-export stormlabel={stormlabel}
-export STORM={vit[stormname]}
-export STORMID={vit[stormid3]}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
+export NOUTHRS={NOUTHRS}
 export GFSVER={GFSVER}
 export ictype={ictype}
 export bctype={bctype}
 export ictype_ens={ictype_ens}
 export bctype_ens={bctype_ens}
 export halo_blend={halo_blend}
+export use_orog_gsl={use_orog_gsl}
 
 export CASE={CASE}
 export LEVS={LEVS}
@@ -89,6 +135,9 @@ export gridfixdir={gridfixdir}
 export stretch_fac={stretch_fac}
 export target_lon={target_lon}
 export target_lat={target_lat}
+export nest_grids={nest_grids}
+export parent_grid_num={parent_grid_num}
+export parent_tile={parent_tile}
 export refine_ratio={refine_ratio}
 export istart_nest={istart_nest}
 export jstart_nest={jstart_nest}
@@ -97,6 +146,41 @@ export jend_nest={jend_nest}
 export halo={halo}
 export halop1={halop1}
 export halo0={halo0}
+export regional_esg={regional_esg}
+export idim_nest={idim_nest}
+export jdim_nest={jdim_nest}
+export delx_nest={delx_nest}
+export dely_nest={dely_nest}
+export halop2={halop2}
+export pazi={pazi}
+
+export CASE_mvnest1res={CASE_mvnest1res}
+export LEVS_mvnest1res={LEVS_mvnest1res}
+export gtype_mvnest1res={gtype_mvnest1res}
+export gridfixdir_mvnest1res={gridfixdir_mvnest1res}
+export stretch_fac_mvnest1res={stretch_fac_mvnest1res}
+export target_lon_mvnest1res={target_lon_mvnest1res}
+export target_lat_mvnest1res={target_lat_mvnest1res}
+export nest_grids_mvnest1res={nest_grids_mvnest1res}
+export parent_grid_num_mvnest1res={parent_grid_num_mvnest1res}
+export parent_tile_mvnest1res={parent_tile_mvnest1res}
+export refine_ratio_mvnest1res={refine_ratio_mvnest1res}
+export istart_nest_mvnest1res={istart_nest_mvnest1res}
+export jstart_nest_mvnest1res={jstart_nest_mvnest1res}
+export iend_nest_mvnest1res={iend_nest_mvnest1res}
+export jend_nest_mvnest1res={jend_nest_mvnest1res}
+export regional_esg_mvnest1res={regional_esg_mvnest1res}
+export idim_nest_mvnest1res={idim_nest_mvnest1res}
+export jdim_nest_mvnest1res={jdim_nest_mvnest1res}
+export delx_nest_mvnest1res={delx_nest_mvnest1res}
+export dely_nest_mvnest1res={dely_nest_mvnest1res}
+export halop2_mvnest1res={halop2_mvnest1res}
+
+export is_moving_nest={is_moving_nest}
+export vortex_tracker={vortex_tracker}
+export ntrack={ntrack}
+export move_cd_x={move_cd_x}
+export move_cd_y={move_cd_y}
 
 export vcoord_file_target_grid={vcoord_file_target_grid}
 
@@ -105,6 +189,9 @@ export grid_ratio_fv3_regional={grid_ratio_fv3_regional}
 export s_ens_h={s_ens_h}
 export s_ens_v={s_ens_v}
 export online_satbias={online_satbias}
+export l_both_fv3sar_gfs_ens={l_both_fv3sar_gfs_ens}
+export l4densvar={l4densvar}
+export nhr_obsbin={nhr_obsbin}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 
@@ -120,14 +207,24 @@ export write_tasks_per_group={write_tasks_per_group}
 export write_dopost={write_dopost}
 export output_history={output_history}
 
-export print_esmf={print_esmf}
-
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}
 export glob_layoutx={glob_layoutx}
 export glob_layouty={glob_layouty}
 export glob_npx={glob_npx}
 export glob_npy={glob_npy}
+export glob_io_layoutx={glob_io_layoutx}
+export glob_io_layouty={glob_io_layouty}
+export glob_full_zs_filter={glob_full_zs_filter}
+export glob_n_zs_filter={glob_n_zs_filter}
+export glob_n_del2_weak={glob_n_del2_weak}
+export glob_max_slope={glob_max_slope}
+export glob_rlmx={glob_rlmx}
+export glob_elmx={glob_elmx}
+export glob_sfc_rlm={glob_sfc_rlm}
+export glob_tc_pbl={glob_tc_pbl}
+export glob_shal_cnv={glob_shal_cnv}
+export glob_do_deep={glob_do_deep}
 
 export k_split={k_split}
 export n_split={n_split}
@@ -135,37 +232,84 @@ export layoutx={layoutx}
 export layouty={layouty}
 export npx={npx}
 export npy={npy}
+export io_layoutx={io_layoutx}
+export io_layouty={io_layouty}
+export full_zs_filter={full_zs_filter}
+export n_zs_filter={n_zs_filter}
+export n_del2_weak={n_del2_weak}
+export max_slope={max_slope}
+export rlmx={rlmx}
+export elmx={elmx}
+export sfc_rlm={sfc_rlm}
+export tc_pbl={tc_pbl}
+export shal_cnv={shal_cnv}
+export do_deep={do_deep}
+export do_sppt={do_sppt}
+export do_shum={do_shum}
+export do_skeb={do_skeb}
 export npz={npz}
 
+export imp_physics={imp_physics}
+export iovr={iovr}
+export dt_inner={dt_inner}
+export dnats={dnats}
+export do_sat_adj={do_sat_adj}
+export lgfdlmprad={lgfdlmprad}
+export lsm={lsm}
+export ialb={ialb}
+export iems={iems}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
+export iaer={iaer}
+export lseaspray={lseaspray}
+export clam_deep={clam_deep}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
 export nstf_n4={nstf_n4}
 export nstf_n5={nstf_n5}
 
-export app_domain={app_domain}
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
 export output_grid_cen_lat={output_grid_cen_lat}
-export output_grid_lon1={output_grid_lon1}
-export output_grid_lat1={output_grid_lat1}
-export output_grid_lon2={output_grid_lon2}
-export output_grid_lat2={output_grid_lat2}
+export output_grid_lon_span={output_grid_lon_span}
+export output_grid_lat_span={output_grid_lat_span}
 export output_grid_dlon={output_grid_dlon}
 export output_grid_dlat={output_grid_dlat}
 
 export out_prefix={out_prefix}
 export out_prefix_nodate={out_prefix_nodate}
-export synop_gridspecs={synop_gridspecs}
-export trker_gridspecs={trker_gridspecs}
+export old_out_prefix={old_out_prefix}
+export old_out_prefix_nodate={old_out_prefix_nodate}
+export out_gridnames={out_gridnames}
+export post_gridspecs={post_gridspecs}
+export trak_gridspecs={trak_gridspecs}
+export satpost={satpost}
+export trkd12_combined={trkd12_combined}
+
+# atm_init related items
+export ccpp_suite_regional_init={ccpp_suite_regional_init}
+export ccpp_suite_glob_init={ccpp_suite_glob_init}
+export ccpp_suite_nest_init={ccpp_suite_nest_init}
+export nstf_n1_init={nstf_n1_init}
+export nstf_n2_init={nstf_n2_init}
+export nstf_n3_init={nstf_n3_init}
+export nstf_n4_init={nstf_n4_init}
+export nstf_n5_init={nstf_n5_init}
+export glob_layoutx_init={glob_layoutx_init}
+export glob_layouty_init={glob_layouty_init}
+export layoutx_init={layoutx_init}
+export layouty_init={layouty_init}
+export write_groups_init={write_groups_init}
+export write_tasks_per_group_init={write_tasks_per_group_init}
 
 # ENSDA related items
 export ENS_SIZE={ENS_SIZE}
+export ENS_FCST_SIZE={ENS_FCST_SIZE}
 export GRID_RATIO_ENS={GRID_RATIO_ENS}
 export NHRS_ENS={NHRS_ENS}
 export NBDYHRS_ENS={NBDYHRS_ENS}
+export NOUTHRS_ENS={NOUTHRS_ENS}
 export CASE_ENS={CASE_ENS}
 export LEVS_ENS={LEVS_ENS}
 export gtype_ens={gtype_ens}
@@ -178,6 +322,12 @@ export istart_nest_ens={istart_nest_ens}
 export jstart_nest_ens={jstart_nest_ens}
 export iend_nest_ens={iend_nest_ens}
 export jend_nest_ens={jend_nest_ens}
+export regional_esg_ens={regional_esg_ens}
+export idim_nest_ens={idim_nest_ens}
+export jdim_nest_ens={jdim_nest_ens}
+export delx_nest_ens={delx_nest_ens}
+export dely_nest_ens={dely_nest_ens}
+export halop2_ens={halop2_ens}
 export ccpp_suite_regional_ens={ccpp_suite_regional_ens}
 export ccpp_suite_glob_ens={ccpp_suite_glob_ens}
 export ccpp_suite_nest_ens={ccpp_suite_nest_ens}
@@ -188,21 +338,51 @@ export write_groups_ens={write_groups_ens}
 export write_tasks_per_group_ens={write_tasks_per_group_ens}
 export write_dopost_ens={write_dopost_ens}
 export output_history_ens={output_history_ens}
-export k_split_ens={k_split_ens}
-export n_split_ens={n_split_ens}
+export glob_k_split_ens={glob_k_split_ens}
+export glob_n_split_ens={glob_n_split_ens}
 export glob_layoutx_ens={glob_layoutx_ens}
 export glob_layouty_ens={glob_layouty_ens}
 export glob_npx_ens={glob_npx_ens}
 export glob_npy_ens={glob_npy_ens}
+export glob_io_layoutx_ens={glob_io_layoutx_ens}
+export glob_io_layouty_ens={glob_io_layouty_ens}
+export glob_full_zs_filter_ens={glob_full_zs_filter_ens}
+export glob_n_zs_filter_ens={glob_n_zs_filter_ens}
+export glob_n_del2_weak_ens={glob_n_del2_weak_ens}
+export glob_max_slope_ens={glob_max_slope_ens}
+export glob_rlmx_ens={glob_rlmx_ens}
+export glob_elmx_ens={glob_elmx_ens}
+export glob_sfc_rlm_ens={glob_sfc_rlm_ens}
+export glob_tc_pbl_ens={glob_tc_pbl_ens}
+export glob_shal_cnv_ens={glob_shal_cnv_ens}
+export glob_do_deep_ens={glob_do_deep_ens}
+export k_split_ens={k_split_ens}
+export n_split_ens={n_split_ens}
 export layoutx_ens={layoutx_ens}
 export layouty_ens={layouty_ens}
 export npx_ens={npx_ens}
 export npy_ens={npy_ens}
+export io_layoutx_ens={io_layoutx_ens}
+export io_layouty_ens={io_layouty_ens}
+export full_zs_filter_ens={full_zs_filter_ens}
+export n_zs_filter_ens={n_zs_filter_ens}
+export n_del2_weak_ens={n_del2_weak_ens}
+export max_slope_ens={max_slope_ens}
+export rlmx_ens={rlmx_ens}
+export elmx_ens={elmx_ens}
+export sfc_rlm_ens={sfc_rlm_ens}
+export tc_pbl_ens={tc_pbl_ens}
+export shal_cnv_ens={shal_cnv_ens}
+export do_deep_ens={do_deep_ens}
+export do_sppt_ens={do_sppt_ens}
+export do_shum_ens={do_shum_ens}
+export do_skeb_ens={do_skeb_ens}
 export npz_ens={npz_ens}
 export output_grid_dlon_ens={output_grid_dlon_ens}
 export output_grid_dlat_ens={output_grid_dlat_ens}
-export synop_gridspecs_ens={synop_gridspecs_ens}
-export trker_gridspecs_ens={trker_gridspecs_ens}
+export post_gridspecs_ens={post_gridspecs_ens}
+export trak_gridspecs_ens={trak_gridspecs_ens}
+export satpost_ens={satpost_ens}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
@@ -219,22 +399,13 @@ export cpl_wav_ocn={cpl_wav_ocn}
 export wav_tasks={wav_tasks}
 export med_tasks={med_tasks}
 
-export RUN_ENVIR={RUN_ENVIR}
-export PATH=:.:$PATH:$utilexec
-
-export CONFhafs={CONFhafs}
-export HOLDVARS={HOLDVARS}
-
-export CENLO={domlon}
-export CENLA={domlat}
-
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
-    export EXPT={EXPT}
-    export SUBEXPT={SUBEXPT}
-    export WHERE_AM_I={ENVEQUIV}
-    export CDSAVE={CDSAVE}
-    export CDNOSCRUB={CDNOSCRUB}
-    export CDSCRUB={CDSCRUB}
-    export RUNhafs={RUNhafs}
+  export EXPT={EXPT}
+  export SUBEXPT={SUBEXPT}
+  export WHERE_AM_I={WHERE_AM_I}
+  export CDSAVE={CDSAVE}
+  export CDNOSCRUB={CDNOSCRUB}
+  export CDSCRUB={CDSCRUB}
+  export RUNhafs={RUNhafs}
 fi
 

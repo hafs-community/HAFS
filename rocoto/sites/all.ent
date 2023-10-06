@@ -7,8 +7,5 @@
 <!ENTITY % xjet             SYSTEM      "xjet.ent">
 <!ENTITY % kjet             SYSTEM      "kjet.ent">
 <!ENTITY % hera             SYSTEM      "hera.ent">
-<!ENTITY % theia            SYSTEM      "theia.ent">
-<!ENTITY % wcoss            SYSTEM      "wcoss.ent">
-<!ENTITY % wcosscray        SYSTEM      "wcoss_cray.ent">
-<!ENTITY % wcoss_dell_p3    SYSTEM      "wcoss_dell_p3.ent">
-<!ENTITY % yellowstone      SYSTEM      "yellowstone.ent">
+<!ENTITY % orion            SYSTEM      "orion.ent">
+<!ENTITY % wcoss2           SYSTEM      "wcoss2.ent">

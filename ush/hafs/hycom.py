@@ -1,9 +1,11 @@
+#! /usr/bin/env python3
 
 """HYCOM related initialization and post-processing jobs."""
 
 import re, sys, os, glob, datetime, math, fractions, collections, subprocess
 import tarfile
 import produtil.fileop, produtil.log
+import produtil.cluster
 import tcutil.numerics, hafs.input, hafs.namelist
 import hafs.hafstask, hafs.exceptions
 import time, shutil
@@ -98,7 +100,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         logger=self.log()
         self.hycom_settings=FileProduct(
             self.dstore,'hycom_settings',self.taskname,location=
-            self.confstrinterp('{com}/{out_prefix}.hycom_settings'))
+            self.confstrinterp('{com}/{out_prefix}.{RUN}.hycom_settings'))
 
         # prodnameA and prodnameB are three-hourly:
         fhrs=list(range(int(self.fcstlen+25.001)))
@@ -108,10 +110,10 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         self.init_file2a=TimeArray(atime,ftimes[-1],3*3600.0)
         self.init_file2b=TimeArray(atime,ftimes[-1],3*3600.0)
         for ftime in ftimes:
-            prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
-            filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
-            prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
-            filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
+            prodnameA=self.timestr('hycom.{fahr:03d}.a',ftime,atime)
+            filepathA=self.timestr('{com}/{out_prefix}.{RUN}.{pn}',pn=prodnameA)
+            prodnameB=self.timestr('hycom.{fahr:03d}.b',ftime,atime)
+            filepathB=self.timestr('{com}/{out_prefix}.{RUN}.{pn}',pn=prodnameB)
             self.init_file2a[ftime]=FileProduct(
                 self.dstore,prodnameA,self.taskname,location=filepathA)
             self.init_file2b[ftime]=FileProduct(
@@ -129,7 +131,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
 
         self.blkdat_input=FileProduct(
             self.dstore,'blkdat.input',self.taskname,location=
-            self.confstrinterp('{com}/{out_prefix}.standalone.blkdat.input'))
+            self.confstrinterp('{com}/{out_prefix}.{RUN}.hycom.blkdat.input'))
 
     def last_lead_time_today(self,cychour):
         if cychour<6: return 0
@@ -222,6 +224,7 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
             with NamedDir(self.workdir,keep=not self.scrub,
                           logger=logger,rm_first=True) as d:
                 self.select_domain(logger)
+                produtil.fileop.makedirs(self.timestr('{com}'),logger=logger)
                 self.hycom_settings.deliver(frominfo='./hycom_settings')
 
                 # Deliver hycom_settings to intercom
@@ -244,16 +247,16 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 atime=to_datetime(self.conf.cycle)
                 ftime=to_datetime_rel(0*3600,atime)
                 prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
-                filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
+                filepathA=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameA)
                 prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
-                filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
+                filepathB=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameB)
                 deliver_file(prodnameA,filepathA,keep=True,logger=logger)
                 deliver_file(prodnameB,filepathB,keep=True,logger=logger)
 
                 # Deliver restart files to com
                 for(prodname,prod) in self.restart_out.items():
                     (local,ab)=prodname.split('.')
-                    loc=self.timestr('{'+local+'}',ab=ab,RUNmodIDout=RUNmodIDout)
+                    loc=self.timestr('{'+local+'}',ab=ab,RUNmodIDout='{RUN}.hycom')
                     prod.deliver(location=loc,frominfo=prodname,
                                  keep=True,logger=logger)
 
@@ -264,9 +267,9 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                     deliver_file(prodname,locintercom,keep=True,logger=logger)
 
                 # Make the flag file to indicate we're done.
-                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycominit1.done')
-                with open(done,'wt') as f:
-                    f.write('hycominit1 done for this cycle\n')
+               #done=self.timestr('{com}/{out_prefix}.{RUN}.hycominit1.done')
+               #with open(done,'wt') as f:
+               #    f.write('hycominit1 done for this cycle\n')
 
                 # Make sure we run coupled:
                 self.run_coupled=True
@@ -304,21 +307,24 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
         self.rtofs_spin(logger)
 
     def select_domain(self,logger):
-        atmos_lon=self.conffloat('domlon','cenlo',section='config')
-        # Fit lon within [-180,180)
-        atmos_lon=(3600+int(round(atmos_lon))+180)%360-180
+        hycom_domain=self.confstr('hycom_domain','small')
         basin=self.storminfo.pubbasin2
-        nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-        if basin=='AL':
+        if hycom_domain=='large' and basin in ['AL', 'EP', 'CP', 'SL', 'LS']:
+            Application='nhc_basin'
+        elif hycom_domain=='large' and basin in ['WP', 'IO']:
+            Application='jtnh_basin'
+        elif hycom_domain=='large' and basin in ['SH', 'SP', 'SI']:
+            Application='jtsh_basin'
+        elif basin=='AL':
             Application='hat10_basin'
+        elif basin=='EP':
+            Application='hep20_basin'
         elif basin=='CP':
             Application='hcp70_basin'
-        elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
-            Application='hep20_basin'
-        elif nhbasin and atmos_lon>100:
+        elif basin=='WP':
             Application='hwp30_basin'
-        elif nhbasin and atmos_lon>20 and atmos_lon<=100:
+        elif basin=='IO':
             Application='hin40_basin'
         elif basin in [ 'SL', 'LS' ]:
             Application='hsn50_basin'
@@ -738,7 +744,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         for ffile in ffiles:
             for ab in 'ab':
                 file='forcing.%s.%s'%(ffile,ab)
-                comf=self.confstrinterp('{com}/{out_prefix}.'+file)
+                comf=self.confstrinterp('{com}/{out_prefix}.{RUN}.'+file)
                 prod=FileProduct(self.dstore,file,self.taskname,location=comf)
                 prod.location=comf
                 self.forcing_products[file]=prod
@@ -746,11 +752,11 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
 
         self.limits=FileProduct(
             self.dstore,'limits',self.taskname,location=
-            self.confstrinterp('{com}/{out_prefix}.limits'))
+            self.confstrinterp('{com}/{out_prefix}.{RUN}.hycom.limits'))
 
         self.blkdat_input=FileProduct(
             self.dstore,'blkdat.input',self.taskname,location=
-            self.confstrinterp('{com}/{out_prefix}.standalone.blkdat.input'))
+            self.confstrinterp('{com}/{out_prefix}.{RUN}.hycom.blkdat.input'))
 
     def make_forecast_forcing(self,logger):
         cyc=self.conf.cycle
@@ -793,8 +799,8 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 self.make_forecast_forcing(logger)
 
                 # Deliver the forcing files to com
-                for (name,prod) in self.forcing_products.items():
-                    prod.deliver(frominfo='./'+name)
+               #for (name,prod) in self.forcing_products.items():
+               #    prod.deliver(frominfo='./'+name)
 
                 # Deliver the forcing files to intercom
                 produtil.fileop.makedirs(self.timestr('{intercom}/hycominit'),logger=logger)
@@ -802,12 +808,16 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                     locintercom=self.timestr('{intercom}/hycominit/'+name)
                     deliver_file(name,locintercom,keep=True,logger=logger)
 
-                self.limits.deliver(frominfo='./limits')
+                # Deliver limits to com
+               #self.limits.deliver(frominfo='./limits')
 
-                # Make the flag file to indicate we're done.
-                done=self.timestr('{com}/{vit[stnum]:02d}{vit[basin1lc]}.hycominit2.done')
-                with open(done,'wt') as f:
-                    f.write('hycominit2 done for this cycle\n')
+                # Deliver limits to intercom
+                deliver_file('./limits',self.timestr('{intercom}/hycominit/limits'),keep=True,logger=logger)
+
+               ## Make the flag file to indicate we're done.
+               #done=self.timestr('{com}/{out_prefix}.${RUN}.hycominit2.done')
+               #with open(done,'wt') as f:
+               #    f.write('hycominit2 done for this cycle\n')
 
                 # Make sure we run coupled:
                 self.run_coupled=True
@@ -822,21 +832,24 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
             raise
 
     def select_domain(self,logger):
-        atmos_lon=self.conffloat('domlon','cenlo',section='config')
-        # Fit lon within [-180,180)
-        atmos_lon=(3600+int(round(atmos_lon))+180)%360-180
+        hycom_domain=self.confstr('hycom_domain','small')
         basin=self.storminfo.pubbasin2
-        nhbasin = basin in ('AL', 'EP', 'CP', 'WP', 'IO')
         Application=None
-        if basin=='AL':
+        if hycom_domain=='large' and basin in ['AL', 'EP', 'CP', 'SL', 'LS']:
+            Application='nhc_basin'
+        elif hycom_domain=='large' and basin in ['WP', 'IO']:
+            Application='jtnh_basin'
+        elif hycom_domain=='large' and basin in ['SH', 'SP', 'SI']:
+            Application='jtsh_basin'
+        elif basin=='AL':
             Application='hat10_basin'
+        elif basin=='EP':
+            Application='hep20_basin'
         elif basin=='CP':
             Application='hcp70_basin'
-        elif nhbasin and atmos_lon>-180 and atmos_lon<=20:
-            Application='hep20_basin'
-        elif nhbasin and atmos_lon>100:
+        elif basin=='WP':
             Application='hwp30_basin'
-        elif nhbasin and atmos_lon>20 and atmos_lon<=100:
+        elif basin=='IO':
             Application='hin40_basin'
         elif basin in [ 'SL', 'LS' ]:
             Application='hsn50_basin'
@@ -937,6 +950,8 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         atime=atime0
         rinput=self.rtofs_inputs
         glocset=0
+        maxwait=self.confint('max_grib_wait',900)
+        sleeptime=self.confint('grib_sleep_time',20)
         for itry in range(0,-10,-1):
             if time>atime+epsilon:
 
@@ -951,18 +966,21 @@ export gridno={gridno}\n'''.format(**self.__dict__))
                             repr(atmosds),repr(grid),repr(time),
                             repr(gloc)))
                     return (gloc)
-                if itry<=-9:
-                    if wait_for_files([gloc],logger=logger,maxwait=60,sleeptime=5):
+                if itry<=0:
+                    if wait_for_files([gloc],logger=logger,maxwait=maxwait,sleeptime=sleeptime):
                        logger.info('%s %s %s => %s'%(
                             repr(atmosds),repr(grid),repr(time),
                             repr(gloc)))
                        return (gloc)
                     else:
-                       logger.warning('%s : do not exist or empty'%(gloc))
+                       msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(gloc,maxwait)
+                       logger.error(msg)
+                       raise hafs.exceptions.NoOceanData(msg)
+                       sys.exit(2)
             else:
                 logger.warning('%s<=%s+%s'%(repr(time),repr(atime),repr(epsilon)))
             atime=atime-sixhrs
-        msg='Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
+        msg='FATAL ERROR: Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
         self.log().error(msg)
         raise hafs.exceptions.NoOceanData(msg)
 
@@ -994,7 +1012,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         grb2index=alias(exe(self.getexe('grb2index')))
         wgrib2loc=self.getexe('wgrib2')
         grb2indexloc=self.getexe('grb2index')
-        if os.path.isdir(grb2indexloc): 
+        if os.path.isdir(grb2indexloc):
             grb2indexloc=grb2indexloc+"/grb2index"
 
         if mode=='anal':
@@ -1072,12 +1090,11 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
         mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
         if mpiserial_path=='*MISSING*':
-             mpiserial_path=self.getexe('mpiserial','*MISSING*')
+            mpiserial_path=self.getexe('mpiserial','*MISSING*')
         if mpiserial_path=='*MISSING*':
-             mpiserial_path=produtil.fileop.find_exe('mpiserial')
+            mpiserial_path=produtil.fileop.find_exe('mpiserial')
         cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
         checkrun(cmd2)
-
 
         with open('listflx.dat','wt') as listflxf:
             listflxf.write(''.join(listflx))
@@ -1096,28 +1113,21 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         with open('jpdt_table.dat','wt') as j:
             j.write('''8 8 0 0 8 0 0 0 0 8 8 8 8 0 0 0''')
         cmd=self.getexe('hafs_gfs2ofs2')
-        commands=list()
-        for i in range(1,11):
-          gfs2ofs_in='gfs2ofs.%d.in'%i
-          gfs2ofs_out='gfs2ofs.%d.out'%i
-          with open (gfs2ofs_in,'wt') as f:
-              f.write("""%d\n"""%(i))
-          #commands.append ( (hafs_gfs2ofs<gfs2ofs_in)>gfs2ofs_out )
-          commands.append('%s < %s > %s 2>&1\n'%(cmd,gfs2ofs_in,gfs2ofs_out)) 
-
-        with open('command.file2.preview','wt') as cfpf:
-            cfpf.write(''.join(commands))
-
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofs2 %d ',tt)
+        commands=list()
+        for i in range(1,11):
+            gfs2ofs_out='gfs2ofs.%d.out'%i
+            commands.append('%s %d > %s 2>&1\n'%(cmd,i,gfs2ofs_out))
+        with open('command.file.preview_gfs2ofs','wt') as fid:
+            fid.write(''.join(commands))
         mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
         if mpiserial_path=='*MISSING*':
              mpiserial_path=self.getexe('mpiserial','*MISSING*')
         if mpiserial_path=='*MISSING*':
              mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file2.preview'],allranks=True)
+        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
         checkrun(cmd2)
-
         self.ofs_timeinterp_forcing(logger)
 
     def ofs_forcing_info(self,filename):
@@ -1306,6 +1316,29 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
     def __init__(self,dstore,conf,section,fcstlen=126,**kwargs):
         super(HYCOMPost,self).__init__(dstore,conf,section,**kwargs)
         self.fcstlen=fcstlen
+        self._ncks_path=False
+
+    def copy_ncks(self,source,target):
+        ncks=self.ncks_path
+        logger=self.log()
+        produtil.fileop.remove_file(target,logger=logger)
+        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+                 logger=logger)
+
+    @property
+    def ncks_path(self):
+        """Returns the path to ncks.  Returns None if ncks cannot be
+        found.  This function will only search for ncks once, and will
+        cache the result.  Set self._ncks_path=False to force a
+        recheck."""
+        if self._ncks_path is False:
+            ncks=self.getexe('ncks','')
+            if not self._ncks_path:
+                ncks=produtil.fileop.find_exe('ncks',raise_missing=False)
+            assert(ncks is None or
+                   (isinstance(ncks,str) and ncks!=''))
+            self._ncks_path=ncks
+        return self._ncks_path
 
     def run(self):
       """Called from the ocean post job to run the HyCOM post."""
@@ -1321,7 +1354,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
         opn=self.timestr('{out_prefix_nodate}')
 
         # get hycom subdomain specs from hycom_settings file
-        hycomsettingsfile=self.timestr('{com}/{out_prefix}.hycom_settings')
+        hycomsettingsfile=self.timestr('{com}/{out_prefix}.{RUN}.hycom_settings')
         with open (hycomsettingsfile,'rt') as hsf:
           for line in hsf:
             m=re.match('^export idm=(.*)$',line)
@@ -1361,9 +1394,9 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
         atime=to_datetime(self.conf.cycle)
         ftime=to_datetime_rel(0*3600,atime)
         prodnameA=self.timestr('hafs_basin.{fahr:03d}.a',ftime,atime)
-        filepathA=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameA)
+        filepathA=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameA)
         prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
-        filepathB=self.timestr('{com}/{out_prefix}.{pn}',pn=prodnameB)
+        filepathB=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameB)
         if not os.path.exists(filepathA):
             logger.error('Cannot find file %s - exiting'%(filepathA))
             raise
@@ -1400,11 +1433,12 @@ NetCDF
                     for src,targ in replacements.items():
                         line=line.replace(src,targ)
                     outf.write(line)
-        outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+        outfile='%s.hycom.3z.f%03d'%(self.timestr('{out_prefix}.{RUN}'),navtime)
         outfileNC=outfile+'.nc'
         archv2data=alias(exe(self.getexe('hafs_archv3z2nc')).env(CDF051=outfileNC))
         checkrun(archv2data<'infile',logger=logger)
-        deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+       #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+        self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
         navtime=3
         epsilon=.1
@@ -1460,15 +1494,12 @@ NetCDF
                             for src,targ in replacements.items():
                                 line=line.replace(src,targ)
                             outf.write(line)
-                outfile='%s.%04d%02d%02d%02d.hafs_%s_3z.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+                outfile='%s.hycom.3z.f%03d'%(self.timestr('{out_prefix}.{RUN}'),navtime)
                 outfileNC=outfile+'.nc'
                 archv2data=alias(exe(self.getexe('hafs_archv2data3z')).env(CDF051=outfileNC))
                 checkrun(archv2data<'infile',logger=logger)
-                deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
-                # deliver ab files to comout
-                notabout='hafs_%s.%s'%(RUNmodIDout,archtimestring)
-                deliver_file('../../forecast/'+notabin+'.a',self.icstr('{com}/{out_prefix}.'+notabout+'.a',keep=True,logger=logger))
-                deliver_file('../../forecast/'+notabin+'.b',self.icstr('{com}/{out_prefix}.'+notabout+'.b',keep=True,logger=logger))
+               #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+                self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
             # convert 3-hrly archs.[ab] to .nc
             notabin='archs.%s'%(archtimestring)
@@ -1518,11 +1549,12 @@ NetCDF
                         for src,targ in replacements.items():
                             line=line.replace(src,targ)
                         outf.write(line)
-            outfile='%s.%04d%02d%02d%02d.hafs_%s_2d.f%03d'%(opn,int(stime.year),int(stime.month),int(stime.day),int(stime.hour),RUNmodIDout,navtime)
+            outfile='%s.hycom.2d.f%03d'%(self.timestr('{out_prefix}.{RUN}'),navtime)
             outfileNC=outfile+'.nc'
             archv2data=alias(exe(self.getexe('hafs_archv2data2d')).env(CDF001=outfileNC))
             checkrun(archv2data<'infile',logger=logger)
-            deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+           #deliver_file(outfileNC,self.icstr('{com}/'+outfileNC),keep=False,logger=logger)
+            self.copy_ncks(outfileNC,self.icstr('{com}/'+outfileNC))
 
             # this is the frequency of files
             navtime+=3

@@ -4,8 +4,9 @@ import os, sys, logging
 import produtil.setup
 import produtil.fileop
 import produtil.datastore
-from produtil.fileop import remove_file, make_symlink
+from produtil.fileop import remove_file, make_symlink, deliver_file
 from produtil.run import *
+import time
 produtil.setup.setup(send_dbn=False)
 
 logger=logging.getLogger('gfs2ofsinputs')
@@ -71,6 +72,9 @@ checkrun(wgrib2[flxfile+'.in2',"-i",'-grib',flxfile+'.in3']
 checkrun(wgrib2[flxfile+'.in3',"-new_grid_winds","earth",
    "-new_grid","gaussian","0:1440:0.25","89.75:720",flxfile+'.in4']
    ,logger=logger)
-os.rename(flxfile+'.in4',flxfile)
-checkrun(grb2index[flxfile,flxfile+'.idx'])
+#os.rename(flxfile+'.in4',flxfile) # Before flxfile+'.in4' written, rename executing, throws error on WCOSS2(BT)
+#Replacing os.rename with  produtil.fileop.deliver_file(BT)
+deliver_file(flxfile+'.in4',flxfile,keep=True,logger=logger)
+checkrun(grb2index[flxfile,flxfile+'.idx']) # Giving a non zero exit status(not sure exit status reliable?)
+#run(grb2index[flxfile,flxfile+'.idx'])
 

@@ -7,6 +7,9 @@ program intp
 !                                       September 03 B.B February 04 .c.l.. 
 !                                       July 24 Avichal Mehra
 !                                       June 1, 2006: Avichal Mehra & Ilya Rivin
+! UPDATED : Biju Thomas on May 27, 2022
+!          Different unit file numbers(LUGB) for different grib2 file(prevents error, code 97, in getgb2() routine)
+!          Use getarg() function to read command line arguments instead redirected piping
 ! ABSTRACT: THIS PROGRAM INTERPOLATES MRF SURFACE FIELDS INTO HYCOM 
 !   GRID AND WRITES THE RESULTS IN HYCOM-STYLE FILES. 
 !
@@ -162,6 +165,7 @@ integer, dimension(200) :: gds
 integer, dimension(8) :: date_time
 integer, dimension(4) :: kpds
 real,dimension(5000000)      :: xgfld
+character(len=100) :: arg
 data jdisc_num/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2/
 !
 !
@@ -201,7 +205,16 @@ data jdisc_num/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2/
     nhycom=10
   elseif ( flxflg == flxflg_one ) then
     nhycom=1
-    read (5,*) nflux
+    if (iargc() < 1) then
+       write(*,'(a)') "Error: no command line arguments with gfs2ofs2"
+       write(*,'(a)') "usage: ./gfs2ofs2 arg"
+       write(*,'(a)') "error stop STOP"
+       stop
+    endif
+    call getarg(1,arg)
+    read(arg,*)nflux
+!    read (5,*) nflux
+    print*,'nflux = ',nflux
   else
      write(*,*) '=== ERROR in interpolation: wrong flag flxflg=',flxflg
      stop
@@ -461,7 +474,7 @@ timeloop: do m=1,ntime
 !
 !   Get MRF grid parameters (before  20021029.t12Z: 512x256, after: 768x384)
 
-    call rdgrib(81,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,0,xpts,ypts)
+    call rdgrib(99+m*2,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,0,xpts,ypts)
     nxmrf=xpts ; 
     nymrf=ypts
     nymrf2=nymrf/2 
@@ -511,12 +524,13 @@ timeloop: do m=1,ntime
 !
 !     Establish MRF mask (land=0,sea=1). 
 !
-      print *,'--- Changing MRF mask'; call flush(6)
-      call mask_mrf(82,intrp,trim(mrfnames(1)),kpds567(:,nmrf),mskfrac,nextrap_max,msk_in &
- &      ,imsk_hycom,mskmrf_tmp,nextrap,mapflg,exhycom2d,eyhycom2d)
-      if(nextrap>=nextrap_max) then
-        print *,'ERROR: nextrap>=nextrap_max, nextrap=',nextrap,' nextrap_max=',nextrap_max
-      endif
+! hsk: skilpping mask
+!      print *,'--- Changing MRF mask'; call flush(6)
+!      call mask_mrf(82,intrp,trim(mrfnames(1)),kpds567(:,nmrf),mskfrac,nextrap_max,msk_in &
+! &      ,imsk_hycom,mskmrf_tmp,nextrap,mapflg,exhycom2d,eyhycom2d)
+!      if(nextrap>=nextrap_max) then
+!        print *,'ERROR: nextrap>=nextrap_max, nextrap=',nextrap,' nextrap_max=',nextrap_max
+!      endif
     endif
 ! 
 !   Read MRF fluxes from GRIB
@@ -581,7 +595,7 @@ timeloop: do m=1,ntime
                jpdtno=jpdt_num(7)
                jdiscno=jdisc_num(7)
       endif
-      CALL rdgrib(82,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,1,xpts,ypts)
+      CALL rdgrib(499+m*2,TRIM(mrfnames(m)),xgfld,kpds,jpdtno,jdiscno,1,xpts,ypts)
       mrfflx=reshape(source=xgfld,shape=SHAPE(mrfflx))
       mrfflxs(:,:,i)=mrfflx
       print*,'MRF fluxes: i,min,max=',i,minval(mrfflxs(:,:,i)),maxval(mrfflxs(:,:,i))

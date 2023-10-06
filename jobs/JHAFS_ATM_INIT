@@ -4,69 +4,92 @@ date
 export PS4='+ $SECONDS + '
 set -xue
 
-export HOMEhafs=${HOMEhafs:?}
-export USHhafs=${USHhafs:-${HOMEhafs}/ush}
-export EXEChafs=${EXEChafs:-${HOMEhafs}/exec}
-export PARMhafs=${PARMhafs:-${HOMEhafs}/parm}
-export FIXhafs=${FIXhafs:-${HOMEhafs}/fix}
+export cycle=${cycle:-t${cyc:?}z}
+export storm_num=${storm_num:-1}
+export stormlabel=${stormlabel:-storm$storm_num}
+export hafs_ver=${hafs_ver:?}
+export NET=${NET:?}
+export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
 
-source ${USHhafs}/hafs_pre_job.sh.inc
-source ${HOLDVARS:-storm1.holdvars.txt}
+export SENDCOM=${SENDCOM:-YES}
+export SENDDBN=${SENDDBN:-NO}
+export SENDECF=${SENDECF:-NO}
+export EMAIL_SDM=${EMAIL_SDM:-NO}
+export SCRUBDATA=${SCRUBDATA:-YES}
+# HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
+#export KEEPDATA=${KEEPDATA:-YES}
+export KEEPDATA=YES
 
-export machine=${WHERE_AM_I:-wcoss_cray}
-export envir=${envir:-prod} # prod, para, test
-export RUN_ENVIR=${RUN_ENVIR:-dev} # nco or dev
-if [ "${RUN_ENVIR^^}" != NCO ]; then
-  module use ${HOMEhafs}/sorc/hafs_forecast.fd/modulefiles
-  module load ufs_${machine}
+export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
+export USHhafs=$HOMEhafs/ush
+export EXEChafs=$HOMEhafs/exec
+export PARMhafs=$HOMEhafs/parm
+export FIXhafs=$HOMEhafs/fix
+
+export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
+
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  # Detect platform and load modules if not run by NCO
+  source ${USHhafs}/hafs_pre_job.sh.inc
+  export machine=${WHERE_AM_I:-wcoss2}
   module list
+else
+  # Run by NCO on WCOSS2
+  export machine=${WHERE_AM_I:-wcoss2}
+  # Prepend $USHhafs to python package search path
+  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+  # Initialize PDY
+# setpdy.sh # only needed for the launch job
+  # Get PDY
+  source ${WORKhafs}/PDY
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-# Run setpdy and initialize PDY variables
-#setpdy.sh
-#. ./PDY
-export PDY=${PDY:-$(echo ${YMDH} | cut -c 1-8 )}
+env
 
-export WORKhafs=${WORKhafs:?}
-export COMIN=${COMIN:?}
-export COMOUT=${COMOUT:?}
-export COMhafs=${COMhafs:-${COMOUT}}
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
+
+source ${HOLDVARS}
+
+export ENSDA=${ENSDA:-NO}
+export ENSID=${ENSID:-000}
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
+export RUN_INIT=YES
 
 export CDATE=${CDATE:-${YMDH}}
-export cyc=${cyc:?}
-export STORM=${STORM:-FAKE}
-export STORMID=${STORMID:-00L}
-export ENSDA=${ENSDA:-NO}
-
-# Deterministic or ensemble
-if [ "${ENSDA}" != YES ]; then
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  export DATA=${WORKhafs}/atm_init
-  export RESTARTout=${COMhafs}/RESTART_init
-else
-  export ENSID=${ENSID:-001}
-  export FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  export INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}
-  export RESTARTout=${COMhafs}/RESTART_init_ens/mem${ENSID}
+if [ ${FGAT_MODEL} = gdas ]; then
+  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+  export out_prefix="${STORMID,,}.${CDATE}"
 fi
 
-#export NHRS=$(echo "${dt_atmos}/3600" | bc -l)
-export NHRS=$(awk "BEGIN {print ${dt_atmos}/3600*2}")
-export restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
-export warm_start_opt=0
-export RUN_GSI=NO
-export RUN_GSI_VR=NO
-export RUN_GSI_VR_ENS=NO
-export RUN_ENKF=NO
-export run_ocean=no
+if [ "${ENSDA}" = YES ]; then
+  export DATAinit=${WORKhafs}/atm_init_ens
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}
+else
+  export DATAinit=${WORKhafs}/atm_init
+fi
 
-export SCRUBDATA=${SCRUBDATA:-YES}
-if [ "${SCRUBDATA}" = YES ]; then
-  rm -rf $DATA
+if [ "${SCRUBDATA:-YES}" = YES ]; then
+  rm -rf $DATAinit
+fi
+mkdir -p $DATAinit
+cd $DATAinit
+
+#===============================================================================
+# forecast
+
+if [ "${ENSDA}" = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+else
+  export DATA=${WORKhafs}/atm_init/forecast
 fi
 
 mkdir -p $DATA
@@ -74,12 +97,94 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_forecast.sh
-export err=$?
-exit $err
+status=$?; [[ $status -ne 0 ]] && exit $status
 
-export KEEPDATA=${KEEPDATA:-YES}
-if [ "${KEEPDATA^^}" != YES ]; then
-  rm -rf $DATA
+#===============================================================================
+# post
+
+export TOTAL_TASKS=240
+export OMP_NUM_THREADS=1
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+if [ ${ENSDA} = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/post
+else
+  export DATA=${WORKhafs}/atm_init/post
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_post.sh
+status=$?; [[ $status -ne 0 ]] && exit $status
+
+#===============================================================================
+# product
+
+export OMP_NUM_THREADS=1
+export APRUNC=${APRUNS}
+
+if [ ${ENSDA} = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/product
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/product
+else
+  export DATA=${WORKhafs}/atm_init/product
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
+rm -f cmdfile_product
+# Loop for grids/domains to prepare the cmdfile
+for ng in $(seq 1 ${ngrids}); do
+  if [[ $ng -eq 1 ]]; then
+    neststr=""
+    tilestr=".tile1"
+  else
+    neststr=".nest$(printf '%02d' ${ng})"
+    tilestr=".tile$(printf '%d' ${ng})"
+  fi
+  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
+        ${HOMEhafs}/scripts/exhafs_product.sh \
+        > run_product.${gridstr}.log 2>&1" >> cmdfile_product
+done
+chmod +x cmdfile_product
+${APRUNC} ${MPISERIAL} -m cmdfile_product
+status=$?; [[ $status -ne 0 ]] && exit $status
+
+# Check if product/tracker run successfully
+for ng in $(seq 1 ${ngrids}); do
+  if [[ $ng -eq 1 ]]; then
+    neststr=""
+  else
+    neststr=".nest$(printf '%02d' ${ng})"
+  fi
+  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  cat ./run_product.${gridstr}.log
+  if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
+    echo "INFO: successfully ran run_product.${gridstr}"
+  else
+    echo "FATAL ERROR: failed running run_product.${gridstr}"
+    exit 1
+  fi
+done
+
+#===============================================================================
+# Cleanup DATA dir
+cd ${WORKhafs}
+if [ "${KEEPDATA:-YES}" != "YES" ]; then
+  rm -rf $DATAinit
 fi
 
 date

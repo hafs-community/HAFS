@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 """
-SCRIPT:   
+SCRIPT:
 
    opptcv_format.py
 
-AUTHOR: 
+AUTHOR:
 
    Henry R. Winterbottom; 27 November 2019
 
@@ -27,7 +27,7 @@ ABSTRACT:
 
 USAGE:
 
-   python opptcv_format.py 
+   python opptcv_format.py
 
      --ncep_trkr_filename <a string specifying the path to the file
                            containing the NCEP TC tracker output
@@ -78,7 +78,7 @@ class ObsPreProcTCV(object):
     """
 
     def __init__(self, opts_obj):
-        """ 
+        """
         DESCRIPTION:
 
         Creates a new ObsPreProcTCV object.
@@ -331,15 +331,15 @@ class ObsPreProcTCV(object):
         accompanied by their TC-vitals record(s) counterparts; the
         column-delimited output for the file is as follows:
 
-        1. <TC event> <TCV latitude (degrees N)> 
+        1. <TC event> <TCV latitude (degrees N)>
         2. <NCEP tracker latitude (degrees N)>
-        3. <TCV longitude (degrees W)> 
+        3. <TCV longitude (degrees W)>
         4. <NCEP tracker longitude (degrees W)>
         5. <TCV minimum central pressure (hPa)>
         6. <NCEP tracker minimum central pressure (hPa)>
-        7. <TCV maximum wind speed (meters per second)> 
-        8. <NCEP tracker maximum wind speed (meters per second)> 
-        
+        7. <TCV maximum wind speed (meters per second)>
+        8. <NCEP tracker maximum wind speed (meters per second)>
+
 	Note: write out the records only if the forecasted and observed storm
 	centers are 0.2 degree away from each other.
 
@@ -475,7 +475,7 @@ class ObsPreProcTCVOptions(object):
 
 
 def main():
-    """ 
+    """
     DESCRIPTION:
 
     This is the driver-level method to invoke the tasks within this

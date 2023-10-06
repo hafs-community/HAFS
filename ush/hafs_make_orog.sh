@@ -17,7 +17,7 @@ if [ $nargv -eq 6 ];  then  # lat-lon grid
   TMPDIR=$6
   workdir=$TMPDIR/latlon/orog/latlon_${lonb}x${latb}
 elif [ $nargv -eq 7 ]; then  # cubed-sphere grid
-  res=$1 
+  res=$1
   lonb=$1
   latb=$1
   tile=$2
@@ -30,7 +30,7 @@ elif [ $nargv -eq 7 ]; then  # cubed-sphere grid
   TMPDIR=$7
   workdir=$TMPDIR/C${res}/orog/tile$tile
 elif [ $nargv -eq 8 ]; then  # input your own orography files
-  res=$1 
+  res=$1
   lonb=$1
   latb=$1
   tile=$2
@@ -55,14 +55,14 @@ indir=$hist_dir
 executable=${OROGEXEC:-$exec_dir/hafs_orog.x}
 if [ ! -s $executable ]; then
   echo "executable does not exist"
-  exit 1 
+  exit 1
 fi
 
 if [ ! -s $workdir ]; then mkdir -p $workdir ;fi
 if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
 
 #jcap is for Gaussian grid
-#jcap=`expr $latb - 2 `
+#jcap=$(($latb - 2))
 jcap=0
 NF1=0
 NF2=0
@@ -90,11 +90,11 @@ cp ${indir}/landcover30.fixed .
 #  uncomment next line to use the old gtopo30 data.
 #   cp ${indir}/gtopo30_gg.fine.nh  fort.235
 #  use gmted2020 data.
-cp ${indir}/gmted2010.30sec.int  fort.235
+cp -f ${indir}/gmted2010.30sec.int  fort.235
 if [ $inorogexist -eq 1 ]; then
    cp $inputorog .
-fi   
-     
+fi
+
 if [ $is_latlon -eq 0 ]; then
    cp ${griddir}/$OUTGRID .
 fi
@@ -104,7 +104,7 @@ echo  $mtnres $lonb $latb $jcap $NR $NF1 $NF2 $efac $blat > INPS
 echo $OUTGRID >> INPS
 echo $orogfile >> INPS
 cat INPS
-time $executable < INPS
+${APRUNO} $executable < INPS
 
 if [ $? -ne 0 ]; then
   echo "ERROR in running $executable "

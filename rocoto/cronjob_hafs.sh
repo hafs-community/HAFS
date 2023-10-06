@@ -2,47 +2,25 @@
 set -x
 date
 
-# NOAA WCOSS Dell Phase3
-#HOMEhafs=/gpfs/dell2/emc/modeling/noscrub/${USER}/save/HAFS
-#dev="-s sites/wcoss_dell_p3.ent -f"
-#PYTHON3=/usrx/local/prod/packages/python/3.6.3/bin/python3
-
-# NOAA WCOSS Cray
-#HOMEhafs=/gpfs/hps3/emc/hwrf/noscrub/${USER}/save/HAFS
-#dev="-s sites/wcoss_cray.ent -f"
-#PYTHON3=/opt/intel/intelpython3/bin/python3
-
-# NOAA RDHPCS Jet
-#HOMEhafs=/mnt/lfs4/HFIP/hwrfv3/${USER}/HAFS
-#dev="-s sites/xjet.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
-
-# MSU Orion
- HOMEhafs=/work/noaa/hwrf/save/${USER}/HAFS
- dev="-s sites/orion.ent -f"
- PYTHON3=/apps/intel-2020/intel-2020/intelpython3/bin/python3
-
-# NOAA RDHPCS Hera
-#HOMEhafs=/scratch1/NCEPDEV/hwrf/save/${USER}/HAFS
-#dev="-s sites/hera.ent -f"
-#PYTHON3=/apps/intel/intelpython3/bin/python3
+HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
+source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
-
 EXPT=$(basename ${HOMEhafs})
+opts="-t -f"
 
 #===============================================================================
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
 # Run all cycles of a storm
-#${PYTHON3} ./run_hafs.py ${dev} 2020 13L HISTORY config.EXPT=${EXPT} # Laura
+#./run_hafs.py ${opts} 2020 13L HISTORY config.EXPT=${EXPT} # Laura
 
 # Run specified cycles of a storm
-#${PYTHON3} ./run_hafs.py ${dev} 2020082506-2020082512 13L HISTORY \
+#./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \
 #   config.EXPT=${EXPT} config.SUBEXPT=${EXPT} # Laura
 
 # Run one cycle of a storm
- ${PYTHON3} ./run_hafs.py -t ${dev} 2020082512 13L HISTORY config.EXPT=${EXPT}
+ ./run_hafs.py ${opts} 2020082512 13L HISTORY config.EXPT=${EXPT}
 
 #===============================================================================
 
