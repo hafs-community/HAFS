@@ -11,15 +11,11 @@ Welcome to the HAFS User's Guide
    :maxdepth: 3
 
    Introduction
+   TechnicalOverview
    QuickStart
-   GuidanceDocs
-   CodeManagement
-   RepositoryManagement
-   Submodules
-   Workflow
-   Prerequisites
    ExtQuickStart
+   GitHubBasicSteps
    RegressionTest
-   BasicSteps
-   UsefulResources
    CDEPS
+   ReferenceMaterials
+   Glossary
