@@ -171,13 +171,15 @@ trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
+logf=$( ls -1 ${INPdir}/log*f${FHR3} || echo "MISSING" )
+postdone=${intercom}/post${nestdotstr}f${FHR3}
 # Check if post has processed this forecast hour previously
 if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
-   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
+   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/log.atm.f${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
-echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/log.atm.f${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -189,12 +191,13 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
 n=1
+hurf=${INPdir}/HURPRS${neststr}.GrbF${FHR2}
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
     sleep 1s
     break
   fi
@@ -209,14 +212,16 @@ else
 
 # Wait for model output
 n=1
+atmf=${INPdir}/atm${nestdotstr}f${FHR3}.nc
+sfcf=${INPdir}/sfc${nestdotstr}f${FHR3}.nc
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || \
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
     sleep 1s
     break
   fi
@@ -266,8 +271,7 @@ ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
 
 if [ ${satpost} = .true. ]; then
-# ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_satpost} ./postxconfig-NT.txt
   # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
@@ -285,7 +289,7 @@ if [ ${satpost} = .true. ]; then
     ${NLN} ${file} ./
   done
 else
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_nosat} ./postxconfig-NT.txt
 fi
 
 # Run post
@@ -301,7 +305,26 @@ fi
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
 
-if [ ${postgridspecs} = auto ]; then
+if [[ "$postgridspecs" == auto && "$outputgrid" == lambert_conformal ]] ; then
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f ${ng})
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f ${ng})
+  lon_span=$(echo ${output_grid_lon_span} | cut -d , -f ${ng})
+  lat_span=$(echo ${output_grid_lat_span} | cut -d , -f ${ng})
+  outputgrid_nx=$(echo ${output_grid_nx} | cut -d , -f ${ng})
+  outputgrid_ny=$(echo ${output_grid_ny} | cut -d , -f ${ng})
+  outputgrid_dx=$(echo ${output_grid_dx} | cut -d , -f ${ng})
+  outputgrid_dy=$(echo ${output_grid_dy} | cut -d , -f ${ng})
+  outputgrid_stdlat1=$(echo ${output_grid_stdlat1} | cut -d , -f ${ng})
+  outputgrid_stdlat2=$(echo ${output_grid_stdlat2} | cut -d , -f ${ng})
+  outputgrid_lon0=$(printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0"))
+  outputgrid_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
+
+  postgridspecs="lambert:$clon:$outputgrid_stdlat1:$outputgrid_stdlat2 $outputgrid_lon0:$outputgrid_nx:$outputgrid_dx $outputgrid_lat0:$outputgrid_ny:$outputgrid_dy"
+
+  unset clon clat lon_span lat_span outputgrid_nx outputgrid_ny
+  unset outputgrid_dx outputgrid_dy outputgrid_stdlat1 outputgrid_stdlat2
+  unset outputgrid_lon0 outputgrid_lat0
+elif [ ${postgridspecs} = auto ]; then
   clon=$(echo ${output_grid_cen_lon} | cut -d , -f 1)
   clat=$(echo ${output_grid_cen_lat} | cut -d , -f 1)
   lon_span=$(echo ${output_grid_lon_span} | cut -d , -f 1)
@@ -318,13 +341,29 @@ if [ ${postgridspecs} = auto ]; then
   latlon_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
   latlon_nlat=$(printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}"))
   postgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
-fi
+  unset clon clat lon_span lat_span latlon_dlon latlon_dlat latlon_lon0
+  unset latlon_nlon latlon_lat0 latlon_nlat
+fi # if [[ "$postgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
-if [ ${trakgridspecs} = auto ]; then
+if [[ "$trakgridspecs" == auto && "$outputgrid" == lambert_conformal ]] ; then
+  clon=$(echo ${output_grid_cen_lon} | cut -d , -f ${ng})
+  clat=$(echo ${output_grid_cen_lat} | cut -d , -f ${ng})
+  lon_span=$(echo ${trak_grid_lon_span} | cut -d , -f ${ng})
+  lat_span=$(echo ${trak_grid_lat_span} | cut -d , -f ${ng})
+  latlon_dlon=$(printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${ng}))
+  latlon_dlat=$(printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${ng}))
+  latlon_lon0=$(printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0"))
+  latlon_nlon=$(printf "%.0f" $(bc <<< "scale=6; ${lon_span}/${latlon_dlon}"))
+  latlon_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
+  latlon_nlat=$(printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}"))
+  trakgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
+  unset clon clat lon_span lat_span latlon_dlon latlon_dlat latlon_lon0
+  unset latlon_nlon latlon_lat0 latlon_nlat
+elif [ ${trakgridspecs} = auto ]; then
   trakgridspecs=${postgridspecs}
-fi
+fi # if [[ "$trakgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
-if [[ "$outputgrid" = "rotated_latlon"* ]]; then
+if [[ "$outputgrid" = "rotated_latlon"* || "$outputgrid" == lambert_conformal ]]; then
 
 # For rotated_latlon output grid
 # Convert from rotate lat-lon grib2 to regular lat-lon grib2

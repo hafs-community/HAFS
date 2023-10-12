@@ -25,7 +25,7 @@ fi
 #Determine machine and load modules
 set +x
 module use "${script_dir}/hafs_forecast.fd/modulefiles"
-module load "ufs_${MACHINE_ID}"
+module load "ufs_${MACHINE_ID}.${RT_COMPILER}"
 set -x
 
 #Set WW3 directory, switch, prep and post exes 

@@ -92,11 +92,13 @@
   <!ENTITY RUN_EMCGRAPHICS "@[RUN_EMCGRAPHICS:-NO]">
   <!ENTITY MAKE_MESH_ATM "@[MAKE_MESH_ATM]">
   <!ENTITY MAKE_MESH_OCN "@[MAKE_MESH_OCN]">
+  <!ENTITY RUN_PYGRAF "@[RUN_PYGRAF]">
 
   <!ENTITY ENS_SIZE "@[ENS_SIZE]">
   <!ENTITY ENSIDS "@[ENSIDS]">
 
   <!ENTITY gtype "@[gtype:-regional]">
+  <!ENTITY ATM_POST_RESOURCES "&@[ATM_POST_RESOURCES:-ATM_POST_STANDARD_RESOURCES];">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
   <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
 
@@ -949,6 +951,29 @@
     </dependency>
   </task>
 
+@** if RUN_PYGRAF==YES
+  <task name="pygraf" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_PYGRAF</command>
+    <jobname>hafs_pygraf_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_pygraf.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &PYGRAF_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <!-- Pygraf graphics are presently setup to run after all grib files are available -->
+      <and>
+        <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+        <metataskdep metatask="atm_post"/>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
   <task name="output" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_OUTPUT</command>
     <jobname>hafs_output_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1551,6 +1576,9 @@
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
 @** endif
+@** if RUN_PYGRAF==YES
+        <taskdep task="pygraf"/>
+@** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
 @** endif
@@ -1594,6 +1622,9 @@
 @** endif
 @** if RUN_EMCGRAPHICS==YES
         <taskdep task="emcgraphics"/>
+@** endif
+@** if RUN_PYGRAF==YES
+        <taskdep task="pygraf"/>
 @** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>

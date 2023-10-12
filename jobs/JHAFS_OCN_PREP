@@ -64,11 +64,39 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-if [[ "${run_docn:-no}" == yes ]]; then
+if [[ "${run_docn:-no}" == yes ]] ; then
   ${HOMEhafs}/scripts/exhafs_docn_prep.sh
   status=$?; [[ $status -ne 0 ]] && exit $status
-else
+fi
+
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
   ${HOMEhafs}/scripts/exhafs_ocn_prep.py
+  status=$?; [[ $status -ne 0 ]] && exit $status
+fi
+
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
+  if [ "${machine}" != wcoos2 ] ; then
+     module list
+     module unload esmf
+     module list
+     if [ "${machine}" == orion ] ; then
+        module use /work/noaa/hwrf/save/maristiz/modulefiles
+        module load modulefile.OBC.run.orion
+        export ESMFMKFILE=/work/noaa/hwrf/save/maristiz/miniconda3/envs/OBC_env/lib/esmf.mk
+     fi
+     if [ "${machine}" == hera ] ; then
+        module use /scratch1/NCEPDEV/hwrf/save/Maria.Aristizabal/modulefiles/
+        module load modulefile.OBC.run.hera
+        export ESMFMKFILE=/scratch1/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/OBC_env/lib/esmf.mk
+     fi
+     if [ "${machine}" == jet ] ; then
+        module use /mnt/lfs4/HFIP/hwrfv3/Maria.Aristizabal/modulefiles
+        module load modulefile.OBC.run.jet
+        export ESMFMKFILE=/mnt/lfs4/HFIP/hwrfv3/Maria.Aristizabal/miniconda3/envs/OBC_env/lib/esmf.mk
+     fi
+  fi
+  export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
+  ${HOMEhafs}/scripts/exhafs_ocn_prep.sh
   status=$?; [[ $status -ne 0 ]] && exit $status
 fi
 

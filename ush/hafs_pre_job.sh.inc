@@ -39,6 +39,10 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
+  if ( ! which sbatch > /dev/null 2>&1 ) ; then
+    # Script was run from a crontab.
+    export PATH=$PATH:/apps/slurm/default/bin
+  fi
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion
   if ( ! eval module help > /dev/null 2>&1 ) ; then

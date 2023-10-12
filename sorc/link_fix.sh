@@ -9,7 +9,7 @@ cwd=$(pwd)
 
 HOMEhafs=$(pwd)/..
 FIXhafs=${HOMEhafs}/fix
-FIXversion=20221219
+FIXversion=20230518
 mkdir -p ${FIXhafs}
 cd ${FIXhafs}
 mkdir -p fix_fv3
@@ -26,7 +26,7 @@ else
   exit 1
 fi
 
-for subdir in fix_am fix_aer fix_lut fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_vi fix_hycom fix_ww3 fix_cdeps;
+for subdir in fix_am fix_aer fix_lut fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_vi fix_hycom fix_mom6 fix_ww3 fix_cdeps;
 do
   if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     ln -sf ${FIXROOT}/${subdir} ./

@@ -64,8 +64,15 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
+${HOMEhafs}/scripts/exhafs_ocn_post.sh
+status=$?; [[ $status -ne 0 ]] && exit $status
+fi
+
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
 ${HOMEhafs}/scripts/exhafs_ocn_post.py
 status=$?; [[ $status -ne 0 ]] && exit $status
+fi
 
 # Cleanup DATA dir
 cd ${WORKhafs}
