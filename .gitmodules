@@ -14,7 +14,7 @@
     branch = develop
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
-    url = https://github.com/SamuelTrahanNOAA/gfdl-tracker.git
+    url = https://github.com/hafs-community/gfdl-tracker.git
 #   branch = support/HAFS
     branch = support/hafs.v1.1.0
 [submodule "sorc/hafs_gsi.fd"]
@@ -32,5 +32,5 @@
     branch = support/HAFS
 [submodule "sorc/hafs_graphics.fd/pygraf"]
     path = sorc/hafs_graphics.fd/pygraf
-    url = https://github.com/SamuelTrahanNOAA/pygraf
-    branch = hafs-ar
+    url = https://github.com/NOAA-GSL/pygraf
+    branch = arfs_dev
