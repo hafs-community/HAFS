@@ -112,6 +112,28 @@
   <!-- FORECAST_RESOURCES for CDEPS DATM with regional HYCOM coupling -->
   <!ENTITY FORECAST_RESOURCES_regional_10x8io1x40_ocn120_omp1 "<nodes>6:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:00:00</walltime>">
 
+
+
+  <!-- FORECAST_RESOURCES for multiple moving nests -->
+
+  <!ENTITY FORECAST_RESOURCES_140PE "<nodes>7:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>140</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_180PE "<nodes>9:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_160PE "<nodes>8:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>160</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_3540PE "<nodes>177:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3540</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4380PE "<nodes>219:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4380</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4440PE "<nodes>222:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4440</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4560PE "<nodes>228:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4560</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4360PE "<nodes>218:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4360</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4400PE "<nodes>220:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4400</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4480PE "<nodes>224:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4480</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_4320PE "<nodes>216:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4320</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY FORECAST_RESOURCES_2220PE "<nodes>111:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2220</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY FORECAST_RESOURCES_1820PE "<nodes>91:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1820</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
+  <!ENTITY FORECAST_RESOURCES_1420PE "<nodes>71:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1420</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
+
   <!-- FORECAST_RESOURCES for globnest HAFS -->
   <!ENTITY FORECAST_RESOURCES_globnest_6x4x4_10x8io1x4_omp2 "<nodes>9:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_globnest_6x4x4_5x4io1x4_omp2 "<nodes>6:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
