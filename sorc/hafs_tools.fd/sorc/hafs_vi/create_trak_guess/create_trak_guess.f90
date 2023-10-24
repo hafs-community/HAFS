@@ -19,8 +19,8 @@ program create_trak_guess
   implicit none
   character(len=2)      :: part1,num,basin,storm_num
   character(len=3)      :: part2,storm_id
-  character(len=1)      :: ns,ew
-  integer               :: idat,ihour,ifh,lat,lon,ih,j,stat
+  character(len=1)      :: ns,ew,ns2,ew2
+  integer               :: idat,ihour,ifh,lat,lon,ih,j,stat,idat2,ihour2,lat2,lon2
   integer,dimension(7)  :: lathr,lonhr
 
   integer               :: iargc
@@ -48,6 +48,10 @@ program create_trak_guess
   lathr=9999
   lonhr=9999
 
+  ! Read TCvital first
+  read(11,13) part2,idat2,ihour2,lat2,ns2,lon2,ew2
+  if(ns2.eq.'S')lat2=-lat2
+
   ! Reading fort.12 (previous HAFS forecast ATCF file)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
@@ -58,6 +62,10 @@ program create_trak_guess
     if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then
       lathr(ifh-2)=lat
       lonhr(ifh-2)=lon
+      ! Only for TCs near date line: near the date line (180E or 180W), longitude of tcvital (ew2) and
+      ! that of ATCF (ew) could be different. In this case, convent longitude as following.
+      ! Then, split.f90 will handle rest of things
+      if(ew2.ne.ew .and. lon.ne.9999) lonhr(ifh-2)=3600-lonhr(ifh-2)
     end if
     !If we find 9-h information or reach the end of file WITHOUT 9-h data, exit the do loop
     if(stat /= 0 .or. ifh.eq.9) exit
@@ -65,14 +73,12 @@ program create_trak_guess
 
   ! If there are no valid lat/lon locations from fort.12, then using the lat/lon
   ! values from fort.11 to fill the FGAT hours
-  read(11,13) part2,idat,ihour,lat,ns,lon,ew
-  if(ns.eq.'S')lat=-lat
   do ih=1,7,3
     if(abs(lathr(ih)).eq.9999 .or. abs(lonhr(ih)).eq.9999) then
       print*, 'ih,lathr(ih),lonhr(ih)=',ih,lathr(ih),lonhr(ih)
       print*, 'Using lat/lon from tcvitals to overwrite'
-      lathr(ih)=lat
-      lonhr(ih)=lon
+      lathr(ih)=lat2
+      lonhr(ih)=lon2
     endif
   enddo
 
