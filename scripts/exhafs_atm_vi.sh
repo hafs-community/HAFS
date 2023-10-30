@@ -60,6 +60,8 @@ else
   ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
   gesfhr=6
 fi
+# Convert 1800W to 1800E for date line TCs
+sed -i 's/1800W/1800E/g' ./tcvitals.vi
 tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
@@ -185,6 +187,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
+    # Convert 1800W to 1800E for date line TCs
+	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
     if grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
       echo "trak.atcfunix.tmp generated."
     else
@@ -290,6 +294,8 @@ if true; then
     ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
+    # Convert 1800W to 1800E for date line TCs
+	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
   else

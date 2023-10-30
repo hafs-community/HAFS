@@ -98,14 +98,14 @@ swath_grb2fhhh=${out_prefix}.${RUN}.${gridstr}.swath.f${FHR3}.grb2
 ${WGRIB2} ${COMhafs}/${grb2file} -match '(:GUST:)'           	-rpn "0:swap:merge" \
     -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
     -grib_out ${GUSTF}
-${WGRIB2} ${COMhafs}/${grb2file} -match '(:APCP:)'           	-rpn "0:swap:merge" -grib_out ${APCPF}
+${WGRIB2} ${COMhafs}/${grb2file} | grep ":APCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} 	-rpn "0:swap:merge" -grib_out ${APCPF}
 ${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "0:*" \
     -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
     -grib_out ${PRATEF}
 ${WGRIB2} ${COMhafs}/${grb2file} -match '(:WIND.*max)'       	-rpn "0:swap:merge" \
     -set_metadata_str "0:0:d=+0hr:WIND:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed [m/s]:" \
     -grib_out ${WINDMAXF}
-${WGRIB2} ${COMhafs}/${grb2file} -match '(:ACPCP:)'          	-rpn "0:swap:merge" -grib_out ${ACPCPF}
+${WGRIB2} ${COMhafs}/${grb2file} | grep ":ACPCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} -rpn "0:swap:merge" -grib_out ${ACPCPF}
 ${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "0:*" \
     -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
     -grib_out ${CPRATF}
@@ -144,7 +144,7 @@ while [ $FHR -le $NHRS ]; do
   rm ${TMPFILE}
   mv ${TMPFILE2} ${GUSTF}
   # PRATE - accumulated total precipitation
-  ${WGRIB2} ${COMhafs}/${grb2file} -match '(:APCP:)'         	-rpn "0:swap:merge" -grib_out ${TMPFILE}
+  ${WGRIB2} ${COMhafs}/${grb2file} | grep ":APCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} -rpn "0:swap:merge" -grib_out ${TMPFILE}
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${APCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   rm ${TMPFILE}
   mv ${TMPFILE2} ${APCPF}
@@ -159,7 +159,7 @@ while [ $FHR -le $NHRS ]; do
   rm ${TMPFILE}
   mv ${TMPFILE2} ${WINDMAXF}
   # CPRAT - accumulated convective precipitation
-  ${WGRIB2} ${COMhafs}/${grb2file} -match '(:ACPCP:)'        	-rpn "0:swap:merge" -grib_out ${TMPFILE}
+  ${WGRIB2} ${COMhafs}/${grb2file} | grep ":ACPCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} -rpn "0:swap:merge" -grib_out ${TMPFILE}
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${ACPCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   rm ${TMPFILE}
   mv ${TMPFILE2} ${ACPCPF}
