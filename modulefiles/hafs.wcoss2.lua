@@ -23,6 +23,9 @@ load(pathJoin("cmake", cmake_ver))
 python_ver=os.getenv("python_ver") or "3.8.6"
 load(pathJoin("python", python_ver))
 
+prepend_path("MODULEPATH", "/apps/test/hpc-stack/i-19.1.3.304__m-8.1.12__h-1.14.0__n-4.9.2__p-2.5.10__e-8.4.2/modulefiles/compiler/intel/19.1.3.304")
+prepend_path("MODULEPATH", "/apps/test/hpc-stack/i-19.1.3.304__m-8.1.12__h-1.14.0__n-4.9.2__p-2.5.10__e-8.4.2/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.12")
+
 jasper_ver=os.getenv("jasper_ver") or "2.0.25"
 load(pathJoin("jasper", jasper_ver))
 
@@ -35,13 +38,13 @@ load(pathJoin("libpng", libpng_ver))
 libjpeg_ver=os.getenv("libjpeg_ver") or "9c"
 load(pathJoin("libjpeg", libjpeg_ver))
 
-hdf5_ver=os.getenv("hdf5_ver") or "1.10.6"
+hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
 load(pathJoin("hdf5", hdf5_ver))
 
-netcdf_ver=os.getenv("netcdf_ver") or "4.7.4"
+netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
 load(pathJoin("netcdf", netcdf_ver))
 
-fms_ver=os.getenv("fms_ver") or "2022.04"
+fms_ver=os.getenv("fms_ver") or "2023.01"
 load(pathJoin("fms", fms_ver))
 
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
@@ -98,7 +101,7 @@ load(pathJoin("udunits", udunits_ver))
 gsl_ver=os.getenv("gsl_ver") or "2.7"
 load(pathJoin("gsl", gsl_ver))
 
-nco_ver=os.getenv("nco_ver") or "4.9.7"
+nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 
 bufr_dump_ver=os.getenv("bufr_dump_ver") or "1.1.2"
@@ -116,8 +119,18 @@ load(pathJoin("ncio", ncio_ver))
 pio_ver=os.getenv("pio_ver") or "2.5.10"
 load(pathJoin("pio", pio_ver))
 
-esmf_ver=os.getenv("esmf_ver") or "8.4.1"
+esmf_ver=os.getenv("esmf_ver") or "8.4.2"
 load(pathJoin("esmf", esmf_ver))
+
+gftl_shared_ver=os.getenv("gftl_shared_ver") or "v1.5.0"
+load(pathJoin("gftl-shared", gftl_shared_ver))
+
+mapl_ver=os.getenv("mapl_ver") or "2.35.2-esmf-8.4.2"
+load(pathJoin("mapl", mapl_ver))
+
+prepend_path("MODULEPATH", "/apps/prod/lmodules/INTEL_cray_mpich/19.1.3.304/cray-mpich/8.1.9")
+scotch_ver=os.getenv("scotch_ver") or "7.0.3"
+load(pathJoin("scotch", scotch_ver))
 
 setenv("CC", "cc")
 setenv("CXX", "CC")

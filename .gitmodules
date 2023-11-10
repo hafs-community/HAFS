@@ -6,17 +6,21 @@
 #   branch = develop
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
-    url = https://github.com/ufs-community/UFS_UTILS.git
-    branch = develop
+    url = https://github.com/hafs-community/UFS_UTILS.git
+    branch = feature/hafsv2_baseline
+#   url = https://github.com/ufs-community/UFS_UTILS.git
+#   branch = develop
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
     url = https://github.com/hafs-community/gfdl-tracker.git
-    branch = support/HAFS
+#   branch = support/HAFS
+    branch = feature/hafsv2_baseline
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
     url = https://github.com/hafs-community/GSI.git
 #   branch = support/HAFS
-    branch = support/hafs.v1.1.0
+#   branch = support/hafs.v1.1.0
+    branch = feature/hafsv2_baseline
 [submodule "GPLOT"]
     path = sorc/hafs_graphics.fd/hrd_gplot
     url = https://github.com/hafs-community/GPLOT.git
