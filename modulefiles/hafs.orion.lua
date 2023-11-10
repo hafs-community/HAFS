@@ -11,7 +11,7 @@ load(pathJoin("cmake", cmake_ver))
 prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))
 
-prepend_path("MODULEPATH", "/work/noaa/epic-ps/hpc-stack/libs/intel/2022.1.2/modulefiles/stack")
+prepend_path("MODULEPATH", "/work/noaa/epic/role-epic/contrib/orion/hpc-stack/intel-2022.1.2/modulefiles/stack")
 
 hpc_ver=os.getenv("hpc_ver") or "1.2.0"
 load(pathJoin("hpc", hpc_ver))
@@ -43,7 +43,7 @@ load(pathJoin("pio", pio_ver))
 esmf_ver=os.getenv("esmf_ver") or "8.3.0b09"
 load(pathJoin("esmf", esmf_ver))
 
-fms_ver=os.getenv("fms_ver") or "2022.01"
+fms_ver=os.getenv("fms_ver") or "2022.04"
 load(pathJoin("fms",fms_ver))
 
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
@@ -82,7 +82,7 @@ load(pathJoin("yafyaml", yafyaml_ver))
 mapl_ver=os.getenv("mapl_ver") or "2.22.0-esmf-8.3.0b09"
 load(pathJoin("mapl", mapl_ver))
 
-bufr_ver=os.getenv("bufr_ver") or "11.5.0"
+bufr_ver=os.getenv("bufr_ver") or "11.7.0"
 load(pathJoin("bufr", bufr_ver))
 
 sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
