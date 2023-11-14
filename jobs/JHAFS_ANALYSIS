@@ -38,7 +38,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     module purge
     module load gsi_${machine}.intel
   else
-    if [ ${machine}  = "jet" ]; then
+    if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]]; then
       module purge
     fi
     module load gsi_${machine}
