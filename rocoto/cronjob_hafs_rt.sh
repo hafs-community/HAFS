@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
+HOMEhafs=${HOMEhafs:-/mnt/lfs4/HFIP/hwrfv3/Biju.Thomas/hafsv2_baseline}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
