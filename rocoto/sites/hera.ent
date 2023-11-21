@@ -64,6 +64,7 @@
   <!ENTITY FORECAST_RESOURCES_3000PE "<nodes>150:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3000</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_3060PE "<nodes>153:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3060</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
 
+  <!ENTITY ATM_POST_INLINE_RESOURCES "<nodes>1:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>20</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY ATM_POST_SMALL_RESOURCES "<nodes>1:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>20</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY ATM_POST_STANDARD_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY ATM_POST_BIG_RESOURCES "<nodes>8:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>160</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>07:59:00</walltime>">

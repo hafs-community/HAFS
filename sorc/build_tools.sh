@@ -21,11 +21,19 @@ elif [ $target = wcoss2 ]; then
   export DM_FC="ftn -static"
   export DM_F90="ftn -free -static"
   export DM_CC="cc -static"
+elif [[ $target =~ gaea ]]; then
+  export FC="ftn"
+  export F90="ftn"
+  export CC=cc
+  export DM_FC="ftn"
+  export DM_F90="ftn"
+  export DM_CC="cc"
 else
   echo "Unknown machine = $target"
   exit 1
 fi
-
+export NETCDF="${NETCDF:-$netcdf_c_ROOT}"
+export HDF5="${NETCDF:-$hdf5_ROOT}"
 export NETCDF_INCLUDE="-I${NETCDF}/include"
 export NETCDF_LDFLAGS="-L${NETCDF}/lib -lnetcdff -lnetcdf"
 export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5}/include}"}

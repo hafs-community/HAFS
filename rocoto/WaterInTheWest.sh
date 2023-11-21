@@ -7,7 +7,7 @@ set -x
 
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
-SUBEXPT=$EXPT
+SUBEXPT=C768
 conf=../parm/WaterInTheWest.conf
 opts="-t -f"
 scrubopt="config.scrub_work=no config.scrub_com=no"

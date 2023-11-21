@@ -73,18 +73,14 @@ elif [[ -d /glade ]] ; then
   target=cheyenne
   module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
-  # We are on GAEA.
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    # We cannot simply load the module command.  The GAEA
-    # /etc/profile modifies a number of module-related variables
-    # before loading the module command.  Without those variables,
-    # the module command fails.  Hence we actually have to source
-    # /etc/profile here.
-    echo load the module command 1>&2
-    source /etc/profile
+  # You cannot "module purge" on GAEA
+  if ( head /proc/cpuinfo | grep AuthenticAMD > /dev/null ) ; then
+      target=gaea_c5
+  else
+      target=gaea
   fi
-  target=gaea
-  module purge
+  ulimit -s unlimited
+  export TZ=UTC
 elif [[ "$(hostname)" =~ "odin" ]] ; then
   target="odin"
 else
