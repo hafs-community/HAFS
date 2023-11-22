@@ -38,7 +38,7 @@ export NETCDF_INCLUDE="-I${NETCDF}/include"
 export NETCDF_LDFLAGS="-L${NETCDF}/lib -lnetcdff -lnetcdf"
 export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5}/include}"}
 export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:-${HDF5}/lib} -lhdf5_hl -lhdf5"}
-export BUFR_LDFLAGS="${BUFR_LIBd}"
+export BUFR_LDFLAGS="${BUFR_LIB4}"
 
 TOOLS_PATH=${cwd}/hafs_tools.fd
 export TOOLS_INC=${TOOLS_PATH}/include
