@@ -17,7 +17,7 @@ if [ ${target} == "wcoss2" ]; then
   FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
-elif [ ${target} == "orion" ]; then
+elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
   FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "jet" ]; then
   FIXROOT=/lfs4/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix

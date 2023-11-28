@@ -9,7 +9,7 @@ module use ../modulefiles
 module load hafs.${target}
 module list
 
-if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
+if [ $target = hera ] || [ $target = orion ] || [ $target = jet ] || [ $target = hercules ]; then
   export FC=ifort
   export F90=ifort
   export CC=icc

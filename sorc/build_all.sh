@@ -34,38 +34,6 @@ echo " .... Library build not currently supported .... "
 }
 
 #------------------------------------
-# build forecast
-#------------------------------------
-$Build_forecast && {
-echo " .... Building forecast .... "
-./build_forecast.sh > $logs_dir/build_forecast.log 2>&1
-}
-
-#------------------------------------
-# build post
-#------------------------------------
-$Build_post && {
-echo " .... Building post .... "
-./build_post.sh > $logs_dir/build_post.log 2>&1
-}
-
-#------------------------------------
-# build tracker
-#------------------------------------
-$Build_tracker && {
-echo " .... Building tracker .... "
-./build_tracker.sh > $logs_dir/build_tracker.log 2>&1
-}
-
-#------------------------------------
-# build utils
-#------------------------------------
-$Build_utils && {
-echo " .... Building utils .... "
-./build_utils.sh > $logs_dir/build_utils.log 2>&1
-}
-
-#------------------------------------
 # build tools
 #------------------------------------
 $Build_tools && {

@@ -40,18 +40,26 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
 elif [[ -d /work/noaa ]] ; then
-  # We are on MSU Orion
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    echo load the module command 1>&2
-    source /apps/lmod/lmod/init/$__ms_shell
+  # We are on MSU Orion/Hercules
+  if [[ "$(hostname)" =~ "hercules" ]] ; then
+    source /apps/other/lmod/lmod/init/$__ms_shell
+    target=hercules
+    module purge
+    module use /apps/contrib/modulefiles
+    ulimit -s unlimited
+  else
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+      echo load the module command 1>&2
+      source /apps/lmod/lmod/init/$__ms_shell
+    fi
+    target=orion
+    module purge
+    module use /apps/modulefiles/core
+    module use /apps/contrib/modulefiles
+    module use /apps/contrib/NCEPLIBS/lib/modulefiles
+    module use /apps/contrib/NCEPLIBS/orion/modulefiles
+    ulimit -s unlimited
   fi
-  target=orion
-  module purge
-  module use /apps/modulefiles/core
-  module use /apps/contrib/modulefiles
-  module use /apps/contrib/NCEPLIBS/lib/modulefiles
-  module use /apps/contrib/NCEPLIBS/orion/modulefiles
-  ulimit -s unlimited
 elif [[ -d /lfs/h1 && -d /lfs/h2 ]] ; then
   # We are on NOAA WCOSS2
   echo load the module command 1>&2

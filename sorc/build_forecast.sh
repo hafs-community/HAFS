@@ -9,6 +9,7 @@ cd hafs_forecast.fd/tests
 
 if [ $target = hera ]; then target=hera ; fi
 if [ $target = orion ]; then target=orion ; fi
+if [ $target = hercules ]; then target=hercules ; fi
 if [ $target = jet ]; then target=jet ; fi
 if [ $target = cheyenne ]; then target=cheyenne ; fi
 if [ $target = wcoss2 ]; then target=wcoss2 ; fi
