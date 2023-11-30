@@ -16,6 +16,9 @@ load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 python_ver=os.getenv("python_ver") or "3.10.8"
 load(pathJoin("stack-python", python_ver))
 
+pynetcdf4_ver=os.getenv("pynetcdf4_ver") or "1.5.8"
+load(pathJoin("py-netcdf4", pynetcdf4_ver))
+
 xarray_ver=os.getenv("xarray_ver") or "2022.3.0"
 load(pathJoin("py-xarray", xarray_ver))
 

@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
+HOMEhafs=${HOMEhafs:-/work2/noaa/hwrf/save/${USER}/hafsv2_baseline_hercules}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -12,7 +12,7 @@ opts="-t -f"
 #===============================================================================
 
  #hafsv1 hfsa
- confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v1p1a \
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_tech_test_Hercules \
      ../parm/hafs_v1p1a.conf"
 
  # Technical testing for Hurricane Laura

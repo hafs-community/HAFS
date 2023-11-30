@@ -45,7 +45,7 @@ elif [[ -d /work/noaa ]] ; then
     source /apps/other/lmod/lmod/init/$__ms_shell
     target=hercules
     module purge
-    module use /apps/contrib/modulefiles
+#    module use /apps/contrib/modulefiles
     ulimit -s unlimited
   else
     if ( ! eval module help > /dev/null 2>&1 ) ; then
