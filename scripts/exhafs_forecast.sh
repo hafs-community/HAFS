@@ -347,7 +347,7 @@ if [ $gtype = regional ]; then
   if [ $quilting = .true. ]; then
     ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ATM_tasks=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
   for n in $(seq 1 ${nest_grids}); do
     layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -682,7 +682,7 @@ if [ ${imp_physics:-11} = 8 ]; then
   ${NLN} ${FIXam}/freezeH2O.dat ./
 fi
 
-if [ $gtype = nest ]; then
+if [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
 
 cd ./INPUT
 
@@ -743,8 +743,12 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
+if [ $gtype = stretch ] || [ $gtype = uniform ]; then
+  ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
+else
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+fi
 ${NCP} ${PARMforecast}/model_configure.tmp .
 ${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure
 
@@ -1315,7 +1319,7 @@ OUTPUT_FH=-1
 
 if [ $gtype = regional ]; then
   ngrids=${nest_grids}
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$(( ${nest_grids} + 1 ))
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."

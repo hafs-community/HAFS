@@ -89,7 +89,7 @@ if [ "${POST_CLEANUP^^}" = "YES" ]; then
   FHR3=$(printf "%03d" "$FHR")
   # Loop for forecast hours
   while [ $FHR -le $NHRS ]; do
-    if [ ${gtype} = nest ]; then
+    if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
       ngrids=$((${nest_grids} + 1))
     else
       ngrids=${nest_grids}
@@ -132,7 +132,7 @@ MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
 
-if [ ${gtype} = nest ]; then
+if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$((${nest_grids} + 1))
 else
   ngrids=${nest_grids}
