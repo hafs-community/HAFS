@@ -46,7 +46,7 @@ elif [[ -d /work/noaa ]] ; then
     target=hercules
     module purge
 #    module use /apps/contrib/modulefiles
-    ulimit -s unlimited
+    ulimit -s 6000000
   else
     if ( ! eval module help > /dev/null 2>&1 ) ; then
       echo load the module command 1>&2

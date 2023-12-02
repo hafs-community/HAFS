@@ -16,15 +16,6 @@ load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 python_ver=os.getenv("python_ver") or "3.10.8"
 load(pathJoin("stack-python", python_ver))
 
-pynetcdf4_ver=os.getenv("pynetcdf4_ver") or "1.5.8"
-load(pathJoin("py-netcdf4", pynetcdf4_ver))
-
-xarray_ver=os.getenv("xarray_ver") or "2022.3.0"
-load(pathJoin("py-xarray", xarray_ver))
-
-scipy_ver=os.getenv("scipy_ver") or "1.9.3"
-load(pathJoin("py-scipy", scipy_ver))
-
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver)) 
 
@@ -108,13 +99,8 @@ load(pathJoin("grib-util", grib_util_ver))
 
 wgrib2_ver=os.getenv("wgrib2_ver") or "3.1.1"
 load(pathJoin("wgrib2", wgrib2_ver))
---setenv("WGRIB2", "/apps/wgrib-2.0.8/wgrib2/wgrib2")
-
---gempak_ver=os.getenv("gempak_ver") or "7.5.1"
---load(pathJoin("gempak", gempak_ver))
 
 nco_ver=os.getenv("nco_ver") or "5.0.6"
---nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
 
 cdo_ver=os.getenv("cdo_ver") or "2.0.5"
@@ -123,11 +109,14 @@ load(pathJoin("cdo", cdo_ver))
 mkl_ver=os.getenv("mkl_ver") or "2022.2.1"
 load(pathJoin("intel-oneapi-mkl", mkl_ver))
 
+tar_ver=os.getenv("tar_ver") or "1.34"
+load(pathJoin("tar", tar_ver)) 
+
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.5"
 load(pathJoin("rocoto", rocoto_ver))
 
---prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
---load(pathJoin("python", "wcoss2_env"))
+prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
+load(pathJoin("python", "wcoss2_env"))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
