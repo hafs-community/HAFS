@@ -11,6 +11,7 @@ restart_interval:        @[RESTART_INTERVAL]
 output_1st_tstep_rst:    .false.
 
 quilting:                @[QUILTING]
+quilting_restart:        @[QUILTING_RESTART]
 write_groups:            @[WRITE_GROUP]
 write_tasks_per_group:   @[WRTTASK_PER_GROUP]
 num_files:               @[NUM_FILES]
@@ -24,7 +25,8 @@ ichunk3d:                -1
 jchunk3d:                -1
 kchunk3d:                -1
 ideflate:                @[IDEFLATE]
-nbits:                   @[NBITS]
+quantize_mode:           'quantize_bitround'
+quantize_nsd:            @[QUANTIZE_NSD]
 
 output_grid:             @[OUTPUT_GRID]     # gaussian_grid, global_latlon, regional_latlon, rotated_latlon, lambert_conformal, cubed_sphere_grid
 imo:                     @[IMO]             # number of grid points along longitude/latitude direction
