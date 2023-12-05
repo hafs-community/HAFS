@@ -1,11 +1,7 @@
 [submodule "ufs-weather-model"]
     path = sorc/hafs_forecast.fd
-    url = https://github.com/SamuelTrahanNOAA/ufs-weather-model.git
-    branch = WaterInTheWestC5-Nov2023
-#    url = https://github.com/hafs-community/ufs-weather-model.git
-#    branch = support/hafs.v1.1.0
-#   url = https://github.com/ufs-community/ufs-weather-model.git
-#   branch = develop
+    url = https://github.com/ufs-community/ufs-weather-model
+    branch = develop
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
 #   url = https://github.com/hafs-community/UFS_UTILS.git
@@ -19,9 +15,8 @@
     branch = WaterInTheWestC5-Nov2023
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
-    url = https://github.com/SamuelTrahanNOAA/GSI.git
-#   branch = support/HAFS
-    branch = WaterInTheWestC5-Nov2023
+    url = https://github.com/hafs-community/GSI.git
+    branch = support/HAFS
 [submodule "GPLOT"]
     path = sorc/hafs_graphics.fd/hrd_gplot
     url = https://github.com/hafs-community/GPLOT.git
