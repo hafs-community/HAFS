@@ -1,4 +1,4 @@
-## This is the system-specific configuration file for Orion
+## This is the system-specific configuration file for Hercules
 [config]
 ## Project disk area
 disk_project=hwrf
@@ -7,7 +7,7 @@ tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
 cpu_account=hurricane
 ## Archive path
-archive=disk:/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+archive=disk:/work2/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
 
 [dir]
 ## Save directory.  Make sure you edit this.
