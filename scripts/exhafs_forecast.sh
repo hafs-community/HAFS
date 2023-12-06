@@ -742,6 +742,9 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
+  cat ${PARMforecast}/field_progsigma >> ./field_table
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -919,6 +922,9 @@ if [ ${imp_physics:-11} = 8 ]; then
   ${NCP} ${PARMforecast}/field_table_thompson ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
+fi
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
+  cat ${PARMforecast}/field_progsigma >> ./field_table
 fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
