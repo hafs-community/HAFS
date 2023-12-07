@@ -4,6 +4,9 @@ source ./machine-setup.sh > /dev/null 2>&1
 
 # RUN_ENVIR of nco or dev
 RUN_ENVIR=${RUN_ENVIR:-${1:-dev}}
+#Supports Debug or Release modes for the build
+export BUILD_MODE=Debug
+export BUILD_MODE=${BUILD_MODE:-Release}  #|Release|Debug|
 
 cwd=$(pwd)
 
