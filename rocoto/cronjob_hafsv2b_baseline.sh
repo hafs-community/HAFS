@@ -30,8 +30,8 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2023083106-2023090412 06L HISTORY ${confopts} # Gert part 2
 #./run_hafs.py ${opts} 2023082012-2023082112 07L HISTORY ${confopts} # Emily part 1
 #./run_hafs.py ${opts} 2023082300-2023082512 07L HISTORY ${confopts} # Emily part 2
-#./run_hafs.py ${opts} 2023082018-2023082318 08L HISTORY ${confopts} # Franklin part 1
-#./run_hafs.py ${opts} 2023082400-2023090112 08L HISTORY ${confopts} # Franklin part 2
+#./run_hafs.py ${opts} 2023082018-2023082312 08L HISTORY ${confopts} # Franklin part 1
+#./run_hafs.py ${opts} 2023082318-2023090112 08L HISTORY ${confopts} # Franklin part 2
 #./run_hafs.py ${opts} 2023082112-2023082212 09L HISTORY ${confopts} # Harold
 #./run_hafs.py ${opts} 2023082618-2023090218 10L HISTORY ${confopts} # Idalia
 #./run_hafs.py ${opts} 2023082912-2023090118 11L HISTORY ${confopts} # Jose
