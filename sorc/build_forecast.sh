@@ -5,6 +5,8 @@ if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 cwd=$(pwd)
 
 if [[ $target =~ .*c5 ]] ; then target=gaea-c5 ; fi
+test -s hafs_forecast.fd/FV3/ccpp/suites/suite_FV3_global_nest_v0.xml ||
+    ln -sf ../../../../customizations/hafs_forecast.fd/suite_FV3_global_nest_v0.xml hafs_forecast.fd/FV3/ccpp/suites/suite_FV3_global_nest_v0.xml
 
 cd hafs_forecast.fd/tests
 
