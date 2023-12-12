@@ -36,7 +36,7 @@
   <!ENTITY MERGE_RESOURCES "<nodes>1:ppn=8:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>8</value></envar><envar><name>NCTSK</name><value>8</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
   <!ENTITY ATM_INIT_RESOURCES "<nodes>10:ppn=60:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>60</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
 
-  <!ENTITY FORECAST_WALLTIME "<walltime>02:59:00</walltime>">
+  <!ENTITY FORECAST_WALLTIME "<walltime>05:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
   <!ENTITY FORECAST_EXTRA "&FORECAST_OMP;&FORECAST_WALLTIME;">
 
