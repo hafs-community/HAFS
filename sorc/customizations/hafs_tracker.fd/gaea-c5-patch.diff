@@ -1,0 +1,78 @@
+diff --git a/src/build_all_cmake.sh b/src/build_all_cmake.sh
+index 01a7bd7..818d59c 100755
+--- a/src/build_all_cmake.sh
++++ b/src/build_all_cmake.sh
+@@ -1,8 +1,8 @@
+ #!/bin/sh
+ 
+-set -eux
++# Do not set -eu on GAEA C5 or it'll fail.
+ source ./machine-setup.sh > /dev/null 2>&1
+-
++set -uex
+ 
+ module use ../modulefiles
+ module load $target
+@@ -24,7 +24,12 @@ elif [ $target = jet ]; then
+ elif [ $target = wcoss2 ] ; then
+   export FC=ftn
+   export F90=ftn
++  cmake_fortran_compiler=ifort
+   export CC=icc
++elif [[ $target =~ gaea ]] ; then
++  export FC=ftn
++  export F90=ftn
++  export CC=cc
+ else
+   echo "Unknown machine = $target"
+   exit 1
+@@ -36,7 +41,7 @@ if [ -d "build" ]; then
+ fi
+ mkdir build
+ cd build
+-cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
++cmake .. -DCMAKE_Fortran_COMPILER=${cmake_fortran_compiler:-$FC} -DCMAKE_C_COMPILER=$CC -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+ make -j 8 VERBOSE=1
+ make install
+ 
+diff --git a/src/machine-setup.sh b/src/machine-setup.sh
+index 50dee4d..0138b80 100755
+--- a/src/machine-setup.sh
++++ b/src/machine-setup.sh
+@@ -59,18 +59,25 @@ elif [[ -d /glade ]] ; then
+     target=yellowstone
+     module purge
+ elif [[ -d /lustre && -d /ncrc ]] ; then
+-    # We are on GAEA.
+-    if ( ! eval module help > /dev/null 2>&1 ) ; then
+-        # We cannot simply load the module command.  The GAEA
+-        # /etc/profile modifies a number of module-related variables
+-        # before loading the module command.  Without those variables,
+-        # the module command fails.  Hence we actually have to source
+-        # /etc/profile here.
+-        echo load the module command 1>&2
+-        source /etc/profile
++    if [[ $( hostname ) =~ gaea* ]] ; then
++        module purge
++        # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
++        gdb -ex 'call (int) unbind_variable("PELOCAL_PRGENV")' \
++            -ex 'call (int) unbind_variable("RCLOCAL_PRGENV")' \
++            --pid=$$ --batch
++        
++        # Reload system default modules:
++        source /etc/bash.bashrc.local
++
++        # Load EPIC's module directories:
++        source /lustre/f2/dev/role.epic/contrib/Lmod_init.sh
++    fi    
++
++    if ( head /proc/cpuinfo | grep EPYC > /dev/null ) ; then
++        target=gaea-c5
++    else
++        target=gaea
+     fi
+-    target=gaea
+-    module purge
+ elif [[ "$(hostname)" =~ "odin" ]]; then
+     target="odin"
+ else
