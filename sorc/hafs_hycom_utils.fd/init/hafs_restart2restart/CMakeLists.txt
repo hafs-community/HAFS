@@ -23,8 +23,8 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
 endif()
 
 if(CMAKE_C_COMPILER_ID MATCHES "^(Intel)$")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -cc=icc -O0")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -cc=icc -O0 -g")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O0")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g")
 endif()
 
 add_executable(${exe_name} ${fc_srcs})
