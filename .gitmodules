@@ -24,5 +24,5 @@
     branch = support/HAFS
 [submodule "sorc/hafs_graphics.fd/pygraf"]
     path = sorc/hafs_graphics.fd/pygraf
-    url = https://github.com/SamuelTrahanNOAA/pygraf
-    branch = hafs-ar
+    url = https://github.com/NOAA-GSL/pygraf
+    branch = arfs_dev
