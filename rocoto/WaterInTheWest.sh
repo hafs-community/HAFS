@@ -10,9 +10,13 @@ EXPT=$(basename ${HOMEhafs})
 SUBEXPT=$EXPT
 conf=../parm/WaterInTheWest.conf
 opts="-t -f"
+
+# To enable graphics, uncomment this. But only on Hera!
+# conf="$conf config.run_pygraf=yes"
+
 scrubopt="config.scrub_work=no config.scrub_com=no"
  # 3DEnVar with GDAS ensembles
- ./run_hafs.py ${opts} 2020082506-2020082512 00L HISTORY \
+ ./run_hafs.py ${opts} 2023022400 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${SUBEXPT} \
-     config.NHRS=12 ${scrubopt} \
+     config.NHRS=24 ${scrubopt} \
      $conf
