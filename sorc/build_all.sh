@@ -9,6 +9,9 @@ set -eux
 
 export USE_PREINST_LIBS="true"
 
+#Supports Debug or Release modes for the build
+export BUILD_MODE=${BUILD_MODE:-Release}   #|Release|Debug|
+
 #------------------------------------
 # END USER DEFINED STUFF
 #------------------------------------

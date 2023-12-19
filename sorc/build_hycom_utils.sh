@@ -2,6 +2,10 @@
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
+
+#Supports Debug or Release modes for the build 
+BUILD_MODE=${BUILD_MODE:-Release} 
+
 cwd=$(pwd)
 
 module use ../modulefiles
@@ -18,10 +22,11 @@ cd build
 CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER:-ifort}
 CMAKE_C_COMPILER=${CMAKE_C_COMPILER:-icc}
 
-#export BUILD_TYPE=DEBUG
-export BUILD_TYPE=RELEASE
-export BUILD_TYPE=${BUILD_TYPE:-RELEASE}
-
+if [ "${BUILD_MODE}" = Release ]; then
+  export BUILD_TYPE=RELEASE
+else
+  export BUILD_TYPE=DEBUG
+fi
 cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 make -j 8 VERBOSE=1
 

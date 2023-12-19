@@ -2,6 +2,10 @@
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
+
+#Supports Debug or Release modes for the build
+BUILD_MODE=${BUILD_MODE:-Release}
+
 cwd=$(pwd)
 
 script_dir=${cwd}
@@ -61,7 +65,8 @@ echo "Switch file is ${path_build}/switch with switches:"
 cat "${path_build}/switch"
 
 #Build executables: 
-cmake "${WW3_DIR}" -DSWITCH="${path_build}/switch" -DCMAKE_INSTALL_PREFIX=install 
+BUILD_TYPE=${BUILD_MODE}
+cmake "${WW3_DIR}" -DSWITCH="${path_build}/switch" -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 rc=$?
 if (( rc != 0 )); then
   echo "Fatal error in cmake."

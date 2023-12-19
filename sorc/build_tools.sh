@@ -2,6 +2,10 @@
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
+
+#Supports Debug or Release modes for the build
+BUILD_MODE=${BUILD_MODE:-Release}
+
 cwd=$(pwd)
 
 export target=${target}
@@ -9,7 +13,7 @@ module use ../modulefiles
 module load hafs.${target}
 module list
 
-if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
+if [ $target = hera ] || [ $target = orion ] || [ $target = jet ] || [ $target = hercules ]; then
   export FC=ifort
   export F90=ifort
   export CC=icc
@@ -51,10 +55,11 @@ fi
 mkdir ${TOOLS_PATH}/build
 cd ${TOOLS_PATH}/build
 
-#export BUILD_TYPE=DEBUG
-#export BUILD_TYPE=RELEASE
-export BUILD_TYPE=${BUILD_TYPE:-RELEASE}
-
+if [ "${BUILD_MODE}" = Release ]; then
+  export BUILD_TYPE=RELEASE
+else
+  export BUILD_TYPE=DEBUG
+fi
 cmake .. -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 make -j 8 VERBOSE=1
 make install

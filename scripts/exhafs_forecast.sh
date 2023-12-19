@@ -63,6 +63,12 @@ if [ "${ENSDA}" = YES ]; then
   glob_npy=${glob_npy_ens:-769}
   glob_io_layoutx=${glob_io_layoutx_ens:-1}
   glob_io_layouty=${glob_io_layouty_ens:-10}
+  glob_hord_mt=${glob_hord_mt_ens:-5}
+  glob_hord_vt=${glob_hord_vt_ens:-5}
+  glob_hord_tm=${glob_hord_tm_ens:-5}
+  glob_hord_dp=${glob_hord_dp_ens:-5}
+  glob_hord_tr=${glob_hord_tr_ens:--5}
+  glob_lim_fac=${glob_lim_fac_ens:-1.0}
   glob_full_zs_filter=${glob_full_zs_filter_ens:-.true.}
   glob_n_zs_filter=${glob_n_zs_filter_ens:-1}
   glob_n_del2_weak=${glob_n_del2_weak_ens:-20}
@@ -81,6 +87,12 @@ if [ "${ENSDA}" = YES ]; then
   npy=${npy_ens:-1921}
   io_layoutx=${io_layoutx_ens:-1}
   io_layouty=${io_layouty_ens:-10}
+  hord_mt=${hord_mt_ens:-5}
+  hord_vt=${hord_vt_ens:-5}
+  hord_tm=${hord_tm_ens:-5}
+  hord_dp=${hord_dp_ens:-5}
+  hord_tr=${hord_tr_ens:--5}
+  lim_fac=${lim_fac_ens:-1.0}
   full_zs_filter=${full_zs_filter_ens:-.true.}
   n_zs_filter=${n_zs_filter_ens:-1}
   n_del2_weak=${n_del2_weak_ens:-20}
@@ -743,6 +755,9 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
+  cat ${PARMforecast}/field_progsigma >> ./field_table
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -781,6 +796,12 @@ npx_nml=${glob_npx}
 npy_nml=${glob_npy}
 k_split_nml=${glob_k_split}
 n_split_nml=${glob_n_split}
+hord_mt_nml=${glob_hord_mt}
+hord_vt_nml=${glob_hord_vt}
+hord_tm_nml=${glob_hord_tm}
+hord_dp_nml=${glob_hord_dp}
+hord_tr_nml=${glob_hord_tr}
+lim_fac_nml=${glob_lim_fac}
 full_zs_filter_nml=${glob_full_zs_filter:-.true.}
 n_zs_filter_nml=${glob_n_zs_filter:-1}
 n_del2_weak_nml=${glob_n_del2_weak:-20}
@@ -805,6 +826,12 @@ for n in $(seq 1 ${nest_grids}); do
   npy_nml=$( echo ${npy} | cut -d , -f ${n} )
   k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
   n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+  hord_mt_nml=$( echo ${hord_mt} | cut -d , -f ${n} )
+  hord_vt_nml=$( echo ${hord_vt} | cut -d , -f ${n} )
+  hord_tm_nml=$( echo ${hord_tm} | cut -d , -f ${n} )
+  hord_dp_nml=$( echo ${hord_dp} | cut -d , -f ${n} )
+  hord_tr_nml=$( echo ${hord_tr} | cut -d , -f ${n} )
+  lim_fac_nml=$( echo ${lim_fac} | cut -d , -f ${n} )
   full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
@@ -933,6 +960,9 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
+  cat ${PARMforecast}/field_progsigma >> ./field_table
+fi
 ${NCP} ${PARMforecast}/input.nml.tmp .
 ${NCP} ${PARMforecast}/input_nest.nml.tmp .
 ${NCP} ${PARMforecast}/model_configure.tmp .
@@ -1017,6 +1047,12 @@ npx_nml=$( echo ${npx} | cut -d , -f ${n} )
 npy_nml=$( echo ${npy} | cut -d , -f ${n} )
 k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
 n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+hord_mt_nml=$( echo ${hord_mt} | cut -d , -f ${n} )
+hord_vt_nml=$( echo ${hord_vt} | cut -d , -f ${n} )
+hord_tm_nml=$( echo ${hord_tm} | cut -d , -f ${n} )
+hord_dp_nml=$( echo ${hord_dp} | cut -d , -f ${n} )
+hord_tr_nml=$( echo ${hord_tr} | cut -d , -f ${n} )
+lim_fac_nml=$( echo ${lim_fac} | cut -d , -f ${n} )
 full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
 n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
 n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
@@ -1043,6 +1079,12 @@ for n in $(seq 2 ${nest_grids}); do
   npy_nml=$( echo ${npy} | cut -d , -f ${n} )
   k_split_nml=$( echo ${k_split} | cut -d , -f ${n} )
   n_split_nml=$( echo ${n_split} | cut -d , -f ${n} )
+  hord_mt_nml=$( echo ${hord_mt} | cut -d , -f ${n} )
+  hord_vt_nml=$( echo ${hord_vt} | cut -d , -f ${n} )
+  hord_tm_nml=$( echo ${hord_tm} | cut -d , -f ${n} )
+  hord_dp_nml=$( echo ${hord_dp} | cut -d , -f ${n} )
+  hord_tr_nml=$( echo ${hord_tr} | cut -d , -f ${n} )
+  lim_fac_nml=$( echo ${lim_fac} | cut -d , -f ${n} )
   full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
@@ -1068,12 +1110,22 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   # MOM_input
   ${NLN} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.input ./MOM_input
   # Ocean IC and OBC
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc INPUT/
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_ic.nc INPUT/
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc INPUT/
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_*.nc INPUT/
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_*.nc INPUT/
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_*.nc INPUT/
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc INPUT/ocean_ssh_ic.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_ic.nc INPUT/ocean_ts_ic.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc INPUT/ocean_uv_ic.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_east.nc INPUT/ocean_ssh_obc_east.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_north.nc INPUT/ocean_ssh_obc_north.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_south.nc INPUT/ocean_ssh_obc_south.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_obc_west.nc INPUT/ocean_ssh_obc_west.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_east.nc INPUT/ocean_ts_obc_east.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_north.nc INPUT/ocean_ts_obc_north.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_south.nc INPUT/ocean_ts_obc_south.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_obc_west.nc INPUT/ocean_ts_obc_west.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_east.nc INPUT/ocean_uv_obc_east.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_north.nc INPUT/ocean_uv_obc_north.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_south.nc INPUT/ocean_uv_obc_south.nc
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_obc_west.nc INPUT/ocean_uv_obc_west.nc
+
   # Ocean fix files
   ${NLN} ${FIXmom6}/ocean_vgrid_lev55.nc INPUT/ocean_vgrid.nc
   ${NLN} ${FIXmom6}/${ocean_domain}/ocean_hgrid.nc INPUT/ocean_hgrid.nc
@@ -1290,15 +1342,18 @@ FHMAX=${NHRS}
 DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
 QUILTING=${quilting}
+#QUILTING_RESTART=${quilting_restart:-${quilting}}
+QUILTING_RESTART=.false.
 WRITE_GROUP=${write_groups}
 WRTTASK_PER_GROUP=${write_tasks_per_group}
 WRITE_DOPOST=${write_dopost:-.false.}
 OUTPUT_HISTORY=${output_history:-.true.}
 NUM_FILES=2
 FILENAME_BASE="'atm' 'sfc'"
+#OUTPUT_FILE="'netcdf_parallel' 'netcdf'"
 OUTPUT_FILE="'netcdf' 'netcdf'"
 IDEFLATE=1
-NBITS=0
+QUANTIZE_NSD=0
 NFHOUT=3
 NFHMAX_HF=-1
 NFHOUT_HF=3
