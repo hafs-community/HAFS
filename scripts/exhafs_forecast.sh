@@ -866,9 +866,11 @@ for itile in $(seq 8 ${ntiles}); do
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
 
   # WDR Link static files for nest initialization 
-  for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+  if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+    for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
       ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.${var}.tile${itile}.nc ${var}.tile${itile}.nc
-  done
+    done
+  fi
 
 done
 
@@ -876,6 +878,7 @@ fi #if [ $nest_grids -gt 1 ]; then
 
 # moving nest
 if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+
   mkdir -p moving_nest
   cd moving_nest
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
