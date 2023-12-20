@@ -7,8 +7,8 @@ set -x
 
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
-SUBEXPT=$EXPT
-conf=../parm/WaterInTheWest.conf
+SUBEXPT=pygrafC192no
+conf=../parm/WaterInTheWestC192.conf
 opts="-t -f"
 
 # To enable graphics, uncomment this. But only on Hera!
@@ -19,4 +19,4 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
  ./run_hafs.py ${opts} 2023022400 00L HISTORY \
      config.EXPT=${EXPT} config.SUBEXPT=${SUBEXPT} \
      config.NHRS=24 ${scrubopt} \
-     $conf
+     $conf config.run_pygraf=yes

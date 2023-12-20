@@ -9,6 +9,8 @@ cpu_account=gsl-glo
 ## Archive path
 archive=hpss:/BMC/{tape_project}/2year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
 
+pygraf_can_run=no
+
 [dir]
 gaea_input=/lustre/f2/dev/Samuel.Trahan/hafs/hafs-input
 hafs_work=/lustre/f2/dev/{ENV[USER]}/hafs/work
