@@ -1,0 +1,80 @@
+diff --git a/sorc/machine-setup.sh b/sorc/machine-setup.sh
+index 6e73630e..3478959c 100644
+--- a/sorc/machine-setup.sh
++++ b/sorc/machine-setup.sh
+@@ -19,6 +19,14 @@ fi
+ target=""
+ USERNAME=`echo $LOGNAME | awk '{ print tolower($0)'}`
+ 
++# Disable -e (abort on non-zero exit status) -u (abort on empty or
++# uninitialized variables) and -x (print every command executed)
++# because they can break system scripts.
++__ms_set_e=$( echo $- | grep e && echo YES || echo NO )
++__ms_set_u=$( echo $- | grep u && echo YES || echo NO )
++__ms_set_x=$( echo $- | grep x && echo YES || echo NO )
++set +eux
++
+ if [[ -d /lfs4 ]] ; then
+     # We are on NOAA Jet
+     if ( ! eval module help > /dev/null 2>&1 ) ; then
+@@ -47,43 +55,25 @@ elif [[ -d /glade ]] ; then
+     target=cheyenne
+     module purge
+ elif [[ -d /lustre && -d /ncrc ]] ; then
+-    # We are on GAEA.
+-    if ( ! eval module help > /dev/null 2>&1 ) ; then
+-        # We cannot simply load the module command.  The GAEA
+-        # /etc/profile modifies a number of module-related variables
+-        # before loading the module command.  Without those variables,
+-        # the module command fails.  Hence we actually have to source
+-        # /etc/profile here.
+-        source /etc/profile
+-        __ms_source_etc_profile=yes
++    if [[ $( hostname ) =~ gaea* ]] ; then
++        # Only runs on head nodes
++        module purge
++        # Unset the read-only variables $PELOCAL_PRGENV and $RCLOCAL_PRGENV
++        gdb -ex 'call (int) unbind_variable("PELOCAL_PRGENV")' \
++            -ex 'call (int) unbind_variable("RCLOCAL_PRGENV")' \
++            --pid=$$ --batch
++        
++        # Reload system default modules:
++        source /etc/bash.bashrc.local
++        
++        # Load EPIC's module directories:
++        source /lustre/f2/dev/role.epic/contrib/Lmod_init.sh
++    fi    
++    if ( head /proc/cpuinfo | grep EPYC > /dev/null ) ; then
++        target=gaea-c5
+     else
+-        __ms_source_etc_profile=no
+-    fi
+-    module purge > /dev/null 2>&1
+-    module purge
+-# clean up after purge
+-    unset _LMFILES_
+-    unset _LMFILES_000
+-    unset _LMFILES_001
+-    unset LOADEDMODULES
+-    module load modules
+-    if [[ -d /opt/cray/ari/modulefiles ]] ; then
+-        module use -a /opt/cray/ari/modulefiles
+-    fi
+-    if [[ -d /opt/cray/pe/ari/modulefiles ]] ; then
+-        module use -a /opt/cray/pe/ari/modulefiles
+-    fi
+-    if [[ -d /opt/cray/pe/craype/default/modulefiles ]] ; then
+-        module use -a /opt/cray/pe/craype/default/modulefiles
+-    fi
+-    if [[ -s /etc/opt/cray/pe/admin-pe/site-config ]] ; then
+-        source /etc/opt/cray/pe/admin-pe/site-config
+-    fi
+-    if [[ "$__ms_source_etc_profile" == yes ]] ; then
+-      source /etc/profile
+-      unset __ms_source_etc_profile
++        target=gaea
+     fi
+-    target=gaea
+ elif [[ "$(hostname)" =~ "Orion" ]]; then
+     target="orion"
+     module purge

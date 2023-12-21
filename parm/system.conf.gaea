@@ -1,0 +1,53 @@
+## This is the system-specific configuration file for Hera
+[config]
+## Project disk area
+disk_project=esrl
+## Project hpss tape area
+tape_project=wrfruc
+## CPU account name for submitting jobs to the batch system.
+cpu_account=gsl-glo
+## Archive path
+archive=hpss:/BMC/{tape_project}/2year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+
+pygraf_can_run=no
+
+[dir]
+gaea_input=/lustre/f2/dev/Samuel.Trahan/hafs/hafs-input
+hafs_work=/lustre/f2/dev/{ENV[USER]}/hafs/work
+
+## Save directory.  Make sure you edit this.
+CDSAVE={hafs_work}
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB={hafs_work}/noscrub/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/lustre/f2/scratch/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat={gaea_input}/SYNDAT-PLUS
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs={gaea_input}/COMGFSv16
+COMINobs={COMgfs}
+COMINgfs={COMgfs}
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs={gaea_input}/COMRTOFSv2
+COMINrtofs={COMrtofs}
+COMINmsg={COMINgfs}
+COMINhafs={COMINgfs}
+DATMdir={hafs_work}/noscrub/DATM
+DOCNdir={hafs_work}/noscrub/DOCN
+## A-Deck directory for graphics
+ADECKhafs={gaea_input}/aid
+## B-Deck directory for graphics
+BDECKhafs={gaea_input}/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir={gaea_input}/cartopy
+
+[holdvars]
+WHERE_AM_I=gaea_c5
+WHICH_JET=none
+

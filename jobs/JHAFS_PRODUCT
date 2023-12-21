@@ -70,7 +70,7 @@ fi
 mkdir -p $DATA
 cd $DATA
 
-if [ ${gtype} = nest ]; then
+if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$((${nest_grids} + 1))
 else
   ngrids=${nest_grids}

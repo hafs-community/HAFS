@@ -9,3 +9,4 @@
 <!ENTITY % hera             SYSTEM      "hera.ent">
 <!ENTITY % orion            SYSTEM      "orion.ent">
 <!ENTITY % wcoss2           SYSTEM      "wcoss2.ent">
+<!ENTITY % gaea_c5          SYSTEM      "gaea_c5.ent">

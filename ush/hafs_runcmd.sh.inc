@@ -11,8 +11,8 @@ export PURE_OMP_THREADS=${PURE_OMP_THREADS:-${OMP_NUM_THREADS:-24}}
 export NCNODE=${NCNODE:-$(($NCTSK * $OMP_NUM_THREADS))}
 export KMP_AFFINITY=disabled
 export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
-#export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
-# Avoild "NetCDF: HDF error"
+export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
+# Avoid "NetCDF: HDF error"
 export HDF5_USE_FILE_LOCKING=FALSE
 
 # Set job run commands
@@ -41,6 +41,15 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ]; th
   export APRUNF="time"
   export APRUNCFP="time"
   export BACKGROUND="&"
+elif [ "$machine" = gaea_c5 ] ; then
+  export APRUN="time"
+  export APRUNS="srun -l --mem=0 --exclusive --ntasks=1 --ntasks-per-node=1 --cpus-per-task=128 "
+  export APRUNO="srun -l --mem=0 --exclusive --ntasks=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS} -- "
+  export APRUNC="srun -l --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} -- "
+  export APRUNM="$APRUNC"
+  export APRUNF="$APRUNC ${MPISERIAL:-mpiserial} -m "
+  export APRUNCFP="$APRUN"
+  export BACKGROUND=""
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
   export APRUN="time"

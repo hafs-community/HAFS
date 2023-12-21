@@ -347,7 +347,7 @@ if [ $gtype = regional ]; then
   if [ $quilting = .true. ]; then
     ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ATM_tasks=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
   for n in $(seq 1 ${nest_grids}); do
     layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -682,7 +682,7 @@ if [ ${imp_physics:-11} = 8 ]; then
   ${NLN} ${FIXam}/freezeH2O.dat ./
 fi
 
-if [ $gtype = nest ]; then
+if [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
 
 cd ./INPUT
 
@@ -736,17 +736,21 @@ fi
 
 cd ..
 
-# Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and nems.configure
+# Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and ufs.configure
 ${NCP} ${PARMforecast}/diag_table.tmp .
 if [ ${imp_physics:-11} = 8 ]; then
   ${NCP} ${PARMforecast}/field_table_thompson_aero ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
+if [ $gtype = stretch ] || [ $gtype = uniform ]; then
+  ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
+else
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+fi
 ${NCP} ${PARMforecast}/model_configure.tmp .
-${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure
+${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure
 
 # NoahMP table file
 ${NCP} ${PARMforecast}/noahmptable.tbl .
@@ -934,7 +938,7 @@ fi
 
 cd ..
 
-# Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and nems.configure
+# Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and ufs.configure
 ${NCP} ${PARMforecast}/diag_table.tmp .
 if [ ${imp_physics:-11} = 8 ]; then
   ${NCP} ${PARMforecast}/field_table_thompson ./field_table
@@ -950,16 +954,16 @@ ${NCP} ${PARMforecast}/noahmptable.tbl .
 
 if [ ${ocean_model} = hycom ]; then
   if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
-    ${NCP} ${PARMforecast}/nems.configure.cpl.tmp ./nems.configure.tmp
+    ${NCP} ${PARMforecast}/ufs.configure.cpl.tmp ./ufs.configure.tmp
   else
-    ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+    ${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure.tmp
   fi
 elif [ ${ocean_model} = mom6 ]; then
   if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
-    ${NCP} ${PARMforecast}/nems.configure.mom6.tmp ./nems.configure.tmp
+    ${NCP} ${PARMforecast}/ufs.configure.mom6.tmp ./ufs.configure.tmp
     ${NCP} ${PARMforecast}/data_table ./
   else
-    ${NCP} ${PARMforecast}/nems.configure.atmonly ./nems.configure.tmp
+    ${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure.tmp
   fi
 else
   echo "WARNING: unknow ocean model of ${ocean_model}"
@@ -990,7 +994,7 @@ sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "/_mesh_atm_/d" \
     -e "s/_mesh_wav_/ww3_mesh.nc/g" \
     -e "s/_multigrid_/false/g" \
-    nems.configure.tmp > nems.configure
+    ufs.configure.tmp > ufs.configure
 
 ngrids=${nest_grids}
 n=1
@@ -1230,10 +1234,10 @@ if [ ${run_datm} = yes ]; then
   sed -i "s/_yearFirst_/$yr/g" datm.streams
   sed -i "s/_yearLast_/$endyr/g" datm.streams
   sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
-  # Generate datm_in and nems.configure from model-independent templates:
+  # Generate datm_in and ufs.configure from model-independent templates:
   ${NCP} ${PARMhafs}/cdeps/datm_in .
   sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm_in
-  ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
+  ${NCP} ${PARMforecast}/ufs.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
       -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
@@ -1247,7 +1251,7 @@ if [ ${run_datm} = yes ]; then
       -e "/_system_type_/d" \
       -e "s/_atm_model_/datm/g" \
       -e "s/_ocn_model_/hycom/g" \
-      nems.configure.cdeps.tmp > nems.configure
+      ufs.configure.cdeps.tmp > ufs.configure
 elif [ ${run_docn} = yes ]; then
   MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
   ${NLN} "$docn_input_path"/DOCN_input*nc INPUT/
@@ -1272,7 +1276,7 @@ elif [ ${run_docn} = yes ]; then
     fi
   done
   ${NLN} "${mesh_ocn}" INPUT/DOCN_ESMF_mesh.nc
-  ${NCP} ${PARMforecast}/nems.configure.cdeps.tmp ./
+  ${NCP} ${PARMforecast}/ufs.configure.cdeps.tmp ./
   sed -e "s/_ATM_petlist_bounds_/${ATM_petlist_bounds}/g" \
       -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
       -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
@@ -1286,7 +1290,7 @@ elif [ ${run_docn} = yes ]; then
       -e "s/_system_type_/ufs/g" \
       -e "s/_atm_model_/fv3/g" \
       -e "s/_ocn_model_/docn/g" \
-      nems.configure.cdeps.tmp > nems.configure
+      ufs.configure.cdeps.tmp > ufs.configure
 fi
 
 # Generate model_configure
@@ -1315,7 +1319,7 @@ OUTPUT_FH=-1
 
 if [ $gtype = regional ]; then
   ngrids=${nest_grids}
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$(( ${nest_grids} + 1 ))
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
@@ -1434,8 +1438,8 @@ if [ ${write_dopost:-.false.} = .true. ]; then
   fi
 fi
 
-# Copy the fd_nems.yaml file
-${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_nems.yaml ./
+# Copy the fd_ufs.yaml file
+${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_ufs.yaml ./
 
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
