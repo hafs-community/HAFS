@@ -7,12 +7,9 @@ set -x
 
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
-SUBEXPT=pygrafC192no
-conf=../parm/WaterInTheWestC192.conf
+SUBEXPT=$EXPT
+conf=../parm/WaterInTheWest.conf
 opts="-t -f"
-
-# To enable graphics, uncomment this. But only on Hera!
-# conf="$conf config.run_pygraf=yes"
 
 scrubopt="config.scrub_work=no config.scrub_com=no"
  # 3DEnVar with GDAS ensembles
