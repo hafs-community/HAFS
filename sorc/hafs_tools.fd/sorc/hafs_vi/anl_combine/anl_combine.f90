@@ -490,7 +490,7 @@
       WBD = LON1
       SBD = LAT1
 
-      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP
+!      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP !ckw
       write(*,*)'WBD,SBD,CENTRAL_LON,CENTRAL_LAT=',    &
                  WBD,SBD,CENTRAL_LON,CENTRAL_LAT
       do k=1,nz1
@@ -514,6 +514,8 @@
 
       DLMD = (LON2-LON1)/(NX-1)
       DPHD = (LAT2-LAT1)/(NY-1)
+
+      write(*,*)'DLMD,DPHD',DLMD,DPHD !ckw
 
       CALL EARTH_LATLON_AGRID ( HLAT3,HLON3,VLAT3,VLON3,  & ! lat, lon at H, V points
                           LON1,LAT1,LON2,LAT2,        &  ! input res, west & south bdry
@@ -738,6 +740,10 @@
                   end if
                 end do
               end if
+              exit
+            else !ckw
+              VMX06=-999. !ckw
+              PMN06=-999. !ckw
             END IF
           END IF
         if(stat /= 0) exit   !shin
@@ -2422,7 +2428,7 @@
 
       print*,'NX,NY,NZ=',NX,NY,NZ,I360
 
-      print*,'PDTOP,PT=',PDTOP,PT
+!      print*,'PDTOP,PT=',PDTOP,PT !ckw not used
 
 !JH Shin: Blocked output fort.63 since it is not used
 !     WRITE(63)((SLP1(I,J),I=1,NX),J=1,NY,2)

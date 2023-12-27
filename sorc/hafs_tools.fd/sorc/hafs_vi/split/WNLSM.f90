@@ -92,6 +92,8 @@
 
 !C
 !C     INITIALIZE-VARIABLES
+
+      !RNORM = ZERO !ckw initialized RNORM in WNLIT
 !C***FIRST EXECUTABLE STATEMENT  WNLSM
       !yonghui call sub998(SRELPR, M, MA, MME,MEP1)
       call sub998(SRELPR, M, MA, MME, ME, MEP1)
@@ -258,8 +260,10 @@
 !C     CORRESPONDING TO THE UNCONSTRAINED VARIABLES USING
 !C     THE PROCEDURE INITIALLY-TRIANGULARIZE.
        !yonghui call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
+!       call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
+!                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
        call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
-                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
+                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE, RNORM) !ckw passed RNORM here
 !C
 !C     PERFORM WNNLS ALGORITHM USING THE FOLLOWING STEPS.
 !C
@@ -743,6 +747,8 @@
       enddo !1070
 !C
 !C     RESCALE THE SOLN USING THE COL SCALING.
+!      RNORM = ZERO !ckw need to initialized RNORM; passed from WNLIT;
+!      !same results as initialized here
       DO  J=1,N !1080
         X(J) = X(J)*D(J)
       enddo !1080
@@ -850,7 +856,7 @@
 
       !yonghui subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
       subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
-                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
+                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE,RNORM)
       USE setparms
       implicit none
       integer MA, MME, ME, MEP1, M, MDW, L1, N, L
