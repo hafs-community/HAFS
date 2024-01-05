@@ -146,6 +146,9 @@
 /
 
 &gfs_physics_nml
+  progsigma      = @[progsigma_nest]
+  betadcu        = @[betadcu_nest]
+  betamcu        = @[betamcu_nest]
   lightning_threat = @[lightning_threat]
   fhzero         = 3.
   ldiag3d        = .false.
