@@ -311,6 +311,12 @@ export hide_ugwpv0="{hide_ugwpv0}"
 export hide_ugwpv1="{hide_ugwpv1}"
 export cdmbgwd={cdmbgwd}
 export cdmbgwd_nest={cdmbgwd_nest}
+export progsigma={progsigma}
+export progsigma_nest={progsigma_nest}
+export betamcu={betamcu}
+export betamcu_nest={betamcu_nest}
+export betadcu={betadcu}
+export betadcu_nest={betadcu_nest}
 
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
