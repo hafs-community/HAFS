@@ -744,6 +744,9 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
+if [ $progsigma = .true. ] || [ $progsigma_nest = .true. ] ; then
+  cat ${PARMforecast}/field_table_addition_progsigma >> field_table
+fi
 if [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
 else

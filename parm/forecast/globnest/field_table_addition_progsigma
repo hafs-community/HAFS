@@ -1,0 +1,5 @@
+# prognotsitc sigmab tracer
+ "TRACER", "atmos_mod", "sigmab"
+           "longname",     "sigma fraction"
+           "units",        "fraction"
+       "profile_type", "fixed", "surface_value=0.0" /
