@@ -57,8 +57,9 @@
   n_sponge = 24
   nudge_qv = .false.
   nudge_dz = .false.
-  tau = 5.
-  rf_cutoff = 30.e2
+  tau = @[fv_core_tau]
+  rf_cutoff = @[rf_cutoff]
+  fast_tau_w_sec = @[fast_tau_w_sec]
   sg_cutoff = -1.
   rf_fast = .false.
   d2_bg_k1 = 0.16
@@ -165,6 +166,9 @@
 /
 
 &gfs_physics_nml
+  progsigma      = @[progsigma]
+  betadcu        = @[betadcu]
+  betamcu        = @[betamcu]
   lightning_threat = @[lightning_threat]
   fhzero         = 3.
   ldiag3d        = .false.
@@ -424,16 +428,27 @@
 /
 
 &cires_ugwp_nml
-  knob_ugwp_solver  = 2
-  knob_ugwp_source  = 1,1,0,0
-  knob_ugwp_wvspec  = 1,25,25,25
-  knob_ugwp_azdir   = 2,4,4,4
-  knob_ugwp_stoch   = 0,0,0,0
-  knob_ugwp_effac   = 1,1,1,1
-  knob_ugwp_doaxyz  = 1
-  knob_ugwp_doheat  = 1
-  knob_ugwp_dokdis  = 1
-  knob_ugwp_ndx4lh  = 1
-  knob_ugwp_version = 0
-  launch_level      = 25
+       knob_ugwp_solver  = 2
+       knob_ugwp_source  = 1,1,0,0
+       knob_ugwp_wvspec  = 1,25,25,25
+       knob_ugwp_azdir   = 2,4,4,4
+       knob_ugwp_stoch   = 0,0,0,0
+       knob_ugwp_effac   = 1,1,1,1
+       knob_ugwp_doaxyz  = 1
+       knob_ugwp_doheat  = 1
+       knob_ugwp_dokdis  = @[knob_ugwp_dokdis]
+       knob_ugwp_ndx4lh  = @[knob_ugwp_ndx4lh]
+       knob_ugwp_version = @[knob_ugwp_version]
+       ! This one is only for cires_ugwp_module.F90
+@[hide_ugwpv0]      launch_level      = 25
+       ! These are only for cires_ugwpv1_module.F90
+@[hide_ugwpv1]      knob_ugwp_lzmax    = @[knob_ugwp_lzmax]
+@[hide_ugwpv1]      knob_ugwp_lzmin    = @[knob_ugwp_lzmin]
+@[hide_ugwpv1]      knob_ugwp_lzstar   = @[knob_ugwp_lzstar]
+@[hide_ugwpv1]      knob_ugwp_taumin   = @[knob_ugwp_taumin]
+@[hide_ugwpv1]      knob_ugwp_tauamp   = @[knob_ugwp_tauamp]
+@[hide_ugwpv1]      knob_ugwp_lhmet    = @[knob_ugwp_lhmet]
+@[hide_ugwpv1]      knob_ugwp_orosolv  = '@[knob_ugwp_orosolv]'
+@[hide_ugwpv1]      knob_ugwp_palaunch = @[knob_ugwp_palaunch]
+@[hide_ugwpv1]      knob_ugwp_nslope   = @[knob_ugwp_nslope]
 /

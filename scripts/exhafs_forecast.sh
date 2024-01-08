@@ -656,6 +656,7 @@ ${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
 ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+${NLN} $FIXam/ugwp_limb_tau.nc .
 ${NLN} $PARMhafs/noahmptable.tbl .
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
@@ -742,6 +743,9 @@ if [ ${imp_physics:-11} = 8 ]; then
   ${NCP} ${PARMforecast}/field_table_thompson_aero ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
+fi
+if [ $progsigma = .true. ] || [ $progsigma_nest = .true. ] ; then
+  cat ${PARMforecast}/field_table_addition_progsigma >> field_table
 fi
 if [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
