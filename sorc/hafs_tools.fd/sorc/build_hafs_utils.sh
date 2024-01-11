@@ -81,7 +81,7 @@ _hafsutils_analysis_update (){
 
     # Build the analysis-update application.
 
-    make all
+    make all VERBOSE=3
 
     # Move the analysis-update application executable to the HAFS
     # utility application executables path.
@@ -120,7 +120,7 @@ _hafsutils_obs_preproc (){
     cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the obs-preproc application.
-    make all
+    make all VERBOSE=3
 
     # Move the analysis-update application executable to the HAFS
     # utility application executables path.
@@ -159,7 +159,7 @@ _hafsutils_change_prepbufr (){
     cmake ../hafs_change_prepbufr -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the hafs_change_prepbufr application.
-    make all
+    make all VERBOSE=3
 
     # Move the hafs_change_prepbufr application executable to the HAFS
     # utility application executables path.
