@@ -92,8 +92,6 @@
 
 !C
 !C     INITIALIZE-VARIABLES
-
-      !RNORM = ZERO !ckw initialized RNORM in WNLIT
 !C***FIRST EXECUTABLE STATEMENT  WNLSM
       !yonghui call sub998(SRELPR, M, MA, MME,MEP1)
       call sub998(SRELPR, M, MA, MME, ME, MEP1)
@@ -260,8 +258,6 @@
 !C     CORRESPONDING TO THE UNCONSTRAINED VARIABLES USING
 !C     THE PROCEDURE INITIALLY-TRIANGULARIZE.
        !yonghui call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
-!       call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
-!                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE)
        call sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
                  ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE, RNORM) !ckw passed RNORM here
 !C
@@ -337,9 +333,7 @@
           endif
           FEASBL = .FALSE.
 
-
           do
-!C
 !C           REMOVE COL JCON AND SHIFT COLS JCON+1 THROUGH N TO THE
 !C           LEFT. SWAP COL JCON INTO THE N-TH POSITION.  THIS ACHIEVES
 !C           UPPER HESSENBERG FORM FOR THE NONACTIVE CONSTRAINTS AND
@@ -469,6 +463,8 @@
                   exit
                 endif
               enddo !580
+            else !ckw
+              ind59=0 !ckw
             endif
             if (ind59.ne.1) then
               FEASBL = .TRUE.
@@ -677,6 +673,8 @@
               MEP1 = ME + 1
             endif
             ind91=1
+          else !ckw
+            ind91=0 !ckw
           endif
           if(ind91.ne.1) then
             POS = .FALSE.
@@ -856,7 +854,7 @@
 
       !yonghui subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, NSOLN, L1, &
       subroutine sub995(L, ITYPE, N, MDW, W, WD, ME, MEP1, M, NSOLN, L1, &
-                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE,RNORM)
+                 ALSQ, EANORM, FAC, TAU, KRANK, KRP1, NIV, NIV1, SCALE, RNORM)
       USE setparms
       implicit none
       integer MA, MME, ME, MEP1, M, MDW, L1, N, L
