@@ -866,6 +866,14 @@ for itile in $(seq 8 ${ntiles}); do
   fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
+
+  # WDR Link static files for nest initialization
+  if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+    for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+      ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.${var}.tile${itile}.nc ${var}.tile${itile}.nc
+    done
+  fi
+
 done
 
 fi #if [ $nest_grids -gt 1 ]; then
@@ -877,6 +885,9 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  # WDR Added parent soil_type to properly handle lakes
+  ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.soil_type.tile7.halo0.nc soil_type.tile1.nc
+
   if [ ${use_orog_gsl:-no} = yes ]; then
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
