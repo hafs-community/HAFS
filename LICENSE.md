@@ -1,6 +1,6 @@
 Copyright 2024 National Oceanic and Atmospheric Administration
  
-The Hurricane Analysis and Forecast System (HAFS) code incorporated in the Unified Forecast System (UFS) was developed by the National Oceanic and Atmospheric Administration. The gold standard copy of the Code willbe maintained by NOAA at https://github.com/hafs-community/HAFS
+The Hurricane Analysis and Forecast System (HAFS) code incorporated in the Unified Forecast System (UFS) was developed by the National Oceanic and Atmospheric Administration. The gold standard copy of the Code will be maintained by NOAA at https://github.com/hafs-community/HAFS
  
 The National Oceanic and Atmospheric Administration is releasing this code under the GNU Lesser 
 General Public License v3.0 (the "License"); you may not use this code except in compliance 
@@ -14,7 +14,7 @@ HAFS lincece covers all scripts and source code in the HAFS repostary except for
 - MOM6: [MOM6 License](https://github.com/mom-ocean/MOM6/blob/main/LICENSE.md)
 - HYCOM: [HYCOM License](https://github.com/HYCOM/HYCOM-examples/blob/master/LICENSE)
 - UFS-UTILS: [UFS-UTILS Licence](https://github.com/hafs-community/UFS_UTILS/blob/support/HAFS/LICENSE.md)
-- GSI:
+- GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
 
 Unless required by applicable law or agreed to in writing, software distributed under the License 
 is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
