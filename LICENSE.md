@@ -1,7 +1,5 @@
 This file is part of the Hurricane Forecast and Analysis System, referred to as HAFS, which is made available under version 3 of the Gnu Lesser General Public License.
 
-The intent of this license is to ensure free and unrestricted access to the HAFS software, and to pass on those rights to modified versions this software.
-
 You may obtain a copy of the License at
 - HAFS: [GNU Lesser General Public License 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) (LGPL)
 
@@ -9,6 +7,8 @@ The following components used in HAFS are licensed separately:
 - UFS: [UFS-weather-model License](https://github.com/ufs-community/ufs-weather-model/blob/develop/LICENSE.md)
 - UFS-UTILS: [UFS-UTILS Licence](https://github.com/ufs-community/UFS_UTILS/blob/develop/LICENSE.md)
 - GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
+
+The intent of this license is to ensure free and unrestricted access to the HAFS software, and to pass on those rights to modified versions this software.
 
 Unless required by applicable law or agreed to in writing, software distributed under the License 
 is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
