@@ -11,11 +11,11 @@ You may obtain a copy of the License at
 
 HAFS license covers all scripts and source code in the HAFS repostary except for the source code listed below, which are licensed separately:
 - UFS: [UFS-weather-model License](https://github.com/hafs-community/ufs-weather-model/blob/support/HAFS/LICENSE.md)
-- Licenses that are not included in current UFS:
+- UFS subcomponent Licenses that are currently not included in UFS license:
     * MOM6: [MOM6 License](https://github.com/mom-ocean/MOM6/blob/main/LICENSE.md)
     * HYCOM: [HYCOM License](https://github.com/HYCOM/HYCOM-examples/blob/master/LICENSE)
-    * UFS-UTILS: [UFS-UTILS Licence](https://github.com/hafs-community/UFS_UTILS/blob/support/HAFS/LICENSE.md)
-    * GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
+- UFS-UTILS: [UFS-UTILS Licence](https://github.com/hafs-community/UFS_UTILS/blob/support/HAFS/LICENSE.md)
+- GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
 
 Unless required by applicable law or agreed to in writing, software distributed under the License 
 is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
