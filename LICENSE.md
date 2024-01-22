@@ -9,7 +9,7 @@ with the License.
 You may obtain a copy of the License at
 - HAFS: [GNU Lesser General Public License 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) (LGPL)
 
-HAFS lincese covers all scripts and source code in the HAFS repostary except for the source code listed below, which are licensed separately:
+HAFS license covers all scripts and source code in the HAFS repostary except for the source code listed below, which are licensed separately:
 - UFS: [UFS-weather-model License](https://github.com/hafs-community/ufs-weather-model/blob/support/HAFS/LICENSE.md)
 - Licenses that are not included in current UFS:
     * MOM6: [MOM6 License](https://github.com/mom-ocean/MOM6/blob/main/LICENSE.md)
