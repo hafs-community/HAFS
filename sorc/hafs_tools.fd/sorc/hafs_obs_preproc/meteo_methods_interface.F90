@@ -108,8 +108,8 @@ contains
 
        ! Check local variable and proceed accordingly
 
-       if(grid%t(i) .ne. spval .and. grid%rh(i) .ne. spval) then
-
+!       if(grid%t(i) .ne. spval .and. grid%rh(i) .ne. spval) then
+       if(grid%t(i) .ne. spval .and. grid%rh(i) .ne. spval .and. grid%rh(i) .gt. 0.0) then
           ! Compute local variables
 
           abt          = (a*(grid%t(i) - svpt0))/(b + (grid%t(i) - svpt0))

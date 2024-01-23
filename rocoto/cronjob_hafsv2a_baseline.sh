@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/hafsv2_baseline}
+HOMEhafs=${HOMEhafs:-/work2/noaa/hwrf/save/bthomas/hafsv2_baseline}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -17,7 +17,7 @@ opts="-t -f"
 
  # Technical testing for Hurricane Laura
 ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY ${confopts} \
-    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
+    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
 
 #===============================================================================
  # 2023 NATL Storms

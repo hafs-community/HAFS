@@ -451,7 +451,7 @@
       WBD=LON1
       SBD=LAT1
 
-      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP
+!      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP !ckw not used
       write(*,*)'WBD,SBD,CENTRAL_LON,CENTRAL_LAT=',    &
                  WBD,SBD,CENTRAL_LON,CENTRAL_LAT
       do k=1,nz1
