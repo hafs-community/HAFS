@@ -59,7 +59,7 @@ load(pathJoin("g2", g2_ver))
 g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 load(pathJoin("g2tmpl", g2tmpl_ver))
 
-bufr_ver=os.getenv("bufr_ver") or "11.7.0"
+bufr_ver=os.getenv("bufr_ver") or "12.0.0"
 load(pathJoin("bufr", bufr_ver))
 
 ip_ver=os.getenv("ip_ver") or "4.0.0"
