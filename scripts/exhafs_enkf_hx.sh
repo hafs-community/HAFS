@@ -474,6 +474,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
+    -e "s/_NAENSLOC_/${naensloc:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------

@@ -29,6 +29,8 @@ export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
+export nsclgrp=${nsclgrp:-1}
+export naensloc=${naensloc:-1}
 
 export RUN_GSI=${RUN_GSI:-NO}
 export RUN_FGAT=${RUN_FGAT:-NO}
@@ -588,6 +590,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
+    -e "s/_NAENSLOC_/${naensloc:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
