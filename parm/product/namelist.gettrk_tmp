@@ -178,4 +178,6 @@
 &gendiaginfo
   genflag='n',
   gen_read_rh_fields=''
+  need_to_compute_rh_from_q='n'
+  smoothe_mslp_for_gen_scan='n'
 /
