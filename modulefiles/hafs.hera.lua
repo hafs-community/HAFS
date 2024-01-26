@@ -110,7 +110,7 @@ cdo_ver=os.getenv("cdo_ver") or "2.0.5"
 load(pathJoin("cdo", cdo_ver))
 
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
-load(pathJoin("rocoto", rocoto_ver))
+load("rocoto")
 
 prepend_path("MODULEPATH", "/scratch1/NCEPDEV/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))
