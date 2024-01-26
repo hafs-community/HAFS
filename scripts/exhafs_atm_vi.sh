@@ -418,9 +418,15 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+  if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
+   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
+   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+  else
+   ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_deep   fort.75
+   ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_shal   fort.76
+   ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_shal   fort.77
+  fi
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
@@ -495,9 +501,15 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+    if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
+     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
+     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+    else
+     ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_deep   fort.75
+     ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_shal   fort.76
+     ${NLN} ${FIXhafs}/fix_vi/hafs_WPstorm_shal   fort.77
+    fi
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output
