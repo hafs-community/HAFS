@@ -37,7 +37,7 @@
 /
 
 &fv_grid_nml
- !grid_file = 'INPUT/grid_spec.nc'
+  grid_file = 'INPUT/grid_spec.nc'
 /
 
 &fv_core_nml
@@ -48,7 +48,7 @@
   npy = @[npy_nml]
   ntiles = 6
   npz = @[npz]
- !grid_type = -1
+  grid_type = -1
   make_nh = .false.
   fv_debug = .false.
   range_warn = .true.
