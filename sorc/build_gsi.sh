@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eux
 source ./machine-setup.sh > /dev/null 2>&1
-#if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
+if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
 #Supports Debug or Release modes for the build
 BUILD_MODE=${BUILD_MODE:-Release}
