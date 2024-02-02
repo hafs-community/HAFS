@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 
 import numpy as np
 try:
@@ -74,65 +75,13 @@ class obc_variable():
         return None
 
     def allocate(self):
-        ''' Allocate the output array '''
+        #Allocate the output array 
         if self.geometry == 'surface':
             data = np.empty((self.nz, self.ny, self.nx))
         elif self.geometry == 'line':
             data = np.empty((self.ny, self.nx))
         return data
-
-    def set_constant_value(self, value, depth_vector=None):
-        ''' Set constant value to field '''
-        if depth_vector is not None:
-            self.depth_dz_from_vector(depth_vector)
-        self.data = self.allocate()
-        self.data[:] = value
-        return None
-
-    def set_vertical_profile(self, top_value, bottom_value, shape='linear',
-                             depth_vector=None):
-        ''' create a vertical profile '''
-        if depth_vector is not None:
-            self.depth_dz_from_vector(depth_vector)
-        self.data = self.allocate()
-        if shape == 'linear':
-            slope = (top_value - bottom_value) / \
-                    (depth_vector[0] - depth_vector[-1])
-            for kz in np.arange(self.nz):
-                self.data[kz, :, :] = bottom_value + slope * \
-                                      (depth_vector[kz] - depth_vector[-1])
-
-        return None
-
-    def set_horizontal_shear(self, value_1, value_n, shape='linear',
-                             direction='x', depth_vector=None):
-        if depth_vector is not None:
-            self.depth_dz_from_vector(depth_vector)
-        self.data = self.allocate()
-        if shape == 'linear':
-            if direction == 'x':
-                dx = (value_n - value_1) / self.nx
-                if depth_vector is not None:
-                    for kz in np.arange(self.nz):
-                        for ky in np.arange(self.ny):
-                            self.data[kz, ky, :] = np.arange(value_1,
-                                                              value_n, dx)
-                else:
-                    for ky in np.arange(self.ny):
-                        self.data[ky, :] = np.arange(value_1, value_n, dx)
-            if direction == 'y':
-                dy = (value_n - value_1) / self.ny
-                if depth_vector is not None:
-                    for kz in np.arange(self.nz):
-                        for kx in np.arange(self.nx):
-                            self.data[kz, :, kx] = np.arange(value_1,
-                                                              value_n, dy)
-                else:
-                    for kx in np.arange(self.nx):
-                        self.data[:, kx] = np.arange(value_1, value_n, dy)
-
-        return None
-
+    
     def interpolate_from(self, filename, variable, frame=None,
                          maskfile=None, maskvar=None, missing_value=None,
                          from_global=True, depthname='z', timename='time',
@@ -234,29 +183,9 @@ class obc_variable():
         field_src.destroy()
         return regridme
 
-    def compute_mask_from_missing_value(self, data, missing_value=None):
-        ''' compute mask from missing value :
-        * first try to get the mask assuming our data is a np.ma.array.
-        Well-written netcdf files with missing_value of _FillValue attributes
-        are translated into a np.ma.array
-        * else use provided missing value to create mask '''
-        try:
-            logicalmask = data.mask
-            mask = np.ones(logicalmask.shape)
-            mask[np.where(logicalmask == True)] = 0
-        except:
-            if missing_value is not None:
-                mask = np.ones(data.shape)
-                mask[np.where(data >= missing_value)] = 0
-            else:
-                exit('Cannot create mask, please provide a missing_value, \
-                      or maskfile')
-        return mask
-
-
     def perform_interpolation(self, dataextrap, regridme, field_src,
                               field_target, grid_target,use_locstream):
-
+                
         if self.orientation == 0: # south segment
             coord_boundary = grid_target.coords[0][0][:,0] # lon at south segment
         if self.orientation == 1: # east segment
@@ -341,40 +270,10 @@ class obc_variable():
                                                            self.imin:self.imax+1]
         return data
 
-    def depth_dz_from_vector(self, depth_vector):
-        self.nz = depth_vector.shape[0]
-        self.depth = np.empty((self.nz, self.ny, self.nx))
-        for ky in np.arange(self.ny):
-            for kx in np.arange(self.nx):
-                self.depth[:, ky, kx] = depth_vector
-        # compute layer thickness
-        self.dz = np.empty((self.nz, self.ny, self.nx))
-        self.dz[:-1, :, :] = self.depth[1:, :, :] - self.depth[:-1, :, :]
-        # test if bounds exist first (to do), else
-        self.dz[-1, :, :] = self.dz[-2, :, :]
-        return None
-
-    def extract_subset_into(self, dst_obc_variable):
-        ''' extract subset of data from source obc variable into dest'''
-        if self.geometry == 'surface':
-            dst_obc_variable.data = self.data[:, dst_obc_variable.jmin:dst_obc_variable.jmax+1, \
-                                     dst_obc_variable.imin:dst_obc_variable.imax+1]
-            dst_obc_variable.depth = self.depth[:, dst_obc_variable.jmin:dst_obc_variable.jmax+1, \
-                                     dst_obc_variable.imin:dst_obc_variable.imax+1]
-            dst_obc_variable.dz = self.dz[:, dst_obc_variable.jmin:dst_obc_variable.jmax+1, \
-                                     dst_obc_variable.imin:dst_obc_variable.imax+1]
-            dst_obc_variable.nz = self.nz
-        elif self.geometry == 'line':
-            dst_obc_variable.data = self.data[dst_obc_variable.jmin:dst_obc_variable.jmax+1, \
-                                     dst_obc_variable.imin:dst_obc_variable.imax+1]
-
-        dst_obc_variable.timesrc = self.timesrc
-        return None
-
     def create_source_grid(self, filename, from_global, coord_names,
                            x_coords=None, y_coords=None, autocrop=True,
                            use_gridspec=False):
-        ''' create ESMF grid object for source grid '''
+        # create ESMF grid object for source grid
         # new way to create source grid
         # TO DO : move into separate function, has to be called before drown
         # so that we know the periodicity

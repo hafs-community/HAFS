@@ -8,12 +8,12 @@ import time as Time
 import numpy as np
 import xarray as xr
 import netCDF4 as nc
+from scipy import interpolate
 try:
     import esmpy as ESMF
 except ImportError or ModuleNotFoundError:
     import ESMF as ESMF
 
-from scipy import interpolate
 from lib_obc_segments import obc_segment
 from lib_obc_variable import obc_variable
 from lib_obc_vectvariable import obc_vectvariable
