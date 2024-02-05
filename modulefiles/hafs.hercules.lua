@@ -67,6 +67,9 @@ load(pathJoin("sp", sp_ver))
 w3emc_ver=os.getenv("w3emc_ver") or "2.10.0"
 load(pathJoin("w3emc", w3emc_ver))
 
+w3nco_ver=os.getenv("w3nco_ver") or "2.4.1"
+load(pathJoin("w3nco", w3nco_ver))
+
 gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.6.1"
 load(pathJoin("gftl-shared", gftl_shared_ver))
 
