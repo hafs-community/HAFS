@@ -6,7 +6,7 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver)) 
@@ -32,16 +32,16 @@ load(pathJoin("hdf5", hdf5_ver))
 netcdf_c_ver=os.getenv("netcdf_c_ver") or "4.9.2"
 load(pathJoin("netcdf-c", netcdf_c_ver))
 
-netcdf_fortran_ver=os.getenv("netcdf_fortran_ver") or "4.6.0"
+netcdf_fortran_ver=os.getenv("netcdf_fortran_ver") or "4.6.1"
 load(pathJoin("netcdf-fortran", netcdf_fortran_ver))
 
 parallelio_ver=os.getenv("parallelio_ver") or "2.5.10"
 load(pathJoin("parallelio", parallelio_ver))
 
-esmf_ver=os.getenv("esmf_ver") or "8.4.2"
+esmf_ver=os.getenv("esmf_ver") or "8.5.0"
 load(pathJoin("esmf", esmf_ver))
 
-fms_ver=os.getenv("fms_ver") or "2023.01"
+fms_ver=os.getenv("fms_ver") or "2023.04"
 load(pathJoin("fms",fms_ver))
 
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
@@ -59,22 +59,22 @@ load(pathJoin("g2tmpl", g2tmpl_ver))
 ip_ver=os.getenv("ip_ver") or "4.3.0"
 load(pathJoin("ip", ip_ver))
 
-sp_ver=os.getenv("sp_ver") or "2.3.3"
+sp_ver=os.getenv("sp_ver") or "2.5.0"
 load(pathJoin("sp", sp_ver))
 
 w3emc_ver=os.getenv("w3emc_ver") or "2.10.0"
 load(pathJoin("w3emc", w3emc_ver))
 
-gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.5.0"
+gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.6.1"
 load(pathJoin("gftl-shared", gftl_shared_ver))
 
-yafyaml_ver=os.getenv("yafyaml_ver") or "0.5.1"
-load(pathJoin("yafyaml", yafyaml_ver)) 
+yafyaml_ver=os.getenv("yafyaml_ver") or "0.2.5"
+load(pathJoin("libyaml", yafyaml_ver)) 
 
-mapl_ver=os.getenv("mapl_ver") or "2.35.2-esmf-8.4.2"
+mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.5.0"
 load(pathJoin("mapl", mapl_ver))
 
-bufr_ver=os.getenv("bufr_ver") or "12.0.0"
+bufr_ver=os.getenv("bufr_ver") or "12.0.1"
 load(pathJoin("bufr", bufr_ver))
 
 sfcio_ver=os.getenv("sfcio_ver") or "1.4.1"
@@ -89,8 +89,8 @@ load(pathJoin("szip", szip_ver))
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("wrf-io", wrf_io_ver))
 
-prod_util_ver=os.getenv("prod_util_ver") or "1.2.2"
-load(pathJoin("prod-util", prod_util_ver))
+prod_util_ver=os.getenv("prod_util_ver") or "2.1.1"
+load(pathJoin("prod_util", prod_util_ver))
 
 grib_util_ver=os.getenv("grib_util_ver") or "1.3.0"
 load(pathJoin("grib-util", grib_util_ver))
@@ -106,10 +106,10 @@ nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 --prepend_path("PATH", "/apps/nco/4.9.3/gnu/9.2.0/bin")
 
-cdo_ver=os.getenv("cdo_ver") or "2.0.5"
+cdo_ver=os.getenv("cdo_ver") or "2.2.0"
 load(pathJoin("cdo", cdo_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
+rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
 load("rocoto")
 
 prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hwrfv3/local/modulefiles")
