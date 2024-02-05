@@ -315,6 +315,8 @@ ufs.hafs
 "gfs_sfc",     "q2m",         "spfh2m",    "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "t2m",         "tmp2m",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "tsfc",        "tmpsfc",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "usfco",       "usfco",     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "vsfco",       "vsfco",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "vtype",       "vtype",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "stype",       "sotyp",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "slmsksfc",    "land",      "fv3_history2d",  "all",  .false.,  "none",  2

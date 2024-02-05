@@ -278,6 +278,8 @@ export fhlwr={fhlwr}
 export iaer={iaer}
 export lseaspray={lseaspray}
 export clam_deep={clam_deep}
+export c1_deep={c1_deep}
+export c1_shal={c1_shal}
 export progsigma={progsigma}
 export betascu={betascu}
 export betamcu={betamcu}
@@ -417,11 +419,13 @@ export satpost_ens={satpost_ens}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
+export ocean_domain={ocean_domain}
 export cpl_dt={cpl_dt}
 export cpl_atm_ocn={cpl_atm_ocn}
 export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
+export icplocn2atm={icplocn2atm}
 
 export run_wave={run_wave}
 export wave_model={wave_model}

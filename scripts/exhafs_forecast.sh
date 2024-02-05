@@ -298,11 +298,12 @@ cpl_atm_ocn=${cpl_atm_ocn:-cmeps_2way}
 cpl_atm_wav=${cpl_atm_wav:-cmeps_1way_1to2}
 cpl_wav_ocn=${cpl_wav_ocn:-cmeps_sidebyside}
 ocn_tasks=${ocn_tasks:-120}
+wav_tasks=${wav_tasks:-120}
 med_tasks=${med_tasks:-${ocn_tasks}}
 dat_tasks=${dat_tasks:-${ocn_tasks}}
-wav_tasks=${wav_tasks:-120}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
+icplocn2atm=${icplocn2atm:-0}
 cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
 INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
@@ -320,27 +321,27 @@ ATM_model_attribute=${ATM_model_attribute:-"ATM_model = fv3"}
 OCN_model_attribute=${OCN_model_attribute:-""}
 WAV_model_attribute=${WAV_model_attribute:-""}
 MED_model_attribute=${MED_model_attribute:-""}
+ATM_omp_num_threads=${atm_threads:-${OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
+OCN_omp_num_threads=${ocn_threads:-${OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
+WAV_omp_num_threads=${wav_threads:-${OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
+MED_omp_num_threads=${med_threads:-${OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
+DAT_omp_num_threads=${dat_threads:-${OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
 
 pubbasin2=${pubbasin2:-AL}
+if [ ${ocean_domain:-auto} = "auto" ]; then
+
 if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
   ocean_domain=nhc
-  nxglobal=2413
-  nyglobal=964
-# ocean_domain=hat10
-#  nxglobal=1135
-#  nyglobal=633
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
-  nxglobal=1938
-  nyglobal=937
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
   ocean_domain=jtsh
-  nxglobal=2689
-  nyglobal=756
 else
-  echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
+  echo "FATAL ERROR: Unknown/unsupported basin of ${pubbasin2}"
   exit 1
+fi
+
 fi
 
 # CDEPS related settings
@@ -376,7 +377,7 @@ fi
 
 ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 
-if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} != yes ]; then
 
 ATM_model_component="ATM_model: fv3"
 WAV_model_component=""
@@ -435,13 +436,6 @@ elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
     cplflx=.true.
     cplocn2atm=.false.
     runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n ATM\n OCN"
-  elif [ $cpl_atm_ocn = cmeps_atm_datm_ocn ]; then
-    EARTH_component_list="EARTH_component_list: ATM DAT OCN MED"
-    DAT_model_component="DAT_model: datm"
-    DAT_model_attribute="DAT_model = datm"
-    DAT_petlist_bounds=$(printf "DAT_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$dat_tasks-1)))
-    cplflx=.true.
-    cplocn2atm=.true.
   fi
 # Currently unsupported coupling option combinations
 else
@@ -449,7 +443,49 @@ else
   exit 9
 fi
 
-fi #if [ ${run_ocean} = yes ] && [ ${run_wave} != yes ]; then
+fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} != yes ]; then
+
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_wave} != yes ]; then
+
+ATM_model_component="ATM_model: fv3"
+WAV_model_component=""
+ATM_model_attribute="ATM_model = fv3"
+WAV_model_attribute=""
+OCN_model_component="OCN_model: ${ocean_model}"
+OCN_model_attribute="OCN_model = ${ocean_model}"
+
+OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
+
+# CMEPS based coupling options
+if [[ $cpl_atm_ocn = "cmeps"* ]]; then
+  EARTH_component_list="EARTH_component_list: ATM OCN MED"
+  MED_model_component="MED_model: cmeps"
+  MED_model_attribute="MED_model=cmeps"
+  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
+  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn"
+  # CMEPS based two-way coupling
+  if [ $cpl_atm_ocn = cmeps_2way ]; then
+    cplflx=.true.
+    cplocn2atm=.true.
+  # CMEPS based one-way coupling from atm to ocn only
+  elif [ $cpl_atm_ocn = cmeps_1way_1to2 ]; then
+    cplflx=.true.
+    cplocn2atm=.false.
+  # CMEPS based one-way coupling from ocn to atm only
+  elif [ $cpl_atm_ocn = cmeps_1way_2to1 ]; then
+    cplflx=.true.
+    cplocn2atm=.true.
+  else
+    echo "FATAL ERROR: Unsupported coupling option: cpl_atm_ocn=${cpl_atm_ocn}"
+    exit 9
+  fi
+# Currently unsupported coupling option combinations
+else
+  echo "FATAL ERROR: Unsupported coupling option: cpl_atm_ocn=${cpl_atm_ocn}"
+  exit 9
+fi
+
+fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_wave} != yes ]; then
 
 if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 
@@ -515,11 +551,11 @@ fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} = yes ]; then
 EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
 ATM_model_component="ATM_model: fv3"
-OCN_model_component="OCN_model: hycom"
+OCN_model_component="OCN_model: ${ocean_model}"
 WAV_model_component="WAV_model: ww3"
 MED_model_component="MED_model: cmeps"
 ATM_model_attribute="ATM_model = fv3"
-OCN_model_attribute="OCN_model = hycom"
+OCN_model_attribute="OCN_model = ${ocean_model}"
 WAV_model_attribute="WAV_model = ww3"
 MED_model_attribute="MED_model = cmeps"
 
@@ -588,6 +624,60 @@ else
 fi
 
 fi #if [ ${run_ocean} = yes ] && [${ocean_model}=hycom] && [ ${run_wave} = yes ]; then
+
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_wave} = yes ]; then
+
+EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
+ATM_model_component="ATM_model: fv3"
+OCN_model_component="OCN_model: ${ocean_model}"
+WAV_model_component="WAV_model: ww3"
+MED_model_component="MED_model: cmeps"
+ATM_model_attribute="ATM_model = fv3"
+OCN_model_attribute="OCN_model = ${ocean_model}"
+WAV_model_attribute="WAV_model = ww3"
+MED_model_attribute="MED_model = cmeps"
+
+OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
+MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
+WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$ocn_tasks)) $(($ATM_tasks+$ocn_tasks+$wav_tasks-1)))
+
+runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
+# CMEPS based two-way atm-ocn and atm-wav coupling
+if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
+  cplflx=.true.
+  cplocn2atm=.true.
+  cplwav=.true.
+  cplwav2atm=.true.
+  INPUT_WNDFLD="C F"
+# CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
+elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
+  cplflx=.true.
+  cplocn2atm=.true.
+  cplwav=.true.
+  cplwav2atm=.false.
+  INPUT_WNDFLD="C F"
+  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
+# CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
+elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
+  cplflx=.true.
+  cplocn2atm=.false.
+  cplwav=.true.
+  cplwav2atm=.true.
+  INPUT_WNDFLD="C F"
+# CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
+elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
+  cplflx=.true.
+  cplocn2atm=.false.
+  cplwav=.true.
+  cplwav2atm=.false.
+  INPUT_WNDFLD="C F"
+# Currently unsupported coupling option combinations
+else
+  echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
+  exit 9
+fi
+
+fi #if [ ${run_ocean} = yes ] && [${ocean_model}=mom6] && [ ${run_wave} = yes ]; then
 
 # CDEPS data models
 if [ ${run_datm} = yes ]; then
@@ -975,6 +1065,7 @@ else
 fi
 
 sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
+    -e "s/_globalResourceControl_/${globalResourceControl:-false}/g" \
     -e "s/_ATM_model_component_/${ATM_model_component}/g" \
     -e "s/_DAT_model_component_/${DAT_model_component}/g" \
     -e "s/_OCN_model_component_/${OCN_model_component}/g" \
@@ -990,11 +1081,18 @@ sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "s/_OCN_petlist_bounds_/${OCN_petlist_bounds}/g" \
     -e "s/_WAV_petlist_bounds_/${WAV_petlist_bounds}/g" \
     -e "s/_MED_petlist_bounds_/${MED_petlist_bounds}/g" \
+    -e "s/_ATM_omp_num_threads_/${ATM_omp_num_threads}/g" \
+    -e "s/_DAT_omp_num_threads_/${DAT_omp_num_threads}/g" \
+    -e "s/_OCN_omp_num_threads_/${OCN_omp_num_threads}/g" \
+    -e "s/_WAV_omp_num_threads_/${WAV_omp_num_threads}/g" \
+    -e "s/_MED_omp_num_threads_/${MED_omp_num_threads}/g" \
     -e "s/_cpl_dt_/${cpl_dt}/g" \
     -e "s/_runSeq_ALL_/${runSeq_ALL}/g" \
     -e "s/_base_dtg_/${base_dtg}/g" \
     -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
     -e "s/_end_hour_/${end_hour}/g" \
+    -e "s/_NHRS_/${NHRS}/g" \
+    -e "s/_NOUTHRS_/${NOUTHRS}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     -e "/_mesh_atm_/d" \
     -e "s/_mesh_wav_/ww3_mesh.nc/g" \
@@ -1094,8 +1192,6 @@ if [ $gtype = regional ]; then
 
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   mkdir -p OUTPUT
-  # MOM_input
-  ${NLN} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.input ./MOM_input
   # Ocean IC and OBC
   ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc INPUT/ocean_ssh_ic.nc
   ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ts_ic.nc INPUT/ocean_ts_ic.nc
@@ -1126,18 +1222,28 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
 # ${NLN} ${FIXmom6}/woa23_decav91C0_monthly_sst_04_fill0.nc INPUT/ocean_sst_restore.nc
 
   # Ocean mesh
-  ${NLN} ${FIXmom6}/${ocean_domain}/mom6_mesh.nc ./mom6_mesh.nc
+  ${NLN} ${FIXmom6}/${ocean_domain}/mom6_mesh.nc INPUT/mom6_mesh.nc
   # Atmospheric forcings from GFS
-  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_forcings.nc INPUT/ocean_forcings.nc 
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/gfs_forcings.nc INPUT/gfs_forcings.nc
   # DATM gfs mesh
-  ${NLN} ${FIXhafs}/fix_cdeps/meshes/datm_gfs_mesh.nc ./datm_gfs_mesh.nc
-  # Generate datm.streams
-  ${NCP} ${PARMhafs}/cdeps/datm_gfs.streams datm.streams
-  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
-  sed -i -e "s/_yearFirst_/$yr/g" -e "s/_yearLast_/$endyr/g" datm.streams
-  # datm_in
-  ${NCP} ${PARMhafs}/cdeps/datm_gfs_in ./datm_in
-  sed -i -e "s/_nx_global_/$nxglobal/g" -e "s/_ny_global_/$nyglobal/g" datm_in
+  ${NLN} ${FIXhafs}/fix_cdeps/meshes/datm_gfs_mesh.nc INPUT/gfs_mesh.nc
+  # Generate stream.config
+  ${NCP} ${PARMhafs}/cdeps/stream.config.mom6.IN stream.config.IN
+  STREAM_OFFSET=0
+  SYEAR=${yr}
+  EYEAR=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+  INLINE_MESH_OCN="INPUT/gfs_mesh.nc"
+  INLINE_STREAM_FILES_OCN="INPUT/gfs_forcings.nc"
+  INLINE_MESH_ATM="INPUT/gfs_mesh.nc"
+  INLINE_STREAM_FILES_ATM="INPUT/gfs_forcings.nc"
+  atparse < ./stream.config.IN > ./stream.config
+
+  # MOM_input
+  ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6.input.IN ./hafs_mom6.input.IN
+  NIGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
+  NJGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
+  atparse < ./hafs_mom6.input.IN > ./MOM_input
+
 fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
 
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
@@ -1341,11 +1447,7 @@ FILENAME_BASE="'atm' 'sfc'"
 OUTPUT_FILE="'netcdf' 'netcdf'"
 IDEFLATE=1
 QUANTIZE_NSD=0
-NFHOUT=3
-NFHMAX_HF=-1
-NFHOUT_HF=3
-NSOUT=-1
-OUTPUT_FH=-1
+OUTPUT_FH="${NOUTHRS:-3} -1"
 
 if [ $gtype = regional ]; then
   ngrids=${nest_grids}

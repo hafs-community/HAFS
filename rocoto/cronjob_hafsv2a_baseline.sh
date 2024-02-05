@@ -120,7 +120,7 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022052800-2022053106 01E HISTORY ${confopts} # Agatha
 #./run_hafs.py ${opts} 2022061412-2022062012 02E HISTORY ${confopts} # Blas
 #./run_hafs.py ${opts} 2022061618-2022062812 03E HISTORY ${confopts} # Celia
-#./run_hafs.py ${opts} 2022071212-2022071912 04E HISTORY ${confopts} # Bonnie
+#./run_hafs.py ${opts} 2022070212-2022070912 04E HISTORY ${confopts} # Bonnie
 #./run_hafs.py ${opts} 2022070918-2022071618 05E HISTORY ${confopts} # Darby
 #./run_hafs.py ${opts} 2022071512-2022072112 06E HISTORY ${confopts} # Estelle
 #./run_hafs.py ${opts} 2022072606-2022080212 07E HISTORY ${confopts} # Frank

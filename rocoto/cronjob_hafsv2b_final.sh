@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/hafsv2_phase3}
+HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/hafsv2_final}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -11,9 +11,9 @@ EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
 #===============================================================================
 
- #hafsv2a phase3
- confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv2a_phase3 \
-     ../parm/hafsv2a_phase3.conf"
+ #hafsv2b final
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=hafsv2b_final \
+     ../parm/hafsv2b_final.conf"
 
  # Technical testing for Hurricane Laura
 #./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY ${confopts} \

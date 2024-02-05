@@ -20,25 +20,20 @@ PDY_prior=`echo ${CDATEprior} | cut -c1-8`
 cyc_prior=`echo ${CDATEprior} | cut -c9-10`
 
 pubbasin2=${pubbasin2:-AL}
+if [ ${ocean_domain:-auto} = "auto" ]; then
+
 if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
   ocean_domain=nhc
-  nlatq=965
-  nlonq=2414
-# ocean_domain=hat10
-# nlatq=634
-# nlonq=1136
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
-  nlatq=938
-  nlonq=1939
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
   ocean_domain=jtsh
-  nlatq=757
-  nlonq=2690
 else
-  echo "FATAL ERROR: Unknown/supported basin of ${pubbasin2}"
+  echo "FATAL ERROR: Unknown/unsupported basin of ${pubbasin2}"
   exit 1
+fi
+
 fi
 
 if [ "${hour}" == "00" ]; then
@@ -143,6 +138,9 @@ cp -f mom6_layer_${outnc_uv} hycom_3d.nc
 # This method requires to have a MOM.res.nc file for the specif domain as a template. If we follow this procedure, probably we should have a MOM.res.nc template in the fix MOM6 files
 cp ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./
 cp ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./MOM.res_ic.nc
+
+nlonq=$(ncks --trd -m MOM.res.nc | grep -E -i ": lonq, size =" | cut -f 7 -d ' ' | uniq)
+nlatq=$(ncks --trd -m MOM.res.nc | grep -E -i ": latq, size =" | cut -f 7 -d ' ' | uniq)
 
 ncks -O -F -d latq,2,${nlatq} -d lonq,2,${nlonq} MOM.res_ic.nc MOM.res.nc
 
@@ -265,7 +263,7 @@ cd ${WORKhafs}/ocn_prep/mom6_forcings
 ${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} -s ${COMINgfs}
 
 # Deliver to intercom
-${NCP} -p ocean_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
+${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 
 #==============================================================================
 
