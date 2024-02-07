@@ -100,7 +100,7 @@ load(pathJoin("prod_util", prod_util_ver))
 grib_util_ver=os.getenv("grib_util_ver") or "1.3.0"
 load(pathJoin("grib-util", grib_util_ver))
 
-wgrib2_ver=os.getenv("wgrib2_ver") or "3.1.1"
+wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
 
 nco_ver=os.getenv("nco_ver") or "5.0.6"
