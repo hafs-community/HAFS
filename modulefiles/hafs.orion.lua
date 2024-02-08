@@ -114,6 +114,8 @@ load(pathJoin("cdo", cdo_ver))
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
 load("rocoto")
 
+unload("py-numpy/1.22.3")
+
 prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))
 
