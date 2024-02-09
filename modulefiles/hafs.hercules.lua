@@ -115,8 +115,10 @@ load(pathJoin("intel-oneapi-mkl", mkl_ver))
 tar_ver=os.getenv("tar_ver") or "1.34"
 load(pathJoin("tar", tar_ver)) 
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
-load(pathJoin("rocoto"))
+rocoto_ver=os.getenv("rocoto_ver") or "default"
+load(pathJoin("rocoto", rocoto_ver))
+
+unload("py-numpy/1.22.3")
 
 prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))
