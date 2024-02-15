@@ -118,7 +118,7 @@
   write_3d_diags = .true.
 
   nested = .true.
-  twowaynest = .true.
+  twowaynest = @[twowaynest] ! .true.
   nestupdate = 7
 
   full_zs_filter = @[full_zs_filter_nml]
