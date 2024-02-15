@@ -55,6 +55,7 @@ if [ "${ENSDA}" = YES ]; then
   write_tasks_per_group=${write_tasks_per_group_ens:-72}
   write_dopost=${write_dopost_ens:-.false.}
   output_history=${output_history_ens:-.true.}
+  twowaynest=${twowaynest_ens:-.true.}
   glob_k_split=${glob_k_split_ens:-1}
   glob_n_split=${glob_n_split_ens:-7}
   glob_layoutx=${glob_layoutx_ens:-12}
@@ -142,6 +143,7 @@ warm_start=${warm_start:-.false.}
 warm_start_opt=${warm_start_opt:-0}
 warmstart_from_restart=${warmstart_from_restart:-no}
 RESTARTinp=${RESTARTinp:-"UNNEEDED"}
+twowaynest=${twowaynest:-.true.}
 
 if [ ${warm_start_opt} -eq 0 ]; then
   warmstart_from_restart=no

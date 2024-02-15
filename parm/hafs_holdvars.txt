@@ -84,6 +84,8 @@ export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
 
+export twowaynest={twowaynest}
+
 export vi_min_wind_for_init={vi_min_wind_for_init}
 export vi_warm_start_vmax_threshold={vi_warm_start_vmax_threshold}
 export vi_bogus_vmax_threshold={vi_bogus_vmax_threshold}
