@@ -10,12 +10,7 @@ Welcome to the HAFS User's Guide
    :numbered:
    :maxdepth: 3
 
-   Introduction
-   TechnicalOverview
-   QuickStart
-   ExtQuickStart
-   GitHubBasicSteps
-   RegressionTest
-   CDEPS
-   ReferenceMaterials
-   Glossary
+   BackgroundInfo/index
+   BuildingRunningTesting/index
+   Customizing/index
+   Reference/index

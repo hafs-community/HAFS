@@ -177,7 +177,7 @@ Appendix A: HAFS-CDEPS Configuration Options
 The following table describes variables that are relevant to the HAFS-CDEPS configuration, along with some recommendations for setting them. The recommended settings have already been applied in the various configuration files.
 
 .. csv-table:: HAFS-CDEPS Configuration Options
-    :file: tables/hafs_cdeps_config.csv
+    :file: ../tables/hafs_cdeps_config.csv
     :widths: auto
     :header-rows: 1
 
@@ -209,14 +209,14 @@ While it is impossible to formally support every dataset in HAFS-CDEPS, develope
 #. For a run that couples DATM to HYCOM, the variables that must be present in your input dataset (along with the expected units) are as follows:
 
    .. csv-table:: Required Input Variable(s) for DATM to HYCOM
-      :file: tables/input_vars_datm.csv
+      :file: ../tables/input_vars_datm.csv
       :widths: auto
       :header-rows: 1
 
    For a run that couples DOCN to the UFS Weather Model, the only variable that must be present in your input dataset (along with the expected unit) is as follows:
 
    .. csv-table:: Required Input Variable(s) for DOCN to UFS Weather Model
-      :file: tables/input_vars_docn.csv
+      :file: ../tables/input_vars_docn.csv
       :widths: auto
       :header-rows: 1
 
