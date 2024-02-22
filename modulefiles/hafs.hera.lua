@@ -6,7 +6,9 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
-prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env-noavx512/install/modulefiles/Core")
+--- prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env-noavx512/install/modulefiles/Core")
+
+prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.1/envs/unified-env/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver))
@@ -26,8 +28,8 @@ local hafs_modules = {
   {["netcdf-c"]        = "4.9.2"},
   {["netcdf-fortran"]  = "4.6.0"},
   {["parallelio"]      = "2.5.10"},
-  {["esmf"]            = "8.4.2"},
-  {["fms"]             = "2023.01"},
+  {["esmf"]            = "8.5.0"},
+  {["fms"]             = "2023.02.01"},
   {["bacio"]           = "2.4.1"},
   {["crtm"]            = "2.4.0"},
   {["g2"]              = "3.4.5"},
@@ -37,10 +39,10 @@ local hafs_modules = {
   {["sp"]              = "2.3.3"},
   {["w3emc"]           = "2.10.0"},
   {["w3nco"]           = "2.4.1"},
-  {["gftl-shared"]     = "1.5.0"},
-  {["yafyaml"]         = "0.5.1"},
-  {["mapl"]            = "2.35.2-esmf-8.4.2"},
-  {["bufr"]            = "12.0.0"},
+  {["gftl-shared"]     = "1.6.1"},
+---  {["yafyaml"]         = "0.5.1"},
+  {["mapl"]            = "2.40.3-esmf-8.5.0"},
+  {["bufr"]            = "12.0.1"},
   {["sfcio"]           = "1.4.1"},
   {["sigio"]           = "2.3.2"},
   {["szip"]            = "2.1"},
