@@ -97,11 +97,11 @@
   mountain = @[mountain]
   ncep_ic = .false.
   d_con = 1.0
-  hord_mt = 6
-  hord_vt = 6
-  hord_tm = 6
-  hord_dp = 6
-  hord_tr = -5
+  hord_mt = @[hord_mt] ! was 6
+  hord_vt = @[hord_vt] ! was 6
+  hord_tm = @[hord_tm] ! was 6
+  hord_dp = @[hord_dp] ! was 6
+  hord_tr = @[hord_tr] ! was -5
   adjust_dry_mass = .false.
   consv_te = 0.
   do_sat_adj = @[do_sat_adj]
