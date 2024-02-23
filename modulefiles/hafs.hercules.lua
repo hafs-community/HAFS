@@ -49,7 +49,7 @@ load(pathJoin("fms",fms_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
 
-crtm_ver=os.getenv("crtm_ver") or "2.4.0"
+crtm_ver=os.getenv("crtm_ver") or "2.4.0.1"
 load(pathJoin("crtm", crtm_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
@@ -100,7 +100,7 @@ load(pathJoin("prod_util", prod_util_ver))
 grib_util_ver=os.getenv("grib_util_ver") or "1.3.0"
 load(pathJoin("grib-util", grib_util_ver))
 
-wgrib2_ver=os.getenv("wgrib2_ver") or "3.1.1"
+wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
 
 nco_ver=os.getenv("nco_ver") or "5.0.6"
@@ -115,8 +115,10 @@ load(pathJoin("intel-oneapi-mkl", mkl_ver))
 tar_ver=os.getenv("tar_ver") or "1.34"
 load(pathJoin("tar", tar_ver)) 
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
-load(pathJoin("rocoto"))
+rocoto_ver=os.getenv("rocoto_ver") or "default"
+load(pathJoin("rocoto", rocoto_ver))
+
+unload("py-numpy/1.22.3")
 
 prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))

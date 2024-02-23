@@ -46,7 +46,7 @@ load(pathJoin("fms",fms_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
 
-crtm_ver=os.getenv("crtm_ver") or "2.4.0"
+crtm_ver=os.getenv("crtm_ver") or "2.4.0.1"
 load(pathJoin("crtm", crtm_ver))
 
 g2_ver=os.getenv("g2_ver") or "3.4.5"
@@ -113,6 +113,8 @@ load(pathJoin("cdo", cdo_ver))
 
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
 load("rocoto")
+
+unload("py-numpy/1.22.3")
 
 prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
 load(pathJoin("python", "wcoss2_env"))

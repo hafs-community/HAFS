@@ -76,7 +76,7 @@ WAV_attributes::
   OverwriteSlice = false
   merge_import = .false.
   mesh_wav = ww3_mesh.nc
-  user_sets_restname = true
+  user_sets_restname = false
 ::
 
 # Run Sequence #
