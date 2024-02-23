@@ -379,7 +379,7 @@
   ccn_l = 159.0
   ccn_o = 66.0
   c_paut = 0.5
-  rthresh = 10.0e-6
+  rthresh = 12.0e-6
   c_pracw = 0.35
   c_psacw = 1.0
   c_pgacw = 1.e-4
