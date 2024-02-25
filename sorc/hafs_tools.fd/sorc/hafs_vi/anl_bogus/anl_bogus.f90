@@ -500,6 +500,7 @@
 
       CLAT_NHC=ICLAT*0.1
       CLON_NHC=ICLON*0.1
+
       vobs=ivobs*1.0       ! m/s
       vobs_o=vobs
       VRmax=Ir_vobs*1.      ! in km
@@ -543,6 +544,12 @@
 
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
 !wpac      if(I360.eq.360) then
 !wpac        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
 !wpac      endif
