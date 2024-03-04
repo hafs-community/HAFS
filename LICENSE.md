@@ -5,7 +5,7 @@ You may obtain a copy of the License at
 
 The following components used in HAFS are licensed separately: 
 - UFS: [UFS-weather-model License](https://github.com/ufs-community/ufs-weather-model/blob/develop/LICENSE.md)
-- UFS-UTILS: [UFS-UTILS Licence](https://github.com/ufs-community/UFS_UTILS/blob/develop/LICENSE.md)
+- UFS_UTILS: [UFS_UTILS Licence](https://github.com/ufs-community/UFS_UTILS/blob/develop/LICENSE.md)
 - GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
 
 The intent of this license is to ensure free and unrestricted access to the HAFS software, and to pass on those rights to modified versions this software.
