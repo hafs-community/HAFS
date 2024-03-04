@@ -4,7 +4,7 @@ You may obtain a copy of the License at
 - HAFS: [GNU Lesser General Public License 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) (LGPL)
 
 The following components used in HAFS are licensed separately: 
-- UFS: [UFS-weather-model License](https://github.com/ufs-community/ufs-weather-model/blob/develop/LICENSE.md)
+- UFS: [ufs-weather-model License](https://github.com/ufs-community/ufs-weather-model/blob/develop/LICENSE.md)
 - UFS_UTILS: [UFS_UTILS Licence](https://github.com/ufs-community/UFS_UTILS/blob/develop/LICENSE.md)
 - GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
 
