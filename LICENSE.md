@@ -1,4 +1,4 @@
-This file is part of the Hurricane Forecast and Analysis System, referred to as HAFS, which is made available under version 3 of the Gnu Lesser General Public License.
+This file is part of the Hurricane Analysis and Forecast System, referred to as HAFS, which is made available under version 3 of the GNU Lesser General Public License.
 
 You may obtain a copy of the License at
 - HAFS: [GNU Lesser General Public License 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html) (LGPL)
