@@ -8,7 +8,7 @@ The following components used in HAFS are licensed separately:
 - UFS_UTILS: [UFS_UTILS Licence](https://github.com/ufs-community/UFS_UTILS/blob/develop/LICENSE.md)
 - GSI: [GSI Licence](https://github.com/NOAA-EMC/GSI-fix/blob/develop/LICENSE.md)
 
-The intent of this license is to ensure free and unrestricted access to the HAFS software, and to pass on those rights to modified versions this software.
+The intent of this license is to ensure free and unrestricted access to the HAFS software and to pass on those rights to modified versions this software.
 
 Unless required by applicable law or agreed to in writing, software distributed under the License 
 is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
