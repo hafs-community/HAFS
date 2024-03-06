@@ -50,6 +50,11 @@ if [ ${FGAT_MODEL} = gdas ]; then
   export out_prefix="${STORMID,,}.${CDATE}"
 fi
 
+# Ghassan.Alaka@noaa.gov 2024-01-22
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+# GJA
+
 #===============================================================================
 # forecast
 

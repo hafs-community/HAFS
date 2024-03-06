@@ -42,6 +42,13 @@ export ENSDA=${ENSDA:-NO}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
+# Lew.Gramer@noaa.gov 2024-01-22
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/${STORMID}/${FAKESTORMID}}")}
+# LJG
+
+
 NDATE=${NDATE:-ndate}
 CDATEprior=$(${NDATE} -6 $CDATE)
 PDYprior=$(echo ${CDATEprior} | cut -c1-8)
@@ -75,6 +82,8 @@ else
     export RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
   elif [ -e ${WORKhafs}/intercom/RESTART_vi ]; then
     export RESTARTsrc=${WORKhafs}/intercom/RESTART_vi
+  elif [ -e ${WORKhafs}/intercom/RESTART_init ]; then
+    export RESTARTsrc=${WORKhafs}/intercom/RESTART_init
   else
     echo "Error RESTARTsrc does not exist"
     exit 1

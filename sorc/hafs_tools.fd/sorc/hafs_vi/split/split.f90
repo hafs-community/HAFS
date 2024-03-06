@@ -159,6 +159,18 @@
 
       CLOSE(IUNIT)
 
+      ! KGao
+      !print*, 'KGao Checking LAT LON'
+      !print*, HLON(1,1:5)
+      !print*, HLAT(1:5,1)
+      !OPEN(UNIT=121, FILE="lon_box1.txt", ACTION="write")
+      !OPEN(UNIT=122, FILE="lat_box1.txt", ACTION="write")
+      !DO i=1,NX
+      !DO j=1,NY
+      !  WRITE(121,*) (HLON(i,j))
+      !  WRITE(122,*) (HLAT(i,j))
+      !END DO
+      !END DO
 !
       DO J=1,NY
         DO I=1,NX
@@ -764,7 +776,7 @@
       use rsfc, only: STRPSF,STVMAX,STRPSF_06
 
       implicit none
-      integer,PARAMETER:: IRX=41,JRX=41
+      integer,PARAMETER:: IRX=11,JRX=11
       integer,PARAMETER:: MAXVIT=15
 
       REAL(4) GLAT(IMAX,JMAX),GLON(IMAX,JMAX)
@@ -1188,7 +1200,7 @@
        integer(4) MTV4,MTV6,IBGS,IVOBS
        integer    iflag_cold,I360
        integer    IST,IED,JST,JED,KS850
-       integer, parameter:: IRX=41,JRX=41,gd_dim3=450
+       integer, parameter:: IRX=11,JRX=11,gd_dim3=450
 
        integer(4) iswin,iewin,jswin,jewin,lmeta
        real(4) twindow(iswin:iewin,jswin:jewin,lmeta)
@@ -1318,10 +1330,10 @@
       IF(AB1.LT.XB1.or.AB2.GT.XB2.or.BB1.LT.YB1.or.BB2.GT.YB2)THEN
         CALL CREAT_41X41(ITIM,KST,KMX,MTV6,KS850,U850,V850,SDAT,P2)
 !         RDST1=0.75
-        IST=8
-        IED=33
-        JST=8
-        JED=33
+        IST=1 !8
+        IED=IRX !33
+        JST=1 !8
+        JED=JRX !33
         print*,'using outer nest data'
       ELSE
 !         RDST1=0.06
@@ -1849,7 +1861,8 @@
       integer M3,NCHT,IGU,JGU,IREM,MTV4,MTV6,JMAX,IMAX
       integer KDIV2,KQ2
 
-      integer, PARAMETER:: IX=41,JX=41,NF=11,IT=24,IR=120,IJ=IX*JX
+      ! KGao - change IR from 120 (12 deg) to 50 (5 deg)
+      integer, PARAMETER:: IX=11,JX=11,NF=11,IT=24,IR=50,IJ=IX*JX
       integer, PARAMETER:: NSG5=NSG/5
 
       REAL(4) SDAT(IX,JX,MTV6),HDATN(IMAX,JMAX,MTV4),SL(KMAX)
@@ -2916,7 +2929,8 @@
       use posit
       use vect
       implicit none
-      integer,PARAMETER:: IX=41,JX=41,NF=11,IT=24,IR=120
+      ! KGao change IR=120 to 50
+      integer,PARAMETER:: IX=11,JX=11,NF=11,IT=24,IR=50
       real UD,VD,TW
       DIMENSION UD(IX,JX),VD(IX,JX),TW(IT,IR)
 
@@ -2980,7 +2994,7 @@
       SUBROUTINE STRT_PT(RMX,TW,RFAVG)
       implicit none
 
-      integer, PARAMETER :: IX=41,JX=41,NF=11,IT=24,IR=120
+      integer, PARAMETER :: IX=11,JX=11,NF=11,IT=24,IR=50
       integer I, J, K, ICK, ICL, LL, MR, IRA, IRB, IK, KK, JJ
 
       real TM, TMX, JXX, RF, RFAVG, RA, RB, DXX, DV, DVDR, RM, CNT
@@ -3002,6 +3016,10 @@
         enddo
         TWM(J) = TM/24.
         print *,'MEAN TANGENTIAL WIND ',J,TWM(J)
+        
+        ! KGao - kill the program if strange wind value shows up 
+        IF ( ABS(TWM(J)) .GT. 1e4) STOP 
+
       enddo
 
 !.. FIND MAXIMUM TANGENTIAL WIND RADIUS
@@ -3102,7 +3120,7 @@
       use vect
       use rsfc
       implicit none
-      integer, PARAMETER:: IX=41,JX=41,IT=24,IR=120
+      integer, PARAMETER:: IX=11,JX=11,IT=24,IR=50
 !      integer, PARAMETER:: NST=10
       integer I, ICK,  K, IK, IS, KST, IBGS, IVOBS, iflag_cold
 
@@ -3151,7 +3169,7 @@
         ENDDO
 
 !c      print *,'3rd Catagory ',I
-        RF(I) = 10.
+        RF(I) = 5. ! 10. KGao reduce default value of 10deg to 5deg
       enddo iloop
 
 !c      RMAX=0.
@@ -3277,6 +3295,10 @@
 
       DO I=1,IT
         print *,'R0,Rf AT EACH DIRECTION ',I,R0(I),RF(I)
+        ! KGao
+        R0(I)=min(R0(I),5.)
+        RF(I)=min(RF(I),5.)
+        print *,'limited R0,Rf AT EACH DIRECTION ',I,R0(I),RF(I)
       ENDDO
 
       RETURN

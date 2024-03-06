@@ -60,7 +60,15 @@ INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
 COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 
-tmp_vital=${WORKhafs}/tmpvit
+# Ghassan.Alaka@noaa.gov 2024-01-22
+# Provide all storm vitals if this is a multistorm config
+if [ "${RUN_MULTISTORM}" == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
+  tmp_vital=${WORKhafs}/tmpvit.multistorm
+else
+  tmp_vital=${WORKhafs}/tmpvit
+fi
+#tmp_vital=${WORKhafs}/tmpvit
+# GJA
 old_vital=${WORKhafs}/oldvit
 
 #===============================================================================

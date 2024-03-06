@@ -15,7 +15,7 @@
       implicit none
       INTEGER I,J,K,NX,NY,NZ
 !
-      integer,parameter:: IRX=41,JRX=41,MAXNGRID=10000
+      integer,parameter:: IRX=11,JRX=11,MAXNGRID=10000
       real, parameter:: GAMMA=6.5E-3,G=9.8,GI=1./G,D608=0.608
 !
 ! variable for outer nest
@@ -114,6 +114,19 @@
       READ(IUNIT)
       CLOSE(IUNIT)
       print*,'finish reading data'
+
+      ! KGao
+      !print*, 'KGao Checking LAT LON'
+      !print*, HLON(1,1:5)
+      !print*, HLAT(1:5,1)
+      !OPEN(UNIT=221, FILE="lon_box2.txt", ACTION="write")
+      !OPEN(UNIT=222, FILE="lat_box2.txt", ACTION="write")
+      !DO i=1,KX
+      !DO j=1,KY
+      !  WRITE(221,*) (HLON3(i,j))
+      !  WRITE(222,*) (HLAT3(i,j))
+      !END DO
+      !END DO
 !
 !$omp parallel do &
 !$omp& private(i,j,k)

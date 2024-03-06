@@ -123,7 +123,7 @@ setenv("WGRIB2", "/scratch2/NCEPDEV/nwprod/hpc-stack/libs/hpc-stack/intel-18.0.5
 nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
+rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
 load(pathJoin("rocoto", rocoto_ver))
 
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"

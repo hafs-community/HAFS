@@ -46,6 +46,8 @@ elif [[ -d /work/noaa ]] ; then
         source /apps/lmod/lmod/init/$__ms_shell
     fi
     target=orion
+    # Lew.Gramer@noaa.gov: Suggested by Huston on 2023-11-03:
+    #module reset
     module purge
     module use /apps/modulefiles/core
     module use /apps/contrib/modulefiles

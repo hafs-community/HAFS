@@ -531,6 +531,7 @@ if multistorm:
                 BASINS=basins_opt,
                 MULTISTORM_SIDS=storms_opt,
                 FAKE_SID=fakestid.upper())
+    logger.info('if multistorm: VARS = '+(','.join(VARS)));
 else:
     VARS.update(MULTISTORM='NO')
 
@@ -564,6 +565,8 @@ if conf.getbool('config','run_ensda',False):
     VARS.update(ENS_SIZE='%d'%ens_size,ENSIDS=ensids)
 else:
     VARS.update(ENS_SIZE='000',ENSIDS='000')
+
+logger.info('Final: VARS = '+(','.join(VARS)));
 
 bad=False
 for k,v in VARS.items():

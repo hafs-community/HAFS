@@ -75,16 +75,60 @@ done
 #   Step 1: merge srcd01 into dstd02 (for atm_merge) or merge srcd02 into srcd01 (for analysis_merge)
 #   Step 2: merge srcd01 into dstd01
 #   Step 3: merge srcd02 into dstd02
-elif [[ $nest_grids -eq 2 ]]; then
+#elif [[ $nest_grids -eq 2 ]]; then
+# Lew.Gramer@noaa.gov 2024-01-25
+elif [[ $nest_grids -ge 2 ]]; then
+# LJG
 
 RESTARTtmp=${DATA}/RESTARTtmp
 mkdir -p ${RESTARTtmp}
 
 if [ ${MERGE_TYPE} = analysis ]; then
 
-# Step 1: merge src02 into src01 (for analysis_merge)
-${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+# Lew.Gramer@noaa.gov 2024-01-22
+if [ ${RUN_MULTISTORM} == "YES" ]; then
+ multistorm_sids=( $(echo ${multistorm_sids} | sed 's/,/ /g') ) #GJA: convert multistorm_sids to an array
+ 
+ # Step 1: Merge each nest analysis into parent domain
+ ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
+ tileno=2
+ for sid in ${multistorm_sids} ; do
+  RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+  mkdir -p ${RESTARTNESTtmp}
+
+  RESTARTNESTsrc=${RESTARTsrc/00L/${sid}/}
+  RESTARTNESTdst=${RESTARTdst/00L/${sid}/}
+  
+  ${NCP} -rp ${RESTARTNESTsrc}/* ${RESTARTNESTtmp}/
+  find ${RESTARTdst} \( ! -name "*nest0[0-9]*" \) -exec ${NCP} -rp {} ${RESTARTNESTtmp}/ \;
+  in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+  out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+   in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+   if [[ $var = sfc_data ]]; then
+     out_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.nc
+   else
+     out_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.tile1.nc
+   fi
+   if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+     echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+     exit 1
+   fi
+   ${MERGE_CMD} \
+     --in_grid=${in_grid} \
+     --out_grid=${out_grid} \
+     --in_file=${in_file} \
+     --out_file=${out_file}
+  done
+  tileno=$((tileno+1))
+ done
+
+else
+#LJG
+ # Step 1: merge src02 into src01 (for analysis_merge)
+ ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
+ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
@@ -103,7 +147,10 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-done
+ done
+# Lew.Gramer@noaa.gov 2024-01-22
+fi
+# LJG
 
 elif [ ${MERGE_TYPE} = init ]; then
 
@@ -159,7 +206,34 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 done
 
 # Step 3: merge srcd02 into dstd02
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+# Lew.Gramer@noaa.gov 2024-01-22
+if [ ${RUN_MULTISTORM} == "YES" ]; then
+ tileno=2
+ for sid in ${multistorm_sids} ; do
+  RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+   in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+   out_grid=${RESTARTmrg}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+   in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
+   out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+   if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+     echo "ERROR: Missing in/out_grid or in/out_file. Exitting..."
+     exit 1
+   fi
+   ${MERGE_CMD} \
+     --in_grid=${in_grid} \
+     --out_grid=${out_grid} \
+     --in_file=${in_file} \
+     --out_file=${out_file}
+  done
+  tileno=$((tileno+1))
+ done
+
+else
+# LJG
+
+ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   in_file=${RESTARTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.nc
@@ -174,7 +248,10 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-done
+ done
+# Lew.Gramer@noaa.gov 2024-01-22
+fi
+# LJG
 
 else
   echo "Error: only support nest_grids = 1 or 2"

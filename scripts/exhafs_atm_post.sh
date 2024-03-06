@@ -79,6 +79,13 @@ else
   ngrids=${nest_grids}
 fi
 
+# Ghassan.Alaka@noaa.gov
+# If multistorm, limit ngrids=1 for the fake storm (00l)
+if [ ${RUN_MULTISTORM} == "YES" ] && [ ${STORMID,,} == "00l" ] && [ ${run_init:-no} == "no" ]; then
+  ngrids=1
+fi
+# GJA
+
 # Loop for grids/domains
 for ng in $(seq 1 ${ngrids}); do
 

@@ -10,6 +10,7 @@ export NET={NET}
 export RUN={RUN}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
+export RUN_MULTISTORM={RUN_MULTISTORM}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
 export RUN_ATM_MVNEST_ENS={RUN_ATM_MVNEST_ENS}
 export RUN_ATM_INIT={RUN_ATM_INIT}
@@ -100,6 +101,8 @@ export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 export pubbasin2={vit[pubbasin2]}
+export fakestormid={fakestormid}
+export multistorm_sids={multistorm_sids}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}

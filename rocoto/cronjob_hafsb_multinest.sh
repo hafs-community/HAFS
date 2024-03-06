@@ -3,7 +3,8 @@ set -x
 date
 
 #HOMEhafs=${HOMEhafs:-/work/noaa/hwrf/save/bliu/hafsv1_merge}
-HOMEhafs=/work2/noaa/aoml-hafs1/wramstro/basin/HAFS
+HOMEhafs=${HOMEhafs:-/work2/noaa/aoml-hafs1/lgramer/hafsv1_basin_10x10}
+#HOMEhafs=/work2/noaa/aoml-hafs1/wramstro/basin/HAFS
 
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
@@ -16,23 +17,41 @@ scrubopt="config.scrub_work=no config.scrub_com=no"
 # Example hafs moving nest experiments
 
 
- ./run_hafs.py ${opts} 2020091400 19L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_3mvnest_storm \
-     config.domlat=20.0 config.domlon=-65.0 \
-     config.NHRS=96 ${scrubopt} \
-     ../parm/hafsb_regional_3mvnest_storm.conf
+# ./run_hafs.py ${opts} 2020091400 19L HISTORY \
+#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_5mvnest_storm \
+#     config.domlat=20.0 config.domlon=-65.0 \
+#     config.NHRS=96 ${scrubopt} \
+#     ../parm/hafsb_regional_5mvnest_storm.conf
+
+# ./run_hafs.py ${opts} 2020091400 19L HISTORY \
+#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_3mvnest_storm \
+#     config.domlat=20.0 config.domlon=-65.0 \
+#     config.NHRS=96 ${scrubopt} \
+#     ../parm/hafsb_regional_3mvnest_storm.conf
 
  ./run_hafs.py ${opts} 2020091400 19L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_2mvnest_storm \
+     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_3mvnest_storm_ocean \
      config.domlat=20.0 config.domlon=-65.0 \
-     config.NHRS=96 ${scrubopt} \
-     ../parm/hafsb_regional_2mvnest_storm.conf
+     config.NHRS=126 ${scrubopt} \
+     ../parm/hafsb_regional_3mvnest_storm_ocean.conf
 
- ./run_hafs.py ${opts} 2020091400 19L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_1mvnest_storm \
-     config.domlat=20.0 config.domlon=-65.0 \
-     config.NHRS=96 ${scrubopt} \
-     ../parm/hafsb_regional_1mvnest_storm.conf
+# ./run_hafs.py ${opts} 2020081718 19L HISTORY \
+#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_5mvnest_storm_ocean \
+#     config.domlat=20.0 config.domlon=-65.0 \
+#     config.NHRS=126 ${scrubopt} \
+#     ../parm/hafsb_regional_5mvnest_storm_ocean.conf
+
+# ./run_hafs.py ${opts} 2020091400 19L HISTORY \
+#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_2mvnest_storm \
+#     config.domlat=20.0 config.domlon=-65.0 \
+#     config.NHRS=96 ${scrubopt} \
+#     ../parm/hafsb_regional_2mvnest_storm.conf
+
+# ./run_hafs.py ${opts} 2020091400 19L HISTORY \
+#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hafsb_regional_1mvnest_storm \
+#     config.domlat=20.0 config.domlon=-65.0 \
+#     config.NHRS=96 ${scrubopt} \
+#     ../parm/hafsb_regional_1mvnest_storm.conf
 
 
 #===============================================================================

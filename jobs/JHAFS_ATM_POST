@@ -39,7 +39,15 @@ export CDATE=${CDATE:-${YMDH}}
 export cyc=${cyc:?}
 export STORM=${STORM:-FAKE}
 export STORMID=${STORMID:-00L}
+export FAKESTORMID=${FAKESTORMID:-00L}
 export ENSDA=${ENSDA:-NO}
+
+# Ghassan.Alaka@noaa.gov 2024-01-09
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+# Lew.Gramer@noaa.gov 2024-02-23: tweaked search and replace
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/\/${STORMID}//${FAKESTORMID}}")}
+# GJA
 
 # Deterministic or ensemble
 if [ ${ENSDA} = YES ]; then
@@ -48,6 +56,15 @@ if [ ${ENSDA} = YES ]; then
   export DATA=${WORKhafs}/atm_post_ens/mem${ENSID}
   export COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   export intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+# Ghassan.Alaka@noaa.gov 2024-01-09
+# Add a new IF branch to check the fake storm directory for the
+# forecast outputs when running multistorm.
+elif [ ${RUN_MULTISTORM} = YES ]; then
+  export INPdir=${INPdir:-${FAKEWORKhafs}/forecast}
+  export DATA=${WORKhafs}/atm_post
+  export COMOUTpost=${COMhafs}
+  export intercom=${WORKhafs}/intercom/post
+# GJA
 else
   export INPdir=${INPdir:-${WORKhafs}/forecast}
   export DATA=${WORKhafs}/atm_post

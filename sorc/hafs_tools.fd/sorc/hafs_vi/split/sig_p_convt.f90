@@ -13,7 +13,7 @@
 !c          KST: not used
 !C   Ouput: PDAT - DATA at P surface
 
-        integer,PARAMETER:: IX=41, JX=41
+        integer,PARAMETER:: IX=11, JX=11
 
         REAL HDAT(IX,JX,MTV2),PDAT(IX,JX,MTV3)
         REAL ZS(IX,JX),PS(IX,JX),APS(IX,JX)
@@ -238,7 +238,7 @@
 !c KST: not used
         use mcoef3
         implicit none
-        integer,PARAMETER:: IX=41, JX=41
+        integer,PARAMETER:: IX=11, JX=11
 
         REAL HDPB(IX,JX,MTV2),HDAT(IX,JX,MTV2)
         REAL PDPB(IX,JX,MTV3),PDAT(IX,JX,MTV3)
@@ -479,8 +479,8 @@
       use vect
       use posit
       implicit none
-      integer,PARAMETER::IR=15,IT=24,IX=41,JX=41
-      integer,PARAMETER::ID=41,JD=41
+      integer,PARAMETER::IR=15,IT=24,IX=11,JX=11
+      integer,PARAMETER::ID=11,JD=11 
       real,parameter:: DTX=0.2,DTY=0.2    ! Search x-Domain (ID-1)*DTX
       real:: TNMX(ID,JD),UD(IX,JX),VD(IX,JX)
       real:: WTM(IR)

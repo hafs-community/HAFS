@@ -31,11 +31,39 @@
   <!ENTITY ENKF_ENKF_RESOURCES "<nodes>60:ppn=1:tpp=24</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>24</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ENKF_GSI_RESOURCES "<nodes>2:ppn=12:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>24</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY MERGE_RESOURCES "<nodes>4:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+<!--
   <!ENTITY ATM_INIT_RESOURCES "<nodes>50:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+-->
+<!--
+  <!ENTITY ATM_INIT_2_RESOURCES "<nodes>50:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_3_RESOURCES "<nodes>70:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>840</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_4_RESOURCES "<nodes>90:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1080</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_5_RESOURCES "<nodes>110:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_6_RESOURCES "<nodes>130:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1560</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+-->
+  <!ENTITY ATM_INIT_0_RESOURCES "<nodes>30:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_1_RESOURCES "<nodes>50:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_2_RESOURCES "<nodes>70:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>840</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_3_RESOURCES "<nodes>90:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1080</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_4_RESOURCES "<nodes>110:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_5_RESOURCES "<nodes>130:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1560</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_6_RESOURCES "<nodes>150:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1560</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
 
   <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>2</value></envar>">
   <!ENTITY FORECAST_EXTRA "&FORECAST_OMP;&FORECAST_WALLTIME;">
+
+  <!-- FORECAST_RESOURCES for regional multistorm HAFS -->
+  <!--
+  <!ENTITY FORECAST_1_RESOURCES "<nodes>108:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1296</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  -->
+  <!ENTITY FORECAST_0_RESOURCES "<nodes>95:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1140</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_1_RESOURCES "<nodes>129:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1540</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_2_RESOURCES "<nodes>162:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>1940</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_3_RESOURCES "<nodes>195:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2340</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_4_RESOURCES "<nodes>229:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>2740</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_5_RESOURCES "<nodes>262:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3140</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_6_RESOURCES "<nodes>295:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3540</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
 
   <!-- FORECAST_RESOURCES for regional HAFS -->
   <!ENTITY FORECAST_RESOURCES_regional_12x12io2x48_omp2 "<nodes>20:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
