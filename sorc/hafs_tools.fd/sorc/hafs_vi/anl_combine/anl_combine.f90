@@ -549,14 +549,16 @@
         END DO
         END DO
       endif
-      if(I360.eq.180) then
-        DO J=1,NY
-        DO I=1,NX
-          IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
-          IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
-        END DO
-        END DO
-      endif
+!ckw
+!ckw not need
+!      if(I360.eq.180) then
+!        DO J=1,NY
+!        DO I=1,NX
+!          IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
+!          IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
+!        END DO
+!        END DO
+!      endif
 
 !ckw
 

@@ -1271,6 +1271,16 @@
 !        END DO
 ! 21   format(52x,I4,1x,I4,1x,I4)
 !      END IF
+     DO K=1,K1STM
+     do  J=1,7
+     print*,ISTMCY1(J,K),ISTMCX1(J,K)
+     enddo
+     print*,ISTMCX1(4,K),STMCX(K)
+     enddo
+     do i=1,KSTM
+     print*,'CLON_N(I),STMDIR(I),USTM',CLON_N(I),STMDIR(I),STMSPD(I)
+     enddo
+
 
       DO I=1,KSTM
         DO K=1,K1STM
@@ -1292,9 +1302,12 @@
               CLON_N(I)=CLON_N(I)+USTM*FACT/COS(PI180*CLAT_N(I))
               CLAT_N(I)=CLAT_N(I)+VSTM*FACT
             END IF
+            if (CLON_N(I).lt.-360) CLON_N(I)=CLON_N(I)+360 !ckw
+            if (CLON_N(I).gt.360) CLON_N(I)=CLON_N(I)-360 !ckw
             PRINT*, ' CT STORM OBS. CENTER at ',ITIM,'h = ', &
             STMNAME(K),CLON_N(I),CLAT_N(I)
           END IF
+         print*,IFWRT,XDIST6H,USTM
         END DO
       END DO
 
