@@ -109,7 +109,6 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     source ${HOMEhafs}/versions/run.ver
     module use /apps/ops/test/nco/modulefiles/core
     module load rocoto/${rocoto_ver:-"1.3.5"}
-    export PATH=${HOMEhafs}/ush${PATH:+:$PATH}
   fi
   module use ${HOMEhafs}/modulefiles
   module load hafs.${WHERE_AM_I}
