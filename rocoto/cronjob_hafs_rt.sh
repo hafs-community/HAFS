@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/work/noaa/hwrf/save/bthomas/baseline}
+HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -14,10 +14,10 @@ scrubopt="config.scrub_work=no config.scrub_com=no config.archive=none"
  # HAFS application regression tests for operational configurations using development computation resources
 
  # HAFSv1 HFSA with two-way atm-ocn coupling and one-way atm-wav coupling
-# ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \
-#     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_hfsa_dev_ww3 \
-#     config.NHRS=12 ${scrubopt} \
-#     ../parm/hfsa_dev_ww3.conf
+  ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \
+      config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_hfsa_dev_ww3 \
+      config.NHRS=12 ${scrubopt} \
+      ../parm/hfsa_dev_ww3.conf
 
  # HAFSv1 HFSB with two-way atm-ocn coupling 
  ./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \

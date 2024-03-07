@@ -8,6 +8,9 @@ HAFS_VERSION={ENV[HAFS_VERSION]}
 EXPT=hafs.v{HAFS_VERSION}
 SUBEXPT=hafs.v{HAFS_VERSION}
 
+[gsi]
+use_bufr_nr=no
+
 [dir]
 HOMEhafs={ENV[HOMEhafs]}
 WORKhafs={ENV[WORKhafs]}
