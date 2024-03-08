@@ -9,8 +9,9 @@ CDATE=${CDATE:-${YMDH}}
 # Sepcial settings if this is an atm_init run
 if [ ${RUN_INIT:-NO} = YES ]; then
 
-# Turn off satpost for atm_init run to save time
+# Turn off satpost and nhcpost for atm_init run to save time
 satpost=.false.
+nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
@@ -56,6 +57,7 @@ if [ ${ENSDA} = YES ]; then
   post_gridspecs=${post_gridspecs_ens:-""}
   trak_gridspecs=${trak_gridspecs_ens:-""}
   satpost=${satpost_ens:-".false."}
+  nhcpost=${nhcpost_ens:-".false."}
 else
   NHRS=${NHRS:-126}
   NBDYHRS=${NBDYHRS:-3}
@@ -64,6 +66,7 @@ else
   post_gridspecs=${post_gridspecs:-""}
   trak_gridspecs=${trak_gridspecs:-""}
   satpost=${satpost:-".false."}
+  nhcpost=${nhcpost:-".false."}
 fi
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
@@ -101,6 +104,8 @@ if [ "${POST_CLEANUP^^}" = "YES" ]; then
       grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
       sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
       sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+      nhc_grb2file=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2
+      nhc_grb2indx=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2.idx
       trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
       trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
       rm -f ${COMOUTpost}/${grb2file} ${COMOUTpost}/${grb2indx}
@@ -165,6 +170,8 @@ grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
 sat_grb2post=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.postgrb2
 sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
 sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+nhc_grb2file=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2
+nhc_grb2indx=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2.idx
 trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
 trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 
@@ -378,6 +385,16 @@ if [ ${satpost} = .true. ]; then
   ${WGRIB2} -s ${sat_grb2file} > ${sat_grb2indx}
 fi
 
+# Subsetting hafs grib2 files for NHC
+if [ ${nhcpost} = .true. ]; then
+  PARMlist=$(sed -z 's/\n/|/g' ${PARMhafs}/post/hafs_subset_nhc.txt | sed -e 's/.$//g')
+  ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+  if [ ${satpost} = .true. ]; then
+    ${WGRIB2} -append ${sat_grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+  fi
+  ${WGRIB2} -s ${nhc_grb2file} > ${nhc_grb2indx}
+fi
+
 # Extract hafstrk grib2 files for the tracker
 PARMlistp1="UGRD:850|UGRD:700|UGRD:500|VGRD:850|VGRD:700|VGRD:500|UGRD:10 m a|VGRD:10 m a|ABSV:850|ABSV:700|MSLET"
 PARMlistp2="HGT:900|HGT:850|HGT:800|HGT:750|HGT:700|HGT:650|HGT:600|HGT:550|HGT:500|HGT:450|HGT:400"
@@ -434,6 +451,10 @@ if [ $SENDCOM = YES ]; then
   mv ${grb2indx} ${COMOUTpost}/
   if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${grb2indx}
+  fi
+  if [ ${nhcpost} = .true. ]; then
+    mv ${nhc_grb2file} ${COMOUTpost}/
+    mv ${nhc_grb2indx} ${COMOUTpost}/
   fi
   if [ ${satpost} = .true. ]; then
     mv ${sat_grb2file} ${COMOUTpost}/

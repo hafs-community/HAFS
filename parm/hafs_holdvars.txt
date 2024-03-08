@@ -306,6 +306,7 @@ export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
+export nhcpost={nhcpost}
 export trkd12_combined={trkd12_combined}
 
 # atm_init related items
@@ -416,6 +417,7 @@ export output_grid_dlat_ens={output_grid_dlat_ens}
 export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
+export nhcpost_ens={nhcpost_ens}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
