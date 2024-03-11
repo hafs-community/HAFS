@@ -1,28 +1,25 @@
-@import "default.css";
-
-div.admonition-todo {
-border-top: 2px solid red;
-border-bottom: 2px solid red;
-border-left: 2px solid red;
-border-right: 2px solid red;
-background-color: #ff6347
+.red { color: red; }
+.bolditalic {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  font-style: italic;
 }
-
-p.admonition-title {
-    display: offline;
-}
-
-/*p.first.admonition-title {
-background-color: #aa6347;
-width: 100%;
-}
-*/
 
 .underline {
-    text-decoration: underline;
+   text-decoration: underline;
 }
 
 .bolditalic {
-    font-weight: bold;
-    font-style: italic;
+   font-weight: bold;
+   font-style: italic;
+}
+
+table.align-default {
+   margin-left: 0px;
+   margin-right: auto;
+}
+
+table.align-center {
+   margin-left: 0px;
+   margin-right: auto;
 }
