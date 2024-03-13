@@ -230,8 +230,11 @@
       CLAT_NHC=ICLAT*0.1
       CLON_NHC=ICLON*0.1
 
+
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      print*,CLON_NHC !ckw
 !
 !
       psfc_obs = Ipsfc*100. !* pmin (Pa)
@@ -275,6 +278,14 @@
       READ(IUNIT) NX,NY,NZ,I360
 
       print*,'NX,NY,NZ=',NX,NY,NZ
+
+     print*,'CLON_NHC',CLON_NHC,I360 !ckw
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
+      print*,'CLON_NHC',CLON_NHC
 
       NX1=NX+1
       NY1=NY+1
@@ -522,6 +533,35 @@
                           CLAT1,CLON1,              & ! central lat,lon, all in degree
                           NX,NY )
 
+
+      print*, CLON1,CENTRAL_LON
+      print*,'HLAT,HLON,VLAT,VLON=',                  &
+              HLAT(1,1),HLON(1,1),VLAT(1,1),VLON(1,1)
+      print*,'HLAT3,HLON3,VLAT3,VLON3=',                  &
+              HLAT3(1,1),HLON3(1,1),VLAT3(1,1),VLON3(1,1)
+
+!ckw
+      if(I360.eq.360) then
+        DO J=1,NY
+        DO I=1,NX
+          IF(HLON3(I,J).LT.0.)HLON3(I,J)=HLON3(I,J)+360.
+          IF(VLON3(I,J).LT.0.)VLON3(I,J)=VLON3(I,J)+360.
+        END DO
+        END DO
+      endif
+!ckw
+!ckw not need
+!      if(I360.eq.180) then
+!        DO J=1,NY
+!        DO I=1,NX
+!          IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
+!          IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
+!        END DO
+!        END DO
+!      endif
+
+!ckw
+
 !wpac      if(I360.eq.360) then
 !wpac        DO J=1,NY
 !wpac        DO I=1,NX
@@ -616,11 +656,17 @@
       READ(NCHT) ST_NAME(KST)
       PRINT*,'ST_NAME=',ST_NAME(KST)
       READ(NCHT) CLON_NEW,CLAT_NEW
+
+
+!      if(I360.eq.360.and.CLON_NEW.lt.-180.) then !ckw
+      if(I360.eq.360.and.CLON_NEW.lt.0.) then
+        CLON_NEW=CLON_NEW+360. !ckw
+        EW='E' !ckw
+      endif !ckw
 !
 !wpac      if(I360.eq.360)then
 !wpac       IF (CLON_NEW.gt.0.) CLON_NEW=CLON_NEW-360.
 !wpac      endif
-
       PRINT*,CLON_NEW,CLAT_NEW
 !
       print*,'HLAT2,HLON2=',HLAT2(1,1),HLON2(1,1)
@@ -706,7 +752,7 @@
 !      read(23)ftmin1,ftmax1,ctmin1,ctmax1
 
        rewind(23)
-
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
 ! READ forecast storm pressure
 
         IF(ST_NAME(KST)(3:3).eq.'L') basin='AL'
@@ -1466,6 +1512,8 @@
       PRINT*,'DLMD2,DPHD2,WBD2,SBD2,CENTRAL_LAT2,CENTRAL_LON2=', &
               DLMD2,DPHD2,WBD2,SBD2,CENTRAL_LAT2,CENTRAL_LON2
 
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
+
       NXT=IWMAX1-IWMIN1+1
       NYT=JWMAX1-JWMIN1+1
       NXT1=min(NXT+1,NX)
@@ -1580,6 +1628,7 @@
 !      CLON_NEW1=CLON_NEW
       CLAT_NEW=CLAT_NHC
       CLON_NEW=CLON_NHC
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
 
       print*,'domain 3=',HLON3(1,1),HLON3(NX,NY),HLAT3(1,1),HLAT3(NX,NY)
       print*,'domain 1=',HLON1(1,1),HLON1(NXT,NYT),HLAT1(1,1),HLAT1(NXT,NYT)

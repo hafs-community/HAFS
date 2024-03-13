@@ -471,6 +471,12 @@
       vobs_o=vobs
       VRmax=Ir_vobs*1.      ! in km
 
+      if(CLON_NHC.lt.-180.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
+
       if(VRmax.lt.19.)VRmax=19.
 
 !      if(id_storm.lt.50.and.Ipsfc.gt.1005)Ipsfc=1005
@@ -500,6 +506,12 @@
 
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
 !wpac      if(I360.eq.360) then
 !wpac        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
 !wpac      endif

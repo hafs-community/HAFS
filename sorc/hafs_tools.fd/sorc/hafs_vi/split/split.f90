@@ -71,7 +71,8 @@
 
       integer, external :: omp_get_max_threads
 
-      integer :: ICLAT,ICLON,CLAT_VIT,CLON_VIT
+      integer :: ICLAT,ICLON
+      real CLAT_VIT,CLON_VIT
       character :: SN,EW
       integer :: ivi_cloud
 
@@ -109,13 +110,20 @@
       IF(SN.eq.'S')CLAT_VIT=-CLAT_VIT
       IF(EW.eq.'W')CLON_VIT=-CLON_VIT
 
+      print*,CLON_VIT
+      if(CLON_VIT.lt.-180) then !ckw
+        CLON_VIT=CLON_VIT+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+      print*,CLON_VIT
+
 !      I360=180
 !      if(abs(CLON_VIT).gt.90.)then
 !         I360=360
 !      end if
 ! For HAFS, I360 is newly defined to handle the storms in eastern/western hemisphere 2022 July
       IF(EW.eq.'W') I360=180 ! Western hemisphere TC
-      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC
+      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC 
 
       READ(IUNIT) NX,NY,NZ
 
@@ -187,11 +195,24 @@
 
       CLOSE(IUNIT)
 
+      if(CENTRAL_LON.lt.-180) then !ckw
+        CENTRAL_LON=CENTRAL_LON+360. !ckw
+      endif !ckw
+
       PM0=PM1
       T0=T1
       ! Original PM1 will be save as PM0 for re-interploation into
       ! newly adjusted PM0
 
+!ckw
+      if(I360.eq.360) then
+        DO J=1,NY
+        DO I=1,NX
+          IF(HLON(I,J).LT.0.)HLON(I,J)=HLON(I,J)+360.
+        END DO
+        END DO
+      endif
+!ckw
 !
       DO J=1,NY
         DO I=1,NX
@@ -1000,11 +1021,23 @@
         STMNAME(I)='NUL'
         READ(30,442,end=436)(ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
        ! Western hemisphere TCs, converts longitude into negative value
-        if(I360.eq.180)then
-          do j=1,7
-            ISTMCX1(J,I)=-ISTMCX1(J,I)
-          end do
-        endif
+!ckw
+!        if(I360.eq.180)then
+!          do j=1,7
+!            ISTMCX1(J,I)=-ISTMCX1(J,I)
+!          end do
+!        endif
+!ckw
+
+!ckw
+         if(I360.eq.360)then
+           do j=1,7
+             IF(ISTMCX1(J,I).GT.-1800.and.ISTMCX1(J,I).LT.0) ISTMCX1(J,I)=3600+ISTMCX1(J,I)
+             print*,ISTMCX1(J,I)
+           end do
+         end if
+!ckw
+
 !wpac         if(I360.eq.180)then
 !wpac           do j=1,7
 !wpac             IF(ISTMCX1(J,I).LT.-1800)
@@ -1144,8 +1177,12 @@
         cycle readcyc
       ENDIF
 
-      IF(LONEW .EQ. 'W')  THEN
+      IF(LONEW .EQ. 'W'.and.I360.eq.180)  THEN
         STMLNZ=-STMLNZ
+      ELSEIF(LONEW .EQ. 'W'.and.I360.eq.360)  THEN !ckw
+        STMLNZ=-STMLNZ+360 !ckw
+      ELSEIF(LONEW .EQ. 'E')  THEN !ckw
+        STMLNZ=STMLNZ !ckw
 !wpac      ELSE IF(LONEW .EQ. 'E')  THEN
 !wpac        if(I360.eq.360)then
 !wpac          STMLNZ=-360+STMLNZ
@@ -1234,6 +1271,16 @@
 !        END DO
 ! 21   format(52x,I4,1x,I4,1x,I4)
 !      END IF
+     DO K=1,K1STM
+     do  J=1,7
+     print*,ISTMCY1(J,K),ISTMCX1(J,K)
+     enddo
+     print*,ISTMCX1(4,K),STMCX(K)
+     enddo
+     do i=1,KSTM
+     print*,'CLON_N(I),STMDIR(I),USTM',CLON_N(I),STMDIR(I),STMSPD(I)
+     enddo
+
 
       DO I=1,KSTM
         DO K=1,K1STM
@@ -1255,9 +1302,12 @@
               CLON_N(I)=CLON_N(I)+USTM*FACT/COS(PI180*CLAT_N(I))
               CLAT_N(I)=CLAT_N(I)+VSTM*FACT
             END IF
+            if (CLON_N(I).lt.-360) CLON_N(I)=CLON_N(I)+360 !ckw
+            if (CLON_N(I).gt.360) CLON_N(I)=CLON_N(I)-360 !ckw
             PRINT*, ' CT STORM OBS. CENTER at ',ITIM,'h = ', &
             STMNAME(K),CLON_N(I),CLAT_N(I)
           END IF
+         print*,IFWRT,XDIST6H,USTM
         END DO
       END DO
 
@@ -2173,8 +2223,16 @@
         READ(30,442,end=436) &
          (ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
 !
-        IF(I360.eq.180) STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1  !Western hemisphere TC
-        IF(I360.eq.360) STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Eastern hemisphere TC
+!ckw        IF(I360.eq.180) STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1  !Western hemisphere TC
+        IF(I360.eq.180) STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Western hemisphere TC already changed in create process
+        IF(I360.eq.360) then
+           IF(ISTMCX1(INDX1,I).lt.0) then
+             STMCX(I)=ISTMCX1(INDX1,I)*0.1+360 !Near dateline TC
+           else
+             STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Eastern hemisphere TC
+           endif
+        endif
+!ckw
 !wpac        IF(I360.eq.180)THEN
 !wpac          IF(STMCX(I).lt.-180.)STMCX(I)=STMCX(I)+360.
 !wpac        END IF

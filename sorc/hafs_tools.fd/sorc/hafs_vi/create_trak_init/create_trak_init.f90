@@ -50,6 +50,7 @@ program create_trak_init
   ! Read TCvital first
     read(11,13) part2,idat2,ihour2,lat2,ns2,lon2,ew2
     if(ns2.eq.'S')lat2=-lat2
+    if(ew2.eq.'W')lon2=-lon2 !ckw
 
   ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
   do
@@ -58,6 +59,8 @@ program create_trak_init
     if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center (i.e.,lat=0)
 
     if(ns.eq.'S')lat=-lat
+
+    if(ew.eq.'W')lon=-lon !ckw
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
     ! exit the do loop if stat is NOT 0
@@ -88,7 +91,7 @@ program create_trak_init
   ! Only for TCs near date line: near the date line (180E or 180W), longitude of tcvital (ew2) and
   ! that of ATCF (ew) could be different. In this case, convent longitude as following.
   ! Then, split.f90 will handle rest of things
-  if(ew2.ne.ew) lon=3600-lon
+  !if(ew2.ne.ew) lon=3600-lon !ckw
 
   write(*,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
   write(30,15) idat,ihour,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,lat,lon,storm_id
