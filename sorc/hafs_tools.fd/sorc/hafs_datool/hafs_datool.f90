@@ -2,12 +2,11 @@
 
 !=========================================================================
 ! HAFS DA tool
-! authors: Yonghui Weng
-! history:
-!      -- 20210201, created by Yonghui Weng
-!      -- 20211210, added HAVSVI pre- and post-processing by Yonghui Weng
-!      -- 20220610, added MPI and openMP by Yonghui Weng
-!      -- 202306  , added vi_cloud by JungHoon Shin 
+! authors and history: 
+!      -- 202102, created by Yonghui Weng
+!      -- 202112, added HAVSVI pre- and post-processing by Yonghui Weng
+!      -- 202206, added MPI and openMP by Yonghui Weng
+!      -- 202306, added vi_cloud by JungHoon Shin 
 
 !------------------------------------------------------------------------------
 ! June 2023: New input argument "vi_cloud" is introduced for vi_preproc & vi_postproc

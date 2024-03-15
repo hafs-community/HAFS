@@ -3,7 +3,9 @@
 
 !-----------------------------------------------------------------------------
 ! HAFS DA tool - hafsvi_preproc
-! Yonghui Weng, 20211210
+! authors and history:
+!      -- 202112, created by Yonghui Weng
+!      -- 202307, JungHoon Shin added vi_cloud
 !
 ! Big Change/Update by JungHoon: Feb~July, 2023
 ! New input argument "vi_cloud" is introduced

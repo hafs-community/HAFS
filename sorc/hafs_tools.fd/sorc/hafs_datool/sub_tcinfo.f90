@@ -1,3 +1,7 @@
+!-----------------------------------------------------------------------+
+! This package of subroutines are used for HAFS TC information
+! authors and history:
+!      -- 202102, created by Yonghui Wen
 !=======================================================================================
   subroutine get_tc_info(vortex_position_file, tcvital_file, besttrackfile, file_date, &
                          vortexradius)

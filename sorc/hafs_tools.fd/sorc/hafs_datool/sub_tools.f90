@@ -1,4 +1,8 @@
 !-----------------------------------------------------------------------+
+! This package holds the utility of functions and subroutines for HAFS_DAtool
+! authors and history:
+!      -- 202102, created by Yonghui Weng
+!-----------------------------------------------------------------------+
   function date2second1970 (yyyy, mm, dd, hh, minute, second) !result(second1970)
   implicit none
 

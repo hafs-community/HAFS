@@ -1,7 +1,9 @@
 module module_mpi
 
 !-----------------------------------------------------------------------------
-!  PURPOSE: This module provides routines for parallelizing.
+! PURPOSE: This module provides routines for parallelizing.
+! authors and history:
+!      -- 202102, created by Yonghui Weng
 !------------------------------------------------------------------------------
    use mpi
    integer :: nprocs, my_proc_id, comm, ierr
@@ -10,7 +12,7 @@ module module_mpi
    contains
 
 !-----------------------------------------------------------------------------
-!  PURPOSE: to basically set up a communicator for a rectangular mesh.
+! PURPOSE: to basically set up a communicator for a rectangular mesh.
 !------------------------------------------------------------------------------
    subroutine parallel_start()
 
@@ -30,7 +32,7 @@ module module_mpi
    end subroutine parallel_start
 
 !-----------------------------------------------------------------------------
-!  PURPOSE: Free up, deallocate, and for MPI, finalize.
+! PURPOSE: Free up, deallocate, and for MPI, finalize.
 !------------------------------------------------------------------------------
    subroutine parallel_finish()
 
