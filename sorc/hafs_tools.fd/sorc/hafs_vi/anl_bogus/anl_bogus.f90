@@ -6,8 +6,13 @@
 !
 ! ABSTRACT
 !
-!     DECLARE VARIABLES
-! REVISED  AUTHOR: JungHoon Shin July 2023 NCEP/EMC
+! Authors and history
+! Oiginal author: QINGFU LIU, NCEP/EMC
+! Revised by: Chanh Kieu
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  For bogus part, VI code simply reads cloud variables from
 !                  30 by 30 degrees GFS input data (fort.36) and relocates them
 !                  This change requires changes in exhafs_atm_vi.sh
@@ -16,8 +21,10 @@
 !                  0: No cloud changes in VI, 1: GFDL microphysics, 2: Thompson microphysics
 !                  Now input arguement is like this:
 !  ./hafs_vi_anl_bogus.x 6 ${pubbasin2} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !______________________________________________________________________________
 !
+!     DECLARE VARIABLES
       IMPLICIT NONE
       INTEGER I,J,K,L,M,N,NX,NY,NZ,NX1,NY1,NZ1,NZ2,JX,JY,KMX,ICH
       integer NST,IT,ID,JD,IR,IR1,ITIM,IUNIT,I360,IM1,JM1,JX1,IMV,JMV

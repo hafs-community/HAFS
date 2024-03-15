@@ -6,11 +6,12 @@
 !C     This is a companion subprogram to WNNLS( ).
 !C     The documentation for WNNLS( ) has more complete
 !C     usage instructions.
-!C
+!C     Authors:
 !C     Written by Karen H. Haskell, Sandia Laboratories,
 !C     with the help of R.J. Hanson, Sandia Laboratories,
 !C     December 1976 - January 1978.
 !C     Revised March 4, 1982.
+!C     Revised by Chuan-Kai Wang NCEP/EMC 2022
 !C
 !C     In addition to the parameters discussed in the prologue to
 !C     subroutine WNNLS, the following work arrays are used in

@@ -1,5 +1,10 @@
       SUBROUTINE WNLIT(W,MDW,M,N,L,IPIVOT,ITYPE,H,SCALE,RNORM,IDOPE, &
         DOPE,DONE)
+
+!Authors information from SLATEC http://rsusu1.rnd.runnet.ru/develop/fortran/slatec/WNLSM.html
+!C***AUTHORS  Hanson, R. J., (SNLA)
+!C            Haskell, K. H., (SNLA)
+!    Revised by Chuan-Kai Wang (NCEP/EMC) 2022
 !C***BEGIN PROLOGUE  WNLIT
 !C***REFER TO  WNNLS
 !C

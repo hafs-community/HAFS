@@ -5,7 +5,7 @@
 !C***REVISION DATE  820801   (YYMMDD)
 !C***CATEGORY NO.  R3C
 !C***KEYWORDS  ERROR,XERROR PACKAGE
-!C***AUTHOR  JONES, R. E., (SNLA)
+!C***AUTHORS  JONES, R. E., (SNLA)
 !C***PURPOSE  Allows user control over handling of individual errors.
 !C***DESCRIPTION
 !C     Abstract

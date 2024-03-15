@@ -1,6 +1,11 @@
         SUBROUTINE Split_Sym_Asy(IX,JX,KX,UD,VD,US,VS,UA,VA,TWM,RWM,  &
                         GLON,GLAT,CLON_NEW,CLAT_NEW,TWMAX,RWMAX,ASYM)
 
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: JungHoon Shin, NCEP/EMC 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
 
 !   IX,JX must be less than IX1,JX1
 

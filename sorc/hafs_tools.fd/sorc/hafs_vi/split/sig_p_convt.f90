@@ -3,7 +3,8 @@
         implicit none
 !c
 !c subprogram:
-!c   prgmmr: Qingfu Liu    org:              date: 2000-04-25
+!c   Authors: prgmmr: Qingfu Liu (NCEP/EMC)   org:              date: 2000-04-25
+!             revised by Chuan-Kai Wang (NCEP/EMC) 2022
 !c
 !c abstract:
 !c   Convert data from SIG surface to P surface.

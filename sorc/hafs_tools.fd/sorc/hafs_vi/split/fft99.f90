@@ -23,7 +23,7 @@
 !!                                                                   !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !FROM https://github.com/mom-ocean/MOM4p1/blob/master/src/shared/fft/fft99.F90
-!and modified
+!and modified by Chuan-Kai Wang (NCEP/EMC) 2022
 
 module fft99_mod
 

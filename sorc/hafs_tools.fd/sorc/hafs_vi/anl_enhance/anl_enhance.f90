@@ -2,22 +2,27 @@
 ! ABSTRACT: Adding a small fraction of the composite storm to make
 !           the storm intensity match the observation
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: QINGFU LIU, 2013
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: QINGFU LIU, 2013
 !                : Use observed ROCI and Rmax to correct the composite storm
 !                : (old version uses the averaged values from obs and model)
-! REVISED  AUTHOR: JungHoon Shin Feb 2023 NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
 !                  This code reads cloud and vertical velocity fields,
 !                  which is modified by anl_combine.f90, and
 !                  re-interpolcates those variables into newly adjusted
 !                  model pressure level (PMID1) in the TC core region
-! REVISED  AUTHOR: JungHoon Shin July 2023 NCEP/EMC
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  The code is updated further with one more input argument (ivi_cloud)
 !                  so that cloud modification can be on (1 or 2) or off (0).
 !                  0: No cloud changes in VI, 1: GFDL microphysics, 2: Thompson microphysics
 !                  This change requires changes in exhafs_atm_vi.sh
 !                  Now input arguement is like this:
 !  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !
 !     DECLARE VARIABLES
 !

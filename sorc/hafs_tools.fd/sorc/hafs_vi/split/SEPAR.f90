@@ -1,4 +1,6 @@
        SUBROUTINE SEPAR(XD,XM)
+       !Authors Qingfu Liu (NCEP/EMC)
+       !Revised by Chuan-Kai Wang (NCEP/EMC) 2022
 !C
 !C  SEPERATES A FIELD INTO HURRICANE COMPONENT AND REMAINDER
 !C

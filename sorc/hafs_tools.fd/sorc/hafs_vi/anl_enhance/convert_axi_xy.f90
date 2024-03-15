@@ -7,6 +7,15 @@
                     SLPE,TENV,PCST,HP,HV,ZMAX,vobs,             &
 		    dp_obs,p_obs,vrmax,PRMAX,RMN,               &
 		    U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
+
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements
+! Revised by: JungHoon Shin 2023 NCEP/EMC
+!                Modify the code: If SLP of modified TC is too deep,
+!                call the shallow composite vortex to alleviate low SLP issue
+
 ! SUBPROGRAM
 !   PRGRMMR
 !

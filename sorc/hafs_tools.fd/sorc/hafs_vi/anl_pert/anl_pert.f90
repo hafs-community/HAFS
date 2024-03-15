@@ -2,10 +2,16 @@
 !
 ! ABSTRACT: Smooth the model vortex, and calculate the axi-symmetric vortex
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: Qingfu Liu, 2013
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: Qingfu Liu, 2013
 !                : Add the calculation of R34 and Rmax
 !                : Calcualte the size correction coeffs: a and b
+! Revised by: Chanh Kieu
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !
 !     DECLARE VARIABLES
 !

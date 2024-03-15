@@ -7,7 +7,7 @@
 !***REVISION DATE  910131   (YYMMDD)
 !***CATEGORY NO.  R1
 !***KEYWORDS  MACHINE CONSTANTS
-!***AUTHOR  FOX, P. A., (BELL LABS)
+!***AUTHORS  FOX, P. A., (BELL LABS)
 !     HALL, A. D., (BELL LABS)
 !     SCHRYER, N. L., (BELL LABS)
 !***PURPOSE  Returns integer machine dependent constants

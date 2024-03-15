@@ -3,12 +3,19 @@
 !
 ! ABSTRACT: Split the vortex into environment flow and vortex perturbation
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: Qingfu Liu, 2013
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: Qingfu Liu, 2013
 !                : Changed the filter domain size
-!
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2022 code modernization
+! Revised by: JungHoon Shin, NCEP/EMC, 2022
+!                 : Set I360=180 (I360=360) as Western (Eastern) hemisphere TC
+! Revised by: JungHoon Shin, NCEP/EMC, 2023
+!                : Added arrays/veritcal level interpolation for cloud
+!                : variables for VI updates
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !     DECLARE VARIABLES
-!
+
       use nhc, only: KSTM,IC_N,JC_N,NST
       use nhc1, only: SLON_N,SLAT_N,CLON_N,CLAT_N
       use stname,only: ST_NAME,STMNAME

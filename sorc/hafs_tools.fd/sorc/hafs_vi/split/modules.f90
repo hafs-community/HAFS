@@ -1,4 +1,7 @@
- module setparms
+!Authors: Qingfu Liu (NCEP/EMC)
+!Revised by Chuan-Kai Wang (NCEP/EMC) 2022
+
+module setparms
    implicit none
    integer, parameter:: real_single = 4, real_double = real_single * 2
    integer, parameter:: int_single  = 4, int_double  = int_single * 2

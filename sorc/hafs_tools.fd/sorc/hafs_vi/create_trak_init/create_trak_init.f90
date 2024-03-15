@@ -1,5 +1,9 @@
 !---------------------------------------------------------------------------------------------------------
-! This code is designed to replace create_trak_fnl.f90 of HWRF: 2022 JungHoon Shin
+! Authors and history
+! Original author: JungHoon Shin 2022 NCEP/EMC
+! Revised by: JungHoon Shin, 2022: Include the scenario when there is no TC center information
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline to distinquish Eastern and Western hemisphere
+! This code is designed to replace create_trak_fnl.f90 of HWRF
 ! Usage example:
 !   ./hafs_vi_create_trak_init.x storm_id
 !   e.g., ./hafs_vi_create_trak_init.x 13L

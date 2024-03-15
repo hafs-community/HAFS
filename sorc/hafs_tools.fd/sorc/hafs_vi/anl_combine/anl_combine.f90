@@ -2,30 +2,35 @@
 !
 ! ABSTRACT: Correct storm size based on observation and model forecast
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: Kelvin Yeh (AOML/HRD), JULY 2010
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: Kelvin Yeh (AOML/HRD), JULY 2010
 !                : Extend the storm size correction to 2 parameters
-! REVISED  AUTHOR: Qingfu Liu, 2013
+! Revised by: Qingfu Liu, 2013
 !                : Storm size diagnoses moved to hwrf_pert_ct.f90
 !                : ROCI is used only as reference, R34 calculation is fixed
-! REVISED  AUTHOR: Mingjing Tong 2013
+! Revised by: Mingjing Tong 2013
 !                  Added option (INITOPT) to do relcation only or to do full
 !                  vortex initialization. Modified to allow vortex
 !                  initialization at other time levels
-! REVISED  AUTHOR: JungHoon Shin Feb 2023 NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
 !                  VI is upgraded A LOT so that cloud fields and vertical
 !                  velocity can be relocated on GFS (IGFS_FLAG: 0) or
 !                  cycled from previous HAFS 6-h forecast (IGFS_FLAG: 6)
 !                  For this new VI, split.f90, anl_combine.f90,
 !                  anl_enhance.f90 need to be change. We don't need to
 !                  change anl_pert.f90 (I already confirmed)
-! REVISED  AUTHOR: JungHoon Shin July 2023 NCEP/EMC
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  The code is updated further with one more input
 !                  argument (ivi_cloud) so that cloud modification can be on (1 or 2) or off (0).
 !                  0: No cloud changes in VI, 1: GFDL microphysics, 2:Thompson microphysics
 !                  This change requires changes in exhafs_atm_vi.sh
 !                  Now input arguement is like this:
 !  ./hafs_vi_anl_combine.x ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !______________________________________________________________________________
 
 ! DECLARE VARIABLES
