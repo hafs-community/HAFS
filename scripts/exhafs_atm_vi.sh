@@ -1,7 +1,6 @@
 #!/bin/sh
 
 set -xe
-vi_cloud=${vi_cloud:-0}
 vi_force_cold_start=${vi_force_cold_start:-no}
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
@@ -11,6 +10,8 @@ vi_storm_relocation=${vi_storm_relocation:-yes}
 vi_storm_modification=${vi_storm_modification:-yes}
 vi_adjust_intensity=${vi_adjust_intensity:-yes}
 vi_adjust_size=${vi_adjust_size:-yes}
+vi_composite_vortex=${vi_composite_vortex:-2}
+vi_cloud=${vi_cloud:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
 
@@ -418,9 +419,18 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+  if [[ ${vi_composite_vortex} = 1 ]]; then
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
+  elif [[ ${vi_composite_vortex} = 2 ]]; then
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+  else
+    echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
+    exit 1
+  fi
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
@@ -495,9 +505,18 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep     fort.75
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow  fort.77
+    if [[ ${vi_composite_vortex} = 1 ]]; then
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
+    elif [[ ${vi_composite_vortex} = 2 ]]; then
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+    else
+      echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
+      exit 1
+    fi
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output

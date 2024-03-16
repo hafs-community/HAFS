@@ -92,6 +92,7 @@ export vi_storm_relocation={vi_storm_relocation}
 export vi_storm_modification={vi_storm_modification}
 export vi_adjust_intensity={vi_adjust_intensity}
 export vi_adjust_size={vi_adjust_size}
+export vi_composite_vortex={vi_composite_vortex}
 export vi_cloud={vi_cloud}
 
 export atm_merge_method={atm_merge_method}
