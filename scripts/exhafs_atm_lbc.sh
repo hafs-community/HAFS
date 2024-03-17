@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_lbc.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates the atmospheric lateral boundary condition (LBC) at a
+#   specific forecast lead time through the UFS_UTIL's chgres_cube tool.
+################################################################################
 set -xe
 
 cyc=${cyc:-00}

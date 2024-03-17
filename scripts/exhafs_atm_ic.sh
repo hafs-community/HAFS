@@ -1,5 +1,12 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_ic.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates the atmospheric initial condition (IC) and lateral
+#   boundary condition (LBC) at model intial time (if needed) through the
+#   UFS_UTIL's chgres_cube tool.
+################################################################################
 set -xe
 
 nest_grids=${nest_grids:-1}

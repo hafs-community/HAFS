@@ -1,5 +1,10 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_gempak.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates HAFS GEMPAK products.
+################################################################################
 set -xe
 
 export storm_id=${STORMID,,}

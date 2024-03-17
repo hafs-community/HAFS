@@ -1,5 +1,10 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_emcgraphics.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates EMC graphics through hafs_graphcs.
+################################################################################
 set -xe
 
 date

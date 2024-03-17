@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_vi.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmopsheric vortex initialization steps to
+#   relocate and modify the storm vortex (if desired).
+################################################################################
 set -xe
 vi_force_cold_start=${vi_force_cold_start:-no}
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s

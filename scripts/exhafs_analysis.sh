@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_analysis.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script conducts the HAFS atmospheric data assimilation through GSI,
+#   and generate analysis diagnoses (if desired).
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

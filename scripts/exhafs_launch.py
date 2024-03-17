@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_launch.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script creates the initial HAFS directory structure and configurations
+#   for executing a specific forecast cycle.
+################################################################################
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
 # single HAFS cycle.  This script must be run before any other.

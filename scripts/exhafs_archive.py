@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_archive.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates an archive file from HAFS COM directory outputs. The
+#   archive file can be either on disk or on the HPSS archive (via htar).
+################################################################################
 ##@namespace scripts.exhafs_archive
 # Generates an archive file from HAFS COM directory outputs.  This
 # archive file can be on disk, or on the HPSS archiving system (via

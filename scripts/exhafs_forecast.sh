@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_forecast.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs a HAFS forecast with various coldstart/warmstart and
+#   uncoupled/coupled configurations.
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

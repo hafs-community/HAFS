@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_obs_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS specific observation preprocessing steps needed
+#   by data assimilation.
+################################################################################
 set -xe
 
 cyc=${cyc:?}

@@ -1,5 +1,12 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_merge.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs hafs_datool to merge atmospheric restart files. It
+#   supports the merge_type of analysis or init with the merge_method of
+#   domainmerge or vortexreplace.
+################################################################################
 set -xe
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}

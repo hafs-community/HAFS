@@ -1,7 +1,11 @@
 #!/bin/sh
-# exhafs_enkf_hx.sh: Run the GSI forward operator performs mapping from model
-# space to observation space for the ensemble mean or ensemble members.
-
+################################################################################
+# Script Name: exhafs_enkf_hx.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the GSI forward operator to performs mapping from model
+#   space to observation space for the ensemble mean or ensemble members.
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

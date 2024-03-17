@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_wav_prep.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS wave preprocessing steps to generate WW3 coupling
+#   needed wave grid, initial condition (IC), boundary condition (BC) and other
+#   input forcing files.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:

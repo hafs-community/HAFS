@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_ocn_post.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic post-processing steps for HYCOM coupling.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:

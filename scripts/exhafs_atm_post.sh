@@ -1,5 +1,13 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_post.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmospheric post-processing steps including
+#   running UPP for regular and satellite post (if needed), subsetting the
+#   vortex tracker needed grib2 records, and NHC requested grib2 records (if
+#   chosen).
+################################################################################
 set -xe
 
 export MP_LABELIO=yes

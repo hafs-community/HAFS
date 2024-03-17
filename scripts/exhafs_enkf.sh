@@ -1,11 +1,16 @@
 #!/bin/sh
-# exhafs_enkf.sh: Depend upon the value of ldo_enscalc_option, this script can
-# perform the EnKF mean, update, and recenter functions by running the GSI's
-# enkf.x in different modes.
-# ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean
-# ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the ensemble members
-# ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber analysis around the deterministic EnVar analysis
-
+################################################################################
+# Script Name: exhafs_enkf.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script performs the EnKF mean, update, and recenter functions by
+#   running the GSI's enkf.x in different modes.
+#     ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean
+#     ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the
+#                           ensemble members
+#     ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber
+#                           analysis around the deterministic EnVar analysis
+################################################################################
 set -xe
 
 if [ ${ENSDA} = YES ]; then

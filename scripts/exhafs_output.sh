@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_output.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script delivers some HAFS output files, sends a notification email (if
+#   desired), and generate the HAFS swath grib2 files.
+################################################################################
 set -xe
 
 export MP_LABELIO=yes

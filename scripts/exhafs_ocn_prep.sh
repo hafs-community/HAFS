@@ -1,5 +1,12 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_ocn_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic preprocessing steps to generate MOM6
+#   coupling needed ocean initial condition (IC), open boundary condition (OBC)
+#   and atmospheric forcings.
+################################################################################
 set -xe
 
 NCP=${NCP:-'/bin/cp'}

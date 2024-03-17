@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmopsheric preprocessing steps to generate the
+#   model grid and geographical files (topography, surface climatology, etc.)
+################################################################################
 set -xe
 
 if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then

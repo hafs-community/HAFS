@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_product.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the GFDL vortex tracker to generate the ATCF track files,
+#   and produces the stakeholder (NHC/JTWC) needed products (if desired).
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

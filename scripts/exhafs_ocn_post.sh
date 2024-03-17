@@ -1,5 +1,10 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_ocn_post.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic post-processing steps for MOM6 coupling.
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

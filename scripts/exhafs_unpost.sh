@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_atm_unpost.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script cleans up the HAFS atmopheric, wave and oceanic post-processing
+#   products and files in com and intercom.
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_ocn_prep.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic preprocessing steps to generate HYCOM
+#   coupling needed ocean initial condition (IC), open boundary condition (OBC)
+#   and atmospheric forcings.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:
