@@ -5,6 +5,7 @@
 # Abstract:
 #   This script generates EMC graphics through hafs_graphcs.
 ################################################################################
+#
 set -xe
 
 date
@@ -332,67 +333,6 @@ ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 date
 
 #==============================================================================
-# For the ocean figures
-#==============================================================================
-
-if [ ${run_ocean} = yes ]; then
-
-cd ${WORKgraph}
-
-#Generate the cmdfile
-cmdfile="cmdfile_ocean.${FHR3}"
-rm -f $cmdfile
-touch $cmdfile
-
-figScriptAll=( \
-  plot_sst.py \
-  plot_sss.py \
-  plot_mld.py \
-  plot_ohc.py \
-  plot_z20.py \
-  plot_z26.py \
-  plot_storm_sst.py \
-  plot_storm_sss.py \
-  plot_storm_mld.py \
-  plot_storm_ohc.py \
-  plot_storm_z20.py \
-  plot_storm_z26.py \
-  plot_storm_tempz40m.py \
-  plot_storm_tempz70m.py \
-  plot_storm_tempz100m.py \
-  plot_storm_wvelz40m.py \
-  plot_storm_wvelz70m.py \
-  plot_storm_wvelz100m.py \
-  plot_storm_forec_track_tran_temp.py \
-  plot_storm_lat_tran_temp.py \
-  )
-
-nscripts=${#figScriptAll[*]}
-TRACKON="yes"
-
-for((i=0;i<${nscripts};i++)); do
-  fhhh="f${FHR3}"
-  if [ ${ocean_model,,} = mom6 ] && [ ${figScriptAll[$i]: 11:5} = wvelz ]; then
-     echo "Vertical velocity plots for MOM6 are not being produced yet."
-  else
-     echo ${figScriptAll[$i]} ${fhhh}
-     echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $TRACKON ${figScriptAll[$i]} $fhhh \
-	> ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
-  fi
-done
-
-chmod u+x ./$cmdfile
-
-if [ ${ocean_model,,} = mom6 ] && [ ${FHR} -gt 0 ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
-if [ ${ocean_model,,} = hycom ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
-
-fi #[ ${run_ocean} = yes ]; then
-
-#==============================================================================
 
 cd ${WORKgraph}
 
@@ -518,6 +458,81 @@ chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 date
+
+#==============================================================================
+# For the ocean figures
+#==============================================================================
+
+if [ ${run_ocean} = yes ]; then
+
+IFHR=0
+FHR=0
+FHR3=$( printf "%03d" "$FHR" )
+
+# Loop for forecast hours
+while [ $FHR -le $NHRS ];
+do
+
+cd ${WORKgraph}
+
+#Generate the cmdfile
+cmdfile="cmdfile_ocean.${FHR3}"
+rm -f $cmdfile
+touch $cmdfile
+
+figScriptAll=( \
+  plot_sst.py \
+  plot_sss.py \
+  plot_mld.py \
+  plot_ohc.py \
+  plot_z20.py \
+  plot_z26.py \
+  plot_storm_sst.py \
+  plot_storm_sss.py \
+  plot_storm_mld.py \
+  plot_storm_ohc.py \
+  plot_storm_z20.py \
+  plot_storm_z26.py \
+  plot_storm_tempz40m.py \
+  plot_storm_tempz70m.py \
+  plot_storm_tempz100m.py \
+  plot_storm_wvelz40m.py \
+  plot_storm_wvelz70m.py \
+  plot_storm_wvelz100m.py \
+  plot_storm_forec_track_tran_temp.py \
+  plot_storm_lat_tran_temp.py \
+  )
+
+nscripts=${#figScriptAll[*]}
+TRACKON="yes"
+
+for((i=0;i<${nscripts};i++)); do
+  fhhh="f${FHR3}"
+  if [ ${ocean_model,,} = mom6 ] && [ ${figScriptAll[$i]: 11:5} = wvelz ]; then
+     echo "Vertical velocity plots for MOM6 are not being produced yet."
+  else
+     echo ${figScriptAll[$i]} ${fhhh}
+     echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $TRACKON ${figScriptAll[$i]} $fhhh \
+	> ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  fi
+done
+
+chmod u+x ./$cmdfile
+
+if [ ${ocean_model,,} = mom6 ] && [ ${FHR} -gt 0 ]; then
+   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
+if [ ${ocean_model,,} = hycom ]; then
+   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
+
+IFHR=$(($IFHR + 1))
+FHR=$(($FHR + $NOUTHRS))
+FHR3=$( printf "%03d" "$FHR" )
+
+done #End loop for forecast hours
+
+fi #[ ${run_ocean} = yes ]; then
 
 #==============================================================================
 # For the wave figures
