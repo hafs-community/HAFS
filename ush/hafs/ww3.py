@@ -265,7 +265,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:
                         with NamedDir('ww3gint',keep=True,logger=logger) as nameddir:
-                            logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m gridi from gdaswave')
+                            logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m grid from gdaswave')
                             make_symlink('../mod_def.ww3','mod_def.hafs_ww3',force=True,logger=logger)
                             make_symlink(self.getexe('ww3_grid'),'ww3_grid',force=True,logger=logger)
                             deliver_file(self.icstr('{grid_gnh_10m_inp}'),'ww3_grid.inp',keep=True,logger=logger)
@@ -439,7 +439,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         ok=True
         (L,S) = produtil.fileop.lstat_stat(ww3rstfile)
         if S is None:
-            logger.info('%s: does not exist'%(ww3bdyfile,))
+            logger.info('%s: does not exist'%(ww3rstfile,))
             ok=False
         if S.st_size<10000:
             logger.info('%s: too small (should be >=%d bytes)'%(
