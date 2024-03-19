@@ -48,6 +48,12 @@ else
   PREPQC=${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.prepbufr
 fi
 
+# Check if gfs prepbufr file exists and non-empty, otherwise exit with fatal error.
+if [ ! -s ${PREPQC} ]; then
+  echo "FATAL ERROR: ${PREPQC} does not exist or is empty. Exiting ..."
+  exit 1
+fi
+
 ${NCP} -Lp ${PREPQC} ./prepbufr.orig
 ${NCP} -Lp ${PREPQC} ./prepbufr.qm_typ
 
