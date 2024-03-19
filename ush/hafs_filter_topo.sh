@@ -1,4 +1,12 @@
 #!/bin/sh
+################################################################################
+# Script Name: hafs_filter_topo.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script filters atmospheric model topography.
+# History:
+#   04/12/2019: This script was adopted from UFS_UTILS' fv3gfs_filter_topo.sh.
+################################################################################
 #set -eux
 set -x
 

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_esmf_mesh.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates ESMF mesh file.
+################################################################################
 import os, sys, getopt
 import argparse
 try:

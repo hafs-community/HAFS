@@ -1,5 +1,13 @@
 #!/bin/sh
 ################################################################################
+# Script Name: hafs_chgres.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script uses UFS_UTILS chgres_cube to create atmospheric model initial
+#   condition and/or lateral boundary conditions.
+# History:
+#   04/12/2019: This script was adopted from UFS_UTILS' global_chgres.sh.
+################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
 # Script name:         global_chgres.sh

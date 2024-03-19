@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: tcutil_interpolate.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script can interplate or extrapolate to generate TCvitals at different
+#   time levels.
+################################################################################
 import logging, os, sys, re, functools
 import produtil.setup
 import tcutil.numerics, tcutil.revital

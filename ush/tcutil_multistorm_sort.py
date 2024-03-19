@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: tcutil_multistorm_sort.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides the multistorm sort function.
+# History:
+#   04/21/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 
 import logging, os, sys, re, functools
 import produtil.setup

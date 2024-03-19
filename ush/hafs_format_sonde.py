@@ -1,5 +1,14 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_format_sonde.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script deals with and formats TEMP-DROP message (observations).
+# History:
+#   10/16/2020: This script was adopted from a version developed by Henry R.
+#               Winterbottom for HWRF.
+################################################################################
+#
 #    Author: Henry R. Winterbottom
 
 #    Email: Henry.Winterbottom@noaa.gov

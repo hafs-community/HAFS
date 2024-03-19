@@ -1,5 +1,13 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: produtil_deliver.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides access to the produtil.fileop.deliver_file()
+#   function to shell programs.
+# History:
+#   04/21/2019: Adapted and converted from HWRF.
+################################################################################
 ##@namespace produtil_deliver
 # A test program for the produtil.fileop.deliver_file() function.
 #

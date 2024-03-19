@@ -1,5 +1,10 @@
-#!/bin/bash
-
+#!/bin/sh
+################################################################################
+# Script Name: hafs_era5_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script prepares and links ERA5 files for CDEPS DATM component.
+################################################################################
 set -xe
 
 set -u

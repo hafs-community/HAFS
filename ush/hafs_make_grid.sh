@@ -1,9 +1,15 @@
 #!/bin/sh
-#
-# Updates:
-#  May 15, 2020  Bill Ramstrom, HRD/AOML, Added multiple nest capability
-#
-
+################################################################################
+# Script Name: hafs_make_grid.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script creates HAFS needed atmospheric model grids.
+# History:
+#   04/24/2019: This script was adopted from UFS_UTILS' grid driver script
+#   05/15/2020: Bill Ramstrom, HRD/AOML, Added multiple global-nest capability
+#   10/06/2021: Added the capability to support regional nesting configurations
+#   10/22/2022: Enabled support for regional ESG grid
+################################################################################
 set -eux
 
 nargv=$#

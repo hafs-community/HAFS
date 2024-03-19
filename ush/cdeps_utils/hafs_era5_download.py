@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_era5_download.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script downloads ERA5 input data for CDEPS DATM component.
+################################################################################
 # This next line will abort in any version earlier than Python 3.6:
 f'This script requires Python 3.6 or newer.'
 

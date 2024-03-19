@@ -1,7 +1,16 @@
 #! /usr/bin/env python3
-
-# Usage: ./hafs_mom6_obc_from_rtofs.py inputdir outputdir ssh_file_in ts_file_in uv_file_in lon_name_in lat_name_in hgrid_out_file lon_name_hgrid_out lat_name_hgrid_out
-
+################################################################################
+# Script Name: hafs_mom6_obc_from_rtofs.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script prepares HAFS MOM6 coupling needed open boundary conditions.
+# History:
+#
+# Usage:
+#   ./hafs_mom6_obc_from_rtofs.py inputdir outputdir ssh_file_in ts_file_in \
+#     uv_file_in lon_name_in lat_name_in hgrid_out_file \
+#     lon_name_hgrid_out lat_name_hgrid_out
+################################################################################
 import sys
 import argparse
 import time as Time

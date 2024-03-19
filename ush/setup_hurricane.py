@@ -1,5 +1,12 @@
 #! /usr/bin/env python
-
+################################################################################
+# Script Name: setup_hurricane.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates storm messages needed to run HAFS.
+# History:
+#   04/03/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 ##@namespace ush.setup_hurricane
 # @brief This script is run by the NOAA Senior Duty Meteorologist four times
 # a day to generate the list of storms for the HFSA and HFSB hurricane

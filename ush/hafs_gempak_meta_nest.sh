@@ -1,7 +1,13 @@
 #!/bin/ksh
-# Inherited from HWRF and updated for HAFS.
-# ksh can do floating point calculations directly.
-
+################################################################################
+# Script Name: hafs_gempak_meta_nest.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script makes HAFS GEMPAK meta files for the nest grid.
+# History:
+#   03/18/2023: This script was adopted/inerited from HWRF and updated for HAFS.
+# Note: ksh can do floating point calculations directly.
+################################################################################
 set -xe
 
 mkdir -p $DATA/nest

@@ -1,5 +1,14 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: tcutil_generate_vitals.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script is a wrappar around the tcutil.storminfo and tcutil.revital
+#   modules. It can read in tcvitals files from known locations and manipulate
+#   them in various ways.
+# History:
+#   04/03/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 ##@namespace ush.tcutil_generate_vitals
 # A utility script for tcvitals manipulation, a wrapper around tcutil.revital
 #

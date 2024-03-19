@@ -1,7 +1,11 @@
-#==============================================================================
-# This script sets job node/core, mpi/omp envionment, and run commands, as well
-# as some commonly used commands.
-#==============================================================================
+################################################################################
+# Script Name: hafs_runcmd.sh.inc
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script sets job node/core, mpi/omp environment, job run commands, as
+#   well as some commonly used commands and environment variables. The main
+#   purpose to help HAFS application to easily support multiple platforms.
+################################################################################
 
 # Set job node/core, mpi/omp environment
 export TOTAL_TASKS=${TOTAL_TASKS:-1}
@@ -23,8 +27,8 @@ export HDF5_USE_FILE_LOCKING=FALSE
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
 if [ "$machine" = wcoss2 ]; then
-  export APRUN="time"
-  export APRUNS="time"
+  export APRUN=${APRUN:-"time"}
+  export APRUNS=${APRUNS-:"time"}
   export APRUNO="mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNM="mpiexec -n ${TOTAL_TASKS}"

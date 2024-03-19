@@ -1,4 +1,14 @@
-#! /usr/bin/env bash
+#!/bin/sh
+################################################################################
+# Script Name: hafs_atparse.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides the atparse function to parse/update @[var] items in
+#   text files/configurations based on its value ($var).
+# History:
+#   08/18/2021: Originally adapted from ufs-weather-model
+################################################################################
+
 function atparse {
     local __set_x
     [ -o xtrace ] && __set_x='set -x' || __set_x='set +x'

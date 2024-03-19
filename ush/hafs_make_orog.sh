@@ -1,5 +1,13 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: hafs_make_orog.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the UFS_UTILS orog executable and generates 'oro_data'
+#   static topographic statistics files.
+# History:
+#   04/24/2019: This script was adopted from UFS_UTILS' fv3gfs_make_orog.sh
+################################################################################
 set -eux
 
 nargv=$#

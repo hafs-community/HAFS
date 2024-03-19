@@ -1,10 +1,14 @@
-#!/usr/bin/env python3
-
+#! /usr/bin/env python3
+################################################################################
+# Script Name: hafs_mom6_gfs_forcings.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates atmospheric forcing files needed by MOM6 coupling.
+# History:
+#
 # Usage:
 #   ./hafs_mom6_gfs_forcings.py ${YMDH} -l ${Length_hours} -s ${COMINgfs}
-# Example:
-#   ./hafs_mom6_gfs_forcings.py 2020082512 -l 126 -s /your/hafs-input/COMGFSv16/
-
+################################################################################
 import os
 import glob
 import argparse
@@ -382,5 +386,4 @@ if __name__ == "__main__":
     cmd = 'cdo merge gfs_global_' + y+m+d+h + '_NETLW.nc gfs_global_' + y+m+d+h + '_DSWRF.nc gfs_global_' + y+m+d+h + '_NETSW.nc gfs_global_' + y+m+d+h + '_SWVDF.nc gfs_global_' + y+m+d+h + '_SWVDR.nc gfs_global_' + y+m+d+h + '_SWNDF.nc gfs_global_' + y+m+d+h + '_SWNDR.nc gfs_global_' + y+m+d+h + '_LHTFL.nc gfs_global_' + y+m+d+h + '_EVAP.nc gfs_global_' + y+m+d+h + '_SHTFL.nc gfs_global_' + y+m+d+h + '_UFLX.nc gfs_global_' + y+m+d+h + '_VFLX.nc gfs_global_' + y+m+d+h + '_UGRD.nc gfs_global_' + y+m+d+h + '_VGRD.nc gfs_global_' + y+m+d+h + '_PRES.nc gfs_global_' + y+m+d+h + '_PRATE.nc gfs_global_' + y+m+d+h + '_TMP.nc ' + 'gfs_forcings.nc'
     print(cmd)
     os.system(cmd)
-
 

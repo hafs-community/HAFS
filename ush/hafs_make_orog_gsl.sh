@@ -1,5 +1,13 @@
-#!/bin/bash
-#
+#!/bin/sh
+################################################################################
+# Script Name: hafs_make_orog_gsl.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the UFS_UTILS orog_gsl executable and generates 'oro_data'
+#   static topographic statistics files needed for GSL orographic drag suite.
+# History:
+#   09/11/2022: This script was adopted from UFS_UTILS' fv3gfs_make_orog_gsl.sh
+################################################################################
 #-----------------------------------------------------------------------
 # Script to run 'orog_gsl' executable, which generates 'oro_data'
 # static topographic statistics files needed for GSL orographic
