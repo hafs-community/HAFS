@@ -23,13 +23,6 @@ mkdir -p ${DATA}
 
 cd ${DATA}
 
-# Generate storm_info file
-fstorminfo=${COMhafs}/${out_prefix}.${RUN}.storm_info
-echo ${STORM,,}${STORMID,,} > ${fstorminfo}
-if [ "${SENDDBN^^}" = "YES" ]; then
-  $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${fstorminfo}
-fi
-
 # Email SDM about AFOS if run by NCO on WCOSS2
 afosfile=${COMhafs}/${out_prefix}.${RUN}.afos
 if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then

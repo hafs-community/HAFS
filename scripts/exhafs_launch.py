@@ -245,6 +245,18 @@ def main():
             with open(startfile,'wt') as f:
                 f.write(startcontents)
 
+        # Generate storm_info file
+        fstorm_info=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.storm_info')
+        storm_info=conf.strinterp('config','{vit[stormname]}{vit[stormid3]}').lower()
+        logger.info(fstorm_info+': write storm_info here')
+        with open(fstorm_info,'wt') as f:
+            f.write(storm_info)
+        if os.environ.get('RUN_ENVIR','DEV').upper()=='NCO':
+            alert_type=conf.strinterp('config','{RUN}_ASCII').upper()
+            if os.path.exists(fstorm_info):
+                alert=produtil.dbnalert.DBNAlert(['MODEL',alert_type,'{job}',fstorm_info])
+                alert()
+
     Gsi=conf.getbool('config','run_gsi')
     #c.alter(ecf_name,'change','event','Gsi','set' if Gsi else 'clear')
     if Gsi: set_ecflow_event('Analysis',logger)
