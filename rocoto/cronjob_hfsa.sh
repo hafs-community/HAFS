@@ -18,21 +18,18 @@ opts="-t -f"
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and one-way wave coupling
-#opts="-t -f"
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev_ww3 ../parm/hfsa_dev_ww3.conf"
 ## Technical testing for Hurricane Ida
 #./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and without wave coupling
-#opts="-t -f"
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
 ## Technical testing for Hurricane Ida
 #./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources for JTWC storms (no DA and without wave coupling)
-#opts="-t -f"
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_jtwc_dev ../parm/hfsa_dev.conf"
 ## Technical testing for Noru
 #./run_hafs.py ${opts} 2022092400-2022092406 18W HISTORY ${confopts} \

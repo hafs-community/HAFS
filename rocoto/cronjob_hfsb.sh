@@ -18,7 +18,6 @@ opts="-t -f"
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSB with dev computation resources
-#opts="-t -f"
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb_dev ../parm/hfsb_dev.conf"
 ## Technical testing for Hurricane Ida
 #./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
