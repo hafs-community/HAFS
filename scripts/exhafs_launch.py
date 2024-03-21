@@ -258,17 +258,13 @@ def main():
                 alert()
 
     Gsi=conf.getbool('config','run_gsi')
-    #c.alter(ecf_name,'change','event','Gsi','set' if Gsi else 'clear')
     if Gsi: set_ecflow_event('Analysis',logger)
 
-    Hycom=conf.getbool('config','run_ocean') and \
-         conf.getstr('config','ocean_model').upper()=='HYCOM'
-    #c.alter(ecf_name,'change','event','Hycom','set' if Hycom else 'clear')
-    if Hycom: set_ecflow_event('Ocean',logger)
+    Ocean=conf.getbool('config','run_ocean')
+    if Ocean: set_ecflow_event('Ocean',logger)
 
     Wave=conf.getbool('config','run_wave') and \
          conf.getstr('config','wave_model').upper()=='WW3'
-    #c.alter(ecf_name,'change','event','Wave','set' if Wave else 'clear')
     if Wave: set_ecflow_event('Wave',logger)
 
 if __name__ == '__main__':
