@@ -27,33 +27,30 @@ export HDF5_USE_FILE_LOCKING=FALSE
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
 if [ "$machine" = wcoss2 ]; then
-  export APRUN=${APRUN:-"time"}
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNO=${APRUNO:-"mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"}
-  export APRUNC=${APRUNC:-"mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"}
-  export APRUNM=${APRUNM:-"mpiexec -n ${TOTAL_TASKS}"}
-  export APRUNF=${APRUNF:-"mpiexec -n ${TOTAL_TASKS} cfp "}
-  export APRUNCFP=${APRUNCFP:-"mpiexec"}
+  export APRUN="time"
+  export APRUNS="time"
+  export APRUNO="mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"
+  export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
+  export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
+  export APRUNCFP="mpiexec"
   export BACKGROUND=""
 elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ]; then
-  export APRUN=${APRUN:-"time"}
-  export APRUNS=${APRUNS:-"srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"}
-  export APRUNO=${APRUNO:-"srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"}
-  export APRUNC=${APRUNC:-"srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
-  export APRUNM=${APRUNM:-"srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"}
- #export APRUNF=${APRUNF:-"srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"}
-  export APRUNF=${APRUNF:-"time"}
-  export APRUNCFP=${APRUNCFP:-"time"}
+  export APRUN="time"
+  export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
+  export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
+  export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+  export APRUNF="time"
+  export APRUNCFP="time"
   export BACKGROUND="&"
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
-  export APRUN=${APRUN:-"time"}
-  export APRUNS=${APRUNS:-"time"}
-  export APRUNO=${APRUNO:-"time"}
-  export APRUNC=${APRUNC:-"mpirun"}
-  export APRUNM=${APRUNM:-"mpirun"}
-  export APRUNF=${APRUNF:-"${MPISERIAL:-mpiserial}"}
-  export APRUNCFP=${APRUNCFP:-"time"}
+  export APRUN="time"
+  export APRUNS="time"
+  export APRUNO="time"
+  export APRUNC="mpirun"
+  export APRUNF="${MPISERIAL:-mpiserial}"
+  export APRUNCFP="time"
   export BACKGROUND=""
 fi
 
