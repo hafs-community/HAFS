@@ -43,7 +43,7 @@ mkdir -p ${DATA}
 
 cd ${DATA}
 
-FHR=${FHRB:-${NOUTHRS}}
+FHR=${FHRB:-0}
 FHR2=$(printf "%02d" "$FHR")
 FHR3=$(printf "%03d" "$FHR")
 
@@ -55,7 +55,12 @@ YYYY=$(echo $NEWDATE | cut -c1-4)
 MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
-ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
+
+if [ $FHR -eq 0 ]; then
+  ocnout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
+else
+  ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
+fi
 
 if [ $FHR -lt $NHRS ]; then
   NEWDATEn=$(${NDATE} +$((${FHR}+${NOUTHRS})) $CDATE)

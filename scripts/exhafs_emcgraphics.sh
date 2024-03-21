@@ -519,12 +519,7 @@ done
 
 chmod u+x ./$cmdfile
 
-if [ ${ocean_model,,} = mom6 ] && [ ${FHR} -gt 0 ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
-if [ ${ocean_model,,} = hycom ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 IFHR=$(($IFHR + 1))
 FHR=$(($FHR + $NOUTHRS))

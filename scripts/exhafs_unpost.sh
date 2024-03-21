@@ -26,6 +26,8 @@ rm -f ${WORKhafs}/intercom/post/post*f???
 # Remove ocn_post com output
 if [ ${run_ocean} = yes ]; then
   rm -f ${COMhafs}/${out_prefix}.${RUN}.hycom.*.f???.nc
+  rm -f ${COMhafs}/${out_prefix}.${RUN}.mom6.*.f???.nc
+  rm -f ${WORKhafs}/intercom/ocn_post/ocnpost*f???
 fi
 
 # Remove wav_post com output
