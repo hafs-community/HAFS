@@ -121,7 +121,7 @@ cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.3"
-load(pathJoin("rocoto", rocoto_ver))
+load("rocoto")
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
