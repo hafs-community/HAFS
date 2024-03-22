@@ -43,7 +43,8 @@ mkdir -p ${DATA}
 
 cd ${DATA}
 
-FHR=${FHRB:-0}
+#FHR=${FHRB:-0}
+FHR=${FHRB:-${NOUTHRS}}
 FHR2=$(printf "%02d" "$FHR")
 FHR3=$(printf "%03d" "$FHR")
 
@@ -56,11 +57,7 @@ MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
 
-if [ $FHR -eq 0 ]; then
-  ocnout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
-else
-  ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
-fi
+ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
 
 if [ $FHR -lt $NHRS ]; then
   NEWDATEn=$(${NDATE} +$((${FHR}+${NOUTHRS})) $CDATE)
@@ -126,5 +123,19 @@ FHR3=$(printf "%03d" "$FHR")
 done
 # End loop for forecast hours
 
-cd ${DATA}
+# Special treatment for ocn f000 history output (actually first time step output)
+# Deliver oicout to COMOUTpost
+# Note: This is because the oicout file will not be ready/closed until the forecast completes.
+NEWDATE=$CDATE
+YYYY=$(echo $NEWDATE | cut -c1-4)
+MM=$(echo $NEWDATE | cut -c5-6)
+DD=$(echo $NEWDATE | cut -c7-8)
+HH=$(echo $NEWDATE | cut -c9-10)
+oicout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
+oicpost=${out_prefix}.${RUN}.mom6.f000.nc
 
+if [ $SENDCOM = YES ]; then
+  ${NCP} -p ${INPdir}/${oicout} ${COMOUTpost}/${oicpost}
+fi
+
+cd ${DATA}
