@@ -36,10 +36,10 @@ libjpeg_ver=os.getenv("libjpeg_ver") or "9c"
 load(pathJoin("libjpeg", libjpeg_ver))
 
 hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
-load(pathJoin("hdf5-B", hdf5_ver))
+load(pathJoin("hdf5-A", hdf5_ver))
 
 netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
-load(pathJoin("netcdf-B", netcdf_ver))
+load(pathJoin("netcdf-A", netcdf_ver))
 
 fms_ver=os.getenv("fms_ver") or "2023.02.01"
 load(pathJoin("fms", fms_ver))
@@ -110,11 +110,12 @@ load(pathJoin("bufr_dump", bufr_dump_ver))
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
-ncdiag_ver=os.getenv("ncdiag_ver") or "1.1.1"
-load(pathJoin("ncdiag", ncdiag_ver))
+prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.9")
+ncdiag_ver=os.getenv("ncdiag_ver") or "1.1.2"
+load(pathJoin("ncdiag-A", ncdiag_ver))
 
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
-load(pathJoin("ncio", ncio_ver))
+load(pathJoin("ncio-A", ncio_ver))
 
 pio_ver=os.getenv("pio_ver") or "2.5.10"
 load(pathJoin("pio-B", pio_ver))
