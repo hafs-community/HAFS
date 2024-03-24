@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument('-l','--length_hours', type=int, default=24,
         help="length of required forcing in hours (date + length). Default %(default)s")
     parser.add_argument('-s','--source', type=str,
-        default="/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16/",
+        default="/your/COMINgfs/dir",
         help="location of GFS output")
 
     args = parser.parse_args()
@@ -278,112 +278,4 @@ if __name__ == "__main__":
                 print(cmd)
                 os.system(cmd)
                 os.system('rm ' + 'gfs_global_*f*' + gfs_var_name + '.nc')
-
-    # Obtain net longwave and shortwave radiation file
-    print('Obtaining NETLW')
-    cmd = 'ncks -A ' + 'gfs_global_' + y+m+d+h + '_ULWRF.nc' +  ' -o ' + 'gfs_global_' + y+m+d+h + '_LWRF.nc'
-    os.system(cmd)
-
-    cmd = 'ncks -A ' + 'gfs_global_' + y+m+d+h + '_DLWRF.nc' +  ' -o ' + 'gfs_global_' + y+m+d+h + '_LWRF.nc'
-    os.system(cmd)
-
-    cmd = 'ncap2 -v -O -s NETLW_surface=DLWRF_surface-ULWRF_surface ' + 'gfs_global_' + y+m+d+h + '_LWRF.nc' + ' gfs_global_' + y+m+d+h + '_NETLW.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,NETLW_surface,o,c,"Net Long-Wave Radiation Flux" gfs_global_' + y+m+d+h + '_NETLW.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,NETLW_surface,o,c,"NETLW_surface" gfs_global_' + y+m+d+h + '_NETLW.nc'
-    os.system(cmd)
-
-    print('Obtaining NETSW')
-    cmd = 'ncks -A ' + 'gfs_global_' + y+m+d+h + '_USWRF.nc' +  ' -o ' + 'gfs_global_' + y+m+d+h + '_SWRF.nc'
-    os.system(cmd)
-
-    cmd = 'ncks -A ' + 'gfs_global_' + y+m+d+h + '_DSWRF.nc' +  ' -o ' + 'gfs_global_' + y+m+d+h + '_SWRF.nc'
-    os.system(cmd)
-
-    cmd = 'ncap2 -v -O -s NETSW_surface=DSWRF_surface-USWRF_surface ' + 'gfs_global_' + y+m+d+h +'_SWRF.nc' + ' gfs_global_' + y+m+d+h + '_NETSW.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,NETSW_surface,o,c,"Net Short-Wave Radiation Flux" gfs_global_' + y+m+d+h + '_NETSW.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,NETSW_surface,o,c,"NETSW_surface" gfs_global_' + y+m+d+h + '_NETSW.nc'
-    os.system(cmd)
-
-    # Add four components to the NETSW and DSWRF radiation files
-    # SWVDF=Visible Diffuse Downward Solar Flux. SWVDF=0.285*DSWRF_surface
-    # SWVDR=Visible Beam Downward Solar Flux. SWVDR=0.285*DSWRF_surface
-    # SWNDF=Near IR Diffuse Downward Solar Flux. SWNDF=0.215*DSWRF_surface
-    # SWNDR=Near IR Beam Downward Solar Flux. SWNDR=0.215*DSWRF_surface
-
-    print('Adding four components to the NETSW radiation file')
-
-    print('Adding SWVDF')
-    cmd = 'ncap2 -v -O -s "SWVDF_surface=float(0.285*DSWRF_surface)" ' + 'gfs_global_' + y+m+d+h +'_DSWRF.nc' + ' gfs_global_' + y+m+d+h + '_SWVDF.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,SWVDF_surface,o,c,"Visible Diffuse Downward Solar Flux" gfs_global_' + y+m+d+h + '_SWVDF.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,SWVDF_surface,o,c,"SWVDF_surface" gfs_global_' + y+m+d+h + '_SWVDF.nc'
-    os.system(cmd)
-
-    print('Adding SWVDR')
-    cmd = 'ncap2 -v -O -s "SWVDR_surface=float(0.285*DSWRF_surface)" ' + 'gfs_global_' + y+m+d+h +'_DSWRF.nc' + ' gfs_global_' + y+m+d+h + '_SWVDR.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,SWVDR_surface,o,c,"Visible Beam Downward Solar Flux" gfs_global_' + y+m+d+h + '_SWVDR.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,SWVDR_surface,o,c,"SWVDR_surface" gfs_global_' + y+m+d+h + '_SWVDR.nc'
-    os.system(cmd)
-
-    print('Adding SWNDF')
-    cmd = 'ncap2 -v -O -s "SWNDF_surface=float(0.215*DSWRF_surface)" ' + 'gfs_global_' + y+m+d+h +'_DSWRF.nc' + ' gfs_global_' + y+m+d+h + '_SWNDF.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,SWNDF_surface,o,c,"Near IR Diffuse Downward Solar Flux" gfs_global_' + y+m+d+h + '_SWNDF.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,SWNDF_surface,o,c,"SWNDF_surface" gfs_global_' + y+m+d+h + '_SWNDF.nc'
-    os.system(cmd)
-
-    print('Adding SWNDR')
-    cmd = 'ncap2 -v -O -s "SWNDR_surface=float(0.215*DSWRF_surface)" ' + 'gfs_global_' + y+m+d+h +'_DSWRF.nc' + ' gfs_global_' + y+m+d+h + '_SWNDR.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,SWNDR_surface,o,c,"Near IR Beam Downward Solar Flux" gfs_global_' + y+m+d+h + '_SWNDR.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,SWNDR_surface,o,c,"SWVDR_surface" gfs_global_' + y+m+d+h + '_SWNDR.nc'
-    os.system(cmd)
-    
-    print('Changing sign to SHTFL')
-    cmd = 'ncap2 -v -O -s "SHTFL_surface=float(SHTFL_surface*-1.0)" ' + 'gfs_global_' + y+m+d+h +'_SHTFL.nc' + ' gfs_global_' + y+m+d+h + '_SHTFL.nc'
-    os.system(cmd)
-
-    print('Changing sign to LHTFL')
-    cmd = 'ncap2 -v -O -s "LHTFL_surface=float(LHTFL_surface*-1.0)" ' + 'gfs_global_' + y+m+d+h +'_LHTFL.nc' + ' gfs_global_' + y+m+d+h + '_LHTFL.nc'
-    os.system(cmd)
-
-    print('Changing sign to UFLX')
-    cmd = 'ncap2 -v -O -s "UFLX_surface=float(UFLX_surface*-1.0)" ' + 'gfs_global_' + y+m+d+h +'_UFLX.nc' + ' gfs_global_' + y+m+d+h + '_UFLX.nc'
-    os.system(cmd)
-
-    print('Changing sign to VFLX')
-    cmd = 'ncap2 -v -O -s "VFLX_surface=float(VFLX_surface*-1.0)" ' + 'gfs_global_' + y+m+d+h +'_VFLX.nc' + ' gfs_global_' + y+m+d+h + '_VFLX.nc'
-    os.system(cmd)
-
-    print('Adding EVAP')
-    cmd = 'ncap2 -v -O -s "EVAP_surface=float(LHTFL_surface/(2.5*10^6))" ' + 'gfs_global_' + y+m+d+h +'_LHTFL.nc' + ' gfs_global_' + y+m+d+h + '_EVAP.nc'
-    os.system(cmd)
-
-    cmd = 'ncatted -O -a long_name,EVAP_surface,o,c,"Evaporation Rate" gfs_global_' + y+m+d+h + '_EVAP.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a short_name,EVAP_surface,o,c,"EVAP_surface" gfs_global_' + y+m+d+h + '_EVAP.nc'
-    os.system(cmd)
-    cmd = 'ncatted -O -a units,EVAP_surface,o,c,"Kg m-2 s-1" gfs_global_' + y+m+d+h + '_EVAP.nc'
-    os.system(cmd)
-
-    # Concatenate all files
-    print('Concatanating all files')
-    cmd = 'cdo merge gfs_global_' + y+m+d+h + '_NETLW.nc gfs_global_' + y+m+d+h + '_DSWRF.nc gfs_global_' + y+m+d+h + '_NETSW.nc gfs_global_' + y+m+d+h + '_SWVDF.nc gfs_global_' + y+m+d+h + '_SWVDR.nc gfs_global_' + y+m+d+h + '_SWNDF.nc gfs_global_' + y+m+d+h + '_SWNDR.nc gfs_global_' + y+m+d+h + '_LHTFL.nc gfs_global_' + y+m+d+h + '_EVAP.nc gfs_global_' + y+m+d+h + '_SHTFL.nc gfs_global_' + y+m+d+h + '_UFLX.nc gfs_global_' + y+m+d+h + '_VFLX.nc gfs_global_' + y+m+d+h + '_UGRD.nc gfs_global_' + y+m+d+h + '_VGRD.nc gfs_global_' + y+m+d+h + '_PRES.nc gfs_global_' + y+m+d+h + '_PRATE.nc gfs_global_' + y+m+d+h + '_TMP.nc ' + 'gfs_forcings.nc'
-    print(cmd)
-    os.system(cmd)
 

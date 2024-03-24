@@ -9,21 +9,15 @@
 ################################################################################
 set -xe
 
-NCP=${NCP:-'/bin/cp'}
-NLN=${NLN:-'/bin/ln -sf'}
-NDATE=${NDATE:-ndate}
-
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
 STORM=${STORM:-FAKE}
 STORMID=${STORMID:-00L}
 
 ymd=`echo $CDATE | cut -c 1-8`
-month=`echo $CDATE | cut -c 5-6`
-day=`echo $CDATE | cut -c 7-8`
 hour=`echo $CDATE | cut -c 9-10`
 CDATEprior=`${NDATE} -6 $CDATE`
-PDY_prior=`echo ${CDATEprior} | cut -c1-8`
+ymd_prior=`echo ${CDATEprior} | cut -c1-8`
 cyc_prior=`echo ${CDATEprior} | cut -c9-10`
 
 pubbasin2=${pubbasin2:-AL}
@@ -48,8 +42,6 @@ if [ "${hour}" == "00" ]; then
 else
   type=${type:-f}
 fi
-
-WGRIB2=${WGRIB2:-wgrib2}
 
 # Make the intercom dir
 mkdir -p ${WORKhafs}/intercom/ocn_prep/mom6
@@ -119,20 +111,20 @@ ${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in
 ncrename -d Latitude,lath -d Longitude,lonh -d MT,time \
          -v Latitude,lath -v Longitude,lonh -v MT,time -v ssh,ave_ssh \
          rtofs_${outnc_2d} mom6_${outnc_2d}
-# Convert variable to double precission?
-ncap2 -O -s ave_ssh=ave_ssh*1.0 mom6_${outnc_2d} ${outnc_2d}
+# Convert variable to double precission
+ncap2 -O -s "ave_ssh=ave_ssh*1.0" mom6_${outnc_2d} ${outnc_2d}
 # _Fillvalues set to zero
 ncatted -a _FillValue,ave_ssh,o,f,0.0 ${outnc_2d}
 
 # TS file
-# Change format to netcdf3 format
+# Change into netcdf3 format
 ncks -3 rtofs_${outnc_ts} rtofs_nc3_${outnc_ts}
-# Rename variables so they match MOM6 variable name
+# Rename variables so that they match MOM6 variable name
 ncrename -d Depth,depth -d Latitude,lath -d Longitude,lonh -d MT,time \
          -v Depth,depth -v Latitude,lath -v Longitude,lonh -v MT,time \
          -v pot_temp,Temp -v salinity,Salt \
          rtofs_nc3_${outnc_ts} mom6_${outnc_ts}
-# Change format to netcdf4 format
+# Change into netcdf4 format
 ncks -4 mom6_${outnc_ts} ${outnc_ts}
 
 # UV file
@@ -140,28 +132,23 @@ ncrename -d Depth,Layer -d Latitude,lath -d Longitude,lonh -d MT,Time \
          -v Depth,Layer -v Latitude,lath -v Longitude,lonh -v MT,Time \
          rtofs_${outnc_uv} mom6_layer_${outnc_uv}
 
-cp -f mom6_layer_${outnc_uv} hycom_3d.nc
+${NCP} -p mom6_layer_${outnc_uv} hycom_3d.nc
 
-# This method requires to have a MOM.res.nc file for the specif domain as a template. If we follow this procedure, probably we should have a MOM.res.nc template in the fix MOM6 files
-cp ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./
-cp ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./MOM.res_ic.nc
-
+# This method requires to have a MOM.res.nc file for the specific domain as a
+# template. If we follow this procedure, probably we should have a MOM.res.nc
+# template in the fix MOM6 files
+${NCP} ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./
+${NCP} ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./MOM.res_ic.nc
 nlonq=$(ncks --trd -m MOM.res.nc | grep -E -i ": lonq, size =" | cut -f 7 -d ' ' | uniq)
 nlatq=$(ncks --trd -m MOM.res.nc | grep -E -i ": latq, size =" | cut -f 7 -d ' ' | uniq)
-
 ncks -O -F -d latq,2,${nlatq} -d lonq,2,${nlonq} MOM.res_ic.nc MOM.res.nc
-
 ncks -O -F -v u -d lonq,1,1 MOM.res_ic.nc tmp1_u.nc
 ncks -O -F -v v -d latq,1,1 MOM.res_ic.nc tmp1_v.nc
 
-# to make double precision, multiply *1.0
-ncap2 -O -s lonh=lonh*1.0 hycom_3d.nc hycom_3d.nc
-ncap2 -O -s lath=lath*1.0 hycom_3d.nc hycom_3d.nc
-ncap2 -O -s Layer=Layer*1.0 hycom_3d.nc hycom_3d.nc
-ncap2 -O -s u=u*1.0 hycom_3d.nc hycom_3d.nc
-ncap2 -O -s v=v*1.0 hycom_3d.nc hycom_3d.nc
+# Convert into double precision
+ncap2 -O -s "lonh=lonh*1.0" -s "lath=lath*1.0" -s "Layer=Layer*1.0" -s "u=u*1.0" -s "v=v*1.0" hycom_3d.nc hycom_3d.nc
 
-# extract u & v
+# Extract u and v
 ncks -O -v u hycom_3d.nc tmp2_u.nc
 ncks -O -v v hycom_3d.nc tmp2_v.nc
 
@@ -177,6 +164,7 @@ ncpdq -O -a lonq,lath,Layer,Time tmp2_u.nc tmp2_u.nc
 ncpdq -O -a latq,lonh,Layer,Time tmp1_v.nc tmp1_v.nc
 ncpdq -O -a latq,lonh,Layer,Time tmp2_v.nc tmp2_v.nc
 
+# Consider speeding up these two ncrcat steps in the future
 ncrcat -O tmp1_u.nc tmp2_u.nc tmp_u.nc
 ncrcat -O tmp1_v.nc tmp2_v.nc tmp_v.nc
 
@@ -186,16 +174,10 @@ ncpdq -O -a Time,Layer,latq,lonh tmp_v.nc tmp_v.nc
 ncks -A -C -v Time,Layer,lath,lonq,u tmp_u.nc tmp_uv.nc
 ncks -A -C -v Time,Layer,latq,lonh,v tmp_v.nc tmp_uv.nc
 
-cp tmp_uv.nc test_uv.nc
-
-# values on the land grids set to be zero
-ncap2 -s 'where (u > 100.0 ) u=0.0' test_uv.nc test_uv_u0.nc
-ncap2 -s 'where (v > 100.0 ) v=0.0' test_uv_u0.nc test_uv_00.nc
-
-ncap2 -s 'u=u;u(:,:,:,0)=u(:,:,:,1)' test_uv_00.nc test_uv_01.nc
-ncap2 -s 'v=v;v(:,:,0,:)=v(:,:,1,:)' test_uv_01.nc test_uv_02.nc
-
-mv test_uv_02.nc ${outnc_uv}
+# Set values on the land grids to zero, and deal with first column/row
+ncap2 -s 'where(u>100.0) u=0.0' -s 'where(v>100.0) v=0.0' \
+      -s 'u=u;u(:,:,:,0)=u(:,:,:,1)' -s 'v=v;v(:,:,0,:)=v(:,:,1,:)' \
+      tmp_uv.nc ${outnc_uv}
 
 # Deliver to intercom
 ${NCP} -p ${outnc_2d} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc
@@ -240,7 +222,9 @@ ${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in
 
 # Run Python script to generate OBC
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} 'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y'
+${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
+    rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
+    'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y'
 
 # next obc hour
 #IFHR=$(($IFHR + 1))
@@ -267,7 +251,134 @@ done
 mkdir -p ${WORKhafs}/ocn_prep/mom6_forcings
 cd ${WORKhafs}/ocn_prep/mom6_forcings
 
+#PARMave="USWRF:surface|DSWRF:surface|ULWRF:surface|DLWRF:surface|UFLX:surface|VFLX:surface|SHTFL:surface|LHTFL:surface"
+#PARMins="UGRD:10 m above ground|VGRD:10 m above ground|PRES:surface|PRATE:surface|TMP:surface"
+#PARMlist="${PARMave}|${PARMins}"
+
+# Use gfs forcing from prior cycle's 6-h forecast
+grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
+if [ ! -s ${grib2_file} ]; then
+  echo "FATAL ERROR: ${grib2_file} does not exist. Exiting"
+  exit 1
+fi
+# Extract atmospheric forcing related variables
+#${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd_prior}${cyc_prior}_f006.nc
+
+FHRB=${FHRB:-0}
+FHRE=${FHRE:-$((${NHRS}+3))}
+FHRI=${FHRI:-3}
+FHR=${FHRB}
+FHR3=$( printf "%03d" "$FHR" )
+
+# Loop for forecast hours
+while [ $FHR -le ${FHRE} ]; do
+
+# Use gfs 0.25 degree grib2 files
+grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+
+# Check and wait for input data
+n=1
+while [ $n -le 360 ]; do
+  if [ -s ${grib2_file} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${grib2_file}) )) -lt 10  ]; do sleep 10; done
+    echo "${grib2_file} ready, continue ..."
+    break
+  else
+    echo "${grib2_file} not ready, sleep 10"
+    sleep 10s
+  fi
+  if [ $n -ge 360 ]; then
+    echo "FATAL ERROR: Waited for ${grib2_file} too many times: $n. Exiting"
+    exit 1
+  fi
+  n=$(( n+1 ))
+done
+
+#${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd}${cyc}_f${FHR3}.nc
+
+FHR=$(($FHR + ${FHRI}))
+FHR3=$(printf "%03d" "$FHR")
+
+done
+# End loop for forecast hours
+
 ${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} -s ${COMINgfs}
+
+# Obtain net longwave and shortwave radiation file
+echo 'Obtaining NETLW'
+ncks -A gfs_global_${CDATE}_ULWRF.nc -o gfs_global_${CDATE}_LWRF.nc
+ncks -A gfs_global_${CDATE}_DLWRF.nc -o gfs_global_${CDATE}_LWRF.nc
+ncap2 -v -O -s "NETLW_surface=DLWRF_surface-ULWRF_surface" gfs_global_${CDATE}_LWRF.nc gfs_global_${CDATE}_NETLW.nc
+ncatted -O -a long_name,NETLW_surface,o,c,"Net Long-Wave Radiation Flux" gfs_global_${CDATE}_NETLW.nc
+ncatted -O -a short_name,NETLW_surface,o,c,"NETLW_surface" gfs_global_${CDATE}_NETLW.nc
+
+echo 'Obtaining NETSW'
+ncks -A gfs_global_${CDATE}_USWRF.nc -o gfs_global_${CDATE}_SWRF.nc
+ncks -A gfs_global_${CDATE}_DSWRF.nc -o gfs_global_${CDATE}_SWRF.nc
+ncap2 -v -O -s "NETSW_surface=DSWRF_surface-USWRF_surface" gfs_global_${CDATE}_SWRF.nc gfs_global_${CDATE}_NETSW.nc
+ncatted -O -a long_name,NETSW_surface,o,c,"Net Short-Wave Radiation Flux" gfs_global_${CDATE}_NETSW.nc
+ncatted -O -a short_name,NETSW_surface,o,c,"NETSW_surface" gfs_global_${CDATE}_NETSW.nc
+
+# Add four components to the NETSW and DSWRF radiation files
+# SWVDF=Visible Diffuse Downward Solar Flux. SWVDF=0.285*DSWRF_surface
+# SWVDR=Visible Beam Downward Solar Flux. SWVDR=0.285*DSWRF_surface
+# SWNDF=Near IR Diffuse Downward Solar Flux. SWNDF=0.215*DSWRF_surface
+# SWNDR=Near IR Beam Downward Solar Flux. SWNDR=0.215*DSWRF_surface
+echo 'Adding four components to the NETSW radiation file'
+echo 'Adding SWVDF'
+ncap2 -v -O -s "SWVDF_surface=float(0.285*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWVDF.nc
+ncatted -O -a long_name,SWVDF_surface,o,c,"Visible Diffuse Downward Solar Flux" gfs_global_${CDATE}_SWVDF.nc
+ncatted -O -a short_name,SWVDF_surface,o,c,"SWVDF_surface" gfs_global_${CDATE}_SWVDF.nc
+
+echo 'Adding SWVDR'
+ncap2 -v -O -s "SWVDR_surface=float(0.285*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWVDR.nc
+ncatted -O -a long_name,SWVDR_surface,o,c,"Visible Beam Downward Solar Flux" gfs_global_${CDATE}_SWVDR.nc
+ncatted -O -a short_name,SWVDR_surface,o,c,"SWVDR_surface" gfs_global_${CDATE}_SWVDR.nc
+
+echo 'Adding SWNDF'
+ncap2 -v -O -s "SWNDF_surface=float(0.215*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWNDF.nc
+ncatted -O -a long_name,SWNDF_surface,o,c,"Near IR Diffuse Downward Solar Flux" gfs_global_${CDATE}_SWNDF.nc
+ncatted -O -a short_name,SWNDF_surface,o,c,"SWNDF_surface" gfs_global_${CDATE}_SWNDF.nc
+
+echo 'Adding SWNDR'
+ncap2 -v -O -s "SWNDR_surface=float(0.215*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWNDR.nc
+ncatted -O -a long_name,SWNDR_surface,o,c,"Near IR Beam Downward Solar Flux" gfs_global_${CDATE}_SWNDR.nc
+ncatted -O -a short_name,SWNDR_surface,o,c,"SWVDR_surface" gfs_global_${CDATE}_SWNDR.nc
+
+echo 'Changing sign to SHTFL, LHTFL, UFLX, VFLX'
+ncap2 -v -O -s "SHTFL_surface=float(SHTFL_surface*-1.0)" gfs_global_${CDATE}_SHTFL.nc gfs_global_${CDATE}_SHTFL.nc
+ncap2 -v -O -s "LHTFL_surface=float(LHTFL_surface*-1.0)" gfs_global_${CDATE}_LHTFL.nc gfs_global_${CDATE}_LHTFL.nc
+ncap2 -v -O -s "UFLX_surface=float(UFLX_surface*-1.0)" gfs_global_${CDATE}_UFLX.nc gfs_global_${CDATE}_UFLX.nc
+ncap2 -v -O -s "VFLX_surface=float(VFLX_surface*-1.0)" gfs_global_${CDATE}_VFLX.nc gfs_global_${CDATE}_VFLX.nc
+
+echo 'Adding EVAP'
+ncap2 -v -O -s "EVAP_surface=float(LHTFL_surface/(2.5*10^6))" gfs_global_${CDATE}_LHTFL.nc gfs_global_${CDATE}_EVAP.nc
+ncatted -O -a long_name,EVAP_surface,o,c,"Evaporation Rate" gfs_global_${CDATE}_EVAP.nc
+ncatted -O -a short_name,EVAP_surface,o,c,"EVAP_surface" gfs_global_${CDATE}_EVAP.nc
+ncatted -O -a units,EVAP_surface,o,c,"Kg m-2 s-1" gfs_global_${CDATE}_EVAP.nc
+
+# Concatenate all files
+fileall="gfs_global_${CDATE}_NETLW.nc \
+         gfs_global_${CDATE}_DSWRF.nc \
+         gfs_global_${CDATE}_NETSW.nc \
+         gfs_global_${CDATE}_SWVDF.nc \
+         gfs_global_${CDATE}_SWVDR.nc \
+         gfs_global_${CDATE}_SWNDF.nc \
+         gfs_global_${CDATE}_SWNDR.nc \
+         gfs_global_${CDATE}_LHTFL.nc \
+         gfs_global_${CDATE}_EVAP.nc  \
+         gfs_global_${CDATE}_SHTFL.nc \
+         gfs_global_${CDATE}_UFLX.nc  \
+         gfs_global_${CDATE}_VFLX.nc  \
+         gfs_global_${CDATE}_UGRD.nc  \
+         gfs_global_${CDATE}_VGRD.nc  \
+         gfs_global_${CDATE}_PRES.nc  \
+         gfs_global_${CDATE}_PRATE.nc \
+         gfs_global_${CDATE}_TMP.nc"
+# Use cdo merge, which is faster
+cdo merge ${fileall} gfs_forcings.nc
+# Alternatively, can use ncks, but slower
+#for file in ${fileall}; do ncks -h -A ${file} gfs_forcings.nc; done
 
 # Deliver to intercom
 ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
