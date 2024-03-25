@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3.1. Using CDEPS in HAFS &mdash; HAFS Users Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=044582d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=12273437" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Reference" href="../Reference/index.html" />
+    <link rel="prev" title="3. Customizing The Workflow" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HAFS Users Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Backgroundinfo/index.html">1. Background Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../BuildingRunningTesting/index.html">2. Building, Running, and Testing HAFS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">3. Customizing The Workflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3.1. Using CDEPS in HAFS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">3.1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#obtaining-the-code">3.1.2. Obtaining the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-access">3.1.3. Data Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-download">3.1.4. Data Download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-cdeps-in-hafs">3.1.5. Building CDEPS in HAFS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-cdeps-in-the-hafs-workflow">3.1.6. Using CDEPS in the HAFS Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#limitations-and-other-considerations">3.1.7. Limitations and Other Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-more-information">3.1.8. For More Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appendix-a-hafs-cdeps-configuration-options">3.1.9. Appendix A: HAFS-CDEPS Configuration Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appendix-b-considerations-for-adding-a-new-dataset">3.1.10. Appendix B: Considerations for Adding a New Dataset</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Reference/index.html">4. Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HAFS Users Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html"><span class="section-number">3. </span>Customizing The Workflow</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3.1. </span>Using CDEPS in HAFS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/CustomizingTheWorkflow/CDEPS.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-cdeps-in-hafs">
+<span id="cdeps"></span><h1><span class="section-number">3.1. </span>Using CDEPS in HAFS<a class="headerlink" href="#using-cdeps-in-hafs" title="Link to this heading"></a></h1>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This capability is not currently being developed, maintained, or tested, but the information in this chapter is provided as a starting point for interested developers.</p>
+</div>
+<section id="introduction">
+<h2><span class="section-number">3.1.1. </span>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>The Community Data Models for Earth Prediction Systems (<a class="reference internal" href="../Reference/Glossary.html#term-CDEPS"><span class="xref std std-term">CDEPS</span></a>) allows users of coupled Earth system models to reduce the amount of feedback from active model components by replacing one or more active model components with canned datasets. These datasets can be generated from a variety of sources, including prior model runs, reanalyses, and gridded data constructed from observations. For example, users might initialize and force a coupled atmosphere-ocean model (e.g., <a class="reference internal" href="../Reference/Glossary.html#term-HYCOM"><span class="xref std std-term">HYCOM</span></a>) with the 5th Generation European Centre for Medium-Range Weather Forecasts Reanalysis <a class="footnote-reference brackets" href="#id5" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> (ERA5), instead of using the UFS Weather Model itself.</p>
+<p>The CDEPS implementation in HAFS currently supports data atmosphere (<a class="reference internal" href="../Reference/Glossary.html#term-DATM"><span class="xref std std-term">DATM</span></a>) and data ocean (<a class="reference internal" href="../Reference/Glossary.html#term-DOCN"><span class="xref std std-term">DOCN</span></a>) models. The workflow supports the ERA5 dataset for DATM and the Optimally-Interpolated Sea-Surface Temperature v2.1 <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> (OISST) and Group for High-Resolution Sea-Surface Temperature <a class="footnote-reference brackets" href="#id7" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> (GHRSST) datasets for DOCN. Before running the workflow, the user must stage the required datasets on disk. Download scripts are provided for the supported datasets. Advice for adding support for additional datasets is provided in <a class="reference internal" href="#appendix-b"><span class="std std-ref">Appendix B</span></a>.</p>
+<p>CDEPS has been added to HAFS under the <em>Improve Workflow Usability, Portability, and Testing Capabilities Project</em> being executed by the National Center for Atmospheric Research (<a class="reference internal" href="../Reference/Glossary.html#term-NCAR"><span class="xref std std-term">NCAR</span></a>) Climate and Global Dynamics Laboratory (CGD) and the University of Colorado/Cooperative Institute for Research in Environmental Sciences (CU/CIRES). These efforts are funded under the <em>Infrastructure</em> portfolio of the Fiscal Year 2018 Disaster Related Appropriation Supplemental (DRAS), commonly referred to as the Hurricane Supplemental (HSUP).</p>
+</section>
+<section id="obtaining-the-code">
+<h2><span class="section-number">3.1.2. </span>Obtaining the Code<a class="headerlink" href="#obtaining-the-code" title="Link to this heading"></a></h2>
+<p>The HAFS-CDEPS capability is contained in the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch of the HAFS repository.</p>
+<p>To obtain the code, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone --recursive -b develop https://github.com/hafs-community/HAFS</span>
+</pre></div>
+</div>
+</section>
+<section id="data-access">
+<h2><span class="section-number">3.1.3. </span>Data Access<a class="headerlink" href="#data-access" title="Link to this heading"></a></h2>
+<p>Before users can perform a DATM run with ERA5, they must create a Climate Data Store account (<a class="reference external" href="https://cds.climate.copernicus.eu">https://cds.climate.copernicus.eu</a>) and digitally sign the ERA5 license agreement. Users will be assigned a key, which should be added to a file called <code class="docutils literal notranslate"><span class="pre">.cdsapirc</span></code> in their home directory on the machine(s) they plan to use. The process is described in more detail at <a class="reference external" href="https://cds.climate.copernicus.eu/api-how-to">https://cds.climate.copernicus.eu/api-how-to</a>.</p>
+<p>There are no prerequisites to downloading supported datasets for DOCN.</p>
+</section>
+<section id="data-download">
+<span id="id4"></span><h2><span class="section-number">3.1.4. </span>Data Download<a class="headerlink" href="#data-download" title="Link to this heading"></a></h2>
+<p>Before running the workflow, the user must download the necessary input data. Three scripts are provided for this purpose in the <code class="docutils literal notranslate"><span class="pre">ush/cdeps_utils/</span></code> directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hafs_era5_download.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hafs_oisst_download.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hafs_ghrsst_download.py</span></code></p></li>
+</ul>
+<p>The scripts must be run with Python 3.6 or higher. The required Python packages are listed at the top of each script. The <code class="docutils literal notranslate"><span class="pre">hafs_era5_download.py</span></code> script also requires the Climate Data Operators (CDO) module to be loaded beforehand.</p>
+<p>The scripts can be run in the following manner:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./hafs_&lt;dataset&gt;_download.py [options] day [day [...]]</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> is one of the options in the scripts listed above. Day can be specified in any of the following ways:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">20210815</span></code>: Specify one day (e.g., August 15, 2021)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">20210815-20210819</span></code>: Specify a range of days (e.g., August 15-19, 2021)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2018</span></code>: Specify an entire year (e.g., 2018)</p></li>
+</ul>
+<p>Data must be downloaded for the entire length of the forecast, plus one day before and one day after. For example, a user running a 126-hr forecast initialized at 2021081518 with ERA5 data should run the download script like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./hafs_era5_download.py 20210814-20210822</span>
+</pre></div>
+</div>
+<p>After downloading the data, specify its location using <code class="docutils literal notranslate"><span class="pre">DATMdir</span></code> or <code class="docutils literal notranslate"><span class="pre">DOCNdir</span></code> in <code class="docutils literal notranslate"><span class="pre">parm/system.conf</span></code>.</p>
+</section>
+<section id="building-cdeps-in-hafs">
+<h2><span class="section-number">3.1.5. </span>Building CDEPS in HAFS<a class="headerlink" href="#building-cdeps-in-hafs" title="Link to this heading"></a></h2>
+<p>The DAPP keyword in the call to <code class="docutils literal notranslate"><span class="pre">./compile.sh</span></code> in <code class="docutils literal notranslate"><span class="pre">./sorc/build_forecast.sh</span></code> should be set to <code class="docutils literal notranslate"><span class="pre">-DAPP=HAFS-ALL</span></code> to build HAFS with support for data models. The resulting executable can also be used for HAFS runs with active atmosphere and ocean models.</p>
+<p>By default, the DAPP keyword should already be set to HAFS-ALL on all supported machines except wcoss_cray.</p>
+<p>The remainder of the build process is the same as described in the HAFS installation guide.</p>
+</section>
+<section id="using-cdeps-in-the-hafs-workflow">
+<h2><span class="section-number">3.1.6. </span>Using CDEPS in the HAFS Workflow<a class="headerlink" href="#using-cdeps-in-the-hafs-workflow" title="Link to this heading"></a></h2>
+<p>The HAFS workflow can be used to run data model experiments with minimal modifications, which are described below.</p>
+<p>Modify the <code class="docutils literal notranslate"><span class="pre">./rocoto/cronjob_hafs_cdeps.sh</span></code> script:</p>
+<ol class="arabic">
+<li><p>Uncomment the definitions of <code class="docutils literal notranslate"><span class="pre">HOMEhafs</span></code>, <code class="docutils literal notranslate"><span class="pre">dev</span></code>, and <code class="docutils literal notranslate"><span class="pre">PYTHON3</span></code> appropriate for the HPC platform that you are using.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">HOMEhafs</span></code> to the top-level directory that contains the HAFS scripts and source codes.</p></li>
+<li><p>Near the bottom of the script, review the commands for the three DATM and DOCN experiments, and comment out the commands for any experiments that you do not want to run:</p>
+<ol class="loweralpha">
+<li><p>To run the DATM with ERA5, the command is:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">{</span>PYTHON3<span class="o">}</span><span class="w"> </span>./run_hafs.py<span class="w"> </span>-t<span class="w"> </span><span class="si">${</span><span class="nv">dev</span><span class="si">}</span><span class="w"> </span><span class="m">2019082900</span><span class="w"> </span>00L<span class="w"> </span>HISTORY<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>config.EXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>config.SUBEXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span>_era5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>forecast.output_history<span class="o">=</span>.true.<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>../parm/hafs_regional_static.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>../parm/hafs_hycom.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>../parm/hafs_datm.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>../parm/hafs_datm_era5.conf
+</pre></div>
+</div>
+</li>
+<li><p>To run the DOCN with OISST, the command is:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">{</span>PYTHON3<span class="o">}</span><span class="w"> </span>./run_hafs.py<span class="w"> </span>-t<span class="w"> </span><span class="si">${</span><span class="nv">dev</span><span class="si">}</span><span class="w"> </span><span class="m">2019082900</span><span class="w"> </span>00L<span class="w"> </span>HISTORY<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>config.EXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>config.SUBEXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span>_oisst<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>forecast.output_history<span class="o">=</span>.true.<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_regional_static.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_docn.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_docn_oisst.conf
+</pre></div>
+</div>
+</li>
+<li><p>To run the DOCN with GHRSST, the command is:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">{</span>PYTHON3<span class="o">}</span><span class="w"> </span>./run_hafs.py<span class="w"> </span>-t<span class="w"> </span><span class="si">${</span><span class="nv">dev</span><span class="si">}</span><span class="w"> </span><span class="m">2019082900</span><span class="w"> </span>00L<span class="w"> </span>HISTORY<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>config.EXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>config.SUBEXPT<span class="o">=</span><span class="si">${</span><span class="nv">EXPT</span><span class="si">}</span>_ghrsst<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>forecast.output_history<span class="o">=</span>.true.<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_regional_static.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_docn.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>../parm/hafs_docn_ghrsst.conf
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+<p>The cycle (e.g., 2019082900) and storm (e.g., 00L) can be modified. The final two files in each command configure the CDEPS data models (see <a class="reference internal" href="#appendix-a"><span class="std std-ref">Appendix A: HAFS-CDEPS Configuration Options</span></a>). It is probably not necessary to change the configuration unless you want to customize the experiment.</p>
+<p>Before submitting the cron script, remember to create the <code class="docutils literal notranslate"><span class="pre">./parm/system.conf</span></code> file and link the fix files using <code class="docutils literal notranslate"><span class="pre">./sorc/link_fix.sh</span></code>, which is called from <code class="docutils literal notranslate"><span class="pre">install_hafs.sh</span></code> when building the application (see <a class="reference internal" href="../BuildingRunningTesting/QuickStart.html#build-install"><span class="std std-numref">Section 2.3.2</span></a>).</p>
+<p>After the above steps are complete, submit the cron script (<code class="docutils literal notranslate"><span class="pre">cronjob_hafs.sh</span></code>) repeatedly until the workflow completes, or add the script to your crontab. See <a class="reference internal" href="#fig-datm"><span class="std std-numref">Figure 3.1: DATM Workflow</span></a> and <a class="reference internal" href="#fig-docn"><span class="std std-numref">Figure 3.2: DOCN Workflow</span></a> for the steps that will be executed for a simple workflow without vortex initialization or <a class="reference internal" href="../Reference/Glossary.html#term-data-assimilation"><span class="xref std std-term">data assimilation</span></a>. (Note that vortex initialization and data assimilation options are supported for DOCN, but the workflow is more complex).</p>
+<figure class="align-default" id="id8">
+<span id="fig-datm"></span><a class="reference internal image-reference" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_cdeps_workflow_docn.png"><img alt="HAFS-CDEPS workflow for DATM" src="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_cdeps_workflow_docn.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 3.1 </span><span class="caption-text"><em>Schematic diagram of the HAFS-CDEPS workflow for DATM. Blue text indicates the jobs that will run. Gray text indicates jobs that only run when data models are not used.</em></span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id9">
+<span id="fig-docn"></span><a class="reference internal image-reference" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_cdeps_workflow_docn.png"><img alt="HAFS-CDEPS workflow for DOCN" src="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_cdeps_workflow_docn.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 3.2 </span><span class="caption-text"><em>Schematic diagram of the HAFS-CDEPS workflow for DOCN. Blue text indicates the jobs that will run. Gray text indicates jobs that only run when data models are not used.</em></span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="limitations-and-other-considerations">
+<h2><span class="section-number">3.1.7. </span>Limitations and Other Considerations<a class="headerlink" href="#limitations-and-other-considerations" title="Link to this heading"></a></h2>
+<p>HAFS-CDEPS can only be used in the HAFS regional configuration, since the ocean coupling for the global-nesting configuration is still being developed at the time of this project. In addition, the CDEPS DATM and DOCN are mutually exclusive and cannot be run at the same time in HAFS. Finally, the only fully-supported datasets are ERA5 for DATM and OISST and GHRSST for DOCN. Some tips for adding a custom dataset are discussed in <a class="reference internal" href="#appendix-b"><span class="std std-ref">Appendix B: Considerations for Adding a New Dataset</span></a>.</p>
+</section>
+<section id="for-more-information">
+<h2><span class="section-number">3.1.8. </span>For More Information<a class="headerlink" href="#for-more-information" title="Link to this heading"></a></h2>
+<p>The official documentation for CDEPS is available from <a class="reference external" href="https://escomp.github.io/CDEPS/index.html">https://escomp.github.io/CDEPS/index.html</a>.</p>
+</section>
+<section id="appendix-a-hafs-cdeps-configuration-options">
+<span id="appendix-a"></span><h2><span class="section-number">3.1.9. </span>Appendix A: HAFS-CDEPS Configuration Options<a class="headerlink" href="#appendix-a-hafs-cdeps-configuration-options" title="Link to this heading"></a></h2>
+<p>The following table describes variables that are relevant to the HAFS-CDEPS configuration, along with some recommendations for setting them. The recommended settings have already been applied in the various configuration files.</p>
+<table class="docutils align-default" id="id10">
+<caption><span class="caption-number">Table 3.1 </span><span class="caption-text">HAFS-CDEPS Configuration Options</span><a class="headerlink" href="#id10" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Variable name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Valid Values</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[config]</p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_datm</p></td>
+<td><p>Whether to run data atmosphere (<a class="reference internal" href="../Reference/Glossary.html#term-DATM"><span class="xref std std-term">DATM</span></a>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_docn</p></td>
+<td><p>Whether to run data ocean (<a class="reference internal" href="../Reference/Glossary.html#term-DOCN"><span class="xref std std-term">DOCN</span></a>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_ocean</p></td>
+<td><p>Whether to run the active ocean model. Must be no if <code class="docutils literal notranslate"><span class="pre">run_docn=yes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_dwav</p></td>
+<td><p>Whether to run data wave (<a class="reference internal" href="../Reference/Glossary.html#term-DWAV"><span class="xref std std-term">DWAV</span></a>)</p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>make_mesh_atm</p></td>
+<td><p>Whether the workflow should generate a mesh file that describes the grid for DATM. Unless the user is providing a custom mesh file this should be set to yes. No effect if <code class="docutils literal notranslate"><span class="pre">run_datm=no</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mesh_atm_in</p></td>
+<td><p>The location of the premade DATM mesh file. Only used if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code> and <code class="docutils literal notranslate"><span class="pre">make_mesh_atm=no</span></code></p></td>
+<td><p><em>file path</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>make_mesh_ocn</p></td>
+<td><p>Whether the workflow should generate a mesh file that describes the grid for DOCN. Unless the user is providing a custom mesh file this should be set to yes. No effect if <code class="docutils literal notranslate"><span class="pre">run_docn=no</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>mesh_ocn_in</p></td>
+<td><p>The location of the premade DOCN mesh file. Only used if <code class="docutils literal notranslate"><span class="pre">run_docn=yes</span></code> and <code class="docutils literal notranslate"><span class="pre">make_mesh_ocn=no</span></code>.</p></td>
+<td><p><em>file path</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>datm_source</p></td>
+<td><p>The data source used for DATM. Only ERA5 is supported. No effect if <code class="docutils literal notranslate"><span class="pre">run_datm=no</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">era5</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>DATMdir</p></td>
+<td><p>The location where DATM input data are staged by the user. This variable is set in <code class="docutils literal notranslate"><span class="pre">system.conf.[machine]</span></code>. The workflow will not download new data if the necessary input files are already present in <code class="docutils literal notranslate"><span class="pre">DATMdir</span></code>.</p></td>
+<td><p><em>file path</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>docn_source</p></td>
+<td><p>The data source used for DOCN. Only OISST and GHRSST are supported. No effect if <code class="docutils literal notranslate"><span class="pre">run_docn=no</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oisst</span></code> | <code class="docutils literal notranslate"><span class="pre">ghrsst</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>DOCNdir</p></td>
+<td><p>The location where DOCN input data are staged by the user. This variable is set in <code class="docutils literal notranslate"><span class="pre">system.conf.[machine]</span></code>. The workflow will not download new data if the necessary input files are already present in <code class="docutils literal notranslate"><span class="pre">DOCNdir</span></code>.</p></td>
+<td><p><em>file path</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>scrub_com</p></td>
+<td><p>Whether to scrub the cycle’s <code class="docutils literal notranslate"><span class="pre">com</span></code> directory at the end of the run. Recommend setting to no to avoid losing files generated by CDEPS that the archive job does not save.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>scrub_work</p></td>
+<td><p>Whether to scrub the cycle’s <code class="docutils literal notranslate"><span class="pre">work</span></code> directory at the end of the run. Recommend setting to no to avoid losing files generated by CDEPS that the archive job does not save.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_vortexinit</p></td>
+<td><p>Whether to run the vortex initialization. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_gsi_vr</p></td>
+<td><p>Whether to run the GSI-based vortex relocation. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_gsi_vr_fgat</p></td>
+<td><p>Whether to run the GSI-based vortex relocation with <a class="reference internal" href="../Reference/Glossary.html#term-FGAT"><span class="xref std std-term">FGAT</span></a>. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_gsi_vr_ens</p></td>
+<td><p>Whether to run the GSI-based vortex relocation for each HAFS ensemble member. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_gsi</p></td>
+<td><p>Whether to run data assimilation with GSI. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_fgat</p></td>
+<td><p>Whether to run data assimilation using FGAT. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_envar</p></td>
+<td><p>Whether to run hybrid EnVar data assimilation. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>run_ensda</p></td>
+<td><p>Whether to run the HAFS ensemble. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>run_enkf</p></td>
+<td><p>Whether to run the EnKF analysis step. Must be no if <code class="docutils literal notranslate"><span class="pre">run_datm=yes</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">yes</span></code> | <code class="docutils literal notranslate"><span class="pre">no</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>[forecast]</p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>layoutx</p></td>
+<td><p>Processor decomposition in the x-direction.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>layouty</p></td>
+<td><p>Processor decomposition in the y-direction.</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>write_groups</p></td>
+<td><p>Number of processor groups for I/O.</p></td>
+<td><p><em>integer &gt;= 1</em></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>write_tasks_per_group</p></td>
+<td><p>Number of cores per I/O group.</p></td>
+<td><p><em>integer &gt;= 1</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>ocean_tasks</p></td>
+<td><p>Number of cores for the ocean model.</p></td>
+<td><p><em>integer &gt;= 1</em></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>docn_mesh_nx_global</p></td>
+<td><p>DOCN domain size in the x-direction.</p></td>
+<td><p><em>integer &gt;= 1</em></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>docn_mesh_ny_global</p></td>
+<td><p>DOCN domain size in the y-direction.</p></td>
+<td><p><em>integer &gt;= 1</em></p></td>
+</tr>
+<tr class="row-even"><td><p>[rocotostr]</p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>FORECAST_RESOURCES</p></td>
+<td><p>String that describes the forecast resources. It must match an entry in the file for your platform in <code class="docutils literal notranslate"><span class="pre">./rocoto/sites/</span></code>.</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="appendix-b-considerations-for-adding-a-new-dataset">
+<span id="appendix-b"></span><h2><span class="section-number">3.1.10. </span>Appendix B: Considerations for Adding a New Dataset<a class="headerlink" href="#appendix-b-considerations-for-adding-a-new-dataset" title="Link to this heading"></a></h2>
+<p>While it is impossible to formally support every dataset in HAFS-CDEPS, developers who wish to use a dataset of their own choosing are encouraged to follow these steps:</p>
+<ol class="arabic">
+<li><p>To prepare a data atmosphere experiment from a custom dataset, consider running DATM with ERA5 first so that you have a reference. Likewise, if preparing a data ocean experiment, run DOCN with either OISST or GHRSST data first.</p></li>
+<li><p>You may wish to write your own script (or modify the existing scripts) to download the dataset of interest. See the three <code class="docutils literal notranslate"><span class="pre">ush/cdeps_utils/hafs_*_download.py</span></code> scripts mentioned in <a class="reference internal" href="#data-download"><span class="std std-numref">Section 3.1.4</span></a>. You should also set <code class="docutils literal notranslate"><span class="pre">DATMdir</span></code> or <code class="docutils literal notranslate"><span class="pre">DOCNdir</span></code> in <code class="docutils literal notranslate"><span class="pre">./parm/system.conf</span></code> to the location of your staged data.</p></li>
+<li><p>The input data you provide must be in <a class="reference internal" href="../Reference/Glossary.html#term-netCDF"><span class="xref std std-term">netCDF</span></a> format, and the time axis in the file(s) must be CF-1.0 compliant.</p></li>
+<li><p>You will probably need to modify <code class="docutils literal notranslate"><span class="pre">scripts/exhafs_datm_prep.sh</span></code> or <code class="docutils literal notranslate"><span class="pre">scripts/exhafs_docn_prep.sh</span></code> to add a new data source and corresponding script to the workflow to preprocess your data files. Alternatively, if you have already preprocessed your data outside of the workflow and simply need to copy the data to the working directory, you can simply modify an existing <code class="docutils literal notranslate"><span class="pre">if</span></code> statement in the script. For example, for a DOCN run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">if [[ &quot;$docn_source&quot; == OISST ]] ; then</span>
+<span class="gp">$</span>USHhafs/produtil_deliver.py<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DOCNdir</span><span class="s2">/my_dataset.nc&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$docn_input_path</span><span class="s2">/DOCN_input_00000.nc&quot;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">my_dataset.nc</span></code> is your input dataset. This command will copy your input data file from <code class="docutils literal notranslate"><span class="pre">DOCNdir</span></code> to the correct working directory during the <code class="docutils literal notranslate"><span class="pre">ocn_prep</span></code> job.</p>
+</li>
+<li><p>The mapping between the variable names in your dataset and the names used internally by CDEPS is described by the <code class="docutils literal notranslate"><span class="pre">stream_data_variables</span></code> keys in <code class="docutils literal notranslate"><span class="pre">./parm/cdeps/datm_era5.streams</span></code> (DATM) and <code class="docutils literal notranslate"><span class="pre">./parm/cdeps/docn_oisst.streams</span></code> and <code class="docutils literal notranslate"><span class="pre">./parm/cdeps/docn_ghrsst.streams</span></code> (DOCN). You should make the first entry in each pair of variable names correspond to the name of the variable in your dataset.</p></li>
+<li><p>For a run that couples DATM to HYCOM, the variables that must be present in your input dataset (along with the expected units) are as follows:</p>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-number">Table 3.2 </span><span class="caption-text">Required Input Variable(s) for DATM to HYCOM</span><a class="headerlink" href="#id11" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>CDEPS DATM variable</p></th>
+<th class="head"><p>Unit</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Sa_pslv</p></td>
+<td><p>Pa</p></td>
+<td><p>Mean sea-level pressure</p></td>
+</tr>
+<tr class="row-odd"><td><p>Faxa_rain</p></td>
+<td><p>m</p></td>
+<td><p>Liquid-equivalent total precipitation</p></td>
+</tr>
+<tr class="row-even"><td><p>Faxa_swnet</p></td>
+<td><p>J m<sup>2</sup></p></td>
+<td><p>Surface net downward shortwave flux</p></td>
+</tr>
+<tr class="row-odd"><td><p>Faxa_lwnet</p></td>
+<td><p>J m<sup>2</sup></p></td>
+<td><p>Surface net upwelling longwave flux</p></td>
+</tr>
+<tr class="row-even"><td><p>Faxa_sen</p></td>
+<td><p>J m<sup>2</sup></p></td>
+<td><p>Surface upward sensible heat flux</p></td>
+</tr>
+<tr class="row-odd"><td><p>Faxa_lat</p></td>
+<td><p>J m<sup>2</sup></p></td>
+<td><p>Surface upward latent heat flux</p></td>
+</tr>
+<tr class="row-even"><td><p>Faxa_taux</p></td>
+<td><p>N m<sup>2</sup> s</p></td>
+<td><p>Surface zonal-component turbulent stress</p></td>
+</tr>
+<tr class="row-odd"><td><p>Faxa_tauy</p></td>
+<td><p>N m<sup>2</sup> s</p></td>
+<td><p>Surface meridional-component turbulent stress</p></td>
+</tr>
+</tbody>
+</table>
+<p>For a run that couples DOCN to the UFS Weather Model, the only variable that must be present in your input dataset (along with the expected unit) is as follows:</p>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-number">Table 3.3 </span><span class="caption-text">Required Input Variable(s) for DOCN to UFS Weather Model</span><a class="headerlink" href="#id12" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>CDEPS DOCN variable</p></th>
+<th class="head"><p>Unit</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>So_t</p></td>
+<td><p>℃</p></td>
+<td><p>Sea-surface temperature</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p>In addition to preparing the input data, you will also need to create a mesh file that describes the input data grid. It should be possible to leverage the existing <code class="docutils literal notranslate"><span class="pre">./ush/cdeps_utils/hafs_esmf_mesh.py</span></code> script for this purpose, but it has only been tested with ERA5 (DATM) and OISST and GHRSST (DOCN) data. Tri-polar grids, such as those used in the Real-Time Ocean Forecast System (RTOFS) dataset, may require modifications to <code class="docutils literal notranslate"><span class="pre">hafs_esmf_mesh.py</span></code>. If you generate your own mesh, you should set <code class="docutils literal notranslate"><span class="pre">make_mesh_atm</span></code> or <code class="docutils literal notranslate"><span class="pre">make_mesh_ocn</span></code> to no and provide the path to the mesh using <code class="docutils literal notranslate"><span class="pre">mesh_atm_in</span></code> or <code class="docutils literal notranslate"><span class="pre">mesh_ocn_in</span></code> (see <a class="reference internal" href="#appendix-a"><span class="std std-ref">Appendix A: HAFS-CDEPS Configuration Options</span></a>).</p></li>
+</ol>
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels">https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels</a></p>
+</aside>
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.ncdc.noaa.gov/oisst/optimum-interpolation-sea-surface-temperature-oisst-v21">https://www.ncdc.noaa.gov/oisst/optimum-interpolation-sea-surface-temperature-oisst-v21</a></p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.ghrsst.org/about-ghrsst/overview/">https://www.ghrsst.org/about-ghrsst/overview/</a></p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="3. Customizing The Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Reference/index.html" class="btn btn-neutral float-right" title="4. Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

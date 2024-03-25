@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2.1. HAFS Extended Quick Start Guide &mdash; HAFS Users Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=044582d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=12273437" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.2. Introduction to Working with the HAFS Repository in GitHub" href="GitHubBasicSteps.html" />
+    <link rel="prev" title="2. Building, Running, and Testing HAFS" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HAFS Users Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Backgroundinfo/index.html">1. Background Information</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Building, Running, and Testing HAFS</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.1. HAFS Extended Quick Start Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#clone-and-checkout-the-repository">2.1.1. Clone and Checkout the Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-and-install-hafs">2.1.2. Build and Install HAFS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parts-of-install-hafs-sh">2.1.2.1. Parts of install_hafs.sh</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-hafs-system">2.1.3. Run the HAFS System</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edit-system-conf">2.1.3.1. Edit system.conf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hafs-physics-configuration">2.1.3.2. HAFS Physics Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hafs-nesting-configuration">2.1.3.3. HAFS Nesting Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#xml-file-to-run-the-workflow">2.1.3.4. XML File to Run the Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edit-the-cron-job-driver-script">2.1.3.5. Edit the Cron Job Driver Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-hafs">2.1.3.6. Run HAFS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="GitHubBasicSteps.html">2.2. Introduction to Working with the HAFS Repository in GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="QuickStart.html">2.3. HAFS Quick Start Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RegressionTest.html">2.4. Regression Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HAFSCodeContributionGuidelines.html">2.5. UFS Repository Code Management Guidance (Draft)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../CustomizingTheWorkflow/index.html">3. Customizing The Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Reference/index.html">4. Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HAFS Users Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html"><span class="section-number">2. </span>Building, Running, and Testing HAFS</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2.1. </span>HAFS Extended Quick Start Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/BuildingRunningTesting/ExtQuickStart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="hafs-extended-quick-start-guide">
+<span id="extquickstart"></span><h1><span class="section-number">2.1. </span>HAFS Extended Quick Start Guide<a class="headerlink" href="#hafs-extended-quick-start-guide" title="Link to this heading"></a></h1>
+<p>Currently, the HAFS application works on these NOAA HPC platforms:</p>
+<ul class="simple">
+<li><p>wcoss_dell_p3</p></li>
+<li><p>wcoss_cray</p></li>
+<li><p>hera</p></li>
+<li><p>jet</p></li>
+<li><p>orion</p></li>
+</ul>
+<section id="clone-and-checkout-the-repository">
+<h2><span class="section-number">2.1.1. </span>Clone and Checkout the Repository<a class="headerlink" href="#clone-and-checkout-the-repository" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone &lt;-b BRANCH&gt; --recursive https://github.com/hafs-community/HAFS.git</span>
+</pre></div>
+</div>
+<p>Select the branch to clone by setting the <code class="docutils literal notranslate"><span class="pre">&lt;-b</span> <span class="pre">BRANCH&gt;</span></code> option to the branch name.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">develop</span></code> is the default branch.</p>
+</div>
+</section>
+<section id="build-and-install-hafs">
+<h2><span class="section-number">2.1.2. </span>Build and Install HAFS<a class="headerlink" href="#build-and-install-hafs" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd /path/to/HAFS/sorc</span>
+<span class="go">./install_hafs.sh &gt; install_hafs.log 2&gt;&amp;1</span>
+</pre></div>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Got errors? Look into the <code class="docutils literal notranslate"><span class="pre">HAFS/sorc/logs</span></code> directory.</p>
+</div>
+<section id="parts-of-install-hafs-sh">
+<h3><span class="section-number">2.1.2.1. </span>Parts of install_hafs.sh<a class="headerlink" href="#parts-of-install-hafs-sh" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">machine-setup.sh</span></code> Determine shell, identify machine, and load modules</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_all.sh</span></code> Compile components: forecast, post, tracker, utils, tools, hycom, ww3, and gsi</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">install_all.sh</span></code> Copy executables to <code class="docutils literal notranslate"><span class="pre">exec</span></code> directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">link_fix.sh</span></code> Link fix files (fix files are available on disk on supported platforms)</p></li>
+</ul>
+</section>
+</section>
+<section id="run-the-hafs-system">
+<h2><span class="section-number">2.1.3. </span>Run the HAFS System<a class="headerlink" href="#run-the-hafs-system" title="Link to this heading"></a></h2>
+<section id="edit-system-conf">
+<h3><span class="section-number">2.1.3.1. </span>Edit system.conf<a class="headerlink" href="#edit-system-conf" title="Link to this heading"></a></h3>
+<p>To configure an experiment, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd /path/to/HAFS/parm</span>
+<span class="go">cp system.conf.&lt;system&gt; system.conf</span>
+<span class="go">vi system.conf</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;system&gt;</span></code> is replaced by the name of one of the supported platforms listed <a class="reference internal" href="QuickStart.html#quickstart"><span class="std std-ref">above</span></a>.</p>
+<p>Edit the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">disk_project</span></code>: Project name for disk space.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tape_project</span></code>: <a class="reference internal" href="../Reference/Glossary.html#term-HPSS"><span class="xref std std-term">HPSS</span></a> project name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cpu_account</span></code>: CPU account name for submitting jobs to the batch system (may be the same as <code class="docutils literal notranslate"><span class="pre">disk_project</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">archive=disk</span></code>: Archive location (make sure you have write permission)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CDSAVE</span></code>: HAFS parent directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CDNOSCRUB</span></code>: Track files will be copied to this location — contents will not be scrubbed (user must have write permission)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CDSCRUB</span></code> If scrub is set to yes, this directory will be removed (user must have write permission)</p></li>
+</ul>
+</section>
+<section id="hafs-physics-configuration">
+<span id="physics"></span><h3><span class="section-number">2.1.3.2. </span>HAFS Physics Configuration<a class="headerlink" href="#hafs-physics-configuration" title="Link to this heading"></a></h3>
+<p>Look in <code class="docutils literal notranslate"><span class="pre">HAFS/parm/hafs.conf</span></code> to determine what physics suites are running.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_ccpp_suites.png"><img alt="CCPP suites listed in hafs.conf (updated 06/29/2023)" src="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_ccpp_suites.png" style="width: 50%;" /></a>
+</figure>
+<p>To determine what physics schemes are included in the suites mentioned above, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">more HAFS/sorc/hafs_forecast.fd/FV3/ccpp/suites/suite_FV3_HAFS_v1_gfdlmp_tedmf_nonsst.xml</span>
+</pre></div>
+</div>
+</section>
+<section id="hafs-nesting-configuration">
+<span id="namelist-files"></span><h3><span class="section-number">2.1.3.3. </span>HAFS Nesting Configuration<a class="headerlink" href="#hafs-nesting-configuration" title="Link to this heading"></a></h3>
+<p>Two types of nesting configurations are available: (i) regional* and (ii) globnest.</p>
+<ul class="simple">
+<li><p>Two namelist files (templates) for regional configuration are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAFS/parm/forecast/regional/imput.nml.tmp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAFS/parm/forecast/regional/input_nest.nml.tmp</span></code></p></li>
+</ul>
+</li>
+<li><p>One namelist file (template) for globnest configuration is:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAFS/parm/forecast/globnest/input.nml.tmp</span></code></p></li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_namelist_files.png"><img alt="Example namelist file for HAFS (updated 06/29/2023)" src="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_namelist_files.png" style="width: 50%;" /></a>
+</figure>
+<p>* operational implementation</p>
+</section>
+<section id="xml-file-to-run-the-workflow">
+<h3><span class="section-number">2.1.3.4. </span>XML File to Run the Workflow<a class="headerlink" href="#xml-file-to-run-the-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd /path/to/HAFS/rocoto</span>
+<span class="go">vi system.conf</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">HAFS/rocoto/hafs_workflow.xml.in</span></code> the following can be modified to set the number of cycles and tasks.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;!ENTITY</span> <span class="pre">CYCLE</span> <span class="pre">THROTTLE</span> <span class="pre">“5”&gt;</span></code>: The number of cycles that can be activated at one time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;!ENTITY</span> <span class="pre">TASK_THROTTLE</span> <span class="pre">“120”&gt;</span></code>: The number of tasks that can be activated at one time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;!ENTITY</span> <span class="pre">MAX_TRIES</span> <span class="pre">“1”&gt;</span></code>: The maximum number of tries for all tasks</p></li>
+</ul>
+</section>
+<section id="edit-the-cron-job-driver-script">
+<h3><span class="section-number">2.1.3.5. </span>Edit the Cron Job Driver Script<a class="headerlink" href="#edit-the-cron-job-driver-script" title="Link to this heading"></a></h3>
+<p>Change the cron job driver script to set up the experiment and storm.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd /path/to/HAFS/rocoto</span>
+<span class="go">vi cronjob_hafs.sh</span>
+</pre></div>
+</div>
+<p>Make sure to check <code class="docutils literal notranslate"><span class="pre">HOMEhafs</span></code> and edit as appropriate.</p>
+</section>
+<section id="run-hafs">
+<h3><span class="section-number">2.1.3.6. </span>Run HAFS<a class="headerlink" href="#run-hafs" title="Link to this heading"></a></h3>
+<p>Add the driver script to cron or simply run the driver script.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./cronjob_hafs.sh</span>
+</pre></div>
+</div>
+<p>To add the script to cron:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">crontab -e</span>
+<span class="go">*/5 * * * * &lt;path-to-HAFS&gt;/rocoto/cronjob_hafs.sh</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On Orion, cron is only available on the orion-login-1 node.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="2. Building, Running, and Testing HAFS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="GitHubBasicSteps.html" class="btn btn-neutral float-right" title="2.2. Introduction to Working with the HAFS Repository in GitHub" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

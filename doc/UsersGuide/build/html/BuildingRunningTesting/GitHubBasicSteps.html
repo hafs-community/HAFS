@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2.2. Introduction to Working with the HAFS Repository in GitHub &mdash; HAFS Users Guide  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=044582d4" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=12273437" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.3. HAFS Quick Start Guide" href="QuickStart.html" />
+    <link rel="prev" title="2.1. HAFS Extended Quick Start Guide" href="ExtQuickStart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            HAFS Users Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Backgroundinfo/index.html">1. Background Information</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">2. Building, Running, and Testing HAFS</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ExtQuickStart.html">2.1. HAFS Extended Quick Start Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.2. Introduction to Working with the HAFS Repository in GitHub</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fork-the-hafs-repository-and-clone-the-forked-repository-locally">2.2.1. Fork the HAFS Repository and Clone the Forked Repository Locally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-feature-branch-from-the-develop-branch">2.2.2. Create a Feature Branch from the <code class="docutils literal notranslate"><span class="pre">develop</span></code> Branch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submit-a-pull-request-for-inclusion-into-the-authoritative-hafs-repository">2.2.3. Submit a Pull Request for Inclusion into the Authoritative HAFS Repository</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="QuickStart.html">2.3. HAFS Quick Start Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RegressionTest.html">2.4. Regression Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HAFSCodeContributionGuidelines.html">2.5. UFS Repository Code Management Guidance (Draft)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../CustomizingTheWorkflow/index.html">3. Customizing The Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Reference/index.html">4. Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HAFS Users Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html"><span class="section-number">2. </span>Building, Running, and Testing HAFS</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2.2. </span>Introduction to Working with the HAFS Repository in GitHub</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/BuildingRunningTesting/GitHubBasicSteps.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction-to-working-with-the-hafs-repository-in-github">
+<span id="basicsteps"></span><h1><span class="section-number">2.2. </span>Introduction to Working with the HAFS Repository in GitHub<a class="headerlink" href="#introduction-to-working-with-the-hafs-repository-in-github" title="Link to this heading"></a></h1>
+<p>(Please see the <a class="reference internal" href="../Backgroundinfo/TechnicalOverview.html#prerequisites"><span class="std std-ref">Prerequisites for Working with the HAFS Repository</span></a> before beginning.)</p>
+<p>General steps to add new developments to the HAFS GitHub repository:</p>
+<ol class="arabic simple">
+<li><p>Fork the HAFS repository and clone the forked repository locally.</p></li>
+<li><p>Create a feature branch from the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch to add new developments.</p>
+<ol class="loweralpha simple">
+<li><p>Add developments.</p></li>
+<li><p>Complete testing.</p></li>
+<li><p>Commit changes into the local branch and push the local branch to your personal fork.</p></li>
+</ol>
+</li>
+<li><p>Submit a Pull Request (PR) to request a code review and merge new developments with the authoritative HAFS repository.</p></li>
+</ol>
+<section id="fork-the-hafs-repository-and-clone-the-forked-repository-locally">
+<h2><span class="section-number">2.2.1. </span>Fork the HAFS Repository and Clone the Forked Repository Locally<a class="headerlink" href="#fork-the-hafs-repository-and-clone-the-forked-repository-locally" title="Link to this heading"></a></h2>
+<p>Users need a GitHub account to work with the HAFS repository. Instructions for creating an account are available <a class="reference external" href="https://github.com/signup">on GitHub</a> and via the <a class="reference external" href="https://epic.noaa.gov/wp-content/uploads/2023/01/Registration-and-Posting-on-the-UFS-Community-GitHub-Repository.pdf">Earth Prediction Innovation Center website</a>.</p>
+<ol class="arabic">
+<li><p>Navigate to <a class="reference external" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png">https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png</a>. Locate and click on the “fork” button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png"><img alt="Yellow box highlights the &quot;fork&quot; button toward the top right of the page." src="https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png" style="width: 90%;" /></a>
+</figure>
+</li>
+<li><p>Clone the newly created HAFS fork, which will copy the repository onto the user’s local system.</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone --recursive https://USERNAME@github.com/USERNAME/HAFS.git</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Users should replace <code class="docutils literal notranslate"><span class="pre">USERNAME</span></code> with their GitHub username in the command above.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>See <a class="reference external" href="https://guides.github.com/activities/forking/">GitHub forking projects</a></p>
+</div>
+</li>
+</ol>
+</section>
+<section id="create-a-feature-branch-from-the-develop-branch">
+<h2><span class="section-number">2.2.2. </span>Create a Feature Branch from the <code class="docutils literal notranslate"><span class="pre">develop</span></code> Branch<a class="headerlink" href="#create-a-feature-branch-from-the-develop-branch" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Check out the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git checkout develop</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Create a new branch from the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git checkout -b feature/mybranch</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Update the submodules:</p>
+<blockquote>
+<div><p><em>If there are changes for the URLs of the submodules, run this command to update the remote versions of the submodules</em></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git submodule sync --recursive</span>
+</pre></div>
+</div>
+<p><em>Note: every time after you clone a git repository or check out a new branch, if submodule changes are expected, you need to update the submodules properly by</em></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git submodule update --init --recursive</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Make modifications and commit changes locally:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vi NewCodeFile</span>
+<span class="go">git add NewCodeFile</span>
+<span class="go">git commit -m “Add newcode description”</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Push changes to your GitHub HAFS fork:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git push origin feature/mybranch</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="submit-a-pull-request-for-inclusion-into-the-authoritative-hafs-repository">
+<h2><span class="section-number">2.2.3. </span>Submit a Pull Request for Inclusion into the Authoritative HAFS Repository<a class="headerlink" href="#submit-a-pull-request-for-inclusion-into-the-authoritative-hafs-repository" title="Link to this heading"></a></h2>
+<p>To propose changes for inclusion into the authoritative HAFS repository, developers need to create a pull request.</p>
+<ol class="arabic simple">
+<li><p>Navigate to <a class="reference external" href="https://github.com/hafs-community/HAFS/pulls">https://github.com/hafs-community/HAFS/pulls</a> and click on <em>New pull request</em>.</p></li>
+<li><p>Click on <em>Compare across forks</em>.
+a. Set the base repository to <em>hafs-community/HAFS</em> and the base branch to <code class="docutils literal notranslate"><span class="pre">develop</span></code>.
+b. Set the head repository to <em>YOUR_GITHUB_USERNAME/HAFS</em> and the compare branch to <code class="docutils literal notranslate"><span class="pre">feature/mybranch</span></code>.</p></li>
+<li><p>Add a descriptive title and short description in the text boxes describing the changes.</p></li>
+<li><p>Click on <em>Create pull request</em>.</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ExtQuickStart.html" class="btn btn-neutral float-left" title="2.1. HAFS Extended Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="QuickStart.html" class="btn btn-neutral float-right" title="2.3. HAFS Quick Start Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
