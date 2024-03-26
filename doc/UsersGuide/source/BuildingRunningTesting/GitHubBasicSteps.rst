@@ -23,7 +23,7 @@ Fork the HAFS Repository and Clone the Forked Repository Locally
 
 Users need a GitHub account to work with the HAFS repository. Instructions for creating an account are available `on GitHub <https://github.com/signup>`__ and via the `Earth Prediction Innovation Center website <https://epic.noaa.gov/wp-content/uploads/2023/01/Registration-and-Posting-on-the-UFS-Community-GitHub-Repository.pdf>`__. 
 
-#. Navigate to https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png. Locate and click on the "fork" button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults. 
+#. Navigate to https://github.com/hafs-community/HAFS. Locate and click on the "fork" button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults. 
 
    .. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png
       :width: 90%
