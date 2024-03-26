@@ -90,6 +90,10 @@ linkcheck_ignore = [
     r'https://drive.google.com/*',
 ]
 
+linkcheck_allowed_redirects = {r"https://github\.com/hafs-community/HAFS/wiki/.*": 
+                                 r"https://raw\.githubusercontent\.com/wiki/hafs-community/HAFS/.*",
+                                 }
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
