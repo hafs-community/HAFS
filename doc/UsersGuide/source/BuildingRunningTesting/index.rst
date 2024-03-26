@@ -4,8 +4,6 @@ Building, Running, and Testing HAFS
 .. toctree::
    :maxdepth: 3
 
-   ExtQuickStart
-   GitHubBasicSteps
    QuickStart
+   ExtQuickStart
    RegressionTest
-   HAFSCodeContributionGuidelines

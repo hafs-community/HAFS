@@ -51,7 +51,7 @@ It is maintained by EMC and DTC with developments and contributions from the :te
 
 The HAFS repository only hosts major feature branches (e.g., ``feature/hafs_nesting``) that require active group collaborations. Individual developers can work on feature branches in their personal HAFS forks. 
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_branching_diagram.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_branching_diagram.png
     :width: 50 %
     :alt: Example HAFS Branching Diagram
 
@@ -65,7 +65,7 @@ HAFS Directory Structure
 
 The following shows the names of the files and directories in the ``HAFS`` repository.
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_directory_structure.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_directory_structure.png
     :width: 50 %
     :alt: HAFS directory names and explanations (updated 06/29/2023)
 
@@ -78,7 +78,7 @@ HAFS Submodules
 
 HAFS contains the following subcomponents:
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_submodules.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_submodules.png
     :width: 75 %
     :alt: HAFS Subcomponents/Submodules (updated 11/02/2021)
 
@@ -88,6 +88,6 @@ HAFS contains the following subcomponents:
 HAFS Workflow Schematic
 ========================
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_workflow_schematic.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_workflow_schematic.png
     :width: 75 %
     :alt: HAFS Workflow Schematic

@@ -15,8 +15,8 @@ Guidance Documents
 
 - `NCO Implementation Standards <https://www.nco.ncep.noaa.gov/idsb/implementation_standards/>`__
 - `Recommendation for Adoption of NCEP EE2 Process Document <https://drive.google.com/file/d/1oLi3yH11sN2HamScB2SNrgHXmj0HYKol/view?usp=sharing>`__ *
-- `Code Management of Repositories Under EMC Management Using GitFlow <https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1H5McooP-ZmDIOhcy4zJwdFVk3DyjbJt_Nyqj4QGBRBU%2Fedit%3Fusp%3Dsharing&followup=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1H5McooP-ZmDIOhcy4zJwdFVk3DyjbJt_Nyqj4QGBRBU%2Fedit%3Fusp%3Dsharing&ifkv=ATuJsjySBIW7MoXmDP_KmBbGBczhhgkGy60rTdEICBP_OLhZpvc0bLOwNgprJ80T5Uglzl5y87eaLw&ltmpl=docs&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S1560513977%3A1710346580280798&theme=mn&ddm=0>`__ *
-- `EMC Github Repository Code Management <https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0%2Fedit&followup=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0%2Fedit&ifkv=ATuJsjyM4ZuuN2P-88qyri0BCZF-pyBOPv4iNcy65bitW34nUflE9Q6jFLywM-gtzPr_o7RF8qPbfA&ltmpl=docs&osid=1&passive=1209600&service=wise&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S755710614%3A1710346580278246&theme=mn&ddm=0>`__ *
+- `Code Management of Repositories Under EMC Management Using GitFlow <https://docs.google.com/document/d/1H5McooP-ZmDIOhcy4zJwdFVk3DyjbJt_Nyqj4QGBRBU/edit?usp=sharing>`__ *
+- `EMC Github Repository Code Management <https://docs.google.com/document/d/1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0/edit>`__ *
 
 \* Requires NOAA email for access
 

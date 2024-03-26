@@ -91,7 +91,7 @@ linkcheck_ignore = [
 ]
 
 linkcheck_allowed_redirects = {r"https://github\.com/hafs-community/HAFS/wiki/.*": 
-                                 r"https://raw\.githubusercontent\.com/wiki/hafs-community/HAFS/.*",
+                                 r"https://raw\.githubusercontent\.com/wiki/hafs-community/HAFS/.*"
                                  }
 
 # -- Options for HTML output -------------------------------------------------
