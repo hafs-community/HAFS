@@ -6,7 +6,7 @@ UFS Repository Code Management Guidance (Draft)
 
 
 Repository
-----------
+==========
 
 - Authoritative repositories are read-only for users.
 - Branches are protected, i.e., changes can only be made through merging pull requests, not by pushing (including admins).
