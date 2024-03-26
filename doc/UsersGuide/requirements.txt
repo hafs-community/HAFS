@@ -57,7 +57,7 @@ sphinx==7.2.6
     #   sphinxcontrib-bibtex
     #   sphinxcontrib-jquery
 sphinx-rtd-theme==2.0.0
-    # via -r C:\Users\joshu\OneDrive\Documents\GitHub\HAFS\docs\UsersGuide\requirements.in
+    # via -r requirements.in
 sphinxcontrib-applehelp==1.0.8
     # via sphinx
 sphinxcontrib-bibtex==2.6.2
