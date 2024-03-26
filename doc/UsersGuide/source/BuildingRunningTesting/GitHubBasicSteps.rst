@@ -25,7 +25,7 @@ Users need a GitHub account to work with the HAFS repository. Instructions for c
 
 #. Navigate to https://github.com/hafs-community/HAFS. Locate and click on the "fork" button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults. 
 
-   .. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png
+   .. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/ForkHAFS.png
       :width: 90%
       :alt: Yellow box highlights the "fork" button toward the top right of the page. 
 
