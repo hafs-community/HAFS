@@ -464,7 +464,7 @@ date
 #==============================================================================
 
 if [ ${run_ocean} = yes ]; then
-
+	
 IFHR=0
 FHR=0
 FHR3=$( printf "%03d" "$FHR" )
@@ -474,6 +474,13 @@ while [ $FHR -le $NHRS ];
 do
 
 cd ${WORKgraph}
+
+if [ ${ocean_model,,} = hycom ] && [[ $(($FHR%2)) -ne 0 ]]; then
+    echo "Forecast hour f${FHR3} does not exist"
+    FHR=$(($FHR + $NOUTHRS))
+    FHR3=$( printf "%03d" "$FHR" )
+    continue
+fi
 
 #Generate the cmdfile
 cmdfile="cmdfile_ocean.${FHR3}"
