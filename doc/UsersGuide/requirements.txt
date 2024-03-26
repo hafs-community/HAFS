@@ -52,7 +52,7 @@ snowballstemmer==2.2.0
     # via sphinx
 sphinx==7.2.6
     # via
-    #   -r C:\Users\joshu\OneDrive\Documents\GitHub\HAFS\docs\UsersGuide\requirements.in
+    #   -r requirements.in
     #   sphinx-rtd-theme
     #   sphinxcontrib-bibtex
     #   sphinxcontrib-jquery
