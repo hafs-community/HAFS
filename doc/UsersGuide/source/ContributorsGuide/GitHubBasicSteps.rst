@@ -37,7 +37,7 @@ Users need a GitHub account to work with the HAFS repository. Instructions for c
 
    Users should replace ``USERNAME`` with their GitHub username in the command above. 
 
-   .. hint:: See `GitHub forking projects <https://guides.github.com/activities/forking/>`__
+   .. hint:: See `GitHub forking projects <https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project>`__
 
 ====================================================
 Create a Feature Branch from the ``develop`` Branch

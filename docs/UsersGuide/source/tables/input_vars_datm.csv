@@ -1,9 +1,0 @@
-﻿CDEPS DATM variable,Unit,Description
-Sa_pslv,Pa,Mean sea-level pressure
-Faxa_rain,m,Liquid-equivalent total precipitation
-Faxa_swnet,J m\ :sup:`2`,Surface net downward shortwave flux
-Faxa_lwnet,J m\ :sup:`2`,Surface net upwelling longwave flux
-Faxa_sen,J m\ :sup:`2`,Surface upward sensible heat flux
-Faxa_lat,J m\ :sup:`2`,Surface upward latent heat flux
-Faxa_taux,N m\ :sup:`2` s,Surface zonal-component turbulent stress
-Faxa_tauy,N m\ :sup:`2` s,Surface meridional-component turbulent stress
