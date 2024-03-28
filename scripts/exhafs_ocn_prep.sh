@@ -107,25 +107,29 @@ ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_ic.in 
 ${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in
 
 # SSH file
+# Change into netcdf3 format
+ncks -O -3 rtofs_${outnc_2d} rtofs_${outnc_2d}
 # Rename variables so they match MOM6 variable name
 ncrename -d Latitude,lath -d Longitude,lonh -d MT,time \
          -v Latitude,lath -v Longitude,lonh -v MT,time -v ssh,ave_ssh \
-         rtofs_${outnc_2d} mom6_${outnc_2d}
+         rtofs_${outnc_2d} ${outnc_2d}
+# Change into netcdf4 format
+ncks -O -4 ${outnc_2d} ${outnc_2d}
 # Convert variable to double precission
-ncap2 -O -s "ave_ssh=ave_ssh*1.0" mom6_${outnc_2d} ${outnc_2d}
+ncap2 -O -s "ave_ssh=ave_ssh*1.0" ${outnc_2d} ${outnc_2d}
 # _Fillvalues set to zero
 ncatted -a _FillValue,ave_ssh,o,f,0.0 ${outnc_2d}
 
 # TS file
 # Change into netcdf3 format
-ncks -3 rtofs_${outnc_ts} rtofs_nc3_${outnc_ts}
+ncks -O -3 rtofs_${outnc_ts} rtofs_${outnc_ts}
 # Rename variables so that they match MOM6 variable name
 ncrename -d Depth,depth -d Latitude,lath -d Longitude,lonh -d MT,time \
          -v Depth,depth -v Latitude,lath -v Longitude,lonh -v MT,time \
          -v pot_temp,Temp -v salinity,Salt \
-         rtofs_nc3_${outnc_ts} mom6_${outnc_ts}
+         rtofs_${outnc_ts} ${outnc_ts}
 # Change into netcdf4 format
-ncks -4 mom6_${outnc_ts} ${outnc_ts}
+ncks -O -4 ${outnc_ts} ${outnc_ts}
 
 # UV file
 ncrename -d Depth,Layer -d Latitude,lath -d Longitude,lonh -d MT,Time \
