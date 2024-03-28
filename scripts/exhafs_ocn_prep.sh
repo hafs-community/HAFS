@@ -255,9 +255,9 @@ done
 mkdir -p ${WORKhafs}/ocn_prep/mom6_forcings
 cd ${WORKhafs}/ocn_prep/mom6_forcings
 
-#PARMave="USWRF:surface|DSWRF:surface|ULWRF:surface|DLWRF:surface|UFLX:surface|VFLX:surface|SHTFL:surface|LHTFL:surface"
-#PARMins="UGRD:10 m above ground|VGRD:10 m above ground|PRES:surface|PRATE:surface|TMP:surface"
-#PARMlist="${PARMave}|${PARMins}"
+PARMave=":USWRF:surface|:DSWRF:surface|:ULWRF:surface|:DLWRF:surface|:UFLX:surface|:VFLX:surface|:SHTFL:surface|:LHTFL:surface"
+PARMins=":UGRD:10 m above ground|:VGRD:10 m above ground|:PRES:surface|:PRATE:surface|:TMP:surface"
+PARMlist="${PARMave}|${PARMins}"
 
 # Use gfs forcing from prior cycle's 6-h forecast
 grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
@@ -266,7 +266,7 @@ if [ ! -s ${grib2_file} ]; then
   exit 1
 fi
 # Extract atmospheric forcing related variables
-#${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd_prior}${cyc_prior}_f006.nc
+${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd_prior}${cyc_prior}_f006.nc
 
 FHRB=${FHRB:-0}
 FHRE=${FHRE:-$((${NHRS}+3))}
@@ -298,7 +298,7 @@ while [ $n -le 360 ]; do
   n=$(( n+1 ))
 done
 
-#${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd}${cyc}_f${FHR3}.nc
+${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd}${cyc}_f${FHR3}.nc
 
 FHR=$(($FHR + ${FHRI}))
 FHR3=$(printf "%03d" "$FHR")
@@ -306,7 +306,7 @@ FHR3=$(printf "%03d" "$FHR")
 done
 # End loop for forecast hours
 
-${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} -s ${COMINgfs}
+${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} 
 
 # Obtain net longwave and shortwave radiation file
 echo 'Obtaining NETLW'
