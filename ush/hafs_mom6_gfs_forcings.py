@@ -218,19 +218,25 @@ if __name__ == "__main__":
                     # No shifting in time is needed because these are
                     # instantaneous fields
                     delta_t = int((fdate - date_ini).total_seconds()/3600)
+                    shifted_time = fdate - timedelta(hours = 0)
+                    ndays = (shifted_time - datetime(1970,1,1)).days
+                    nseconds = (shifted_time - datetime(1970,1,1)).seconds
+                    shifted_timestamp = ndays*24*3600 + nseconds
                     print(n)
                     print('fdate=',fdate)
                     print('delta_t=',delta_t)
-                    y = str(date_ini.year)
-                    m = [str(date_ini.month) if len(str(date_ini.month))>1 else '0'+str(date_ini.month)][0]
-                    d = [str(date_ini.day) if len(str(date_ini.day))>1 else '0'+str(date_ini.day)][0]
-                    h = [str(date_ini.hour) if len(str(date_ini.hour))>1 else '0'+str(date_ini.hour)][0]
-                    if len(str(delta_t))==1:
-                        fcst_hr = '00'+str(delta_t)
-                    if len(str(delta_t))==2:
-                        fcst_hr = '0'+str(delta_t)
-                    if len(str(delta_t))==3:
-                        fcst_hr = str(delta_t)
+                    print('shifted_time=',shifted_time)                    
+                    y, m, d, h, fcst_hr = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t)
+                    #y = str(date_ini.year)
+                    #m = [str(date_ini.month) if len(str(date_ini.month))>1 else '0'+str(date_ini.month)][0]
+                    #d = [str(date_ini.day) if len(str(date_ini.day))>1 else '0'+str(date_ini.day)][0]
+                    #h = [str(date_ini.hour) if len(str(date_ini.hour))>1 else '0'+str(date_ini.hour)][0]
+                    #if len(str(delta_t))==1:
+                    #    fcst_hr = '00'+str(delta_t)
+                    #if len(str(delta_t))==2:
+                    #    fcst_hr = '0'+str(delta_t)
+                    #if len(str(delta_t))==3:
+                    #    fcst_hr = str(delta_t)
                     print(y,m,d,h,fcst_hr)
                     file_gfs = 'gfs_global_' +y+m+d+h+ '_f' + fcst_hr + '.nc'
                     tmp_gfs_nc = 'gfs_global_' +y+m+d+h+ '_f' + fcst_hr + '_' + hafs_fcst_hr + '_' + file_var_name + '.nc'
