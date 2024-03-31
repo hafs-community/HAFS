@@ -91,7 +91,7 @@ HAFS Physics Configuration
 
 Look in ``HAFS/parm/hafs.conf`` to determine what physics suites are running.
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_ccpp_suites.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_ccpp_suites.png
     :width: 50%
     :alt: CCPP suites listed in hafs.conf (updated 06/29/2023)
 
@@ -118,7 +118,7 @@ Two types of nesting configurations are available: (i) regional* and (ii) globne
 
   * ``HAFS/parm/forecast/globnest/input.nml.tmp``
 
-.. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/hafs_namelist_files.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_namelist_files.png
     :width: 50 %
     :alt: Example namelist file for HAFS (updated 06/29/2023)
 

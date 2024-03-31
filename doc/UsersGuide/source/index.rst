@@ -9,4 +9,4 @@ HAFS User's Guide (|version|)
    BuildingRunningTesting/index
    CustomizingTheWorkflow/index
    ContributorsGuide/index
-   Reference/index
+   Reference/indexmake

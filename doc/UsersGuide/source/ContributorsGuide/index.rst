@@ -1,4 +1,4 @@
-Contributors Guide
+Contributor's Guide
 ========================================================
 
 .. toctree::
