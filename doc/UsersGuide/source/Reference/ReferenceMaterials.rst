@@ -14,9 +14,8 @@ Guidance Documents
 ===================
 
 - `NCO Implementation Standards <https://www.nco.ncep.noaa.gov/idsb/implementation_standards/>`__
-- `Recommendation for Adoption of NCEP EE2 Process Document <https://drive.google.com/file/d/1oLi3yH11sN2HamScB2SNrgHXmj0HYKol/view?usp=sharing>`__ *
+- `NCEP EE2 Consolidated Document <https://www.emc.ncep.noaa.gov/users/impldocs/EE2-Consolidated-Document.V2.pdf>`__ *
 - `Code Management of Repositories Under EMC Management Using GitFlow <https://docs.google.com/document/d/1H5McooP-ZmDIOhcy4zJwdFVk3DyjbJt_Nyqj4QGBRBU/edit?usp=sharing>`__ *
-- `EMC Github Repository Code Management <https://docs.google.com/document/d/1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0/edit>`__ *
 
 \* Requires NOAA email for access
 
@@ -26,16 +25,14 @@ Guidance Documents
 Useful Code Management Related Materials
 =========================================
 
-- `UFS Github Repository Code Management <https://docs.google.com/document/d/1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0/edit?usp=sharing>`__ *
-- `Versioning for UFS Repositories <https://docs.google.com/document/d/19yTqfTN2nu014qSUcLuNticU65q3iBern7kB-AqSoVg/edit?usp=sharing>`__ *
-- `Making Code Changes in GitHub UFS Forecast Model Repository <https://docs.google.com/presentation/u/1/d/1UVq7O0djhOO99VCIbftwi-WFRdF9fjnMijZNw4kRxnM/edit>`__ *
-- `ufs-weather-model Development Training Presentation <https://docs.google.com/presentation/d/1dzR6PACdFwqzJc9J-9u4RIhkxNIV3jZrRLhV53Xs8us/edit?usp=sharing>`__ *
-- `GitHub at EMC Presentation <https://docs.google.com/presentation/d/16XIq0mniV1JjhrxGQ2E00mFpnzd_w9CUnpaY4_Ogi2E/edit?usp=sharing>`__ *
+- `UFS Github Repository Code Management <https://docs.google.com/document/d/1leuJh1qVz2raTkUJz4CQf68ktqNHKEUsWrgPNtVaIH0/edit?usp=sharing>`_ *
+- `Versioning for UFS Repositories <https://github.com/ufs-community/ufs/wiki/Versioning>`_
+- :ref:`Contributing to HAFS <HAFSCodeContributionGuidelines>`
 - More about GitFlow:
 
-  - `A Successful Git Branching Model <https://nvie.com/posts/a-successful-git-branching-model/>`__ by Vincent Driessen
-  - `GitFlow at GitHub <https://github.com/nvie/gitflow/>`__
-  - `GitFlow Examples <https://gitversion.net/docs/>`__ from GitVersion
+  - `A Successful Git Branching Model <https://nvie.com/posts/a-successful-git-branching-model/>`_ by Vincent Driessen
+  - `GitFlow at GitHub <https://github.com/nvie/gitflow/>`_
+  - `GitFlow Examples <https://gitversion.net/docs/>`_ from GitVersion
 
 \* Requires NOAA email for access
 
@@ -45,17 +42,22 @@ Useful Code Management Related Materials
 Useful Resources
 =================
 
-- GFS global-workflow GitHub `repository <https://github.com/NOAA-EMC/global-workflow/>`__ and `wiki <https://github.com/NOAA-EMC/global-workflow/wiki/>`__
-- `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/latest/>`__
-- `CCPP Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v6.0.0/sci_doc/index.html>`__
-- UFS-UTILS `repository <https://github.com/ufs-community/UFS_UTILS/>`__ and `chgres_cube documentation <https://ufs-utils.readthedocs.io/en/latest/>`__
+- GFS global-workflow GitHub `repository <https://github.com/NOAA-EMC/global-workflow/>`_, `wiki <https://github.com/NOAA-EMC/global-workflow/wiki/>`_, and `documentation <https://global-workflow.readthedocs.io/en/latest/>`_
+- `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/develop/>`__
+- Common Community Physics Package (CCPP):
 
-  - `chgres_cube introduction presentation <https://drive.google.com/file/d/1JjnDlRkM5ACjJGEym14SGNFGO2wTkkB7/view?usp=sharing>`__ *
+  - `Technical Documentation (User’s Guide) <https://ccpp-techdoc.readthedocs.io/en/v6.0.0/>`_
+  - `Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v6.0.0/sci_doc/index.html>`_
 
-- `UFS Short-Range Weather App User's Guide <https://ufs-srweather-app.readthedocs.io/en/latest/>`__
-- :term:`UPP` repository `<https://github.com/NOAA-EMC/UPP/>`__ (formerly *EMC_post*)
+- `UFS_UTILS repository <https://github.com/ufs-community/UFS_UTILS/>`_ 
+  
+  - `UFS_UTILS User’s Guide <https://noaa-emcufs-utils.readthedocs.io/en/latest/>`_
+  - `UFS_UTILS Scientific Documentation <https://ufs-community.github.io/UFS_UTILS/>`_
 
-  - `UPP User’s GuideDocumentation <https://upp.readthedocs.io/en/latest/index.html>`_
+- `UFS Short-Range Weather App User's Guide <https://ufs-srweather-app.readthedocs.io/en/latest/>`_
+- :term:`UPP` `repository <https://github.com/NOAA-EMC/UPP/>`_ (formerly *EMC_post*)
+
+  - `UPP User’s Guide Documentation <https://upp.readthedocs.io/en/latest/index.html>`_
   - `Scientific Documentation <https://noaa-emc.github.io/UPP/>`_
 
 - `FV3 multinest presentation from GFDL <https://docs.google.com/presentation/d/1cgi8J1ZzVt1EqVyRR5tzhO223p9zHBoNHJ2UPcU5Hn8/edit?usp=sharing>`__ *
