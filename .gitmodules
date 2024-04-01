@@ -27,3 +27,7 @@
     path = sorc/hafs_graphics.fd/pygraf
     url = https://github.com/NOAA-GSL/pygraf
     branch = arfs_dev
+[submodule "sorc/hafs_post.fd"]
+	path = sorc/hafs_post.fd
+	url = https://github.com/NOAA-EMC/UPP
+	branch = develop

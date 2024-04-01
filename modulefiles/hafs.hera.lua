@@ -6,9 +6,7 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
---- prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.0/envs/unified-env-noavx512/install/modulefiles/Core")
-
-prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.1/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.5.1/envs/unified-env-rocky8/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver))
@@ -16,10 +14,17 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_impi_ver=os.getenv("stack_impi_ver") or "2021.5.1"
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
+load("python/3.10.8")
+--- load(pathJoin("stack-python","3.10.8"))
+
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
 
 local hafs_modules = {
+  {["python"]          = "3.10.8"},
+  {["cmake"]           = "3.23.1"},
+  {["py-xarray"]       = "2022.3.0"},
+  {["py-netcdf4"]      = "1.5.8"},
   {["jasper"]          = "2.0.32"},
   {["zlib"]            = "1.2.13"},
   {["zstd"]            = "1.5.2"},
@@ -64,9 +69,8 @@ for i = 1, #hafs_modules do
   end
 end
 
-
-prepend_path("MODULEPATH", "/scratch1/NCEPDEV/hwrf/noscrub/local/modulefiles")
-load(pathJoin("python","wcoss2_env"))
+-- prepend_path("MODULEPATH", "/scratch1/NCEPDEV/hwrf/noscrub/local/modulefiles")
+-- load(pathJoin("python","wcoss2_env"))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
