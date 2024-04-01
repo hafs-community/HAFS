@@ -24,7 +24,7 @@ copyright = '2021'
 author = ' '
 
 # The short X.Y version
-version = ''
+version = 'develop'
 # The full version, including alpha/beta/rc tags
 release = ''
 
@@ -45,7 +45,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -106,9 +105,9 @@ html_theme_path = ["_themes", ]
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
-html_theme_options = {"body_max_width": "none", "navigation_depth": 6, }
-                
+html_theme_options = {"body_max_width": "none",
+                      "navigation_depth": 6,
+                      }
 
 # html_sidebar_options = {}
 html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
@@ -220,9 +219,4 @@ epub_exclude_files = ['search.html']
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        }
-                  
 
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
