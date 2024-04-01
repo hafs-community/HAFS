@@ -6,7 +6,7 @@ UFS Repository Code Management Guidance (Draft)
 
 
 Repository
-----------
+==========
 
 - Authoritative repositories are read-only for users.
 - Branches are protected, i.e., changes can only be made through merging pull requests, not by pushing (including admins).
@@ -75,8 +75,41 @@ Code Commit
 Commit Procedure
 ----------------
 
-- For any PR created in the app or subcomponent repo (assume proper testing is done for the code updates), code managers needs to check:
-  - The PR template instruction is followed, required information is provided.
-  - The code is merged to the top of develop/master branch
-  - Put labels such as “documentation”, “bug”, “enhancement”, “baseline change”, “no baseline change”, “New Input Data Req’d”, “Input data change”
-  - Put “Tri
+Assuming that proper testing has been completed, code managers must also check the following list for any PR created in an application or subcomponent repository:
+
+- The developer followed PR template instructions, and provided required information.
+- The code is merged to the top of develop/master branch.
+- Add labels such as "Bug fix," "bug," "enhancement," "good first issue," "invalid," "Ready to Merge," or "question."
+
+Requirements for Adding a PR to the Commit Queue:
+---------------------------------------------------
+
+- When a PR requester (or code manager) sets the "ready for review" label, reviewers are assigned.
+- Reviewers review and approve code changes.
+
+Steps to Merge the PR Listed at the Top of the Commit Queue:
+------------------------------------------------------------
+
+- Developers merge file changes to match the development branch and coordinate with code managers to trigger CI Git labels (e.g., run-ci and/or jenkins-ci).
+- Monitor the results of CI runs and ask reviewers' final comments to start approval procedures.
+- Start RTs on Tier-1 platforms.
+- If all RTs pass, the PR can be merged with final approvals from two code managers.
+- If RT cases fail, some simple fixes can be added. Reviewers must approve the fixes. The CI and RT run steps must be repeated.
+- If more time is required to fix issues found at commit time, the PR will be removed from the Commit Queue. It will be added to the top of the Commit Queue when the issue is fixed.
+
+CM Daily PR Merging Steps:
+---------------------------
+
+- Assign reviewers, check review status, and check test status.
+- If input data needs to be added, copy the data to the RT input data directory.
+- Check whether the PR and subcomponent PRs are approved; reassign reviewers if needed.
+- Make sure to run CI tests after the code review is done.
+- If a new baseline is required, decide on a baseline directory name and communicate with PR owners and CM groups when new baselines are created on certain HPC platforms.
+- Validate RT results. Coordinate with PR owners and reviewers to confirm baseline creation and RT runs on supported platforms.
+- Merge the PR.
+
+General Guidance on Code Changes:
+---------------------------------
+
+- All new features should be implemented as options so that there is no impact to current UFS applications. It is suggested to add a regression test to demonstrate how to use the new feature.
+- Bug fixes will not be implemented as options. They may change results. Developers need to make sure that all the UFS applications will work with bug fixes.

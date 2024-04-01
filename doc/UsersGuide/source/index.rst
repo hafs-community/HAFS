@@ -5,14 +5,8 @@ HAFS User's Guide (|version|)
    :numbered:
    :maxdepth: 3
 
- 
-  
-  
    Backgroundinfo/index
    BuildingRunningTesting/index
    CustomizingTheWorkflow/index
-   Reference/index
-   
-   
-  
-   
+   ContributorsGuide/index
+   Reference/indexmake

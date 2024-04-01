@@ -23,9 +23,9 @@ Fork the HAFS Repository and Clone the Forked Repository Locally
 
 Users need a GitHub account to work with the HAFS repository. Instructions for creating an account are available `on GitHub <https://github.com/signup>`__ and via the `Earth Prediction Innovation Center website <https://epic.noaa.gov/wp-content/uploads/2023/01/Registration-and-Posting-on-the-UFS-Community-GitHub-Repository.pdf>`__. 
 
-#. Navigate to https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png. Locate and click on the "fork" button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults. 
+#. Navigate to https://github.com/hafs-community/HAFS. Locate and click on the "fork" button towards the top right of the page. Users can create a fork by selecting the default settings; more advanced users may opt to alter the defaults. 
 
-   .. figure:: https://raw.githubusercontent.com/wiki/hafs-community/HAFS/docs_images/ForkHAFS.png
+   .. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/ForkHAFS.png
       :width: 90%
       :alt: Yellow box highlights the "fork" button toward the top right of the page. 
 
@@ -37,7 +37,7 @@ Users need a GitHub account to work with the HAFS repository. Instructions for c
 
    Users should replace ``USERNAME`` with their GitHub username in the command above. 
 
-   .. hint:: See `GitHub forking projects <https://guides.github.com/activities/forking/>`__
+   .. hint:: See `GitHub forking projects <https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project>`__
 
 ====================================================
 Create a Feature Branch from the ``develop`` Branch

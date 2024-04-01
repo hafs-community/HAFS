@@ -1,9 +1,9 @@
-Building, Running, and Testing HAFS
+Contributor's Guide
 ========================================================
 
 .. toctree::
    :maxdepth: 3
 
-   QuickStart
-   ExtQuickStart
-   RegressionTest
+   GitHubBasicSteps
+   HAFSCodeContributionGuidelines
+   
