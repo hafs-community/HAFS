@@ -149,7 +149,7 @@ After the above steps are complete, submit the cron script (``cronjob_hafs.sh``)
 
 .. _fig_docn:
 
-.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_cdeps_workflow_datm.png
+.. figure:: https://github.com/hafs-community/HAFS/wiki/docs_images/hafs_cdeps_workflow_docn.png
     :width: 50 %
     :alt: HAFS-CDEPS workflow for DOCN
 
