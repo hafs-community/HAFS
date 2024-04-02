@@ -6,4 +6,3 @@ Contributor's Guide
 
    GitHubBasicSteps
    HAFSCodeContributionGuidelines
-   
