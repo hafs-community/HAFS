@@ -5,13 +5,13 @@
 # from the environment for the first two.
 SPHINXOPTS    = -a -n
 SPHINXBUILD   = sphinx-build
-SOURCEDIR     = .
+SOURCEDIR     = source
 BUILDDIR      = build
 LINKCHECKDIR  = $(BUILDDIR)/linkcheck
 
-# Put it first so that "make" without argument is like "make help".
 .PHONY: help Makefile linkcheck
 
+# Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 

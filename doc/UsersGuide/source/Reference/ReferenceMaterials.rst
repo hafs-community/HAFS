@@ -42,12 +42,12 @@ Useful Code Management Related Materials
 Useful Resources
 =================
 
-- GFS global-workflow GitHub `repository <https://github.com/NOAA-EMC/global-workflow/>`_, `wiki <https://github.com/NOAA-EMC/global-workflow/wiki/>`_, and `documentation <https://global-workflow.readthedocs.io/en/latest/>`_
+- GFS `global-workflow repository <https://github.com/NOAA-EMC/global-workflow/>`_, `wiki <https://github.com/NOAA-EMC/global-workflow/wiki/>`_, and `documentation <https://global-workflow.readthedocs.io/en/latest/>`_
 - `UFS Weather Model User's Guide <https://ufs-weather-model.readthedocs.io/en/develop/>`__
 - Common Community Physics Package (CCPP):
 
-  - `Technical Documentation (User’s Guide) <https://ccpp-techdoc.readthedocs.io/en/v6.0.0/>`_
-  - `Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v6.0.0/sci_doc/index.html>`_
+  - `CCPP Technical Documentation (User’s Guide) <https://ccpp-techdoc.readthedocs.io/en/v6.0.0/>`_
+  - `CCPP Scientific Documentation <https://dtcenter.ucar.edu/GMTB/v6.0.0/sci_doc/index.html>`_
 
 - `UFS_UTILS repository <https://github.com/ufs-community/UFS_UTILS/>`_ 
   
@@ -55,10 +55,10 @@ Useful Resources
   - `UFS_UTILS Scientific Documentation <https://ufs-community.github.io/UFS_UTILS/>`_
 
 - `UFS Short-Range Weather App User's Guide <https://ufs-srweather-app.readthedocs.io/en/latest/>`_
-- :term:`UPP` `repository <https://github.com/NOAA-EMC/UPP/>`_ (formerly *EMC_post*)
+- `UPP repository <https://github.com/NOAA-EMC/UPP/>`_ (formerly *EMC_post*)
 
   - `UPP User’s Guide Documentation <https://upp.readthedocs.io/en/latest/index.html>`_
-  - `Scientific Documentation <https://noaa-emc.github.io/UPP/>`_
+  - `UPP Scientific Documentation <https://noaa-emc.github.io/UPP/>`_
 
 - `FV3 multinest presentation from GFDL <https://docs.google.com/presentation/d/1cgi8J1ZzVt1EqVyRR5tzhO223p9zHBoNHJ2UPcU5Hn8/edit?usp=sharing>`__ *
 - JCSDA JEDI Academy Slides: `Nov 2020 Academy Slides <http://academy.jcsda.org/nov2020/pages/slides.html>`__
