@@ -48,7 +48,7 @@ General Coding Standards
 Development and Testing Process
 =================================
 
-#. **Create issue:** Open a :hafs-repo:`issue <issues/new/choose>` in the HAFS repository to document proposed changes. See :ref:`Opening an Issue <open-issue>` for detailed instructions.
+#. **Create issue:** Open an :hafs-repo:`issue <issues/new/choose>` in the HAFS repository to document proposed changes. See :ref:`Opening an Issue <open-issue>` for detailed instructions.
 #. **Fork & Clone HAFS:** :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the :hafs-repo:`HAFS repository<>` into your personal GitHub account and :github-docs:`clone<get-started/exploring-projects-on-github/contributing-to-a-project>` your fork onto your development system if you have not already done so.
 #. **Create a branch** in your clone for your changes. All development should take place on a branch, not on ``develop``. Branches are typically named as follows, where ``[name]`` is a one-word description of the branch:
 
