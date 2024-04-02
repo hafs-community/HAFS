@@ -4,112 +4,210 @@
 UFS Repository Code Management Guidance (Draft)
 ***********************************************
 
+The authoritative HAFS repository is located at https://github.com/hafs-community/HAFS. The HAFS repository maintains a main branch for development called ``develop``. The HEAD of ``develop`` reflects the latest peer-reviewed development changes and is read-only for users. It points to regularly updated hashes for individual subcomponents. The ``develop`` branch is protected; changes can only be made by pull request, not by pushing directly to the repository.
 
-Repository
-==========
+.. _gitflow:
 
-- Authoritative repositories are read-only for users.
-- Branches are protected, i.e., changes can only be made through merging pull requests, not by pushing (including admins).
-- All the UFS app develop branches are pointing to subcomponents’ official branches for development at different revisions. The subcomponent branch should not be a temporary branch in a user’s or developer group’s personal fork.
-- No personal installed software including libraries or code are allowed in the UFS application code. No personal directory will be used in the UFS application.
-- A simple and clear commit message is required when merging a pull request. (see here for standard log format)
+GitFlow
+========
 
-Forking
--------
+Contributors who have write access to the `HAFS <https://github.com/hafs-community/HAFS>`_ project in GitHub should follow `GitFlow development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_ for any development performed directly in the ``hafs-community/HAFS`` repository. Changes to the ``develop`` branch require a pull request (see :ref:`Fork and PR Overview <fork-pr-overview>`). 
 
-- For new development users will create a fork from the repositories, pull requests will be made from the branch in developers’ fork.
-- When a fork is created, all the branches in the parent repository are copied automatically. It is suggested that users keep the develop branch and the branches that they are interested in and ignore the rest branches entirely or delete them
-- It is suggested that users create their own feature branch from the development branch (e.g. develop or master branch) in the authoritative (or official) repository. Basically, Users can add remote upstream to the authoritative repository, check out upstream develop/master branch and then create a new feature branch from upstream develop/master branch.
+Contributors who do not have write permissions for the HAFS repository must conduct all development in a fork and submit changes via pull request (PR) to the authoritative repository. This process is summarized in the :ref:`Fork and PR Overview <fork-pr-overview>` below. 
 
-Branching
----------
+.. _fork-pr-overview:
 
-- It is suggested that users create their own feature branch in their fork.
-- Users’ develop/feature branches in user’s fork should be sync-ed with authoritative (or official) repositories periodically.
-- When development work is done, users will sync their feature branch with the latest develop/master branch in the authoritative repository, run regression tests and make a pull request to the authoritative (or official) repository.
-- It is suggested to delete the feature branch in users’ personal fork when the code changes are merged into an authoritative repository.
-- For new development work, users will sync their development with an authoritative repository and start from step 1.
+Fork and PR Overview
+=====================
 
-Tagging/Versioning
-------------------
+.. note:: 
+   
+   Thank you to the Unified Workflow (UW) team for allowing us to adapt their Fork and PR Model overview for use in HAFS. The original can be viewed in the `uwtools` :uw:`documentation <sections/contributor_guide/fork_pr_model.html>`.
 
-- In an authoritative repository, only code managers can create production or public release branches.
-- For the production branch, a suggested branch name is production/app.vxx, xx is the operational implementation version number (e.g. GFS.v16). Annotated tags will be created with names app.vxx.yy.zz (yy is feature upgrade, zz is bugfix upgrade) (e.g. GFS.v15.2.1).
-- For the public release branch, suggested branch names: release/public-vxx.yy. Annotated Tags will be created with names: app.vxx.yy.zz.
-- For develop branch, benchmark tags can be created as benchmark/app.vxx.yy.zz
-- Code managers are encouraged to delete the old production and public release branches. Annotated tags will stay when the production/public release branches are deleted.
-- It is suggested not to create a tag for every commit on the develop branch. Tags will only be created for special features/milestones.
 
-Pull Request
+Contributions to the HAFS project are made via a :github-docs:`Fork<pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks>` and :github-docs:`Pull Request (PR)<pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>` model. GitHub provides a thorough description of this contribution model in their `Contributing to a project` :github-docs:`Quickstart<get-started/exploring-projects-on-github/contributing-to-a-project>`, but the steps, with respect to HAFS contributions, can be summarized as:
+
+#. :github-docs:`Create an issue <issues/tracking-your-work-with-issues/creating-an-issue>` to document proposed changes.
+#. :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the :hafs-repo:`HAFS repository<>` into your personal GitHub account.
+#. :github-docs:`Clone<get-started/exploring-projects-on-github/contributing-to-a-project>` your fork onto your development system.
+#. :github-docs:`Create a branch<get-started/exploring-projects-on-github/contributing-to-a-project#creating-a-branch-to-work-on>` in your clone for your changes. All development should take place on a branch, *not* on ``develop``. 
+#. :github-docs:`Make, commit, and push changes<get-started/exploring-projects-on-github/contributing-to-a-project#making-and-pushing-changes>` in your clone / to your fork. 
+#. When your work is complete, :github-docs:`create a pull request (PR)<get-started/exploring-projects-on-github/contributing-to-a-project#making-a-pull-request>` to merge your changes. 
+
+For future contributions, you may delete and then recreate your fork or configure the official ``HAFS`` repository as a :github-docs:`remote repository<pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-repository-for-a-fork>` on your clone and :github-docs:`sync upstream changes<pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork>` to stay up-to-date with the official repository.
+
+General Coding Standards
+=========================
+
+* The HAFS repository must not contain source code for compiled programs. Only scripts and configuration files should reside in this repository.
+* All bash scripts must explicitly be ``#!/bin/bash`` scripts. They should not be login-enabled (i.e., scripts should not use the ``-l`` flag).
+* All code must be indented appropriately and conform to the style of existing scripts (e.g., local variables should be lowercase, global variables should be uppercase).
+* No personal software installations (including libraries or code) or personal directories may be incorporated into HAFS repository code. 
+
+Development and Testing Process
+=================================
+
+#. **Create issue:** Open a :hafs-repo:`issue <issues/new/choose>` in the HAFS repository to document proposed changes. See :ref:`Opening an Issue <open-issue>` for detailed instructions.
+#. **Fork & Clone HAFS:** :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the :hafs-repo:`HAFS repository<>` into your personal GitHub account and :github-docs:`clone<get-started/exploring-projects-on-github/contributing-to-a-project>` your fork onto your development system if you have not already done so.
+#. **Create a branch:** in your clone for your changes. All development should take place on a branch, not on ``develop``. Branches are typically named as follows, where ``[name]`` is a one-word description of the branch:
+
+   * ``bugfix/[name]``: Fixes a demonstrably incorrect portion of code
+   * ``feature/[name]``: Adds a new feature to the code or improves an existing portion of the code
+   * ``text/[name]``: Changes elements of the repository that do not impact the compiled code in any way (e.g., changes to README, documentation, comments, changing quoted Registry elements, white space alignment). 
+   * Only code managers may create ``release/*`` or ``production/*`` branches, which are used for public or operational releases, respectively. `Information on versioning <https://github.com/ufs-community/ufs/wiki/Versioning>`_ is available on the *ufs-community* wiki. 
+
+   Users will need to sync the branches in their fork with the authoritative HAFS repository periodically. 
+#. **Development:** Perform and test changes in the feature branch (not on ``develop``!). Document changes to the workflow and capabilities in the RST files so that the HAFS documentation stays up-to-date. 
+#. **Testing:** Test code modifications on as many platforms as possible, and request help with further testing from the code management team when unable to test on all Level 1 platforms. The bare minimum testing required before opening a PR is to run the regression tests on at least one supported machine. :numref:`Section %s <RegressionTest>` of the HAFS User's Guide provides instructions on HAFS regression testing. 
+#. **Pull Request:** When your work is complete, :github-docs:`create a pull request<get-started/exploring-projects-on-github/contributing-to-a-project#making-a-pull-request>` to merge your changes. When a PR is initiated, the :ref:`PR template <pr-template>` autofills. Developers should use the template to provide information about the PR in the proper fields. See the guidelines in the :ref:`Making a Pull Request <make-pr>` section for more details on making a good pull request. 
+#. **Merge** - When review and testing are complete, a code manager will merge the PR into ``develop``. 
+#. **Cleanup** - After the PR is merged, the code developer should delete the branch on their fork and close the issue. Feature branches are intended to be short-lived, concentrated on code with one sole purpose, and applicable to a single PR. A new feature branch should be created when subsequent code development continues.
+
+.. note:: 
+   
+   Communication with code managers and the repository code management team throughout the process is encouraged.
+
+.. _open-issue:
+
+Opening an Issue
+=================
+
+All changes to HAFS should be associated with a :hafs-repo:`GitHub Issue <issues>`. Developers should search the existing issues in the HAFS repository before beginning their work. If an issue does not exist for the work they are doing, they should create one prior to opening a new pull request. If an issue does exist, developers should be sure to collaborate to avoid duplicative work. 
+
+To open an issue, click on :hafs-repo:`"New Issue"<issues/new/choose>` within the HAFS GitHub repository. 
+
+Choose from three options: 
+
+#. :hafs-repo:`Bug Report <issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=>`: Report specific problems ("bugs") in the code using the following template:
+
+   .. code-block:: console
+
+      ## Description
+      Provide a clear and concise description of what the bug is.
+      Also give a description of what behavior you expected to happen.
+
+      ### To Reproduce:
+      What machines are you seeing this with?
+      Give explicit steps to reproduce the behavior if possible.
+      1. do this
+      2. then that
+      3. then, oops, look at the bug
+
+      ## Additional context (optional)
+      Add any other context about the problem here.
+      Directly reference any issues or PRs in this or other repositories that this is related to, and describe how they are related. Examples:
+      - needs to be fixed also in ufs-community/ufs-weather-model/issues/<issue_number>
+      - dependent upon noaa-emc/upp/pull/<pr_number>
+
+      ## Output (optional)
+
+      **Screenshots**
+      If applicable, drag and drop screenshots to help explain your problem.
+
+      **output logs**
+      If applicable, include relevant output logs.
+      Either drag and drop the entire log file here (if a long log) or
+
+      ```
+      paste the code here (if a short section of log)
+      ```
+
+#. :hafs-repo:`Feature Request <issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=>`: New features and feature enhancements fall under this category. Propose features and enhancements using the following template. Optional sections may be deleted.
+
+   .. code-block:: console
+
+      ## Description
+      Provide a clear and concise description of the requested feature/capability.
+
+      ## Proposed solution
+      How should the new feature/capability be added? If you have thoughts on the implementation strategy, please share them here.
+
+      ## Status (optional)
+      Do you (or a colleague) plan to work on adding this feature?
+
+      ## Related to (optional)
+      Directly reference any related issues or PRs in this or other repositories, and describe how they are related. Examples:
+      - fixed by hafs-community/hafs/pull/<pr_number>
+      - dependent upon ufs-community/ufs-weather-model/pull/<pr_number>
+      - associated with noaa-emc/upp/pull/<pr_number>
+      - related to hafs-community/GSI/issues/<issue_number>
+
+#. :hafs-repo:`Other <issues/new>`: Open a blank issue, and use the "Feature Request" template above as a starting point to describe the issue. 
+
+For all issue reports, indicate whether this is: 
+   #. A problem that you plan to work on and submit a PR for
+   #. A problem that you will **not** work on but that requires attention
+   #. A suggested improvement 
+
+After filling out the issue report, click on "Submit new issue."
+
+.. _make-pr:
+
+Making a Pull Request
+======================
+
+All changes to the HAFS ``develop`` branch should be handled via GitHub’s "Pull Request" (PR) functionality. When creating your PR, please follow these guidelines, specific to the HAFS project:
+
+* Ensure that your PR is targeting the base repository ``hafs-community/HAFS`` and an appropriate base branch (usually ``develop``).
+* Before making a pull request, ensure that your branch is sync'd with the corresponding branch in the authoritative repository (usually ``develop``). All conflicts must be resolved, and regression tests should be passing on at least one supported platform.
+* **Complete PR template.** Your PR will appear pre-populated with a :ref:`template <pr-template>` that you should complete. Provide an informative synopsis of your contribution, crosslink the issue(s) and dependencies, and indicate what testing has been conducted. You may tidy up the description by removing boilerplate text and non-selected checklist items.  
+* **Create draft PR.** Use the pull-down arrow on the green button below the description to initially create a :github-docs:`draft pull request<pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`. 
+
+   * Once your draft PR is open, visit its *Files changed* tab and add comments to any lines of code where you think reviewers will benefit from more explanation. Try to save time by proactively answering questions you suspect reviewers will ask.
+
+* **Open PR.** Once your draft PR is marked up with your comments and ready for review, return to the *Conversation* tab and click the *Ready for review* button.
+
+   * A default set of reviewers will automatically be added to your PR. You may add or request others, if appropriate. Pull requests will be reviewed and approved by at least two code reviewers, at least one of whom must have write permissions on the repository. Reviewers may make comments, ask questions, or request changes on your PR. Respond to these as needed, making commits in your clone and pushing to your fork/branch. Your PR will automatically be updated when commits are pushed to its source branch in your fork, so reviewers will immediately see your updates. When a PR has met the contribution and testing requirements and has been approved by two code reviewers, a code manager will merge the PR.
+
+.. _pr-template:
+
+PR Template
 ------------
 
-- An issue needs to be created associated with the pull request. The issue should cover all the features in detail.
-- Before making a pull request, users’ feature branch must be merged with the corresponding branch in the authoritative repository. All the conflicts must be resolved. Regression tests need to be passed on at least one supported platform.
-- Users submit a pull request (PR) for code commit.
-- Pull request creators will add reviewers, if needed, ask code managers to add reviewers.
-- At least one reviewer with write permission needs to give approval before the code can be committed.
-- If needed, developers can ask code manager(s) to run the regression test on the required platforms that users don’t have access to.
-- When the PR is reviewed and no further changes are required, the PR can be put in the commit queue.
-- For PRs that involve several repositories:
-  i) All PRs need to be cross-referenced in the description of each repository PR; and a note needs to be placed in each PR.
-  ii) During the code commit, all PRs need to be ready for commit. This requires that all the related commit branches are merged with the top of repositories and no other commit will be committed into each repository until the current commit is finished (repository freeze for the commit). If any of the repositories is updated, the code manager of that repository needs to notify all the related repository code managers to redo RT.
-  iii) The top application RTs need to be finished and RT information needs to be posted in all the related repositories before the PR can be merged in each individual repository.
+Here is the template that is provided when developers click "Create pull request":
 
-How to Write Pull Request
---------------------------
+.. code-block:: console
 
-- Pull request size: should be small
-- Feature breaking: if possible, one feature for each PR..
-- Make a self-explanatory title describing what the PR does.
-- Description: Details with what was changed, why it was changed, and how it was changed
+   ## Description of changes
+   Provide a description of what this PR does. What bug does it fix, or what feature does it add? Do you expect that this PR will change answers, and if so, under what circumstances? If this PR is for a physics innovation, please provide references to any relevant scientific papers.
 
-Code Commit
------------
+   ## Issues addressed (optional)
+   If this PR addresses one or more issues, please provide link(s) to the issue(s) here.
+   - fixes hafs-community/HAFS/issues/<issue_number>
 
-- The code changes will be reviewed and approved by at least one code reviewer.
-- The CI tests need to pass.
-- Regression tests need to pass on all the supported platforms. All the regression test log files need to be updated. The exception is when a certain platform is under maintenance. For such a time, the regression test will be skipped on that platform. When the platform becomes available, the following PR will be tested and verified. If issues come up with the platform, then PRs will be suspended until the issue is resolved.
-- At least one code manager needs to review and approve the code changes before the code is merged to the develop branch.
-- Code managers will discuss the current PRs in UFS and sub-component repositories and a commit queue will be determined and put in the ufs wiki page.
+   ## Dependencies (optional)
+   If submodule PRs are required, please link them below. For example:
+   - hafs-community/ufs-weather-model/pull/<pr_number>
+   - hafs-community/UPP/pull/<pr_number>
+   - hafs-community/UFS_UTILS/pull/<pr_number>
+   - hafs-community/GSI/pull/<pr_number>
 
-Commit Procedure
-----------------
+   ## Contributors (optional)
+   If others worked on this PR besides the author, please include their user names here (using @Mention if possible).
 
-Assuming that proper testing has been completed, code managers must also check the following list for any PR created in an application or subcomponent repository:
+   ## Tests conducted
+   What testing has been conducted on the PR thus far? Describe the nature of any scientific or technical tests, including relevant details about the configuration(s) (e.g., cold versus warm start, number of cycles, forecast length, whether data assimilation was performed, etc). What platform(s) were used for testing?
 
-- The developer followed PR template instructions, and provided required information.
-- The code is merged to the top of develop/master branch.
-- Add labels such as "Bug fix," "bug," "enhancement," "good first issue," "invalid," "Ready to Merge," or "question."
+   ## Application-level regression test status
+   Running the HAFS application-level regression tests is currently performed by code reviewers after the developer creates the initial PR. As regression tests are conducted, the testers should use the checklist below to indicate **successful** regression tests. You may add other tests as needed. If a test fails, do not check the box. Instead, describe the failure in the PR comments, noting the platform where the test failed.
 
-Requirements for Adding a PR to the Commit Queue:
----------------------------------------------------
+   - [ ] Jet
+   - [ ] Hera
+   - [ ] Orion
+   - [ ] WCOSS2
 
-- When a PR requester (or code manager) sets the "ready for review" label, reviewers are assigned.
-- Reviewers review and approve code changes.
+Merging
+========
 
-Steps to Merge the PR Listed at the Top of the Commit Queue:
-------------------------------------------------------------
+Your PR is ready to merge when:
 
-- Developers merge file changes to match the development branch and coordinate with code managers to trigger CI Git labels (e.g., run-ci and/or jenkins-ci).
-- Monitor the results of CI runs and ask reviewers' final comments to start approval procedures.
-- Start RTs on Tier-1 platforms.
-- If all RTs pass, the PR can be merged with final approvals from two code managers.
-- If RT cases fail, some simple fixes can be added. Reviewers must approve the fixes. The CI and RT run steps must be repeated.
-- If more time is required to fix issues found at commit time, the PR will be removed from the Commit Queue. It will be added to the top of the Commit Queue when the issue is fixed.
+#. It has been approved by a required number of HAFS reviewers, including at least one reviewer with write permissions.
+#. All conversations have been marked as resolved.
+#. Regression tests have passed on all supported platforms.
 
-CM Daily PR Merging Steps:
----------------------------
+These criteria and their current statuses are detailed in a section at the bottom of your PR's *Conversation* tab. Checks take some time to run, so please be patient.
 
-- Assign reviewers, check review status, and check test status.
-- If input data needs to be added, copy the data to the RT input data directory.
-- Check whether the PR and subcomponent PRs are approved; reassign reviewers if needed.
-- Make sure to run CI tests after the code review is done.
-- If a new baseline is required, decide on a baseline directory name and communicate with PR owners and CM groups when new baselines are created on certain HPC platforms.
-- Validate RT results. Coordinate with PR owners and reviewers to confirm baseline creation and RT runs on supported platforms.
-- Merge the PR.
+Need Help?
+===========
 
-General Guidance on Code Changes:
----------------------------------
-
-- All new features should be implemented as options so that there is no impact to current UFS applications. It is suggested to add a regression test to demonstrate how to use the new feature.
-- Bug fixes will not be implemented as options. They may change results. Developers need to make sure that all the UFS applications will work with bug fixes.
+For assistance directly related to a PR, please use comments in the *Conversation* tab of your PR to ask for help with any difficulties you encounter! 
