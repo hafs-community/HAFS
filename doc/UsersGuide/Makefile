@@ -5,7 +5,7 @@
 # from the environment for the first two.
 SPHINXOPTS    = -a -n
 SPHINXBUILD   = sphinx-build
-SOURCEDIR     = .
+SOURCEDIR     = source
 BUILDDIR      = build
 LINKCHECKDIR  = $(BUILDDIR)/linkcheck
 

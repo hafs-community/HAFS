@@ -226,5 +226,5 @@ While it is impossible to formally support every dataset in HAFS-CDEPS, develope
 .. rubric:: Footnotes
 
 .. [#] https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels
-.. [#] https://www.ncdc.noaa.gov/oisst/optimum-interpolation-sea-surface-temperature-oisst-v21
+.. [#] https://www.ncei.noaa.gov/products/optimum-interpolation-sst
 .. [#] https://www.ghrsst.org/about-ghrsst/overview/
