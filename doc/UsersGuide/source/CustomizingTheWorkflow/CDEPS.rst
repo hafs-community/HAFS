@@ -80,7 +80,7 @@ The DAPP keyword in the call to ``./compile.sh`` in ``./sorc/build_forecast.sh``
 
 By default, the DAPP keyword should already be set to HAFS-ALL on all supported machines except wcoss_cray.
  
-The remainder of the build process is the same as described in the HAFS installation guide.
+The remainder of the build process is the same as described in the :ref:`HAFS Quick Start Guide <QuickStart>`.
 
 ================================
 Using CDEPS in the HAFS Workflow
