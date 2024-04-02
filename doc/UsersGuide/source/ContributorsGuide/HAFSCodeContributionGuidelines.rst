@@ -28,8 +28,8 @@ Fork and PR Overview
 Contributions to the HAFS project are made via a :github-docs:`Fork<pull-requests/collaborating-with-pull-requests/working-with-forks/about-forks>` and :github-docs:`Pull Request (PR)<pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>` model. GitHub provides a thorough description of this contribution model in their `Contributing to a project` :github-docs:`Quickstart<get-started/exploring-projects-on-github/contributing-to-a-project>`, but the steps, with respect to HAFS contributions, can be summarized as:
 
 #. :github-docs:`Create an issue <issues/tracking-your-work-with-issues/creating-an-issue>` to document proposed changes.
-#. :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the :hafs-repo:`HAFS repository<>` into your personal GitHub account.
-#. :github-docs:`Clone<get-started/exploring-projects-on-github/contributing-to-a-project>` your fork onto your development system.
+#. :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the HAFS repository into your personal GitHub account.
+#. :github-docs:`Clone<get-started/exploring-projects-on-github/contributing-to-a-project#cloning-a-fork>` your fork onto your development system.
 #. :github-docs:`Create a branch<get-started/exploring-projects-on-github/contributing-to-a-project#creating-a-branch-to-work-on>` in your clone for your changes. All development should take place on a branch, *not* on ``develop``. 
 #. :github-docs:`Make, commit, and push changes<get-started/exploring-projects-on-github/contributing-to-a-project#making-and-pushing-changes>` in your clone / to your fork. 
 #. When your work is complete, :github-docs:`create a pull request (PR)<get-started/exploring-projects-on-github/contributing-to-a-project#making-a-pull-request>` to merge your changes. 
@@ -39,6 +39,7 @@ For future contributions, you may delete and then recreate your fork or configur
 General Coding Standards
 =========================
 
+* The HAFS repository follows the :term:`NCEP` Central Operations (NCO) :nco:`WCOSS Implementation Standards <>`. 
 * The HAFS repository must not contain source code for compiled programs. Only scripts and configuration files should reside in this repository.
 * All bash scripts must explicitly be ``#!/bin/bash`` scripts. They should not be login-enabled (i.e., scripts should not use the ``-l`` flag).
 * All code must be indented appropriately and conform to the style of existing scripts (e.g., local variables should be lowercase, global variables should be uppercase).
