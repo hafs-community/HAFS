@@ -26,6 +26,11 @@ export HDF5_USE_FILE_LOCKING=FALSE
 # APRUNC: command to run pure mpi or mpi+omp jobs
 # APRUNF: command to run multi jobs from a command file
 # BACKGROUND: "" or "&" to implement the APRUNF capability on different platforms
+
+# Enable defining the full run command, saying in the ecf script or Rocoto level
+# This can also be used to easily implement MPMD if needed/desired
+export APRUNCMD=${APRUNCMD:-""}
+
 if [ "$machine" = wcoss2 ]; then
   export APRUN="time"
   export APRUNS="time"
