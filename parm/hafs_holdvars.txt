@@ -305,6 +305,7 @@ export do_mynnedmf={do_mynnedmf}
 export do_mynnsfclay={do_mynnsfclay}
 export cdmbgwd={cdmbgwd}
 export iopt_sfc={iopt_sfc}
+export iopt_trs={iopt_trs}
 export nstf_name={nstf_name}
 export gwd_opt={gwd_opt}
 export do_ugwp_v0={do_ugwp_v0}
