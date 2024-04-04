@@ -33,6 +33,9 @@ source ${ATPARSE}
 
 ENSDA=${ENSDA:-NO}
 ENSID=${ENSID:-000}
+FORECAST_RESTART=${FORECAST_RESTART:-NO}
+FORECAST_RESTART_HR=${FORECAST_RESTART_HR:-0}
+FORECAST_RESTART_HC=${FORECAST_RESTART_HC:-""}
 
 # Reset options specific to the ensemble forecast if needed
 if [ "${ENSDA}" = YES ]; then
@@ -172,14 +175,17 @@ if [ ${RUN_INIT:-NO} = YES ]; then
 if [ "${ENSDA}" = YES ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
 elif [ ${FGAT_MODEL} = gdas ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init}
   RESTARTout=${WORKhafs}/intercom/RESTART_init
 fi
 NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
@@ -210,11 +216,13 @@ else # Otherwise this a regular forecast run
 if [ "${ENSDA}" = YES ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
-  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}}
+  OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_ens/mem${ENSID}}
+  RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART_ens/mem${ENSID}}
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
-  RESTARTout=${RESTARTout:-${COMhafs}/${out_prefix}.RESTART}
+  OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast}
+  RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART}
 fi
 
 # Different warm_start_opt options for determinist/ensemble forecast
@@ -285,6 +293,8 @@ fi
 fi # ${ENSDA} != "YES"
 
 fi # ${RUN_INIT} = "NO"
+
+NHRSint=$(printf "%.0f" ${NHRS})
 
 # For warm start from restart files
 if [ ${warmstart_from_restart} = yes ]; then
@@ -707,14 +717,19 @@ fi
 
 cd ${DATA}
 
-# Prepare the output RESTART dir
-mkdir -p ${RESTARTout}
+# Prepare the input, output and RESTART dirs
+mkdir -p INPUT ${OUTdir} ${RESTARTout}
 if [ ! -e ./RESTART ]; then
-  ${NLN} ${RESTARTout} RESTART
+  ${NLN} ${RESTARTout} ./RESTART
 fi
-rm -f RESTART/*
+if [ ! "${FORECAST_RESTART}" = "YES" ]; then
+  rm -f RESTART/*
+fi
+cd ${OUTdir}
+${NLN} ${DATA}/INPUT ./INPUT
+${NLN} ${RESTARTout} ./RESTART
 
-mkdir -p INPUT
+cd ${DATA}
 
 if [ ${run_datm} = no ]; then
 
@@ -735,7 +750,7 @@ ${NLN} ${INPdir}/*.nc INPUT/
 if [ ${RUN_INIT:-NO} = YES ]; then
   cd INPUT/
   ${NLN} gfs_bndy.tile7.000.nc gfs_bndy.tile7.$(printf "%03d" "$NBDYHRS").nc
-  cd ../
+  cd ${DATA}
 fi
 
 # Link fix files
@@ -1013,7 +1028,7 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
 fi
 
 # For warm start from restart files (either before or after analysis)
-if [ ${warmstart_from_restart} = yes ]; then
+if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.coupler.res ./coupler.res
   sed -i -e "2s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Model start time:   year, month, day, hour, minute, second/" ./coupler.res
   sed -i -e "3s/.*/  ${yr}    $(echo ${mn}|sed 's/^0/ /')    $(echo ${dy}|sed 's/^0/ /')    $(echo ${hh}|sed 's/^0/ /')     0     0        Current model time: year, month, day, hour, minute, second/" ./coupler.res
@@ -1030,6 +1045,23 @@ if [ ${warmstart_from_restart} = yes ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
   # fi
+  done
+fi
+
+if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
+  RESTARTymdh=$(${NDATE} +${FORECAST_RESTART_HR} ${CDATE})
+  RESTARTymd=$(echo ${RESTARTymdh} | cut -c1-8)
+  RESTARThh=$(echo ${RESTARTymdh} | cut -c9-10)
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.coupler.res ./coupler.res
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.nc ./fv_core.res.nc
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+  for n in $(seq 2 ${nest_grids}); do
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
   done
 fi
 
@@ -1236,7 +1268,7 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   ${NCP} ${PARMhafs}/cdeps/stream.config.mom6.IN stream.config.IN
   STREAM_OFFSET=0
   SYEAR=${yr}
-  EYEAR=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+  EYEAR=$(${NDATE} +${NHRSint} $CDATE | cut -c1-4)
   INLINE_MESH_OCN="INPUT/gfs_mesh.nc"
   INLINE_STREAM_FILES_OCN="INPUT/gfs_forcings.nc"
   INLINE_MESH_ATM="INPUT/gfs_mesh.nc"
@@ -1305,7 +1337,7 @@ if [ ${run_wave} = yes ]; then
   INPUT_CURFLD="F F"
   INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
   INPUT_ICEFLD="F F"
-  EDATE=$($NDATE +${NHRS} ${CDATE})
+  EDATE=$($NDATE +${NHRSint} ${CDATE})
   RDATE=$($NDATE +6 ${CDATE})
   RUN_BEG="${CDATE:0:8} ${CDATE:8:2}0000"
   FLD_BEG=${RUN_BEG}
@@ -1368,7 +1400,7 @@ if [ ${run_datm} = yes ]; then
       sed -i "/^stream_data_files01:/ s/$/\ \"INPUT\/$(basename $file)\"/" datm.streams
     fi
   done
-  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+  endyr=$(${NDATE} +${NHRSint} $CDATE | cut -c1-4)
   sed -i "s/_yearFirst_/$yr/g" datm.streams
   sed -i "s/_yearLast_/$endyr/g" datm.streams
   sed -i "s/_mesh_atm_/INPUT\/DATM_ESMF_mesh.nc/g" datm.streams
@@ -1404,7 +1436,7 @@ elif [ ${run_docn} = yes ]; then
       < docn_in_template > docn_in
   # Generate docn.streams from template specific to the model:
   ${NCP} ${PARMhafs}/cdeps/docn_$( echo "$docn_source" | tr A-Z a-z ).streams docn.streams
-  endyr=$(${NDATE} +${NHRS} $CDATE | cut -c1-4)
+  endyr=$(${NDATE} +${NHRSint} $CDATE | cut -c1-4)
   sed -i "s/_yearFirst_/$yr/g" docn.streams
   sed -i "s/_yearLast_/$endyr/g" docn.streams
   sed -i "s/_mesh_ocn_/INPUT\/DOCN_ESMF_mesh.nc/g" docn.streams
@@ -1437,6 +1469,7 @@ SMONTH=${mn}
 SDAY=${dy}
 SHOUR=${hh}
 FHMAX=${NHRS}
+FHROT=${FHROT:-${FORECAST_RESTART_HR:-0}}
 DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
 QUILTING=${quilting}
@@ -1565,6 +1598,83 @@ fi
 # Copy the fd_ufs.yaml file
 ${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_ufs.yaml ./
 
+#-------------------------------------------------------------------------------
+# Generate symbolic links for forecast output
+FHR=${FHRB:-0}
+FHR3=$(printf "%03d" "$FHR")
+FHRI=${FHRI:-${NOUTHRS:-3}}
+FHRE=${FHRE:-${NHRSint:-$NHRS}}
+
+# Loop for forecast hours
+while [ $FHR -le ${FHRE} ]; do
+
+NEWDATE=$(${NDATE} +${FHR} $CDATE)
+YYYY=$(echo $NEWDATE | cut -c1-4)
+MM=$(echo $NEWDATE | cut -c5-6)
+DD=$(echo $NEWDATE | cut -c7-8)
+HH=$(echo $NEWDATE | cut -c9-10)
+
+# Clean up previously generated log.atm.fhhh files if FHR > FORECAST_RESTART_HR
+if [ ${FHR} -gt ${FORECAST_RESTART_HR} ]; then
+  rm -f ${OUTdir}/log.atm.f${FHR3}
+fi
+${NLN} ${OUTdir}/log.atm.f${FHR3} ./
+
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
+# Loop for grids/domains
+for ng in $(seq 1 ${ngrids}); do
+
+if [[ $ng -eq 1 ]]; then
+  neststr=""
+  tilestr=".tile1"
+  nesttilestr=""
+  nestdotstr=""
+else
+  neststr=".nest$(printf '%02d' ${ng})"
+  tilestr=".tile$(printf '%d' ${ng})"
+  nesttilestr=".nest$(printf '%02d' ${ng}).tile$(printf '%d' ${ng})"
+  nestdotstr=".nest$(printf '%02d' ${ng})."
+fi
+
+${NLN} ${OUTdir}/atm${nestdotstr}f${FHR3}.nc ./
+${NLN} ${OUTdir}/sfc${nestdotstr}f${FHR3}.nc ./
+
+if [ ${gtype} = regional ]; then
+
+grid_spec=grid_spec${nesttilestr}.nc
+atmos_static=atmos_static${nesttilestr}.nc
+if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
+  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
+else
+  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
+  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
+fi
+fort_patcf="fort.6$(printf '%02d' ${ng})"
+
+${NLN} ${OUTdir}/${grid_spec} ./
+${NLN} ${OUTdir}/${atmos_static} ./
+${NLN} ${OUTdir}/${grid_mspec} ./
+#${NLN} ${OUTdir}/${atmos_diag} ./
+${NLN} ${OUTdir}/${fort_patcf} ./
+
+fi #if [ ${gtype} = regional ]; then
+
+done
+# End loop for grids/domains
+
+FHR=$(($FHR + $FHRI))
+FHR3=$(printf "%03d" "$FHR")
+
+done
+# End loop for forecast hours
+#-------------------------------------------------------------------------------
+
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
@@ -1579,8 +1689,7 @@ if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
 # Rename the restart files with a proper convention if needed
 cd RESTART
-NHRStmp=$(printf "%.0f" ${NHRS})
-CDATEnhrs=$(${NDATE} ${NHRStmp} $CDATE)
+CDATEnhrs=$(${NDATE} ${NHRSint} $CDATE)
 YMDnhrs=$(echo ${CDATEnhrs} | cut -c1-8)
 yrnhrs=$(echo $CDATEnhrs | cut -c1-4)
 mnnhrs=$(echo $CDATEnhrs | cut -c5-6)

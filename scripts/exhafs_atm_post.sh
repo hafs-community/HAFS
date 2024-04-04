@@ -22,32 +22,36 @@ satpost=.false.
 nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   NHRS_ENS=0
 elif [ ${FGAT_MODEL} = gdas ]; then
-  INPdir=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}
   COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
   NHRS=0
 else
-  INPdir=${WORKhafs}/atm_init/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init
   COMOUTpost=${WORKhafs}/intercom/atm_init
   intercom=${WORKhafs}/intercom/atm_init/post
   NHRS=0
 fi
 
+RESTARTcom=""
+
 else
 
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}
 else
-  INPdir=${WORKhafs}/forecast
+  INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/post
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART
 fi
 
 fi
@@ -89,6 +93,10 @@ COMOUTpost=${COMOUTpost:-${COMhafs}}
 DATA=${DATA:-${WORKhafs}/atm_post}
 mkdir -p ${COMOUTpost} ${intercom}
 mkdir -p ${DATA}
+
+if [ ! -z "${RESTARTcom}" ]; then
+  mkdir -p ${RESTARTcom}
+fi
 
 FHRB=$(( $((${POST_GROUPI:-1}-1)) * ${NOUTHRS} ))
 FHRI=$(( ${POST_GROUPN:-1} * ${NOUTHRS} ))
@@ -480,6 +488,9 @@ if [ ${gtype} = regional ]; then
 
 grid_spec=grid_spec${nesttilestr}.nc
 atmos_static=atmos_static${nesttilestr}.nc
+oro_data=oro_data${nesttilestr}.nc
+oro_data_ls=oro_data_ls${nesttilestr}.nc
+oro_data_ss=oro_data_ss${nesttilestr}.nc
 if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
   atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
@@ -487,45 +498,68 @@ else
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
   atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
 fi
-fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}${tilestr}.nc
-fv_tracer=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
-fv_srf_wnd=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}.nc
+fv_core_tile=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}${tilestr}.nc
+fv_tracer_tile=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
+fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
+coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
   ${NCP} -p ${INPdir}/${grid_spec} ${INPdir}/RESTART/
 fi
+if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${RESTARTcom}/${grid_spec} ]; then
+  ${NCP} -p ${INPdir}/${grid_spec} ${RESTARTcom}/
+fi
 if [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -p ${INPdir}/${atmos_static} ${INPdir}/RESTART/
 fi
-oro_data=oro_data${nesttilestr}.nc
+if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${RESTARTcom}/${atmos_static} ]; then
+  ${NCP} -p ${INPdir}/${atmos_static} ${RESTARTcom}/
+fi
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
-oro_data_ls=oro_data_ls${nesttilestr}.nc
+if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${RESTARTcom}/${oro_data} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${RESTARTcom}/
+fi
 if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
 fi
-oro_data_ss=oro_data_ss${nesttilestr}.nc
+if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${RESTARTcom}/${oro_data_ls} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${RESTARTcom}/
+fi
 if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
+if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${RESTARTcom}/${oro_data_ss} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${RESTARTcom}/
+fi
+
+if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
+  ${NCP} -pL ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
+  ${NCP} -pL ${INPdir}/${grid_mspec} ${RESTARTcom}/
+fi
 
 if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]]; then
-  # Pass over the grid_mspec files for moving nest (useful for storm cycling)
-  if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10s; done
-    if [ ! -L ${INPdir}/${grid_mspec} ]; then
-      mv ${INPdir}/${grid_mspec} ${INPdir}/RESTART/${grid_mspec}
-      ${NLN} ${INPdir}/RESTART/${grid_mspec} ${INPdir}/${grid_mspec}
-    fi
-  fi
   # Deliver hafs.trak.patcf if exists
   if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
     ${NCP} -p ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
   fi
+fi
+
+if [ ! -z "${RESTARTcom}" ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${fv_core} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${fv_core_tile} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${fv_tracer_tile} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${fv_srf_wnd_tile} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${sfc_data} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${phy_data} ${RESTARTcom}/
+  ${NCP} -pL ${INPdir}/RESTART/${coupler_res} ${RESTARTcom}/
 fi
 
 fi #if [ ${gtype} = regional ]; then
