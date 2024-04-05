@@ -75,7 +75,7 @@ if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
 fi
 
 if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
-  if [ "${machine}" != wcoos2 ] ; then
+  if [ "${machine}" != wcoss2 ] ; then
      module list
      module unload esmf
      module list
