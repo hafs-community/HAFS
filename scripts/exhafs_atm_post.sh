@@ -100,7 +100,6 @@ fi
 
 FHRB=$(( $((${POST_GROUPI:-1}-1)) * ${NOUTHRS} ))
 FHRI=$(( ${POST_GROUPN:-1} * ${NOUTHRS} ))
-FHRE=${NHRS}
 
 # If desired, deletes all the post output files in COMOUTpost and intercom
 if [ "${POST_CLEANUP^^}" = "YES" ]; then
@@ -491,13 +490,83 @@ atmos_static=atmos_static${nesttilestr}.nc
 oro_data=oro_data${nesttilestr}.nc
 oro_data_ls=oro_data_ls${nesttilestr}.nc
 oro_data_ss=oro_data_ss${nesttilestr}.nc
+
+# Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
+if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTART/${grid_spec} ]; then
+  ${NCP} -pL ${INPdir}/${grid_spec} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
+  ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
+  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
+  ${NCP} -pL ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+fi
+
+# grid_mspec files at the current and prior forecast hours
+OLDDATE=$(${NDATE} -${NOUTHRS} $NEWDATE)
+YYYYold=$(echo $OLDDATE | cut -c1-4)
+MMold=$(echo $OLDDATE | cut -c5-6)
+DDold=$(echo $OLDDATE | cut -c7-8)
+HHold=$(echo $OLDDATE | cut -c9-10)
 if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
-  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
+  grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}.nc
 else
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
-  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
+  grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}${tilestr}.nc
 fi
+# Deliver grid_mspec_old at forecast hours 3, 6, 9
+if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec_old}) )) -lt 30 ]; do sleep 10s; done
+  if [ ${INPdir}/${grid_mspec_old} -nt ${INPdir}/RESTART/${grid_mspec_old} ]; then
+    ${NCP} -pL ${INPdir}/${grid_mspec_old} ${INPdir}/RESTART/
+  fi
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+     [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
+     [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
+    ${NCP} -pL ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+  fi
+fi
+# Deliver grid_mspec at NHRS if NHRS less than 12
+if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30 ]; do sleep 10s; done
+  if [ ${INPdir}/${grid_mspec} -nt ${INPdir}/RESTART/${grid_mspec} ]; then
+    ${NCP} -pL ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
+  fi
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+     [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
+     [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
+    ${NCP} -pL ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+  fi
+fi
+
+# Deliver restart files for forecast hours 3, 6, 9
 fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}.nc
 fv_core_tile=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}${tilestr}.nc
 fv_tracer_tile=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
@@ -505,61 +574,18 @@ fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.n
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
 coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
-
-# Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
-if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
-  ${NCP} -p ${INPdir}/${grid_spec} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${RESTARTcom}/${grid_spec} ]; then
-  ${NCP} -p ${INPdir}/${grid_spec} ${RESTARTcom}/
-fi
-if [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${INPdir}/RESTART/${atmos_static} ]; then
-  ${NCP} -p ${INPdir}/${atmos_static} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${RESTARTcom}/${atmos_static} ]; then
-  ${NCP} -p ${INPdir}/${atmos_static} ${RESTARTcom}/
-fi
-if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${RESTARTcom}/${oro_data} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${RESTARTcom}/
-fi
-if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ls} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${RESTARTcom}/${oro_data_ls} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${RESTARTcom}/
-fi
-if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ss} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${RESTARTcom}/${oro_data_ss} ]; then
-  ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${RESTARTcom}/
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
+  for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
+    if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+      ${NCP} -pL ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+    fi
+  done
 fi
 
-if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-  ${NCP} -pL ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
-fi
-if [ ! -z "${RESTARTcom}" ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-  ${NCP} -pL ${INPdir}/${grid_mspec} ${RESTARTcom}/
-fi
-
-if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]]; then
-  # Deliver hafs.trak.patcf if exists
-  if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
-    ${NCP} -p ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
-  fi
-fi
-
-if [ ! -z "${RESTARTcom}" ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${fv_core} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${fv_core_tile} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${fv_tracer_tile} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${fv_srf_wnd_tile} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${sfc_data} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${phy_data} ${RESTARTcom}/
-  ${NCP} -pL ${INPdir}/RESTART/${coupler_res} ${RESTARTcom}/
+# Deliver hafs.trak.patcf at NHRS if needed and exists
+if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
+  ${NCP} -pL ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
 fi
 
 fi #if [ ${gtype} = regional ]; then

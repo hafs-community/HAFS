@@ -726,6 +726,9 @@ if [ ! "${FORECAST_RESTART}" = "YES" ]; then
   rm -f RESTART/*
 fi
 cd ${OUTdir}
+# Remove the symbolic links if existing
+rm -f ./INPUT ./RESTART
+# Create the symbolic links
 ${NLN} ${DATA}/INPUT ./INPUT
 ${NLN} ${RESTARTout} ./RESTART
 
