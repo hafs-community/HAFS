@@ -4,6 +4,8 @@ source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 cwd=$(pwd)
 
+cp -fp ../modulefiles/hafs.hera.lua hafs_tracker.fd/modulefiles/hera.lua
+
 if [[ ! -s hafs_tracker.fd/modulefiles/gaea-c5.lua ]] ; then
     pushd hafs_tracker.fd
     patch -p1 < ../customizations/hafs_tracker.fd/gaea-c5-patch.diff

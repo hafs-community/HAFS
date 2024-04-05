@@ -58,16 +58,16 @@
   nudge_qv = .false.
   nudge_dz = .false.
   tau = @[fv_core_tau]
-  rf_cutoff = @[rf_cutoff_nest]
+  rf_cutoff = @[rf_cutoff]
   fast_tau_w_sec = @[fast_tau_w_sec]
   sg_cutoff = -1.
   rf_fast = .false.
   d2_bg_k1 = 0.20
   d2_bg_k2 = 0.15
-  kord_tm = -11
-  kord_mt = 11
-  kord_wz = 11
-  kord_tr = 11
+  kord_tm = @[kord_tm_nest] ! -11
+  kord_mt = @[kord_mt_nest] ! 11
+  kord_wz = @[kord_wz_nest] ! 11
+  kord_tr = @[kord_tr_nest] ! 11
   hydrostatic = .false.
   phys_hydrostatic = .false.
   use_hydro_pressure = .false.
@@ -97,11 +97,11 @@
   mountain = @[mountain]
   ncep_ic = .false.
   d_con = 1.0
-  hord_mt = 6
-  hord_vt = 6
-  hord_tm = 6
-  hord_dp = 6
-  hord_tr = -5
+  hord_mt = @[hord_mt_nest] ! was 6
+  hord_vt = @[hord_vt_nest] ! was 6
+  hord_tm = @[hord_tm_nest] ! was 6
+  hord_dp = @[hord_dp_nest] ! was 6
+  hord_tr = @[hord_tr_nest] ! was -5
   adjust_dry_mass = .false.
   consv_te = 0.
   do_sat_adj = @[do_sat_adj]
@@ -118,7 +118,7 @@
   write_3d_diags = .true.
 
   nested = .true.
-  twowaynest = .true.
+  twowaynest = @[twowaynest] ! .true.
   nestupdate = 7
 
   full_zs_filter = @[full_zs_filter_nml]
@@ -222,7 +222,7 @@
   iopt_snf       = 4
   iopt_tbot      = 2
   iopt_stc       = 3
-  iopt_trs       = 2
+  iopt_trs       = @[iopt_trs]
   lsoil_lsm      = 4
   debug          = .false.
   oz_phys        = .false.

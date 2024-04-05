@@ -24,6 +24,7 @@ ichunk3d:                -1
 jchunk3d:                -1
 kchunk3d:                -1
 ideflate:                @[IDEFLATE]
+zstandard_level:         @[ZSTANDARD_LEVEL]
 nbits:                   @[NBITS]
 
 output_grid:             @[OUTPUT_GRID]     # gaussian_grid, global_latlon, regional_latlon, rotated_latlon, lambert_conformal, cubed_sphere_grid

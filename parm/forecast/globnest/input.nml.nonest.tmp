@@ -37,7 +37,7 @@
 /
 
 &fv_grid_nml
- !grid_file = 'INPUT/grid_spec.nc'
+  grid_file = 'INPUT/grid_spec.nc'
 /
 
 &fv_core_nml
@@ -48,7 +48,7 @@
   npy = @[npy_nml]
   ntiles = 6
   npz = @[npz]
- !grid_type = -1
+  grid_type = -1
   make_nh = .false.
   fv_debug = .false.
   range_warn = .true.
@@ -64,10 +64,10 @@
   rf_fast = .false.
   d2_bg_k1 = 0.16
   d2_bg_k2 = 0.05
-  kord_tm = -9
-  kord_mt = 9
-  kord_wz = 9
-  kord_tr = 9
+  kord_tm = @[kord_tm]
+  kord_mt = @[kord_mt]
+  kord_wz = @[kord_wz]
+  kord_tr = @[kord_tr]
   hydrostatic = .false.
   phys_hydrostatic = .false.
   use_hydro_pressure = .false.
@@ -97,11 +97,11 @@
   mountain = @[mountain]
   ncep_ic = .false.
   d_con = 1.0
-  hord_mt = 5
-  hord_vt = 5
-  hord_tm = 5
-  hord_dp = -5
-  hord_tr = -5
+  hord_mt = @[hord_mt]
+  hord_vt = @[hord_vt]
+  hord_tm = @[hord_tm]
+  hord_dp = @[hord_dp]
+  hord_tr = @[hord_tr]
   adjust_dry_mass = .false.
   consv_te = 1.
   do_sat_adj = @[do_sat_adj]
@@ -202,7 +202,7 @@
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
-  shal_cnv       = @[shal_cnv_nml] !Shallow convection
+  shal_cnv       = @[shal_cnv_nml]
   do_deep        = @[do_deep_nml]
   imfshalcnv     = @[imfshalcnv]
   imfdeepcnv     = @[imfdeepcnv]
@@ -228,7 +228,7 @@
   iopt_snf       = 4
   iopt_tbot      = 2
   iopt_stc       = 3
-  iopt_trs       = 2
+  iopt_trs       = @[iopt_trs]
   lsoil_lsm      = 4
   debug          = .false.
   oz_phys        = .false.
