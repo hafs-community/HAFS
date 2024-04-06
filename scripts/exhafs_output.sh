@@ -33,9 +33,9 @@ if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
 fi
 
 # Deliver track file to NOSCRUB if not run by NCO
-trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
-all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
 if [ ${RUN_ENVIR^^} != "NCO" ]; then
+  trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
+  all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
   mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
