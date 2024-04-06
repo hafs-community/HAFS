@@ -77,7 +77,6 @@ else
   exit 9
 fi
 
-OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
 DATA=${DATA:-${WORKhafs}/atm_ic}
 mkdir -p ${OUTDIR} ${DATA}
 
