@@ -446,7 +446,7 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         elif int(self.ijgrid)==2:
             cmd=alias(batchexe(self.getexe('hafs_isubregion2avg')))
         else:
-            msg='Invalid ijgrid value %s'%(repr(ijgrid),)
+            msg='FATAL ERROR: Invalid ijgrid value %s'%(repr(ijgrid),)
             logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
 

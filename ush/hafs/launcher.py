@@ -66,7 +66,7 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
     startfile_idx = [args.index(arg) for arg in args if 'config.startfile' in arg]
 
     if len(startfile_idx) > 1:
-        logger.error('Exiting, More than 1 config.startfile= parameter in the argument list.')
+        logger.error('FATAL ERROR: Exiting, More than 1 config.startfile= parameter in the argument list.')
         sys.exit(2)
 
     # MULTISTORM Requirement-The fakestorm will be defined as "00L".
@@ -150,10 +150,10 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
         for confbn in [ 'hafs_multistorm.conf' ]:
             confy= os.path.join(parm, confbn)
             if not os.path.exists(confy):
-                logger.error(confy+': conf file does not exist.')
+                logger.error('FATAL ERROR: '+confy+': conf file does not exist.')
                 sys.exit(2)
             elif not os.path.isfile(confy):
-                logger.error(confy+': conf file is not a regular file.')
+                logger.error('FATAL ERROR: '+confy+': conf file is not a regular file.')
                 sys.exit(2)
             elif not produtil.fileop.isnonempty(confy):
                 logger.warning(
@@ -251,12 +251,13 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     @param PARMhafs the directory with *.conf files"""
     if len(args)<2 or ( PARMhafs is None and len(args)<3):
         usage(logger=logger)
+        logger.error('FATAL ERROR: Wrong usage, exiting.')
         sys.exit(2)
 
     # Get the storm ID:
     stid=args[0].upper()
     if not re.match('^[0-9][0-9][ABCELPQSW]$',stid):
-        logger.error('%s: invalid storm id.  Must be a three character '
+        logger.error('FATAL ERROR: %s: invalid storm id.  Must be a three character '
                      'storm ID such as 90L or 13W'%(stid,))
         sys.exit(2)
 
@@ -269,7 +270,7 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     elif case_root=='FORECAST':
         real_time=True
     else:
-        logger.error('%s: invalid case root.  Must be HISTORY for '
+        logger.error('FATAL ERROR: %s: invalid case root.  Must be HISTORY for '
                      'retrospective runs or FORECAST for real-time runs.'
                      %(case_root,))
         sys.exit(2)
@@ -279,10 +280,10 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     if PARMhafs is None:
         parm=args[2]
         if not os.path.exists(parm):
-            logger.error(parm+': parm directory does not exist')
+            logger.error('FATAL ERROR: '+parm+': parm directory does not exist')
             sys.exit(2)
         elif not os.path.isdir(parm):
-            logger.error(parm+': parm directory is not a directory')
+            logger.error('FATAL ERROR: '+parm+': parm directory is not a directory')
             sys.exit(2)
         logger.info('Scan %d optional arguments.'%(len(args)-3))
         args=args[3:]
@@ -319,17 +320,17 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
             infiles.append(args[iarg])
         else:
             bad=True
-            logger.error('%s: invalid argument.  Not an config option '
+            logger.error('FATAL ERROR: %s: invalid argument.  Not an config option '
                          '(a.b=c) nor a conf file.'%(args[iarg],))
     if bad:
         sys.exit(2)
 
     for file in infiles:
         if not os.path.exists(file):
-            logger.error(file+': conf file does not exist.')
+            logger.error('FATAL ERROR: '+file+': conf file does not exist.')
             sys.exit(2)
         elif not os.path.isfile(file):
-            logger.error(file+': conf file is not a regular file.')
+            logger.error('FATAL ERROR: '+file+': conf file is not a regular file.')
             sys.exit(2)
         elif not produtil.fileop.isnonempty(file):
             logger.warning(

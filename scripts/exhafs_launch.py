@@ -95,7 +95,7 @@ longstormid="{vit[longstormid]}"
 '''  # Don't forget the end of line before the '''
 
 def usage(logger):
-    logger.critical('Invalid arguments to exhafs_launch.py.  Aborting.')
+    logger.critical('FATAl ERROR: Invalid arguments to exhafs_launch.py.  Aborting.')
     print('''
 Usage: exhafs_launch.py 2014062400 95E case_root /path/to/parm [options]
 
@@ -275,5 +275,5 @@ if __name__ == '__main__':
         produtil.log.postmsg('exhafs_launch completed')
     except Exception as e:
         produtil.log.jlogger.critical(
-            'exhafs_launch failed: %s'%(str(e),),exc_info=True)
+            'FATAL ERROR: exhafs_launch failed: %s'%(str(e),),exc_info=True)
         sys.exit(2)

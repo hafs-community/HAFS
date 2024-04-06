@@ -40,7 +40,7 @@ if not conf.getbool('config','run_wave'):
 
 wave_model=conf.getstr('config','wave_model')
 if not wave_model.lower()=='ww3':
-    logger.critical('Config file error: unsupported wave model '
+    logger.critical('FATAL ERROR: Config file error: unsupported wave model '
                      '%s.'%(repr(wave_model),))
     sys.exit(2)
 

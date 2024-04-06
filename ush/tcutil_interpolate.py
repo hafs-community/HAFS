@@ -44,8 +44,8 @@ def main(args):
         if sid_pre == sid_aft:
           count=count+1
     if count < 1:
-      print("Error! No storm is not consistently existing with 6 hours")
-      exit
+      print("FATAL ERROR! No storm is not consistently existing with 6 hours")
+      sys.exit(1)
     for sid_pre in range(len(caseid_pre)):
       for sid_aft in range(len(caseid_aft)):
         if caseid_pre[sid_pre] == caseid_aft[sid_aft]:

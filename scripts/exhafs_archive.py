@@ -190,5 +190,5 @@ if __name__=='__main__':
             postmsg('INVALID JHAFS_ARCHIVE STEP %s!! ABORTING!'
                     %(repr(acase),))
     except Exception as e:
-        jlogger.critical('hafs_archive is aborting: '+str(e),exc_info=True)
+        jlogger.critical('FATAL ERROR: hafs_archive is aborting: '+str(e),exc_info=True)
         sys.exit(2)
