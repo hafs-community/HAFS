@@ -718,13 +718,16 @@ fi
 cd ${DATA}
 
 # Prepare the input, output and RESTART dirs
-mkdir -p INPUT ${OUTdir} ${RESTARTout}
+mkdir -p INPUT ${RESTARTout}
 if [ ! -e ./RESTART ]; then
   ${NLN} ${RESTARTout} ./RESTART
 fi
+# Clean up RESTART and OUTdir if not a restart run
 if [ ! "${FORECAST_RESTART}" = "YES" ]; then
   rm -f RESTART/*
+  rm -rf ${OUTdir}
 fi
+mkdir -p ${OUTdir}
 cd ${OUTdir}
 # Remove the symbolic links if existing
 rm -f ./INPUT ./RESTART
@@ -1039,13 +1042,19 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
+# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
+  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
+  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
+  # fi
+  # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
   # fi
   done
@@ -1060,11 +1069,21 @@ if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.phy_data.nc ./phy_data.nc
+  ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.sfc_data.nc ./sfc_data.nc
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
+  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
+  # fi
+  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
+  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
+  # fi
   done
 fi
 
@@ -1158,8 +1177,31 @@ for n in $(seq 2 ${nest_grids}); do
   refine="$refine,$( echo ${refine_ratio} | cut -d , -f ${n} )"
   istart_nest_tmp=$( echo ${istart_nest} | cut -d , -f ${n} )
   jstart_nest_tmp=$( echo ${jstart_nest} | cut -d , -f ${n} )
-  ioffset="$ioffset,$(( ($istart_nest_tmp-1)/2 + 1))"
-  joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
+  ioffset_tmp=$(( ($istart_nest_tmp-1)/2 + 1))
+  joffset_tmp=$(( ($jstart_nest_tmp-1)/2 + 1))
+  if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
+    is_moving_nest_tmp=$( echo ${is_moving_nest} | cut -d , -f ${n} )
+    if [[ "${is_moving_nest_tmp}" = ".true." ]] || [[ "${is_moving_nest_tmp}" = ".T." ]]; then
+      RESTARTymdh=$(${NDATE} +${FORECAST_RESTART_HR} ${CDATE})
+      RESTARTymd=$(echo ${RESTARTymdh} | cut -c1-8)
+      RESTARThh=$(echo ${RESTARTymdh} | cut -c9-10)
+      RESTARTtstr=${RESTARTymd}.${RESTARThh}0000
+      fort_patcf_tmp="fort.6$(printf '%02d' ${n})"
+      if grep -h "${RESTARTtstr}" ${OUTdir}/${fort_patcf_tmp}* ; then
+        ioffset_tmp=$(grep "${RESTARTtstr}" ${OUTdir}/${fort_patcf_tmp}* | tail -n 1 | awk -F',' '{print $7}' | awk '{print $3}')
+        joffset_tmp=$(grep "${RESTARTtstr}" ${OUTdir}/${fort_patcf_tmp}* | tail -n 1 | awk -F',' '{print $8}' | awk '{print $3}')
+        if [ -z "$ioffset_tmp" ] || [ -z "$joffset_tmp" ]; then
+          echo "FATAL ERROR: Cannot find proper ioffset/joffset for the moving nest forecast to restart. Exiting."
+          exit 9
+        fi
+      else
+        echo "FATAL ERROR: Cannot find ${RESTARTtstr} in ${OUTdir}/${fort_patcf_tmp} or ${OUTdir}/${fort_patcf_tmp}_save. Exiting."
+        exit 9
+      fi
+    fi
+  fi
+  ioffset="$ioffset,$ioffset_tmp"
+  joffset="$joffset,$joffset_tmp"
 done
 
 n=1
@@ -1658,13 +1700,29 @@ else
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
   atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
 fi
-fort_patcf="fort.6$(printf '%02d' ${ng})"
 
 ${NLN} ${OUTdir}/${grid_spec} ./
 ${NLN} ${OUTdir}/${atmos_static} ./
-${NLN} ${OUTdir}/${grid_mspec} ./
-#${NLN} ${OUTdir}/${atmos_diag} ./
-${NLN} ${OUTdir}/${fort_patcf} ./
+
+if [ ${RUN_INIT:-NO} = YES ] && [ $FHR -eq 0 ] ; then
+  ${NLN} ${OUTdir}/${grid_mspec} ./
+# ${NLN} ${OUTdir}/${atmos_diag} ./
+fi
+if [ $FHR -gt 0 ] ; then
+  ${NLN} ${OUTdir}/${grid_mspec} ./
+# ${NLN} ${OUTdir}/${atmos_diag} ./
+fi
+
+is_moving_nest_tmp=$( echo ${is_moving_nest} | cut -d , -f ${ng} )
+if [[ "${is_moving_nest_tmp}" = ".true." ]] || [[ "${is_moving_nest_tmp}" = ".T." ]]; then
+  if [ $FHR -eq 0 ]; then
+    fort_patcf="fort.6$(printf '%02d' ${ng})"
+    if [ -s ${OUTdir}/${fort_patcf} ] && [ ${OUTdir}/${fort_patcf} -nt ${OUTdir}/${fort_patcf}_save ]; then
+      cat ${OUTdir}/${fort_patcf} >> ${OUTdir}/${fort_patcf}_save
+	fi
+    ${NLN} ${OUTdir}/${fort_patcf} ./
+  fi
+fi
 
 fi #if [ ${gtype} = regional ]; then
 

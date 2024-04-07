@@ -585,7 +585,12 @@ fi
 
 # Deliver hafs.trak.patcf at NHRS if needed and exists
 if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
-  ${NCP} -pL ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
+  if [ -s ${INPdir}/${fort_patcf}_save ]; then
+    cat ${INPdir}/${fort_patcf} >> ${INPdir}/${fort_patcf}_save
+    ${NCP} -pL ${INPdir}/${fort_patcf}_save ${COMOUTpost}/${trk_patcf}
+  else
+    ${NCP} -pL ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
+  fi
 fi
 
 fi #if [ ${gtype} = regional ]; then

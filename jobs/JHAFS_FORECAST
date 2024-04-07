@@ -71,23 +71,23 @@ if [ "${FORECAST_RESTART}" = "YES" ]; then
   # Set the forecast hour to restart the forecast. Defualt -999, automatically
   # detected based on the available completed restart files from the prior
   # forecast job run.
-  FORECAST_RESTART_HR=${FORECAST_RESTART_HR:--999}
+  export FORECAST_RESTART_HR=${FORECAST_RESTART_HR:--999}
   if [ "${FORECAST_RESTART_HR}" = "-999" ] || [[ ${FORECAST_RESTART_HR} -ge ${RESTART_HR} ]]; then
     echo "INFO: Automatically set FORECAST_RESTART_HR according to the optimal RESTART_HR of ${RESTART_HR}, or"
     echo "INFO: FORECAST_RESTART_HR is greater than or equal to the optimal RESTART_HR of ${RESTART_HR}"
     echo "INFO: Set FORECAST_RESTART_HR to RESTART_HR of ${RESTART_HR}"
     export FORECAST_RESTART_HR=${RESTART_HR}
   else
-    echo "WARNNING: FORECAST_RESTART_HR of ${FORECAST_RESTART_HR} is less than the optimal RESTART_HR of ${RESTART_HR}"
-    echo "WARNNING: Continue anyway"
+    echo "WARNING: FORECAST_RESTART_HR of ${FORECAST_RESTART_HR} is less than the optimal RESTART_HR of ${RESTART_HR}"
+    echo "WARNING: Continue anyway"
   fi
   export FORECAST_RESTART_HC="_restart_$(printf '%03d' ${FORECAST_RESTART_HR})"
   if [[ ${FORECAST_RESTART_HR} -lt 12 ]]; then
-    echo "WARNNING: Either no available restart files to restart the forecast"
-    echo "WARNNING: Or the available restart files at restart hour of ${FORECAST_RESTART_HR} is less than 12"
-    echo "WARNNING: Both scenarios require rerunning the forecast from forecast hour 0"
-    echo "WARNNING: Reset FORECAST_RESTART=NO"
-    echo "WARNNING: Rerun from forecast hour 0 instead"
+    echo "WARNING: Either no available restart files to restart the forecast"
+    echo "WARNING: Or the available restart files at restart hour of ${FORECAST_RESTART_HR} is less than 12"
+    echo "WARNING: Both scenarios require rerunning the forecast from forecast hour 0"
+    echo "WARNING: Reset FORECAST_RESTART=NO"
+    echo "WARNING: Rerun from forecast hour 0 instead"
     export FORECAST_RESTART=NO
     export FORECAST_RESTART_HR=0
     export FORECAST_RESTART_HC=""
