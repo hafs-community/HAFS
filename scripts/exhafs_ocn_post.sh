@@ -8,7 +8,7 @@
 set -xe
 
 CDATE=${CDATE:-${YMDH}}
-
+ENSDA=${ENSDA:-NO}
 if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/ocn_post_ens/mem${ENSID}

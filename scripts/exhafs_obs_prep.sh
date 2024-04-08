@@ -96,6 +96,7 @@ if [ $OBS_DUMP = YES ]; then
 
 export TANK=${TANK:-${DCOMROOT:?}}
 export FIX_PATH=${BUFR_DUMPLIST:?}/fix
+export LOUD=on
 
 # Dump TDR data
 BDATE=$( $NDATE -24 $CDATE )

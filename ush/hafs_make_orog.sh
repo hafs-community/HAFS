@@ -130,5 +130,3 @@ else
   echo "Successfully running $executable "
   exit 0
 fi
-
-exit
