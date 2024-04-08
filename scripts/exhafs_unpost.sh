@@ -55,7 +55,6 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.grib.stats.short
 rm -f ${COMhafs}/${out_prefix}.${RUN}.afos
 
 # Remove output com output
-rm -f ${COMhafs}/${out_prefix}.${RUN}.storm_info
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.swath.grb2*
 
 # Remove gempak com output
