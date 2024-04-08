@@ -335,7 +335,7 @@
       end do
 
       do m=1,IR1
-	print*,'ctmp,cmix,test1111=',m,ctmp(m,1),cmix(m,1)
+	print*,'m,ctmp,cmix= ',m,ctmp(m,1),cmix(m,1)
       end do
 
 

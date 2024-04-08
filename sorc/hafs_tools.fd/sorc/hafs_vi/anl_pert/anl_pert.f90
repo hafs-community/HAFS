@@ -368,7 +368,7 @@
 
       NCHT=71
       READ(NCHT)KSTM
-      PRINT*,'test1',KSTM
+      PRINT*,'KSTM= ',KSTM
 
       READ(NCHT)HLAT2,HLON2
       READ(NCHT)VLAT2,VLON2
@@ -410,7 +410,7 @@
       READ(NCHT)((SLPE(I,J),I=1,NX),J=1,NY)          ! SLP
       READ(NCHT)((SLP_1(I,J),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)    ! pert SLP
       WRITE(25)((SLP_1(I,J),I=1,NX),J=1,NY,2)
-      PRINT*,'TEST1'
+!      PRINT*,'TEST1'
       DO K=1,KMX
          READ(NCHT)((TENV(I,J,K),I=1,NX),J=1,NY)
          READ(NCHT)((T_1(I,J,K),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)
@@ -425,7 +425,7 @@
          WRITE(25)((V_1(I,J,K),I=1,NX),J=1,NY,2)
       END DO
 
-      PRINT*,'TEST31'
+!      PRINT*,'TEST31'
       DO K=1,KMX
 !!!      READ(NCHT)((QENV(I,J,K),I=1,NX),J=1,NY)
          READ(NCHT)((Q_1(I,J,K),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)
@@ -442,7 +442,7 @@
 !     DO K=1,KMX
 !        READ(NCHT)((TENV(I,J,K),I=1,NX),J=1,NY)
 !     END DO
-      PRINT*,'TEST41'
+!      PRINT*,'TEST41'
 !..   END DO
 
       CLOSE(NCHT)
@@ -1157,7 +1157,7 @@
 
 ! smooth slp
 
-      print*,'test4='
+!      print*,'test4='
 
       U_2=0.
 
@@ -1786,7 +1786,7 @@
       end do
 
 
-      print*,'test8='
+!      print*,'test8='
 
       NCHT=58
       WRITE(NCHT)KSTM
@@ -1808,7 +1808,7 @@
       WRITE(NCHT)IWMIN1,IWMAX1,JWMIN1,JWMAX1
       WRITE(NCHT)((SLPE(I,J),I=1,NX),J=1,NY)          ! SLP
       WRITE(NCHT)((SLP_1(I,J),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)    ! pert SLP
-      PRINT*,'TEST1'
+!      PRINT*,'TEST1'
       DO K=1,KMX
          WRITE(NCHT)((TENV(I,J,K),I=1,NX),J=1,NY)
          WRITE(NCHT)((T_1(I,J,K),I=IWMIN1,IWMAX1),J=JWMIN1,JWMAX1)
