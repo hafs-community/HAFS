@@ -16,6 +16,8 @@ MM=$(echo $CDATE | cut -c 5-6)
 DD=$(echo $CDATE | cut -c 7-8)
 HH=$(echo $CDATE | cut -c 9-10)
 
+pubbasin2=${pubbasin2:-AL}
+
 # Sepcial settings if this is an atm_init run
 if [ ${RUN_INIT:-NO} = YES ]; then
 
@@ -333,6 +335,11 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   short=${out_prefix}.${RUN}.grib.stats.short
   afos=${out_prefix}.${RUN}.afos
   tpc=${out_prefix}.${RUN}.stats.tpc
+  # Update the attention center for JWTC basin storms
+  if [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ] || \
+     [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
+    sed -i -e 's/NATIONAL HURRICANE CENTER/JOINT TYPHOON WARNING CENTER/g' fort.51 fort.61
+  fi
   ${NCP} fort.41 ${COMhafs}/${short}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${short}
