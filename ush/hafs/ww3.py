@@ -131,7 +131,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(
                     thefile,maxwait)
                 self.log().error(msg)
-                raise hafs.exceptions.WW3InputError(msg)
+                raise
                 sys.exit(2)
             yield thefile
             fhour=fhour+interval/3600
@@ -234,7 +234,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     checkrun(cmd,logger=logger)
                 else:
                     # Extract current from global ocean model
-                    logger.error('Not implemented yet')
+                    logger.warning('WARNING: Capability not implemented yet')
 
                 have_restart=False
                 if os.environ.get('ww3_force_cold_start','no').lower() == 'yes':
@@ -367,11 +367,12 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 self.deliver_products()
             self.state=COMPLETED
         except Exception as e:
-            logger.error('Unhandled exception in wave init: %s'
+            logger.critical('FATAL ERROR: WW3 init failed: %s'
                          %(str(e),),exc_info=True)
             self.state=FAILED
            #self._copy_log()
             raise
+            sys.exit(2)
 
     def _copy_log(self):
         logger=self.log()
@@ -739,8 +740,9 @@ class WW3Post(hafs.hafstask.HAFSTask):
             self.state=COMPLETED
         except Exception as e:
             self.state=FAILED
-            logger.error("WW3 post failed: %s"%(str(e),),exc_info=True)
+            logger.critical("FATAL ERROR: WW3 post failed: %s"%(str(e),),exc_info=True)
             raise
+            sys.exit(2)
 
     def make_grib_inp(self,logger):
         # Prepare ww3_grib.inp
