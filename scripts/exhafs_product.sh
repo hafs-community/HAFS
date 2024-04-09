@@ -220,7 +220,6 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_NESTTYP_/${NESTTYP:-fixed}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
-sleep 3s
 # Run the vortex tracker gettrk.x
 ${NCP} -p ${GETTRKEXEC} ./hafs_gettrk.x
 set +e
