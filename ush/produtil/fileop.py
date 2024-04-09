@@ -270,7 +270,7 @@ def remove_file(filename,info=True,logger=None):
             raise
         if logger is not None: 
             log=logger.info if info else logger.warning
-            log('%s: cannot remove; does not exist: %s'%(filename,str(e)))
+            log('%s: cannot remove; does not exist.'%(filename,))
 
 def rmall(*args,**kwargs):
     """!Deletes the specified list of files.  

@@ -516,8 +516,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
     def __copy_ncks(self,source,target,ignore):
         ncks=self.ncks_path
         logger=self.log()
-        produtil.fileop.remove_file(target,logger=logger)
-        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+        checkrun(bigexe(ncks)['-O','-4','-L','6',source,target]<'/dev/null',
                  logger=logger)
 
     @property

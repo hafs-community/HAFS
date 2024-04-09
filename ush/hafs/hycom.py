@@ -1321,8 +1321,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
     def copy_ncks(self,source,target):
         ncks=self.ncks_path
         logger=self.log()
-        produtil.fileop.remove_file(target,logger=logger)
-        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+        checkrun(bigexe(ncks)['-O','-4','-L','6',source,target]<'/dev/null',
                  logger=logger)
 
     @property
