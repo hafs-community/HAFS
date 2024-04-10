@@ -60,7 +60,14 @@ else
 fi
 
 # Some commonly used commands
-export NCP=${NCP:-"/bin/cp"}
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  export NCP=${NCP:-"/bin/cp"}
+  export FCP=${FCP:-"/bin/cp"}
+else
+  # Run by NCO on WCOSS2, use cpreq for NCP and cpfs for FCP
+  export NCP=${NCP:-"cpreq"}
+  export FCP=${FCP:-"cpfs"}
+fi
 export NMV=${NMV:-"/bin/mv"}
 export NLN=${NLN:-"/bin/ln -sf"}
 export TAR=${TAR:-tar}

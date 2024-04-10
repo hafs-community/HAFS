@@ -58,7 +58,7 @@ ln -sf ${griddir}/$OUTGRID .
 ln -sf ${topo_am}/"HGT.Beljaars_filtered.lat-lon.30s_res.nc" .
 ln -sf ${topo_am}/"geo_em.d01.lat-lon.2.5m.HGT_M.nc" .
 
-cp $executable .
+${NCP} -p $executable .
 
 echo $tile > grid_info.dat
 echo $res >> grid_info.dat
@@ -74,6 +74,4 @@ else
   echo "Successfully running $executable "
   exit 0
 fi
-
-exit
 

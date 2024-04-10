@@ -226,8 +226,7 @@ status=$?; [[ $status -ne 0 ]] && exit $status
 
 GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}
 if [ ${SENDCOM:-YES} = "YES" ]; then
-  ${NCP} grid.nmeta ${GMETAF}
-# ${NCP} -p grid.nmeta ${GMETAF}
+  ${FCP} grid.nmeta ${GMETAF}
   if [ ${SENDDBN:-NO} = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL $(echo ${RUN} | tr [a-z] [A-Z])_METAFILE $job ${GMETAF}
   fi

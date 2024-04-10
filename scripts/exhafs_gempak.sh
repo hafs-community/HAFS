@@ -122,8 +122,7 @@ ${GEMEXE}/gpend
 status=$?; [[ $status -ne 0 ]] && exit $status
 
 if [ "${SENDCOM^^}" = "YES" ]; then
-  ${NCP} $GDOUTF $GPOUTF
-# ${NCP} -p $GDOUTF $GPOUTF
+  ${FCP} $GDOUTF $GPOUTF
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GEMPAK $job $GPOUTF
   fi
