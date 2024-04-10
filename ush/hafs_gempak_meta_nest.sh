@@ -428,10 +428,10 @@ run
 
 exit
 EOF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Get the ASCII file that contains track information.  This will be used to create the TRACK
 # in the metafile.  It is important that this file below exist each time.
@@ -491,7 +491,7 @@ GVECT   =
 WIND    = 
 run
 EOF
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 
   c="commands.tmp"
 
@@ -529,19 +529,19 @@ exit
 EOF
 
   $GEMEXE/atest <$c
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 
 done
 
 $GEMEXE/gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 ############################################################
 # Gempak does not always have a non-zero return code when it
 # cannot produce the desired grid. Check for this case here.
 ############################################################
 ls -l nest.nmeta
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}_nest
 if [ ${SENDCOM:-YES} = "YES" ]; then

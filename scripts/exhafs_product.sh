@@ -330,7 +330,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   echo ${RUN^^} >> storm_info
   ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
   ${APRUN} ./hafs_nhc_products.x > ./hafs_nhc_products.out 2>&1
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
   short=${out_prefix}.${RUN}.grib.stats.short
   afos=${out_prefix}.${RUN}.afos
   tpc=${out_prefix}.${RUN}.stats.tpc

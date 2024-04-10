@@ -309,7 +309,7 @@ EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 # Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then

@@ -241,6 +241,7 @@ ${NCP} -p $ENKFEXEC ./enkf.x
 set -o pipefail
 ${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
 set +o pipefail
+export err=$?; err_chk
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile

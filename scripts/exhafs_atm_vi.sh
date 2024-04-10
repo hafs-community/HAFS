@@ -140,7 +140,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --nestdoms=$((${nest_grids:-1}-1)) \
         --vi_cloud=${vi_cloud} \
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-    status=$?; [[ $status -ne 0 ]] && exit $status
+    export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -171,7 +171,7 @@ for vortexradius in 30 45; do
       --nestdoms=$((${nest_grids:-1}-1)) \
       --vi_cloud=${vi_cloud} \
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -222,6 +222,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
+  export err=$?; err_chk
 
   # split
   # input
@@ -242,6 +243,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
+  export err=$?; err_chk
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -282,6 +284,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   fi
   initopt_guess=${initopt}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
+  export err=$?; err_chk
 
 fi
 
@@ -326,6 +329,7 @@ if true; then
 
   ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
+  export err=$?; err_chk
 
   # split
   # input
@@ -354,6 +358,7 @@ if true; then
     iflag_cold=1
   fi
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
+  export err=$?; err_chk
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -394,6 +399,7 @@ if true; then
   fi
   initopt_init=${initopt}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
+  export err=$?; err_chk
 
 fi
 
@@ -444,6 +450,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
   echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x
+  export err=$?; err_chk
   ${NCP} -p storm_anl_bogus storm_anl
 
 else # warm-start from prior cycle or cold start from global/parent model
@@ -490,6 +497,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
   echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_combine.x
+  export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
   fi
@@ -531,6 +539,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
     echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_enhance.x
+    export err=$?; err_chk
     ${NCP} -p storm_anl_enhance storm_anl
   fi
 
@@ -568,7 +577,7 @@ for nd in $(seq 1 ${nest_grids}); do
       --nestdoms=$((${nd}-1)) \
       --vi_cloud=${vi_cloud} \
       --out_dir=${RESTARTout}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 #===============================================================================

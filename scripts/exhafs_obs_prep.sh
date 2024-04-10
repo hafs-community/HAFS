@@ -63,7 +63,7 @@ ${NLN} -sf ./prepbufr.qm_typ ./fort.51
 # Run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
 ${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 cat ./hafs_change_prepbufr_qm_typ.out
 
 # Deliver to intercom
@@ -337,7 +337,7 @@ sed -e "s/_analdate_/${analdate}/g" \
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
 ${APRUNS} ./hafs_obs_preproc.x > ./hafs_obs_preproc.out 2>&1
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 cat ./hafs_obs_preproc.out
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom

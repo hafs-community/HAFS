@@ -98,5 +98,3 @@ else
   set -x
   exit 0
 fi
-
-exit

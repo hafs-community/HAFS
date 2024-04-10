@@ -44,13 +44,11 @@ fi
 if [ ! -s $workdir ]; then mkdir -p $workdir ;fi
 if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
 
-
 if [ $halo -eq "-999" ]; then
    OUTGRID="C${res}_grid.tile${tile}.nc"
 else
    OUTGRID="C${res}_grid.tile${tile}.halo${halo}.nc"
 fi
-
 
 cd $workdir
 

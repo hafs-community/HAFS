@@ -59,6 +59,7 @@ if [ $nargv -eq 3 -o $nargv -eq 5 ]; then
   echo "Making uniform grids:   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid ${target_opts}"
 
   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid ${target_opts}
+  export err=$?; err_chk
 
 elif  [ $nargv -eq 6 ]; then
   export stretch_fac=$3
@@ -76,6 +77,7 @@ elif  [ $nargv -eq 6 ]; then
   echo "Making stretched grids:   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} --target_lon ${target_lon} --target_lat ${target_lat} "
 
   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} --target_lon ${target_lon} --target_lat ${target_lat}
+  export err=$?; err_chk
 
 elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
   export stretch_fac=$3
@@ -121,6 +123,7 @@ elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
   $APRUN $executable --grid_type gnomonic_ed --nlon $nx --grid_name C${res}_grid --do_schmidt --stretch_factor ${stretch_fac} \
       --target_lon ${target_lon} --target_lat ${target_lat} --nest_grids $nest_grids --parent_tile $parent_tile --refine_ratio $refine_ratio \
       --istart_nest $istart_nest --jstart_nest $jstart_nest --iend_nest $iend_nest --jend_nest $jend_nest --halo $halo --great_circle_algorithm
+  export err=$?; err_chk
 
 elif  [ $nargv -eq 7 -a ${regional_esg:-no} = yes ] ; then
   export target_lon=$3
@@ -157,6 +160,7 @@ elif  [ $nargv -eq 7 -a ${regional_esg:-no} = yes ] ; then
 EOF
 
   $APRUN $executable
+  export err=$?; err_chk
   mv regional_grid.nml C${res}_grid.tile7.nml
   mv regional_grid.nc C${res}_grid.tile7.nc
 
@@ -185,6 +189,7 @@ EOF
 EOF
 
   $APRUN $executable
+  export err=$?; err_chk
   mv regional_grid.nml C${res}_nest1res_grid.tile7.nml
   mv regional_grid.nc C${res}_nest1res_grid.tile7.nc
 
@@ -242,9 +247,11 @@ elif [ $gtype = nest -a $ntiles -ge 7 ]; then
 
   # mosaic file for global and nests
   $APRUN $executable --num_tiles $ntiles --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile1.nc,C${res}_grid.tile2.nc,C${res}_grid.tile3.nc,C${res}_grid.tile4.nc,C${res}_grid.tile5.nc,C${res}_grid.tile6.nc,${file_list}
+  export err=$?; err_chk
 
   # mosaic file for coarse grids only
   $APRUN $executable --num_tiles 6 --dir $outdir --mosaic C${res}_coarse_mosaic --tile_file C${res}_grid.tile1.nc,C${res}_grid.tile2.nc,C${res}_grid.tile3.nc,C${res}_grid.tile4.nc,C${res}_grid.tile5.nc,C${res}_grid.tile6.nc
+  export err=$?; err_chk
 
   # mosaic file for nested grids only
   for itile in $(seq 7 $ntiles)
@@ -252,12 +259,14 @@ elif [ $gtype = nest -a $ntiles -ge 7 ]; then
     file_list="C${res}_grid.tile${itile}.nc"
     inest=$(($itile - 5))
     $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_nested0${inest}_mosaic --tile_file ${file_list}
+    export err=$?; err_chk
   done
 
 # regional grid without nests
 elif [ $gtype = regional -a $nest_grids -eq 1 ]; then
 
   $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile7.nc
+  export err=$?; err_chk
 
 # regional grid with nests
 elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
@@ -271,10 +280,13 @@ elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
 
   # create mosaic for regional and nests
   $APRUN $executable --num_tiles $nest_grids --dir $outdir --mosaic C${res}_all_mosaic --tile_file ${file_list}
+  export err=$?; err_chk
 
   # mosaic file for coarse grids only
   $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_coarse_mosaic --tile_file C${res}_grid.tile7.nc
+  export err=$?; err_chk
   $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_mosaic --tile_file C${res}_grid.tile7.nc
+  export err=$?; err_chk
 
   # mosaic file for nested grids only
   for itile in $(seq 8 $ntiles)
@@ -282,6 +294,7 @@ elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
     file_list="C${res}_grid.tile${itile}.nc"
     inest=$(($itile - 6))
     $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_nested0${inest}_mosaic --tile_file ${file_list}
+  export err=$?; err_chk
   done
 
 fi

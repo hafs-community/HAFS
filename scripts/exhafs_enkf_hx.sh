@@ -490,6 +490,7 @@ ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
 set +o pipefail
+export err=$?; err_chk
 
 cat ./stdout > ${GSISOUT}
 

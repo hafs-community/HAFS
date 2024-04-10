@@ -315,6 +315,7 @@ ${NCP} -p ${POSTEXEC} ./hafs_post.x
 set -o pipefail
 ${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
 set +o pipefail
+export err=$?; err_chk
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then

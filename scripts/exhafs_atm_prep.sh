@@ -581,32 +581,28 @@ if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
-rc=$?
+export err=$?; err_chk
 
-if [[ $rc == 0 ]]; then
-  if [[ $GRIDTYPE != "regional" ]]; then
-    for files in *.nc; do
-      if [[ -f $files ]]; then
-        mv $files ${sfc_climo_savedir}/${CASE}.${files}
-      fi
-    done
-  else
-    for files in *.halo.nc; do
-      if [[ -f $files ]]; then
-        file2=${files%.halo.nc}
-        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
-      fi
-    done
-    for files in *.nc; do
-      if [[ -f $files ]]; then
-        file2=${files%.nc}
-        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
-      fi
-    done
-  fi  # is regional?
+if [[ $GRIDTYPE != "regional" ]]; then
+  for files in *.nc; do
+    if [[ -f $files ]]; then
+      mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    fi
+  done
 else
-  exit $rc
-fi
+  for files in *.halo.nc; do
+    if [[ -f $files ]]; then
+      file2=${files%.halo.nc}
+      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
+    fi
+  done
+  for files in *.nc; do
+    if [[ -f $files ]]; then
+      file2=${files%.nc}
+      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
+    fi
+  done
+fi  # is regional?
 
 if [ $gtype = regional ]; then
   rm -f $out_dir/${CASE}_grid.tile${tile}.nc
@@ -660,17 +656,13 @@ if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
 $APRUNC ./hafs_sfc_climo_gen.x
-rc=$?
+export err=$?; err_chk
 
-if [[ $rc == 0 ]]; then
-  for files in *.nc; do
-    if [[ -f $files ]]; then
-      mv $files ${sfc_climo_savedir}/${CASE}.${files}
-    fi
-  done
-else
-  exit $rc
-fi
+for files in *.nc; do
+  if [[ -f $files ]]; then
+    mv $files ${sfc_climo_savedir}/${CASE}.${files}
+  fi
+done
 
 done
 

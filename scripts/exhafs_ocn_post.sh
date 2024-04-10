@@ -90,8 +90,8 @@ while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/${ocnout} ] || \
      [ ! -s ${INPdir}/${ocnoutn} ]; then
-    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, or ${INPdir}/${ocnoutn} not ready, sleep 20s"
-    sleep 20s
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, or ${INPdir}/${ocnoutn} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, and ${INPdir}/${ocnoutn} exist"
     echo "Wait ${INPdir}/${ocnout} to be old enough, then do ocn post"

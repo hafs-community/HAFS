@@ -118,7 +118,7 @@ for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; 
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 # Regional with one nest configuration
@@ -154,7 +154,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -180,7 +180,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 else
@@ -209,7 +209,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 # Step 3: merge srcd02 into dstd02
@@ -228,7 +228,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 done
 
 else

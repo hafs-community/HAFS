@@ -212,17 +212,17 @@ run
 
 exit
 EOF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 $GEMEXE/gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 ############################################################
 # Gempak does not always have a non-zero return code when it
 # cannot produce the desired grid. Check for this case here.
 ############################################################
 ls -l grid.nmeta
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}
 if [ ${SENDCOM:-YES} = "YES" ]; then
