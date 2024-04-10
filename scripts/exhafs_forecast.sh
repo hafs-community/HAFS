@@ -1740,11 +1740,12 @@ done
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
 #${APRUNC} ./hafs_forecast.x > forecast.log 2>&1
-#status=$?; [[ $status -ne 0 ]] && exit $status
+#export err=$?; err_chk
 #cat forecast.log
 set -o pipefail
 ${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
 set +o pipefail
+export err=$?; err_chk
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

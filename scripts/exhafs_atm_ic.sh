@@ -283,7 +283,7 @@ EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
   mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
@@ -378,7 +378,7 @@ cat>./fort.41<<EOF
 EOF
 #${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
 ${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
 mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
 

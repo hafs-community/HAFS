@@ -111,15 +111,15 @@ ${GEMEXE:?}/nagrib2 << EOF
 l
 r
 EOF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Gempak does not always have a non-zero return code when it
 # cannot produce the desired grid. Check for this case here.
 ls -l $GDOUTF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 ${GEMEXE}/gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 if [ "${SENDCOM^^}" = "YES" ]; then
   ${FCP} $GDOUTF $GPOUTF
@@ -147,7 +147,7 @@ echo "${USHhafs}/hafs_gempak_meta_grid.sh > $DATA/meta_grid.log 2>&1" >> cmdfile
 echo "${USHhafs}/hafs_gempak_meta_nest.sh > $DATA/meta_nest.log 2>&1" >> cmdfile.gempak
 chmod +x cmdfile.gempak
 ${APRUNC} ${MPISERIAL} -m ./cmdfile.gempak
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 cat $DATA/meta_grid.log
 cat $DATA/meta_nest.log

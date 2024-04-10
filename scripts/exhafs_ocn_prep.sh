@@ -101,10 +101,10 @@ export CDF033=rtofs_${outnc_uv}
 
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_ic.in ./rtofs_ocean_ssh_ic.in
-${EXEChafs}/hafs_archv2ncdf2d.x < ./rtofs_ocean_ssh_ic.in
+${APRUNS} ${EXEChafs}/hafs_archv2ncdf2d.x < ./rtofs_ocean_ssh_ic.in
 
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_ic.in ./rtofs_ocean_3d_ic.in
-${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in
+${APRUNS} ${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in
 
 # SSH file
 # Change into netcdf3 format
@@ -219,16 +219,19 @@ export CDF033=rtofs.${type}${hour}_${outnc_uv}
 
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_obc.in ./rtofs_ocean_ssh_obc.in
-${EXEChafs}/hafs_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in
+${APRUNS} ${EXEChafs}/hafs_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in
+export err=$?; err_chk
 
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean_3d_obc.in
-${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in
+${APRUNS} ${EXEChafs}/hafs_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in
+export err=$?; err_chk
 
 # Run Python script to generate OBC
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
 ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
     rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
     'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y'
+export err=$?; err_chk
 
 # next obc hour
 #IFHR=$(($IFHR + 1))
@@ -307,6 +310,7 @@ done
 # End loop for forecast hours
 
 ${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} 
+export err=$?; err_chk
 
 # Obtain net longwave and shortwave radiation file
 echo 'Obtaining NETLW'

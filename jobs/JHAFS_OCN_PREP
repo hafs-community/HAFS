@@ -66,12 +66,12 @@ cd $DATA
 # Execute ex-script
 if [[ "${run_docn:-no}" == yes ]] ; then
   ${HOMEhafs}/scripts/exhafs_docn_prep.sh
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 fi
 
 if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
   ${HOMEhafs}/scripts/exhafs_ocn_prep.py
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 fi
 
 if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
@@ -97,7 +97,7 @@ if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
   fi
   export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
   ${HOMEhafs}/scripts/exhafs_ocn_prep.sh
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 fi
 
 # Cleanup DATA dir

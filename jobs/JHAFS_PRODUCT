@@ -93,7 +93,7 @@ for ng in $(seq 1 ${ngrids}); do
 done
 chmod +x cmdfile_product
 ${APRUNC} ${MPISERIAL} -m cmdfile_product
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Check if product/tracker run successfully
 for ng in $(seq 1 ${ngrids}); do

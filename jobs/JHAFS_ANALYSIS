@@ -118,7 +118,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -184,7 +184,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

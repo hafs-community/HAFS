@@ -136,7 +136,7 @@ configmore=" ${HAFS_LAUNCH_EXTRA_CONFIG:-}"
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_launch.py "$PDY$cyc" "$storm" FORECAST $PARMhafs $configmore
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

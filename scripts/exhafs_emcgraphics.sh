@@ -329,6 +329,7 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
 
@@ -457,6 +458,7 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
 
@@ -528,6 +530,7 @@ done
 chmod u+x ./$cmdfile
 
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 IFHR=$(($IFHR + 1))
 FHR=$(($FHR + $NOUTHRS))
@@ -608,6 +611,7 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
 
