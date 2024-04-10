@@ -609,7 +609,7 @@ set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
 set +o pipefail
 
-${NCP} -p ./stdout ${GSISOUT}
+cat ./stdout > ${GSISOUT}
 
 # Cat runtime output files.
 cat fort.2* > ${GSISTAT}
@@ -836,8 +836,8 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
-  ${NCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
+  ${FCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
+  ${FCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
 fi
 
 # If no processing error, remove $DIAG_DIR

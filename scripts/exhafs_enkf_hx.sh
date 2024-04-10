@@ -491,7 +491,7 @@ set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
 set +o pipefail
 
-${NCP} -p ./stdout ${GSISOUT}
+cat ./stdout > ${GSISOUT}
 
 # Cat runtime output files.
 cat fort.2* > ${GSISTAT}

@@ -69,11 +69,6 @@ cat ./hafs_change_prepbufr_qm_typ.out
 # Deliver to intercom
 ${NCP} -p ./prepbufr.qm_typ ${intercom}/${NET}.t${cyc}z.prepbufr
 
-# Deliver to com (no need to deliver to COMhafs). Will need modify permission properly if rstprod is involved
-#if [ $SENDCOM = YES ]; then
-#  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.${RUN}.prepbufr
-#fi
-
 cd $DATA
 
 NFTLDPLR=${NET}.t${cyc}z.tldplr.tm00.bufr_d
@@ -115,10 +110,10 @@ else
 fi
 if [ -s ./tldplr.ibm ]; then
   # Deliver to intercom
-  ${NCP} -p ./tldplr.ibm ${intercom}/${NFTLDPLR}
+  ${NCP} ./tldplr.ibm ${intercom}/${NFTLDPLR}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./tldplr.ibm ${COMhafs}/${RFTLDPLR}
+    ${FCP} ./tldplr.ibm ${COMhafs}/${RFTLDPLR}
   fi
 fi
 
@@ -133,10 +128,10 @@ cat ./hdob.out
 set -e
 if [ -s ./hdob.ibm ]; then
   # Deliver to intercom
-  ${NCP} -p ./hdob.ibm ${intercom}/${NFHDOB}
+  ${NCP} ./hdob.ibm ${intercom}/${NFHDOB}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./hdob.ibm ${COMhafs}/${RFHDOB}
+    ${FCP} ./hdob.ibm ${COMhafs}/${RFHDOB}
   fi
 fi
 
@@ -245,7 +240,7 @@ if [ -s ./nexrad.ibm ]; then
   ${NCP} -p ./nexrad.ibm ${intercom}/${NFNEXRAD}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./nexrad.ibm ${COMhafs}/${RFNEXRAD}
+    ${FCP} ./nexrad.ibm ${COMhafs}/${RFNEXRAD}
   fi
 fi
 
@@ -260,7 +255,7 @@ if [[ -s ./dropsonde.${CDATE}.tar ]]; then
   ${NCP} -p ./dropsonde.${CDATE}.tar ${intercom}/${NFdropsonde}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./dropsonde.${CDATE}.tar ${COMhafs}/${RFdropsonde}
+    ${FCP} ./dropsonde.${CDATE}.tar ${COMhafs}/${RFdropsonde}
   fi
 fi
 
@@ -273,7 +268,7 @@ if [ -s ${COMINhafs_OBS}/${NFTLDPLR} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFTLDPLR} ${intercom}/${NFTLDPLR}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFTLDPLR} ${COMhafs}/${RFTLDPLR}
+    ${FCP} ${intercom}/${NFTLDPLR} ${COMhafs}/${RFTLDPLR}
   fi
 fi
 # HDOB data
@@ -282,7 +277,7 @@ if [ -s ${COMINhafs_OBS}/${NFHDOB} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFHDOB} ${intercom}/${NFHDOB}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFHDOB} ${COMhafs}/${RFHDOB}
+    ${FCP} ${intercom}/${NFHDOB} ${COMhafs}/${RFHDOB}
   fi
 fi
 # NEXRAD data
@@ -291,7 +286,7 @@ if [ -s ${COMINhafs_OBS}/${NFNEXRAD} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFNEXRAD} ${intercom}/${NFNEXRAD}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFNEXRAD} ${COMhafs}/${RFNEXRAD}
+    ${FCP} ${intercom}/${NFNEXRAD} ${COMhafs}/${RFNEXRAD}
   fi
 fi
 # TEMPdropsonde data
@@ -300,7 +295,7 @@ if [ -s ${COMINhafs_OBS}/${NFdropsonde} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFdropsonde} ${intercom}/${NFdropsonde}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFdropsonde} ${COMhafs}/${RFdropsonde}
+    ${FCP} ${intercom}/${NFdropsonde} ${COMhafs}/${RFdropsonde}
   fi
 fi
 # TEMPdrop prepbufr
@@ -309,7 +304,7 @@ if [ -s ${COMINhafs_OBS}/${NFtempdrop} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFtempdrop} ${intercom}/${NFtempdrop}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFtempdrop} ${COMhafs}/${RFtempdrop}
+    ${FCP} ${intercom}/${NFtempdrop} ${COMhafs}/${RFtempdrop}
   fi
 fi
 
@@ -349,7 +344,7 @@ if [ -s ./tempdrop.prepbufr ]; then
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${RFtempdrop}
+    ${FCP} ./tempdrop.prepbufr ${COMhafs}/${RFtempdrop}
   fi
 fi
 

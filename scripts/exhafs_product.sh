@@ -181,11 +181,11 @@ if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 cat > ./deliver.sh<<EOF
 #!/bin/sh
 set -x
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix}
 if [[ \${1:-''} -le 12 ]]; then
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
 fi
 EOF
 
@@ -194,9 +194,9 @@ else
 cat > ./deliver.sh<<EOF
 #!/bin/sh
 set -x
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
 if [[ \${1:-''} -le 12 ]]; then
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
 fi
 EOF
 
@@ -339,15 +339,15 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
      [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
     sed -i -e 's/NATIONAL HURRICANE CENTER/JOINT TYPHOON WARNING CENTER/g' fort.51 fort.61
   fi
-  ${NCP} fort.41 ${COMhafs}/${short}
+  ${FCP} fort.41 ${COMhafs}/${short}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${short}
   fi
-  ${NCP} fort.51 ${COMhafs}/${afos}
+  ${FCP} fort.51 ${COMhafs}/${afos}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_AFOS $job ${COMhafs}/${afos}
   fi
-  ${NCP} fort.61 ${COMhafs}/${tpc}
+  ${FCP} fort.61 ${COMhafs}/${tpc}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_STATS $job ${COMhafs}/${tpc}
   fi

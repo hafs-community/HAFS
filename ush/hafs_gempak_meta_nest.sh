@@ -452,8 +452,7 @@ if [ $attempts -gt 360 ] && [ ! -f ${COMIN}/${statfile} ]; then
   exit 1
 fi
 
-${NCP} ${COMIN}/${statfile} ./
-#${NCP} -p ${COMIN}/${statfile} ./
+${FCP} ${COMIN}/${statfile} ./
 
 numlines=$(cat $statfile | wc -l)
 cnt=1
@@ -546,8 +545,7 @@ status=$?; [[ $status -ne 0 ]] && exit $status
 
 GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}_nest
 if [ ${SENDCOM:-YES} = "YES" ]; then
-  ${NCP} nest.nmeta ${GMETAF}
-# ${NCP} -p nest.nmeta ${GMETAF}
+  ${FCP} nest.nmeta ${GMETAF}
   if [ ${SENDDBN:-NO} = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL $(echo ${RUN} | tr [a-z] [A-Z])_METAFILE $job ${GMETAF}
   fi

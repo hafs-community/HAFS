@@ -497,35 +497,35 @@ if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTA
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
+  ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+  ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+  ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+  ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
-  ${NCP} -pL ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+  ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
 fi
 
 # grid_mspec files at the current and prior forecast hours
@@ -550,7 +550,7 @@ if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
      [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
-    ${NCP} -pL ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+    ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
   fi
 fi
 # Deliver grid_mspec at NHRS if NHRS less than 12
@@ -562,7 +562,7 @@ if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
      [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
-    ${NCP} -pL ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+    ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
   fi
 fi
 
@@ -578,7 +578,7 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${I
   while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
   for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
     if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
-      ${NCP} -pL ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+      ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
     fi
   done
 fi
@@ -587,9 +587,9 @@ fi
 if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
   if [ -s ${INPdir}/${fort_patcf}_save ]; then
     cat ${INPdir}/${fort_patcf} >> ${INPdir}/${fort_patcf}_save
-    ${NCP} -pL ${INPdir}/${fort_patcf}_save ${COMOUTpost}/${trk_patcf}
+    ${FCP} ${INPdir}/${fort_patcf}_save ${COMOUTpost}/${trk_patcf}
   else
-    ${NCP} -pL ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
+    ${FCP} ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
   fi
 fi
 

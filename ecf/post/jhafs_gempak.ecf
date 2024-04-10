@@ -35,8 +35,6 @@ module load wgrib2/${wgrib2_ver}
 module load gempak/${gempak_ver}
 module list
 
-export NCP=cpfs 
-
 ${HOMEhafs}/jobs/JHAFS_GEMPAK
 
 %include <tail.h>

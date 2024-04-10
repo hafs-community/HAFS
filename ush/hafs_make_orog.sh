@@ -87,20 +87,17 @@ echo "indir = $indir"
 
 cd $workdir
 
-cp ${indir}/thirty.second.antarctic.new.bin fort.15
-cp ${indir}/landcover30.fixed .
-#  uncomment next line to use the old gtopo30 data.
-#   cp ${indir}/gtopo30_gg.fine.nh  fort.235
-#  use gmted2020 data.
-cp -f ${indir}/gmted2010.30sec.int  fort.235
+${NLN} ${indir}/thirty.second.antarctic.new.bin fort.15
+${NLN} ${indir}/landcover30.fixed .
+${NLN} ${indir}/gmted2010.30sec.int  fort.235
 if [ $inorogexist -eq 1 ]; then
-   cp $inputorog .
+   ${NCP} $inputorog .
 fi
 
 if [ $is_latlon -eq 0 ]; then
-   cp ${griddir}/$OUTGRID .
+   ${NCP} ${griddir}/$OUTGRID .
 fi
-cp $executable .
+${NCP} $executable .
 
 echo  $mtnres $lonb $latb $efac $blat > INPS
 echo $OUTGRID >> INPS
