@@ -218,7 +218,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ${NLN} ./trak.fnl.all fort.30
+  ${RLN} ./trak.fnl.all fort.30
 
   ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
   ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
@@ -231,11 +231,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ../prep_guess/vi_inp_30deg0p02.bin fort.26
   ${NLN} ../prep_guess/vi_inp_45deg0p20.bin fort.46
   # output
-  ${NLN} storm_env fort.56
-  ${NLN} rel_inform fort.52
-  ${NLN} vital_syn fort.55
-  ${NLN} storm_pert fort.71
-  ${NLN} storm_radius fort.85
+  ${RLN} storm_env fort.56
+  ${RLN} rel_inform fort.52
+  ${RLN} vital_syn fort.55
+  ${RLN} storm_pert fort.71
+  ${RLN} storm_radius fort.85
 
   ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
@@ -256,9 +256,9 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ../split_guess/storm_pert fort.71
   ${NLN} ../split_guess/storm_radius fort.65
   # output
-  ${NLN} storm_pert_new fort.58
-  ${NLN} storm_size_p fort.14
-  ${NLN} storm_sym fort.23
+  ${RLN} storm_pert_new fort.58
+  ${RLN} storm_size_p fort.14
+  ${RLN} storm_sym fort.23
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
@@ -325,7 +325,7 @@ if true; then
 
   ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ${NLN} ./trak.fnl.all fort.30
+  ${RLN} ./trak.fnl.all fort.30
 
   ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
   ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
@@ -341,11 +341,11 @@ if true; then
     ${NLN} ../split_guess/storm_radius fort.65
   fi
   # output
-  ${NLN} storm_env fort.56
-  ${NLN} rel_inform fort.52
-  ${NLN} vital_syn fort.55
-  ${NLN} storm_pert fort.71
-  ${NLN} storm_radius fort.85
+  ${RLN} storm_env fort.56
+  ${RLN} rel_inform fort.52
+  ${RLN} vital_syn fort.55
+  ${RLN} storm_pert fort.71
+  ${RLN} storm_radius fort.85
 
   ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
   gesfhr=${gesfhr:-6}
@@ -371,9 +371,9 @@ if true; then
   ${NLN} ../split_init/storm_pert fort.71
   ${NLN} ../split_init/storm_radius fort.65
   # output
-  ${NLN} storm_pert_new fort.58
-  ${NLN} storm_size_p fort.14
-  ${NLN} storm_sym fort.23
+  ${RLN} storm_pert_new fort.58
+  ${RLN} storm_size_p fort.14
+  ${RLN} storm_sym fort.23
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
@@ -446,7 +446,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
-  ${NLN} storm_anl_bogus                       fort.56
+  ${RLN} storm_anl_bogus                       fort.56
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
   echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x
@@ -489,8 +489,8 @@ else # warm-start from prior cycle or cold start from global/parent model
   ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
 
   # output
-  ${NLN} storm_env_new fort.36
-  ${NLN} storm_anl_combine fort.56
+  ${RLN} storm_env_new fort.36
+  ${RLN} storm_anl_combine fort.56
 
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
@@ -534,7 +534,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output
-    ${NLN} storm_anl_enhance                     fort.56
+    ${RLN} storm_anl_enhance                     fort.56
 
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./

@@ -52,9 +52,9 @@ fi
 
 cd $workdir
 
-ln -sf ${griddir}/$OUTGRID .
-ln -sf ${topo_am}/"HGT.Beljaars_filtered.lat-lon.30s_res.nc" .
-ln -sf ${topo_am}/"geo_em.d01.lat-lon.2.5m.HGT_M.nc" .
+${NLN} ${griddir}/$OUTGRID .
+${NLN} ${topo_am}/"HGT.Beljaars_filtered.lat-lon.30s_res.nc" .
+${NLN} ${topo_am}/"geo_em.d01.lat-lon.2.5m.HGT_M.nc" .
 
 ${NCP} -p $executable .
 

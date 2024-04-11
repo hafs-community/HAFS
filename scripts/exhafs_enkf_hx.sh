@@ -176,20 +176,20 @@ lrun_subdirs=${lrun_subdirs:-".true."}
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 #${NLN} ${PARMgsi}/nam_global_satangbias.txt ./satbias_angle
 ${NLN} ${PARMgsi}/hafs_satinfo.txt ./satinfo
-#checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
+#checkgfs ${NLN} $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
 anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
-#checkgfs $NLN $vqcdat       vqctp001.dat
-#checkgfs $NLN $INSITUINFO   insituinfo
+#checkgfs ${NLN} $vqcdat       vqctp001.dat
+#checkgfs ${NLN} $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
-#checkgfs $NLN $AEROINFO     aeroinfo
+#checkgfs ${NLN} $AEROINFO     aeroinfo
 ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
-#checkgfs $NLN $HYBENSINFO   hybens_info
+#checkgfs ${NLN} $HYBENSINFO   hybens_info
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 ${NLN} ${PARMgsi}/prepobs_prep.bufrtable ./prepobs_prep.bufrtable
@@ -220,13 +220,13 @@ if [ ${USE_SELECT:-NO} = "YES" ]; then
    nl=$(file $SELECT_OBS | cut -d: -f2 | grep tar | wc -l)
    if [ $nl -eq 1 ]; then
       rm -f obsinput.tar
-      $NLN $SELECT_OBS obsinput.tar
+      ${NLN} $SELECT_OBS obsinput.tar
       tar -xvf obsinput.tar
       rm -f obsinput.tar
    else
       for filetop in $(ls $SELECT_OBS/obs_input.*); do
          fileloc=$(basename $filetop)
-         $NLN $filetop $fileloc
+         ${NLN} $filetop $fileloc
       done
    fi
 fi
@@ -235,6 +235,7 @@ if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 
 # Link GFS/GDAS input and observation files
 COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
@@ -297,7 +298,8 @@ if [[ ${use_bufr_nr:-no} = "no" ]]; then
 else
   GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d.nr}
 fi
-TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
+#TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
+TCVITL=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
@@ -308,75 +310,75 @@ if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
 else
   touch prepbufr
 fi
-#$NLN $PREPQC           prepbufr
-##$NLN $PREPQCPF         prepbufr_profl
-$NLN $SATWND           satwndbufr
-$NLN $SATWHR           satwhrbufr
-##$NLN $OSCATBF          oscatbufr
-##$NLN $RAPIDSCATBF      rapidscatbufr
-##$NLN $GSNDBF           gsndrbufr
-$NLN $GSNDBF1          gsnd1bufr
-##$NLN $B1HRS2           hirs2bufr
-##$NLN $B1MSU            msubufr
-$NLN $B1HRS3           hirs3bufr
-$NLN $B1HRS4           hirs4bufr
-$NLN $B1AMUA           amsuabufr
-##$NLN $B1AMUB           amsubbufr
-$NLN $B1MHS            mhsbufr
-$NLN $ESHRS3           hirs3bufrears
-$NLN $ESAMUA           amsuabufrears
-##$NLN $ESAMUB           amsubbufrears
-#$NLN $ESMHS            mhsbufrears
-$NLN $HRS3DB           hirs3bufr_db
-##$NLN $AMUADB           amsuabufr_db
-##$NLN $AMUBDB           amsubbufr_db
-#$NLN $MHSDB            mhsbufr_db
-$NLN $SBUVBF           sbuvbufr
-$NLN $OMPSNPBF         ompsnpbufr
-$NLN $OMPSTCBF         ompstcbufr
-$NLN $GOMEBF           gomebufr
-$NLN $OMIBF            omibufr
-$NLN $MLSBF            mlsbufr
-##$NLN $SMIPCP           ssmirrbufr
-##$NLN $TMIPCP           tmirrbufr
-$NLN $AIRSBF           airsbufr
-$NLN $IASIBF           iasibufr
-$NLN $ESIASI           iasibufrears
-$NLN $IASIDB           iasibufr_db
-##$NLN $AMSREBF          amsrebufr
-$NLN $AMSR2BF          amsr2bufr
-$NLN $GMI1CRBF         gmibufr
-$NLN $SAPHIRBF         saphirbufr
-$NLN $SEVIRIBF         seviribufr
-$NLN $CRISBF           crisbufr
-$NLN $ESCRIS           crisbufrears
-$NLN $CRISDB           crisbufr_db
-$NLN $CRISFSBF         crisfsbufr
-$NLN $ESCRISFS         crisfsbufrears
-$NLN $CRISFSDB         crisfsbufr_db
-$NLN $ATMSBF           atmsbufr
-$NLN $ESATMS           atmsbufrears
-$NLN $ATMSDB           atmsbufr_db
-##$NLN $SSMITBF          ssmitbufr
-$NLN $SSMISBF          ssmisbufr
-$NLN $GPSROBF          gpsrobufr
-$NLN $TCVITL           tcvitl
-$NLN $B1AVHAM          avhambufr
-$NLN $B1AVHPM          avhpmbufr
-##$NLN $AHIBF            ahibufr
-##$NLN $ABIBF            abibufr
-##$NLN $HDOB             hdobbufr
+#${NLN} $PREPQC           prepbufr
+##${NLN} $PREPQCPF         prepbufr_profl
+${WLN} $SATWND           satwndbufr
+${WLN} $SATWHR           satwhrbufr
+##${WLN} $OSCATBF          oscatbufr
+##${WLN} $RAPIDSCATBF      rapidscatbufr
+##${WLN} $GSNDBF           gsndrbufr
+${WLN} $GSNDBF1          gsnd1bufr
+##${WLN} $B1HRS2           hirs2bufr
+##${WLN} $B1MSU            msubufr
+${WLN} $B1HRS3           hirs3bufr
+${WLN} $B1HRS4           hirs4bufr
+${WLN} $B1AMUA           amsuabufr
+##${WLN} $B1AMUB           amsubbufr
+${WLN} $B1MHS            mhsbufr
+${WLN} $ESHRS3           hirs3bufrears
+${WLN} $ESAMUA           amsuabufrears
+##${WLN} $ESAMUB           amsubbufrears
+#${WLN} $ESMHS            mhsbufrears
+${WLN} $HRS3DB           hirs3bufr_db
+##${WLN} $AMUADB           amsuabufr_db
+##${WLN} $AMUBDB           amsubbufr_db
+#${WLN} $MHSDB            mhsbufr_db
+${WLN} $SBUVBF           sbuvbufr
+${WLN} $OMPSNPBF         ompsnpbufr
+${WLN} $OMPSTCBF         ompstcbufr
+${WLN} $GOMEBF           gomebufr
+${WLN} $OMIBF            omibufr
+${WLN} $MLSBF            mlsbufr
+##${WLN} $SMIPCP           ssmirrbufr
+##${WLN} $TMIPCP           tmirrbufr
+${WLN} $AIRSBF           airsbufr
+${WLN} $IASIBF           iasibufr
+${WLN} $ESIASI           iasibufrears
+${WLN} $IASIDB           iasibufr_db
+##${WLN} $AMSREBF          amsrebufr
+${WLN} $AMSR2BF          amsr2bufr
+${WLN} $GMI1CRBF         gmibufr
+${WLN} $SAPHIRBF         saphirbufr
+${WLN} $SEVIRIBF         seviribufr
+${WLN} $CRISBF           crisbufr
+${WLN} $ESCRIS           crisbufrears
+${WLN} $CRISDB           crisbufr_db
+${WLN} $CRISFSBF         crisfsbufr
+${WLN} $ESCRISFS         crisfsbufrears
+${WLN} $CRISFSDB         crisfsbufr_db
+${WLN} $ATMSBF           atmsbufr
+${WLN} $ESATMS           atmsbufrears
+${WLN} $ATMSDB           atmsbufr_db
+##${WLN} $SSMITBF          ssmitbufr
+${WLN} $SSMISBF          ssmisbufr
+${WLN} $GPSROBF          gpsrobufr
+${WLN} $TCVITL           tcvitl
+${WLN} $B1AVHAM          avhambufr
+${WLN} $B1AVHPM          avhpmbufr
+##${WLN} $AHIBF            ahibufr
+##${WLN} $ABIBF            abibufr
+##${WLN} $HDOB             hdobbufr
 
-##[[ $DONST = "YES" ]] && $NLN $NSSTBF nsstbufr
+##[[ $DONST = "YES" ]] && ${WLN} $NSSTBF nsstbufr
 
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
 
 if [ -s ${PREPQC}.nr ]; then
   $NCP -L ${PREPQC}.nr    prepbufr
 fi
-# $NLN ${PREPQC}.nr    prepbufr
-  $NLN ${SAPHIRBF}.nr  saphirbufr
-##[[ $DONST = "YES" ]] && $NLN /dev/null nsstbufr
+# ${NLN} ${PREPQC}.nr    prepbufr
+  ${WLN} ${SAPHIRBF}.nr  saphirbufr
+##[[ $DONST = "YES" ]] && ${WLN} /dev/null nsstbufr
 
 fi
 
@@ -438,7 +440,7 @@ if [ ${GENDIAG:-YES} = "YES" ]; then
       for pe in $(seq 0 1 $npe_m1); do
         pedir="dir."$(printf %04i $pe)
         mkdir -p $DIAG_DIR/$pedir
-        $NLN $DIAG_DIR/$pedir $pedir
+        ${NLN} $DIAG_DIR/$pedir $pedir
       done
    else
       echo "FATAL ERROR: lrun_subdirs must be true. lrun_subdirs=$lrun_subdirs"

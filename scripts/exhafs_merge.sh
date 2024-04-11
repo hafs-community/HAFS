@@ -160,7 +160,7 @@ done
 elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
-${NLN} ${RESTARTsrc}/* ${RESTARTtmp}/
+${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc

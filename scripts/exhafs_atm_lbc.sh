@@ -101,7 +101,7 @@ FIXCASE=${DATA_BC}/grid/${CASE}
 mkdir -p $DATA_BC ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
-${NLN} ${GRID_intercom}/${CASE}/* ./
+${RLN} ${GRID_intercom}/${CASE}/* ./
 
 cd ${DATA_BC}
 
