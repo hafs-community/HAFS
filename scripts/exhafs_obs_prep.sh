@@ -97,14 +97,12 @@ export LOUD=on
 BDATE=$( $NDATE -24 $CDATE )
 BPDY=$(echo $BDATE | cut -c1-8)
 if [[ -s $TANK/$PDY/b006/xx070 || -s $TANK/$BPDY/b006/xx070 ]]; then
-  set +e
   ${DUMPJB:?} ${CDATE} 3.00 tldplr
   status=$?
   if [[ $status -ne 0 ]]; then
     echo "WARNING: TDR dump with exit code of $status. Continue ..."
   fi
   cat ./tldplr.out
-  set -e
 else
   echo "INFO: TDR tank $TANK/$PDY/b006/xx070 or $TANK/$BPDY/b006/xx070 empty or not found. Continue ..."
 fi
@@ -118,14 +116,12 @@ if [ -s ./tldplr.ibm ]; then
 fi
 
 # Dump HDOB data
-set +e
 ${DUMPJB} ${CDATE} 3.00 hdob
 status=$?
 if [[ $status -ne 0 ]]; then
   echo "WARNING: HDOB dump with exit code of $status. Continue ..."
 fi
 cat ./hdob.out
-set -e
 if [ -s ./hdob.ibm ]; then
   # Deliver to intercom
   ${NCP} ./hdob.ibm ${intercom}/${NFHDOB}
@@ -227,14 +223,12 @@ eval export SKIP_0060$(($subtyp3 + 30))
 export DTIM_earliest_nexrad=${DTIM_earliest_nexrad:-"-0.75"}
 export DTIM_latest_nexrad=${DTIM_latest_nexrad:-"+1.50"}
 
-set +e
 ${DUMPJB} ${CDATE} 0.5 nexrad
 status=$?
 if [[ $status -ne 0 ]]; then
   echo "WARNING: NEXRAD dump with exit code of $status. Continue ..."
 fi
 cat ./nexrad.out
-set -e
 if [ -s ./nexrad.ibm ]; then
   # Deliver to intercom
   ${NCP} -p ./nexrad.ibm ${intercom}/${NFNEXRAD}
