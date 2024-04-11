@@ -748,10 +748,10 @@ fi
 # Link all the gfs_bndy files here for full forecast ensemble members, but the
 # hour 000 and hour 006 lbc files will be replaced below.
 if [ ${ENSDA} = YES ] && [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
-  ${NLN} ${WORKhafs}/intercom/chgres/gfs_bndy.tile7.*.nc INPUT/
+  ${RLN} ${WORKhafs}/intercom/chgres/gfs_bndy.tile7.*.nc INPUT/
 fi
 
-${NLN} ${INPdir}/*.nc INPUT/
+${RLN} ${INPdir}/*.nc INPUT/
 
 if [ ${RUN_INIT:-NO} = YES ]; then
   cd INPUT/
@@ -962,8 +962,8 @@ cd INPUT
 # Prepare tile data and orography for regional
 tile=7
 # prepare grid and orog files (halo[034])
-${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
-${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
+${RLN} $FIXgrid/${CASE}/${CASE}_grid.tile${tile}.halo?.nc ./
+${RLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile${tile}.halo?.nc ./
 if [ ${use_orog_gsl:-no} = yes ]; then
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile${tile}.nc ./
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile${tile}.nc ./
@@ -1336,7 +1336,7 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
   ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
   ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
   # link forcing
-  ${NLN} ${WORKhafs}/intercom/hycominit/forcing* .
+  ${RLN} ${WORKhafs}/intercom/hycominit/forcing* .
   ${NLN} forcing.presur.a forcing.mslprs.a
   ${NLN} forcing.presur.b forcing.mslprs.b
   # link hycom limits
@@ -1399,8 +1399,8 @@ if [ ${run_wave} = yes ]; then
   POFILETYPE=0
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
   atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
-  # link 6-hr ww3 restart file from COMhafs for output, needed for warm-start waves for the next forecast cycle
-  ${NLN} ${COMhafs}/${out_prefix}.${RUN}.ww3.restart.f006 ./${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3
+  # 6-hr ww3 restart file needed for warm-start waves for the next forecast cycle  
+  ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${RUN_INIT:-NO} = NO ]; then
@@ -1437,7 +1437,7 @@ if [ ${run_datm} = yes ]; then
   datm_source=${DATM_SOURCE:-ERA5}
   ${NCP} ${PARMforecast}/model_configure.tmp .
   ${NLN} ${mesh_atm} INPUT/DATM_ESMF_mesh.nc
-  ${NLN} "$datm_input_path"/DATM_input*nc INPUT/
+  ${RLN} "$datm_input_path"/DATM_input*nc INPUT/
   # Generate docn.streams from template specific to the model:
   ${NCP} ${PARMhafs}/cdeps/datm_$( echo "$datm_source" | tr A-Z a-z ).streams datm.streams
   for file in INPUT/DATM_input*nc; do
@@ -1469,7 +1469,7 @@ if [ ${run_datm} = yes ]; then
       ufs.configure.cdeps.tmp > ufs.configure
 elif [ ${run_docn} = yes ]; then
   MAKE_MESH_OCN=$( echo "${make_mesh_ocn:-no}" | tr a-z A-Z )
-  ${NLN} "$docn_input_path"/DOCN_input*nc INPUT/
+  ${RLN} "$docn_input_path"/DOCN_input*nc INPUT/
   #${NCP} ${PARMhafs}/cdeps/docn_in .
   #${NCP} ${PARMhafs}/cdeps/docn.streams .
   docn_source=${DOCN_SOURCE:-OISST}
@@ -1663,7 +1663,7 @@ HH=$(echo $NEWDATE | cut -c9-10)
 if [ ${FHR} -gt ${FORECAST_RESTART_HR} ]; then
   rm -f ${OUTdir}/log.atm.f${FHR3}
 fi
-${NLN} ${OUTdir}/log.atm.f${FHR3} ./
+${RLN} ${OUTdir}/log.atm.f${FHR3} ./
 
 if [ ${gtype} = nest ]; then
   ngrids=$((${nest_grids} + 1))
@@ -1686,8 +1686,8 @@ else
   nestdotstr=".nest$(printf '%02d' ${ng})."
 fi
 
-${NLN} ${OUTdir}/atm${nestdotstr}f${FHR3}.nc ./
-${NLN} ${OUTdir}/sfc${nestdotstr}f${FHR3}.nc ./
+${RLN} ${OUTdir}/atm${nestdotstr}f${FHR3}.nc ./
+${RLN} ${OUTdir}/sfc${nestdotstr}f${FHR3}.nc ./
 
 if [ ${gtype} = regional ]; then
 
@@ -1701,16 +1701,16 @@ else
   atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
 fi
 
-${NLN} ${OUTdir}/${grid_spec} ./
-${NLN} ${OUTdir}/${atmos_static} ./
+${RLN} ${OUTdir}/${grid_spec} ./
+${RLN} ${OUTdir}/${atmos_static} ./
 
 if [ ${RUN_INIT:-NO} = YES ] && [ $FHR -eq 0 ] ; then
-  ${NLN} ${OUTdir}/${grid_mspec} ./
-# ${NLN} ${OUTdir}/${atmos_diag} ./
+  ${RLN} ${OUTdir}/${grid_mspec} ./
+# ${RLN} ${OUTdir}/${atmos_diag} ./
 fi
 if [ $FHR -gt 0 ] ; then
-  ${NLN} ${OUTdir}/${grid_mspec} ./
-# ${NLN} ${OUTdir}/${atmos_diag} ./
+  ${RLN} ${OUTdir}/${grid_mspec} ./
+# ${RLN} ${OUTdir}/${atmos_diag} ./
 fi
 
 is_moving_nest_tmp=$( echo ${is_moving_nest} | cut -d , -f ${ng} )
@@ -1720,7 +1720,7 @@ if [[ "${is_moving_nest_tmp}" = ".true." ]] || [[ "${is_moving_nest_tmp}" = ".T.
     if [ -s ${OUTdir}/${fort_patcf} ] && [ ${OUTdir}/${fort_patcf} -nt ${OUTdir}/${fort_patcf}_save ]; then
       cat ${OUTdir}/${fort_patcf} >> ${OUTdir}/${fort_patcf}_save
 	fi
-    ${NLN} ${OUTdir}/${fort_patcf} ./
+    ${RLN} ${OUTdir}/${fort_patcf} ./
   fi
 fi
 

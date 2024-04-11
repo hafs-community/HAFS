@@ -297,14 +297,14 @@ if [ ${satpost} = .true. ]; then
     "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
     "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" \
     "abi_g16" "abi_g17" ; do
-    ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
-    ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+    ${WLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+    ${WLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
   done
   for file in "Aerosol" "Cloud"; do
-    ${NLN} ${FIXcrtm}/${file}Coeff.bin ./
+    ${WLN} ${FIXcrtm}/${file}Coeff.bin ./
   done
   for file in ${FIXcrtm}/*Emis*; do
-    ${NLN} ${file} ./
+    ${WLN} ${file} ./
   done
 else
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
@@ -582,6 +582,18 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${I
       ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
     fi
   done
+fi
+
+# Deliver WW3 restart file if needed and exists
+if [ ${run_wave:-no} = yes ]; then
+  ww3_restart=${YYYY}${MM}${DD}.${HH}0000.restart.ww3
+  ww3_restart_f006=${out_prefix}.${RUN}.ww3.restart.f006
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -eq 6 ] && [ -s ${INPdir}/${ww3_restart} ]; then
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ww3_restart}) )) -lt 30 ]; do sleep 10s; done
+    if [ ${INPdir}/${ww3_restart} -nt ${COMOUTpost}/${ww3_restart_f006} ]; then
+      ${FCP} ${INPdir}/${ww3_restart} ${COMOUTpost}/${ww3_restart_f006}
+    fi
+  fi
 fi
 
 # Deliver hafs.trak.patcf at NHRS if needed and exists

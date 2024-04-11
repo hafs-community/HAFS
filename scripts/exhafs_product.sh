@@ -127,8 +127,8 @@ while [ $FHR -le $NHRS ]; do
   trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
   tracker_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
   tracker_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
-  ${NLN} ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
-  ${NLN} ${INPdir}/${trk_grb2indx} ./${tracker_grb2indx}
+  ${RLN} ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
+  ${RLN} ${INPdir}/${trk_grb2indx} ./${tracker_grb2indx}
   IFHR=$(($IFHR + 1))
   LINE=$(printf "%4d %5d" "$IFHR" "$FMIN")
   echo "$LINE" >> input.fcst_minutes
@@ -158,20 +158,20 @@ ${NCP} input.vitals tcvit_rsmc_storms.txt
 ${NLN} input.vitals       fort.12
 touch fort.14
 ${NLN} input.fcst_minutes fort.15
-${NLN} output.all         fort.61
-${NLN} output.atcf        fort.62
-${NLN} output.radii       fort.63
-${NLN} output.atcfunix    fort.64
-${NLN} output.initvitl    fort.65
-${NLN} output.atcf_gen    fort.66
-${NLN} output.genvitals   fort.67
-${NLN} output.atcf_sink   fort.68
-${NLN} output.atcf_hfip   fort.69
-${NLN} output.cps_parms   fort.71
-${NLN} output.structure   fort.72
-${NLN} output.fractwind   fort.73
-${NLN} output.ike         fort.74
-${NLN} output.pdfwind     fort.76
+${RLN} output.all         fort.61
+${RLN} output.atcf        fort.62
+${RLN} output.radii       fort.63
+${RLN} output.atcfunix    fort.64
+${RLN} output.initvitl    fort.65
+${RLN} output.atcf_gen    fort.66
+${RLN} output.genvitals   fort.67
+${RLN} output.atcf_sink   fort.68
+${RLN} output.atcf_hfip   fort.69
+${RLN} output.cps_parms   fort.71
+${RLN} output.structure   fort.72
+${RLN} output.fractwind   fort.73
+${RLN} output.ike         fort.74
+${RLN} output.pdfwind     fort.76
 
 # Prepare ./deliver.sh, which will used in gettrk.x to deliver the atcfunix
 # track file to COMhafs as soon as it becomes available. It also delivers

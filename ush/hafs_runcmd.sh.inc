@@ -60,16 +60,27 @@ else
 fi
 
 # Some commonly used commands
-if [ "${RUN_ENVIR^^}" != "NCO" ]; then
-  export NCP=${NCP:-"/bin/cp"}
-  export FCP=${FCP:-"/bin/cp"}
-else
-  # Run by NCO on WCOSS2, use cpreq for NCP and cpfs for FCP
+# Use cpreq for NCP and cpfs for FCP if they are available
+if command -v cpreq >/dev/null 2>&1 ; then
   export NCP=${NCP:-"cpreq"}
-  export FCP=${FCP:-"cpfs"}
+else
+  export NCP=${NCP:-"/bin/cp"}
 fi
+if command -v cpfs >/dev/null 2>&1 ; then
+  export FCP=${FCP:-"cpfs"}
+else
+  export FCP=${FCP:-"/bin/cp"}
+fi
+# If available, use the symbolic link approach with options to check broken symbolic link
+if [ -n "${HOMEhafs}" ] && [ -e ${HOMEhafs}/ush/hafs_lnchk.sh ]; then
+ export NLN=${NLN:-"${HOMEhafs}/ush/hafs_lnchk.sh -e"} # exit with FATAL ERROR if broken symbolic link
+ export WLN=${WLN:-"${HOMEhafs}/ush/hafs_lnchk.sh -w"} # print WARNING message if broken symbolic link
+else
+ export NLN=${NLN:-"/bin/ln -sf"}
+ export WLN=${WLN:-"/bin/ln -sf"}
+fi
+export RLN=${RLN:-"/bin/ln -sf"}
 export NMV=${NMV:-"/bin/mv"}
-export NLN=${NLN:-"/bin/ln -sf"}
 export TAR=${TAR:-tar}
 export NDATE=${NDATE:-ndate}
 export WGRIB2=${WGRIB2:-wgrib2}

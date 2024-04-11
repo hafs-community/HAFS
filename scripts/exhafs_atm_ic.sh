@@ -85,7 +85,7 @@ FIXCASE=${DATA}/grid/${CASE}
 mkdir -p ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
-${NLN} ${GRID_intercom}/${CASE}/* ./
+${RLN} ${GRID_intercom}/${CASE}/* ./
 
 cd $DATA
 
@@ -191,7 +191,7 @@ else
 fi
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
-  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
+  ${RLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
   if [ $gtype = nest ]; then
     ${NLN} $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
   fi
@@ -328,7 +328,7 @@ fi
 for itile in $(seq $stile $ntiles); do
 
 inest=$(($itile + 2 - $stile))
-${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
+${RLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
 ${NLN} $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
 export GRIDTYPE=nest
 HALO=0

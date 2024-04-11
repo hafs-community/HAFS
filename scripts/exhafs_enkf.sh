@@ -166,13 +166,13 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
 fi
 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
-#checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
+#checkgfs ${NLN} $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
-#checkgfs $NLN $vqcdat       vqctp001.dat
-#checkgfs $NLN $INSITUINFO   insituinfo
+#checkgfs ${NLN} $vqcdat       vqctp001.dat
+#checkgfs ${NLN} $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
-#checkgfs $NLN $AEROINFO     aeroinfo
-#checkgfs $NLN $HYBENSINFO   hybens_info
+#checkgfs ${NLN} $AEROINFO     aeroinfo
+#checkgfs ${NLN} $HYBENSINFO   hybens_info
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter

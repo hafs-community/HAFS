@@ -57,8 +57,8 @@ fi
 ${NCP} -Lp ${PREPQC} ./prepbufr.orig
 ${NCP} -Lp ${PREPQC} ./prepbufr.qm_typ
 
-${NLN} -sf ./prepbufr.orig   ./fort.21
-${NLN} -sf ./prepbufr.qm_typ ./fort.51
+${NLN} ./prepbufr.orig   ./fort.21
+${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
