@@ -291,20 +291,28 @@ if [ ${satpost} = .true. ]; then
 # ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   # Link crtm fix files
+  # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
     "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
-    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" \
-    "abi_g16" "abi_g17" ; do
-    ${WLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
-    ${WLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+    "tmi_trmm" "imgr_insat3d" "abi_gr" "abi_g16" \
+    "abi_g17" "ahi_himawari8" ; do
+    ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+  done
+  for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" \
+    "abi_g16" "abi_g17" "ahi_himawari8" ; do
+    ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
   done
   for file in "Aerosol" "Cloud"; do
-    ${WLN} ${FIXcrtm}/${file}Coeff.bin ./
+    ${NLN} ${FIXcrtm}/${file}Coeff.bin ./
   done
   for file in ${FIXcrtm}/*Emis*; do
-    ${WLN} ${file} ./
+    ${NLN} ${file} ./
   done
 else
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
