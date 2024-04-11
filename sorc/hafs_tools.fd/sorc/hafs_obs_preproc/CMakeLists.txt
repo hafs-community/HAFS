@@ -85,6 +85,8 @@ target_link_options(${exe_name} PRIVATE
     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
     -traceback -fp-model precise -assume byterecl -convert big_endian)
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z noexecstack")
+
 target_link_libraries(
   ${exe_name}
   bufr::bufr_4
