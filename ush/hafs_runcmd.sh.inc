@@ -90,4 +90,7 @@ export UNCOMPRESS=${UNCOMPRESS:-gunzip}
 export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
 export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 
+if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  export MAX_WAIT_TIME=${MAX_WAIT_TIME:-3600}
+fi
 #==============================================================================

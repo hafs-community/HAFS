@@ -210,8 +210,9 @@ else
 if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
     echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
@@ -220,18 +221,18 @@ while [ $n -le 360 ]; do
     sleep 1s
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3} , ${INPdir}/HURPRS${neststr}.GrbF${FHR2} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
@@ -242,11 +243,11 @@ while [ $n -le 360 ]; do
     sleep 1s
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc, ${INPdir}/sfc${nestdotstr}f${FHR3}.nc too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
