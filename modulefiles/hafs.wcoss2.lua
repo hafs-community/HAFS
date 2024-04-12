@@ -110,7 +110,6 @@ load(pathJoin("bufr_dump", bufr_dump_ver))
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
-prepend_path("MODULEPATH", "/apps/ops/para/libs/modulefiles/mpi/intel/19.1.3.304/cray-mpich/8.1.9")
 ncdiag_ver=os.getenv("ncdiag_ver") or "1.1.2"
 load(pathJoin("ncdiag-A", ncdiag_ver))
 
