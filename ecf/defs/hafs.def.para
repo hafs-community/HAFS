@@ -35,10 +35,10 @@ suite para
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v2.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        family v1.0
+        family v2.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
@@ -1848,10 +1848,10 @@ suite para
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v2.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        family v1.0
+        family v2.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
@@ -3661,10 +3661,10 @@ suite para
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v2.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        family v1.0
+        family v2.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
@@ -5474,10 +5474,10 @@ suite para
         edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
+#       edit hafs_ver 'v2.0.0'
         edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
-        family v1.0
+        family v2.0
  #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
