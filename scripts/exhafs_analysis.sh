@@ -605,12 +605,11 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 #-------------------------------------------------------------------
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
-set -o pipefail
-${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
-set +o pipefail
+${APRUNC} ./hafs_gsi.x  >> $pgmout 2>errfile
 export err=$?; err_chk
+if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 
-cat ./stdout > ${GSISOUT}
+cat ${pgmout} > ${GSISOUT}
 
 # Cat runtime output files.
 cat fort.2* > ${GSISTAT}

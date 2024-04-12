@@ -321,10 +321,9 @@ fi
 
 # Run post
 ${NCP} -p ${POSTEXEC} ./hafs_post.x
-set -o pipefail
-${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
-set +o pipefail
+${APRUNC} ./hafs_post.x < itag  >> $pgmout 2>errfile
 export err=$?; err_chk
+if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then

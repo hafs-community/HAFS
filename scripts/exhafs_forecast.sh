@@ -1746,13 +1746,9 @@ done
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
-#${APRUNC} ./hafs_forecast.x > forecast.log 2>&1
-#export err=$?; err_chk
-#cat forecast.log
-set -o pipefail
-${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
-set +o pipefail
+${APRUNC} ./hafs_forecast.x >> $pgmout 2>errfile
 export err=$?; err_chk
+if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 
