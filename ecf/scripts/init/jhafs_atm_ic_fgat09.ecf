@@ -1,10 +1,10 @@
-#PBS -N %RUN%%STORMNUM%_atm_vi%RI_EXT%_%CYC%%VER:""%
+#PBS -N %RUN%%STORMNUM%_atm_ic%RI_EXT%_%CYC%%VER:""%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:30:00
-#PBS -l place=vscatter:excl,select=1:ncpus=128:mpiprocs=8:ompthreads=16
+#PBS -l walltime=00:15:00
+#PBS -l place=vscatter:excl,select=3:ncpus=60:mpiprocs=60:ompthreads=1
 #PBS -l debug=true
 
 model=hafs
@@ -14,9 +14,9 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='8'
-export NCTSK='8'
-export OMP_THREADS='16'
+export TOTAL_TASKS='180'
+export NCTSK='60'
+export OMP_THREADS='1'
 
 export storm_num="%STORMNUM%"
 
@@ -28,12 +28,13 @@ module load cray-pals/${cray_pals_ver}
 module load hdf5-A/${hdf5_ver}
 module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
+module load libjpeg/${libjpeg_ver}
 module list
 
 export FGAT_MODEL="%FGAT_MODEL%"
 export FGAT_HR="%FGAT_HR%"
 
-${HOMEhafs}/jobs/JHAFS_ATM_VI
+${HOMEhafs}/jobs/JHAFS_ATM_IC
 
 %include <tail.h>
 
