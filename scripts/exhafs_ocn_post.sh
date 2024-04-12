@@ -85,8 +85,9 @@ echo "skip ocnpost for forecast hour ${FHR3} valid at ${NEWDATE}"
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1800}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/${ocnout} ] || \
      [ ! -s ${INPdir}/${ocnoutn} ]; then
@@ -98,11 +99,11 @@ while [ $n -le 360 ]; do
 	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ocnout}) )) -lt 20 ]; do sleep 20; done
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, ${INPdir}/${ocnoutn} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 # Deliver to COMOUTpost

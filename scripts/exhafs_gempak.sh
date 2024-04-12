@@ -77,8 +77,9 @@ echo "skip gempak for forecast hour ${fhr3}"
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${GBFILE} ] || [ ! -s ${GBINDX} ]; then
     echo "${GBFILE} or ${GBINDX} not ready, sleep 10s"
     sleep 10s
@@ -87,11 +88,11 @@ while [ $n -le 360 ]; do
     sleep 1s
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${GBFILE}, ${GBINDX} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 ${GEMEXE:?}/nagrib2 << EOF
