@@ -1,0 +1,22 @@
+# MANUAL PAGE FOR FAMILY/SUITE prep
+%manual
+
+FAMILY prep
+
+PURPOSE: Runs all HAFS atmosphere, ocean, and wave model component preparation jobs.
+
+This family of HAFS jobs run the atmopsheric preprocessing to generate the
+model grid and geographical files (topography, surface climatology, etc.);
+ocean prepprocessing to generate ocean model component needed initial
+condition, open boundary condition, and atmospheric forcings; and wave
+preprocessing to generate wave model component needed grid, initial condition,
+boundary condition and atmospheric forcings. Besides, the obs_prep job prepares
+some observational data for atmospheric data assimilation.
+
+  atm_prep - atmospheric preprocessing for parent and moving-nest domains
+  atm_prep_mvnest - atmospheric preprocessing for parent with moving-nest resolution
+  obs_prep - observational data preparation for atmospheric data assimilation
+  ocn_prep - oceanic preprocessing to generate IC, OBC, and atmospheric forcings
+  wav_prep - wave preprocessing to generate model grid, IC, BC, and atmospheric forcings
+
+%end

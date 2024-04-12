@@ -1,0 +1,32 @@
+# MANUAL PAGE FOR FAMILY/SUITE storm1
+%manual
+
+FAMILY storm1
+
+PURPOSE: Runs all jobs for the storm1 storm slot.
+
+NOTE: HFSA runs up to seven storms in all global basins.  HFSB runs up to five
+storms in NHC/CPHC basins.  This is just an example manual for the storm slot 1
+of HFSA.  The same/similar manual applies to other HFSA storm slots, as well as
+HFSB storm slots.
+
+This is slot 1 of the seven HFSA storm slots.  Anywhere from one to
+seven of theses slots will be active at once, as decided by the NOAA
+Senior Duty Meterologist at 3, 9, 15 and 21 UTC every day.  That
+decision is transmitted to HAFS via the setup_hurricane program which
+creates these files:
+
+$COMhafs/inp$RUN/message[1-7]
+
+Similar history[1-7] files contain a history of the contents of those
+files, and the nstorms file contains a number from 1-7 telling how
+many slots are active.  The scripts will use only the first N of them,
+so if nstorms=3, only message1-7 is scanned.
+
+That determiniation of which slots are active is made in the launch
+job in this family.  If no storm is active, the launch:NoStorm event
+is set, shutting down the rest of the workflow for the storm.
+Otherwise, the launch:storm[1-7] label contains information about the
+storm to run, and the rest of the system runs as expected.
+
+%end

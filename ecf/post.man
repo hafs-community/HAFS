@@ -1,0 +1,19 @@
+# MANUAL PAGE FOR FAMILY/SUITE post
+%manual
+
+FAMILY post
+
+PURPOSE: Runs post-processing and ouput jobs.
+
+This family runs the atmospheric, oceanic and wave post-processing jobs,
+generates and delivers gempak and tracker products.
+
+unpost -  cleans up post-processing products and files in com and intercom
+atm_post - run UPP to generate atmospheric and satellite grib2 products
+ocn_post - runs ocean post-processing and delivers ocean model output
+wav_post - runs wave post-processing and delivers wave model output
+gempak - generates HAFS GEMPAK products
+product - runs GFDL vortex tracker and produces products for stakeholders
+output - delivers model output and produces swath grib2 files
+
+%end
