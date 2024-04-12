@@ -1,0 +1,15 @@
+# MANUAL PAGE FOR FAMILY/SUITE analysis
+%manual
+
+FAMILY analysis
+
+PURPOSE: Conduct atmospheric data assimilation and merge HAFS and GFS analyses
+
+This family of HAFS jobs run the HAFS atmospheric data assimilation through
+GSI, and merge the DA analysis with GFS analysis to generate final initial
+condition to run the forecast.
+
+analysis - run GSI-based atmospheric DA
+analysis_merge - merge DA analysis wit GFS analysis to generate final IC to run forecast
+
+%end
