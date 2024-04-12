@@ -19,6 +19,9 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 # Avoild "NetCDF: HDF error"
 export HDF5_USE_FILE_LOCKING=FALSE
 
+# Define pgmout
+export pgmout=OUTPUT.$$
+
 # Set job run commands
 # APRUN:  command to run general jobs
 # APRUNS: command to run serial jobs
@@ -93,4 +96,5 @@ export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   export MAX_WAIT_TIME=${MAX_WAIT_TIME:-3600}
 fi
+
 #==============================================================================

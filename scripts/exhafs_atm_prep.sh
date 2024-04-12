@@ -185,8 +185,10 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "............ execute $MAKEGRIDSSH ................."
   if [ $gtype = uniform ];  then
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $script_dir
+    export err=$?; err_chk
   elif [ $gtype = stretch ]; then
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $script_dir
+    export err=$?; err_chk
   fi
   date
   echo "............ execute $MAKEOROGSSH ................."
@@ -243,6 +245,7 @@ elif [ $gtype = nest ]; then
        "$iend_nest" \
        "$jend_nest" \
        $halo $script_dir
+  export err=$?; err_chk
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
@@ -290,6 +293,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
 
   echo "creating regional esg grid"
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+  export err=$?; err_chk
 
   else
 
@@ -302,6 +306,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
        "$iend_nest" \
        "$jend_nest" \
        $halo $script_dir
+  export err=$?; err_chk
 
   fi
 
@@ -392,6 +397,7 @@ if [ $gtype = regional ]; then
   if [ ${nest_grids} -eq 1 ]; then
     echo "Creating regional esg grid"
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+    export err=$?; err_chk
   else
     echo "Regional esg grid parent already generated. No need to generate again."
   fi
@@ -399,6 +405,7 @@ if [ $gtype = regional ]; then
   else
 
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest_halo $jstart_nest_halo $iend_nest_halo $jend_nest_halo $halo $script_dir
+  export err=$?; err_chk
 
   fi
 
@@ -416,6 +423,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $FILTERTOPOSSH .............."
   ${APRUN} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
+  export err=$?; err_chk
 
   echo "............ execute shave to reduce grid and orography files to required compute size .............."
   cd $filter_dir
@@ -426,7 +434,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halop1 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid
 
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 4
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halop1}.nc
@@ -436,7 +446,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halo \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog.halo${halo}
   echo $npts_cgx $npts_cgy $halo \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo}
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo}
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo}
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 3
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo}.nc
@@ -447,7 +459,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halo0 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo0}
 
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo0}
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo0}
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 0
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
