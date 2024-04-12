@@ -59,7 +59,7 @@ export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
 
 # Set FORECAST_RESTART to YES if this is a restart run for the forecast job
-export FORECAST_RESTART=${FORECAST_RESTART:-NO}
+export FORECAST_RESTART=${FORECAST_RESTART:-${RESTART:-NO}}
 if [ "${FORECAST_RESTART}" = "YES" ]; then
   if grep -h 'Current model time' ${WORKhafs}/intercom/RESTART/????????.??0000.coupler.res ; then
     RESTART_ctime=$(grep -h 'Current model time' ${WORKhafs}/intercom/RESTART/????????.??0000.coupler.res | tail -n 1)
