@@ -1,0 +1,140 @@
+suite prod_clone
+  family primary
+    family 00
+      family rtofs
+        family v2.3
+          task jrtofs_global_analysis
+        endfamily
+      endfamily        #rtofs
+      family gfs
+        family v16.3
+          family gfs
+            family atmos
+              family analysis
+                task jgfs_atmos_analysis
+                  event 1 release_fcst
+              endfamily
+              family post
+                task jgfs_atmos_post_manager
+                  event 1 release_post000
+                  event 2 release_post120
+              endfamily
+            endfamily   #atmos
+          endfamily     #gfs
+          family gdas
+            family atmos
+              family post
+                task jgdas_atmos_post_manager
+                  event 1 release_post003
+                  event 2 release_post006
+                  event 3 release_post009
+              endfamily
+            endfamily
+          endfamily     #gdas
+        endfamily             # gfs
+      endfamily               # gfs
+    endfamily                 # 00
+    family 06
+      family rtofs
+        family v2.3
+          task jrtofs_global_analysis
+        endfamily
+      endfamily        #rtofs
+      family gfs
+        family v16.3
+          family gfs
+            family atmos
+              family analysis
+                task jgfs_atmos_analysis
+                  event 1 release_fcst
+              endfamily
+              family post
+                task jgfs_atmos_post_manager
+                  event 1 release_post000
+                  event 2 release_post120
+              endfamily
+            endfamily   #atmos
+          endfamily     #gfs
+          family gdas
+            family atmos
+              family post
+                task jgdas_atmos_post_manager
+                  event 1 release_post003
+                  event 2 release_post006
+                  event 3 release_post009
+              endfamily
+            endfamily
+          endfamily     #gdas
+        endfamily             # gfs
+      endfamily               # gfs
+    endfamily                 # 06
+    family 12
+      family rtofs
+        family v2.3
+          task jrtofs_global_analysis
+        endfamily
+      endfamily        #rtofs
+      family gfs
+        family v16.3
+          family gfs
+            family atmos
+              family analysis
+                task jgfs_atmos_analysis
+                  event 1 release_fcst
+              endfamily
+              family post
+                task jgfs_atmos_post_manager
+                  event 1 release_post000
+                  event 2 release_post120
+              endfamily
+            endfamily   #atmos
+          endfamily     #gfs
+          family gdas
+            family atmos
+              family post
+                task jgdas_atmos_post_manager
+                  event 1 release_post003
+                  event 2 release_post006
+                  event 3 release_post009
+              endfamily
+            endfamily
+          endfamily     #gdas
+        endfamily             # gfs
+      endfamily               # gfs
+    endfamily                 # 12
+    family 18
+      family rtofs
+        family v2.3
+          task jrtofs_global_analysis
+        endfamily
+      endfamily        #rtofs
+      family gfs
+        family v16.3
+          family gfs
+            family atmos
+              family analysis
+                task jgfs_atmos_analysis
+                  event 1 release_fcst
+              endfamily
+              family post
+                task jgfs_atmos_post_manager
+                  event 1 release_post000
+                  event 2 release_post120
+              endfamily
+            endfamily   #atmos
+          endfamily     #gfs
+          family gdas
+            family atmos
+              family post
+                task jgdas_atmos_post_manager
+                  event 1 release_post003
+                  event 2 release_post006
+                  event 3 release_post009
+              endfamily
+            endfamily
+          endfamily     #gdas
+        endfamily             # gfs
+      endfamily               # gfs
+    endfamily                 # 18
+  endfamily                   # primary
+endsuite 

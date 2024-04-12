@@ -1,10 +1,10 @@
-#PBS -N %RUN%%STORMNUM%_launch_%CYC%%VER:""%
+#PBS -N %RUN%_msg_check_%CYC%%VER:""%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=10G
+#PBS -l place=vscatter:excl,select=1:ncpus=1:mpiprocs=1:ompthreads=1
 #PBS -l debug=true
 
 model=hafs
@@ -14,55 +14,30 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export storm_num="%STORMNUM%"
+export TOTAL_TASKS='1'
+export NCTSK='1'
+export OMP_THREADS='1'
 
-module load PrgEnv-intel/${PrgEnv_intel_ver}
-module load craype/${craype_ver}
-module load intel/${intel_ver}
-module load cray-mpich/${cray_mpich_ver}
-module load cray-pals/${cray_pals_ver}
-module load hdf5-A/${hdf5_ver}
-module load netcdf-A/${netcdf_ver}
-module load python/${python_ver}
-module load crtm/${crtm_ver}
-module load udunits/${udunits_ver}
-module load gsl/${gsl_ver}
-module load nco/${nco_ver}
 module list
 
-${HOMEhafs}/jobs/JHAFS_LAUNCH
+export EMAIL_SDM=YES
+export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
+
+${HOMEhafs}/jobs/JHAFS_MSG_CHECK
 
 %include <tail.h>
 
 %manual
-TASK launch
+TASK msg_check
 
-PURPOSE: Creates initial directory structure and configures the
-         rest of the workflow for one storm.
+PURPOSE: Check for hurricane messages.
 
-This job will delete and recreate the $DATA work area for one HAFS
-storm.  It sets several flags to turn on and off parts of the
-workflow, or disable the entire workflow if there is no storm.  All
-logic is triggered by the message file sent by the SDM via
+This job will check if hurricane message files are generated in time, and if
+there is active storm while the messages is not present yet in the specic time
+closed to the cycle, an alert email will be sent out to SDM to alert for the
 setup_hurricane.
 
-Labels:
-
-  stormN - storm1-storm7 for HFSA, storm1-storm5 for HFSB; label tells 
-    whether a storm is to be run.  IF the storm is to be run, it tells 
-    what the storm is, and who sent it (NHC or JTWC).
-
-Events:
-
-  NoStorm - set if no storm is to be run.  The rest of the workflow sees
-            the event and automatically completes via ecFlow completion clauses.
-   
-  Ocean - for both HFSA and HFSB have ocean coupling with HYCOM
-  
-  Wave - for wave coupling, (only HFSA will run it for NHC basin storms)
-  
-  Analysis - for both HFSA and HFSB will set it for NHC basin storms; 
-             for HFSA with JTWC storms (data assimilation is turned off)
 
 TROUBLESHOOTING
 
