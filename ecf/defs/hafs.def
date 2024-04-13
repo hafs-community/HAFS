@@ -64,7 +64,7 @@ suite para_hafs_v2
                 trigger :TIME >= 0300 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0310 and :TIME < 0910 and ../jhafs_cleanup==complete 
+                  trigger :TIME >= 0310 and :TIME < 0910 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -100,7 +100,7 @@ suite para_hafs_v2
                   edit RI_EXT '_fgat03'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
-                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear 
+                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
                   trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
@@ -112,7 +112,7 @@ suite para_hafs_v2
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
-                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear 
+                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
                   trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
@@ -682,7 +682,7 @@ suite para_hafs_v2
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1135,7 +1135,7 @@ suite para_hafs_v2
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1283,7 +1283,7 @@ suite para_hafs_v2
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1431,7 +1431,7 @@ suite para_hafs_v2
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1579,7 +1579,7 @@ suite para_hafs_v2
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1889,7 +1889,7 @@ suite para_hafs_v2
                 trigger :TIME >= 0900 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0910 and :TIME < 1500 and ../jhafs_cleanup==complete 
+                  trigger :TIME >= 0910 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1904,7 +1904,7 @@ suite para_hafs_v2
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init/jhafs_atm_init==complete 
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120
@@ -5689,7 +5689,7 @@ suite para_hafs_v2
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2110 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete 
+                  trigger ((:TIME >= 2110 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean

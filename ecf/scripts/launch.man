@@ -1,45 +1,12 @@
-#PBS -N %RUN%%STORMNUM%_launch_%CYC%%VER:""%
-#PBS -j oe
-#PBS -S /bin/bash
-#PBS -q %QUEUE%
-#PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:15:00
-#PBS -l place=vscatter:excl,select=1:ncpus=1:mpiprocs=1:ompthreads=1
-#PBS -l debug=true
-
-export storm_num="%STORMNUM%"
-model=hafs
-export NET="%NET%"
-export RUN="%RUN%"
-export cyc="%CYC%"
-%include <head.h>
-%include <envir-p1.h>
-
-module load PrgEnv-intel/${PrgEnv_intel_ver}
-module load craype/${craype_ver}
-module load intel/${intel_ver}
-module load cray-mpich/${cray_mpich_ver}
-module load cray-pals/${cray_pals_ver}
-module load hdf5-A/${hdf5_ver}
-module load netcdf-A/${netcdf_ver}
-module load python/${python_ver}
-module load crtm/${crtm_ver}
-module load udunits/${udunits_ver}
-module load gsl/${gsl_ver}
-module load nco/${nco_ver}
-module list
-
-${HOMEhafs}/jobs/JHAFS_LAUNCH
-
-%include <tail.h>
-
+# MANUAL PAGE FOR FAMILY/SUITE launch
 %manual
-TASK launch
+
+FAMILY launch
 
 PURPOSE: Creates initial directory structure and configures the rest of the
          workflow for one storm.
 
-This job will create the $DATA work area for one HAFS storm. It sets several
+This launch family job creates the work area for one HAFS storm. It sets several
 flags to turn on and off parts of the workflow, or disable the entire workflow
 if there is no storm. All logic is triggered by the message file sent by the
 SDM via setup_hurricane.

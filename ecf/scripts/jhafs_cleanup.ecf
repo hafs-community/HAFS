@@ -33,7 +33,7 @@ PURPOSE: Deletes the HAFS hfsa or hfsb working directory left behind by the same
 cycle yesterday.  This job saves a minute or so of runtime that used
 to take up the beginning of the launch job.
 
-TROBLESHOOTING: 
+TROBLESHOOTING:
 
 PROBLEM: Job has hung?
 
