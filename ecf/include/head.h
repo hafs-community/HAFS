@@ -2,7 +2,7 @@ date
 hostname
 set -xe  # print commands as they are executed and enable signal trapping
 
-export PS4='+ $SECONDS + ' 
+export PS4='+ $SECONDS + '
 
 # Variables needed for communication with ecFlow
 export ECF_NAME=%ECF_NAME%
