@@ -24,19 +24,20 @@ intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
 for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   nested_grid=${DATA}/${NET}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}
   # Make sure gempak files are ready
-  attempts=1
-  while [ $attempts -le 120 ]; do
+  MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+  n=0
+  while [ $n -le ${MAX_WAIT_TIME} ]; do
     if [ -f ${intercom}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       break
     else
-      sleep 10
-      attempts=$((attempts+1))
+      sleep 10s
     fi
+    if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${intercom}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "FATAL ERROR: Waited $nested_grid too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+      exit 1
+    fi
+    n=$((n+10))
   done
-  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
-    echo "FATAL ERROR: $nested_grid still not available after waiting 20 minutes... exiting"
-    exit 1
-  fi
 
   $GEMEXE/gdinfo << EOF
 GDFILE  = $nested_grid
@@ -86,21 +87,21 @@ for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   echo "PROCESSING HOUR $fhr ----------------------------------------"
   nested_grid=${DATA}/${NET}/${NET}n_${PDY}${cyc}f${fhr}_${storm_id}
   full_domain=${DATA}/${NET}p/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}
-
   # Make sure gempak files are ready
-  attempts=1
-  while [ $attempts -le 120 ]; do
+  MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+  n=0
+  while [ $n -le ${MAX_WAIT_TIME} ]; do
     if [ -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       break
     else
-      sleep 10
-      attempts=$((attempts+1))
+      sleep 10s
     fi
+    if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "FATAL ERROR: Waited $full_domain too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+      exit 1
+    fi
+    n=$((n+10))
   done
-  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
-    echo "FATAL ERROR: $full_domain still not available after waiting 20 minutes... exiting"
-    exit 1
-  fi
 
   $GEMEXE/gdplot2_nc <<EOF
 \$MAPFIL = hipowo.cia
@@ -435,23 +436,23 @@ export err=$?; err_chk
 
 # Get the ASCII file that contains track information.  This will be used to create the TRACK
 # in the metafile.  It is important that this file below exist each time.
-
 statfile="${out_prefix}.${RUN}.grib.stats.short"
-attempts=1
-while [ $attempts -le 360 ]; do
+# Make sure gempak files are ready
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ -f ${COMIN}/${statfile} ]; then
     sleep 3s
     break
   else
     sleep 10s
-    attempts=$((attempts+1))
   fi
+  if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${COMIN}/${statfile} ]; then
+    echo "FATAL ERROR: Waited ${COMIN}/${statfile} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+    exit 1
+  fi
+  n=$((n+10))
 done
-if [ $attempts -gt 360 ] && [ ! -f ${COMIN}/${statfile} ]; then
-  echo "FATAL ERROR: ${COMIN}/${statfile} still not available after waiting 60 minutes... exiting"
-  exit 1
-fi
-
 ${FCP} ${COMIN}/${statfile} ./
 
 numlines=$(cat $statfile | wc -l)
