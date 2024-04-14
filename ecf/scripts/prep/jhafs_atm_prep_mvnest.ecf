@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=01:30:00
-#PBS -l place=vscatter:excl,select=3:ncpus=128:mpiprocs=8:ompthreads=16
+#PBS -l place=vscatter:excl,select=1:ncpus=120:mpiprocs=6:ompthreads=20
 #PBS -l debug=true
 
 model=hafs
@@ -14,9 +14,9 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='24'
-export NCTSK='8'
-export OMP_THREADS='16'
+export TOTAL_TASKS='6'
+export NCTSK='6'
+export OMP_THREADS='20'
 export ATM_PREP_MVNEST=YES
 export storm_num="%STORMNUM%"
 
@@ -29,6 +29,9 @@ module load hdf5-A/${hdf5_ver}
 module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
 module load crtm/${crtm_ver}
+module load udunits/${udunits_ver}
+module load gsl/${gsl_ver}
+module load nco/${nco_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_ATM_PREP
