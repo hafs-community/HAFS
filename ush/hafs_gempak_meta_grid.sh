@@ -19,19 +19,22 @@ intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
 # Make sure gempak files are ready
 for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   full_domain=${DATA}/${NET}p/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}
-  attempts=1
-  while [ $attempts -le 120 ]; do
+  # Make sure gempak files are ready
+  MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+  n=0
+  while [ $n -le ${MAX_WAIT_TIME} ]; do
     if [ -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "$full_domain, ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ready, continue"
       break
     else
-      sleep 10
-      attempts=$((attempts+1))
+      sleep 10s
     fi
+    if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "FATAL ERROR: Waited $full_domain too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+      exit 1
+    fi
+    n=$((n+10))
   done
-  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
-    echo "FATAL ERROR: $full_domain still not available after waiting 20 minutes... exiting"
-    exit 1
-  fi
 done
 
 $GEMEXE/gdinfo << EOF
