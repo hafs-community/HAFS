@@ -1354,7 +1354,7 @@ if [ ${run_wave} = yes ]; then
   ${NLN} ${WORKhafs}/intercom/ww3/wind.ww3 wind.ww3
   ${NLN} ${WORKhafs}/intercom/ww3/current.ww3 current.ww3
   ${NLN} ${WORKhafs}/intercom/ww3/restart_init.ww3 restart.ww3
-  ${NLN} ${WORKhafs}/intercom/ww3/nest.ww3 nest.ww3
+  ${WLN} ${WORKhafs}/intercom/ww3/nest.ww3 nest.ww3 # nest.ww3 not mandatory, thus using ${WLN}
   # copy parms
   ${NCP} ${PARMww3}/ww3_shel.inp_tmpl ./ww3_shel.inp_tmpl
   # generate ww3_shel.inp
