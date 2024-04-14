@@ -293,9 +293,13 @@ fi
 
 # Run post
 ${NCP} -p ${POSTEXEC} ./hafs_post.x
-${APRUNC} ./hafs_post.x < itag  >> $pgmout 2>errfile
+#${APRUNC} ./hafs_post.x < itag >> $pgmout 2>errfile
+#export err=$?; err_chk
+#if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
+set -o pipefail
+${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./post_${NEWDATE}.log
 export err=$?; err_chk
-if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
+set +o pipefail
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then

@@ -62,9 +62,10 @@ ${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
 ${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
+set -o pipefail
+${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
 export err=$?; err_chk
-cat ./hafs_change_prepbufr_qm_typ.out
+set +o pipefail
 
 # Deliver to intercom
 ${NCP} -p ./prepbufr.qm_typ ${intercom}/${NET}.t${cyc}z.prepbufr
@@ -336,9 +337,10 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-${APRUNS} ./hafs_obs_preproc.x > ./hafs_obs_preproc.out 2>&1
+set -o pipefail
+${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./obs_preproc.out
 export err=$?; err_chk
-cat ./hafs_obs_preproc.out
+set +o pipefail
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}

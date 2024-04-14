@@ -61,15 +61,14 @@ ${NCP} -p $executable .
 echo $tile > grid_info.dat
 echo $res >> grid_info.dat
 echo $halo >> grid_info.dat
-${APRUNO} $executable < grid_info.dat
 
-if [ $? -ne 0 ]; then
-  echo "ERROR in running $executable "
-  exit 1
-else
-  mv ./C*oro_data_*.nc $outdir/
-  echo "*oro_data_ls* and *oro_data_ss* files created"
-  echo "Successfully running $executable "
-  exit 0
-fi
+set -o pipefail
+${APRUNO} $executable < grid_info.dat 2>&1 | tee ./make_orog_gsl.log
+export err=$?; err_chk
+set +o pipefail
 
+mv ./C*oro_data_*.nc $outdir/
+echo "*oro_data_ls* and *oro_data_ss* files created"
+echo "Successfully running $executable "
+
+date
