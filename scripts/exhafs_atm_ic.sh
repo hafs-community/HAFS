@@ -282,8 +282,10 @@ cat>./fort.41<<EOF
 EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
+set -o pipefail
+${APRUNC} ./hafs_chgres_cube.x 2>&1 | tee ./chgres_cube_ic.log
 export err=$?; err_chk
+set +o pipefail
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
   mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
@@ -377,8 +379,12 @@ cat>./fort.41<<EOF
 /
 EOF
 #${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
+set -o pipefail
+${APRUNC} ./hafs_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc.log
 export err=$?; err_chk
+set +o pipefail
+
+
 mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
 mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
 

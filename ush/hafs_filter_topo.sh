@@ -81,20 +81,9 @@ cat > input.nml <<EOF
   /
 EOF
 
-$APRUN $executable
+set -o pipefail
+${APRUN} $executable 2>&1 | tee ./filter_topo.log
+export err=$?; err_chk
+set +o pipefail
 
-if [ $? -ne 0 ]; then
-  set +x
-  echo
-  echo "FATAL ERROR running filter topography for C$res "
-  echo
-  set -x
-  exit 1
-else
-  set +x
-  echo
-  echo "Successfully ran filter topography for C$res"
-  echo
-  set -x
-  exit 0
-fi
+date

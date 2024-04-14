@@ -110,20 +110,19 @@ fi
 echo "none" >> INPS
 
 cat INPS
-${APRUNO} $executable < INPS
+set -o pipefail
+${APRUNO} $executable < INPS 2>&1 | tee ./make_orog.log
+export err=$?; err_chk
+set +o pipefail
 
-if [ $? -ne 0 ]; then
-  echo "ERROR in running $executable "
-  exit 1
+if [ $is_latlon -eq 1 ]; then
+   outfile=oro.${lonb}x${latb}.nc
 else
-  if [ $is_latlon -eq 1 ]; then
-     outfile=oro.${lonb}x${latb}.nc
-  else
-     outfile=oro.C${res}.tile${tile}.nc
-  fi
-
-  mv ./out.oro.nc $outdir/$outfile
-  echo "file $outdir/$outfile is created"
-  echo "Successfully running $executable "
-  exit 0
+   outfile=oro.C${res}.tile${tile}.nc
 fi
+
+mv ./out.oro.nc $outdir/$outfile
+echo "file $outdir/$outfile is created"
+echo "Successfully running $executable "
+
+date

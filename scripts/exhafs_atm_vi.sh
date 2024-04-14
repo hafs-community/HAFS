@@ -131,6 +131,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     work_dir=${DATA}/prep_guess
     mkdir -p ${work_dir}
     cd ${work_dir}
+    set -o pipefail
     ${APRUNC} ${DATOOL} hafsvi_preproc \
         --in_dir=${RESTARTinp} \
         --debug_level=1 --interpolation_points=5 \
@@ -139,8 +140,9 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
         --vi_cloud=${vi_cloud} \
-        --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+        --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
+    set +o pipefail
     if [[ ${nest_grids} -gt 1 ]]; then
       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -162,6 +164,7 @@ for vortexradius in 30 45; do
   work_dir=${DATA}/prep_init
   mkdir -p ${work_dir}
   cd ${work_dir}
+  set -o pipefail
   ${APRUNC} ${DATOOL} hafsvi_preproc \
       --in_dir=${RESTARTinit} \
       --debug_level=1 --interpolation_points=5 \
@@ -170,8 +173,9 @@ for vortexradius in 30 45; do
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
       --vi_cloud=${vi_cloud} \
-      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
+      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
+  set +o pipefail
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -242,8 +246,10 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
+  set -o pipefail
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
+  set +o pipefail
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -283,9 +289,10 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     initopt=0
   fi
   initopt_guess=${initopt}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
+  set -o pipefail
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
-
+  set +o pipefail
 fi
 
 fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
@@ -357,8 +364,10 @@ if true; then
     ibgs=2
     iflag_cold=1
   fi
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x
+  set -o pipefail
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
+  set +o pipefail
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -398,8 +407,10 @@ if true; then
     initopt=0
   fi
   initopt_init=${initopt}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
+  set -o pipefail
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
+  set +o pipefail
 
 fi
 
@@ -449,8 +460,10 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${RLN} storm_anl_bogus                       fort.56
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
-  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x
+  set -o pipefail
+  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x 2>&1 | tee ./vi_anl_bogus.log
   export err=$?; err_chk
+  set +o pipefail
   ${NCP} -p storm_anl_bogus storm_anl
 
 else # warm-start from prior cycle or cold start from global/parent model
@@ -496,8 +509,10 @@ else # warm-start from prior cycle or cold start from global/parent model
   gfs_flag=${gfs_flag:-6}
 
   ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_combine.x
+  set -o pipefail
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
+  set +o pipefail
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
   fi
@@ -538,8 +553,10 @@ else # warm-start from prior cycle or cold start from global/parent model
 
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
-    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_enhance.x
+    set -o pipefail
+    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
     export err=$?; err_chk
+    set +o pipefail
     ${NCP} -p storm_anl_enhance storm_anl
   fi
 
@@ -569,6 +586,7 @@ ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 for nd in $(seq 1 ${nest_grids}); do
+  set -o pipefail
   ${APRUNC} ${DATOOL} hafsvi_postproc \
       --in_file=${DATA}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
@@ -576,8 +594,9 @@ for nd in $(seq 1 ${nest_grids}); do
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --nestdoms=$((${nd}-1)) \
       --vi_cloud=${vi_cloud} \
-      --out_dir=${RESTARTout}
+      --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
   export err=$?; err_chk
+  set +o pipefail
 done
 
 #===============================================================================

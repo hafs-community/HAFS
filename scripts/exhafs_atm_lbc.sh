@@ -310,8 +310,11 @@ cat>./fort.41<<EOF
 EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
+set -o pipefail
+${APRUNC} ./hafs_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc_${FHR3}.log
 export err=$?; err_chk
+set +o pipefail
+
 # Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then

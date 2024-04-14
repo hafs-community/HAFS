@@ -294,10 +294,8 @@ elif [ $gtype = regional -a $nest_grids -gt 1 ]; then
     file_list="C${res}_grid.tile${itile}.nc"
     inest=$(($itile - 6))
     $APRUN $executable --num_tiles 1 --dir $outdir --mosaic C${res}_nested0${inest}_mosaic --tile_file ${file_list}
-  export err=$?; err_chk
+    export err=$?; err_chk
   done
 
 fi
-
-exit
 

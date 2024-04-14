@@ -594,8 +594,10 @@ EOF
 if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
-$APRUNC ./hafs_sfc_climo_gen.x
+set -o pipefail
+${APRUNC} ./hafs_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen.log
 export err=$?; err_chk
+set -o pipefail
 
 if [[ $GRIDTYPE != "regional" ]]; then
   for files in *.nc; do
@@ -669,8 +671,10 @@ EOF
 if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
 fi
-$APRUNC ./hafs_sfc_climo_gen.x
+set -o pipefail
+${APRUNC} ./hafs_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen_tile${itile}.log
 export err=$?; err_chk
+set -o pipefail
 
 for files in *.nc; do
   if [[ -f $files ]]; then
