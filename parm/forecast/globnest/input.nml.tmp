@@ -179,7 +179,7 @@
   ltaerosol      = .false.
   ttendlim       = -999
   dt_inner       = @[dt_inner]
-  sedi_semi      = .true.
+  sedi_semi      = @[sedi_semi]
   decfl          = 10
   pdfcld         = .false.
   min_lakeice    = 0.15
@@ -305,6 +305,29 @@
   do_gsl_drag_ls_bl    = .true.
   do_gsl_drag_ss       = .true.
   do_gsl_drag_tofd     = .true.
+
+  ! Smoke/dust
+  seas_opt       = @[seas_opt_nml]
+  dust_opt       = @[dust_opt_nml]
+  drydep_opt = @[drydep_opt_nml]
+  coarsepm_settling = @[coarsepm_settling_nml]
+  plume_wind_eff = @[plume_wind_eff_nml]
+  extended_sd_diags = @[extended_sd_diags_nml]
+  wetdep_ls_opt = @[wetdep_ls_opt_nml]
+  do_plumerise = @[do_plumerise_nml]
+  addsmoke_flag = @[addsmoke_flag_nml]
+  plumerisefire_frq = @[plumerisefire_frq_nml]
+  n_dbg_lines = @[n_dbg_lines_nml]
+  smoke_forecast = @[smoke_forecast_nml]
+  aero_ind_fdb = @[aero_ind_fdb_nml]
+  aero_dir_fdb = @[aero_dir_fdb_nml]
+  rrfs_smoke_debug = @[rrfs_smoke_debug_nml]
+  do_smoke_transport = @[do_smoke_transport_nml]
+  mix_chem = @[mix_chem_nml]
+  enh_mix = @[enh_mix_nml]
+
+  ! Lightning threat index
+  lightning_threat = @[lightning_threat_nml]
 /
 
 &gfdl_cloud_microphysics_nml

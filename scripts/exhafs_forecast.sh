@@ -120,6 +120,49 @@ if [ "${ENSDA}" = YES ]; then
   output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
+
+  # Smoke/Dust settings (GFS_typedefs.F90 namelist defaults)
+  glob_seas_opt=${glob_seas_opt_ens:-2}
+  glob_dust_opt=${glob_dust_opt_ens:-1}
+  glob_drydep_opt=${glob_drydep_opt_ens:-1}
+  glob_coarsepm_settling=${glob_drydep_opt_ens:-1}
+  glob_plume_wind_eff=${glob_plume_wind_eff_ens:-1}
+  glob_extended_sd_diags=${glob_extended_sd_diags_ens:-.false.}
+  glob_wetdep_ls_opt=${glob_wetdep_ls_opt_ens:-1}
+  glob_do_plumerise=${glob_do_plumerise_ens:-.false.}
+  glob_addsmoke_flag=${glob_addsmoke_flag_ens:-1}
+  glob_plumerisefire_frq=${glob_plumerisefire_frq_ens:-60}
+  glob_n_dbg_lines=${glob_n_dbg_lines_ens:-3}
+  glob_smoke_forecast=${glob_smoke_forecast_ens:-0}
+  glob_aero_ind_fdb=${glob_aero_ind_fdb_ens:-.false.}
+  glob_aero_dir_fdb=${glob_aero_dir_fdb_ens:-.false.}
+  glob_rrfs_smoke_debug=${glob_rrfs_smoke_debug_ens:-.false.}
+  glob_do_smoke_transport=${glob_do_smoke_transport_ens:-.true.}
+  glob_mix_chem=${glob_mix_chem_ens:-.false.}
+  glob_enh_mix=${glob_enh_mix_ens:-.false.}
+
+  seas_opt=${seas_opt_ens:-2}
+  dust_opt=${dust_opt_ens:-1}
+  drydep_opt=${drydep_opt_ens:-1}
+  coarsepm_settling=${drydep_opt_ens:-1}
+  plume_wind_eff=${plume_wind_eff_ens:-1}
+  extended_sd_diags=${extended_sd_diags_ens:-.false.}
+  wetdep_ls_opt=${wetdep_ls_opt_ens:-1}
+  do_plumerise=${do_plumerise_ens:-.false.}
+  addsmoke_flag=${addsmoke_flag_ens:-1}
+  plumerisefire_frq=${plumerisefire_frq_ens:-60}
+  n_dbg_lines=${n_dbg_lines_ens:-3}
+  smoke_forecast=${smoke_forecast_ens:-0}
+  aero_ind_fdb=${aero_ind_fdb_ens:-.false.}
+  aero_dir_fdb=${aero_dir_fdb_ens:-.false.}
+  rrfs_smoke_debug=${rrfs_smoke_debug_ens:-.false.}
+  do_smoke_transport=${do_smoke_transport_ens:-.true.}
+  mix_chem=${mix_chem_ens:-.false.}
+  enh_mix=${enh_mix_ens:-.false.}
+
+  ## Lighting threat index diagnostic (GFS_typedefs.F90 namelist defaults)
+  glob_lightning_threat=${glob_lightning_threat_ens:-.false.}
+  lightning_threat=${lightning_threat_ens:-.false.}
 fi
 
 iseed1=$(echo $CDATE $ENSID | awk '{print $1*1000+$2*10+3}')
@@ -928,6 +971,26 @@ tc_pbl_nml=${glob_tc_pbl:-0}
 shal_cnv_nml=${glob_shal_cnv:-.true.}
 do_deep_nml=${glob_do_deep:-.true.}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+seas_opt_nml=${glob_seas_opt:-2}
+dust_opt_nml=${glob_dust_opt:-1}
+drydep_opt_nml=${glob_drydep_opt:-1}
+coarsepm_settling_ens_nml=${glob_coarsepm_settling_ens:-1}
+plume_wind_eff_nml=${glob_plume_wind_eff:-1}
+extended_sd_diags_nml=${glob_extended_sd_diags:-.false.}
+wetdep_ls_opt_nml=${glob_wetdep_ls_opt:-1}
+do_plumerise_nml=${glob_do_plumerise:-.false.}
+addsmoke_flag_nml=${glob_addsmoke_flag:-1}
+plumerisefire_frq_nml=${glob_plumerisefire_frq:-60}
+n_dbg_lines_nml=${glob_n_dbg_lines:-3}
+smoke_forecast_nml=${glob_smoke_forecast:-0}
+aero_ind_fdb_nml=${glob_aero_ind_fdb:-.false.}
+aero_dir_fdb_nml=${glob_aero_dir_fdb:-.false.}
+rrfs_smoke_debug_nml=${glob_rrfs_smoke_debug:-.false.}
+do_smoke_transport_nml=${glob_do_smoke_transport:-.true.}
+mix_chem_nml=${glob_mix_chem:-.false.}
+enh_mix_nml=${glob_enh_mix:-.false.}
+
 atparse < input.nml.tmp > input.nml
 
 for n in $(seq 1 ${nest_grids}); do
@@ -952,6 +1015,30 @@ for n in $(seq 1 ${nest_grids}); do
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+  # Smoke/dust
+  seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
+  dust_opt_nml=$( echo ${dust_opt} | cut -d , -f ${n} )
+  drydep_opt_nml=$( echo ${drydep_opt} | cut -d , -f ${n} )
+  coarsepm_settling_nml=$( echo ${coarsepm_settling} | cut -d , -f ${n} )
+  plume_wind_eff_nml=$( echo ${plume_wind_eff} | cut -d , -f ${n} )
+  extended_sd_diags_nml=$( echo ${extended_sd_diags} | cut -d , -f ${n} )
+  wetdep_ls_opt_nml=$( echo ${wetdep_ls_opt} | cut -d , -f ${n} )
+  do_plumerise_nml=$( echo ${do_plumerise} | cut -d , -f ${n} )
+  addsmoke_flag_nml=$( echo ${addsmoke_flag} | cut -d , -f ${n} )
+  plumerisefire_frq_nml=$( echo ${plumerisefire_frq} | cut -d , -f ${n} )
+  n_dbg_lines_nml=$( echo ${n_dbg_lines} | cut -d , -f ${n} )
+  smoke_forecast_nml=$( echo ${smoke_forecast} | cut -d , -f ${n} )
+  aero_ind_fdb_nml=$( echo ${aero_ind_fdb} | cut -d , -f ${n} )
+  aero_dir_fdb_nml=$( echo ${aero_dir_fdb} | cut -d , -f ${n} )
+  rrfs_smoke_debug_nml=$( echo ${rrfs_smoke_debug} | cut -d , -f ${n} )
+  do_smoke_transport_nml=$( echo ${do_smoke_transport} | cut -d , -f ${n} )
+  mix_chem_nml=$( echo ${mix_chem} | cut -d , -f ${n} )
+  enh_mix_nml=$( echo ${enh_mix} | cut -d , -f ${n} )
+
+  # Lightning threat index
+  lightning_threat_nml=$( echo ${lightning_threat} | cut -d , -f ${n} )
+
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
 
@@ -1233,6 +1320,30 @@ do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 bc_update_interval=${NBDYHRS}
 nrows_blend=${halo_blend}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+# Smoke/dust
+seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
+dust_opt_nml=$( echo ${dust_opt} | cut -d , -f ${n} )
+drydep_opt_nml=$( echo ${drydep_opt} | cut -d , -f ${n} )
+coarsepm_settling_nml=$( echo ${coarsepm_settling} | cut -d , -f ${n} )
+plume_wind_eff_nml=$( echo ${plume_wind_eff} | cut -d , -f ${n} )
+extended_sd_diags_nml=$( echo ${extended_sd_diags} | cut -d , -f ${n} )
+wetdep_ls_opt_nml=$( echo ${wetdep_ls_opt} | cut -d , -f ${n} )
+do_plumerise_nml=$( echo ${do_plumerise} | cut -d , -f ${n} )
+addsmoke_flag_nml=$( echo ${addsmoke_flag} | cut -d , -f ${n} )
+plumerisefire_frq_nml=$( echo ${plumerisefire_frq} | cut -d , -f ${n} )
+n_dbg_lines_nml=$( echo ${n_dbg_lines} | cut -d , -f ${n} )
+smoke_forecast_nml=$( echo ${smoke_forecast} | cut -d , -f ${n} )
+aero_ind_fdb_nml=$( echo ${aero_ind_fdb} | cut -d , -f ${n} )
+aero_dir_fdb_nml=$( echo ${aero_dir_fdb} | cut -d , -f ${n} )
+rrfs_smoke_debug_nml=$( echo ${rrfs_smoke_debug} | cut -d , -f ${n} )
+do_smoke_transport_nml=$( echo ${do_smoke_transport} | cut -d , -f ${n} )
+mix_chem_nml=$( echo ${mix_chem} | cut -d , -f ${n} )
+enh_mix_nml=$( echo ${enh_mix} | cut -d , -f ${n} )
+
+# Lightning threat index
+lightning_threat=$( echo ${lightning_threat} | cut -d , -f ${n} )
+
 atparse < input.nml.tmp > input.nml
 
 for n in $(seq 2 ${nest_grids}); do
@@ -1263,6 +1374,30 @@ for n in $(seq 2 ${nest_grids}); do
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+  # Smoke/dust
+  seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
+  dust_opt_nml=$( echo ${dust_opt} | cut -d , -f ${n} )
+  drydep_opt_nml=$( echo ${drydep_opt} | cut -d , -f ${n} )
+  coarsepm_settling_nml=$( echo ${coarsepm_settling} | cut -d , -f ${n} )
+  plume_wind_eff_nml=$( echo ${plume_wind_eff} | cut -d , -f ${n} )
+  extended_sd_diags_nml=$( echo ${extended_sd_diags} | cut -d , -f ${n} )
+  wetdep_ls_opt_nml=$( echo ${wetdep_ls_opt} | cut -d , -f ${n} )
+  do_plumerise_nml=$( echo ${do_plumerise} | cut -d , -f ${n} )
+  addsmoke_flag_nml=$( echo ${addsmoke_flag} | cut -d , -f ${n} )
+  plumerisefire_frq_nml=$( echo ${plumerisefire_frq} | cut -d , -f ${n} )
+  n_dbg_lines_nml=$( echo ${n_dbg_lines} | cut -d , -f ${n} )
+  smoke_forecast_nml=$( echo ${smoke_forecast} | cut -d , -f ${n} )
+  aero_ind_fdb_nml=$( echo ${aero_ind_fdb} | cut -d , -f ${n} )
+  aero_dir_fdb_nml=$( echo ${aero_dir_fdb} | cut -d , -f ${n} )
+  rrfs_smoke_debug_nml=$( echo ${rrfs_smoke_debug} | cut -d , -f ${n} )
+  do_smoke_transport_nml=$( echo ${do_smoke_transport} | cut -d , -f ${n} )
+  mix_chem_nml=$( echo ${mix_chem} | cut -d , -f ${n} )
+  enh_mix_nml=$( echo ${enh_mix} | cut -d , -f ${n} )
+
+  # Lightning threat index
+  lightning_threat=$( echo ${lightning_threat} | cut -d , -f ${n} )
+
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
 

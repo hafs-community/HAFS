@@ -437,6 +437,69 @@ export cpl_wav_ocn={cpl_wav_ocn}
 export wav_tasks={wav_tasks}
 export med_tasks={med_tasks}
 
+# Smoke/dust
+export glob_seas_opt={glob_seas_opt}
+export glob_dust_opt={glob_dust_opt}
+export glob_drydep_opt={glob_drydep_opt}
+export glob_coarsepm_settling={glob_coarsepm_settling}
+export glob_plume_wind_eff={glob_plume_wind_eff}
+export glob_extended_sd_diags={glob_extended_sd_diags}
+export glob_wetdep_ls_opt={glob_wetdep_ls_opt}
+export glob_do_plumerise={glob_do_plumerise}
+export glob_addsmoke_flag={glob_addsmoke_flag}
+export glob_plumerisefire_frq={glob_plumerisefire_frq}
+export glob_n_dbg_lines={glob_n_dbg_lines}
+export glob_smoke_forecast={glob_smoke_forecast}
+export glob_aero_ind_fdb={glob_aero_ind_fdb}
+export glob_aero_dir_fdb={glob_aero_dir_fdb}
+export glob_rrfs_smoke_debug={glob_rrfs_smoke_debug}
+export glob_do_smoke_transport={glob_do_smoke_transport}
+export glob_mix_chem={glob_mix_chem}
+export glob_enh_mix={glob_enh_mix}
+
+export seas_opt={seas_opt}
+export dust_opt={dust_opt}
+export drydep_opt={drydep_opt}
+export coarsepm_settling={coarsepm_settling}
+export plume_wind_eff={plume_wind_eff}
+export extended_sd_diags={extended_sd_diags}
+export wetdep_ls_opt={wetdep_ls_opt}
+export do_plumerise={do_plumerise}
+export addsmoke_flag={addsmoke_flag}
+export plumerisefire_frq={plumerisefire_frq}
+export n_dbg_lines={n_dbg_lines}
+export smoke_forecast={smoke_forecast}
+export aero_ind_fdb={aero_ind_fdb}
+export aero_dir_fdb={aero_dir_fdb}
+export rrfs_smoke_debug={rrfs_smoke_debug}
+export do_smoke_transport={do_smoke_transport}
+export mix_chem={mix_chem}
+export enh_mix={enh_mix}
+
+export seas_opt_ens={seas_opt_ens}
+export dust_opt_ens={dust_opt_ens}
+export drydep_opt_ens={drydep_opt_ens}
+export coarsepm_settling_ens={coarsepm_settling_ens}
+export plume_wind_eff_ens={plume_wind_eff_ens}
+export extended_sd_diags_ens={extended_sd_diags_ens}
+export wetdep_ls_opt_ens={wetdep_ls_opt_ens}
+export do_plumerise_ens={do_plumerise_ens}
+export addsmoke_flag_ens={addsmoke_flag_ens}
+export plumerisefire_frq_ens={plumerisefire_frq_ens}
+export n_dbg_lines_ens={n_dbg_lines_ens}
+export smoke_forecast_ens={smoke_forecast_ens}
+export aero_ind_fdb_ens={aero_ind_fdb_ens}
+export aero_dir_fdb_ens={aero_dir_fdb_ens}
+export rrfs_smoke_debug_ens={rrfs_smoke_debug_ens}
+export do_smoke_transport_ens={do_smoke_transport_ens}
+export mix_chem_ens={mix_chem_ens}
+export enh_mix_ens={enh_mix_ens}
+
+# Lightning threat index
+export glob_lightning_threat={glob_lightning_threat}
+export lightning_threat={lightning_threat}
+export lightning_threat_ens={lightning_threat_ens}
+
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
   export EXPT={EXPT}
   export SUBEXPT={SUBEXPT}
