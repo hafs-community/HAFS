@@ -18,9 +18,9 @@ else
 fi
 
 app=HAFS-MOM6W
-./compile.sh "$target" "-DAPP=$app -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug -DCCPP_SUITES=FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_thompson_noahmp_nonsst,FV3_HAFS_v1_thompson_noahmp -D32BIT=ON" hafs_mom6 intel YES NO
+./compile.sh "$target" "-DAPP=$app -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug -DCCPP_SUITES=FV3_HRRR_gf,FV3_global_nest_v1,FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_thompson_noahmp_nonsst,FV3_HAFS_v1_thompson_noahmp -D32BIT=ON" hafs_mom6 intel YES NO
 
 app=HAFSW
-./compile.sh "$target" "-DAPP=$app -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug -DCCPP_SUITES=FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_thompson_noahmp_nonsst,FV3_HAFS_v1_thompson_noahmp -D32BIT=ON" hafs_hycom intel YES NO
+./compile.sh "$target" "-DAPP=$app -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug -DCCPP_SUITES=FV3_HRRR_gf,FV3_global_nest_v1,FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_thompson_noahmp_nonsst,FV3_HAFS_v1_thompson_noahmp -D32BIT=ON" hafs_hycom intel YES NO
 
 exit
