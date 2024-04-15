@@ -26,6 +26,7 @@ if [ ${RUN_INIT:-NO} = YES ]; then
   NHRS=0
   satpost=.false.
   nhcpost=.false.
+  RESTARTcom=""
 fi
 
 if [ ${ENSDA} = YES ]; then
@@ -203,6 +204,7 @@ done
 else
 
 # Wait for model output
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
