@@ -442,7 +442,6 @@ MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ -f ${COMIN}/${statfile} ]; then
-    sleep 3s
     break
   else
     sleep 10s
