@@ -121,6 +121,10 @@ if [ "${ENSDA}" = YES ]; then
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
 
+  # Additional physics settings
+  glob_sedi_semi=${glob_sedi_semi_ens:-.true.}
+  sedi_semi=${sedi_semi_ens:-.true.}
+
   # Smoke/Dust settings (GFS_typedefs.F90 namelist defaults)
   glob_seas_opt=${glob_seas_opt_ens:-2}
   glob_dust_opt=${glob_dust_opt_ens:-1}
@@ -972,6 +976,8 @@ shal_cnv_nml=${glob_shal_cnv:-.true.}
 do_deep_nml=${glob_do_deep:-.true.}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
+sedi_semi_nml=${glob_sedi_semi:-.true.}
+
 seas_opt_nml=${glob_seas_opt:-2}
 dust_opt_nml=${glob_dust_opt:-1}
 drydep_opt_nml=${glob_drydep_opt:-1}
@@ -990,6 +996,8 @@ rrfs_smoke_debug_nml=${glob_rrfs_smoke_debug:-.false.}
 do_smoke_transport_nml=${glob_do_smoke_transport:-.true.}
 mix_chem_nml=${glob_mix_chem:-.false.}
 enh_mix_nml=${glob_enh_mix:-.false.}
+
+lightning_threat_nml=${glob_lightning_threat:-.false.}
 
 atparse < input.nml.tmp > input.nml
 
@@ -1015,6 +1023,8 @@ for n in $(seq 1 ${nest_grids}); do
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
+
+  sedi_semi_nml=$( echo ${sedi_semi} | cut -c , -f ${n} )
 
   # Smoke/dust
   seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
@@ -1321,6 +1331,8 @@ bc_update_interval=${NBDYHRS}
 nrows_blend=${halo_blend}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
+sedi_semi_nml=$( echo ${sedi_semi} | cut -d , -f ${n} )
+
 # Smoke/dust
 seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
 dust_opt_nml=$( echo ${dust_opt} | cut -d , -f ${n} )
@@ -1342,7 +1354,7 @@ mix_chem_nml=$( echo ${mix_chem} | cut -d , -f ${n} )
 enh_mix_nml=$( echo ${enh_mix} | cut -d , -f ${n} )
 
 # Lightning threat index
-lightning_threat=$( echo ${lightning_threat} | cut -d , -f ${n} )
+lightning_threat_nml=$( echo ${lightning_threat} | cut -d , -f ${n} )
 
 atparse < input.nml.tmp > input.nml
 
@@ -1375,6 +1387,8 @@ for n in $(seq 2 ${nest_grids}); do
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
+  sedi_semi_nml=$( echo ${sedi_semi} | cut -d , -f ${n} )
+
   # Smoke/dust
   seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
   dust_opt_nml=$( echo ${dust_opt} | cut -d , -f ${n} )
@@ -1396,7 +1410,7 @@ for n in $(seq 2 ${nest_grids}); do
   enh_mix_nml=$( echo ${enh_mix} | cut -d , -f ${n} )
 
   # Lightning threat index
-  lightning_threat=$( echo ${lightning_threat} | cut -d , -f ${n} )
+  lightning_threat_nml=$( echo ${lightning_threat} | cut -d , -f ${n} )
 
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done

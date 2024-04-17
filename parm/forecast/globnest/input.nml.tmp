@@ -179,7 +179,7 @@
   ltaerosol      = .false.
   ttendlim       = -999
   dt_inner       = @[dt_inner]
-  sedi_semi      = @[sedi_semi]
+  sedi_semi      = @[sedi_semi_nml]
   decfl          = 10
   pdfcld         = .false.
   min_lakeice    = 0.15

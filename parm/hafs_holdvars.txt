@@ -498,7 +498,14 @@ export enh_mix_ens={enh_mix_ens}
 # Lightning threat index
 export glob_lightning_threat={glob_lightning_threat}
 export lightning_threat={lightning_threat}
+export glob_lightning_threat_ens={glob_lightning_threat_ens}
 export lightning_threat_ens={lightning_threat_ens}
+
+# Lightning threat index
+export glob_sedi_semi={glob_sedi_semi}
+export sedi_semi={sedi_semi}
+export glob_sedi_semi_ens={glob_sedi_semi_ens}
+export sedi_semi_ens={sedi_semi_ens}
 
 if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
   export EXPT={EXPT}
