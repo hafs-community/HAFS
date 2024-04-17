@@ -84,11 +84,11 @@ trk_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix
 all_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.all
 fhr_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.f
 
-GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
-TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
-VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
-SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
-NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_nhc_products.x}
+GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tracker_gettrk.x}
+TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tracker_tave.x}
+VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_tracker_vint.x}
+SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_tracker_supvit.x}
+NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_tools_nhc_products.x}
 
 INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
@@ -222,15 +222,15 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 # Run the vortex tracker gettrk.x
-${NCP} -p ${GETTRKEXEC} ./hafs_gettrk.x
+${NCP} -p ${GETTRKEXEC} ./hafs_tracker_gettrk.x
 set +e
 set -o pipefail
-time ./hafs_gettrk.x 2>&1 | tee ./hafs_gettrk.out
+time ./hafs_tracker_gettrk.x 2>&1 | tee ./gettrk.out
 export err=$?; err_chk
 set +o pipefail
 set -e
 
-if grep "top of output_all" ./hafs_gettrk.out ; then
+if grep "top of output_all" ./gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
 else
   echo "FATAL ERROR: exhafs_product failed running vortex tracker"
@@ -330,8 +330,8 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   echo ${STORMID^^} >> storm_info
   echo ${STORM^^} >> storm_info
   echo ${RUN^^} >> storm_info
-  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
-  ${APRUN} ./hafs_nhc_products.x > ./nhc_products.log 2>&1
+  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_tools_nhc_products.x
+  ${APRUN} ./hafs_tools_nhc_products.x > ./nhc_products.log 2>&1
   export err=$?; err_chk
   short=${out_prefix}.${RUN}.grib.stats.short
   afos=${out_prefix}.${RUN}.afos

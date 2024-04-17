@@ -35,7 +35,7 @@ TMPDIR=$7
 workdir=$TMPDIR/C${res}/orog_gsl/tile$tile
 
 #executable=$exec_dir/orog_gsl
-executable=${OROGGSLEXEC:-$exec_dir/hafs_orog_gsl.x}
+executable=${OROGGSLEXEC:-$exec_dir/hafs_utils_orog_gsl.x}
 if [ ! -s $executable ]; then
   echo "executable does not exist"
   exit 1

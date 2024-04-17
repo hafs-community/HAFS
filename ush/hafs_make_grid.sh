@@ -51,7 +51,7 @@ if [ $nargv -eq 3 -o $nargv -eq 5 ]; then
       export target_opts="--do_schmidt --stretch_factor 1.0 --target_lon ${target_lon} --target_lat ${target_lat}"
   fi
 
-  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
+  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_utils_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
     exit 1
@@ -68,7 +68,7 @@ elif  [ $nargv -eq 6 ]; then
   export script_dir=$6
   export ntiles=6
   #export executable=$exec_dir/make_hgrid
-  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
+  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_utils_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
     exit 1
@@ -110,7 +110,7 @@ elif  [ $nargv -eq 12 -o $nargv -eq 14 ]; then
   else
    export ntiles=$(( 6+$nest_grids ))
   fi
-  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_make_hgrid.x}
+  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_utils_make_hgrid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
     exit 1
@@ -131,7 +131,7 @@ elif  [ $nargv -eq 7 -a ${regional_esg:-no} = yes ] ; then
   export pazi=$5
   export halop2=$6
   export script_dir=$7
-  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_regional_esg_grid.x}
+  export executable=${MAKEHGRIDEXEC:-$exec_dir/hafs_utils_regional_esg_grid.x}
   if [ ! -s $executable ]; then
     echo "executable does not exist"
     exit 1
@@ -228,7 +228,7 @@ fi
 
 #---------------------------------------------------------------------------------------
 #export executable=$exec_dir/make_solo_mosaic
-export executable=${MAKEMOSAICEXEC:-$exec_dir/hafs_make_solo_mosaic.x}
+export executable=${MAKEMOSAICEXEC:-$exec_dir/hafs_utils_make_solo_mosaic.x}
 if [ ! -s $executable ]; then
   echo "executable does not exist"
   exit 1

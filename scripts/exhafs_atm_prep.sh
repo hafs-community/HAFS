@@ -95,17 +95,17 @@ export FIXfv3=${FIXhafs}/fix_fv3
 export FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
 if [ ${regional_esg} = yes ]; then
-  export MAKEHGRIDEXEC=${EXEChafs}/hafs_regional_esg_grid.x
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_utils_regional_esg_grid.x
 else
-  export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_utils_make_hgrid.x
 fi
-export MAKEMOSAICEXEC=${EXEChafs}/hafs_make_solo_mosaic.x
-export FILTERTOPOEXEC=${EXEChafs}/hafs_filter_topo.x
-export FREGRIDEXEC=${EXEChafs}/hafs_fregrid.x
-export OROGEXEC=${EXEChafs}/hafs_orog.x
-export OROGGSLEXEC=${EXEChafs}/hafs_orog_gsl.x
-export SHAVEEXEC=${EXEChafs}/hafs_shave.x
-export SFCCLIMOEXEC=${EXEChafs}/hafs_sfc_climo_gen.x
+export MAKEMOSAICEXEC=${EXEChafs}/hafs_utils_make_solo_mosaic.x
+export FILTERTOPOEXEC=${EXEChafs}/hafs_utils_filter_topo.x
+export FREGRIDEXEC=${EXEChafs}/hafs_utils_fregrid.x
+export OROGEXEC=${EXEChafs}/hafs_utils_orog.x
+export OROGGSLEXEC=${EXEChafs}/hafs_utils_orog_gsl.x
+export SHAVEEXEC=${EXEChafs}/hafs_utils_shave.x
+export SFCCLIMOEXEC=${EXEChafs}/hafs_utils_sfc_climo_gen.x
 
 export MAKEGRIDSSH=${USHhafs}/hafs_make_grid.sh
 export MAKEOROGSSH=${USHhafs}/hafs_make_orog.sh
@@ -591,11 +591,11 @@ vegetation_greenness_method="bilinear"
 /
 EOF
 
-if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
-  ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
+  ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
 set -o pipefail
-${APRUNC} ./hafs_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen.log
+${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen.log
 export err=$?; err_chk
 set -o pipefail
 
@@ -668,11 +668,11 @@ vegetation_greenness_method="bilinear"
 /
 EOF
 
-if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
-  ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
+  ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
 set -o pipefail
-${APRUNC} ./hafs_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen_tile${itile}.log
+${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen_tile${itile}.log
 export err=$?; err_chk
 set -o pipefail
 

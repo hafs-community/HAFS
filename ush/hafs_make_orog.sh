@@ -60,7 +60,7 @@ fi
 
 indir=$hist_dir
 #executable=$exec_dir/orog.x
-executable=${OROGEXEC:-$exec_dir/hafs_orog.x}
+executable=${OROGEXEC:-$exec_dir/hafs_utils_orog.x}
 if [ ! -s $executable ]; then
   echo "executable does not exist"
   exit 1

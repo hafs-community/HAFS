@@ -61,9 +61,9 @@ ${NLN} ./prepbufr.orig   ./fort.21
 ${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
-${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
+${NCP} -p ${EXEChafs}/hafs_tools_change_prepbufr_qm_typ.x ./hafs_tools_change_prepbufr_qm_typ.x
 set -o pipefail
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
+${APRUNS} ./hafs_tools_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
 export err=$?; err_chk
 set +o pipefail
 
@@ -335,10 +335,10 @@ analdate="${yr}-${mn}-${dy}_${cyc}:00:00"
 sed -e "s/_analdate_/${analdate}/g" \
     obs-preproc.input.tmp > obs-preproc.input
 # Run the executable
-OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
-${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
+OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_tools_obs_preproc.x}
+${NCP} -p ${OBSPREPROCEXEC} ./hafs_tools_obs_preproc.x
 set -o pipefail
-${APRUNS} ./hafs_obs_preproc.x 2>&1 | tee ./obs_preproc.out
+${APRUNS} ./hafs_tools_obs_preproc.x 2>&1 | tee ./obs_preproc.out
 export err=$?; err_chk
 set +o pipefail
 if [ -s ./tempdrop.prepbufr ]; then

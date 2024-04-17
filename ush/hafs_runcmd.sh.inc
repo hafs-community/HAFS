@@ -90,7 +90,7 @@ export WGRIB2=${WGRIB2:-wgrib2}
 export GRB2INDEX=${GRB2INDEX:-grb2index}
 export COMPRESS=${COMPRESS:-gzip}
 export UNCOMPRESS=${UNCOMPRESS:-gunzip}
-export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
+export MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 export CHGRP_CMD=${CHGRP_CMD:-"chgrp ${group_name:-rstprod}"}
 
 if [ "${RUN_ENVIR^^}" != "NCO" ]; then
