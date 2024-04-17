@@ -218,7 +218,6 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
-    sleep 1s
     break
   fi
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
@@ -241,7 +240,6 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
-    sleep 1s
     break
   fi
   if [ $n -gt ${MAX_WAIT_TIME} ]; then

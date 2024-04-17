@@ -85,7 +85,6 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     sleep 10s
   else
     echo "${GBFILE}, ${GBINDX} ready, continue"
-    sleep 1s
     break
   fi
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
