@@ -145,6 +145,7 @@ rm -f fort.*
 # specified in the script. Need to modify it to be able to deal with storm
 # message files/dirs, as well as passing in tcvitals files.
 ${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
+export err=$?; err_chk
 
 # Prepare the input/output files
 rm -f input.vitals
@@ -225,6 +226,7 @@ ${NCP} -p ${GETTRKEXEC} ./hafs_gettrk.x
 set +e
 set -o pipefail
 time ./hafs_gettrk.x 2>&1 | tee ./hafs_gettrk.out
+export err=$?; err_chk
 set +o pipefail
 set -e
 

@@ -383,6 +383,7 @@ if [ ${satpost} = .true. ]; then
 fi
 chmod +x cmdfile
 ${APRUNC} ${MPISERIAL} -m cmdfile
+export err=$?; err_chk
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -451,6 +452,7 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
   chmod +x cmdfile_regrid
   ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
+  export err=$?; err_chk
   rm -f cmdfile_merge
  #${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p1 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p1 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p1 >  cmdfile_merge
@@ -458,6 +460,7 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
   chmod +x cmdfile_merge
   ${APRUNC} ${MPISERIAL} -m cmdfile_merge
+  export err=$?; err_chk
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
