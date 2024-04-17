@@ -30,6 +30,7 @@ if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
   MAILTO=${MAILTO:-"sdm@noaa.gov"}
   subject="${cyc}Z ${RUN^^} Output for ${basinname:-} Tropical System ${STORM} (${STORMID^^})"
   mail.py -s "${subject}" -v "${MAILTO}" < ${afosfile}
+  export err=$?; err_chk
 fi
 
 # Deliver track file to NOSCRUB if not run by NCO

@@ -807,6 +807,7 @@ EOFdiag
   if [ $USE_MPISERIAL = "YES" ]; then
     chmod 755 ./mp_diag.sh
     ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
+    export err=$?; err_chk
   fi
 
   # If requested, create diagnostic file tarballs
@@ -848,6 +849,4 @@ fi
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
   rm -rf $DIAG_DIR
 fi
-
-exit
 
