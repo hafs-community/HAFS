@@ -792,8 +792,8 @@ class HAFSLauncher(HAFSConfig):
                     dat=nstorms_file.readline()
                     nstorms=int(dat)
             except (EnvironmentError,ValueError,TypeError) as e:
-                logger.error('%s: error reading: %s.  Will read all storms.'%(
-                        nstorms_filename,str(e)),exc_info=True)
+                logger.warning('WARNING: %s: not available.  Will read all storms.'%(
+                        nstorms_filename),exc_info=True)
             for imessage in range(nstorms):
                 file=os.path.join(mdir,'message%d'%(imessage+1,))
                 if os.path.exists(file):
