@@ -107,7 +107,7 @@ if [ "${POST_CLEANUP^^}" = "YES" ]; then
   FHR3=$(printf "%03d" "$FHR")
   # Loop for forecast hours
   while [ $FHR -le $NHRS ]; do
-    if [ ${gtype} = nest ]; then
+    if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
       ngrids=$((${nest_grids} + 1))
     else
       ngrids=${nest_grids}
@@ -152,7 +152,7 @@ MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
 
-if [ ${gtype} = nest ]; then
+if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$((${nest_grids} + 1))
 else
   ngrids=${nest_grids}
@@ -193,6 +193,8 @@ trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 fort_patcf="fort.6$(printf '%02d' ${ng})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
+logf=$( ls -1 ${INPdir}/log*f${FHR3} || echo "MISSING" )
+postdone=${intercom}/post${nestdotstr}f${FHR3}
 # Check if post has processed this forecast hour previously
 if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
    [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/log.atm.f${FHR3} ] && \
@@ -211,12 +213,13 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
 n=1
+hurf=${INPdir}/HURPRS.GrbF${FHR2}${neststr}
 while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS.GrbF${FHR2}${neststr} ]; then
     echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS.GrbF${FHR2}${neststr} ready, continue"
     sleep 1s
     break
   fi
@@ -231,6 +234,8 @@ else
 
 # Wait for model output
 n=1
+atmf=${INPdir}/atm${nestdotstr}f${FHR3}.nc
+sfcf=${INPdir}/sfc${nestdotstr}f${FHR3}.nc
 while [ $n -le 360 ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
@@ -260,9 +265,9 @@ cd ${DATA_POST}
 # Note: Currently the inline post (write_dopost) does not support nesting configurations yet.
 if [ ${write_dopost:-.false.} = .true. ]; then
 
-${NCP} -p ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ${grb2post}
+${NCP} -p ${INPdir}/HURPRS.GrbF${FHR2}${neststr} ${grb2post}
 if [ ${satpost} = .true. ]; then
-  ${NCP} -p ${INPdir}/HURSAT${neststr}.GrbF${FHR2} ${sat_grb2post}
+  ${NCP} -p ${INPdir}/HURSAT.GrbF${FHR2}${neststr} ${sat_grb2post}
 fi
 
 else
@@ -288,8 +293,7 @@ ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
 
 if [ ${satpost} = .true. ]; then
-# ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_satpost} ./postxconfig-NT.txt
   # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
@@ -307,7 +311,7 @@ if [ ${satpost} = .true. ]; then
     ${NLN} ${file} ./
   done
 else
-  ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
+  ${NCP} ${postxconfig_nosat} ./postxconfig-NT.txt
 fi
 
 # Run post
@@ -340,11 +344,13 @@ if [ ${postgridspecs} = auto ]; then
   latlon_lat0=$(printf "%.6f" $(bc <<< "scale=6; ${clat}-${lat_span}/2.0"))
   latlon_nlat=$(printf "%.0f" $(bc <<< "scale=6; ${lat_span}/${latlon_dlat}"))
   postgridspecs="latlon ${latlon_lon0}:${latlon_nlon}:${latlon_dlon} ${latlon_lat0}:${latlon_nlat}:${latlon_dlat}"
-fi
+  unset clon clat lon_span lat_span latlon_dlon latlon_dlat latlon_lon0
+  unset latlon_nlon latlon_lat0 latlon_nlat
+fi # if [[ "$postgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
 if [ ${trakgridspecs} = auto ]; then
   trakgridspecs=${postgridspecs}
-fi
+fi # if [[ "$trakgridspecs" == auto && "$outputgrid" == lambert_conformal ]]
 
 if [[ "$outputgrid" = "rotated_latlon"* ]]; then
 

@@ -579,6 +579,10 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         revit=conf.read_fake_tcvitals()
         conf.gen_vitals(stid,cycling_interval,revit)
 
+    if conf.getbool('config', 'run_pygraf') and not conf.getbool('config','pygraf_can_run'):
+        logger.warning("Will disable pygraf because it cannot run on this system (config.pygraf_can_run=no).")
+        conf.set('config', 'run_pygraf', 'no')
+
     # rocoto does not initialize the dirs, it returns here.
     if not init_dirs:
         if prelaunch is not None:

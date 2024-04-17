@@ -57,16 +57,17 @@
   n_sponge = 24
   nudge_qv = .false.
   nudge_dz = .false.
-  tau = 5.
-  rf_cutoff = 50.e2
+  tau = @[fv_core_tau]
+  rf_cutoff = @[rf_cutoff]
+  fast_tau_w_sec = @[fast_tau_w_sec]
   sg_cutoff = -1.
   rf_fast = .false.
   d2_bg_k1 = 0.20
   d2_bg_k2 = 0.15
-  kord_tm = -11
-  kord_mt = 11
-  kord_wz = 11
-  kord_tr = 11
+  kord_tm = @[kord_tm_nml]
+  kord_mt = @[kord_mt_nml]
+  kord_wz = @[kord_wz_nml]
+  kord_tr = @[kord_tr_nml]
   hydrostatic = .false.
   phys_hydrostatic = .false.
   use_hydro_pressure = .false.
@@ -170,6 +171,9 @@
 /
 
 &gfs_physics_nml
+  progsigma      = @[progsigma]
+  betadcu        = @[betadcu]
+  betamcu        = @[betamcu]
   fhzero         = 3.
   ldiag3d        = .false.
   lradar         = .true.
@@ -249,7 +253,7 @@
   iopt_snf       = 4
   iopt_tbot      = 2
   iopt_stc       = 3
-  iopt_trs       = 2
+  iopt_trs       = @[iopt_trs]
   lsoil_lsm      = 4
   debug          = .false.
   oz_phys        = .false.
@@ -299,16 +303,6 @@
   print_diff_pgr = .true.
   do_ugwp        = .false.
   do_tofd        = .false.
-  gwd_opt        = 2
-  do_ugwp_v0     = .false.
-  do_ugwp_v1     = .false.
-  do_ugwp_v0_orog_only = .false.
-  do_ugwp_v0_nst_only  = .true.
-  do_ugwp_v1_w_gsldrag = .false.
-  do_ugwp_v1_orog_only = .false.
-  do_gsl_drag_ls_bl    = .true.
-  do_gsl_drag_ss       = .true.
-  do_gsl_drag_tofd     = .true.
 
   ! Smoke/dust
   seas_opt       = @[seas_opt_nml]
@@ -332,6 +326,17 @@
 
   ! Lightning threat index
   lightning_threat = @[lightning_threat_nml]
+
+  gwd_opt        = @[gwd_opt]
+  do_ugwp_v0     = @[do_ugwp_v0]
+  do_ugwp_v1     = @[do_ugwp_v1]
+  do_ugwp_v0_orog_only = @[do_ugwp_v0_orog_only]
+  do_ugwp_v0_nst_only  = @[do_ugwp_v0_nst_only]
+  do_ugwp_v1_w_gsldrag = @[do_ugwp_v1_w_gsldrag]
+  do_ugwp_v1_orog_only = @[do_ugwp_v1_orog_only]
+  do_gsl_drag_ls_bl    = @[do_gsl_drag_ls_bl]
+  do_gsl_drag_ss       = @[do_gsl_drag_ss]
+  do_gsl_drag_tofd     = @[do_gsl_drag_tofd]
 /
 
 &gfdl_cloud_microphysics_nml
@@ -455,18 +460,29 @@
 /
 
 &cires_ugwp_nml
-  knob_ugwp_solver  = 2
-  knob_ugwp_source  = 1,1,0,0
-  knob_ugwp_wvspec  = 1,25,25,25
-  knob_ugwp_azdir   = 2,4,4,4
-  knob_ugwp_stoch   = 0,0,0,0
-  knob_ugwp_effac   = 1,1,1,1
-  knob_ugwp_doaxyz  = 1
-  knob_ugwp_doheat  = 1
-  knob_ugwp_dokdis  = 1
-  knob_ugwp_ndx4lh  = 1
-  knob_ugwp_version = 0
-  launch_level      = 25
+       knob_ugwp_solver  = 2
+       knob_ugwp_source  = 1,1,0,0
+       knob_ugwp_wvspec  = 1,25,25,25
+       knob_ugwp_azdir   = 2,4,4,4
+       knob_ugwp_stoch   = 0,0,0,0
+       knob_ugwp_effac   = 1,1,1,1
+       knob_ugwp_doaxyz  = 1
+       knob_ugwp_doheat  = 1
+       knob_ugwp_dokdis  = @[knob_ugwp_dokdis]
+       knob_ugwp_ndx4lh  = @[knob_ugwp_ndx4lh]
+       knob_ugwp_version = @[knob_ugwp_version]
+       ! This one is only for cires_ugwp_module.F90
+@[hide_ugwpv0]      launch_level      = 25
+       ! These are only for cires_ugwpv1_module.F90
+@[hide_ugwpv1]      knob_ugwp_lzmax    = @[knob_ugwp_lzmax]
+@[hide_ugwpv1]      knob_ugwp_lzmin    = @[knob_ugwp_lzmin]
+@[hide_ugwpv1]      knob_ugwp_lzstar   = @[knob_ugwp_lzstar]
+@[hide_ugwpv1]      knob_ugwp_taumin   = @[knob_ugwp_taumin]
+@[hide_ugwpv1]      knob_ugwp_tauamp   = @[knob_ugwp_tauamp]
+@[hide_ugwpv1]      knob_ugwp_lhmet    = @[knob_ugwp_lhmet]
+@[hide_ugwpv1]      knob_ugwp_orosolv  = '@[knob_ugwp_orosolv]'
+@[hide_ugwpv1]      knob_ugwp_palaunch = @[knob_ugwp_palaunch]
+@[hide_ugwpv1]      knob_ugwp_nslope   = @[knob_ugwp_nslope]
 /
 
 &MOM_input_nml

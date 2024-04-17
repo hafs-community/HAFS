@@ -7,8 +7,8 @@ ufs.hafs
  "atmos_static",  -1,  "hours",   1,  "hours",  "time"
  "grid_mspec%4yr%2mo%2dy%2hr",  @[GRID_MSPEC_INT],  "hours",   1,  "hours",  "time",   3, "hours"
 #"atmos_diag%4yr%2mo%2dy%2hr",  @[ATMOS_DIAG_INT],  "hours",   1,  "hours",  "time",   3, "hours"
- "fv3_history",    0,  "hours",   1,  "hours",  "time"
- "fv3_history2d",  0,  "hours",   1,  "hours",  "time"
+ "fv3_history",    1,  "hours",   1,  "hours",  "time"
+ "fv3_history2d",  1,  "hours",   1,  "hours",  "time"
 #"ref3D",          0,  "hours",   1,  "hours",  "time"
 #"maxmin2D",       1,  "hours",   1,  "hours",  "time"
 ######################
@@ -271,8 +271,23 @@ ufs.hafs
 "gfs_dyn",     "ps",          "pressfc",   "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "hs",          "hgtsfc",    "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "cld_amt",     "cld_amt",   "fv3_history",    "all",  .false.,  "none",  2
-#"gfs_dyn",     "ice_nc",      "nicp",      "fv3_history",  "all",  .false.,  "none",  2
-#"gfs_dyn",     "rain_nc",     "ntrnc",     "fv3_history",  "all",  .false.,  "none",  2
+"gfs_dyn",     "ice_nc",      "nicp",      "fv3_history",    "all",  .false.,  "none",  2
+"gfs_dyn",     "rain_nc",     "ntrnc",     "fv3_history",    "all",  .false.,  "none",  2
+"gfs_dyn",     "water_nc",    "water_nc",  "fv3_history",    "all",  .false.,  "none",  2
+"gfs_sfc",     "nwfa2d",       "nwfa2d",   "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "nwfa",         "nwfa",     "fv3_history",    "all",  .false.,  "none",  2
+"gfs_phys",    "nifa",         "nifa",     "fv3_history",    "all",  .false.,  "none",  2
+"gfs_phys",    "frzr",      "frzr",        "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "frzrb",     "frzrb",       "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "frozr",     "frozr",       "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "frozrb",    "frozrb",      "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "tsnowp",    "tsnowp",      "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "tsnowpb",   "tsnowpb",     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "rhonewsn",  "rhonewsn",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "snow",      "snow",        "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "graupel",   "graupel",     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_phys",    "QC_BL",        "qc_bl",         "fv3_history",    "all",  .false.,  "none",  2
+"gfs_phys",    "CLDFRA",    "cldfra",     "fv3_history",    "all",  .false.,  "none",  2
 
 ###
 # Max hourly fields

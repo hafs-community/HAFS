@@ -46,6 +46,10 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
+  if ( ! which sbatch > /dev/null 2>&1 ) ; then
+    # Script was run from a crontab.
+    export PATH=$PATH:/apps/slurm/default/bin
+  fi
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion/Hercules
   if [[ "$(hostname)" =~ "hercules" ]] ; then
@@ -84,18 +88,9 @@ elif [[ -d /glade ]] ; then
   target=cheyenne
   module purge
 elif [[ -d /lustre && -d /ncrc ]] ; then
-  # We are on GAEA.
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    # We cannot simply load the module command.  The GAEA
-    # /etc/profile modifies a number of module-related variables
-    # before loading the module command.  Without those variables,
-    # the module command fails.  Hence we actually have to source
-    # /etc/profile here.
-    echo load the module command 1>&2
-    source /etc/profile
-  fi
-  target=gaea
-  module purge
+  target=gaea_c5
+  ulimit -s unlimited
+  export TZ=UTC
 elif [[ "$(hostname)" =~ "odin" ]] ; then
   target="odin"
 else

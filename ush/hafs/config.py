@@ -136,6 +136,10 @@ class ConfFormatter(Formatter):
         try:
             if isinstance(key,int):
                 return args[key]
+            if key.startswith('"') and key.endswith('"'):
+                return key[1:-1]
+            if key.startswith("'") and key.endswith("'"):
+                return key[1:-1]
             conf=kwargs.get('__conf',None)
             if key in kwargs:
                 v=kwargs[key]

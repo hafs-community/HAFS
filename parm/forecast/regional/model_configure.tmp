@@ -28,6 +28,8 @@ kchunk3d:                -1
 ideflate:                @[IDEFLATE]
 quantize_mode:           'quantize_bitround'
 quantize_nsd:            @[QUANTIZE_NSD]
+zstandard_level:         @[ZSTANDARD_LEVEL]
+nbits:                   @[NBITS]
 
 output_grid:             @[OUTPUT_GRID]     # gaussian_grid, global_latlon, regional_latlon, rotated_latlon, lambert_conformal, cubed_sphere_grid
 imo:                     @[IMO]             # number of grid points along longitude/latitude direction

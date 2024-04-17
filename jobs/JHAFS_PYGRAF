@@ -55,14 +55,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export ENSDA=${ENSDA:-NO}
-export ENSID=${ENSID:-000}
-
-if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/product_ens/mem${ENSID}
-else
-  export DATA=${WORKhafs}/product
-fi
+export DATA=${WORKhafs}/pygraf
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
@@ -70,47 +63,9 @@ fi
 mkdir -p $DATA
 cd $DATA
 
-if [ ${gtype} = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
-  ngrids=$((${nest_grids} + 1))
-else
-  ngrids=${nest_grids}
-fi
-
-rm -f cmdfile_product
-# Loop for grids/domains to prepare the cmdfile
-for ng in $(seq 1 ${ngrids}); do
-  if [[ $ng -eq 1 ]]; then
-    neststr=""
-    tilestr=".tile1"
-  else
-    neststr=".nest$(printf '%02d' ${ng})"
-    tilestr=".tile$(printf '%d' ${ng})"
-  fi
-  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
-  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
-        ${HOMEhafs}/scripts/exhafs_product.sh \
-        > run_product.${gridstr}.log 2>&1" >> cmdfile_product
-done
-chmod +x cmdfile_product
-${APRUNC} ${MPISERIAL} -m cmdfile_product
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_pygraf.sh
 status=$?; [[ $status -ne 0 ]] && exit $status
-
-# Check if product/tracker run successfully
-for ng in $(seq 1 ${ngrids}); do
-  if [[ $ng -eq 1 ]]; then
-    neststr=""
-  else
-    neststr=".nest$(printf '%02d' ${ng})"
-  fi
-  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
-  cat ./run_product.${gridstr}.log
-  if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
-    echo "INFO: successfully ran run_product.${gridstr}"
-  else
-    echo "FATAL ERROR: failed running run_product.${gridstr}"
-    exit 1
-  fi
-done
 
 # Cleanup DATA dir
 cd ${WORKhafs}

@@ -64,6 +64,7 @@ if [ "${ENSDA}" = YES ]; then
   write_tasks_per_group=${write_tasks_per_group_ens:-72}
   write_dopost=${write_dopost_ens:-.false.}
   output_history=${output_history_ens:-.true.}
+  twowaynest=${twowaynest_ens:-.true.}
   glob_k_split=${glob_k_split_ens:-1}
   glob_n_split=${glob_n_split_ens:-7}
   glob_layoutx=${glob_layoutx_ens:-12}
@@ -82,6 +83,13 @@ if [ "${ENSDA}" = YES ]; then
   glob_n_zs_filter=${glob_n_zs_filter_ens:-1}
   glob_n_del2_weak=${glob_n_del2_weak_ens:-20}
   glob_max_slope=${glob_max_slope_ens:-0.25}
+  glob_kord_tm=${glob_kord_tm_ens:--11}
+  glob_kord_mt=${glob_kord_mt_ens:-11}
+  glob_kord_wz=${glob_kord_wz_ens:-11}
+  glob_kord_tr=${glob_kord_tr_ens:-11}
+  glob_fv_core_tau=${glob_fv_core_tau:-10.}
+  glob_rf_cutoff=${glob_rf_cutoff:-10.}
+  glob_fast_tau_w_sec=${glob_fast_tau_w_sec:-0.2}
   glob_rlmx=${glob_rlmx_ens:-300.}
   glob_elmx=${glob_elmx_ens:-300.}
   glob_sfc_rlm=${glob_sfc_rlm_ens:-1}
@@ -106,6 +114,14 @@ if [ "${ENSDA}" = YES ]; then
   n_zs_filter=${n_zs_filter_ens:-1}
   n_del2_weak=${n_del2_weak_ens:-20}
   max_slope=${max_slope_ens:-0.25}
+  glob_hord_mt=${glob_hord_mt_ens:-6,6}
+  kord_tm=${kord_tm_ens:--11,-11}
+  kord_mt=${kord_mt_ens:-11,11}
+  kord_wz=${kord_wz_ens:-11,11}
+  kord_tr=${kord_tr_ens:-11,11}
+  fv_core_tau=${fv_core_tau:-10.}
+  rf_cutoff=${rf_cutoff:-10.}
+  fast_tau_w_sec=${fast_tau_w_sec:-0.2}
   rlmx=${rlmx_ens:-300.}
   elmx=${elmx_ens:-300.}
   sfc_rlm=${sfc_rlm_ens:-1}
@@ -210,6 +226,7 @@ warm_start=${warm_start:-.false.}
 warm_start_opt=${warm_start_opt:-0}
 warmstart_from_restart=${warmstart_from_restart:-no}
 RESTARTinp=${RESTARTinp:-"UNNEEDED"}
+twowaynest=${twowaynest:-.true.}
 
 if [ ${warm_start_opt} -eq 0 ]; then
   warmstart_from_restart=no
@@ -423,7 +440,7 @@ if [ $gtype = regional ]; then
   if [ $quilting = .true. ]; then
     ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ATM_tasks=$(( ${glob_layoutx} * ${glob_layouty} * 6 ))
   for n in $(seq 1 ${nest_grids}); do
     layoutx_tmp=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -831,6 +848,8 @@ ${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
 ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+${NLN} $FIXam/ugwp_limb_tau.nc .
+${NLN} $PARMhafs/noahmptable.tbl .
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
@@ -856,7 +875,7 @@ if [ ${imp_physics:-11} = 8 ]; then
   ${NLN} ${FIXam}/freezeH2O.dat ./
 fi
 
-if [ $gtype = nest ]; then
+if [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
 
 cd ./INPUT
 
@@ -913,15 +932,20 @@ cd ..
 # Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and ufs.configure
 ${NCP} ${PARMforecast}/diag_table.tmp .
 if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+  ${NCP} ${PARMforecast}/field_table_thompson_aero ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
-if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
-  cat ${PARMforecast}/field_progsigma >> ./field_table
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma_nest:-.false.} = .true. ] ; then
+  || [ ${progsigma:-.false.} = T ] || [ ${progsigma_nest:-.false.} = T ] ; then
+  cat ${PARMforecast}/field_table_addition_progsigma >> field_table
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
+if [ $gtype = stretch ] || [ $gtype = uniform ]; then
+  ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
+else
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+fi
 ${NCP} ${PARMforecast}/model_configure.tmp .
 ${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure
 
@@ -949,6 +973,8 @@ for n in $(seq 1 ${nest_grids}); do
   joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
 done
 
+imfshalcnv=${glob_imfshalcnv:-2}
+imfdeepcnv=${glob_imfdeepcnv:-2}
 ccpp_suite_nml=${ccpp_suite_glob}
 layoutx_nml=${glob_layoutx}
 layouty_nml=${glob_layouty}
@@ -968,6 +994,18 @@ full_zs_filter_nml=${glob_full_zs_filter:-.true.}
 n_zs_filter_nml=${glob_n_zs_filter:-1}
 n_del2_weak_nml=${glob_n_del2_weak:-20}
 max_slope_nml=${glob_max_slope:-0.25}
+hord_mt=${glob_hord_mt:-6}
+hord_vt=${glob_hord_vt:-6}
+hord_tm=${glob_hord_tm:-6}
+hord_dp=${glob_hord_dp:-6}
+hord_tr=${glob_hord_tr:--5}
+kord_tm=${glob_kord_tm:--11}
+kord_mt=${glob_kord_mt:-11}
+kord_wz=${glob_kord_wz:-11}
+kord_tr=${glob_kord_tr:-11}
+fv_core_tau=${glob_fv_core_tau:-10.}
+rf_cutoff=${glob_rf_cutoff:-10.}
+fast_tau_w_sec=${glob_fast_tau_w_sec:-0.2}
 rlmx_nml=${glob_rlmx:-300.}
 elmx_nml=${glob_elmx:-300.}
 sfc_rlm_nml=${glob_sfc_rlm:-1}
@@ -999,6 +1037,24 @@ enh_mix_nml=${glob_enh_mix:-.false.}
 
 lightning_threat_nml=${glob_lightning_threat:-.false.}
 
+ltaerosol=${ltaerosol:-.false.}
+satmedmf=${satmedmf:-.true.}
+do_mynnedmf=${do_mynnedmf:-.false.}
+do_mynnsfclay=${do_mynnsfclay:-.false.}
+cdmbgwd=${cdmbgwd:-1.0,1.0,1.0,1.0}
+iopt_sfc=${iopt_sfc:-3}
+gwd_opt=${gwd_opt:-2}
+do_ugwp_v0=${do_ugwp_v0:-.false.}
+do_ugwp_v1=${do_ugwp_v1:-.false.}
+do_ugwp_v0_orog_only=${do_ugwp_v0_orog_only:-.false.}
+do_ugwp_v0_nst_only=${do_ugwp_v0_nst_only:-.true.}
+do_ugwp_v1_w_gsldrag=${do_ugwp_v1_w_gsldrag:-.false.}
+do_ugwp_v1_orog_only=${do_ugwp_v1_orog_only:-.false.}
+do_gsl_drag_ls_bl=${do_gsl_drag_ls_bl:-.true.}
+do_gsl_drag_ss=${do_gsl_drag_ss:-.true.}
+do_gsl_drag_tofd=${do_gsl_drag_tofd:-.true.}
+bl_mynn_tkeadvect=${bl_mynn_tkeadvect:-.false.}
+
 atparse < input.nml.tmp > input.nml
 
 for n in $(seq 1 ${nest_grids}); do
@@ -1022,6 +1078,18 @@ for n in $(seq 1 ${nest_grids}); do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+  hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
+  hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
+  hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
+  hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
+  hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
+  kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
+  kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
+  kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
+  kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
+  fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
+  rf_cutoff=$( echo ${rf_cutoff} | cut -d , -f ${n} )
+  fast_tau_w_sec=$( echo ${fast_tau_w_sec} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
   sedi_semi_nml=$( echo ${sedi_semi} | cut -c , -f ${n} )
@@ -1321,8 +1389,20 @@ full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
 n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
 n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
 max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
+hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
+hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
+hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
+hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
+kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
+kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
+kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
+kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
 rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
 elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
+fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
+rf_cutoff=$( echo ${rf_cutoff} | cut -d , -f ${n} )
+fast_tau_w_sec=$( echo ${fast_tau_w_sec} | cut -d , -f ${n} )
 sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
 tc_pbl_nml=$( echo ${tc_pbl} | cut -d , -f ${n} )
 shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
@@ -1379,6 +1459,18 @@ for n in $(seq 2 ${nest_grids}); do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
+  hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
+  hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
+  hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
+  hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
+  hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
+  kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
+  kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
+  kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
+  kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
+  fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
+  rf_cutoff=$( echo ${rf_cutoff} | cut -d , -f ${n} )
+  fast_tau_w_sec=$( echo ${fast_tau_w_sec} | cut -d , -f ${n} )
   rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
   elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
   sfc_rlm_nml=$( echo ${sfc_rlm} | cut -d , -f ${n} )
@@ -1677,13 +1769,15 @@ NUM_FILES=2
 FILENAME_BASE="'atm' 'sfc'"
 OUTPUT_FILE="'netcdf_parallel' 'netcdf_parallel'"
 #OUTPUT_FILE="'netcdf' 'netcdf'"
-IDEFLATE=1
+IDEFLATE=${ideflate:-1}
+ZSTANDARD_LEVEL=${zstandard_level:-1}
 QUANTIZE_NSD=0
 OUTPUT_FH="${NOUTHRS:-3} -1"
+NBITS=0
 
 if [ $gtype = regional ]; then
   ngrids=${nest_grids}
-elif [ $gtype = nest ]; then
+elif [ $gtype = nest ] || [ $gtype = stretch ] || [ $gtype = uniform ]; then
   ngrids=$(( ${nest_grids} + 1 ))
 else
   echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
@@ -1765,8 +1859,8 @@ if [ ${write_dopost:-.false.} = .true. ]; then
   ${NCP} ${PARMhafs}/post/itag ./itag
   ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
   if [ ${satpost:-.false.} = .true. ]; then
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT_FH00.txt
+    ${NCP} ${postxconfig_satpost} ./postxconfig-NT.txt
+    ${NCP} ${postxconfig_satpost} ./postxconfig-NT_FH00.txt
     # Link crtm fix files
     for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
       "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
@@ -1784,8 +1878,8 @@ if [ ${write_dopost:-.false.} = .true. ]; then
       ${NLN} ${file} ./
     done
   else
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT.txt
-    ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_nosat.txt ./postxconfig-NT_FH00.txt
+    ${NCP} ${postxconfig_nosat} ./postxconfig-NT.txt
+    ${NCP} ${postxconfig_nosat} ./postxconfig-NT_FH00.txt
   fi
 fi
 
