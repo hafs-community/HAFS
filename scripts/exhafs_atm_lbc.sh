@@ -18,7 +18,7 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
+CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_utils_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
 
@@ -309,9 +309,9 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
+${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
 set -o pipefail
-${APRUNC} ./hafs_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc_${FHR3}.log
+${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc_${FHR3}.log
 export err=$?; err_chk
 set +o pipefail
 

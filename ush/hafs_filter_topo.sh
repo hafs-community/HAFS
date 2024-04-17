@@ -44,7 +44,7 @@ orodir=$3
 outdir=$4
 
 #executable=$exec_dir/filter_topo
-executable=${FILTERTOPOEXEC:-$exec_dir/hafs_filter_topo.x}
+executable=${FILTERTOPOEXEC:-$exec_dir/hafs_utils_filter_topo.x}
 if [ ! -s $executable ]; then
   set +x
   echo

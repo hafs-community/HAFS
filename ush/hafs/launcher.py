@@ -1485,14 +1485,14 @@ class HAFSLauncher(HAFSConfig):
             # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
             with NamedDir(os.path.join(WORKhafs, 'launch/make_hgrid'),logger=logger,rm_first=True) as d:
                 if gtype=='nest':
-                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    executable=os.path.join(EXEChafs, 'hafs_utils_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
                                           '--do_schmidt --stretch_factor', stretch_fac,
                                           '--target_lon', target_lon, '--target_lat', target_lat]
                     checkrun(cmd,logger=logger)
                     deliver_file(cres+'_grid.tile6.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
                 elif gtype=='regional' and nest_grids > 1 and not regional_esg=='yes':
-                    executable=os.path.join(EXEChafs, 'hafs_make_hgrid.x')
+                    executable=os.path.join(EXEChafs, 'hafs_utils_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
                                           '--do_schmidt --stretch_factor', stretch_fac,
                                           '--target_lon', target_lon, '--target_lat', target_lat,
@@ -1503,7 +1503,7 @@ class HAFSLauncher(HAFSConfig):
                     checkrun(cmd,logger=logger)
                     deliver_file(cres+'_grid.tile7.nc', './parent_grid.tile.halo0.nc', keep=True, logger=logger)
                 elif gtype=='regional' and nest_grids > 1 and regional_esg=='yes':
-                    executable=os.path.join(EXEChafs, 'hafs_regional_esg_grid.x')
+                    executable=os.path.join(EXEChafs, 'hafs_utils_regional_esg_grid.x')
                     # generate regional esg parent grid
                     lx=int(idim_nest[0])+halop2*2
                     ly=int(jdim_nest[0])+halop2*2
@@ -1531,7 +1531,7 @@ class HAFSLauncher(HAFSConfig):
                    #with open('./input.shave.grid.halo0','w') as f:
                    #    f.write(' '.join(map(str, [idim_nest[0], jdim_nest[0],halo0,
                    #                               "'./regional_grid.nc'", "'./parent_grid.tile.halo0.nc'"])))
-                   #executable=os.path.join(EXEChafs, 'hafs_shave.x')
+                   #executable=os.path.join(EXEChafs, 'hafs_utils_shave.x')
                    #cmd=exe(executable)<'./input.shave.grid.halo0'
                    #checkrun(cmd,logger=logger)
                 else:

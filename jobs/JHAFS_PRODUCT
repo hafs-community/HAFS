@@ -104,7 +104,7 @@ for ng in $(seq 1 ${ngrids}); do
   fi
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
   cat ./run_product.${gridstr}.log
-  if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
+  if grep "top of output_all" ./tracker${neststr}/gettrk.out; then
     echo "INFO: successfully ran run_product.${gridstr}"
   else
     echo "FATAL ERROR: failed running run_product.${gridstr}"

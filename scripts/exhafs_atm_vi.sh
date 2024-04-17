@@ -48,7 +48,7 @@ else
 fi
 
 CDATEprior=$(${NDATE} -6 $YMDH)
-DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
 DATA=${DATA:-${WORKhafs}/atm_vi}
 mkdir -p ${DATA}
@@ -224,8 +224,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   # output
   ${RLN} ./trak.fnl.all fort.30
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
-  ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_guess.x ./
+  ${APRUNS} ./hafs_tools_vi_create_trak_guess.x ${STORMID}
   export err=$?; err_chk
 
   # split
@@ -241,13 +241,13 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${RLN} storm_pert fort.71
   ${RLN} storm_radius fort.85
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   set -o pipefail
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
   set +o pipefail
 
@@ -266,7 +266,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${RLN} storm_size_p fort.14
   ${RLN} storm_sym fort.23
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -290,7 +290,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   fi
   initopt_guess=${initopt}
   set -o pipefail
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
   set +o pipefail
 fi
@@ -334,8 +334,8 @@ if true; then
   # output
   ${RLN} ./trak.fnl.all fort.30
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
-  ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_init.x ./
+  ${APRUNS} ./hafs_tools_vi_create_trak_init.x ${STORMID}
   export err=$?; err_chk
 
   # split
@@ -354,7 +354,7 @@ if true; then
   ${RLN} storm_pert fort.71
   ${RLN} storm_radius fort.85
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -365,7 +365,7 @@ if true; then
     iflag_cold=1
   fi
   set -o pipefail
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
   set +o pipefail
 
@@ -384,7 +384,7 @@ if true; then
   ${RLN} storm_size_p fort.14
   ${RLN} storm_sym fort.23
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -408,7 +408,7 @@ if true; then
   fi
   initopt_init=${initopt}
   set -o pipefail
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
   set +o pipefail
 
@@ -459,9 +459,9 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   # output
   ${RLN} storm_anl_bogus                       fort.56
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_bogus.x ./
   set -o pipefail
-  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_bogus.x 2>&1 | tee ./vi_anl_bogus.log
+  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_bogus.x 2>&1 | tee ./vi_anl_bogus.log
   export err=$?; err_chk
   set +o pipefail
   ${NCP} -p storm_anl_bogus storm_anl
@@ -508,9 +508,9 @@ else # warm-start from prior cycle or cold start from global/parent model
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
   set -o pipefail
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
   set +o pipefail
   if [ -s storm_anl_combine ]; then
@@ -552,9 +552,9 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${RLN} storm_anl_enhance                     fort.56
 
     iflag_cold=${iflag_cold:-0}
-    ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
+    ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_enhance.x ./
     set -o pipefail
-    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
+    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
     export err=$?; err_chk
     set +o pipefail
     ${NCP} -p storm_anl_enhance storm_anl

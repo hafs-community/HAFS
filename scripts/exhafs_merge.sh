@@ -12,8 +12,8 @@ set -xe
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
+MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
