@@ -257,7 +257,7 @@ def remove_file(filename,info=True,logger=None):
     not existing should be sent to the logger at INFO level
     (info=True) instead of WARNING (info=False).
     @param logger the logging.Logger for messages"""
-    if filename is None or filename=='':
+    if filename is None or filename=='' or not os.path.exists(path):
         return # nothing to do
     try:
         if logger is not None: logger.info('%s: remove file'%(filename,))

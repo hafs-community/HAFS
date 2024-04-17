@@ -68,28 +68,123 @@ if [ ${FGAT_MODEL} = gdas ]; then
 fi
 
 if [ "${ENSDA}" = YES ]; then
-  export DATA=${WORKhafs}/atm_init_ens
+  export DATAinit=${WORKhafs}/atm_init_ens
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}
+  export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}
 else
-  export DATA=${WORKhafs}/atm_init
+  export DATAinit=${WORKhafs}/atm_init
 fi
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
-  rm -rf $DATA
+  rm -rf $DATAinit
 fi
+mkdir -p $DATAinit
+cd $DATAinit
+
+#===============================================================================
+# forecast
+
+if [ "${ENSDA}" = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+else
+  export DATA=${WORKhafs}/atm_init/forecast
+fi
+
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_init.sh
+${HOMEhafs}/scripts/exhafs_forecast.sh
 export err=$?; err_chk
+
+#===============================================================================
+# post
+
+export TOTAL_TASKS=240
+export OMP_NUM_THREADS=1
+source ${USHhafs}/hafs_runcmd.sh.inc
+
+if [ ${ENSDA} = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/post
+else
+  export DATA=${WORKhafs}/atm_init/post
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+# Execute ex-script
+${HOMEhafs}/scripts/exhafs_atm_post.sh
+export err=$?; err_chk
+
+#===============================================================================
+# product
+
+export OMP_NUM_THREADS=1
+export APRUNC=${APRUNS}
+
+if [ ${ENSDA} = YES ]; then
+  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/product
+elif [ ${FGAT_MODEL} = gdas ]; then
+  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/product
+else
+  export DATA=${WORKhafs}/atm_init/product
+fi
+
+mkdir -p $DATA
+cd $DATA
+
+if [ ${gtype} = nest ]; then
+  ngrids=$((${nest_grids} + 1))
+else
+  ngrids=${nest_grids}
+fi
+
+rm -f cmdfile_product
+# Loop for grids/domains to prepare the cmdfile
+for ng in $(seq 1 ${ngrids}); do
+  if [[ $ng -eq 1 ]]; then
+    neststr=""
+    tilestr=".tile1"
+  else
+    neststr=".nest$(printf '%02d' ${ng})"
+    tilestr=".tile$(printf '%d' ${ng})"
+  fi
+  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
+        ${HOMEhafs}/scripts/exhafs_product.sh \
+        > run_product.${gridstr}.log 2>&1" >> cmdfile_product
+done
+chmod +x cmdfile_product
+${APRUNC} ${MPISERIAL} -m cmdfile_product
+export err=$?; err_chk
+
+# Check if product/tracker run successfully
+for ng in $(seq 1 ${ngrids}); do
+  if [[ $ng -eq 1 ]]; then
+    neststr=""
+  else
+    neststr=".nest$(printf '%02d' ${ng})"
+  fi
+  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  cat ./run_product.${gridstr}.log
+  if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
+    echo "INFO: successfully ran run_product.${gridstr}"
+  else
+    echo "FATAL ERROR: failed running run_product.${gridstr}"
+    exit 1
+  fi
+done
 
 #===============================================================================
 # Cleanup DATA dir
 cd ${WORKhafs}
 if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
+  rm -rf $DATAinit
 fi
 
 date
