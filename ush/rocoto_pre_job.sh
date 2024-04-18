@@ -6,7 +6,7 @@
 #   This script sources hafs_pre_job.sh.inc and then execute the script
 #   specified through the input augument(s).
 ################################################################################
-set -xue
+set -x
 date
 . $USHhafs/hafs_pre_job.sh.inc
 exec "$@"

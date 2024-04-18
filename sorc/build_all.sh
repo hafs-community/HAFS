@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 #------------------------------------
 # USER DEFINED STUFF:
 #
@@ -102,4 +102,3 @@ echo " .... Building ww3_utils .... "
 
 echo;echo " .... Build system finished .... "
 
-exit

@@ -6,7 +6,7 @@
 #   This script runs the HAFS specific observation preprocessing steps needed
 #   by data assimilation.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
@@ -62,10 +62,8 @@ ${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
 ${NCP} -p ${EXEChafs}/hafs_tools_change_prepbufr_qm_typ.x ./hafs_tools_change_prepbufr_qm_typ.x
-set -o pipefail
 ${APRUNS} ./hafs_tools_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
 export err=$?; err_chk
-set +o pipefail
 
 # Deliver to intercom
 ${NCP} -p ./prepbufr.qm_typ ${intercom}/${NET}.t${cyc}z.prepbufr
@@ -337,10 +335,8 @@ sed -e "s/_analdate_/${analdate}/g" \
 # Run the executable
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_tools_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_tools_obs_preproc.x
-set -o pipefail
 ${APRUNS} ./hafs_tools_obs_preproc.x 2>&1 | tee ./obs_preproc.out
 export err=$?; err_chk
-set +o pipefail
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}

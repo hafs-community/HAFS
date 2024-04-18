@@ -6,7 +6,7 @@
 #   This script runs a HAFS forecast with various coldstart/warmstart and
 #   uncoupled/coupled configurations.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 YMD=$(echo ${CDATE} | cut -c1-8)
@@ -1750,10 +1750,8 @@ ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
 #${APRUNC} ./hafs_forecast.x >> $pgmout 2>errfile
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
-set -o pipefail
 ${APRUNC} ./hafs_forecast.x 2>&1 | tee forecast.log
 export err=$?; err_chk
-set +o pipefail
 
 if [ $gtype = regional ] && [ ${run_datm} = no ]; then
 

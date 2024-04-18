@@ -14,8 +14,7 @@
 # drag suite.  Source code is gsl_oro_data.f90.
 #-----------------------------------------------------------------------
 #
-
-set -eux
+set -x -o pipefail
 
 nargv=$#
 
@@ -62,10 +61,8 @@ echo $tile > grid_info.dat
 echo $res >> grid_info.dat
 echo $halo >> grid_info.dat
 
-set -o pipefail
 ${APRUNO} $executable < grid_info.dat 2>&1 | tee ./make_orog_gsl.log
 export err=$?; err_chk
-set +o pipefail
 
 mv ./C*oro_data_*.nc $outdir/
 echo "*oro_data_ls* and *oro_data_ss* files created"

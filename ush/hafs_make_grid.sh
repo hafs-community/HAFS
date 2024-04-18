@@ -10,7 +10,7 @@
 #   10/06/2021: Added the capability to support regional nesting configurations
 #   10/22/2022: Enabled support for regional ESG grid
 ################################################################################
-set -eux
+set -x -o pipefail
 
 nargv=$#
 if [ $nargv -ne 3 -a $nargv -ne 5 -a $nargv -ne 6 -a $nargv -ne 7 -a $nargv -ne 12 -a $nargv -ne 14  ]; then

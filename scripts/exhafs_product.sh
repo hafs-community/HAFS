@@ -6,7 +6,7 @@
 #   This script runs the GFDL vortex tracker to generate the ATCF track files,
 #   and produces the stakeholder (NHC/JTWC) needed products (if desired).
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 YYYY=$(echo $CDATE | cut -c 1-4)
@@ -223,12 +223,8 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 # Run the vortex tracker gettrk.x
 ${NCP} -p ${GETTRKEXEC} ./hafs_tracker_gettrk.x
-set +e
-set -o pipefail
 time ./hafs_tracker_gettrk.x 2>&1 | tee ./gettrk.out
 export err=$?; err_chk
-set +o pipefail
-set -e
 
 if grep "top of output_all" ./gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"

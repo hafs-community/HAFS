@@ -6,7 +6,7 @@
 #   This script generates the atmospheric lateral boundary condition (LBC) at a
 #   specific forecast lead time through the UFS_UTIL's chgres_cube tool.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 cyc=${cyc:-00}
 CDATE=${CDATE:-${YMDH}}
@@ -310,10 +310,8 @@ cat>./fort.41<<EOF
 EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
-set -o pipefail
 ${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc_${FHR3}.log
 export err=$?; err_chk
-set +o pipefail
 
 # Move output files to save directory
 if [ $gtype = regional ]; then

@@ -7,7 +7,7 @@
 #   coupling needed ocean initial condition (IC), open boundary condition (OBC)
 #   and atmospheric forcings.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 cyc=${cyc:-00}
@@ -101,16 +101,12 @@ export CDF033=rtofs_${outnc_uv}
 
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_ic.in ./rtofs_ocean_ssh_ic.in
-set -o pipefail
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf2d.x < ./rtofs_ocean_ssh_ic.in 2>&1 | tee ./archv2ncdf2d_ssh_ic.log
 export err=$?; err_chk
-set +o pipefail
 
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_ic.in ./rtofs_ocean_3d_ic.in
-set -o pipefail
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in 2>&1 | tee archv2ncdf3z_3d_ic.log
 export err=$?; err_chk
-set +o pipefail
 
 # SSH file
 # Change into netcdf3 format
@@ -226,25 +222,19 @@ export CDF033=rtofs.${type}${hour}_${outnc_uv}
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_obc.in ./rtofs_ocean_ssh_obc.in
 
-set -o pipefail
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in 2>&1 | tee ./archv2ncdf2d_ssh_obc.log
 export err=$?; err_chk
-set +o pipefail
 
 ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean_3d_obc.in
-set -o pipefail
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee ./archv2ncdf3z_3d_obc.log
 export err=$?; err_chk
-set +o pipefail
 
 # Run Python script to generate OBC
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-set -o pipefail
 ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
     rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
     'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y' 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
-set +o pipefail
 
 # next obc hour
 #IFHR=$(($IFHR + 1))
@@ -322,10 +312,8 @@ FHR3=$(printf "%03d" "$FHR")
 done
 # End loop for forecast hours
 
-set -o pipefail
 ${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} 2>&1 | tee ./mom6_gfs_forcings.log
 export err=$?; err_chk
-set +o pipefail
 
 # Obtain net longwave and shortwave radiation file
 echo 'Obtaining NETLW'

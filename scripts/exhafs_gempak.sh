@@ -5,7 +5,7 @@
 # Abstract:
 #   This script generates HAFS GEMPAK products.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 export storm_id=${STORMID,,}
 export fstart=0

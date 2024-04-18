@@ -8,7 +8,7 @@
 # History:
 #   04/24/2019: This script was adopted from UFS_UTILS' fv3gfs_make_orog.sh
 ################################################################################
-set -eux
+set -x -o pipefail
 
 nargv=$#
 
@@ -110,10 +110,8 @@ fi
 echo "none" >> INPS
 
 cat INPS
-set -o pipefail
 ${APRUNO} $executable < INPS 2>&1 | tee ./make_orog.log
 export err=$?; err_chk
-set +o pipefail
 
 if [ $is_latlon -eq 1 ]; then
    outfile=oro.${lonb}x${latb}.nc
