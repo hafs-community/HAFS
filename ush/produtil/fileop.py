@@ -17,7 +17,7 @@ __all__=['FileOpError','FileOpErrors','CannotLinkMulti',
          'wait_for_files','FileWaiter','call_fcntrl','gribver',
          'netcdfver','touch']
 
-import os,tempfile,filecmp,stat,shutil,errno,random,time,fcntl,math,logging
+import os,sys,tempfile,filecmp,stat,shutil,errno,random,time,fcntl,math,logging
 import produtil.cluster, produtil.pipeline
 
 module_logger=logging.getLogger('produtil.fileop')
@@ -257,7 +257,7 @@ def remove_file(filename,info=True,logger=None):
     not existing should be sent to the logger at INFO level
     (info=True) instead of WARNING (info=False).
     @param logger the logging.Logger for messages"""
-    if filename is None or filename=='' or not os.path.exists(path):
+    if filename is None or filename=='' or not os.path.exists(filename):
         return # nothing to do
     try:
         if logger is not None: logger.info('%s: remove file'%(filename,))
@@ -675,6 +675,10 @@ def make_symlink(source,target,force=False,logger=None,max_tries=20):
     if logger is None: logger=module_logger
     if logger is not None:
         logger.info('link %s -> %s'%(target,source))
+    if not os.path.exists(source):
+        if logger is not None:
+            logger.critical("FATAL ERROR: source: \"%s\" not exist, Exiting."%(source))
+        sys.exit(2)
     if os.path.isdir(target):
         target=os.path.join(target,os.path.basename(source))
         if logger is not None:
@@ -683,7 +687,7 @@ def make_symlink(source,target,force=False,logger=None,max_tries=20):
         os.symlink(source,target)
         content=os.readlink(target)
         if content!=source:
-            msg="FILESYSTEM FAILURE: Cannot symlink \"%s\" -> \"%s\".  Instead, the symlink is to \"%s\"."%(target,source,content)
+            msg="FATAL ERROR: FILESYSTEM FAILURE: Cannot symlink \"%s\" -> \"%s\".  Instead, the symlink is to \"%s\"."%(target,source,content)
             if logger is not None:
                 logger.critical(msg)
             raise WrongSymlink(msg,target)
