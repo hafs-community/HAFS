@@ -5,7 +5,7 @@
 # Abstract:
 #   This script runs the HAFS oceanic post-processing steps for MOM6 coupling.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 ENSDA=${ENSDA:-NO}

@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
@@ -14,4 +14,3 @@ if [ "${BUILD_MODE}" = Release ]; then
 else
   ./compile_upp.sh -d 
 fi
-exit

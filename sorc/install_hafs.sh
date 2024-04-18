@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 
 # RUN_ENVIR of nco or dev

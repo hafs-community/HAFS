@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
@@ -17,4 +17,3 @@ fi
 cd hafs_tracker.fd/src
 ./build_all_cmake.sh
 
-exit

@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -89,7 +89,7 @@ for ng in $(seq 1 ${ngrids}); do
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
   echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
         ${HOMEhafs}/scripts/exhafs_product.sh \
-        > run_product.${gridstr}.log 2>&1" >> cmdfile_product
+        > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done
 chmod +x cmdfile_product
 ${APRUNC} ${MPISERIAL} -m cmdfile_product

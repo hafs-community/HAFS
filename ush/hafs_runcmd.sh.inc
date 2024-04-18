@@ -20,7 +20,7 @@ export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 export HDF5_USE_FILE_LOCKING=FALSE
 
 # Define pgmout
-export pgmout=OUTPUT.$$
+#export pgmout=OUTPUT.$$
 
 # Set job run commands
 # APRUN:  command to run general jobs

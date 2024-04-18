@@ -6,7 +6,7 @@
 #   This script delivers some HAFS output files, sends a notification email (if
 #   desired), and generate the HAFS swath grib2 files.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 export MP_LABELIO=yes
 

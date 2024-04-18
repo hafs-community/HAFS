@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
@@ -16,4 +16,3 @@ export ENKF_MODE=FV3REG
 export BUILD_TYPE=${BUILD_MODE}
 ./build.sh
 
-exit

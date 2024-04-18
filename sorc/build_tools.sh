@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
@@ -69,4 +69,3 @@ cd ${TOOLS_PATH}/sorc
 
 ./build_hafs_utils.sh
 
-exit

@@ -8,7 +8,7 @@
 #   vortex tracker needed grib2 records, and NHC requested grib2 records (if
 #   chosen).
 ################################################################################
-set -xe
+set -x -o pipefail
 
 export MP_LABELIO=yes
 
@@ -323,10 +323,8 @@ ${NCP} -p ${POSTEXEC} ./hafs_post.x
 #${APRUNC} ./hafs_post.x < itag >> $pgmout 2>errfile
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
-set -o pipefail
 ${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./post_${NEWDATE}.log
 export err=$?; err_chk
-set +o pipefail
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then

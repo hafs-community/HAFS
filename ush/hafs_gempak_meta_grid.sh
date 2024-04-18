@@ -8,7 +8,7 @@
 #   03/18/2023: This script was adopted/inerited from HWRF and updated for HAFS.
 # Note: ksh can do floating point calculations directly.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 mkdir -p $DATA/grid
 cd $DATA/grid

@@ -6,7 +6,7 @@
 #   This script cleans up the HAFS atmopheric, wave and oceanic post-processing
 #   products and files in com and intercom.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 

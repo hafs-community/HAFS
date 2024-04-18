@@ -6,7 +6,7 @@
 #   This script conducts the HAFS atmospheric data assimilation through GSI,
 #   and generate analysis diagnoses (if desired).
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
@@ -609,10 +609,8 @@ ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 #cat ${pgmout} > ${GSISOUT}
-set -o pipefail
 ${APRUNC} ./hafs_gsi.x 2>&1 | tee ./gsi.log
 export err=$?; err_chk
-set +o pipefail
 cat ./gsi.log > ${GSISOUT}
 
 # Cat runtime output files.

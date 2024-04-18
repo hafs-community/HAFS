@@ -7,7 +7,7 @@
 #   supports the merge_type of analysis or init with the merge_method of
 #   domainmerge or vortexreplace.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}

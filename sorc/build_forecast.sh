@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 source ./machine-setup.sh > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
@@ -23,4 +23,3 @@ app=HAFS-MOM6W
 app=HAFSW
 ./compile.sh "$target" "-DAPP=$app -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug -DCCPP_SUITES=FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_thompson_noahmp_nonsst,FV3_HAFS_v1_thompson_noahmp -D32BIT=ON" hafs_hycom intel YES NO
 
-exit
