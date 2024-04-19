@@ -52,6 +52,10 @@ ds=Datastore(filename,logger=logger)
 
 ww3postworkdir=DATA+"/ww3post"
 ww3post=hafs.ww3.WW3Post(dstore=ds,conf=conf,section='ww3post',taskname='ww3post',workdir=ww3postworkdir,fcstlen=fcstlen)
-ww3post.run()
+try:
+    ww3post.run()
+except:
+    logger.critical("FATAL ERROR: ww3post failed")
+    sys.exit(2)
 
 logger.info("ww3post done")

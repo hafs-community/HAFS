@@ -40,6 +40,10 @@ ds=Datastore(filename,logger=logger)
 
 hycompostworkdir=DATA+"/hycompost"
 hycompost=hafs.hycom.HYCOMPost(dstore=ds,conf=conf,section='hycompost',workdir=hycompostworkdir,fcstlen=fcstlen)
-hycompost.run()
+try:
+    hycompost.run()
+except:
+    logger.critical("FATAL ERROR: hycompost failed")
+    sys.exit(2)
 
 logger.info("hycompost done")

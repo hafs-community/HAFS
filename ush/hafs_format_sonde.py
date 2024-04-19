@@ -129,6 +129,7 @@ class FormatSonde(object):
                     timestamp_obj=datetime.datetime.strptime(fts,'%Y%m%d%H%M')
                     break
                 except:
+                    print('INFO: continue to the next timestamp.')
                     pass
         return fts
     def collect_sondes(self,data):
@@ -299,6 +300,7 @@ class FormatSonde(object):
                                     sstr=self.stripmeta(instr=sstr)
                                     outf.write('%s\n'%sstr)
                                 except IndexError:
+                                    print('INFO: continue next srchstr')
                                     pass
     def get_obsinfo(self,infostrs,data):
         """

@@ -407,18 +407,23 @@ fi #if [[ "$outputgrid" = "rotated_latlon"* ]]; then
 
 # Generate the grib2 index file
 ${WGRIB2} -s ${grb2file} > ${grb2indx}
+export err=$?; err_chk
 if [ ${satpost} = .true. ]; then
   ${WGRIB2} -s ${sat_grb2file} > ${sat_grb2indx}
+  export err=$?; err_chk
 fi
 
 # Subsetting hafs grib2 files for NHC
 if [ ${nhcpost} = .true. ]; then
   PARMlist=$(sed -z 's/\n/|/g' ${PARMhafs}/post/hafs_subset_nhc.txt | sed -e 's/.$//g')
   ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+  export err=$?; err_chk
   if [ ${satpost} = .true. ]; then
     ${WGRIB2} -append ${sat_grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+    export err=$?; err_chk
   fi
   ${WGRIB2} -s ${nhc_grb2file} > ${nhc_grb2indx}
+  export err=$?; err_chk
 fi
 
 # Extract hafstrk grib2 files for the tracker
@@ -429,6 +434,7 @@ PARMlist=${PARMlistp1}"|"${PARMlistp2}"|"${PARMlistp3}
 echo ${PARMlist}
 
 ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
+export err=$?; err_chk
 
 # If desired, create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
 if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
@@ -465,6 +471,7 @@ fi
 
 # Generate the index file for the tracker
 ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
+export err=$?; err_chk
 
 # Deliver to intercom
 mv ${trk_grb2file} ${intercom}/
