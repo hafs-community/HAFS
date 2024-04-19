@@ -172,6 +172,7 @@ if [ $input_type = "grib2" ]; then
         > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
         | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+    export err=$?; err_chk
   else
     ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi

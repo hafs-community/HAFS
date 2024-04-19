@@ -55,7 +55,12 @@ ds=Datastore(filename,logger=logger)
 
 ww3initworkdir=DATA+"/ww3init"
 ww3init=hafs.ww3.WW3Init(dstore=ds,conf=conf,section='ww3init',taskname='ww3init',workdir=ww3initworkdir,fcstlen=fcstlen)
-ww3init.run()
+try:
+    ww3init.run()
+except:
+    logger.critical("FATAL ERROR: ww3init failed")
+    sys.exit(2)
+
 set_ecflow_event('Wave',logger=logger)
 
 logger.info("ww3init done")

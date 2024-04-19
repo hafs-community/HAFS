@@ -38,18 +38,13 @@ griddir=$2
 orodir=$3
 outdir=$4
 
-#executable=$exec_dir/filter_topo
 executable=${FILTERTOPOEXEC:-$exec_dir/hafs_utils_filter_topo.x}
-if [ ! -s $executable ]; then
-  echo "FATAL ERROR: ${executable} does not exist"
-  exit 1
-fi
 
 mosaic_grid=C${res}_mosaic.nc
 topo_file=oro.C${res}
 
 if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
-cd $outdir ||exit 8
+cd $outdir
 
 ${NCP} $griddir/$mosaic_grid .
 ${NCP} $griddir/C${res}_grid.tile?.nc .
@@ -59,7 +54,6 @@ for file in $orodir/${topo_file}.tile?.nc ; do
     ${NCP} ${file} ./${filebase}
   fi
 done
-${NCP} $executable .
 
 regional=.false.
 if [ $gtype = regional ] || [ $gtype = regional_gfdl ] || [ $gtype = regional_esg ] ; then
@@ -77,7 +71,8 @@ cat > input.nml <<EOF
   /
 EOF
 
-${APRUN} $executable 2>&1 | tee ./filter_topo.log
+${NCP} $executable ./hafs_utils_filter_topo.x
+${APRUN} ./hafs_utils_filter_topo.x 2>&1 | tee ./filter_topo.log
 export err=$?; err_chk
 
 date

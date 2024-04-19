@@ -17,8 +17,6 @@ export cyc="%CYC%"
 export TOTAL_TASKS='240'
 export NCTSK='16'
 export OMP_THREADS='8'
-export OMP_PLACES=cores
-export OMP_STACKSIZE=1G
 export FI_OFI_RXM_SAR_LIMIT=3145728
 
 export storm_num="%STORMNUM%"
