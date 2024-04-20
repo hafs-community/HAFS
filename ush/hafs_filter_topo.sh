@@ -43,7 +43,7 @@ executable=${FILTERTOPOEXEC:-$exec_dir/hafs_utils_filter_topo.x}
 mosaic_grid=C${res}_mosaic.nc
 topo_file=oro.C${res}
 
-if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
+mkdir -p $outdir
 cd $outdir
 
 ${NCP} $griddir/$mosaic_grid .
@@ -71,7 +71,7 @@ cat > input.nml <<EOF
   /
 EOF
 
-${NCP} $executable ./hafs_utils_filter_topo.x
+${NCP} -p $executable ./hafs_utils_filter_topo.x
 ${APRUN} ./hafs_utils_filter_topo.x 2>&1 | tee ./filter_topo.log
 export err=$?; err_chk
 

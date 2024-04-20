@@ -282,7 +282,6 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-rm -f fort.*
 # Copy fix files
 ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new

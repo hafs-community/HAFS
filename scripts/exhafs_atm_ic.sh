@@ -283,6 +283,7 @@ cat>./fort.41<<EOF
 EOF
 
 ${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
+${SOURCE_PREP_STEP}
 ${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_ic.log
 export err=$?; err_chk
 
@@ -378,6 +379,7 @@ cat>./fort.41<<EOF
 /
 EOF
 #${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
+${SOURCE_PREP_STEP}
 ${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc.log
 export err=$?; err_chk
 

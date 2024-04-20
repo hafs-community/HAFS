@@ -59,15 +59,9 @@ else
 fi
 
 indir=$hist_dir
-#executable=$exec_dir/orog.x
 executable=${OROGEXEC:-$exec_dir/hafs_utils_orog.x}
-if [ ! -s $executable ]; then
-  echo "executable does not exist"
-  exit 1
-fi
 
-if [ ! -s $workdir ]; then mkdir -p $workdir ;fi
-if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
+mkdir -p $workdir $outdir
 
 mtnres=1
 efac=0
@@ -97,7 +91,6 @@ fi
 if [ $is_latlon -eq 0 ]; then
    ${NCP} ${griddir}/$OUTGRID .
 fi
-${NCP} $executable .
 
 echo  $mtnres $lonb $latb $efac $blat > INPS
 echo $OUTGRID >> INPS
@@ -110,7 +103,9 @@ fi
 echo "none" >> INPS
 
 cat INPS
-${APRUNO} $executable < INPS 2>&1 | tee ./make_orog.log
+${NCP} -p $executable ./hafs_utils_orog.x
+${SOURCE_PREP_STEP}
+${APRUNO} ./hafs_utils_orog.x < INPS 2>&1 | tee ./orog.log
 export err=$?; err_chk
 
 if [ $is_latlon -eq 1 ]; then

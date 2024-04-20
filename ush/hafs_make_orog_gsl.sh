@@ -33,15 +33,8 @@ topo_am=$6
 TMPDIR=$7
 workdir=$TMPDIR/C${res}/orog_gsl/tile$tile
 
-#executable=$exec_dir/orog_gsl
 executable=${OROGGSLEXEC:-$exec_dir/hafs_utils_orog_gsl.x}
-if [ ! -s $executable ]; then
-  echo "executable does not exist"
-  exit 1
-fi
-
-if [ ! -s $workdir ]; then mkdir -p $workdir ;fi
-if [ ! -s $outdir ]; then mkdir -p $outdir ;fi
+mkdir -p $workdir $outdir
 
 if [ $halo -eq "-999" ]; then
    OUTGRID="C${res}_grid.tile${tile}.nc"
@@ -55,13 +48,12 @@ ${NLN} ${griddir}/$OUTGRID .
 ${NLN} ${topo_am}/"HGT.Beljaars_filtered.lat-lon.30s_res.nc" .
 ${NLN} ${topo_am}/"geo_em.d01.lat-lon.2.5m.HGT_M.nc" .
 
-${NCP} -p $executable .
-
 echo $tile > grid_info.dat
 echo $res >> grid_info.dat
 echo $halo >> grid_info.dat
 
-${APRUNO} $executable < grid_info.dat 2>&1 | tee ./make_orog_gsl.log
+${NCP} -p $executable ./hafs_utils_orog_gsl.x
+${APRUNO} ./hafs_utils_orog_gsl.x < grid_info.dat 2>&1 | tee ./orog_gsl.log
 export err=$?; err_chk
 
 mv ./C*oro_data_*.nc $outdir/

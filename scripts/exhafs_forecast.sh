@@ -1747,6 +1747,7 @@ done
 # Copy the executable and run the forecast
 FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast.x}
 ${NCP} -p ${FORECASTEXEC} ./hafs_forecast.x
+${SOURCE_PREP_STEP}
 #${APRUNC} ./hafs_forecast.x >> $pgmout 2>errfile
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
