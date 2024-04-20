@@ -62,6 +62,7 @@ ${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
 ${NCP} -p ${EXEChafs}/hafs_tools_change_prepbufr_qm_typ.x ./hafs_tools_change_prepbufr_qm_typ.x
+${SOURCE_PREP_STEP}
 ${APRUNS} ./hafs_tools_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
 export err=$?; err_chk
 

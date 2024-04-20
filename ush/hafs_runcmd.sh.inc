@@ -21,6 +21,7 @@ export HDF5_USE_FILE_LOCKING=FALSE
 
 # Define pgmout
 #export pgmout=OUTPUT.$$
+export SOURCE_PREP_STEP="source prep_step"
 
 # Set job run commands
 # APRUN:  command to run general jobs

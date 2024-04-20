@@ -223,6 +223,7 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 # Run the vortex tracker gettrk.x
 ${NCP} -p ${GETTRKEXEC} ./hafs_tracker_gettrk.x
+${SOURCE_PREP_STEP}
 time ./hafs_tracker_gettrk.x 2>&1 | tee ./gettrk.out
 export err=$?; err_chk
 
@@ -327,6 +328,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   echo ${STORM^^} >> storm_info
   echo ${RUN^^} >> storm_info
   ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_tools_nhc_products.x
+  ${SOURCE_PREP_STEP}
   ${APRUN} ./hafs_tools_nhc_products.x > ./nhc_products.log 2>&1
   export err=$?; err_chk
   short=${out_prefix}.${RUN}.grib.stats.short

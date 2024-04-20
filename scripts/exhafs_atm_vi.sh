@@ -221,6 +221,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${RLN} ./trak.fnl.all fort.30
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_guess.x ./
+  ${SOURCE_PREP_STEP}
   ${APRUNS} ./hafs_tools_vi_create_trak_guess.x ${STORMID}
   export err=$?; err_chk
 
@@ -242,6 +243,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
+  ${SOURCE_PREP_STEP}
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
@@ -283,6 +285,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     initopt=0
   fi
   initopt_guess=${initopt}
+  ${SOURCE_PREP_STEP}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
 fi
@@ -327,6 +330,7 @@ if true; then
   ${RLN} ./trak.fnl.all fort.30
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_init.x ./
+  ${SOURCE_PREP_STEP}
   ${APRUNS} ./hafs_tools_vi_create_trak_init.x ${STORMID}
   export err=$?; err_chk
 
@@ -356,6 +360,7 @@ if true; then
     ibgs=2
     iflag_cold=1
   fi
+  ${SOURCE_PREP_STEP}
   echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
@@ -397,6 +402,7 @@ if true; then
     initopt=0
   fi
   initopt_init=${initopt}
+  ${SOURCE_PREP_STEP}
   echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
 
@@ -448,6 +454,7 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${RLN} storm_anl_bogus                       fort.56
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_bogus.x ./
+  ${SOURCE_PREP_STEP}
   echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_bogus.x 2>&1 | tee ./vi_anl_bogus.log
   export err=$?; err_chk
   ${NCP} -p storm_anl_bogus storm_anl
@@ -495,6 +502,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   gfs_flag=${gfs_flag:-6}
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
+  ${SOURCE_PREP_STEP}
   echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
@@ -537,6 +545,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_enhance.x ./
+    ${SOURCE_PREP_STEP}
     echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
     export err=$?; err_chk
     ${NCP} -p storm_anl_enhance storm_anl

@@ -594,6 +594,7 @@ EOF
 if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
+${SOURCE_PREP_STEP}
 ${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen.log
 export err=$?; err_chk
 
@@ -669,6 +670,7 @@ EOF
 if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
   ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
+${SOURCE_PREP_STEP}
 ${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen_tile${itile}.log
 export err=$?; err_chk
 

@@ -605,6 +605,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 #-------------------------------------------------------------------
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
+${SOURCE_PREP_STEP}
 #${APRUNC} ./hafs_gsi.x >> $pgmout 2>errfile
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
