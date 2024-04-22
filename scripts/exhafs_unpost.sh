@@ -16,6 +16,8 @@ DATA=${DATA:-${WORKhafs}/unpost}
 mkdir -p ${DATA}
 cd ${DATA}
 
+if [ "${POST_CLEANUP^^}" = "YES" ]; then
+
 # Remove atm_post com and intercom output
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.atm.f???.grb2*
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.sat.f???.grb2*
@@ -61,5 +63,7 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.*.swath.grb2*
 rm -f ${COMhafs}/gempak/${STORMID,,}/${RUN}*_${STORMID,,}
 rm -f ${COMhafs}/gempak/${STORMID,,}/meta/${RUN}*_${STORMID,,}*
 rm -f ${WORKhafs}/intercom/gempak/*.done
+
+fi # if [ "${POST_CLEANUP^^}" = "YES" ]; then
 
 cd ${DATA}

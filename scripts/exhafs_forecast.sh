@@ -177,16 +177,25 @@ if [ "${ENSDA}" = YES ]; then
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  intercompost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  intercomocnpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/ocn_post
+  intercomgempak=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/gempak
 elif [ ${FGAT_MODEL} = gdas ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+  intercompost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  intercomocnpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/ocn_post
+  intercomgempak=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/gempak
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init}
   RESTARTout=${WORKhafs}/intercom/RESTART_init
+  intercompost=${WORKhafs}/intercom/atm_init/post
+  intercomocnpost=${WORKhafs}/intercom/atm_init/ocn_post
+  intercomgempak=${WORKhafs}/intercom/atm_init/gempak
 fi
 NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
 NHRS_ENS=$(awk "BEGIN {print ${dt_atmos}/3600}")
@@ -218,11 +227,17 @@ if [ "${ENSDA}" = YES ]; then
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_ens/mem${ENSID}}
   RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART_ens/mem${ENSID}}
+  intercompost=${WORKhafs}/intercom/post_ens/mem${ENSID}
+  intercomocnpost=${WORKhafs}/intercom/ocn_post_ens/mem${ENSID}
+  intercomgempak=${WORKhafs}/intercom/gempak_ens/mem${ENSID}
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast}
   RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART}
+  intercompost=${WORKhafs}/intercom/post
+  intercomocnpost=${WORKhafs}/intercom/ocn_post
+  intercomgempak=${WORKhafs}/intercom/gempak
 fi
 
 # Different warm_start_opt options for determinist/ensemble forecast
@@ -1668,7 +1683,10 @@ DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
 
 # Clean up previously generated log.atm.fhhh files if FHR > FORECAST_RESTART_HR
-if [ ${FHR} -gt ${FORECAST_RESTART_HR} ]; then
+if [ ${FORECAST_RESTART} = YES ] && [ ${FHR} -gt ${FORECAST_RESTART_HR} ]; then
+  rm -f ${OUTdir}/log.atm.f${FHR3}
+fi
+if [ ${FORECAST_RESTART} = NO ]; then
   rm -f ${OUTdir}/log.atm.f${FHR3}
 fi
 ${RLN} ${OUTdir}/log.atm.f${FHR3} ./
@@ -1730,6 +1748,31 @@ if [[ "${is_moving_nest_tmp}" = ".true." ]] || [[ "${is_moving_nest_tmp}" = ".T.
 	fi
     ${RLN} ${OUTdir}/${fort_patcf} ./
   fi
+fi
+
+# Clean up previously generated post, ocnpost, and gempak related files when appropriate
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+if [ "${gridstr}" = "parent" ]; then
+  GDOUTF_donefile=${NET}p_${CDATE}f${FHR3}_${STORMID,,}.done
+elif [ "${gridstr}" = "storm" ]; then
+  GDOUTF_donefile=${NET}n_${CDATE}f${FHR3}_${STORMID,,}.done
+fi
+trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
+trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
+
+if [ ${FORECAST_RESTART} = YES ] && [ ${FHR} -gt ${FORECAST_RESTART_HR} ]; then
+  rm -f ${intercompost}/post${nestdotstr}f${FHR3}
+  rm -f ${intercompost}/${trk_grb2file}
+  rm -f ${intercompost}/${trk_grb2indx}
+  rm -f ${intercomocnpost}/ocnpost${nestdotstr}f${FHR3}
+  rm -f ${intercomgempak}/${GDOUTF_donefile}
+fi
+if [ ${FORECAST_RESTART} = NO ];  then
+  rm -f ${intercompost}/post${nestdotstr}f${FHR3}
+  rm -f ${intercompost}/${trk_grb2file}
+  rm -f ${intercompost}/${trk_grb2indx}
+  rm -f ${intercomocnpost}/ocnpost${nestdotstr}f${FHR3}
+  rm -f ${intercomgempak}/${GDOUTF_donefile}
 fi
 
 fi #if [ ${gtype} = regional ]; then

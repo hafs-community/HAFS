@@ -22,6 +22,8 @@ export storm_num="%STORMNUM%"
 
 module list
 
+export POST_CLEANUP=NO
+
 ${HOMEhafs}/jobs/JHAFS_UNPOST
 
 %include <tail.h>
