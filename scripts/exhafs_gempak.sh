@@ -48,14 +48,17 @@ if [ "${gridstr}" = "parent" ]; then
   DATAgempak=${DATA}/${NET}p
   GDOUTF=${NET}p_${PDY}${cyc}f${fhr3}_${storm_id}
   GPOUTF=${COMOUT}/gempak/${storm_id}/${RUN}p_${PDY}${cyc}f${fhr3}_${storm_id}
+  nestdotstr=""
 elif [ "${gridstr}" = "storm" ]; then
   DATAgempak=${DATA}/${NET}
   GDOUTF=${NET}n_${PDY}${cyc}f${fhr3}_${storm_id}
   GPOUTF=${COMOUT}/gempak/${storm_id}/${RUN}n_${PDY}${cyc}f${fhr3}_${storm_id}
+  nestdotstr=".nest$(printf '%02d' ${ng})."
 else
   echo "FATAL ERROR: unknown gridstr of ${gridstr}"
   exit 1
 fi
+PDFILE=${WORKhafs}/intercom/post/post${nestdotstr}f${fhr3}
 
 mkdir -p ${DATAgempak}
 cd ${DATAgempak}
@@ -67,7 +70,7 @@ if [ -e ${intercom}/${GDOUTF}.done ] && \
 
 # Symbolically link ${GDOUTF} and ${GDOUTF}.done files needed by gempak meta file generation.
 ${NLN} ${GPOUTF} ./${GDOUTF}
-${NLN} ${intercom}/${GDOUTF}.done ./
+#${NLN} ${intercom}/${GDOUTF}.done ./
 
 echo "gempak done file ${intercom}/${GDOUTF}.done exist and newer than ${GBINDX}"
 echo "gempak product ${GPOUTF} exist"
@@ -80,15 +83,15 @@ else
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
-  if [ ! -s ${GBFILE} ] || [ ! -s ${GBINDX} ]; then
-    echo "${GBFILE} or ${GBINDX} not ready, sleep 10s"
+  if [ ! -s ${PDFILE} ] || [ ! -s ${GBFILE} ] || [ ! -s ${GBINDX} ]; then
+    echo "${PDFILE}, ${GBFILE} or ${GBINDX} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${GBFILE}, ${GBINDX} ready, continue"
+    echo "${PDFILE}, ${GBFILE}, ${GBINDX} ready, continue"
     break
   fi
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
-    echo "FATAL ERROR: Waited ${GBFILE}, ${GBINDX} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+    echo "FATAL ERROR: Waited ${PDFILE}, ${GBFILE}, ${GBINDX} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
   n=$((n+10))
