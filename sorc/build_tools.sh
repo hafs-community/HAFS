@@ -6,6 +6,9 @@ if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 #Supports Debug or Release modes for the build
 BUILD_MODE=${BUILD_MODE:-Release}
 
+#Explicitly pass to linker that executable stack is not needed
+USE_NOEXECSTACK=${USE_NOEXECSTACK:-ON}
+
 cwd=$(pwd)
 
 export target=${target}
@@ -14,20 +17,7 @@ module load hafs.${target}
 module list
 
 if [ $target = hera ] || [ $target = orion ] || [ $target = jet ] || [ $target = hercules ]; then
-  export FC=ifort
-  export F90=ifort
-  export CC=icc
-  export MPIFC=mpif90
-elif [ $target = wcoss2 ]; then
-  export FC="ftn -static"
-  export F90="ftn -free -static"
-  export CC=icc
-  export DM_FC="ftn -static"
-  export DM_F90="ftn -free -static"
-  export DM_CC="cc -static"
-else
-  echo "Unknown machine = $target"
-  exit 1
+  export USE_NOEXECSTACK=OFF
 fi
 
 if [ $target = wcoss2 ]; then

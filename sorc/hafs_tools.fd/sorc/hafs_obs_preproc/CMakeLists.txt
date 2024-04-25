@@ -19,6 +19,8 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_C_COMPILER_ID}")
 endif()
 
+option(USE_NOEXECSTACK "Direct the linker that executable stack is not needed" ON) 
+
 find_package(NetCDF REQUIRED C Fortran)
 find_package(bufr REQUIRED)
 find_package(MPI REQUIRED)
@@ -85,7 +87,9 @@ target_link_options(${exe_name} PRIVATE
     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
     -traceback -fp-model precise -assume byterecl -convert big_endian)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z noexecstack")
+if(USE_NOEXECSTACK)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z noexecstack")
+endif()
 
 target_link_libraries(
   ${exe_name}

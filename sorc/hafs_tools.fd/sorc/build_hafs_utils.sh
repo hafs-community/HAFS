@@ -117,7 +117,7 @@ _hafsutils_obs_preproc (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
+    cmake ../hafs_obs_preproc -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DUSE_NOEXECSTACK=${USE_NOEXECSTACK} -DBUILD_TYPE=${BUILD_TYPE}
 
     # Build the obs-preproc application.
     make all VERBOSE=3
