@@ -8,6 +8,7 @@ BUILD_MODE=${BUILD_MODE:-Release}
 
 #Explicitly pass to linker that executable stack is not needed
 USE_NOEXECSTACK=${USE_NOEXECSTACK:-ON}
+export USE_NOEXECSTACK
 
 cwd=$(pwd)
 
