@@ -6,6 +6,8 @@ cwd=$(pwd)
 export target=${target}
 module use ../modulefiles
 module load hafs.${target}
+module load netcdf
+module load hdf5
 module list
 
 if [ $target = hera ] || [ $target = orion ] || [ $target = jet ]; then
@@ -24,6 +26,9 @@ else
   echo "Unknown machine = $target"
   exit 1
 fi
+
+
+export BUFR_LIBd=/work/noaa/epic/role-epic/contrib/orion/hpc-stack/intel-2022.1.2/intel-2022.1.2/bufr/11.7.0/lib64/libbufr_d.a
 
 #export NETCDF_INCLUDE=${NETCDF_INCLUDE:-"-I${NETCDF}/include"}
 #export NETCDF_LDFLAGS=${NETCDF_LDFLAGS:-"-L${NETCDF}/lib -lnetcdf -lnetcdff"}

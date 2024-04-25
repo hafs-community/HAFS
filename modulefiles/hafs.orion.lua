@@ -58,6 +58,9 @@ load(pathJoin("g2tmpl", g2tmpl_ver))
 ip_ver=os.getenv("ip_ver") or "4.3.0"
 load(pathJoin("ip", ip_ver))
 
+nemsio_ver_ver=os.getenv("nemsio_ver") or "2.5.4"
+load(pathJoin("nemsio", nemsio_ver))
+
 sp_ver=os.getenv("sp_ver") or "2.5.0"
 load(pathJoin("sp", sp_ver))
 

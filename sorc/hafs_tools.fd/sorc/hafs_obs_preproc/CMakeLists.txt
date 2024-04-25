@@ -68,7 +68,7 @@ target_include_directories(
 
 target_link_libraries(
   ${exe_name}
-  bufr::bufr_d
+  bufr::bufr_4
   ${ext_dir}/libfson.a
   ${ext_dir}/libgridprojs.a
   ${ext_dir}/libgridtrans.a
