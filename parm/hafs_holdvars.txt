@@ -211,7 +211,7 @@ export write_tasks_per_group={write_tasks_per_group}
 export write_dopost={write_dopost}
 export output_history={output_history}
 
-quilting_restart={quilting_restart}
+export quilting_restart={quilting_restart}
 
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}

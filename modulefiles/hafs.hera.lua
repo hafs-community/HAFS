@@ -118,7 +118,7 @@ load(pathJoin("ncio", ncio_ver))
 cdo_ver=os.getenv("cdo_ver") or "2.2.0"
 load(pathJoin("cdo", cdo_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
+rocoto_ver=os.getenv("rocoto_ver") or "1.3.7"
 load("rocoto")
 
 xarray_ver=os.getenv("xarray_ver") or "2023.7.0"
