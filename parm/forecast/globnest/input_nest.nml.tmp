@@ -147,9 +147,9 @@
 /
 
 &gfs_physics_nml
-  progsigma      = @[progsigma_nml]
-  betadcu        = @[betadcu_nml]
-  betamcu        = @[betamcu_nml]
+  progsigma      = @[progsigma_nest]
+  betadcu        = @[betadcu_nest]
+  betamcu        = @[betamcu_nest]
   fhzero         = 3.
   ldiag3d        = .false.
   lradar         = .true.

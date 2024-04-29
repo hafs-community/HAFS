@@ -302,6 +302,17 @@
 
   ! Lightning threat index
   lightning_threat = @[lightning_threat_nml]
+
+  gwd_opt        = @[gwd_opt]
+  do_ugwp_v0     = @[do_ugwp_v0]
+  do_ugwp_v1     = @[do_ugwp_v1]
+  do_ugwp_v0_orog_only = @[do_ugwp_v0_orog_only]
+  do_ugwp_v0_nst_only  = @[do_ugwp_v0_nst_only]
+  do_ugwp_v1_w_gsldrag = @[do_ugwp_v1_w_gsldrag]
+  do_ugwp_v1_orog_only = @[do_ugwp_v1_orog_only]
+  do_gsl_drag_ls_bl    = @[do_gsl_drag_ls_bl]
+  do_gsl_drag_ss       = @[do_gsl_drag_ss]
+  do_gsl_drag_tofd     = @[do_gsl_drag_tofd]
 /
 
 &gfdl_cloud_microphysics_nml

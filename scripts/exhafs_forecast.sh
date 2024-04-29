@@ -114,7 +114,6 @@ if [ "${ENSDA}" = YES ]; then
   n_zs_filter=${n_zs_filter_ens:-1}
   n_del2_weak=${n_del2_weak_ens:-20}
   max_slope=${max_slope_ens:-0.25}
-  glob_hord_mt=${glob_hord_mt_ens:-6,6}
   kord_tm=${kord_tm_ens:--11,-11}
   kord_mt=${kord_mt_ens:-11,11}
   kord_wz=${kord_wz_ens:-11,11}
@@ -936,7 +935,7 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
-if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma_nest:-.false.} = .true. ] ; then
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma_nest:-.false.} = .true. ] \
   || [ ${progsigma:-.false.} = T ] || [ ${progsigma_nest:-.false.} = T ] ; then
   cat ${PARMforecast}/field_table_addition_progsigma >> field_table
 fi
@@ -994,15 +993,10 @@ full_zs_filter_nml=${glob_full_zs_filter:-.true.}
 n_zs_filter_nml=${glob_n_zs_filter:-1}
 n_del2_weak_nml=${glob_n_del2_weak:-20}
 max_slope_nml=${glob_max_slope:-0.25}
-hord_mt=${glob_hord_mt:-6}
-hord_vt=${glob_hord_vt:-6}
-hord_tm=${glob_hord_tm:-6}
-hord_dp=${glob_hord_dp:-6}
-hord_tr=${glob_hord_tr:--5}
-kord_tm=${glob_kord_tm:--11}
-kord_mt=${glob_kord_mt:-11}
-kord_wz=${glob_kord_wz:-11}
-kord_tr=${glob_kord_tr:-11}
+kord_tm_nml=${glob_kord_tm:--11}
+kord_mt_nml=${glob_kord_mt:-11}
+kord_wz_nml=${glob_kord_wz:-11}
+kord_tr_nml=${glob_kord_tr:-11}
 fv_core_tau=${glob_fv_core_tau:-10.}
 rf_cutoff=${glob_rf_cutoff:-10.}
 fast_tau_w_sec=${glob_fast_tau_w_sec:-0.2}
@@ -1078,15 +1072,10 @@ for n in $(seq 1 ${nest_grids}); do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
-  hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
-  hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
-  hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
-  hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
-  hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
-  kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
-  kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
-  kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
-  kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
+  kord_tm_nml=$( echo ${kord_tm} | cut -d , -f ${n} )
+  kord_mt_nml=$( echo ${kord_mt} | cut -d , -f ${n} )
+  kord_wz_nml=$( echo ${kord_wz} | cut -d , -f ${n} )
+  kord_tr_nml=$( echo ${kord_tr} | cut -d , -f ${n} )
   fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
   rf_cutoff=$( echo ${rf_cutoff} | cut -d , -f ${n} )
   fast_tau_w_sec=$( echo ${fast_tau_w_sec} | cut -d , -f ${n} )
@@ -1261,11 +1250,16 @@ if [ ${imp_physics:-11} = 8 ]; then
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
-if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma:-.false.} = .T. ]; then
-  cat ${PARMforecast}/field_progsigma >> ./field_table
+if [ ${progsigma:-.false.} = .true. ] || [ ${progsigma_nest:-.false.} = .true. ] \
+  || [ ${progsigma:-.false.} = T ] || [ ${progsigma_nest:-.false.} = T ] ; then
+  cat ${PARMforecast}/field_table_addition_progsigma >> field_table
 fi
-${NCP} ${PARMforecast}/input.nml.tmp .
-${NCP} ${PARMforecast}/input_nest.nml.tmp .
+if [ $gtype = stretch ] || [ $gtype = uniform ]; then
+  ${NCP} ${PARMforecast}/input.nml.nonest.tmp  input.nml.tmp
+else
+  ${NCP} ${PARMforecast}/input.nml.tmp .
+  ${NCP} ${PARMforecast}/input_nest.nml.tmp .
+fi
 ${NCP} ${PARMforecast}/model_configure.tmp .
 
 # NoahMP table file
@@ -1389,15 +1383,10 @@ full_zs_filter_nml=$( echo ${full_zs_filter} | cut -d , -f ${n} )
 n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
 n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
 max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
-hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
-hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
-hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
-hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
-hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
-kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
-kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
-kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
-kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
+kord_tm_nml=$( echo ${kord_tm} | cut -d , -f ${n} )
+kord_mt_nml=$( echo ${kord_mt} | cut -d , -f ${n} )
+kord_wz_nml=$( echo ${kord_wz} | cut -d , -f ${n} )
+kord_tr_nml=$( echo ${kord_tr} | cut -d , -f ${n} )
 rlmx_nml=$( echo ${rlmx} | cut -d , -f ${n} )
 elmx_nml=$( echo ${elmx} | cut -d , -f ${n} )
 fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
@@ -1459,15 +1448,10 @@ for n in $(seq 2 ${nest_grids}); do
   n_zs_filter_nml=$( echo ${n_zs_filter} | cut -d , -f ${n} )
   n_del2_weak_nml=$( echo ${n_del2_weak} | cut -d , -f ${n} )
   max_slope_nml=$( echo ${max_slope} | cut -d , -f ${n} )
-  hord_mt=$( echo ${hord_mt} | cut -d , -f ${n} )
-  hord_vt=$( echo ${hord_vt} | cut -d , -f ${n} )
-  hord_tm=$( echo ${hord_tm} | cut -d , -f ${n} )
-  hord_dp=$( echo ${hord_dp} | cut -d , -f ${n} )
-  hord_tr=$( echo ${hord_tr} | cut -d , -f ${n} )
-  kord_tm=$( echo ${kord_tm} | cut -d , -f ${n} )
-  kord_mt=$( echo ${kord_mt} | cut -d , -f ${n} )
-  kord_wz=$( echo ${kord_wz} | cut -d , -f ${n} )
-  kord_tr=$( echo ${kord_tr} | cut -d , -f ${n} )
+  kord_tm_nml=$( echo ${kord_tm} | cut -d , -f ${n} )
+  kord_mt_nml=$( echo ${kord_mt} | cut -d , -f ${n} )
+  kord_wz_nml=$( echo ${kord_wz} | cut -d , -f ${n} )
+  kord_tr_nml=$( echo ${kord_tr} | cut -d , -f ${n} )
   fv_core_tau=$( echo ${fv_core_tau} | cut -d , -f ${n} )
   rf_cutoff=$( echo ${rf_cutoff} | cut -d , -f ${n} )
   fast_tau_w_sec=$( echo ${fast_tau_w_sec} | cut -d , -f ${n} )
