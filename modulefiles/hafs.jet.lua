@@ -111,7 +111,6 @@ load(pathJoin("nco", nco_ver))
 cdo_ver=os.getenv("cdo_ver") or "2.2.0"
 load(pathJoin("cdo", cdo_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
 load("rocoto")
 
 prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hwrfv3/local/modulefiles")
