@@ -87,7 +87,7 @@ target_link_options(${exe_name} PRIVATE
 
 target_link_libraries(
   ${exe_name}
-  bufr::bufr_d
+  bufr::bufr_4
   NetCDF::NetCDF_Fortran
   NetCDF::NetCDF_C
   MPI::MPI_Fortran)
