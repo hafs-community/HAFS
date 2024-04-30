@@ -54,7 +54,7 @@ Useful Resources
   - `UFS_UTILS User’s Guide <https://noaa-emcufs-utils.readthedocs.io/en/latest/>`_
   - `UFS_UTILS Scientific Documentation <https://ufs-community.github.io/UFS_UTILS/>`_
 
-- `UFS Short-Range Weather App User's Guide <https://ufs-srweather-app.readthedocs.io/en/latest/>`_
+- `UFS Short-Range Weather App User's Guide <https://ufs-srweather-app.readthedocs.io/en/develop/>`_
 - `UPP repository <https://github.com/NOAA-EMC/UPP/>`_ (formerly *EMC_post*)
 
   - `UPP User’s Guide Documentation <https://upp.readthedocs.io/en/latest/index.html>`_

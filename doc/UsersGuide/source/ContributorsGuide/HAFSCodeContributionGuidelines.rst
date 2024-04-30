@@ -48,9 +48,9 @@ General Coding Standards
 Development and Testing Process
 =================================
 
-#. **Create issue:** Open a :hafs-repo:`issue <issues/new/choose>` in the HAFS repository to document proposed changes. See :ref:`Opening an Issue <open-issue>` for detailed instructions.
+#. **Create issue:** Open an :hafs-repo:`issue <issues/new/choose>` in the HAFS repository to document proposed changes. See :ref:`Opening an Issue <open-issue>` for detailed instructions.
 #. **Fork & Clone HAFS:** :github-docs:`Fork<get-started/exploring-projects-on-github/contributing-to-a-project#forking-a-repository>` the :hafs-repo:`HAFS repository<>` into your personal GitHub account and :github-docs:`clone<get-started/exploring-projects-on-github/contributing-to-a-project>` your fork onto your development system if you have not already done so.
-#. **Create a branch:** in your clone for your changes. All development should take place on a branch, not on ``develop``. Branches are typically named as follows, where ``[name]`` is a one-word description of the branch:
+#. **Create a branch** in your clone for your changes. All development should take place on a branch, not on ``develop``. Branches are typically named as follows, where ``[name]`` is a one-word description of the branch:
 
    * ``bugfix/[name]``: Fixes a demonstrably incorrect portion of code
    * ``feature/[name]``: Adds a new feature to the code or improves an existing portion of the code
@@ -61,7 +61,7 @@ Development and Testing Process
 #. **Development:** Perform and test changes in the feature branch (not on ``develop``!). Document changes to the workflow and capabilities in the RST files so that the HAFS documentation stays up-to-date. 
 #. **Testing:** Test code modifications on as many platforms as possible, and request help with further testing from the code management team when unable to test on all Level 1 platforms. The bare minimum testing required before opening a PR is to run the regression tests on at least one supported machine. :numref:`Section %s <RegressionTest>` of the HAFS User's Guide provides instructions on HAFS regression testing. 
 #. **Pull Request:** When your work is complete, :github-docs:`create a pull request<get-started/exploring-projects-on-github/contributing-to-a-project#making-a-pull-request>` to merge your changes. When a PR is initiated, the :ref:`PR template <pr-template>` autofills. Developers should use the template to provide information about the PR in the proper fields. See the guidelines in the :ref:`Making a Pull Request <make-pr>` section for more details on making a good pull request. 
-#. **Merge** - When review and testing are complete, a code manager will merge the PR into ``develop``. 
+#. **Merge** - When review and testing are complete, a code manager will merge the PR into ``develop`` (or another specified branch). 
 #. **Cleanup** - After the PR is merged, the code developer should delete the branch on their fork and close the issue. Feature branches are intended to be short-lived, concentrated on code with one sole purpose, and applicable to a single PR. A new feature branch should be created when subsequent code development continues.
 
 .. note:: 
