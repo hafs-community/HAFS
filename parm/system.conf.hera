@@ -42,6 +42,9 @@ BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
 ## cartopyDataDir directory for graphics
 cartopyDataDir=/scratch1/NCEPDEV/hwrf/noscrub/local/share/cartopy
 
+[forecast]
+quilting_restart=.false.
+
 [holdvars]
 WHERE_AM_I=hera
 WHICH_JET=none
