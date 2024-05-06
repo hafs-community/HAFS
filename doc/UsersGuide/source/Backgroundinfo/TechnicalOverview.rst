@@ -116,7 +116,7 @@ HAFS v2.0.0 Operational Updates
     Run HAFS.v2 HFSA configuration to provide hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including NATL, EPAC, CPAC, WPAC, NIO, and SH basins. Run HAFS.v2 HFSB configuration to provide hurricane track and intensity forecast guidance for 5.25 days over NHC/CPHC basins, including NATL, EPAC, CPAC basins.
 
 **Developed by:**
-    EMC and the UFS Hurricane Application Team. See currently active HAFS developers [here](https://docs.google.com/presentation/d/1xBNxvAG8-Kk3GS93PndaPVZp_L8U-KqGRGNhnviXZMg/edit?usp=sharing).
+    EMC and the UFS Hurricane Application Team. See currently active HAFS developers `here <https://docs.google.com/presentation/d/1xBNxvAG8-Kk3GS93PndaPVZp_L8U-KqGRGNhnviXZMg/edit?usp=sharing>`__
     
 **Runs on:** WCOSS2
 
@@ -183,19 +183,19 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - Upgrade GFDL Tracker.
 
 **Software Dependencies:**
-    - See [here](https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver)
+    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
 
 **Output Changes:**
-    - See [here](https://docs.google.com/presentation/d/1dGWu_k-CdiX_ndaRe89iDznyNwkEJfjVTagvvEVZQaw/edit?usp=sharing)
+    - See `here <https://docs.google.com/presentation/d/1dGWu_k-CdiX_ndaRe89iDznyNwkEJfjVTagvvEVZQaw/edit?usp=sharing>`__
 
 Computer Resource Information
 -----------------------------
 
 **Computation resource updates:**
-    - See [here](https://docs.google.com/presentation/d/1otBHAi3hfB1Vu5lk9bfjOE-GZYalZiu9wjnFlevQRQw/edit?usp=sharing)
+    - See `here <https://docs.google.com/presentation/d/1otBHAi3hfB1Vu5lk9bfjOE-GZYalZiu9wjnFlevQRQw/edit?usp=sharing>`__
 
 **List of the module versions used in HAFS:**
-    - See [here](https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver)
+    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
 
 **Data retention for files in:** 
     - ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsa.yyyymmdd/hh`` and ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsb.yyyymmdd/hh``
@@ -218,7 +218,7 @@ Pre-implementation Testing
 All jobs should be tested as part of this implementation.
 
 **Does this change require a 30-day evaluation (for major implementations only)?**
-    No, but all changes have been tested successfully using available input as per the following list: `IT tests list <https://docs.google.com/presentation/d/1qttu6HhZC3I2yEWLIcsTM7BUGxGyevhtZMUU61kSyYI/edit?usp=sharing>`
+    No, but all changes have been tested successfully using available input as per the following list: `IT tests list <https://docs.google.com/presentation/d/1qttu6HhZC3I2yEWLIcsTM7BUGxGyevhtZMUU61kSyYI/edit?usp=sharing>`__
 
 **Who are the suggested evaluators?**
     NHC, CPHC, and JTWC for model products and MAG for GEMPAK files.
@@ -238,4 +238,4 @@ Dissemination and Archiving
 Implementation Details
 ----------------------
 
-See [here](https://docs.google.com/document/d/1dKV_jAHs9TkOhS_qA-Nr3PPE_NtbGxaAgC5FSPI6BwQ/edit?usp=sharing)
+See `here <https://docs.google.com/document/d/1dKV_jAHs9TkOhS_qA-Nr3PPE_NtbGxaAgC5FSPI6BwQ/edit?usp=sharing>`__
