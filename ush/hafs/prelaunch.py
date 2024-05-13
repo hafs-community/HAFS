@@ -70,21 +70,21 @@ def prelaunch_basin(conf,logger,cycle):
 
     vit=conf.syndat
     if vit is None:
-        logger.warning('Cannot use basin overrides - conf.syndat is None')
+        logger.info('Cannot use basin overrides - conf.syndat is None')
         return
     bfile=conf.strinterp('prelaunch','{basin_conf}',vit=vit)
     nfile=conf.strinterp('prelaunch','{no_basin_conf}',vit=vit)
 
     if os.path.exists(bfile):
-        logger.warning('%s: reading basin override file'%(bfile,))
+        logger.info('%s: reading basin override file'%(bfile,))
         conf.read(bfile)
     elif os.path.exists(nfile):
-        logger.warning('%s: basin override enabled, but file is '
+        logger.info('%s: basin override enabled, but file is '
                        'missing or empty; will read %s instead.'
                        %(bfile,nfile))
         conf.read(nfile)
     else:
-        logger.warning('%s: basin override enabled, and no "no_basin_file"'
+        logger.info('%s: basin override enabled, and no "no_basin_file"'
                        'is available at %s; will not override defaults.'
                        %(bfile,nfile))
 
