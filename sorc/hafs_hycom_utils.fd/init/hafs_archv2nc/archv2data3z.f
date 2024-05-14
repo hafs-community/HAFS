@@ -260,11 +260,13 @@ c --- 'kz    ' = number of depths to sample, input sample depths
 c ---     'z     ' = sample depth (follows kz)
           call blkinr(zz(k),
      &               'z     ','("blkinr: ",a6," =",f11.4," m")')
-          if     (k.gt.1 .and. zz(k).le.zz(k-1)) then
-            write(lp,*)
-            write(lp,*) 'error - current z shallower than last z'
-            write(lp,*)
-            stop
+          if (k .gt. 1) then
+            if (zz(k) .le. zz(k-1)) then
+              write(lp,*)
+              write(lp,*) 'error - current z shallower than last z'
+              write(lp,*)
+              stop
+            endif
           endif
         enddo !k
       else !lcell
