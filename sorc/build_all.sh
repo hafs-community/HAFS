@@ -25,7 +25,7 @@ mkdir -p ../exec
 # INCLUDE PARTIAL BUILD
 #------------------------------------
 
-. ./partial_build.sh
+. ./partial_build.sh.inc
 
 #------------------------------------
 # build libraries first
