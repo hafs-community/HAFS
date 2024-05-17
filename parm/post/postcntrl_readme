@@ -1,8 +1,10 @@
-* The following files in this directory are linked from ../../sorc/hafs_post.fd/parm/
-nam_micro_lookup.dat
-params_grib2_tbl_new
-postcntrl_hafs.xml
-postxconfig-NT-hafs.txt
+* The following files in this directory are copied from ../../sorc/hafs_post.fd/parm/
+cp ../../sorc/hafs_post.fd/parm/postxconfig-NT-hafs.txt postxconfig-NT-hafs.txt
+cp ../../sorc/hafs_post.fd/parm/postxconfig-NT-hafs_sat.txt postxconfig-NT-hafs_sat.txt
+cp ../../sorc/hafs_post.fd/parm/postxconfig-NT-hafs_nosat.txt postxconfig-NT-hafs_nosat.txt
+cp ../../sorc/hafs_post.fd/parm/params_grib2_tbl_new params_grib2_tbl_new 
+cp ../../sorc/hafs_post.fd/parm/nam_micro_lookup.dat nam_micro_lookup.dat
+cp ../../sorc/hafs_forecast.fd/tests/parm/post_itag_hafs itag
 
 * To update postcntrl_hafs.xml and regenerate postxconfig-NT-hafs.txt
 cd ../../sorc/hafs_post.fd/parm/
