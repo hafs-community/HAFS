@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Tokenizer for the produtil.testing.parser module."""
 
 import re

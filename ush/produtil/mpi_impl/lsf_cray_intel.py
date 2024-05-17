@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ## @namespace produtil.mpi_impl.lsf_cray_intel
 # Adds support for LSF+aprun with the Intel OpenMP to produtil.run
 #
