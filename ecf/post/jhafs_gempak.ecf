@@ -1,10 +1,10 @@
-#PBS -N %RUN%%STORMNUM%_forecast_atm_ocn_%CYC%%VER:""%
+#PBS -N %RUN%%STORMNUM%_gempak_%CYC%%VER:""%
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=02:30:00
-#PBS -l place=vscatter:excl,select=48:ncpus=120:mpiprocs=60:ompthreads=2
+#PBS -l walltime=03:00:00
+#PBS -l place=vscatter:shared,select=1:ncpus=2:mpiprocs=2:ompthreads=1:mem=20GB
 #PBS -l debug=true
 
 model=hafs
@@ -14,9 +14,9 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='2880'
-export NCTSK='60'
-export OMP_THREADS='2'
+export TOTAL_TASKS='2'
+export NCTSK='2'
+export OMP_THREADS='1'
 
 export storm_num="%STORMNUM%"
 
@@ -25,19 +25,15 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
+module load python/${python_ver}
 module load hdf5-A/${hdf5_ver}
 module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
-module load jasper/${jasper_ver}
-module load zlib/${zlib_ver}
-module load libpng/${libpng_ver}
-module load libjpeg/${libjpeg_ver}
-module load crtm/${crtm_ver}
-module load g2/${g2_ver}
-module load g2tmpl/${g2tmpl_ver}
+module load wgrib2/${wgrib2_ver}
+module load gempak/${gempak_ver}
 module list
 
-${HOMEhafs}/jobs/JHAFS_FORECAST
+${HOMEhafs}/jobs/JHAFS_GEMPAK
 
 %include <tail.h>
 
