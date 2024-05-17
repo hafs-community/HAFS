@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Configures logging.
 
 This module configures logging for stdout, stderr and the jlogfile.

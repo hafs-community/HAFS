@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Defines StormInfo and related functions for interacting with
 vitals ATCF data.
 

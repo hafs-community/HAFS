@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ## @namespace produtil.mpi_impl.inside_aprun
 # Adds support for running serial programs when one is inside an aprun
 # execution.

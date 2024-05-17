@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.testing
 # Test suite automation utilities.
 #

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Utility package for making programs that are wrapped around the
 produtil.testing package."""
 

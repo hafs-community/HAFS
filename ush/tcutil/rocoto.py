@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 """!This module contains utilities for plugging tcutil into the Rocoto
 workflow manager."""
 

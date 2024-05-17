@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.mpi_impl.mpi_impl_base
 # Utilities like CMDFGen to simplify adding new MPI implementations to the 
 # produtil.run suite of modules.

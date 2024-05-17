@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Constants used throughout the tcutil package
 
 This module contains various constants, including the Earth
