@@ -24,9 +24,9 @@ copyright = '2021'
 author = ' '
 
 # The short X.Y version
-version = ''
+version = 'develop'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = 'Develop Branch Documentation'
 
 numfig = True
 
@@ -41,10 +41,11 @@ numfig = True
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
+    'sphinx.ext.extlinks',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -73,7 +74,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -81,22 +82,35 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'sphinx'
 
+#Ignore working links that cause a linkcheck 403 error
+linkcheck_ignore = [
+    r'https://docs.google.com/*',
+    r'https://drive.google.com/*',
+]
+
+linkcheck_allowed_redirects = {r"https://github\.com/hafs-community/HAFS/wiki/.*": 
+                                 r"https://raw\.githubusercontent\.com/wiki/hafs-community/HAFS/.*",
+                              r"https://github.com/hafs-community/HAFS/*/*": 
+                                 r"https://github.com/login*",
+                              }
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = ["_themes", ]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
-html_theme_options = {"body_max_width": "none"}
+html_theme_options = {"body_max_width": "none",
+                      "navigation_depth": 6,
+                      }
 
 # html_sidebar_options = {}
 html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
@@ -105,9 +119,11 @@ html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_context = {}
 
 def setup(app):
     app.add_css_file('custom.css')  # may also be an URL
+    app.add_css_file('theme_overrides.css')
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -131,15 +147,17 @@ htmlhelp_basename = 'HAFS'
 latex_engine = 'pdflatex'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
+    'papersize': 'letterpaper',
+    
     # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
+    'pointsize': '11pt',
     # Additional stuff for the LaTeX preamble.
-    #
+    'preamble': r'''
+        \usepackage{charter}
+        \usepackage[defaultsans]{lato}
+        \usepackage{inconsolata}
+    ''',
+      
     # 'preamble': '',
 
     # Latex figure (float) alignment
@@ -162,7 +180,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'HAFS_Users_Guide', 'HAFS Users Guide',
+    (master_doc, 'HAFS', "HAFS User's Guide",
      [author], 1)
 ]
 
@@ -173,9 +191,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'HAFS_Users_guide', 'HAFS Users Guide',
-     author, 'HAFS_Users_Guide', 'One line description of project.',
-     'Miscellaneous'),
+    (master_doc, 'HAFS', "HAFS User's Guide",
+     author, 'HAFS', 'One line description of project.',
+     'Miscellaneous'),''
 ]
 
 
@@ -202,9 +220,16 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       }
 
-# -- Options for todo extension ----------------------------------------------
+# -- Options for extlinks extension ---------------------------------------
 
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
+extlinks_detect_hardcoded_links = True
+extlinks = {'github-docs': ('https://docs.github.com/en/%s', '%s'),
+            'nco': ('https://www.nco.ncep.noaa.gov/idsb/implementation_standards/%s', '%s'),
+            'hafs-repo': ('https://github.com/hafs-community/HAFS/%s', '%s'),
+            'hafs-wiki': ('https://github.com/hafs-community/HAFS/wiki/%s','%s'),
+            'uw': ('https://uwtools.readthedocs.io/en/main/%s', '%s'),
+            'wm': ('https://ufs-weather-model.readthedocs.io/en/develop/%s', '%s'),
+            }

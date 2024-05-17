@@ -37,7 +37,7 @@ Users need a GitHub account to work with the HAFS repository. Instructions for c
 
    Users should replace ``USERNAME`` with their GitHub username in the command above. 
 
-   .. hint:: See `GitHub forking projects <https://guides.github.com/activities/forking/>`__
+   .. hint:: See `GitHub forking projects <https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project>`__
 
 ====================================================
 Create a Feature Branch from the ``develop`` Branch
@@ -89,7 +89,7 @@ Submit a Pull Request for Inclusion into the Authoritative HAFS Repository
 
 To propose changes for inclusion into the authoritative HAFS repository, developers need to create a pull request. 
 
-#. Navigate to https://github.com/hafs-community/HAFS/pulls and click on *New pull request*.
+#. Navigate to :hafs-repo:`pulls` and click on *New pull request*.
 #. Click on *Compare across forks*. 
    a. Set the base repository to *hafs-community/HAFS* and the base branch to ``develop``.
    b. Set the head repository to *YOUR_GITHUB_USERNAME/HAFS* and the compare branch to ``feature/mybranch``.
