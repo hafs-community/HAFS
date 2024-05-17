@@ -9,7 +9,7 @@ CP='/bin/cp -rp'
 # INCLUDE PARTIAL BUILD
 #------------------------------------
 
-. ./partial_build.sh
+. ./partial_build.sh.inc
 
 #------------------------------------
 # install forecast

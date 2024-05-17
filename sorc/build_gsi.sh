@@ -1,6 +1,6 @@
 #!/bin/sh
 set -xeu
-source ./machine-setup.sh > /dev/null 2>&1
+source ./machine-setup.sh.inc > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
 #Supports Debug or Release modes for the build
