@@ -11,7 +11,7 @@
 #     ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber
 #                           analysis around the deterministic EnVar analysis
 ################################################################################
-set -xe
+set -x -o pipefail
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
@@ -235,12 +235,10 @@ sed -e "s/_datestring_/${CDATE}/g" \
     -e "s/_ny_res_/$((${npy_ens:-$npy}-1))/g" \
     enkf.nml.tmp > ./enkf.nml
 
-ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_enkf.x}
-${NCP} -p $ENKFEXEC ./enkf.x
-#${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
-set -o pipefail
-${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
-set +o pipefail
+ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_gsi_enkf.x}
+${NCP} -p $ENKFEXEC ./hafs_gsi_enkf.x
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_gsi_enkf.x < enkf.nml 2>&1 | tee gsi_enkf.log
 export err=$?; err_chk
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
@@ -252,6 +250,7 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   done
   chmod +x cmdfile
   ${APRUNC} ${MPISERIAL} -m cmdfile
+  export err=$?; err_chk
 elif  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean
   memstr="ensmean"
   mkdir -p ${RESTARTens_anl}/${memstr}
@@ -300,8 +299,8 @@ EOFpost
   done
   chmod +x cmdfile_post_dynvartracer_ens
   ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
+  export err=$?; err_chk
 else
-  echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"
+  echo "FATAL ERROR: Wrong ldo_enscalc_option: $ldo_enscalc_option. Exiting..."
+  exit 2
 fi
-
-exit

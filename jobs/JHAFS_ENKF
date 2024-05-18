@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -98,7 +98,7 @@ export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != YES ]; then
+if [ "${KEEPDATA:-YES}" != "YES" ]; then
   rm -rf $DATA
 fi
 

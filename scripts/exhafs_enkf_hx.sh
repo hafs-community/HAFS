@@ -6,7 +6,7 @@
 #   This script runs the GSI forward operator to performs mapping from model
 #   space to observation space for the ensemble mean or ensemble members.
 ################################################################################
-set -xe
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
@@ -53,16 +53,9 @@ if [ $GFSVER = PROD2021 ]; then
   export USE_GFS_NEMSIO=.false.
   export USE_GFS_NCIO=.true.
   GSUFFIX=${GSUFFIX:-.nc}
-elif [ $GFSVER = PROD2019 ]; then
-  export atmos=""
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
 else
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 # Diagnostic files options
@@ -489,12 +482,14 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 #-------------------------------------------------------------------
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
-set -o pipefail
-${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
-set +o pipefail
+${SOURCE_PREP_STEP}
+#${APRUNC} ./hafs_gsi.x >> $pgmout 2>errfile
+#export err=$?; err_chk
+#if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
+#cat ${pgmout} > ${GSISOUT}
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./gsi.log
 export err=$?; err_chk
-
-cat ./stdout > ${GSISOUT}
+cat ./gsi.log > ${GSISOUT}
 
 # Cat runtime output files.
 cat fort.2* > ${GSISTAT}
@@ -667,6 +662,7 @@ EOFdiag
   if [ $USE_MPISERIAL = "YES" ]; then
     chmod 755 ./mp_diag.sh
     ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
+    export err=$?; err_chk
   fi
 
   # If requested, create diagnostic file tarballs
