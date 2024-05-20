@@ -68,4 +68,4 @@
   <!ENTITY GEMPAK_RESOURCES "<nodes>1:ppn=2:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime><memory>24G</memory>">
 
   <!ENTITY HRDGRAPHICS_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY EMCGRAPHICS_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY EMCGRAPHICS_RESOURCES "<nodes>8:ppn=6:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>48</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">

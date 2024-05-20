@@ -35,13 +35,13 @@ load(pathJoin("libpng", libpng_ver))
 libjpeg_ver=os.getenv("libjpeg_ver") or "9c"
 load(pathJoin("libjpeg", libjpeg_ver))
 
-hdf5_ver=os.getenv("hdf5_ver") or "1.10.6"
-load(pathJoin("hdf5", hdf5_ver))
+hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
+load(pathJoin("hdf5-A", hdf5_ver))
 
-netcdf_ver=os.getenv("netcdf_ver") or "4.7.4"
-load(pathJoin("netcdf", netcdf_ver))
+netcdf_ver=os.getenv("netcdf_ver") or "4.9.2"
+load(pathJoin("netcdf-A", netcdf_ver))
 
-fms_ver=os.getenv("fms_ver") or "2022.04"
+fms_ver=os.getenv("fms_ver") or "2023.02.01"
 load(pathJoin("fms", fms_ver))
 
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
@@ -56,7 +56,7 @@ load(pathJoin("g2", g2_ver))
 g2tmpl_ver=os.getenv("g2tmpl_ver") or "1.10.2"
 load(pathJoin("g2tmpl", g2tmpl_ver))
 
-bufr_ver=os.getenv("bufr_ver") or "11.7.0"
+bufr_ver=os.getenv("bufr_ver") or "12.0.0"
 load(pathJoin("bufr", bufr_ver))
 
 ip_ver=os.getenv("ip_ver") or "4.0.0"
@@ -68,7 +68,10 @@ load(pathJoin("sp", sp_ver))
 w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
-nemsio_ver=os.getenv("nemsio_ver") or "2.5.2"
+w3nco_ver=os.getenv("w3nco_ver") or "2.4.1"
+load(pathJoin("w3nco", w3nco_ver))
+
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
 load(pathJoin("nemsio", nemsio_ver))
 
 sigio_ver=os.getenv("sigio_ver") or "2.3.2"
@@ -98,7 +101,7 @@ load(pathJoin("udunits", udunits_ver))
 gsl_ver=os.getenv("gsl_ver") or "2.7"
 load(pathJoin("gsl", gsl_ver))
 
-nco_ver=os.getenv("nco_ver") or "4.9.7"
+nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 
 bufr_dump_ver=os.getenv("bufr_dump_ver") or "1.1.2"
@@ -107,17 +110,27 @@ load(pathJoin("bufr_dump", bufr_dump_ver))
 cdo_ver=os.getenv("cdo_ver") or "1.9.8"
 load(pathJoin("cdo", cdo_ver))
 
-ncdiag_ver=os.getenv("ncdiag_ver") or "1.0.0"
-load(pathJoin("ncdiag", ncdiag_ver))
+ncdiag_ver=os.getenv("ncdiag_ver") or "1.1.2"
+load(pathJoin("ncdiag-A", ncdiag_ver))
 
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
-load(pathJoin("ncio", ncio_ver))
+load(pathJoin("ncio-A", ncio_ver))
 
 pio_ver=os.getenv("pio_ver") or "2.5.10"
-load(pathJoin("pio", pio_ver))
+load(pathJoin("pio-B", pio_ver))
 
-esmf_ver=os.getenv("esmf_ver") or "8.4.1"
-load(pathJoin("esmf", esmf_ver))
+esmf_ver=os.getenv("esmf_ver") or "8.5.0"
+load(pathJoin("esmf-B", esmf_ver))
+
+gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.6.1"
+--load(pathJoin("gftl-shared", gftl_shared_ver))
+
+mapl_ver=os.getenv("mapl_ver") or "2.40.3"
+--load(pathJoin("mapl-B", mapl_ver))
+
+prepend_path("MODULEPATH", "/apps/prod/lmodules/INTEL_cray_mpich/19.1.3.304/cray-mpich/8.1.9")
+scotch_ver=os.getenv("scotch_ver") or "7.0.4"
+load(pathJoin("scotch", scotch_ver))
 
 setenv("CC", "cc")
 setenv("CXX", "CC")
