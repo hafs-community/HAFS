@@ -26,10 +26,8 @@ if [ $target = wcoss2 ]; then
   export NETCDF_LDFLAGS="-L${NETCDF}/lib -lnetcdff -lnetcdf"
   export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5}/include}"}
   export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:-${HDF5}/lib} -lhdf5_hl -lhdf5"}
-#  export BUFR_LDFLAGS="${BUFR_LIBd}"
   export BUFR_LDFLAGS="${BUFR_LIB4}"
 else
-
   export NETCDF_INCLUDE="-I${netcdf_fortran_ROOT}/include -I${netcdf_c_ROOT}/include"}
   export NETCDF_LDFLAGS="-L${netcdf_fortran_ROOT}/lib -lnetcdff -L${netcdf_c_ROOT}/lib -lnetcdf"}
   export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${hdf5_ROOT}/include}"}
