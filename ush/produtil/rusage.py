@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!This module allows querying resource usage and limits, as well as
 setting resource limits.  It is a wrapper around the Python resource
 module.

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Defines the Revital class which manipulates tcvitals files.
 
 This module deals with rewriting TCVitals files to remove errors,

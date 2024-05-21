@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Parses UNIX conf files and makes the result readily available
 
 The produtil.config module reads configuration information for a

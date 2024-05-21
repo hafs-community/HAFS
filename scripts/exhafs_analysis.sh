@@ -67,16 +67,9 @@ if [ $GFSVER = PROD2021 ]; then
   export USE_GFS_NEMSIO=.false.
   export USE_GFS_NCIO=.true.
   GSUFFIX=${GSUFFIX:-.nc}
-elif [ $GFSVER = PROD2019 ]; then
-  export atmos=""
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
 else
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 # Diagnostic files options
@@ -171,8 +164,6 @@ export L_HYB_ENS=.true.
 if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
 # Link gdas ensemble members
   mkdir -p ensemble_data
-  ENKF_SUFFIX="s"
-  GSUFFIX=${GSUFFIX:-.nemsio}
   if [ ${l4densvar:-.false.} = ".true." ]; then
     fhrs="03 06 09"
   else
@@ -181,19 +172,8 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
-    if [ $USE_GFS_NEMSIO = .true. ]; then
-    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
-    fi
-    if [ $USE_GFS_NCIO = .true. ]; then
-    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
+    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
       ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
     fi
     echo "./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done

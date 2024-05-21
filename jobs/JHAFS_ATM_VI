@@ -55,7 +55,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export vi_force_cold_start=${vi_force_cold_start:-${force_cold_start:-no}}
+export vi_force_cold_start=${vi_force_cold_start:-${force_cold_start:-${COLDSTART:-NO}}}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}

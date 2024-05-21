@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 ##@namespace produtil.mpi_impl.mpiexec 
 # Adds MPICH or MVAPICH2 support to produtil.run
 #

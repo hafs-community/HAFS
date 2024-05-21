@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.mpi_impl.no_mpi
 # Stub funcitons to allow produtil.mpi_impl  to run when MPI is unavailable.
 #

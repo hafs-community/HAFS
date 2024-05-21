@@ -1664,7 +1664,7 @@ if [ ${write_dopost:-.false.} = .true. ]; then
 fi
 
 # Copy the fd_ufs.yaml file
-${NCP} ${HOMEhafs}/sorc/hafs_forecast.fd/tests/parm/fd_ufs.yaml ./
+${NCP} ${PARMforecast}/fd_ufs.yaml ./
 
 #-------------------------------------------------------------------------------
 # Generate symbolic links for forecast output

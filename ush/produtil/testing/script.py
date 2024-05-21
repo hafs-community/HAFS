@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Takes an object tree from produtil.parse.Parser and turns it into
 a flat bash script that will run the entire test suite, one test at a
 time."""

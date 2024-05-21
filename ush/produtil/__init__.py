@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil
 # Platform-independent weather and ocean forecasting utility package.
 #

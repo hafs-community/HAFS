@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Set arithmetic logic utilities.  This implements a simple set
 logic language, and uses it to combine Python sets.  It operates on
 produtil.testing.utilities.ListableSet objects.  The main entry point,

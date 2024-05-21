@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace tcutil
 # This is a tcutil package.
 #

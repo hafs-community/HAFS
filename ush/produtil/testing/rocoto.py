@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Takes an object tree from produtil.parse.Parser and turns it into
 a Rocoto workflow inside a valid Environmental Equivalence version 2
 (EE2) compliant vertical structure."""

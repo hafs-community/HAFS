@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!This module provides a set of utility functions to do filesystem
 operations.  It replaces or improves upon several os, stat, and sys
 module functions by working around Python bugs, providing an API layer

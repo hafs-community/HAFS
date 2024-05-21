@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 ## @namespace produtil.mpi_impl.pbs_cray_intel
 # Adds support for PBSPro+mpiexec with the Intel OpenMP to produtil.run
 # This module is part of the mpi_impl package -- see produtil.mpi_impl

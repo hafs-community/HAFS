@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Contains setup(), which initializes the produtil package.
 
 This module contains the setup() function that should be called once

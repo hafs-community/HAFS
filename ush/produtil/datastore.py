@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Stores products and tasks in an sqlite3 database file.
 
 This module maintains an sqlite3 database file that stores information

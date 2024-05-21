@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!This module runs the NCO dbn_alert program, or logs dbn_alert messages
 if run with dbn alerts disabled."""
 
