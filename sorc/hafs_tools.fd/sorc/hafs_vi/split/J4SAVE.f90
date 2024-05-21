@@ -30,9 +30,11 @@
 !  The (old) value of the IWHICH-th parameter will be returned
 !  in the function value, J4SAVE.
 !
+!    Authors:
 !     Written by Ron Jones, with SLATEC Common Math Library Subcommittee
 !    Adapted from Bell Laboratories PORT Library Error Handler
 !     Latest revision ---  23 MAY 1979
+!     revised by Chuan-Kai Wang (NCEP/EMC) 2022
 !***REFERENCES  JONES R.E., KAHANER D.K., "XERROR, THE SLATEC ERROR-"
 !     HANDLING PACKAGE", SAND82-0800, SANDIA LABORATORIES,"
 !     1982.

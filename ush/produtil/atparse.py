@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!ATParser is a text parser that replaces strings with variables and
 function output."""
 

@@ -131,7 +131,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(
                     thefile,maxwait)
                 self.log().error(msg)
-                raise hafs.exceptions.WW3InputError(msg)
+                raise
                 sys.exit(2)
             yield thefile
             fhour=fhour+interval/3600
@@ -154,7 +154,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             dummywind=True
         else:
             # Wrong usegfswind value
-            logger.warning('Wrong usegfswind value: %s. Assume usegfswind=yes.'
+            logger.warning('WARNING: Wrong usegfswind value: %s. Assume usegfswind=yes.'
                            'Set dummywind to False.'%(usegfswind,))
             usegfswind='yes'
             dummywind=False
@@ -201,7 +201,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     else:
                         dummywind=True
                         produtil.log.jlogger.warning(
-                            'ww3init: will use dummy wind because %s is missing '
+                            'WARNING: ww3init: will use dummy wind because %s is missing '
                             'or empty.'%(ncfile,))
 
                 if dummywind:
@@ -234,11 +234,11 @@ class WW3Init(hafs.hafstask.HAFSTask):
                     checkrun(cmd,logger=logger)
                 else:
                     # Extract current from global ocean model
-                    logger.error('Not implemented yet')
+                    logger.warning('WARNING: Capability not implemented yet')
 
                 have_restart=False
                 if os.environ.get('ww3_force_cold_start','no').lower() == 'yes':
-                    logger.warning('ww3_force_cold_start is yes and will generate restart.ww3.')
+                    logger.warning('WARNING: ww3_force_cold_start is yes and will generate restart.ww3.')
                 else:
                     oldrst='(unknown)'
                     oldconffile=self.icstr('{oldcom}/{old_out_prefix}.{RUN}.conf')
@@ -265,7 +265,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:
                         with NamedDir('ww3gint',keep=True,logger=logger) as nameddir:
-                            logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m gridi from gdaswave')
+                            logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m grid from gdaswave')
                             make_symlink('../mod_def.ww3','mod_def.hafs_ww3',force=True,logger=logger)
                             make_symlink(self.getexe('ww3_grid'),'ww3_grid',force=True,logger=logger)
                             deliver_file(self.icstr('{grid_gnh_10m_inp}'),'ww3_grid.inp',keep=True,logger=logger)
@@ -288,7 +288,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                             have_restart=True
                     except Exception as ee:
                         produtil.log.jlogger.warning(
-                            'restart.ww3: will generate dummy because ww3_gint '
+                            'WARNING: restart.ww3: will generate dummy because ww3_gint '
                             'did not run successfully.',exc_info=True)
 
                 if not have_restart:
@@ -314,7 +314,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                         self._products.pop('nest',None)
                         prodnames.pop('nest',None)
                         produtil.log.jlogger.warning(
-                            'ww3_bound: will run without input boundary condition because ww3_bound '
+                            'WARNING: ww3_bound: will run without input boundary condition because ww3_bound '
                             'did not run successfully.',exc_info=True)
 
                #if redirect: self._copy_log()
@@ -367,11 +367,12 @@ class WW3Init(hafs.hafstask.HAFSTask):
                 self.deliver_products()
             self.state=COMPLETED
         except Exception as e:
-            logger.error('Unhandled exception in wave init: %s'
+            logger.critical('FATAL ERROR: WW3 init failed: %s'
                          %(str(e),),exc_info=True)
             self.state=FAILED
            #self._copy_log()
             raise
+            sys.exit(2)
 
     def _copy_log(self):
         logger=self.log()
@@ -439,14 +440,14 @@ class WW3Init(hafs.hafstask.HAFSTask):
         ok=True
         (L,S) = produtil.fileop.lstat_stat(ww3rstfile)
         if S is None:
-            logger.info('%s: does not exist'%(ww3bdyfile,))
+            logger.info('%s: does not exist'%(ww3rstfile,))
             ok=False
         if S.st_size<10000:
             logger.info('%s: too small (should be >=%d bytes)'%(
                     ww3rstfile,10000))
             ok=False
         if not ok:
-            logger.warning('%s: ww3rst file from gdaswave not ok for this time.'%(
+            logger.warning('WARNING: %s: ww3rst file from gdaswave not ok for this time.'%(
                     when.strftime('%Y%m%d%H'),))
         # We get here if the ww3rstfile exists and is big enough.
         make_symlink(ww3rstfile,'restart.gnh_10m',force=True,logger=logger)
@@ -515,8 +516,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
     def __copy_ncks(self,source,target,ignore):
         ncks=self.ncks_path
         logger=self.log()
-        produtil.fileop.remove_file(target,logger=logger)
-        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+        checkrun(bigexe(ncks)['-O','-4','-L','6',source,target]<'/dev/null',
                  logger=logger)
 
     @property
@@ -546,25 +546,16 @@ class WW3Post(hafs.hafstask.HAFSTask):
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
                 ww3moddef=self.icstr('{intercom}/ww3/mod_def.ww3')
-                if not os.path.exists(ww3moddef):
-                    logger.error('%s: mod_def.ww3 not yet available from forecast'%(
-                            ww3moddef,))
                 deliver_file(ww3moddef,'mod_def.ww3',force=True,logger=logger)
                 # Prepare and deliver out_grd.ww3
                 if self.outstep>0:
                     ww3out=self.icstr('{WORKhafs}/forecast/out_grd.ww3')
-                    if not os.path.exists(ww3out):
-                        logger.error('%s: out_grd.ww3 not yet available from forecast'%(
-                                ww3out,))
                     deliver_file(ww3out,'out_grd.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outgrd']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                 # Prepare and deliver out_pnt.ww3
                 if self.pntstep>0:
                     ww3pnt=self.icstr('{WORKhafs}/forecast/out_pnt.ww3')
-                    if not os.path.exists(ww3pnt):
-                        logger.error('%s: out_pnt.ww3 not yet available from forecast'%(
-                                ww3pnt,))
                     deliver_file(ww3pnt,'out_pnt.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outpnt']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
@@ -739,8 +730,9 @@ class WW3Post(hafs.hafstask.HAFSTask):
             self.state=COMPLETED
         except Exception as e:
             self.state=FAILED
-            logger.error("WW3 post failed: %s"%(str(e),),exc_info=True)
+            logger.critical("FATAL ERROR: WW3 post failed: %s"%(str(e),),exc_info=True)
             raise
+            sys.exit(2)
 
     def make_grib_inp(self,logger):
         # Prepare ww3_grib.inp

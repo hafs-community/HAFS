@@ -1,4 +1,12 @@
 #!/bin/sh
+################################################################################
+# Script Name: setup_hurricane
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs setup_hurricane.py to generate storm messages.
+# History:
+#   04/03/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 
 HOMEhafs=$(dirname $(dirname $(readlink -f "$0")))
 USHhafs=$HOMEhafs/ush

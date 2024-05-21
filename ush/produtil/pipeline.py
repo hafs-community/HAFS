@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Internal module that launches and monitors processes.
 
 Do not use this module directly: it is part of the internal

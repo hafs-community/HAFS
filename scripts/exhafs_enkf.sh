@@ -1,12 +1,17 @@
 #!/bin/sh
-# exhafs_enkf.sh: Depend upon the value of ldo_enscalc_option, this script can
-# perform the EnKF mean, update, and recenter functions by running the GSI's
-# enkf.x in different modes.
-# ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean
-# ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the ensemble members
-# ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber analysis around the deterministic EnVar analysis
-
-set -xe
+################################################################################
+# Script Name: exhafs_enkf.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script performs the EnKF mean, update, and recenter functions by
+#   running the GSI's enkf.x in different modes.
+#     ldo_enscalc_option=1: enkf_mean, calculate the ensemble mean
+#     ldo_enscalc_option=0: enkf_update, condut the EnKF analysis to update the
+#                           ensemble members
+#     ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber
+#                           analysis around the deterministic EnVar analysis
+################################################################################
+set -x -o pipefail
 
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
@@ -161,18 +166,20 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
 fi
 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
-#checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
+#checkgfs ${NLN} $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
-#checkgfs $NLN $vqcdat       vqctp001.dat
-#checkgfs $NLN $INSITUINFO   insituinfo
+#checkgfs ${NLN} $vqcdat       vqctp001.dat
+#checkgfs ${NLN} $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
-#checkgfs $NLN $AEROINFO     aeroinfo
-#checkgfs $NLN $HYBENSINFO   hybens_info
+#checkgfs ${NLN} $AEROINFO     aeroinfo
+#checkgfs ${NLN} $HYBENSINFO   hybens_info
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 if [ $ldo_enscalc_option -eq 1 -o $ldo_enscalc_option -eq 2 ]; then # enkf_mean or enkf_recenter
+  pseudo_rh=.false.
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp_enkf
 else # enkf_update
+  pseudo_rh=.true.
   anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 fi
 #${NCP} ${anavinfo} ./anavinfo
@@ -221,18 +228,18 @@ sed -e "s/_datestring_/${CDATE}/g" \
     -e "s/_nlats_/$((${npy_ens:-$npy}-1))/g" \
     -e "s/_nlevs_/${npz_ens:-$npz}/g" \
     -e "s/_nanals_/${nens}/g" \
+    -e "s/_pseudo_rh_/${pseudo_rh:-.false.}/g" \
     -e "s/_netcdf_diag_/${netcdf_diag}/g" \
     -e "s/_ldo_enscalc_option_/${ldo_enscalc_option}/g" \
     -e "s/_nx_res_/$((${npx_ens:-$npx}-1))/g" \
     -e "s/_ny_res_/$((${npy_ens:-$npy}-1))/g" \
     enkf.nml.tmp > ./enkf.nml
 
-ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_enkf.x}
-${NCP} -p $ENKFEXEC ./enkf.x
-#${APRUNC} ./enkf.x < enkf.nml > stdout 2>&1
-set -o pipefail
-${APRUNC} ./enkf.x < enkf.nml 2>&1 | tee stdout
-set +o pipefail
+ENKFEXEC=${ENKFEXEC:-$HOMEhafs/exec/hafs_gsi_enkf.x}
+${NCP} -p $ENKFEXEC ./hafs_gsi_enkf.x
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_gsi_enkf.x < enkf.nml 2>&1 | tee gsi_enkf.log
+export err=$?; err_chk
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   rm -f cmdfile
@@ -243,6 +250,7 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   done
   chmod +x cmdfile
   ${APRUNC} ${MPISERIAL} -m cmdfile
+  export err=$?; err_chk
 elif  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean
   memstr="ensmean"
   mkdir -p ${RESTARTens_anl}/${memstr}
@@ -291,8 +299,8 @@ EOFpost
   done
   chmod +x cmdfile_post_dynvartracer_ens
   ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
+  export err=$?; err_chk
 else
-  echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"
+  echo "FATAL ERROR: Wrong ldo_enscalc_option: $ldo_enscalc_option. Exiting..."
+  exit 2
 fi
-
-exit

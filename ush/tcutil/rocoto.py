@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 """!This module contains utilities for plugging tcutil into the Rocoto
 workflow manager."""
 
@@ -35,10 +37,10 @@ def sanity_check_failed(logger,ex):
     a logging.Logger.
     @param ex the failure information
     @param logger a logging.Logger for log messages"""
-    logger.critical('Sanity check failed.',exc_info=True)
-    logger.info(
-        'tcutil SANITY CHECK FAILED.  Cannot run this configuration.\n'
+    logger.critical('FATAL ERROR: Sanity check failed.',exc_info=True)
+    logger.critical('FATAL ERROR: tcutil SANITY CHECK FAILED.  Cannot run this configuration.\n'
         'Check paths and conf files.  See earlier messages for details.')
+    sys.exit(1)
 
 def cycles_as_entity(cycleset):
     """!Returns a set of Rocoto XML <cycledef> tags to add to an XML

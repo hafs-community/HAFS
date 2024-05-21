@@ -2,7 +2,7 @@
 set -xeu
 
 HOMEhafs="../../../../"
-source ${HOMEhafs}/sorc/machine-setup.sh > /dev/null 2>&1
+source ${HOMEhafs}/sorc/machine-setup.sh.inc > /dev/null 2>&1
 
 module use ${HOMEhafs}/modulefiles
 module load modulefile.hafs.${target}

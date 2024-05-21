@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 """!Handles data restriction classes.
 
 Implements access control mechanisms for NOAA data.  Although this was

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Object structure for describing MPI programs.
 
 Do not load this module directly.  It is meant to be loaded only by

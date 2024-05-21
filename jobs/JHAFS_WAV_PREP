@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -55,7 +55,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export ww3_force_cold_start=${ww3_force_cold_start:-${force_cold_start:-no}}
+export ww3_force_cold_start=${ww3_force_cold_start:-${force_cold_start:-${COLDSTART:-NO}}}
 export DATA=${WORKhafs}/wav_prep
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
@@ -66,7 +66,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_wav_prep.py
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

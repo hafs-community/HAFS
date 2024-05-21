@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_obs_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS specific observation preprocessing steps needed
+#   by data assimilation.
+################################################################################
+set -x -o pipefail
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
@@ -42,25 +48,26 @@ else
   PREPQC=${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.prepbufr
 fi
 
+# Check if gfs prepbufr file exists and non-empty, otherwise exit with fatal error.
+if [ ! -s ${PREPQC} ]; then
+  echo "FATAL ERROR: ${PREPQC} does not exist or is empty. Exiting ..."
+  exit 1
+fi
+
 ${NCP} -Lp ${PREPQC} ./prepbufr.orig
 ${NCP} -Lp ${PREPQC} ./prepbufr.qm_typ
 
-${NLN} -sf ./prepbufr.orig   ./fort.21
-${NLN} -sf ./prepbufr.qm_typ ./fort.51
+${NLN} ./prepbufr.orig   ./fort.21
+${NLN} ./prepbufr.qm_typ ./fort.51
 
 # Run the executable
-${NCP} -p ${EXEChafs}/hafs_change_prepbufr_qm_typ.x ./hafs_change_prepbufr_qm_typ.x
-${APRUNS} ./hafs_change_prepbufr_qm_typ.x > ./hafs_change_prepbufr_qm_typ.out 2>&1
-status=$?; [[ $status -ne 0 ]] && exit $status
-cat ./hafs_change_prepbufr_qm_typ.out
+${NCP} -p ${EXEChafs}/hafs_tools_change_prepbufr_qm_typ.x ./hafs_tools_change_prepbufr_qm_typ.x
+${SOURCE_PREP_STEP}
+${APRUNS} ./hafs_tools_change_prepbufr_qm_typ.x 2>&1 | tee ./change_prepbufr_qm_typ.out
+export err=$?; err_chk
 
 # Deliver to intercom
 ${NCP} -p ./prepbufr.qm_typ ${intercom}/${NET}.t${cyc}z.prepbufr
-
-# Deliver to com (no need to deliver to COMhafs). Will need modify permission properly if rstprod is involved
-#if [ $SENDCOM = YES ]; then
-#  ${NCP} -p ./prepbufr.qm_typ ${COMhafs}/${out_prefix}.${RUN}.prepbufr
-#fi
 
 cd $DATA
 
@@ -84,46 +91,47 @@ if [ $OBS_DUMP = YES ]; then
 
 export TANK=${TANK:-${DCOMROOT:?}}
 export FIX_PATH=${BUFR_DUMPLIST:?}/fix
+export LOUD=on
 
 # Dump TDR data
 BDATE=$( $NDATE -24 $CDATE )
 BPDY=$(echo $BDATE | cut -c1-8)
 if [[ -s $TANK/$PDY/b006/xx070 || -s $TANK/$BPDY/b006/xx070 ]]; then
-  set +e
+  export DATA_DUMPJB=$DATA/tldplr_dumpjb.log
   ${DUMPJB:?} ${CDATE} 3.00 tldplr
   status=$?
   if [[ $status -ne 0 ]]; then
     echo "WARNING: TDR dump with exit code of $status. Continue ..."
   fi
   cat ./tldplr.out
-  set -e
+  cat ${DATA_DUMPJB}
 else
   echo "INFO: TDR tank $TANK/$PDY/b006/xx070 or $TANK/$BPDY/b006/xx070 empty or not found. Continue ..."
 fi
 if [ -s ./tldplr.ibm ]; then
   # Deliver to intercom
-  ${NCP} -p ./tldplr.ibm ${intercom}/${NFTLDPLR}
+  ${NCP} ./tldplr.ibm ${intercom}/${NFTLDPLR}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./tldplr.ibm ${COMhafs}/${RFTLDPLR}
+    ${FCP} ./tldplr.ibm ${COMhafs}/${RFTLDPLR}
   fi
 fi
 
 # Dump HDOB data
-set +e
+export DATA_DUMPJB=$DATA/hdob_dumpjb.log
 ${DUMPJB} ${CDATE} 3.00 hdob
 status=$?
 if [[ $status -ne 0 ]]; then
   echo "WARNING: HDOB dump with exit code of $status. Continue ..."
 fi
 cat ./hdob.out
-set -e
+cat ${DATA_DUMPJB}
 if [ -s ./hdob.ibm ]; then
   # Deliver to intercom
-  ${NCP} -p ./hdob.ibm ${intercom}/${NFHDOB}
+  ${NCP} ./hdob.ibm ${intercom}/${NFHDOB}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./hdob.ibm ${COMhafs}/${RFHDOB}
+    ${FCP} ./hdob.ibm ${COMhafs}/${RFHDOB}
   fi
 fi
 
@@ -219,20 +227,20 @@ eval export SKIP_0060$(($subtyp3 + 30))
 export DTIM_earliest_nexrad=${DTIM_earliest_nexrad:-"-0.75"}
 export DTIM_latest_nexrad=${DTIM_latest_nexrad:-"+1.50"}
 
-set +e
+export DATA_DUMPJB=$DATA/nexrad_dumpjb.log
 ${DUMPJB} ${CDATE} 0.5 nexrad
 status=$?
 if [[ $status -ne 0 ]]; then
   echo "WARNING: NEXRAD dump with exit code of $status. Continue ..."
 fi
 cat ./nexrad.out
-set -e
+cat ${DATA_DUMPJB}
 if [ -s ./nexrad.ibm ]; then
   # Deliver to intercom
   ${NCP} -p ./nexrad.ibm ${intercom}/${NFNEXRAD}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./nexrad.ibm ${COMhafs}/${RFNEXRAD}
+    ${FCP} ./nexrad.ibm ${COMhafs}/${RFNEXRAD}
   fi
 fi
 
@@ -247,7 +255,7 @@ if [[ -s ./dropsonde.${CDATE}.tar ]]; then
   ${NCP} -p ./dropsonde.${CDATE}.tar ${intercom}/${NFdropsonde}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./dropsonde.${CDATE}.tar ${COMhafs}/${RFdropsonde}
+    ${FCP} ./dropsonde.${CDATE}.tar ${COMhafs}/${RFdropsonde}
   fi
 fi
 
@@ -260,7 +268,7 @@ if [ -s ${COMINhafs_OBS}/${NFTLDPLR} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFTLDPLR} ${intercom}/${NFTLDPLR}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFTLDPLR} ${COMhafs}/${RFTLDPLR}
+    ${FCP} ${intercom}/${NFTLDPLR} ${COMhafs}/${RFTLDPLR}
   fi
 fi
 # HDOB data
@@ -269,7 +277,7 @@ if [ -s ${COMINhafs_OBS}/${NFHDOB} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFHDOB} ${intercom}/${NFHDOB}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFHDOB} ${COMhafs}/${RFHDOB}
+    ${FCP} ${intercom}/${NFHDOB} ${COMhafs}/${RFHDOB}
   fi
 fi
 # NEXRAD data
@@ -278,7 +286,7 @@ if [ -s ${COMINhafs_OBS}/${NFNEXRAD} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFNEXRAD} ${intercom}/${NFNEXRAD}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFNEXRAD} ${COMhafs}/${RFNEXRAD}
+    ${FCP} ${intercom}/${NFNEXRAD} ${COMhafs}/${RFNEXRAD}
   fi
 fi
 # TEMPdropsonde data
@@ -287,7 +295,7 @@ if [ -s ${COMINhafs_OBS}/${NFdropsonde} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFdropsonde} ${intercom}/${NFdropsonde}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFdropsonde} ${COMhafs}/${RFdropsonde}
+    ${FCP} ${intercom}/${NFdropsonde} ${COMhafs}/${RFdropsonde}
   fi
 fi
 # TEMPdrop prepbufr
@@ -296,7 +304,7 @@ if [ -s ${COMINhafs_OBS}/${NFtempdrop} ]; then
   ${NCP} -L ${COMINhafs_OBS}/${NFtempdrop} ${intercom}/${NFtempdrop}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -L ${COMINhafs_OBS}/${NFtempdrop} ${COMhafs}/${RFtempdrop}
+    ${FCP} ${intercom}/${NFtempdrop} ${COMhafs}/${RFtempdrop}
   fi
 fi
 
@@ -326,17 +334,16 @@ analdate="${yr}-${mn}-${dy}_${cyc}:00:00"
 sed -e "s/_analdate_/${analdate}/g" \
     obs-preproc.input.tmp > obs-preproc.input
 # Run the executable
-OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_obs_preproc.x}
-${NCP} -p ${OBSPREPROCEXEC} ./hafs_obs_preproc.x
-${APRUNS} ./hafs_obs_preproc.x > ./hafs_obs_preproc.out 2>&1
-status=$?; [[ $status -ne 0 ]] && exit $status
-cat ./hafs_obs_preproc.out
+OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_tools_obs_preproc.x}
+${NCP} -p ${OBSPREPROCEXEC} ./hafs_tools_obs_preproc.x
+${APRUNS} ./hafs_tools_obs_preproc.x 2>&1 | tee ./obs_preproc.out
+export err=$?; err_chk
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}
   # Deliver to com
   if [ $SENDCOM = YES ]; then
-    ${NCP} -p ./tempdrop.prepbufr ${COMhafs}/${RFtempdrop}
+    ${FCP} ./tempdrop.prepbufr ${COMhafs}/${RFtempdrop}
   fi
 fi
 

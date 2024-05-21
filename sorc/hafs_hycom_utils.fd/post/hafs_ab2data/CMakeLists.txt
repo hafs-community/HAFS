@@ -55,8 +55,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif() 
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
-  set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O3 -convert big_endian -DLINUX -fp-model precise -assume byterecl")
-  set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -O0 -g -traceback -check all -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+  set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O3 -traceback -convert big_endian -DLINUX -fp-model precise -assume byterecl")
+  set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -O0 -g -traceback -check all -ftrapuv -convert big_endian -DLINUX -fp-model precise -assume byterecl")
 endif()
 
 add_executable(${exe_name1} ${fortran_srcs1})

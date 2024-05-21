@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_archive.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates an archive file from HAFS COM directory outputs. The
+#   archive file can be either on disk or on the HPSS archive (via htar).
+################################################################################
 ##@namespace scripts.exhafs_archive
 # Generates an archive file from HAFS COM directory outputs.  This
 # archive file can be on disk, or on the HPSS archiving system (via
@@ -184,5 +190,5 @@ if __name__=='__main__':
             postmsg('INVALID JHAFS_ARCHIVE STEP %s!! ABORTING!'
                     %(repr(acase),))
     except Exception as e:
-        jlogger.critical('hafs_archive is aborting: '+str(e),exc_info=True)
+        jlogger.critical('FATAL ERROR: hafs_archive is aborting: '+str(e),exc_info=True)
         sys.exit(2)

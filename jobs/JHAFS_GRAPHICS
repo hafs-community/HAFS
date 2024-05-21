@@ -96,7 +96,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/${exscript}
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Contains the WorkPool class, which maintains pools of threads
 that perform small tasks."""
 

@@ -1,7 +1,9 @@
 subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 
 !*****************************************************************************80
-!
+!From https://people.math.sc.edu/Burkardt/f_src/xerror/xerror.f90
+!https://people.math.sc.edu/Burkardt/f_src/xerror/xerror.html
+
 !! XERRWV processes an error message that includes numeric information.
 !
 !  Discussion:
@@ -28,7 +30,7 @@ subroutine xerrwv ( messg, nmessg, nerr, level, ni, i1, i2, nr, r1, r2 )
 !
 !    05 April 2007
 !
-!  Author:
+!  Authors:
 !
 !    Ron Jones
 !

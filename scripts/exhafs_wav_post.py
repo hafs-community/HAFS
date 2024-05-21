@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_wav_post.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS wave post-processing steps for WW3 coupling.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:
@@ -32,7 +37,7 @@ if not conf.getbool('config','run_wave'):
 
 wave_model=conf.getstr('config','wave_model')
 if not wave_model.upper()=='WW3':
-    logger.critical('Config file error: unsupported wave model '
+    logger.critical('FATAL ERROR: Config file error: unsupported wave model '
                      '%s.'%(repr(wave_model),))
     sys.exit(2)
 
@@ -47,6 +52,10 @@ ds=Datastore(filename,logger=logger)
 
 ww3postworkdir=DATA+"/ww3post"
 ww3post=hafs.ww3.WW3Post(dstore=ds,conf=conf,section='ww3post',taskname='ww3post',workdir=ww3postworkdir,fcstlen=fcstlen)
-ww3post.run()
+try:
+    ww3post.run()
+except:
+    logger.critical("FATAL ERROR: ww3post failed")
+    sys.exit(2)
 
 logger.info("ww3post done")

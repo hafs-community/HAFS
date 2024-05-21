@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 
 ##@namespace produtil.mpi_impl
 # Converts a group of MPI ranks to a runnable command.

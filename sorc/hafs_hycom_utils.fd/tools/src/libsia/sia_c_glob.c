@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void sia_c_glob_init(int64_t *oGLOB_ERR, int64_t *oGLOB_MARK,
                      int64_t *oGLOB_NOSORT, int64_t *oGLOB_DOOFFS,

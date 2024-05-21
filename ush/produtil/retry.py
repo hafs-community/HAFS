@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Contains retry_io() which automates retrying operations."""
 
 ##@var __all__

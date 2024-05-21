@@ -9,6 +9,12 @@
 		    U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
 ! SUBPROGRAM
 !   PRGRMMR
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: Chanh Kieu
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
 !
 ! ABSTRACT
 !

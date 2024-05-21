@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Time manipulation and other numerical routines.
 
 This module implements various simple numerical algorithms, such as

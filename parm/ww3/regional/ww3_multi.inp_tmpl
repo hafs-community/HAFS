@@ -1,6 +1,6 @@
 $ WAVEWATCH III multi-grid input file
-$ for NEMS Coupled WW3
-$ The start and end dates for running will be over written by the NEMS driver
+$ for UFS Coupled WW3
+$ The start and end dates for running will be over written by the UFS driver
 $ The start/end for output are chosen to capture hopefully any time period run
 $ ----------------------------------------------------------------------------
 $

@@ -1,3 +1,7 @@
+!-----------------------------------------------------------------------+
+! This package of subroutines are used for HAFS TC information
+! authors and history:
+!      -- 202102, created by Yonghui Wen
 !=======================================================================================
   subroutine get_tc_info(vortex_position_file, tcvital_file, besttrackfile, file_date, &
                          vortexradius)
@@ -37,7 +41,8 @@
 
   call check_tc_lon_lat(center(1), center(2))
   if ( center(1) >= -85. .and. center(1) <= 85. ) tc%lat = center(1)
-  if ( center(2) > -180. .and. center(2) < 360. ) tc%lon = center(2)
+  if ( center(2) > -180. .and. center(2) < 360. ) tc%lon = center(2) ! ckw
+  if ( center(2) > -360. .and. center(2) < -180. ) tc%lon = center(2)+360 ! ckw
   if ( center(3) > 800. .and. center(3) < 1050. ) tc%pmin = center(3)
   if ( center(4) > 0. .and. center(4) < 250. ) tc%vmax = center(4)
 

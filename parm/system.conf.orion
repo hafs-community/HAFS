@@ -42,6 +42,9 @@ BDECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/btk
 ## cartopyDataDir directory for graphics
 cartopyDataDir=/work/noaa/hwrf/noscrub/local/share/cartopy
 
+[forecast]
+quilting_restart=.false.
+ 
 [holdvars]
 WHERE_AM_I=orion
 WHICH_JET=none

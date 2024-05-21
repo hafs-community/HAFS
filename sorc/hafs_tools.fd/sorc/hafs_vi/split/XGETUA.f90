@@ -7,7 +7,8 @@
 !***REVISION DATE  820801   (YYMMDD)
 !***CATEGORY NO.  R3C
 !***KEYWORDS  ERROR,XERROR PACKAGE
-!***AUTHOR  JONES, R. E., (SNLA)
+!***AUTHORS  JONES, R. E., (SNLA)
+!   Revised by Chuan-Kai Wang (NCEP/EMC) 2022
 !***PURPOSE  Returns unit number(s) to which error messages are being
 !            sent.
 !***DESCRIPTION

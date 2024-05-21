@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_ocn_post.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic post-processing steps for HYCOM coupling.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:
@@ -35,6 +40,10 @@ ds=Datastore(filename,logger=logger)
 
 hycompostworkdir=DATA+"/hycompost"
 hycompost=hafs.hycom.HYCOMPost(dstore=ds,conf=conf,section='hycompost',workdir=hycompostworkdir,fcstlen=fcstlen)
-hycompost.run()
+try:
+    hycompost.run()
+except:
+    logger.critical("FATAL ERROR: hycompost failed")
+    sys.exit(2)
 
 logger.info("hycompost done")

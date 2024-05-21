@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_launch.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script creates the initial HAFS directory structure and configurations
+#   for executing a specific forecast cycle.
+################################################################################
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
 # single HAFS cycle.  This script must be run before any other.
@@ -89,7 +95,7 @@ longstormid="{vit[longstormid]}"
 '''  # Don't forget the end of line before the '''
 
 def usage(logger):
-    logger.critical('Invalid arguments to exhafs_launch.py.  Aborting.')
+    logger.critical('FATAl ERROR: Invalid arguments to exhafs_launch.py.  Aborting.')
     print('''
 Usage: exhafs_launch.py 2014062400 95E case_root /path/to/parm [options]
 
@@ -239,18 +245,26 @@ def main():
             with open(startfile,'wt') as f:
                 f.write(startcontents)
 
+        # Generate storm_info file
+        fstorm_info=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.storm_info')
+        storm_info=conf.strinterp('config','{vit[stormname]}{vit[stormid3]}').lower()
+        logger.info(fstorm_info+': write storm_info here')
+        with open(fstorm_info,'wt') as f:
+            f.write(storm_info)
+        if os.environ.get('RUN_ENVIR','DEV').upper()=='NCO':
+            alert_type=conf.strinterp('config','{RUN}_ASCII').upper()
+            if os.path.exists(fstorm_info):
+                alert=produtil.dbnalert.DBNAlert(['MODEL',alert_type,'{job}',fstorm_info])
+                alert()
+
     Gsi=conf.getbool('config','run_gsi')
-    #c.alter(ecf_name,'change','event','Gsi','set' if Gsi else 'clear')
     if Gsi: set_ecflow_event('Analysis',logger)
 
-    Hycom=conf.getbool('config','run_ocean') and \
-         conf.getstr('config','ocean_model').upper()=='HYCOM'
-    #c.alter(ecf_name,'change','event','Hycom','set' if Hycom else 'clear')
-    if Hycom: set_ecflow_event('Ocean',logger)
+    Ocean=conf.getbool('config','run_ocean')
+    if Ocean: set_ecflow_event('Ocean',logger)
 
     Wave=conf.getbool('config','run_wave') and \
          conf.getstr('config','wave_model').upper()=='WW3'
-    #c.alter(ecf_name,'change','event','Wave','set' if Wave else 'clear')
     if Wave: set_ecflow_event('Wave',logger)
 
 if __name__ == '__main__':
@@ -261,5 +275,5 @@ if __name__ == '__main__':
         produtil.log.postmsg('exhafs_launch completed')
     except Exception as e:
         produtil.log.jlogger.critical(
-            'exhafs_launch failed: %s'%(str(e),),exc_info=True)
+            'FATAL ERROR: exhafs_launch failed: %s'%(str(e),),exc_info=True)
         sys.exit(2)

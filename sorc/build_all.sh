@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 #------------------------------------
 # USER DEFINED STUFF:
 #
@@ -8,6 +8,9 @@ set -eux
 #------------------------------------
 
 export USE_PREINST_LIBS="true"
+
+#Supports Debug or Release modes for the build
+export BUILD_MODE=${BUILD_MODE:-Release}   #|Release|Debug|
 
 #------------------------------------
 # END USER DEFINED STUFF
@@ -22,7 +25,7 @@ mkdir -p ../exec
 # INCLUDE PARTIAL BUILD
 #------------------------------------
 
-. ./partial_build.sh
+. ./partial_build.sh.inc
 
 #------------------------------------
 # build libraries first
@@ -99,4 +102,3 @@ echo " .... Building ww3_utils .... "
 
 echo;echo " .... Build system finished .... "
 
-exit

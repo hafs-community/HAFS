@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:ompthreads=1
+#PBS -l place=shared,select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=4GB
 #PBS -l debug=true
 
 model=hafs
@@ -33,7 +33,7 @@ PURPOSE: Deletes the HAFS hfsa or hfsb working directory left behind by the same
 cycle yesterday.  This job saves a minute or so of runtime that used
 to take up the beginning of the launch job.
 
-TROBLESHOOTING: 
+TROBLESHOOTING:
 
 PROBLEM: Job has hung?
 

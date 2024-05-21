@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: exhafs_wav_prep.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS wave preprocessing steps to generate WW3 coupling
+#   needed wave grid, initial condition (IC), boundary condition (BC) and other
+#   input forcing files.
+################################################################################
 import os, sys, logging
 
 if 'USHhafs' in os.environ:
@@ -33,7 +40,7 @@ if not conf.getbool('config','run_wave'):
 
 wave_model=conf.getstr('config','wave_model')
 if not wave_model.lower()=='ww3':
-    logger.critical('Config file error: unsupported wave model '
+    logger.critical('FATAL ERROR: Config file error: unsupported wave model '
                      '%s.'%(repr(wave_model),))
     sys.exit(2)
 
@@ -48,7 +55,12 @@ ds=Datastore(filename,logger=logger)
 
 ww3initworkdir=DATA+"/ww3init"
 ww3init=hafs.ww3.WW3Init(dstore=ds,conf=conf,section='ww3init',taskname='ww3init',workdir=ww3initworkdir,fcstlen=fcstlen)
-ww3init.run()
+try:
+    ww3init.run()
+except:
+    logger.critical("FATAL ERROR: ww3init failed")
+    sys.exit(2)
+
 set_ecflow_event('Wave',logger=logger)
 
 logger.info("ww3init done")

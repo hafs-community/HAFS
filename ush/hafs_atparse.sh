@@ -1,8 +1,17 @@
-#! /usr/bin/env bash
+#!/bin/sh
+################################################################################
+# Script Name: hafs_atparse.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides the atparse function to parse/update @[var] items in
+#   text files/configurations based on its value ($var).
+# History:
+#   08/18/2021: Originally adapted from ufs-weather-model
+################################################################################
+
 function atparse {
     local __set_x
-    [ -o xtrace ] && __set_x='set -x' || __set_x='set +x'
-    set +x
+    __set_x='set -x'
     # Use __ in names to avoid clashing with variables in {var} blocks.
     local __text __before __after __during
     for __text in "$@" ; do
@@ -10,7 +19,7 @@ function atparse {
             eval "local ${BASH_REMATCH[1]}"
             eval "${BASH_REMATCH[1]}="'"${BASH_REMATCH[2]}"'
         else
-            echo "ERROR: Ignoring invalid argument $__text\n" 1>&2
+            echo "WARNING: Ignoring invalid argument $__text\n" 1>&2
         fi
     done
     while IFS= read -r __text ; do

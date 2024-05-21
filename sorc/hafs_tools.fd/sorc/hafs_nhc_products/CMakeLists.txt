@@ -14,11 +14,11 @@ set(exec_dir ${CMAKE_SOURCE_DIR}/exec)
 add_executable(${exe_name} ${fortran_srcs})
 
 target_compile_options(${exe_name} PRIVATE 
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_link_options(${exe_name} PRIVATE 
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 install(TARGETS ${exe_name} DESTINATION ${exec_dir})

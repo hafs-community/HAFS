@@ -1,5 +1,14 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: tcutil_generate_vitals.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script is a wrappar around the tcutil.storminfo and tcutil.revital
+#   modules. It can read in tcvitals files from known locations and manipulate
+#   them in various ways.
+# History:
+#   04/03/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 ##@namespace ush.tcutil_generate_vitals
 # A utility script for tcvitals manipulation, a wrapper around tcutil.revital
 #
@@ -81,8 +90,8 @@ def set_para_paths():
     if 'SYNDAThafs' in os.environ:
         tcvlocs=[os.environ['SYNDAThafs'],]
     else:
-        logger.error('Fatal Error: cannot find the needed environment variable of SYNDAThafs.')
-        exit(2)
+        logger.critical('FATAL ERROR: cannot find the needed environment variable of SYNDAThafs.')
+        sys.exit(2)
 
 ########################################################################
 
@@ -118,7 +127,7 @@ def usage(why=None):
     """!Prints a usage message on stderr and exits with status 1."""
     sys.stderr.write(usage_message)
     if why:
-        sys.stderr.write('\nSCRIPT IS ABORTING DUE TO ERROR: %s\n'%(why,))
+        sys.stderr.write('\nFATAL ERROR: SCRIPT IS ABORTING DUE TO ERROR: %s\n'%(why,))
         sys.exit(1)
     else:
         sys.exit(0)
@@ -158,10 +167,10 @@ def main():
             elif opt=='-H': format='HHS'
             elif opt=='-R': format='rocoto'
             else:
-                logger.error('Invalid option %s'%(opt,))
+                logger.error('FATAL ERROR: Invalid option %s'%(opt,))
                 sys.exit(1)
     except (getopt.GetoptError,ValueError,TypeError) as e:
-        usage(str(e))
+        usage('FATAL ERROR: '+str(e))
         sys.exit(1)
 
     if unrenumber and format=='tcvitals':
@@ -196,7 +205,7 @@ def main():
                 break
 
     if len(args)<2:
-        print('ERROR: Script requires at least two '\
+        print('FATAL ERROR: Script requires at least two '\
             'arguments: stormid and year', file=sys.stderr)
         sys.exit(1)
 
@@ -236,7 +245,7 @@ def main():
         for tcvyear in tcvyears:
             tcvfile=os.path.join(str(args[3]),'syndat_tcvitals.%04d'%(tcvyear,))
             if not os.path.isdir(tcvfile):
-                logger.error('%s: syndat file does not exist'%(tcvfile,))
+                logger.error('FATAL ERROR: %s: syndat file does not exist'%(tcvfile,))
                 sys.exit(1)
             inputs.append(tcvfile)
     else:
@@ -312,6 +321,6 @@ def main():
                                  stormid=stormid,format=format,old=True)
     except Exception as e:
         logger.info(str(e),exc_info=True)
-        logger.critical('ERROR: %s'%(str(e),))
+        logger.critical('FATAL ERROR: %s'%(str(e),))
 
 if __name__=='__main__': main()

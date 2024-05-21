@@ -3,12 +3,19 @@
 !
 ! ABSTRACT: Split the vortex into environment flow and vortex perturbation
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: Qingfu Liu, 2013
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: Qingfu Liu, 2013
 !                : Changed the filter domain size
-!
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2022 code modernization
+! Revised by: JungHoon Shin, NCEP/EMC, 2022
+!                 : Set I360=180 (I360=360) as Western (Eastern) hemisphere TC
+! Revised by: JungHoon Shin, NCEP/EMC, 2023
+!                : Added arrays/veritcal level interpolation for cloud
+!                : variables for VI updates
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !     DECLARE VARIABLES
-!
+
       use nhc, only: KSTM,IC_N,JC_N,NST
       use nhc1, only: SLON_N,SLAT_N,CLON_N,CLAT_N
       use stname,only: ST_NAME,STMNAME
@@ -28,8 +35,14 @@
 ! Variables on hybrid coordinate
 
       REAL(4), ALLOCATABLE :: T1(:,:,:),Q1(:,:,:)
+      REAL(4), ALLOCATABLE :: QC(:,:,:),QR(:,:,:),QS(:,:,:)
+      REAL(4), ALLOCATABLE :: QI(:,:,:),QG(:,:,:)
+      REAL(4), ALLOCATABLE :: NCI(:,:,:),NCR(:,:,:)
+      REAL(4), ALLOCATABLE :: QC2(:,:,:),QR2(:,:,:),QS2(:,:,:)
+      REAL(4), ALLOCATABLE :: QI2(:,:,:),QG2(:,:,:),DZDT2(:,:,:)
+      REAL(4), ALLOCATABLE :: NCI2(:,:,:),NCR2(:,:,:)
       REAL(4), ALLOCATABLE :: U1(:,:,:),V1(:,:,:),DZDT(:,:,:)
-      REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:)
+      REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:),T0(:,:,:)
       REAL(4), ALLOCATABLE :: GLON(:,:),GLAT(:,:)
       REAL(4), ALLOCATABLE :: PD(:,:),ETA1(:),ETA2(:)
       REAL(4), ALLOCATABLE :: HGTSFC3(:,:)
@@ -44,7 +57,7 @@
 
 
       REAL(4),ALLOCATABLE :: ZM1(:,:,:),PM1(:,:,:),HV(:,:,:)
-      REAL(4),ALLOCATABLE :: ZMV1(:,:,:),PMV1(:,:,:)
+      REAL(4),ALLOCATABLE :: ZMV1(:,:,:),PMV1(:,:,:),PM0(:,:,:)
       REAL(4),ALLOCATABLE :: TV1(:,:,:)
 !
 ! Variables on P surface
@@ -59,16 +72,20 @@
       REAL(4),ALLOCATABLE :: UVTQ(:,:,:,:)
       REAL(4),ALLOCATABLE :: work_1(:),work_2(:)
 
+      integer(4), ALLOCATABLE :: itag(:,:)
+
       REAL(4) CENTRAL_LON,CENTRAL_LAT,WBD,SBD
 
       integer, external :: omp_get_max_threads
 
-      integer :: ICLAT,ICLON,CLAT_VIT,CLON_VIT
+      integer :: ICLAT,ICLON
+      real CLAT_VIT,CLON_VIT
       character :: SN,EW
+      integer :: ivi_cloud
 
       integer KMX,KS850,JCT1,ICT1,NZ1,NY1,NX1,KMAX,I360
       integer KUNIT,IUNIT,IFLAG_COLD,ITIM,N,JPX,IPX,NCHT
-      integer L,KST
+      integer L,KST,icen,jcen
 
       real COEF3,COEF2,PI,PI_DEG
       real SDT,SDIF,PT,PDTOP,PSFX,DTEMP,ES,QS1,QSK,W1,W
@@ -84,7 +101,7 @@
       pi_deg=180./pi
 ! read data
 
-      READ(5,*)ITIM,IBGS,IVOBS,iflag_cold,crfactor
+      READ(5,*)ITIM,IBGS,IVOBS,iflag_cold,crfactor,ivi_cloud
 
       IUNIT=26
       KUNIT=56
@@ -100,13 +117,20 @@
       IF(SN.eq.'S')CLAT_VIT=-CLAT_VIT
       IF(EW.eq.'W')CLON_VIT=-CLON_VIT
 
+      print*,CLON_VIT
+      if(CLON_VIT.lt.-180) then !ckw
+        CLON_VIT=CLON_VIT+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+      print*,CLON_VIT
+
 !      I360=180
 !      if(abs(CLON_VIT).gt.90.)then
 !         I360=360
 !      end if
 ! For HAFS, I360 is newly defined to handle the storms in eastern/western hemisphere 2022 July
       IF(EW.eq.'W') I360=180 ! Western hemisphere TC
-      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC
+      IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC 
 
       READ(IUNIT) NX,NY,NZ
 
@@ -126,7 +150,7 @@
       ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
       ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
       ALLOCATE ( Z1(NX,NY,NZ1),P1(NX,NY,NZ1) )
-      ALLOCATE ( GLON(NX,NY),GLAT(NX,NY) )
+      ALLOCATE ( GLON(NX,NY),GLAT(NX,NY),itag(NX,NY) )
       ALLOCATE ( PD(NX,NY),ETA1(NZ1),ETA2(NZ1) )
 
       ALLOCATE ( HLON(NX,NY),HLAT(NX,NY) )
@@ -138,7 +162,14 @@
       ALLOCATE ( TMV1(NX,NY) )
 
       ALLOCATE ( ZM1(NX,NY,NZ),PM1(NX,NY,NZ),TV1(NX,NY,NZ) )
-      ALLOCATE ( ZMV1(NX,NY,NZ),PMV1(NX,NY,NZ) )
+      ALLOCATE ( ZMV1(NX,NY,NZ),PMV1(NX,NY,NZ),PM0(NX,NY,NZ) )
+      ALLOCATE ( QC(NX,NY,NZ),QR(NX,NY,NZ),QI(NX,NY,NZ) )
+      ALLOCATE ( QS(NX,NY,NZ),QG(NX,NY,NZ),T0(NX,NY,NZ) )
+      ALLOCATE ( NCI(NX,NY,NZ),NCR(NX,NY,NZ) )
+      ALLOCATE ( QC2(NX,NY,NZ),QR2(NX,NY,NZ),QI2(NX,NY,NZ) )
+      ALLOCATE ( QS2(NX,NY,NZ),QG2(NX,NY,NZ),DZDT2(NX,NY,NZ) )
+      ALLOCATE ( NCI2(NX,NY,NZ),NCR2(NX,NY,NZ) )
+
 
       READ(IUNIT) LON1,LAT1,LON2,LAT2,CENTRAL_LON,CENTRAL_LAT
       READ(IUNIT) PM1
@@ -156,9 +187,39 @@
       READ(IUNIT) !land
       READ(IUNIT) !sfrc
       READ(IUNIT) !C101
+      if(ivi_cloud.ge.1)then
+       READ(IUNIT) QC
+       READ(IUNIT) QR
+       READ(IUNIT) QI
+       READ(IUNIT) QS
+       READ(IUNIT) QG
+       if(ivi_cloud.eq.2)then
+        print*,'Thompson scheme cloud ice & rain number concentrations'
+        READ(IUNIT) NCI    ! cloud ice water number concentration
+        READ(IUNIT) NCR    ! rain number concentration
+       endif
+      endif
 
       CLOSE(IUNIT)
 
+      if(CENTRAL_LON.lt.-180) then !ckw
+        CENTRAL_LON=CENTRAL_LON+360. !ckw
+      endif !ckw
+
+      PM0=PM1
+      T0=T1
+      ! Original PM1 will be save as PM0 for re-interploation into
+      ! newly adjusted PM0
+
+!ckw
+      if(I360.eq.360) then
+        DO J=1,NY
+        DO I=1,NX
+          IF(HLON(I,J).LT.0.)HLON(I,J)=HLON(I,J)+360.
+        END DO
+        END DO
+      endif
+!ckw
 !
       DO J=1,NY
         DO I=1,NX
@@ -680,6 +741,137 @@
         END DO
       END DO
 
+
+!-------------------------------------------------------------------------
+      if(ivi_cloud.ge.1)then
+! From PM0 to PM1
+! As PM1 is newly adjusted in the core region of hurricanes,
+! cloud and vertical velocity fields in the PM0 are interpoloated into
+! newly adjusted model pressure level PM1, where fields are changed
+! To save computational time, this is done 500x500 with respect to
+! domain center
+! QC,QR,QI,QS,QG,DZDT: variables in the old PM1 (i.e.,PM0) level
+! QC2,QR2,QI2,QS2,QG2,DZDT2: variables in the newly adjusted model
+! pressure level PM1
+      itag=0
+      icen=(nx+1)/2
+      jcen=(ny+1)/2
+!$omp parallel do &
+!$omp& private(i,j,k)
+      do k=1,nz
+       do j=jcen-250,jcen+250
+        do i=icen-250,icen+250
+        if( abs(T1(I,J,K)-T0(I,J,K)).ne.0.0 ) itag(i,j)=1
+        enddo
+       enddo
+      enddo
+
+! put the variables and only core region will be replaced
+      QC2=QC
+      QR2=QR
+      QS2=QS
+      QG2=QG
+      QI2=QI
+      DZDT2=DZDT
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+      DO J=jcen-250,jcen+250
+        DO I=icen-250,icen+250
+        nloop2: DO N=1,NZ
+            IF(PM1(I,J,N).GE.PM0(I,J,1))THEN            ! Below PM1(I,J,1)
+             if(itag(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,1)
+              QR2(I,J,N)=QR(I,J,1)
+              QS2(I,J,N)=QS(I,J,1)
+              QG2(I,J,N)=QG(I,J,1)
+              QI2(I,J,N)=QI(I,J,1)
+              DZDT2(I,J,N)=DZDT(I,J,1)
+             endif
+            ELSE IF(PM1(I,J,N).LE.PM0(I,J,NZ))THEN
+             if(itag(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,NZ)
+              QR2(I,J,N)=QR(I,J,NZ)
+              QS2(I,J,N)=QS(I,J,NZ)
+              QG2(I,J,N)=QG(I,J,NZ)
+              QI2(I,J,N)=QI(I,J,NZ)
+              DZDT2(I,J,N)=DZDT(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PM1(I,J,N).LE.PM0(I,J,K).and.PM1(I,J,N).GT.PM0(I,J,K+1))THEN
+                  W1=ALOG(1.*PM0(I,J,K+1))-ALOG(1.*PM0(I,J,K))
+                  W=(ALOG(1.*PM1(I,J,N))-ALOG(1.*PM0(I,J,K)))/W1
+                  if(itag(i,j).eq.1)then
+                   QC2(I,J,N)=QC(I,J,K)+ &
+                           (QC(I,J,K+1)-QC(I,J,K))*W
+                   QR2(I,J,N)=QR(I,J,K)+ &
+                           (QR(I,J,K+1)-QR(I,J,K))*W
+                   QS2(I,J,N)=QS(I,J,K)+ &
+                           (QS(I,J,K+1)-QS(I,J,K))*W
+                   QG2(I,J,N)=QG(I,J,K)+ &
+                           (QG(I,J,K+1)-QG(I,J,K))*W
+                   QI2(I,J,N)=QI(I,J,K)+ &
+                           (QI(I,J,K+1)-QI(I,J,K))*W
+                   DZDT2(I,J,N)=DZDT(I,J,K)+ &
+                           (DZDT(I,J,K+1)-DZDT(I,J,K))*W
+                  endif
+                  cycle nloop2
+                END IF
+              END DO
+            END IF
+          END DO nloop2
+        END DO
+      END DO
+      endif
+
+! Same interpolation for two additional Thompson microphysics variables
+      if(ivi_cloud.ge.2)then  !For Thompson microphysics
+       NCI2=NCI
+       NCR2=NCR
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+       DO J=jcen-250,jcen+250
+        DO I=icen-250,icen+250
+        nloop3: DO N=1,NZ
+            IF(PM1(I,J,N).GE.PM0(I,J,1))THEN            ! Below PM1(I,J,1)
+             if(itag(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,1)
+              NCR2(I,J,N)=NCR(I,J,1)
+             endif
+            ELSE IF(PM1(I,J,N).LE.PM0(I,J,NZ))THEN
+             if(itag(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,NZ)
+              NCR2(I,J,N)=NCR(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PM1(I,J,N).LE.PM0(I,J,K).and.PM1(I,J,N).GT.PM0(I,J,K+1))THEN
+                  W1=ALOG(1.*PM0(I,J,K+1))-ALOG(1.*PM0(I,J,K))
+                  W=(ALOG(1.*PM1(I,J,N))-ALOG(1.*PM0(I,J,K)))/W1
+                  if(itag(i,j).eq.1)then
+                   NCI2(I,J,N)=NCI(I,J,K)+ &
+                           (NCI(I,J,K+1)-NCI(I,J,K))*W
+                   NCR2(I,J,N)=NCR(I,J,K)+ &
+                           (NCR(I,J,K+1)-NCR(I,J,K))*W
+                  endif
+                  cycle nloop3
+                END IF
+              END DO
+            END IF
+          END DO nloop3
+        END DO
+       END DO
+
+      endif  !For Thompson microphysics
+
+!-------------------------------------------------------------------
+      if(ivi_cloud.eq.0) DZDT2=DZDT
+      ! If cloud relocation is off, simply output DZDT from
+      ! origonal data
+!-------------------------------------------------------------------
+
       DO K=1,NZ+1
         WRITE(61)((Z1(I,J,K),I=1,NX),J=1,NY,2)
       END DO
@@ -724,7 +916,7 @@
       WRITE(KUNIT) Q1
       WRITE(KUNIT) U1
       WRITE(KUNIT) V1
-      WRITE(KUNIT) DZDT
+      WRITE(KUNIT) DZDT2
       WRITE(KUNIT) Z1
       WRITE(KUNIT) HLON,HLAT,VLON,VLAT
       WRITE(KUNIT) P1
@@ -733,7 +925,17 @@
       WRITE(KUNIT) ETA2
       WRITE(KUNIT) USC
       WRITE(KUNIT) VSC
-
+      if(ivi_cloud.ge.1)then
+       WRITE(KUNIT) QC2
+       WRITE(KUNIT) QR2
+       WRITE(KUNIT) QI2
+       WRITE(KUNIT) QS2
+       WRITE(KUNIT) QG2
+       if(ivi_cloud.eq.2)then
+        WRITE(KUNIT) NCI2
+        WRITE(KUNIT) NCR2
+       endif
+      endif
 
       DEALLOCATE ( ZM1,PM1,TV1 )
 
@@ -826,11 +1028,23 @@
         STMNAME(I)='NUL'
         READ(30,442,end=436)(ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
        ! Western hemisphere TCs, converts longitude into negative value
-        if(I360.eq.180)then
-          do j=1,7
-            ISTMCX1(J,I)=-ISTMCX1(J,I)
-          end do
-        endif
+!ckw
+!        if(I360.eq.180)then
+!          do j=1,7
+!            ISTMCX1(J,I)=-ISTMCX1(J,I)
+!          end do
+!        endif
+!ckw
+
+!ckw
+         if(I360.eq.360)then
+           do j=1,7
+             IF(ISTMCX1(J,I).GT.-1800.and.ISTMCX1(J,I).LT.0) ISTMCX1(J,I)=3600+ISTMCX1(J,I)
+             print*,ISTMCX1(J,I)
+           end do
+         end if
+!ckw
+
 !wpac         if(I360.eq.180)then
 !wpac           do j=1,7
 !wpac             IF(ISTMCX1(J,I).LT.-1800)
@@ -970,8 +1184,12 @@
         cycle readcyc
       ENDIF
 
-      IF(LONEW .EQ. 'W')  THEN
+      IF(LONEW .EQ. 'W'.and.I360.eq.180)  THEN
         STMLNZ=-STMLNZ
+      ELSEIF(LONEW .EQ. 'W'.and.I360.eq.360)  THEN !ckw
+        STMLNZ=-STMLNZ+360 !ckw
+      ELSEIF(LONEW .EQ. 'E')  THEN !ckw
+        STMLNZ=STMLNZ !ckw
 !wpac      ELSE IF(LONEW .EQ. 'E')  THEN
 !wpac        if(I360.eq.360)then
 !wpac          STMLNZ=-360+STMLNZ
@@ -1060,6 +1278,16 @@
 !        END DO
 ! 21   format(52x,I4,1x,I4,1x,I4)
 !      END IF
+     DO K=1,K1STM
+     do  J=1,7
+     print*,ISTMCY1(J,K),ISTMCX1(J,K)
+     enddo
+     print*,ISTMCX1(4,K),STMCX(K)
+     enddo
+     do i=1,KSTM
+     print*,'CLON_N(I),STMDIR(I),USTM',CLON_N(I),STMDIR(I),STMSPD(I)
+     enddo
+
 
       DO I=1,KSTM
         DO K=1,K1STM
@@ -1081,9 +1309,12 @@
               CLON_N(I)=CLON_N(I)+USTM*FACT/COS(PI180*CLAT_N(I))
               CLAT_N(I)=CLAT_N(I)+VSTM*FACT
             END IF
+            if (CLON_N(I).lt.-360) CLON_N(I)=CLON_N(I)+360 !ckw
+            if (CLON_N(I).gt.360) CLON_N(I)=CLON_N(I)-360 !ckw
             PRINT*, ' CT STORM OBS. CENTER at ',ITIM,'h = ', &
             STMNAME(K),CLON_N(I),CLAT_N(I)
           END IF
+         print*,IFWRT,XDIST6H,USTM
         END DO
       END DO
 
@@ -1999,8 +2230,16 @@
         READ(30,442,end=436) &
          (ISTMCY1(J,I),ISTMCX1(J,I),J=1,7),STMNAME(I)
 !
-        IF(I360.eq.180) STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1  !Western hemisphere TC
-        IF(I360.eq.360) STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Eastern hemisphere TC
+!ckw        IF(I360.eq.180) STMCX(I)=-1*ISTMCX1(INDX1,I)*0.1  !Western hemisphere TC
+        IF(I360.eq.180) STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Western hemisphere TC already changed in create process
+        IF(I360.eq.360) then
+           IF(ISTMCX1(INDX1,I).lt.0) then
+             STMCX(I)=ISTMCX1(INDX1,I)*0.1+360 !Near dateline TC
+           else
+             STMCX(I)=ISTMCX1(INDX1,I)*0.1     !Eastern hemisphere TC
+           endif
+        endif
+!ckw
 !wpac        IF(I360.eq.180)THEN
 !wpac          IF(STMCX(I).lt.-180.)STMCX(I)=STMCX(I)+360.
 !wpac        END IF

@@ -1,5 +1,11 @@
 #! /usr/bin/env python
-
+################################################################################
+# Script Name: exhafs_msg_check.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script checks storm messages and sends an alert email if encountering
+#   an issue.
+################################################################################
 import os, sys, re, logging, glob
 
 if 'USHhafs' in os.environ:

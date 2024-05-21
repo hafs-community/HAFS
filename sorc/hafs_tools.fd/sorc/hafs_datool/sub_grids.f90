@@ -1,4 +1,8 @@
 !-----------------------------------------------------------------------+
+! This package of subroutines are used for HAFS grid calculation.
+! authors and history:
+!      -- 202102, created by Yonghui Weng
+!-----------------------------------------------------------------------+
    subroutine rtll(rot_lon,rot_lat,geo_lon,geo_lat,cen_lon,cen_lat)
 
 !-- from https://github.com/NOAA-EMC/fv3atm/blob/cf0a73180b2d9ac55ebfce4785a7270d205423db/io/module_wrt_grid_comp.F90#L3545

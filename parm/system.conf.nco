@@ -8,6 +8,12 @@ HAFS_VERSION={ENV[HAFS_VERSION]}
 EXPT=hafs.v{HAFS_VERSION}
 SUBEXPT=hafs.v{HAFS_VERSION}
 
+[gsi]
+use_bufr_nr=no
+
+[atm_post]
+nhcpost=.true.
+
 [dir]
 HOMEhafs={ENV[HOMEhafs]}
 WORKhafs={ENV[WORKhafs]}
@@ -45,3 +51,5 @@ cartopyDataDir=/not/used/in/production
 WHERE_AM_I=wcoss2
 WHICH_JET=none
 
+[forecast]
+restart_interval="3 6 9 12 24 36 48 60 72 84 96 108"

@@ -50,7 +50,7 @@ control_vector_enkf::
  v        _LEV_      0       0.20        -1.0     state    u,v
 !w        _LEV_      0       0.50        -1.0     state    w
 !dz       _LEV_      0       0.50        -1.0     state    dz
- ps        1      0       0.30        -1.0     state    prse
+!ps        1      0       0.30        -1.0     state    prse
  t        _LEV_      0       0.70        -1.0     state    tv
  delp     _LEV_      0       0.70        -1.0     state    delp
 !q        _LEV_      1       0.20        -1.0     state    sphum

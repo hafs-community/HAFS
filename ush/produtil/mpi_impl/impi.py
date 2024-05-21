@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.mpi_impl.impi
 
 import os, sys, logging

@@ -1,12 +1,19 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_merge.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs hafs_datool to merge atmospheric restart files. It
+#   supports the merge_type of analysis or init with the merge_method of
+#   domainmerge or vortexreplace.
+################################################################################
+set -x -o pipefail
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
+MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
@@ -110,8 +117,8 @@ for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; 
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+  export err=$?; err_chk
 done
 
 # Regional with one nest configuration
@@ -126,7 +133,7 @@ mkdir -p ${RESTARTtmp}
 
 if [ ${MERGE_TYPE} = analysis ]; then
 
-# Step 1: merge src02 into src01 (for analysis_merge)
+# Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -146,14 +153,14 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_analysis_step1_${var}.log
+  export err=$?; err_chk
 done
 
 elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
-${NLN} ${RESTARTsrc}/* ${RESTARTtmp}/
+${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -172,8 +179,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step1_${var}.log
+  export err=$?; err_chk
 done
 
 else
@@ -201,8 +208,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step2_${var}.log
+  export err=$?; err_chk
 done
 
 # Step 3: merge srcd02 into dstd02
@@ -220,8 +227,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
+  export err=$?; err_chk
 done
 
 else

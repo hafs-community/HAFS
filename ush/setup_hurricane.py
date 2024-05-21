@@ -1,5 +1,12 @@
 #! /usr/bin/env python
-
+################################################################################
+# Script Name: setup_hurricane.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates storm messages needed to run HAFS.
+# History:
+#   04/03/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 ##@namespace ush.setup_hurricane
 # @brief This script is run by the NOAA Senior Duty Meteorologist four times
 # a day to generate the list of storms for the HFSA and HFSB hurricane
@@ -1301,9 +1308,9 @@ def main():
         elif os.path.exists(confa):
             conffile=confa
         else:
-            logger.error('%s: does not exist'%(confa,))
-            logger.error('%s: does not exist'%(confu,))
-            logger.error('Please make one of them and rerun.')
+            logger.error('FATAL ERROR: %s: does not exist'%(confa,))
+            logger.error('FATAL ERROR: %s: does not exist'%(confu,))
+            logger.error('FATAL ERROR: Please make one of them and rerun.')
             sys.exit(1)
 
     conf=hafs.config.HAFSConfig()
@@ -1331,11 +1338,11 @@ def main():
                 from compath import get_compath
                 os.environ['COMINarch'] = get_compath('gfs/{0}/syndat'.format(os.environ.get('gfs_ver')))
             except ImportError:
-                logger.error('tcvitals is invalid and compath.py is unavailable. ' +
+                logger.error('FATAL ERROR: tcvitals is invalid and compath.py is unavailable. ' +
                              'Define tcvitals in the conf file or load the prod_util module!')
                 conf_error=True
         else:
-            logger.error('Variable %s is undefined or otherwise invalid' % (str(e),))
+            logger.error('FATAL ERROR: Variable %s is undefined or otherwise invalid' % (str(e),))
             conf_error=True
     try:
         conf.getstr('setup_hurricane','hfsb_output')
@@ -1348,14 +1355,15 @@ def main():
                 os.environ['COMINmsg_hfsa'] = get_compath('hafs/{0}/inphfsa'.format(os.environ.get('hafs_ver')))
 
             except ImportError:
-                logger.error('output directories are invalid and compath.py is unavailable.\n' +
+                logger.error('FATAL ERROR: output directories are invalid and compath.py is unavailable.\n' +
                              'Define hfsb_output and hfsa_output in the conf file or load the prod_util module!')
                 conf_error=True
         else:
-            logger.error('Variable %s is undefined or otherwise invalid' % (str(e),))
+            logger.error('FATAL ERROR: Variable %s is undefined or otherwise invalid' % (str(e),))
             conf_error=True
 
     if conf_error:
+        logger.error('FATAL ERROR: Config error happenned, exiting.')
         sys.exit(1)
 
     logger.info('Message file directories set to %s and %s' % (

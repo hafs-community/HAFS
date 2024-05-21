@@ -1,7 +1,8 @@
 module constants
 !-----------------------------------------------------------------------------
-! define all parameter and constants
-! Yonghui Weng, 20210204
+! This module defines all parameter and constants for HAFS_DAtool
+! authors and history:
+!       -- 202102, created by Yonghui Weng
 !-----------------------------------------------------------------------------
   implicit none
   real, parameter :: g=9.81,                       &! gravitational constant

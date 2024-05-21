@@ -10,7 +10,7 @@
   aircraft_recon=.true.,
   oneobtest=.false.,retrieval=.false.,l_foto=.false.,
   nhr_assimilation=6,
-  use_pbl=.true.,use_compress=.false.,nsig_ext=12,gpstop=50.,
+  use_pbl=.true.,use_compress=.false.,nsig_ext=14,gpstop=50.,
   use_gfs_nemsio=_USE_GFS_NEMSIO_,use_gfs_ncio=_USE_GFS_NCIO_,
   print_diag_pcg=.true.,l2rwthin=.false.,hurricane_radar=.true.,
   use_gfs_ozone=.false.,l4densvar=_L4DENSVAR_,nhr_obsbin=_NHR_OBSBIN_,
@@ -247,6 +247,8 @@ SUPEROB_RADAR::
   l_both_fv3sar_gfs_ens=_L_BOTH_FV3SAR_GFS_ENS_,
   n_ens_gfs=_NENS_GFS_,
   n_ens_fv3sar=_NENS_FV3SAR_,
+  nsclgrp=_NSCLGRP_,
+  naensloc=_NAENSLOC_,
 /
 &RAPIDREFRESH_CLDSURF
   dfi_radar_latent_heat_time_period=30.0,

@@ -1,5 +1,10 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_datm_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the data atmosphere component needed preprocessing steps.
+################################################################################
 set -xe
 
 if [[ "$run_datm" != yes ]]; then

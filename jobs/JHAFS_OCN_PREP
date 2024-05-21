@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -33,6 +33,10 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
+  if [ "${machine}" != "wcoss2" ] ; then
+      module use ${HOMEhafs}/modulefile
+      module load hafs_mom6_obc.${machine}  
+  fi
   module list
 else
   # Run by NCO on WCOSS2
@@ -55,6 +59,8 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
+export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
+
 export DATA=${WORKhafs}/ocn_prep
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
@@ -64,12 +70,19 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-if [[ "${run_docn:-no}" == yes ]]; then
+if [[ "${run_docn:-no}" == yes ]] ; then
   ${HOMEhafs}/scripts/exhafs_docn_prep.sh
-  status=$?; [[ $status -ne 0 ]] && exit $status
-else
+  export err=$?; err_chk
+fi
+
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
   ${HOMEhafs}/scripts/exhafs_ocn_prep.py
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
+fi
+
+if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
+  ${HOMEhafs}/scripts/exhafs_ocn_prep.sh
+  export err=$?; err_chk
 fi
 
 # Cleanup DATA dir

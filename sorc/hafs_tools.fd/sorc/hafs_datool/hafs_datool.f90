@@ -2,7 +2,16 @@
 
 !=========================================================================
 ! HAFS DA tool
-! Yonghui Weng, 20210201
+! authors and history: 
+!      -- 202102, created by Yonghui Weng
+!      -- 202112, added HAVSVI pre- and post-processing by Yonghui Weng
+!      -- 202206, added MPI and openMP by Yonghui Weng
+!      -- 202306, added vi_cloud by JungHoon Shin 
+
+!------------------------------------------------------------------------------
+! June 2023: New input argument "vi_cloud" is introduced for vi_preproc & vi_postproc
+! vi_cloud=1 or 2 (cloud remapping for VI, 1:GFDL, 2:Thompson),vi_cloud=0 (no cloud changes in VI: i.e., HFSAv1)
+!------------------------------------------------------------------------------
 
 ! command convention
 !  hafs_datool.x FUNCTION --in_file=input_files \
@@ -51,17 +60,19 @@
 !                             --out_grid=${out_dir}/grid_spec.nc \
 !                             --out_file=20190829.060000.phy_data.nc
 !
-!    3.3) vi_preproc
+!    3.3) vi_preproc: New input argument "vi_cloud" is introduced
 !       * hafs_datool.x hafsvi_preproc --in_dir=HAFS_restart_folder --infile_date=20200825.180000 \
 !                                 [--vortexposition=user_define_vortex_file --tcvital=tcvitalfile \
 !                                  --besttrack=bdeckfile ] [--vortexradius=deg ] \
 !                                 [--nestdoms=nestdoms ] \
+!                                 [--vi_cloud=vi_cloud ] \
 !                                 [ --tc_date=tcvital_date] [--res=deg ] \
 !                                 [--out_file=output_bin_file or nc_file]
 !
-!    3.4) vi_postproc
+!    3.4) vi_postproc: New input argument "vi_cloud" is introduced
 !       * hafs_datool.x hafsvi_postproc --in_file=[hafs_vi rot-ll bin file] \
 !                                       --out_dir=[hafs-restart subfolder]  \
+!                                       --vi_cloud=vi_cloud  \
 !                                       --infile_date=20200825.180000
 !=========================================================================
   use module_mpi
@@ -85,6 +96,7 @@
   character (len=50  ) :: interpolation_pointsc='' !
   character (len=50  ) :: nestdomsc=''      ! number for nest domains, 1-30, 1=nest02.tile2
                                             ! in vi_preproc, combine all domains and output to one rot-ll grid.
+  character (len=50  ) :: vi_cloud='w'      ! Cloud remapping for VI, 1:GFDL, 2:Thompson & 0: No cloud remapping
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
@@ -124,6 +136,7 @@
                case ('--debug_level');    debug_levelc=arg(j+1:n)  !
                case ('--interpolation_points'); interpolation_pointsc=arg(j+1:n)  !
                case ('--nestdoms');       nestdomsc=arg(j+1:n)  !
+               case ('--vi_cloud');       vi_cloud=arg(j+1:n)      !
         end select
      enddo
   endif
@@ -198,15 +211,17 @@
   if ( trim(actions) == "hafsvi_preproc" ) then
      write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
      if ( index(trim(out_file),'.nc') > 1 ) then
-        call hafsvi_preproc_nc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+        call hafsvi_preproc_nc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file), &
+        trim(vi_cloud))
      else
-        call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file))
+        call hafsvi_preproc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file), &
+        trim(vi_cloud))
      endif
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
      write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
-     call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir), nestdoms)
+     call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir), nestdoms, trim(vi_cloud))
   endif
 
 !----------------------------------------------------------------

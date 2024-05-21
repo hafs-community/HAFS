@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Defines the Revital class which manipulates tcvitals files.
 
 This module deals with rewriting TCVitals files to remove errors,
@@ -157,7 +159,7 @@ class Revital:
            @returns self"""
 
         if len(vitalslist) == 0:
-            self.logger.critical('No parsed tcvitals provided to revital.readvitals')
+            self.logger.error('No parsed tcvitals provided to revital.readvitals')
         else:
             self.logger.info('Processing parsed tcvitals, line1: %s'%(vitalslist[:1]))
 
@@ -193,7 +195,7 @@ class Revital:
                     self.logger.warning(tcvitals+': cannot open: '+str(e))
                     raise
         if not opened:
-            self.logger.critical('No message files or tcvitals files '
+            self.logger.error('No message files or tcvitals files '
                                  'provided to revital.readfiles.')
         self.vitals.extend(tcutil.storminfo.parse_tcvitals(
             lines,raise_all=raise_all,logger=self.logger))

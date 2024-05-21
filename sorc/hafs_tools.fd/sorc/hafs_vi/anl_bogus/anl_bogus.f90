@@ -6,14 +6,32 @@
 !
 ! ABSTRACT
 !
-!     DECLARE VARIABLES
+! Authors and history
+! Oiginal author: QINGFU LIU, NCEP/EMC
+! Revised by: Chanh Kieu
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
+!                  For bogus part, VI code simply reads cloud variables from
+!                  30 by 30 degrees GFS input data (fort.36) and relocates them
+!                  This change requires changes in exhafs_atm_vi.sh
+!                  The code is updated further with one more input argument (ivi_cloud)
+!                  so that cloud modification can be on (1 or 2) or off (0).
+!                  0: No cloud changes in VI, 1: GFDL microphysics, 2: Thompson microphysics
+!                  Now input arguement is like this:
+!  ./hafs_vi_anl_bogus.x 6 ${pubbasin2} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
+!______________________________________________________________________________
 !
+!     DECLARE VARIABLES
       IMPLICIT NONE
       INTEGER I,J,K,L,M,N,NX,NY,NZ,NX1,NY1,NZ1,NZ2,JX,JY,KMX,ICH
       integer NST,IT,ID,JD,IR,IR1,ITIM,IUNIT,I360,IM1,JM1,JX1,IMV,JMV
       integer ictr,jctr,imn1,imx1,jmn1,jmx1,KST,imax1,jmax1,iter,ics
       integer id_storm,ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs
-      integer i_psm,j_psm,ix2,jx2
+      integer i_psm,j_psm,ix2,jx2,icst,jcst
+      integer nd,irange,nw,iwrange,nk,meltlev,nqc,nice,nqr,isnow,n100
       real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,TV1,ZSF1,PSF1,A,DP_CT
       real pi,pi_deg,pi180,rad,arad,SLP1_MEAN,SUM11,SLP_AVE,SLP_SUM,SLP_MIN
       real vobs,vobs_o,VRmax,psfc_obs,psfc_cls,PRMAX,Rctp,cost,dp_obs,z0
@@ -44,6 +62,13 @@
       REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:)
       REAL(4), ALLOCATABLE :: GLON(:,:),GLAT(:,:)
       REAL(4), ALLOCATABLE :: PD1(:,:),ETA1(:),ETA2(:)
+      REAL(4), ALLOCATABLE :: QC4(:,:,:),QR4(:,:,:),QS4(:,:,:)   !GFS cloud on hybrid level
+      REAL(4), ALLOCATABLE :: QI4(:,:,:),QG4(:,:,:)              !GFS cloud on hybrid level
+      REAL(4), ALLOCATABLE :: NCI4(:,:,:),NCR4(:,:,:)            !GFS cloud concentration on hybrid level
+      REAL(4), ALLOCATABLE :: QCP(:,:,:),QRP(:,:,:),QSP(:,:,:)   !GFS cloud on P level
+      REAL(4), ALLOCATABLE :: QIP(:,:,:),QGP(:,:,:),DZDTP(:,:,:) !GFS cloud & W on P level
+      REAL(4), ALLOCATABLE :: NCIP(:,:,:),NCRP(:,:,:)            !GFS cloud concentration on P level
+      REAL(4), ALLOCATABLE :: PM4(:,:,:)      ! GFS model pressure
 
       REAL(4), ALLOCATABLE :: USCM(:,:),VSCM(:,:)        ! Env. wind at new grids
 
@@ -109,6 +134,8 @@
 
       REAL(4), ALLOCATABLE :: dist(:,:)
 
+      integer(4), ALLOCATABLE :: itag_c(:,:),itag_w(:,:) ! Tag array for cloud & W relocation
+
       integer(4) IH1(4),JH1(4),IV1(4),JV1(4)
 
       REAL(8) CLON_NEW,CLAT_NEW,CLON_NHC,CLAT_NHC
@@ -120,6 +147,8 @@
       integer Ir_v4(4)
       CHARACTER SN*1,EW*1,DEPTH*1
       CHARACTER*2 basin
+!shin: cloud modification option
+      integer :: ivi_cloud
 
 !using      DATA PW_S/42*1.0,0.95,0.9,0.85,0.8,0.75,0.7,       &
 !using	        0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3,     &
@@ -149,8 +178,12 @@
 
       arad=6.371E6*rad
 
-      READ(5,*)ITIM,basin
+      irange = 300        !For cloud relocation
+      nd = 2*irange+1     !For cloud relocation
+      iwrange = 150        !For vertical velocity relocation
+      nw = 2*iwrange+1     !For vertical velocity relocation
 
+      READ(5,*)ITIM,basin,ivi_cloud
 
 ! READ NEW GFS Env. DATA (New Domain)
 
@@ -174,10 +207,16 @@
       ALLOCATE ( USC(NX,NY),VSC(NX,NY) )        ! Env. wind at new grids
 
       ALLOCATE ( T4(NX,NY,NZ),Q4(NX,NY,NZ) )    ! orginal data (GFS analysis data)
+      ALLOCATE ( QC4(NX,NY,NZ),QR4(NX,NY,NZ),QI4(NX,NY,NZ) )
+      ALLOCATE ( QS4(NX,NY,NZ),QG4(NX,NY,NZ),PM4(NX,NY,NZ) )
+      ALLOCATE ( NCI4(NX,NY,NZ),NCR4(NX,NY,NZ) )
+      ALLOCATE ( QCP(NX,NY,KMX),QRP(NX,NY,KMX),QIP(NX,NY,KMX) )
+      ALLOCATE ( QSP(NX,NY,KMX),QGP(NX,NY,KMX),DZDTP(NX,NY,KMX) )
+      ALLOCATE ( NCIP(NX,NY,KMX),NCRP(NX,NY,KMX) )
 
       ALLOCATE ( TEK(NZ) )
 
-      ALLOCATE ( dist(NX,NY) )
+      ALLOCATE ( dist(NX,NY),itag_c(NX,NY), itag_w(NX,NY) )
 
       ALLOCATE ( HLON(NX,NY),HLAT(NX,NY) )
       ALLOCATE ( VLON(NX,NY),VLAT(NX,NY) )
@@ -189,7 +228,7 @@
       READ(IUNIT) Q1
       READ(IUNIT) U1
       READ(IUNIT) V1
-      READ(IUNIT) DZDT
+      READ(IUNIT) !DZDT  closed by JungHoon/dzdt is from fort.36(below)
       READ(IUNIT) Z1
 !      READ(IUNIT) GLON,GLAT
       READ(IUNIT) HLON,HLAT,VLON,VLAT
@@ -203,23 +242,63 @@
 
       CLOSE(IUNIT)
 
-      IUNIT=30+ITIM    ! Original GFS initial data
+      IUNIT=30+ITIM    ! Original GFS initial data: modified by JungHoon
 
       READ(IUNIT)   ! NX,NY,NZ
       READ(IUNIT)   ! DLMD,DPHD,CENTRAL_LON,CENTRAL_LAT
-      READ(IUNIT)   ! PT,PDTOP
+      READ(IUNIT) PM4
       READ(IUNIT) T4
       READ(IUNIT) Q4
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
-      READ(IUNIT)
+      READ(IUNIT)   ! U1
+      READ(IUNIT)   ! V1
+      READ(IUNIT) DZDT
+      READ(IUNIT)   ! Z1
+      READ(IUNIT)   ! HLON,HLAT,VLON,VLAT
+      READ(IUNIT)   ! P1
+      READ(IUNIT)   ! PD           ! surface pressure
+      READ(IUNIT)   ! ETA1
+      READ(IUNIT)   ! ETA2
+      READ(IUNIT) !land
+      READ(IUNIT) !sfrc
+      READ(IUNIT) !C101
+      if(ivi_cloud.ge.1)then
+       READ(IUNIT) QC4
+       READ(IUNIT) QR4
+       READ(IUNIT) QI4
+       READ(IUNIT) QS4
+       READ(IUNIT) QG4
+       if(ivi_cloud.eq.2)then
+        print*,'Read GFS cloud ice and rain number concentrations'
+        READ(IUNIT) NCI4    ! GFS cloud ice water number concentration
+        READ(IUNIT) NCR4    ! GFS rain number concentration
+       endif
+      endif
 
       CLOSE(IUNIT)
+
+!=====================================
+      READ(61) !KSTM
+      READ(61) !HLAT2,HLON2
+      READ(61) !VLAT2,VLON2
+      READ(61) !PCST
+      READ(61) !HP
+      READ(61) !ST_NAME(KST)
+      READ(61) CLON_NEW,CLAT_NEW
+      write(*,*) 'GFS vortex center is...'
+      PRINT*,CLON_NEW,CLAT_NEW
+      distm=1.E20
+      do j=1,ny
+      do i=1,nx !* Search for indices nearest to center of storm
+         distt=(HLON(i,j)-CLON_NEW)**2+(HLAT(i,j)-CLAT_NEW)**2
+         if (distm.GT.distt) then
+            distm=distt
+            icst=i
+            jcst=j
+         end if
+      end do
+      end do
+      close(61)
+!=======================================
 
       ALLOCATE ( SLP1(NX,NY),RIJ(NX,NY) )
       ALLOCATE ( ZS1(NX,NY),TS1(NX,NY),QS1(NX,NY) )
@@ -379,7 +458,7 @@
       WBD=LON1
       SBD=LAT1
 
-      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP
+!      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP !ckw not used
       write(*,*)'WBD,SBD,CENTRAL_LON,CENTRAL_LAT=',    &
                  WBD,SBD,CENTRAL_LON,CENTRAL_LAT
       do k=1,nz1
@@ -428,6 +507,7 @@
 
       CLAT_NHC=ICLAT*0.1
       CLON_NHC=ICLON*0.1
+
       vobs=ivobs*1.0       ! m/s
       vobs_o=vobs
       VRmax=Ir_vobs*1.      ! in km
@@ -471,6 +551,12 @@
 
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
 !wpac      if(I360.eq.360) then
 !wpac        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
 !wpac      endif
@@ -998,6 +1084,108 @@
       ENDDO
       deallocate (work_1,work_2)
 
+!=====================================================================
+      if(ivi_cloud.ge.1)then
+      write(*,*) 'START interpolation from hybrid to pressure for GFS'
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+      DO J=1,NY
+        DO I=1,NX
+          CYC_14: DO K=1,KMX
+            IF(PCST(K).GE.PM4(I,J,1))THEN       ! Below PM4(I,J,1)
+              QCP(I,J,K)=QC4(I,J,1)
+              QRP(I,J,K)=QR4(I,J,1)
+              QSP(I,J,K)=QS4(I,J,1)
+              QGP(I,J,K)=QG4(I,J,1)
+              QIP(I,J,K)=QI4(I,J,1)
+              DZDTP(I,J,K)=DZDT(I,J,1)
+            ELSE IF(PCST(K).LE.PM4(I,J,NZ))THEN
+              QCP(I,J,K)=QC4(I,J,NZ)
+              QRP(I,J,K)=QR4(I,J,NZ)
+              QSP(I,J,K)=QS4(I,J,NZ)
+              QGP(I,J,K)=QG4(I,J,NZ)
+              QIP(I,J,K)=QI4(I,J,NZ)
+              DZDTP(I,J,K)=DZDT(I,J,NZ)
+            ELSE
+              DO N=1,NZ-1
+                IF(PCST(K).LE.PM4(I,J,N).and.PCST(K).GT.PM4(I,J,N+1))THEN
+                  W1=ALOG(1.*PM4(I,J,N+1))-ALOG(1.*PM4(I,J,N))
+                  W=(ALOG(1.*PCST(K))-ALOG(1.*PM4(I,J,N)))/W1
+                  QCP(I,J,K)=QC4(I,J,N)+(QC4(I,J,N+1)-QC4(I,J,N))*W
+                  QRP(I,J,K)=QR4(I,J,N)+(QR4(I,J,N+1)-QR4(I,J,N))*W
+                  QSP(I,J,K)=QS4(I,J,N)+(QS4(I,J,N+1)-QS4(I,J,N))*W
+                  QGP(I,J,K)=QG4(I,J,N)+(QG4(I,J,N+1)-QG4(I,J,N))*W
+                  QIP(I,J,K)=QI4(I,J,N)+(QI4(I,J,N+1)-QI4(I,J,N))*W
+                  DZDTP(I,J,K)=DZDT(I,J,N)+(DZDT(I,J,N+1)-DZDT(I,J,N))*W
+                  CYCLE CYC_14
+                END IF
+              END DO
+            END IF
+          END DO CYC_14
+        END DO
+      END DO
+
+!======= Same interpolation for two additional Thompson microphysics
+!variables
+      if(ivi_cloud.eq.2)then
+      print*,'Interpolation for two additional Thompson variables:GFS'
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+       DO J=1,NY
+        DO I=1,NX
+          CYC_24: DO K=1,KMX
+            IF(PCST(K).GE.PM4(I,J,1))THEN       ! Below PM4(I,J,1)
+              NCIP(I,J,K)=NCI4(I,J,1)
+              NCRP(I,J,K)=NCR4(I,J,1)
+            ELSE IF(PCST(K).LE.PM4(I,J,NZ))THEN
+              NCIP(I,J,K)=NCI4(I,J,NZ)
+              NCRP(I,J,K)=NCR4(I,J,NZ)
+            ELSE
+              DO N=1,NZ-1
+                IF(PCST(K).LE.PM4(I,J,N).and.PCST(K).GT.PM4(I,J,N+1))THEN
+                  W1=ALOG(1.*PM4(I,J,N+1))-ALOG(1.*PM4(I,J,N))
+                  W=(ALOG(1.*PCST(K))-ALOG(1.*PM4(I,J,N)))/W1
+                  NCIP(I,J,K)=NCI4(I,J,N)+(NCI4(I,J,N+1)-NCI4(I,J,N))*W
+                  NCRP(I,J,K)=NCR4(I,J,N)+(NCR4(I,J,N+1)-NCR4(I,J,N))*W
+                  CYCLE CYC_24
+                END IF
+              END DO
+            END IF
+          END DO CYC_24
+        END DO
+       END DO
+      endif ! Done for Thompson microphysics configuration
+
+      write(*,*) 'DONE interpolation from hybrid to pressure for GFS'
+!-------------------------------------------------------------------------
+
+      call findlev(qip,qcp,qrp,qsp,qgp,PCST,nx,ny,kmx,icst,jcst,irange,nk,  &
+      isnow,nice,meltlev,nqr,nqc,n100)
+      write(*,*) 'Starting the relocation of cloud fields below k=',nk
+      write(*,*) 'Model storm center is',HLON(icst,jcst),HLAT(icst,jcst)
+      write(*,*) 'Model storm center grids are ',icst,jcst
+      write(*,*) 'TCvital center is ',HLON(ictr,jctr),HLAT(ictr,jctr)
+      write(*,*) 'TCvital center grids are  ',ictr,jctr
+
+! Relocating cloud and vertical velocity of GFS
+       itag_c=0
+       call relocation(qrp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
+       call relocation(qcp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
+       call relocation(qsp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
+       call relocation(qgp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
+       call relocation(qip,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+       if(ivi_cloud.eq.2)then
+        call relocation(NCRP,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
+        call relocation(NCIP,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+       endif
+       itag_w=0
+       call relocation(dzdtp,nx,ny,kmx,nw,1,n100,iwrange,ictr,jctr,icst,jcst,itag_w,5)
+       write(*,*) 'Complete the relocation of cloud & DZDT fields'
+
+      endif
+!-------------------------------------------------------------------------
+
+
 ! PD(I,J)=P1(I,J,1)-PDTOP-PT=PSFC(I,J)-PDTOP-PT
 !       DO K=1,NZ+1
 !       DO J=1,NY
@@ -1160,6 +1348,113 @@
 !      WRITE(64)((USCM(I,J),I=1,NX),J=1,NY,2)
 !      WRITE(64)((VSCM(I,J),I=1,NX),J=1,NY,2)
 
+!======================================================================
+      if(ivi_cloud.ge.1)then
+! Now, merged or relocated cloud & DZDT fields are changed back from
+! constant pressure level (PCST) to newly adjusted model pressure level(PMID1)
+! To save computational time, this is done only 900 by 900 with respect
+! to the TC center
+      write(*,*) 'START reverting from pressure to hybrid level!'
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+      DO J=jctr-450,jctr+450
+        DO I=ictr-450,ictr+450
+        nloop1: DO N=1,NZ
+            IF(PMID1(I,J,N).GE.PCST(1))THEN            ! Below PMID1(I,J,1)
+             if(itag_c(i,j).eq.1)then
+              QC4(I,J,N)=QCP(I,J,1)
+              QR4(I,J,N)=QRP(I,J,1)
+              QS4(I,J,N)=QSP(I,J,1)
+              QG4(I,J,N)=QGP(I,J,1)
+              QI4(I,J,N)=QIP(I,J,1)
+             endif
+             if(itag_w(i,j).eq.1)then
+              DZDT(I,J,N)=DZDTP(I,J,1)
+             endif
+            ELSE IF(PMID1(I,J,N).LE.PCST(KMX))THEN
+             if(itag_c(i,j).eq.1)then
+              QC4(I,J,N)=QCP(I,J,KMX)
+              QR4(I,J,N)=QRP(I,J,KMX)
+              QS4(I,J,N)=QSP(I,J,KMX)
+              QG4(I,J,N)=QGP(I,J,KMX)
+              QI4(I,J,N)=QIP(I,J,KMX)
+             endif
+             if(itag_w(i,j).eq.1)then
+              DZDT(I,J,N)=DZDTP(I,J,KMX)
+             endif
+            ELSE
+              DO K=1,KMX-1
+                IF(PMID1(I,J,N).LE.PCST(K).and.PMID1(I,J,N).GT.PCST(K+1))THEN
+                  W1=ALOG(1.*PCST(K+1))-ALOG(1.*PCST(K))
+                  W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PCST(K)))/W1
+                  if(itag_c(i,j).eq.1)then
+                   QC4(I,J,N)=QCP(I,J,K)+ &
+                           (QCP(I,J,K+1)-QCP(I,J,K))*W
+                   QR4(I,J,N)=QRP(I,J,K)+ &
+                           (QRP(I,J,K+1)-QRP(I,J,K))*W
+                   QS4(I,J,N)=QSP(I,J,K)+ &
+                           (QSP(I,J,K+1)-QSP(I,J,K))*W
+                   QG4(I,J,N)=QGP(I,J,K)+ &
+                           (QGP(I,J,K+1)-QGP(I,J,K))*W
+                   QI4(I,J,N)=QIP(I,J,K)+ &
+                           (QIP(I,J,K+1)-QIP(I,J,K))*W
+                  endif
+                  if(itag_w(i,j).eq.1)then
+                   DZDT(I,J,N)=DZDTP(I,J,K)+ &
+                           (DZDTP(I,J,K+1)-DZDTP(I,J,K))*W
+                  endif
+                  cycle nloop1
+                END IF
+              END DO
+            END IF
+          END DO nloop1
+        END DO
+      END DO
+
+!======= Same interpolation for two additional Thompson microphysics variables
+      if(ivi_cloud.eq.2)then
+      print*,'Interpolation for two additional Thompson variables: GFS'
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+       DO J=jctr-450,jctr+450
+        DO I=ictr-450,ictr+450
+        nloop2: DO N=1,NZ
+            IF(PMID1(I,J,N).GE.PCST(1))THEN            ! Below PMID1(I,J,1)
+             if(itag_c(i,j).eq.1)then
+              NCI4(I,J,N)=NCIP(I,J,1)
+              NCR4(I,J,N)=NCRP(I,J,1)
+             endif
+            ELSE IF(PMID1(I,J,N).LE.PCST(KMX))THEN
+             if(itag_c(i,j).eq.1)then
+              NCI4(I,J,N)=NCIP(I,J,KMX)
+              NCR4(I,J,N)=NCRP(I,J,KMX)
+             endif
+            ELSE
+              DO K=1,KMX-1
+                IF(PMID1(I,J,N).LE.PCST(K).and.PMID1(I,J,N).GT.PCST(K+1))THEN
+                  W1=ALOG(1.*PCST(K+1))-ALOG(1.*PCST(K))
+                  W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PCST(K)))/W1
+                  if(itag_c(i,j).eq.1)then
+                   NCI4(I,J,N)=NCIP(I,J,K)+ &
+                           (NCIP(I,J,K+1)-NCIP(I,J,K))*W
+                   NCR4(I,J,N)=NCRP(I,J,K)+ &
+                           (NCRP(I,J,K+1)-NCRP(I,J,K))*W
+                  endif
+                  cycle nloop2
+                END IF
+              END DO
+            END IF
+          END DO nloop2
+        END DO
+       END DO
+      endif
+!=========================================================================
+
+      write(*,*) 'DONE reverting from pressure to hybrid level!'
+      endif
+!---------------------------------------------------------------------
+!=================================================================
+
       IUNIT=50+ITIM
 
       WRITE(IUNIT) NX,NY,NZ,I360
@@ -1177,6 +1472,17 @@
       WRITE(IUNIT) PD1
       WRITE(IUNIT) ETA1
       WRITE(IUNIT) ETA2
+      if(ivi_cloud.ge.1)then
+       WRITE(IUNIT) QC4
+       WRITE(IUNIT) QR4
+       WRITE(IUNIT) QI4
+       WRITE(IUNIT) QS4
+       WRITE(IUNIT) QG4
+       if(ivi_cloud.eq.2)then
+        WRITE(IUNIT) NCI4
+        WRITE(IUNIT) NCR4
+       endif
+      endif
 
       CLOSE(IUNIT)
 
@@ -1356,4 +1662,164 @@ end subroutine dbend
 
       RETURN
       END
+
+!==============================================================================
+!=========================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      subroutine relocation(val,nx,ny,nz,nd,na,nb,irange,ictr,jctr,icst,jcst,itag,maxsmth)
+      implicit none
+      integer i,j,k,n,nx,ny,nz,nd,ictr,jctr,icst,jcst,irange,na,nb,maxsmth
+      real val(nx,ny,nz),tcval(nd,nd,nz),val_2d(nx,ny),val_save(nx,ny)
+      integer itag(nx,ny)
+      real dx,dy,range,dis,dis1,dis2
+      dx = 0.02
+      dy = 0.02
+      range = irange*dx
+
+      do k=na,nb
+
+       val_save(:,:)=val(:,:,k)
+      ! Get the GFS field from the "irange" grid points from the model
+      ! TC center
+       do i=icst-irange,icst+irange
+        do j=jcst-irange,jcst+irange
+         tcval(i-icst+irange+1,j-jcst+irange+1,k) = val(i,j,k)
+        enddo
+       enddo
+
+       do j=1,nd
+        do i=1,nd
+         dis = sqrt(((dx*(i-(nd+1)/2))**2+(dy*(j-(nd+1)/2))**2))
+         if(dis.ge.range) tcval(i,j,k) = 0.0
+        enddo
+       enddo
+      ! Get the GFS field from the "irange" grid points from the model TC center
+      ! REPLACE cloud and W fields with the above extracted field within the
+      ! certain radius (6 dgrees for cloud, 3 degree for DZDT) from
+      ! TCvital location (ictr,jctr)
+       do i=ictr-irange,ictr+irange
+        do j=jctr-irange,jctr+irange
+         if( sqrt(((dx*(i-ictr))**2)+((dy*(j-jctr))**2)) .lt. range )then
+          val(i,j,k)=tcval(i-ictr+irange+1,j-jctr+irange+1,k)
+         endif
+        enddo
+       enddo
+
+       ! Do some smoothing on the boundary of modified region
+       ! When there is no relocation in the cold start, smoothing will
+       ! be skipped
+       if( icst.ne.ictr .or. jcst.ne.jctr)then
+        do n=1,maxsmth
+         val_2d(:,:)=val(:,:,k)
+         call smooth(val_2d,nx,ny,ictr,jctr,range,dx,dy)
+         val(:,:,k)=val_2d(:,:)
+        enddo
+       endif
+
+       ! itag(i,j) = 1 indicates where the cloud or W are modified
+       do j=1,ny
+        do i=1,nx
+         dis1 = sqrt(((dx*(i-icst))**2+(dy*(j-jcst))**2))
+         if( dis1.le.(range+0.5) ) itag(i,j) = 1
+         dis2 = sqrt(((dx*(i-ictr))**2+(dy*(j-jctr))**2))
+         if( dis2.le.(range+0.5) ) itag(i,j) = 1
+        enddo
+       enddo
+
+      enddo
+
+      end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!====================================================================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      subroutine smooth(val,nx,ny,icen,jcen,range,dx,dy)
+      implicit none
+      integer i,j,nx,ny,icen,jcen
+      real val(nx,ny),val_tmp(nx,ny)
+      real dx,dy,range,dis
+
+      val_tmp=val
+!$omp parallel do &
+!$omp& private(i,j,dis)
+      do j=1,ny
+       do i=1,nx
+        dis = sqrt(((dx*(i-icen))**2+(dy*(j-jcen))**2))
+        if( dis.le.(range+0.5) .and. dis.ge.(range-0.5) )then
+         val(i,j)=     &
+         ( val_tmp(i,j-1)+val_tmp(i+1,j-1)+val_tmp(i-1,j-1)+   &
+           val_tmp(i,j) + val_tmp(i+1,j) + val_tmp(i-1,j)+     &
+           val_tmp(i,j+1)+val_tmp(i+1,j+1)+val_tmp(i-1,j+1) )/9.
+        endif
+       enddo
+      enddo
+
+      end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      subroutine findlev(qi,qc,qr,qs,qg,PCST,nx,ny,nz,icst,jcst,irange, &
+      nk,isnow,nice,meltlev,nqr,nqc,n100)
+      implicit none
+      integer i,j,k,nx,ny,nz,icst,jcst,irange,nk,nice,meltlev,nqr,nqc,n100,isnow
+      real deltp1,deltp
+      real qi(nx,ny,nz),qc(nx,ny,nz),qr(nx,ny,nz),qs(nx,ny,nz),qg(nx,ny,nz)
+      real PCST(nz)
+
+      do k=nz,1,-1
+       if(maxval(QI(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+         nk=k
+         write(*,*) 'ICE TOP lev=',k
+         exit
+       endif
+      enddo
+      do k=1,nz
+       if(maxval(QI(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+         write(*,*) 'ICE BOTTOM lev=',k
+         nice=k
+         exit
+       endif
+      enddo
+      do k=nz,1,-1
+       if(maxval(QS(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+         write(*,*) 'SNOW TOP lev=',k
+         isnow=k
+         exit
+       endif
+      enddo
+      do k=1,nz
+       if(maxval(QG(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+         write(*,*) 'GRAUPAL BOTTOM lev=',k
+         meltlev=k
+         exit
+       endif
+      enddo
+      !do k=1,nz
+      ! if(maxval(QR(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+      !   write(*,*) 'RAIN WATER BOTTOM lev=',k
+      !   nqr=k
+      !   exit
+      ! endif
+      !enddo
+      nqr=1 ! for RAIN WATER BOTTOM lev, we can set as 1
+      do k=nz,1,-1
+       if(maxval(QC(icst-irange:icst+irange,jcst-irange:jcst+irange,k)).gt.1.0E-07)then
+         nqc=k
+         write(*,*) 'CLOUD TOP lev=',k
+         exit
+       endif
+      enddo
+      deltp=1.e20
+      do k=nz,1,-1
+         deltp1=abs(PCST(k)-10000.)
+         if (deltp1.lt.deltp) then
+            deltp=deltp1
+            n100=k
+         endif
+      enddo
+      write(*,*) '100-hPa lev for vertical velocity change= ',n100,' ',PCST(n100)
+
+      end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

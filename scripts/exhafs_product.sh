@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_product.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the GFDL vortex tracker to generate the ATCF track files,
+#   and produces the stakeholder (NHC/JTWC) needed products (if desired).
+################################################################################
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 YYYY=$(echo $CDATE | cut -c 1-4)
@@ -9,6 +15,8 @@ YY=$(echo $CDATE | cut -c 3-4)
 MM=$(echo $CDATE | cut -c 5-6)
 DD=$(echo $CDATE | cut -c 7-8)
 HH=$(echo $CDATE | cut -c 9-10)
+
+pubbasin2=${pubbasin2:-AL}
 
 # Sepcial settings if this is an atm_init run
 if [ ${RUN_INIT:-NO} = YES ]; then
@@ -76,11 +84,11 @@ trk_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix
 all_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.all
 fhr_atcfunix_grid=${out_prefix}.${RUN}.${gridstr}.trak.atcfunix.f
 
-GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_gettrk.x}
-TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tave.x}
-VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_vint.x}
-SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_supvit.x}
-NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_nhc_products.x}
+GETTRKEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tracker_gettrk.x}
+TAVEEXEC=${GETTRKEXEC:-${EXEChafs}/hafs_tracker_tave.x}
+VINTEXEC=${VINTEXEC:-${EXEChafs}/hafs_tracker_vint.x}
+SUPVITEXEC=${SUPVITEXEC:-${EXEChafs}/hafs_tracker_supvit.x}
+NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_tools_nhc_products.x}
 
 INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
@@ -119,8 +127,8 @@ while [ $FHR -le $NHRS ]; do
   trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
   tracker_grb2file=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}
   tracker_grb2indx=${gmodname}.${rundescr}.${atcfdescr}.${CDATE}.f${minstr}.ix
-  ${NLN} ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
-  ${NLN} ${INPdir}/${trk_grb2indx} ./${tracker_grb2indx}
+  ${RLN} ${INPdir}/${trk_grb2file} ./${tracker_grb2file}
+  ${RLN} ${INPdir}/${trk_grb2indx} ./${tracker_grb2indx}
   IFHR=$(($IFHR + 1))
   LINE=$(printf "%4d %5d" "$IFHR" "$FMIN")
   echo "$LINE" >> input.fcst_minutes
@@ -137,6 +145,7 @@ rm -f fort.*
 # specified in the script. Need to modify it to be able to deal with storm
 # message files/dirs, as well as passing in tcvitals files.
 ${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
+export err=$?; err_chk
 
 # Prepare the input/output files
 rm -f input.vitals
@@ -150,20 +159,20 @@ ${NCP} input.vitals tcvit_rsmc_storms.txt
 ${NLN} input.vitals       fort.12
 touch fort.14
 ${NLN} input.fcst_minutes fort.15
-${NLN} output.all         fort.61
-${NLN} output.atcf        fort.62
-${NLN} output.radii       fort.63
-${NLN} output.atcfunix    fort.64
-${NLN} output.initvitl    fort.65
-${NLN} output.atcf_gen    fort.66
-${NLN} output.genvitals   fort.67
-${NLN} output.atcf_sink   fort.68
-${NLN} output.atcf_hfip   fort.69
-${NLN} output.cps_parms   fort.71
-${NLN} output.structure   fort.72
-${NLN} output.fractwind   fort.73
-${NLN} output.ike         fort.74
-${NLN} output.pdfwind     fort.76
+${RLN} output.all         fort.61
+${RLN} output.atcf        fort.62
+${RLN} output.radii       fort.63
+${RLN} output.atcfunix    fort.64
+${RLN} output.initvitl    fort.65
+${RLN} output.atcf_gen    fort.66
+${RLN} output.genvitals   fort.67
+${RLN} output.atcf_sink   fort.68
+${RLN} output.atcf_hfip   fort.69
+${RLN} output.cps_parms   fort.71
+${RLN} output.structure   fort.72
+${RLN} output.fractwind   fort.73
+${RLN} output.ike         fort.74
+${RLN} output.pdfwind     fort.76
 
 # Prepare ./deliver.sh, which will used in gettrk.x to deliver the atcfunix
 # track file to COMhafs as soon as it becomes available. It also delivers
@@ -173,11 +182,11 @@ if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 cat > ./deliver.sh<<EOF
 #!/bin/sh
 set -x
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix}
 if [[ \${1:-''} -le 12 ]]; then
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
 fi
 EOF
 
@@ -186,9 +195,9 @@ else
 cat > ./deliver.sh<<EOF
 #!/bin/sh
 set -x
-${NCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
+${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
 if [[ \${1:-''} -le 12 ]]; then
-  ${NCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
+  ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
 fi
 EOF
 
@@ -212,16 +221,13 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_NESTTYP_/${NESTTYP:-fixed}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
-sleep 3s
 # Run the vortex tracker gettrk.x
-${NCP} -p ${GETTRKEXEC} ./hafs_gettrk.x
-set +e
-set -o pipefail
-time ./hafs_gettrk.x 2>&1 | tee ./hafs_gettrk.out
-set +o pipefail
-set -e
+${NCP} -p ${GETTRKEXEC} ./hafs_tracker_gettrk.x
+${SOURCE_PREP_STEP}
+time ./hafs_tracker_gettrk.x 2>&1 | tee ./gettrk.out
+export err=$?; err_chk
 
-if grep "top of output_all" ./hafs_gettrk.out ; then
+if grep "top of output_all" ./gettrk.out ; then
   echo "INFO: exhafs_product has run the vortex tracker successfully"
 else
   echo "FATAL ERROR: exhafs_product failed running vortex tracker"
@@ -321,21 +327,27 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   echo ${STORMID^^} >> storm_info
   echo ${STORM^^} >> storm_info
   echo ${RUN^^} >> storm_info
-  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_nhc_products.x
-  ${APRUN} ./hafs_nhc_products.x > ./hafs_nhc_products.out 2>&1
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  ${NCP} -p ${NHCPRODUCTSEXEC} ./hafs_tools_nhc_products.x
+  ${SOURCE_PREP_STEP}
+  ${APRUN} ./hafs_tools_nhc_products.x > ./nhc_products.log 2>&1
+  export err=$?; err_chk
   short=${out_prefix}.${RUN}.grib.stats.short
   afos=${out_prefix}.${RUN}.afos
   tpc=${out_prefix}.${RUN}.stats.tpc
-  ${NCP} fort.41 ${COMhafs}/${short}
+  # Update the attention center for JTWC basin storms
+  if [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ] || \
+     [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
+    sed -i -e 's/NATIONAL HURRICANE CENTER/JOINT TYPHOON WARNING CENTER/g' fort.51 fort.61
+  fi
+  ${FCP} fort.41 ${COMhafs}/${short}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_ASCII $job ${COMhafs}/${short}
   fi
-  ${NCP} fort.51 ${COMhafs}/${afos}
+  ${FCP} fort.51 ${COMhafs}/${afos}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_AFOS $job ${COMhafs}/${afos}
   fi
-  ${NCP} fort.61 ${COMhafs}/${tpc}
+  ${FCP} fort.61 ${COMhafs}/${tpc}
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_STATS $job ${COMhafs}/${tpc}
   fi
