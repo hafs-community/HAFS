@@ -7,15 +7,15 @@ tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
 cpu_account=hurricane
 ## Archive path
-archive=disk:/work2/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+archive=disk:/work2/noaa/{disk_project}/tutorial/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
 
 [dir]
 ## Save directory.  Make sure you edit this.
-CDSAVE=/work2/noaa/{disk_project}/save/{ENV[USER]}
+CDSAVE=/work2/noaa/{disk_project}/tutorial/save/{ENV[USER]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/work2/noaa/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+CDNOSCRUB=/work2/noaa/{disk_project}/tutorial/noscrub/{ENV[USER]}/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
-CDSCRUB=/work2/noaa/{disk_project}/scrub/{ENV[USER]}
+CDSCRUB=/work2/noaa/{disk_project}/tutorial/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
 syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
 #oldcom={ENV[COMOLD]}
