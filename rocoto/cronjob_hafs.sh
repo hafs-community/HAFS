@@ -13,14 +13,14 @@ opts="-t -f"
 # Here are some simple examples, more examples can be seen in cronjob_hafs_rt.sh
 
 # Run all cycles of a storm
-#./run_hafs.py ${opts} 2020 13L HISTORY config.EXPT=${EXPT} # Laura
+#./run_hafs.py ${opts} 2021 09L HISTORY config.EXPT=${EXPT} # Ida
 
 # Run specified cycles of a storm
-#./run_hafs.py ${opts} 2020082506-2020082512 13L HISTORY \
-#   config.EXPT=${EXPT} config.SUBEXPT=${EXPT} # Laura
+#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY \
+#   config.EXPT=${EXPT} config.SUBEXPT=${EXPT} # Ida
 
 # Run one cycle of a storm
- ./run_hafs.py ${opts} 2020082512 13L HISTORY config.EXPT=${EXPT}
+ ./run_hafs.py ${opts} 2021082712 09L HISTORY config.EXPT=${EXPT} # Ida
 
 #===============================================================================
 
