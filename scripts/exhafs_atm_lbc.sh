@@ -87,6 +87,22 @@ mkdir -p ${OUTDIR} ${DATA}
 FHRB=${FHRB:-${NBDYHRS}}
 FHRE=${FHRE:-${NHRS}}
 FHRI=${FHRI:-${NBDYHRS}}
+
+# If desired, deletes all the BC output files in intercom
+if [ "${BC_CLEANUP^^}" = "YES" ]; then
+  FHR=${FHRB}
+  FHR3=$(printf "%03d" "$FHR")
+  # Loop for forecast hours
+  while [ $FHR -le $FHRE ]; do
+    rm -f ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
+    rm -f ${OUTDIR}/bcf${FHR3}
+    FHR=$(($FHR + $FHRI))
+    FHR3=$(printf "%03d" "$FHR")
+  done
+  # End loop for forecast hours
+fi
+# End if for BC_CLEANUP
+
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
 
@@ -94,6 +110,18 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le ${FHRE} ]; do
 
 date
+
+# Check if bc has processed this forecast hour previously
+if [ -s ${OUTDIR}/bcf${FHR3} ] && \
+   [ -s ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc ]; then
+
+echo "bc done file ${OUTDIR}/bcf${FHR3} exist"
+echo "${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc exist"
+echo "skip bc for forecast hour ${FHR3}"
+
+# Otherwise run bc for this forecast hour
+else
+
 hour_name=${FHR3}
 DATA_BC=${DATA}/bc_f${FHR3}
 FIXDIR=${DATA_BC}/grid
@@ -327,6 +355,12 @@ if [ $gtype = regional ]; then
     echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
   fi
 fi
+
+# Write out the bcdone message file
+echo 'done' > ${OUTDIR}/bcf${FHR3}
+
+fi
+# End if for checking if bc has processed this forecast hour previously
 
 FHR=$(($FHR + ${FHRI}))
 FHR3=$(printf "%03d" "$FHR")
