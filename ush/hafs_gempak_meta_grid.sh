@@ -29,11 +29,11 @@ for fhr in $(seq -f'%03g' $fstart $finc $fend); do
     else
       sleep 10s
     fi
+    n=$((n+10))
     if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
       echo "FATAL ERROR: Waited $full_domain too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
       exit 1
     fi
-    n=$((n+10))
   done
 done
 

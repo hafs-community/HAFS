@@ -220,11 +220,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
     break
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3} , ${INPdir}/HURPRS${neststr}.GrbF${FHR2} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 else
@@ -242,11 +242,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
     break
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc, ${INPdir}/sfc${nestdotstr}f${FHR3}.nc too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 fi #if [ ${write_dopost:-.false.} = .true. ]

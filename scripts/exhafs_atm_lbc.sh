@@ -216,11 +216,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
     sleep 10s
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INIDIR}/${atm_files_input_grid}, ${INIDIR}/${sfc_files_input_grid} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 # Check and wait for the pgrb2b input data if needed.
@@ -237,11 +237,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
     sleep 10s
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 fi
