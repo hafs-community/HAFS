@@ -247,6 +247,10 @@ cd dropsonde
 # Deal with tempdrop drifting
 analdate="${yr}-${mn}-${dy}_${cyc}:00:00"
 ${USHhafs}/hafs_format_sonde.py -d ${TANK:?}/ldmdata/obs/upperair/sonde -c ${analdate}
+status=$?
+if [[ $status -ne 0 ]]; then
+  echo "WARNING: ${USHhafs}/hafs_format_sonde.py with exit code of $status. Continue ..."
+fi
 if [[ -s ./dropsonde.${CDATE}.tar ]]; then
   # Deliver to intercom
   ${NCP} -p ./dropsonde.${CDATE}.tar ${intercom}/${NFdropsonde}
@@ -254,6 +258,8 @@ if [[ -s ./dropsonde.${CDATE}.tar ]]; then
   if [ $SENDCOM = YES ]; then
     ${FCP} ./dropsonde.${CDATE}.tar ${COMhafs}/${RFdropsonde}
   fi
+else
+  echo "WARNING: dropsonde.${CDATE}.tar is empty or does not exist. Continue ..."
 fi
 
 else
