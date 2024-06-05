@@ -22,9 +22,9 @@ Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes
 
 .. _SurfaceLayerScheme:
 
-********************
+====================
 Surface-Layer Scheme
-********************
+====================
 
 Processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. Usually based on Monin-Obukhov similarity theory.
 
@@ -36,9 +36,9 @@ Modified Zo is important for a successful simulation of TCs. Hurricane intensity
 
 .. _PBLScheme:
 
-**********
+==========
 PBL Scheme
-**********
+==========
 
 Turbulent scale mixing/diffusion.
 
@@ -54,9 +54,9 @@ Sub-grid scale turbulent flux = Flux of Large eddies + flux of local small eddie
 
   .. _ScaleAwareConvection:
 
-***********************************************
+===============================================
 Scale-aware Deep and Shallow Convection Schemes
-***********************************************
+===============================================
 
 Scale-aware deep and shallow convection schemes are used when moisture convections are too small to be resolved explicitly by grid spacing; reducing the thermodynamic instability.
 HAFS uses GFS Scale-aware SAS. 
@@ -76,9 +76,9 @@ HAFS tests show HAFS is sensitive to entrainment & detrainment rates. HFSA uses 
 
 .. _MicrophysicsSchemes:
 
-***************************************
+====================
 Microphysics Schemes
-***************************************
+====================
 
 **Effects of vapor-liquid-ice phase changes:**
 
@@ -96,9 +96,9 @@ HAFS performs well with the Thompson scheme for TCs in the NATL basin, and with 
 
 .. _RadiationSchemes:
 
-*****************
+=================
 Radiation Schemes
-*****************
+=================
 
 Radiation Schemes are used for heating and cooling due to short and long wave radiation.
 
@@ -112,9 +112,9 @@ Radiation Schemes are used for heating and cooling due to short and long wave ra
 
 .. _GravityWaveDrag:
 
-*****************
+=================
 Gravity Wave Drag
-*****************
+=================
 
 Impact of sub-grid scale perturbations excited by orography and convection.
 
