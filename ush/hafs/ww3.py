@@ -404,10 +404,10 @@ class WW3Init(hafs.hafstask.HAFSTask):
             ok=True
             (L,S) = produtil.fileop.lstat_stat(ww3bdyfile)
             if S is None:
-                logger.info('%s: does not exist'%(ww3bdyfile,))
+                logger.warning('%s: does not exist'%(ww3bdyfile,))
                 ok=False
             if S.st_size<10000:
-                logger.info('%s: too small (should be >=%d bytes)'%(
+                logger.warning('%s: too small (should be >=%d bytes)'%(
                         ww3bdyfile,10000))
                 ok=False
             if not ok: continue
@@ -435,15 +435,15 @@ class WW3Init(hafs.hafstask.HAFSTask):
         when=wtime
         ww3rstfile=ww3dc.locate(dataset,item,atime=when,logger=logger)
         if not ww3rstfile:
-            logger.info('%s: cannot decide data location for this time.'%(
+            logger.warning('%s: cannot decide data location for this time.'%(
                     when.strftime('%Y%m%d%H'),))
         ok=True
         (L,S) = produtil.fileop.lstat_stat(ww3rstfile)
         if S is None:
-            logger.info('%s: does not exist'%(ww3rstfile,))
+            logger.warning('%s: does not exist'%(ww3rstfile,))
             ok=False
         if S.st_size<10000:
-            logger.info('%s: too small (should be >=%d bytes)'%(
+            logger.warning('%s: too small (should be >=%d bytes)'%(
                     ww3rstfile,10000))
             ok=False
         if not ok:
