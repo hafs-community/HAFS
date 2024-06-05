@@ -4,7 +4,7 @@
 Technical Overview
 *******************
 
-This chapter contains an overview of HAFS prerequisites, HAFS repository management and structure, and the workflow design. 
+This chapter contains an overview of HAFS prerequisites, HAFS repository management and structure, workflow design, and HAFS v2.0.0 operational updates.
 
 .. _Prerequisites:
 
