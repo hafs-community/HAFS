@@ -27,8 +27,7 @@ Surface-Layer Scheme
 ====================
 
 Surface layer schemes represent processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. They are usually based on Monin-Obukhov similarity theory.
-
-Provide atmospheric exchange coefficients, stability functions (surface fluxes) needed by land/ocean models and PBL.
+They provide atmospheric exchange coefficients, stability functions (surface fluxes) needed by land/ocean models and PBL.
 
 HAFS uses the GFS surface-layer model, with observation-based roughness length (particularly for strong wind conditions).
 
