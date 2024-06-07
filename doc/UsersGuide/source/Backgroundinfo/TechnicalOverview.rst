@@ -148,6 +148,8 @@ Hurricane Analysis and Forecast System (HAFS), as the Unified Forecast System (U
 
 HAFSv2 will replace NCEP's current operational hurricane forecast systems, HAFSv1 in the 2024 hurricane season. The goal of this project is to upgrade the HAFSv1 that was running in operations in 2023. The system will provide improved and comparable tropical cyclone track and intensity forecast guidance in all global oceanic basins, as demonstrated through evaluation of retrospective and real time experiments compared against the two current configurations of operational HFSAv1 and HFSBv1.
 
+.. _scientific-updates:
+
 Scientific Changes to Improve Track and Intensity Forecast Skills
 -----------------------------------------------------------------
 
