@@ -166,7 +166,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 
 **Data Assimilation Improvement:**
     - Ingest new high-resolution GOES-R mesoscale AMVs.
-    - Scale-Dependent Localization for innercore DA.
+    - Scale-Dependent Localization for inner core DA.
     - Refine GPS RO (Radio Occultation) DA.
 
 **Model Physics Advancement:**
