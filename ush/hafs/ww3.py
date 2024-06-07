@@ -260,7 +260,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                             logger.critical('FATAL ERROR: if desired, set force_cold_start or ww3_force_cold_start = yes can bypass this failure.')
                             sys.exit(2)
                     else:
-                        logger.info('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
+                        logger.warning('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
                     try:
