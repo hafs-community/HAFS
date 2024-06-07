@@ -287,8 +287,9 @@ while [ $FHR -le ${FHRE} ]; do
 grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
 
 # Check and wait for input data
-n=1
-while [ $n -le 360 ]; do
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ -s ${grib2_file} ]; then
 	while [ $(( $(date +%s) - $(stat -c %Y ${grib2_file}) )) -lt 10  ]; do sleep 10; done
     echo "${grib2_file} ready, continue ..."
@@ -297,11 +298,11 @@ while [ $n -le 360 ]; do
     echo "${grib2_file} not ready, sleep 10"
     sleep 10s
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited for ${grib2_file} too many times: $n. Exiting"
+  n=$((n+10))
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${grib2_file} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$(( n+1 ))
 done
 
 ${WGRIB2} ${grib2_file} -match "${PARMlist}" -netcdf gfs_global_${ymd}${cyc}_f${FHR3}.nc

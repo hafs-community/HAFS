@@ -46,9 +46,9 @@ elif [ "$1" = "-d" ]; then
 elif [ "$1" = "-e" ]; then
   if [ ! -e ${symlink} ]; then
     echo "FATAL ERROR: Broken symbolic link: ${symlink} => $2. Exiting."
-    exit 1
+	err_exit "$2 does not exist. Exiting."
   fi
 else
   echo "FATAL ERROR: Unknown command line option: $1."
-  exit 1
+  err_exit "Unknown command line option: $1. Exiting."
 fi
