@@ -217,13 +217,9 @@ Computer Resource Information
 Pre-implementation Testing
 --------------------------
 
-All jobs should be tested as part of this implementation.
+* All changes have been tested successfully using available input as per the following list: `IT tests list <https://docs.google.com/presentation/d/1qttu6HhZC3I2yEWLIcsTM7BUGxGyevhtZMUU61kSyYI/edit?usp=sharing>`__
 
-**Does this change require a 30-day evaluation (for major implementations only)?**
-    No, but all changes have been tested successfully using available input as per the following list: `IT tests list <https://docs.google.com/presentation/d/1qttu6HhZC3I2yEWLIcsTM7BUGxGyevhtZMUU61kSyYI/edit?usp=sharing>`__
-
-**Who are the suggested evaluators?**
-    NHC, CPHC, and JTWC for model products and MAG for GEMPAK files.
+* NHC, CPHC, and JTWC were suggested to evaluate model products and MAG was suggested to evaluate GEMPAK files.
 
 Dissemination and Archiving
 ---------------------------
