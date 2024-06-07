@@ -43,7 +43,7 @@ PBL parameterization schemes handle subgrid-scale processes near the surface. In
    Sub-grid scale turbulent flux = Flux of Large eddies + flux of local small eddies
                                                           mass-flux (MF)           eddy-diffusivity (ED)
 
-**TC intensity is sensitive to mixing/diffusion. We have two modifications:**
+TC intensity is sensitive to mixing/diffusion, so two modifications were made:
 
   1. Adjustment to mixing length near the surface so that it is consistent with that used in the surface-layer scheme. (HFSA)
   2. LES-based TC PBL adjustment including model coefficients, Richardson number calculation, high-wind mass flux, etc. (HFSB)
