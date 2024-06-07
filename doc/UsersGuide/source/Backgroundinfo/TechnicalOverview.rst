@@ -118,41 +118,86 @@ HAFS v2.0.0 Operational Updates
 
 **Developed by:**
     EMC and the UFS Hurricane Application Team. See currently active HAFS developers below.
-============================ ===========================================
-Category                      Contributors
-============================ ===========================================
-Atmospheric model dynamics/   NCEP/EMC: Bin Liu, Dusan Jovic, Avichal Mehra, JungHoon Shin, Vijay Tallapragada, Biju Thomas, Jun Wang, Zhan Zhang, Yangxing Zheng
-configurations/workflow       AOML/HRD: Ghassan Alaka, S. Gopalakrishnan, William Ramstrom, Xuejin Zhang
-                              DTC: Mrinal Biswas, Kathryn Newman, Linlin Pan
-                              GFDL: Rusty Benson, Lucas Harris, Joseph Mouallem
-                              GSL: Samuel Trahan
----------------------------- -------------------------------------------
-Ocean/Wave coupling through   NCEP/EMC: Maria Aristizabal, Bin Li, Matthew Masarik, Jessica Meixner, John Steffen
-CMEPS                         AOML/HRD: Lew Gramer
-                              AMOL/PhOD: HeeSook Kang, Hyun-Sook Kim, Ming Ming Shao
-                              NCAR/ESMF: Dan Rosen, Gerhard Theurich, Ufuk Turuncoglu, Ann Tsay
----------------------------- -------------------------------------------
-Data Assimilation             NCEP/EMC: Jing Cheng, Daryl Kleist, Ting Lei, Shun Liu, Xu Lu, Yonghui Weng, Sho Yokota
-                              AOML/HRD: Sarah D. Ditchek, Jason Sippel
-                              OU: Xuguang Wang
-                              UM/CIMAS: Altug Aksoy, Dan Wu
-                              UMD: Joseph Knisely, Kenta Kurosawa, Jonathan Poterjoy
-                              SUNY/U at Albany: Ryan Torn, Eun-Gyeong Yang
----------------------------- -------------------------------------------
-Model Pre- and Post-processes NCEP/EMC: George Gayno, Hui-Ya Chuang, Nathalie Rivera-Torres, Qingfu Liu, Chuan-Kai Wang, Wen Meng, Lin Zhu
-                              GFDL: Timothy Marchok
----------------------------- -------------------------------------------
-Atmospheric Physics           NCEP/EMC: Jongil Han, Ruiyu Sun, Xu Li, Weiguo Wang, Fanglin Yang
-                              AOML/HRD: Andrew Hazelton
-                              UAH: Xiaomin Chen
-                              PSL: Lisa Bengtsson
----------------------------- -------------------------------------------
-Verification/Evaluation       NCEP/EMC: Olivia Ostwald, Hananeh Jafary, Jiayi Peng
-                              NHC: Michael Brennan, Jon Martinez, Ben Trabing, David Zelinsky, Wallace Hogsett, Jamie Rhome, Richard Pasch
-                              JTWC: Brian Strahl, Levi Cowan
-============================ ===========================================
 
-    
+.. list-table:: HAFS Developers
+   :header-rows: 1
+
+   * - Area
+     - Institution
+     - Developers
+   * - Atmospheric model dynamics/configurations/workflow
+     - NCEP/EMC
+     - Bin Liu, Dusan Jovic, Avichal Mehra, JungHoon Shin, Vijay Tallapragada, Biju Thomas, Jun Wang, Zhan Zhang, Yangxing Zheng
+   * - Atmospheric model dynamics/configurations/workflow
+     - AOML/HRD
+     - Ghassan Alaka, S. Gopalakrishnan, William Ramstrom, Xuejin Zhang
+   * - Atmospheric model dynamics/configurations/workflow
+     - DTC
+     - Mrinal Biswas, Kathryn Newman, Linlin Pan
+   * - Atmospheric model dynamics/configurations/workflow
+     - GFDL
+     - Rusty Benson, Lucas Harris, Joseph Mouallem
+   * - Atmospheric model dynamics/configurations/workflow
+     - GSL
+     - Samuel Trahan
+   * - Ocean/Wave coupling through CMEPS
+     - NCEP/EMC
+     - Maria Aristizabal, Bin Li, Matthew Masarik, Jessica Meixner, John Steffen
+   * - Ocean/Wave coupling through CMEPS
+     - AOML/HRD
+     - Lew Gramer
+   * - Ocean/Wave coupling through CMEPS
+     - AMOL/PhOD
+     - HeeSook Kang, Hyun-Sook Kim, Ming Ming Shao
+   * - Ocean/Wave coupling through CMEPS
+     - NCAR/ESMF
+     - Dan Rosen, Gerhard Theurich, Ufuk Turuncoglu, Ann Tsay
+   * - Data Assimilation
+     - NCEP/EMC
+     - Jing Cheng, Daryl Kleist, Ting Lei, Shun Liu, Xu Lu, Yonghui Weng, Sho Yokota
+   * - Data Assimilation
+     - AOML/HRD
+     - Sarah D. Ditchek, Jason Sippel
+   * - Data Assimilation
+     - OU
+     - Xuguang Wang
+   * - Data Assimilation
+     - UM/CIMAS
+     - Altug Aksoy, Dan Wu
+   * - Data Assimilation
+     - UMD
+     - Joseph Knisely, Kenta Kurosawa, Jonathan Poterjoy
+   * - Data Assimilation
+     - SUNY/U at Albany
+     - Ryan Torn, Eun-Gyeong Yang
+   * - Model Pre- and Post-processes
+     - NCEP/EMC
+     - George Gayno, Hui-Ya Chuang, Nathalie Rivera-Torres, Qingfu Liu, Chuan-Kai Wang, Wen Meng, Lin Zhu
+   * - Model Pre- and Post-processes
+     - GFDL
+     - Timothy Marchok
+   * - Atmospheric Physics
+     - NCEP/EMC
+     - Jongil Han, Ruiyu Sun, Xu Li, Weiguo Wang, Fanglin Yang
+   * - Atmospheric Physics
+     - AOML/HRD
+     - Andrew Hazelton
+   * - Atmospheric Physics
+     - UAH
+     - Xiaomin Chen
+   * - Atmospheric Physics
+     - PSL
+     - Lisa Bengtsson
+   * - Verification/Evaluation
+     - NCEP/EMC
+     - Olivia Ostwald, Hananeh Jafary, Jiayi Peng
+   * - Verification/Evaluation
+     - NHC
+     - Michael Brennan, Jon Martinez, Ben Trabing, David Zelinsky, Wallace Hogsett, Jamie Rhome, Richard Pasch
+   * - Verification/Evaluation
+     - JTWC
+     - Brian Strahl, Levi Cowan
+   
 **Runs on:** WCOSS2; pre-implementation testing performed on Hera and Orion.
 
 Input/Output
