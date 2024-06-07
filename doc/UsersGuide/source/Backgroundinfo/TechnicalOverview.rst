@@ -113,10 +113,45 @@ HAFS v2.0.0 Operational Updates
    git clone -b production/hafs.v2 --recursive  https://github.com/hafs-community/HAFS.git ./hafs.v2.0.0
 
 **Purpose:**
-    Run HAFS.v2 HFSA configuration to provide hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including NATL, EPAC, CPAC, WPAC, NIO, and SH basins. Run HAFS.v2 HFSB configuration to provide hurricane track and intensity forecast guidance for 5.25 days over NHC/CPHC basins, including NATL, EPAC, CPAC basins.
+    Run :term:`HAFS`.v2 :term:`HFSA` configuration to provide hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC`, :term:`WPAC`, :term:`NIO`, and :term:`SH` basins. Run :term:`HAFS`.v2 :term:`HFSB` configuration to provide hurricane track and intensity forecast guidance for 5.25 days over :term:`NHC`/:term:`CPHC` basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC` basins.
+
 
 **Developed by:**
-    EMC and the UFS Hurricane Application Team. See currently active HAFS developers `here <https://docs.google.com/presentation/d/1xBNxvAG8-Kk3GS93PndaPVZp_L8U-KqGRGNhnviXZMg/edit?usp=sharing>`__
+    EMC and the UFS Hurricane Application Team. See currently active HAFS developers below.
+============================ ===========================================
+Category                      Contributors
+============================ ===========================================
+Atmospheric model dynamics/   NCEP/EMC: Bin Liu, Dusan Jovic, Avichal Mehra, JungHoon Shin, Vijay Tallapragada, Biju Thomas, Jun Wang, Zhan Zhang, Yangxing Zheng
+configurations/workflow       AOML/HRD: Ghassan Alaka, S. Gopalakrishnan, William Ramstrom, Xuejin Zhang
+                              DTC: Mrinal Biswas, Kathryn Newman, Linlin Pan
+                              GFDL: Rusty Benson, Lucas Harris, Joseph Mouallem
+                              GSL: Samuel Trahan
+---------------------------- -------------------------------------------
+Ocean/Wave coupling through   NCEP/EMC: Maria Aristizabal, Bin Li, Matthew Masarik, Jessica Meixner, John Steffen
+CMEPS                         AOML/HRD: Lew Gramer
+                              AMOL/PhOD: HeeSook Kang, Hyun-Sook Kim, Ming Ming Shao
+                              NCAR/ESMF: Dan Rosen, Gerhard Theurich, Ufuk Turuncoglu, Ann Tsay
+---------------------------- -------------------------------------------
+Data Assimilation             NCEP/EMC: Jing Cheng, Daryl Kleist, Ting Lei, Shun Liu, Xu Lu, Yonghui Weng, Sho Yokota
+                              AOML/HRD: Sarah D. Ditchek, Jason Sippel
+                              OU: Xuguang Wang
+                              UM/CIMAS: Altug Aksoy, Dan Wu
+                              UMD: Joseph Knisely, Kenta Kurosawa, Jonathan Poterjoy
+                              SUNY/U at Albany: Ryan Torn, Eun-Gyeong Yang
+---------------------------- -------------------------------------------
+Model Pre- and Post-processes NCEP/EMC: George Gayno, Hui-Ya Chuang, Nathalie Rivera-Torres, Qingfu Liu, Chuan-Kai Wang, Wen Meng, Lin Zhu
+                              GFDL: Timothy Marchok
+---------------------------- -------------------------------------------
+Atmospheric Physics           NCEP/EMC: Jongil Han, Ruiyu Sun, Xu Li, Weiguo Wang, Fanglin Yang
+                              AOML/HRD: Andrew Hazelton
+                              UAH: Xiaomin Chen
+                              PSL: Lisa Bengtsson
+---------------------------- -------------------------------------------
+Verification/Evaluation       NCEP/EMC: Olivia Ostwald, Hananeh Jafary, Jiayi Peng
+                              NHC: Michael Brennan, Jon Martinez, Ben Trabing, David Zelinsky, Wallace Hogsett, Jamie Rhome, Richard Pasch
+                              JTWC: Brian Strahl, Levi Cowan
+============================ ===========================================
+
     
 **Runs on:** WCOSS2; pre-implementation testing performed on Hera and Orion.
 
@@ -124,10 +159,19 @@ Input/Output
 ------------
 
 **Input:**
-    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial conditions and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components.
-    - Global RTOFS for oceanic initial and boundary conditions for MOM6 and HYCOM.
-    - GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions.
-    - OBSPROC observational data for HAFS data assimilation.
+    - Global Forecast System (GFS, including GFS/GDAS) :term:`NetCDF` format analysis for atmospheric initial conditions and 3-hourly :term:`GRIB2` files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components.
+    - Global :term:`RTOFS` for oceanic initial and boundary conditions for :term:`MOM6` and :term:`HYCOM`.
+    - GFS/GDAS global wave analysis/forecast for :term:`HFSA` wave component initial and lateral boundary conditions.
+    - :term:`OBSPROC` observational data for HAFS data assimilation.
+
+**Input Datasets**
+    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial condition, and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components. Global RTOFS for oceanic initial and boundary conditions for the ocean model component. GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions. OBSPROC observational data for HAFS data assimilation.
+
+**Input DCOM Dependencies**
+- The following scripts require input files from DCOM directory:
+    - ``./scripts/exhafs_obs_prep.sh``: to decode/dump TDR/HDOB/TEMPDROP data
+    - ``./scripts/exhafs_msg_check.py``: to check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
+    - ``./ush/setup_hurricane``: for SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
 
 **Output:**
     - ATCF track forecast files, 4x/day at 00Z/06Z/12Z/18Z.
@@ -143,8 +187,6 @@ Locations for Output
 
 Background
 ----------
-
-Hurricane Analysis and Forecast System (HAFS), as the Unified Forecast System (UFS) hurricane application, is the FV3 (Finite­ Volume Cubed-Sphere Dynamical Core) based multi-scale model and data assimilation system capable of providing tropical cyclone (TC, including hurricane and typhoon) analyses and forecasts of the inner core structure key to improving storm size and intensity predictions, as well as the large-scale environment that is known to influence the TC's motion. HAFS development targets an operational data assimilation and modeling system, capable of providing reliable, robust and skillful model guidances for TC track, intensity (including rapid intensification), size, structure, rainfall and cyclone genesis, as well as for TC associated storm surge, sea surface waves, and tornadoes. HAFS is a community-based coupled earth modeling system specially calibrated for hurricane prediction with TC dynamics and physics, sophisticated vortex initialization and advanced inner-core data assimilation techniques, and various air-sea interaction processes.
 
 HAFSv2 will replace NCEP's current operational hurricane forecast systems, HAFSv1 in the 2024 hurricane season. The goal of this project is to upgrade the HAFSv1 that was running in operations in 2023. The system will provide improved and comparable tropical cyclone track and intensity forecast guidance in all global oceanic basins, as demonstrated through evaluation of retrospective and real time experiments compared against the two current configurations of operational HFSAv1 and HFSBv1.
 
@@ -165,14 +207,14 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - Update composite vortex and reduce warm-cycling Vmax threshold from 50 to 40 kt (HFSA only).
 
 **Data Assimilation (DA) Improvement:**
-    - Ingest new high-resolution GOES-R mesoscale AMVs.
-    - Scale-Dependent Localization for inner core DA.
+    - Ingest new high-resolution :term:`GOES-R` mesoscale :term:`AMVs`.
+    - Scale-Dependent Localization for inner core data assimilation.
     - Refine GPS Radio Occultation (RO) DA.
 
 **Model Physics Advancement:**
-    - Upgrade Thompson MP with bug fixes.
-    - Thompson Microphysics for NATL basin, GFDL Microphysics for EPAC/CPAC and JTWC basins (HFSA only).
-    - Update TKE EDMF PBL and SASAS CP schemes with vertical wind shear impacts.
+    - Upgrade Thompson :term:`MP` with bug fixes.
+    - Thompson Microphysics for :term:`NATL` basin, :term:`GFDL` Microphysics for :term:`EPAC`/:term:`CPAC` and :term:`JTWC` basins (:term:`HFSA` only).
+    - Update :term:`TKE` :term:`EDMF` :term:`PBL` and :term:`SASAS` CP schemes with vertical wind shear impacts.
     - Change the radiation calling time step from 720s to 900s (HFSA only).
     - Reduce radiation time step from 1800 to 720s (HFSB only).
     - Update CO2 fix files.
@@ -188,13 +230,19 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
 
 **Output Changes:**
-    - See `here <https://docs.google.com/presentation/d/1dGWu_k-CdiX_ndaRe89iDznyNwkEJfjVTagvvEVZQaw/edit?usp=sharing>`__
+- **New variables in HAFSv2:**
+    - No
+
+- **Removed variables:**
+    - No
 
 Computer Resource Information
 -----------------------------
 
 **Computation resource updates:**
-    - See `here <https://docs.google.com/presentation/d/1otBHAi3hfB1Vu5lk9bfjOE-GZYalZiu9wjnFlevQRQw/edit?usp=sharing>`__
+    - HAFSv2 will use similar computing resources as HAFSv1.
+
+    - HWM: no significant node increase expected for the forecast job.
 
 **List of the module versions used in HAFS:**
     - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
@@ -205,19 +253,39 @@ Computer Resource Information
         - **HPSS disk requirement:** Increased from ~142/126 GB (HFSAv1/HFSBv1) to ~228/133 GB (HFSAv2/HFSBv2).
         - **Preferred data retention in COM:** Files to be kept for 7 days.
 
-**Input Datasets**
-    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial condition, and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components. Global RTOFS for oceanic initial and boundary conditions for the ocean model component. GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions. OBSPROC observational data for HAFS data assimilation.
-
-**Input DCOM Dependencies**
-- The following scripts require input files from DCOM directory:
-    - ``./scripts/exhafs_obs_prep.sh``: to decode/dump TDR/HDOB/TEMPDROP data
-    - ``./scripts/exhafs_msg_check.py``: to check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
-    - ``./ush/setup_hurricane``: for SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
-
 Pre-implementation Testing
 --------------------------
 
-* All changes have been tested successfully using available input as per the following list: `IT tests list <https://docs.google.com/presentation/d/1qttu6HhZC3I2yEWLIcsTM7BUGxGyevhtZMUU61kSyYI/edit?usp=sharing>`__
+* All changes have been tested successfully using available input as per the following list: 
+
+.. list-table:: Test Objectives and Comments
+   :header-rows: 1
+
+   * - Test Objective
+     - Comment
+   * - Test two consecutive cycles for one storm in each global basin
+     - Basic tests for each basin
+   * - Very weak storm (<8 m/s)
+     - Use GFS analysis as input (No VI/DA)
+   * - Missing ICs from GDAS data
+     - HAFS fails with proper error message
+   * - Missing BCs from GFS data
+     - HAFS fails with proper error message
+   * - Missing previous cycle’s 6-hr forecast output
+     - HAFS runs to completion in cold start mode
+   * - Zero length data files for GSI
+     - Initialization and analysis runs to completion
+   * - Missing input data files for GSI
+     - Initialization and analysis runs to completion
+   * - Failed ocean initialization
+     - HAFS runs in un-coupled mode
+   * - Tracker fails to identify initial storm location
+     - Swath generator fails with proper error message
+   * - Cross dateline and Greenwich tests
+     - Ensure HAFS model and scripts properly handle the specific situations
+   * - Bugzilla Entries
+     - Operational failure
+
 
 * NHC, CPHC, and JTWC were suggested to evaluate model products and MAG was suggested to evaluate GEMPAK files.
 

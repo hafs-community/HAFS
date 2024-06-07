@@ -24,7 +24,7 @@ copyright = '2021'
 author = ' '
 
 # The short X.Y version
-version = 'develop'
+version = 'v2.0.0'
 # The full version, including alpha/beta/rc tags
 release = 'Develop Branch Documentation'
 
