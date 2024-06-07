@@ -225,8 +225,10 @@ Dissemination and Archiving
 ---------------------------
 
 **Dissemination Information:**
-    - The ATCF files to NHC (and CPHC for Central Pacific Basin storms), and JTWC (for all global basins, including SH basins), GRIB files for NOMADS and GEMPAK files for MAG.
-    - The users are NHC, CPHC, JTWC, MAG and NOMADS
+Files were disseminated as follows:
+    - ATCF files to NHC (and CPHC for Central Pacific Basin storms) and JTWC (for all global basins, including SH basins), 
+    - GRIB files to NOMADS
+    - GEMPAK files to MAG
     - All the files in COM directory should be transferred from PROD WCOSS2 to DEV WCOSS2
     - None of the codes are proprietary and there is no restricted data
 
