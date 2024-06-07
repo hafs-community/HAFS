@@ -118,7 +118,7 @@ HAFS v2.0.0 Operational Updates
 **Developed by:**
     EMC and the UFS Hurricane Application Team. See currently active HAFS developers `here <https://docs.google.com/presentation/d/1xBNxvAG8-Kk3GS93PndaPVZp_L8U-KqGRGNhnviXZMg/edit?usp=sharing>`__
     
-**Runs on:** WCOSS2
+**Runs on:** WCOSS2; pre-implementation testing performed on Hera and Orion.
 
 Input/Output
 ------------
