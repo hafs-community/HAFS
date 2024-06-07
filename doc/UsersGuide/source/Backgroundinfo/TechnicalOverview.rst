@@ -229,8 +229,8 @@ Files were disseminated as follows:
     - ATCF files to NHC (and CPHC for Central Pacific Basin storms) and JTWC (for all global basins, including SH basins), 
     - GRIB files to NOMADS
     - GEMPAK files to MAG
-    - All the files in COM directory should be transferred from PROD WCOSS2 to DEV WCOSS2
-    - None of the codes are proprietary and there is no restricted data
+
+All the files in the COM directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data
 
 **Archive to HPSS:**
     All the files in the COM directory are preferred to be archived in 5-year retention HPSS directory.
