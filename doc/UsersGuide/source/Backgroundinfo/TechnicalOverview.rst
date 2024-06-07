@@ -154,7 +154,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 -----------------------------------------------------------------
 
 **System and Infrastructure Upgrades:**
-    - Latest version of ufs-weather-model, HAFSv2 final scientific configuration freeze on 02/08/2024.
+    - Latest version of ``ufs-weather-model``, HAFSv2 final scientific configuration freeze on 02/08/2024.
     - Increase moving nesting horizontal resolution from 6-2 km to 5.4-1.8 km (HFSA only).
     - Reduce model time step from 90 to 72s (HFSB only).
     - Updated horizontal advection options.
