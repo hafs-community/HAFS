@@ -13,7 +13,7 @@ Land/Ocean Surface Schemes
 ==========================
 
 
-Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes over land, sea-ice, and ocean points. These serve as a lower boundary condition for the vertical transport in PBL schemes.
+Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes over land, sea-ice, and ocean points. These serve as a lower boundary condition for the vertical transport in Planetary Boundary Layer (PBL) schemes.
 
 **HAFS uses:**
 
