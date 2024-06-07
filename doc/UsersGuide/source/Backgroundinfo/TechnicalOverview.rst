@@ -167,7 +167,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 **Data Assimilation (DA) Improvement:**
     - Ingest new high-resolution GOES-R mesoscale AMVs.
     - Scale-Dependent Localization for inner core DA.
-    - Refine GPS RO (Radio Occultation) DA.
+    - Refine GPS Radio Occultation (RO) DA.
 
 **Model Physics Advancement:**
     - Upgrade Thompson MP with bug fixes.
