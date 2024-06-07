@@ -26,7 +26,7 @@ Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes
 Surface-Layer Scheme
 ====================
 
-Processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. Usually based on Monin-Obukhov similarity theory.
+Surface layer schemes represent processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. They are usually based on Monin-Obukhov similarity theory.
 
 Provide atmospheric exchange coefficients, stability functions (surface fluxes) needed by land/ocean models and PBL.
 
