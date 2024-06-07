@@ -162,7 +162,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 
 **Vortex Initialization Improvement:**
     - Enhance vortex initialization to cycle hydrometeor variables and vertical velocity (HFSA only).
-    - Update compsitie vortex and reduce warm-cycling Vmax threshold from 50 to 40 kt (HFSA only).
+    - Update composite vortex and reduce warm-cycling Vmax threshold from 50 to 40 kt (HFSA only).
 
 **Data Assimilation (DA) Improvement:**
     - Ingest new high-resolution GOES-R mesoscale AMVs.
