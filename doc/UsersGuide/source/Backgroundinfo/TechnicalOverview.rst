@@ -124,7 +124,7 @@ Input/Output
 ------------
 
 **Input:**
-    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial condition, and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components.
+    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial conditions and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components.
     - Global RTOFS for oceanic initial and boundary conditions for MOM6 and HYCOM.
     - GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions.
     - OBSPROC observational data for HAFS data assimilation.
