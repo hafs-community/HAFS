@@ -29,9 +29,7 @@ Surface-Layer Scheme
 Surface layer schemes represent processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. They are usually based on Monin-Obukhov similarity theory.
 They provide atmospheric exchange coefficients, stability functions (surface fluxes) needed by land/ocean models and PBL.
 
-HAFS uses the GFS surface-layer model, with observation-based roughness length (particularly for strong wind conditions).
-
-Modified Zo is important for a successful simulation of TCs. Hurricane intensity is proportional to (Ck/Cd) over the ocean (Emanuel, 1995), where Cd and Ck are the sea-surface momentum and enthalpy exchange coefficients. Larger z0 leads to larger Cd and Ck.
+HAFS uses the GFS surface-layer model, with observation-based roughness length (particularly for strong wind conditions). Modified Zo is important for a successful simulation of TCs. Hurricane intensity is proportional to (Ck/Cd) over the ocean (Emanuel, 1995), where Cd and Ck are the sea-surface momentum and enthalpy exchange coefficients. Larger z0 leads to larger Cd and Ck.
 
 .. _PBLScheme:
 
