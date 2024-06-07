@@ -17,8 +17,8 @@ Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes
 
 **HAFS uses:**
 
-* **Noah land surface model (NOAH MP)**
-* **HYCOM, MOM6 for ocean models**
+* Noah Multi-Physics (NOAH-MP) land surface model
+* HYCOM, MOM6 for ocean models
 
 .. _SurfaceLayerScheme:
 
