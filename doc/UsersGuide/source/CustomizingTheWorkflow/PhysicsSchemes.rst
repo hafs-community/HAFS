@@ -51,7 +51,7 @@ PBL parameterization schemes handle subgrid-scale processes near the surface. In
 .. _ScaleAwareConvection:
 
 ===============================================
-Scale-aware Deep and Shallow Convection Schemes
+Scale-Aware Deep and Shallow Convection Schemes
 ===============================================
 
 Scale-aware deep and shallow convection schemes are used when moisture convections are too small to be resolved explicitly by grid spacing; reducing the thermodynamic instability.
