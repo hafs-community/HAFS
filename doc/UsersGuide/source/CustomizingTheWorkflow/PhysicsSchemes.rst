@@ -37,7 +37,7 @@ HAFS uses the GFS surface-layer model, with observation-based roughness length (
 PBL Scheme
 ==========
 
-Turbulent scale mixing/diffusion.
+PBL parameterization schemes handle subgrid-scale processes near the surface. In HAFS, the PBL scheme is responsible for handling turbulent scale mixing and diffusion.
 
 HAFS uses the GFS TKE-EDMF PBL scheme, with a prognostic TKE equation.
 
