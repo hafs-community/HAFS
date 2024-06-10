@@ -59,15 +59,12 @@ Scale-aware deep and shallow convection schemes are used when moisture convectio
 **Main assumptions:**
 
 **Deep Convection:**
-  - A single entraining and detraining plume model.
-  - Base mass flux ~ quasi-equilibrium assumption for dx > 8 km, by a mean updraft velocity dx < 8 km.
-  - Triggering conditions include distance between the convection starting level and the level of free convection, sub-cloud convective inhibition & mean relative humidity.
+
+A single entraining and detraining plume model is used. The base mass flux operates under a quasi-equilibrium assumption for distances greater than 8 km, determined by a mean updraft velocity for distances less than 8 km. Triggering conditions include the distance between the convection starting level and the level of free convection, sub-cloud convective inhibition, and mean relative humidity.
 
 **Shallow convection is similar to deep convection, except:**
-  - Base mass flux ~ updraft velocity averaged in a cloud layer.
-  - Only convection updrafts are considered in the shallow scheme.
-   
-HAFS tests show HAFS is sensitive to entrainment & detrainment rates. HFSA uses an entrainment rate larger than that in NCEP GFS.
+  
+The base mass flux is averaged based on the updraft velocity in a cloud layer. Only convection updrafts are considered in the shallow scheme. HAFS tests show that HAFS is sensitive to entrainment and detrainment rates. HFSA uses an entrainment rate larger than that in NCEP GFS.
 
 .. _MicrophysicsSchemes:
 
@@ -80,14 +77,12 @@ Microphysics Schemes
 HAFS uses GFDL microphysics and Thompson microphysics.
 
 **GFDL:**
-  - A single-moment scheme. QC, QI, QR, QS, QG.
-  - Based on the Lin-Lord-Krueger cloud microphysics scheme.
+
+The GFDL microphysics is a single-moment scheme that includes QC, QI, QR, QS, and QG. It is based on the Lin-Lord-Krueger cloud microphysics scheme.
 
 **Thompson:**
-  - QC, QI, QR, QS, QG, + number concentration of cloud ice, cloud water, & rain.
-  - Impact of aerosols.
 
-HAFS performs well with the Thompson scheme for TCs in the NATL basin, and with GFDL for TCs in the EAPC basin.
+The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number concentration of cloud ice, cloud water, and rain. It also considers the impact of aerosols. HAFS performs well with the Thompson scheme for TCs in the NATL basin, and with GFDL for TCs in the EAPC basin.
 
 .. _RadiationSchemes:
 
@@ -100,10 +95,8 @@ Radiation Schemes are used for heating and cooling due to short and long wave ra
 **HAFS uses RRTMG.**
 
 **For computational efficiency, the correlated K-method is used:**
-- The SW algorithm includes 112 g-points (quadrature points) in 14 bands.
-- The LW algorithm includes 140 unevenly distributed g-points in 16 broad spectral bands.
-- Aerosol optical properties, cloud liquid water and ice paths, and effective radius are used to represent the radiative effects of aerosols and clouds in the calculation.
-- The effects of sub-grid scale clouds are treated by a Monte-Carlo Independent Column Approximation (McICA) method, with a decorrelation length overlap assumption for multi-layered clouds.
+
+The SW algorithm includes 112 g-points (quadrature points) in 14 bands, while the LW algorithm includes 140 unevenly distributed g-points in 16 broad spectral bands. Aerosol optical properties, cloud liquid water and ice paths, and effective radius are used to represent the radiative effects of aerosols and clouds in the calculation. The effects of sub-grid scale clouds are treated by a Monte-Carlo Independent Column Approximation (McICA) method, with a decorrelation length overlap assumption for multi-layered clouds.
 
 .. _GravityWaveDrag:
 
@@ -114,9 +107,5 @@ Gravity Wave Drag
 Impact of sub-grid scale perturbations excited by orography and convection.
 
 **HAFS uses the unified GWD scheme:**
-- Mesoscale orographic gravity wave drag
-- Low-level flow blocking by subgrid-scale orography
-- Effects of gravity waves produced by horizontal terrain variations
-- Non-topographic GWD: convection, frontal instability
 
-
+Mesoscale orographic gravity wave drag, low-level flow blocking by subgrid-scale orography, effects of gravity waves produced by horizontal terrain variations, and non-topographic gravity wave drag (GWD) from convection and frontal instability are considered in the model.

@@ -275,6 +275,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
 
 **Output Changes:**
+
 - **New variables in HAFSv2:**
     - No
 
@@ -343,12 +344,7 @@ Files were disseminated as follows:
     - GRIB files to NOMADS
     - GEMPAK files to MAG
 
-All the files in the COM directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data
+All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data
 
 **Archive to HPSS:**
-    All the files in the COM directory are preferred to be archived in 5-year retention HPSS directory.
-
-Implementation Details
-----------------------
-
-See `here <https://docs.google.com/document/d/1dKV_jAHs9TkOhS_qA-Nr3PPE_NtbGxaAgC5FSPI6BwQ/edit?usp=sharing>`__
+    All the files in the :term:`COM` directory are preferred to be archived in 5-year retention :term:`HPSS` directory.

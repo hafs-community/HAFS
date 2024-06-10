@@ -21,6 +21,9 @@ Glossary
    CMEPS
       The `Community Mediator for Earth Prediction Systems <https://github.com/NOAA-EMC/CMEPS>`__ (CMEPS) is a :term:`NUOPC`-compliant :term:`mediator` used for coupling Earth system model components. It is currently being used in NCAR's Community Earth System Model (:term:`CESM`) and NOAA's subseasonal-to-seasonal (S2S) coupled system. More information is available in the `CMEPS Documentation <https://escomp.github.io/CMEPS/versions/master/html/index.html>`__.
    
+   COM
+      The directory used to store output files and other data that need to be archived.
+   
    CPHC
       Central Pacific Hurricane Center
    
