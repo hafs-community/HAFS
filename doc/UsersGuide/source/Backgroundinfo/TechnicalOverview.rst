@@ -299,7 +299,7 @@ Computer Resource Information
         - **HPSS disk requirement:** Increased from ~142/126 GB (HFSAv1/HFSBv1) to ~228/133 GB (HFSAv2/HFSBv2).
         - **Preferred data retention in COM:** Files to be kept for 7 days.
 
-Pre-implementation Testing
+Pre-Implementation Testing
 --------------------------
 
 * All changes have been tested successfully using available input as per the following list: 
