@@ -73,7 +73,7 @@ Shallow convection is similar to deep convection, except that the base mass flux
 Microphysics Schemes
 ====================
 
-**Effects of vapor-liquid-ice phase changes:**
+**Effects of Vapor-Liquid-Ice Phase Changes:**
 
 HAFS uses GFDL microphysics and Thompson microphysics.
 
