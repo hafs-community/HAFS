@@ -124,8 +124,8 @@ Suite Comparison
      - Suite 1 (HFSAv2)
      - Suite 2 (HFSBv2)
    * - Land/ocean Surface
-     - NOAH LSM VIIRS veg type, MOM6
-     - NOAH LSM VIIRS veg type, HYCOM
+     - NOAH LSM VIIRS veg type, **MOM6**
+     - NOAH LSM VIIRS veg type, **HYCOM**
    * - Surface Layer
      - GFS, HWRF TC-specific sea surface roughnesses
      - GFS, HWRF TC-specific sea surface roughnesses
