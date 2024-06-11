@@ -56,7 +56,8 @@ Scale-Aware Deep and Shallow Convection Schemes
 
 Scale-aware deep and shallow convection schemes are used when moisture convection is too small to be resolved explicitly by grid spacing, reducing the thermodynamic instability. HAFS uses GFS Scale-Aware SAS. 
 
-**Main assumptions:**
+Main Assumptions
+-----------------------
 
 **Deep Convection:**
 
