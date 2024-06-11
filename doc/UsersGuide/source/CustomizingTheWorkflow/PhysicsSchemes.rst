@@ -109,3 +109,27 @@ Impact of sub-grid scale perturbations excited by orography and convection.
 **HAFS uses the unified GWD scheme:**
 
 Mesoscale orographic gravity wave drag, low-level flow blocking by subgrid-scale orography, effects of gravity waves produced by horizontal terrain variations, and non-topographic gravity wave drag (GWD) from convection and frontal instability are considered in the model.
+
+.. _SuiteComparison:
+
+================
+Suite Comparison
+================
+
+The following table compares the different configurations for Suite 1 (HFSAv2) and Suite 2 (HFSBv2):
+
+.. list-table:: Suite Comparison
+   :header-rows: 1
+
+   * - Component
+     - Suite 1 (HFSAv2)
+     - Suite 2 (HFSBv2)
+   * - Land/ocean Surface
+     - NOAH LSM VIIRS veg type, MOM6
+     - NOAH LSM VIIRS veg type, HYCOM
+   * - Surface Layer
+     - GFS, HWRF TC-specific sea surface roughnesses
+     - GFS, HWRF TC-specific sea surface roughnesses
+   * - Boundary Layer
+     - Sa-TKE-EDMF+shear: sfc_rlm=1, tc_pbl=0, elmx/rlmx=250 (nest)
+     - Sa-TKE-EDMF+shear: sfc_rlm=0, tc_pbl
