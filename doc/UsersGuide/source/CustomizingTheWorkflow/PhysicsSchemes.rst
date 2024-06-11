@@ -113,7 +113,9 @@ Mesoscale orographic gravity wave drag, low-level flow blocking by subgrid-scale
 Suite Comparison
 ================
 
-The following table compares the different configurations for Suite 1 (HFSAv2) and Suite 2 (HFSBv2):
+:numref:`Table %s <PhysicsComparison>` compares the different physics configurations used for Suite 1 (HFSAv2) and Suite 2 (HFSBv2).
+
+.. _PhysicsComparison:
 
 .. list-table:: Suite Comparison
    :header-rows: 1
