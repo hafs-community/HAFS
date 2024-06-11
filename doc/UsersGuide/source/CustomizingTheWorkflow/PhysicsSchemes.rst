@@ -63,9 +63,9 @@ Main Assumptions
 
 A single entraining and detraining plume model is used. The base mass flux operates under a quasi-equilibrium assumption for distances greater than 8 km, determined by a mean updraft velocity for distances less than 8 km. Triggering conditions include the distance between the convection starting level and the level of free convection, sub-cloud convective inhibition, and mean relative humidity.
 
-**Shallow convection is similar to deep convection, except:**
-  
-The base mass flux is averaged based on the updraft velocity in a cloud layer. Only convection updrafts are considered in the shallow scheme. HAFS tests show that HAFS is sensitive to entrainment and detrainment rates. HFSA uses an entrainment rate larger than that in NCEP GFS.
+**Shallow Convection:**
+
+Shallow convection is similar to deep convection, except that the base mass flux is averaged based on the updraft velocity in a cloud layer. Only convection updrafts are considered in the shallow scheme. HAFS tests show that HAFS is sensitive to entrainment and detrainment rates. HFSA uses an entrainment rate larger than that in NCEP GFS.
 
 .. _MicrophysicsSchemes:
 
