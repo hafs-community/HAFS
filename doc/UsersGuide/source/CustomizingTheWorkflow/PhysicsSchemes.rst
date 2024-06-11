@@ -91,7 +91,7 @@ The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number con
 Radiation Schemes
 =================
 
-Radiation Schemes are used for heating and cooling due to short and long wave radiation.
+Radiation schemes are used for heating and cooling due to short- and long-wave radiation.
 
 **HAFS uses RRTMG.**
 
