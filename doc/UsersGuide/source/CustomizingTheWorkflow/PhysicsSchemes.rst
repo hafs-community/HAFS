@@ -74,9 +74,7 @@ Shallow convection is similar to deep convection, except that the base mass flux
 Microphysics Schemes
 ====================
 
-**Effects of Vapor-Liquid-Ice Phase Changes:**
-
-HAFS uses GFDL microphysics and Thompson microphysics.
+HAFS uses GFDL microphysics and Thompson microphysics, which account for the effects of vapor-liquid-ice phase changes. HAFS performs well with the Thompson scheme for TCs in the NATL basin and with GFDL for TCs in the EAPC basin.
 
 **GFDL:**
 
@@ -84,7 +82,7 @@ The GFDL microphysics is a single-moment scheme that includes QC, QI, QR, QS, an
 
 **Thompson:**
 
-The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number concentration of cloud ice, cloud water, and rain. It also considers the impact of aerosols. HAFS performs well with the Thompson scheme for TCs in the NATL basin and with GFDL for TCs in the EAPC basin.
+The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number concentration of cloud ice, cloud water, and rain. It also considers the impact of aerosols. 
 
 .. _RadiationSchemes:
 
