@@ -299,7 +299,9 @@ Computer Resource Information
 Pre-Implementation Testing
 --------------------------
 
-* All changes have been tested successfully using available input as per the following list: 
+All changes have been tested successfully using available input from :numref:`Table %s <TestingInput>`.
+
+.. _TestingInput:
 
 .. list-table:: Test Objectives and Comments
    :header-rows: 1
