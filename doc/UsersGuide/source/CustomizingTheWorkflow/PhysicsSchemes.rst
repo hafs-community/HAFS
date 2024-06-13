@@ -18,7 +18,7 @@ Land/Ocean surface schemes provide surface temperature, heat and moisture fluxes
 **HAFS uses:**
 
 * Noah Multi-Physics (NOAH-MP) land surface model
-* HYCOM, MOM6 for ocean models
+* :term:`HYCOM`, :term:`MOM6` for ocean models
 
 .. _SurfaceLayerScheme:
 
@@ -27,7 +27,7 @@ Surface-Layer Scheme
 ====================
 
 Surface layer schemes represent processes near the surface (<~100 m), where vertical gradients are too large to be resolved by vertical grids. They are usually based on Monin-Obukhov similarity theory.
-They provide atmospheric exchange coefficients, stability functions (surface fluxes) needed by land/ocean models and PBL.
+They provide atmospheric exchange coefficients and stability functions (surface fluxes) needed by land/ocean models and PBL.
 
 HAFS uses the GFS surface-layer model, with observation-based roughness length (particularly for strong wind conditions). Modified Zo is important for a successful simulation of TCs. Hurricane intensity is proportional to (Ck/Cd) over the ocean (Emanuel, 1995), where Cd and Ck are the sea-surface momentum and enthalpy exchange coefficients. Larger z0 leads to larger Cd and Ck.
 
@@ -37,15 +37,16 @@ HAFS uses the GFS surface-layer model, with observation-based roughness length (
 PBL Scheme
 ==========
 
-PBL parameterization schemes handle subgrid-scale processes near the surface. In HAFS, the PBL scheme is responsible for handling turbulent scale mixing and diffusion. HAFS uses the GFS TKE-EDMF PBL scheme, with a prognostic TKE equation.
+PBL parameterization schemes handle subgrid-scale processes near the surface. In HAFS, the PBL scheme is responsible for handling turbulent scale mixing and diffusion. HAFS uses the GFS TKE-EDMF PBL scheme, with a prognostic Turbulent Kinetic Energy (TKE) equation.
 
 .. code-block:: console
+
    Sub-grid scale turbulent flux = Flux of Large eddies + flux of local small eddies
                                                           mass-flux (MF)           eddy-diffusivity (ED)
 
 TC intensity is sensitive to mixing/diffusion, so two modifications were made:
 
-  1. Adjustment to mixing length near the surface so that it is consistent with that used in the surface-layer scheme. (HFSA)
+  1. Adjustment to mixing length near the surface so that it is consistent with that used in the surface-layer scheme (HFSA)
   2. LES-based TC PBL adjustment including model coefficients, Richardson number calculation, high-wind mass flux, etc. (HFSB)
 
 .. _ScaleAwareConvection:
@@ -73,9 +74,7 @@ Shallow convection is similar to deep convection, except that the base mass flux
 Microphysics Schemes
 ====================
 
-**Effects of Vapor-Liquid-Ice Phase Changes:**
-
-HAFS uses GFDL microphysics and Thompson microphysics.
+HAFS uses GFDL microphysics and Thompson microphysics, which account for the effects of vapor-liquid-ice phase changes. HAFS performs well with the Thompson scheme for TCs in the NATL basin and with GFDL for TCs in the EAPC basin.
 
 **GFDL:**
 
@@ -83,7 +82,7 @@ The GFDL microphysics is a single-moment scheme that includes QC, QI, QR, QS, an
 
 **Thompson:**
 
-The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number concentration of cloud ice, cloud water, and rain. It also considers the impact of aerosols. HAFS performs well with the Thompson scheme for TCs in the NATL basin and with GFDL for TCs in the EAPC basin.
+The Thompson microphysics scheme includes QC, QI, QR, QS, QG, and the number concentration of cloud ice, cloud water, and rain. It also considers the impact of aerosols. 
 
 .. _RadiationSchemes:
 

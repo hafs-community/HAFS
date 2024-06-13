@@ -198,28 +198,25 @@ HAFS v2.0.0 Operational Updates
      - JTWC
      - Brian Strahl, Levi Cowan
    
-**Runs on:** WCOSS2; pre-implementation testing performed on Hera and Orion.
 
 Input/Output
 ------------
 
-**Input:**
+**Input Data:**
     - Global Forecast System (GFS, including GFS/GDAS) :term:`NetCDF` format analysis for atmospheric initial conditions and 3-hourly :term:`GRIB2` files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components.
     - Global :term:`RTOFS` for oceanic initial and boundary conditions for :term:`MOM6` and :term:`HYCOM`.
     - GFS/GDAS global wave analysis/forecast for :term:`HFSA` wave component initial and lateral boundary conditions.
     - :term:`OBSPROC` observational data for HAFS data assimilation.
 
-**Input Datasets**
-    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial condition, and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components. Global RTOFS for oceanic initial and boundary conditions for the ocean model component. GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions. OBSPROC observational data for HAFS data assimilation.
 
 **Input DCOM Dependencies**
-- The following scripts require input files from DCOM directory:
-    - ``./scripts/exhafs_obs_prep.sh``: to decode/dump TDR/HDOB/TEMPDROP data
-    - ``./scripts/exhafs_msg_check.py``: to check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
-    - ``./ush/setup_hurricane``: for SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
+- The following scripts require input files from DCOM (data input) directory:
+    - ``./scripts/exhafs_obs_prep.sh``: To decode/dump TDR/HDOB/TEMPDROP data
+    - ``./scripts/exhafs_msg_check.py``: To check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
+    - ``./ush/setup_hurricane``: For SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
 
 **Output:**
-    - ATCF track forecast files, 4x/day at 00Z/06Z/12Z/18Z.
+    - ATCF track forecast files, 4x/day at 00Z/06Z/12Z/18Z
 
 Locations for Output
 --------------------
@@ -241,7 +238,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 -----------------------------------------------------------------
 
 **System and Infrastructure Upgrades:**
-    - Latest version of ``ufs-weather-model``, HAFSv2 final scientific configuration freeze on 02/08/2024.
+    - Updated version of ``hafs-community/ufs-weather-model``, HAFSv2 final scientific configuration freeze on 02/08/2024.
     - Increase moving nesting horizontal resolution from 6-2 km to 5.4-1.8 km (HFSA only).
     - Reduce model time step from 90 to 72s (HFSB only).
     - Updated horizontal advection options.
@@ -272,7 +269,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - Upgrade GFDL Tracker.
 
 **Software Dependencies:**
-    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
+    - See `list of dependencies here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`_.
 
 **Output Changes:**
 
@@ -288,10 +285,10 @@ Computer Resource Information
 **Computation resource updates:**
     - HAFSv2 will use similar computing resources as HAFSv1.
 
-    - HWM: no significant node increase expected for the forecast job.
+    - HAFS Weather Model (HWM): No significant node increase expected for the forecast job.
 
 **List of the module versions used in HAFS:**
-    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
+    - See `list of module version here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`_.
 
 **Data retention for files in:** 
     - ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsa.yyyymmdd/hh`` and ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsb.yyyymmdd/hh``
@@ -302,7 +299,9 @@ Computer Resource Information
 Pre-Implementation Testing
 --------------------------
 
-* All changes have been tested successfully using available input as per the following list: 
+All changes have been tested successfully using available input from :numref:`Table %s <TestingInput>`.
+
+.. _TestingInput:
 
 .. list-table:: Test Objectives and Comments
    :header-rows: 1
@@ -344,7 +343,7 @@ Files were disseminated as follows:
     - GRIB files to NOMADS
     - GEMPAK files to MAG
 
-All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data
+All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data.
 
 **Archive to HPSS:**
-    All the files in the :term:`COM` directory are preferred to be archived in 5-year retention :term:`HPSS` directory.
+All the files in the :term:`COM` directory are preferred to be archived in 5-year retention :term:`HPSS` directory.
