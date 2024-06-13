@@ -130,5 +130,24 @@ Suite Comparison
      - GFS, HWRF TC-specific sea surface roughnesses
      - GFS, HWRF TC-specific sea surface roughnesses
    * - Boundary Layer
-     - Sa-TKE-EDMF+shear: sfc_rlm=1, tc_pbl=0, elmx/rlmx=250 (nest)
-     - Sa-TKE-EDMF+shear: sfc_rlm=0, tc_pbl
+     - Sa-TKE-EDMF+shear:
+       **sfc_rlm=1**
+       **tc_pbl= 0**
+       **elmx/rlmx=250 (nest)**
+     - Sa-TKE-EDMF+shear:
+       **sfc_rlm=0**
+       **tc_pbl=1**
+       **elmx/rlmx=75 (nest)**
+   * - Microphysics
+     - **Thompson, dt_inner=45s (AL)** 
+       **GFDL MPv1 (EP)**
+     - **Thompson, dt_inner=36s**
+   * - Radiation
+     - **RRTMG Calling frequency 900 s**
+     - **RRTMG Calling frequency 720 s**
+   * - Cumulus convection (deep&shallow)
+     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment:clam_deep=0.15**
+     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment: clam_deep=0.1**
+   * - Gravity wave drag
+     - Improved UGWPv1 (orographic on/convective off)
+     - Improved UGWPv1 (orographic on/convective off)
