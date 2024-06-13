@@ -288,7 +288,7 @@ Computer Resource Information
     - HAFS Weather Model (HWM): No significant node increase expected for the forecast job.
 
 **List of the module versions used in HAFS:**
-    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
+    - See `list of module version here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`_.
 
 **Data retention for files in:** 
     - ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsa.yyyymmdd/hh`` and ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsb.yyyymmdd/hh``
