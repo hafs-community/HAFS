@@ -343,7 +343,7 @@ Files were disseminated as follows:
     - GRIB files to NOMADS
     - GEMPAK files to MAG
 
-All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data
+All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data.
 
 **Archive to HPSS:**
     All the files in the :term:`COM` directory are preferred to be archived in 5-year retention :term:`HPSS` directory.
