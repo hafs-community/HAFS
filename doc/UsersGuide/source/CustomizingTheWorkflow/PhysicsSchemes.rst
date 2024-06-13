@@ -92,7 +92,7 @@ Radiation Schemes
 
 Radiation schemes are used for heating and cooling due to short- and long-wave radiation.
 
-HAFS uses the RRTMG radiation scheme. For computational efficiency, the correlated K-method is used: The shortwave algorithm includes 112 g-points (quadrature points) in 14 bands, while the longwave algorithm includes 140 unevenly distributed g-points in 16 broad spectral bands. Aerosol optical properties, cloud liquid water and ice paths, and effective radius are used to represent the radiative effects of aerosols and clouds in the calculation. The effects of sub-grid scale clouds are treated by a Monte-Carlo Independent Column Approximation (McICA) method, with a decorrelation length overlap assumption for multi-layered clouds.
+HAFS uses the RRTMG radiation scheme. For computational efficiency, the correlated K-method is used. The shortwave algorithm includes 112 g-points (quadrature points) in 14 bands, while the longwave algorithm includes 140 unevenly distributed g-points in 16 broad spectral bands. Aerosol optical properties, cloud liquid water and ice paths, and effective radius are used to represent the radiative effects of aerosols and clouds in the calculation. The effects of sub-grid-scale clouds are treated by a Monte-Carlo Independent Column Approximation (McICA) method, with a decorrelation length overlap assumption for multi-layered clouds.
 
 .. _GravityWaveDrag:
 
