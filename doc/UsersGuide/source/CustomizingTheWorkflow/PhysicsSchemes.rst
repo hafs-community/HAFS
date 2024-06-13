@@ -46,7 +46,7 @@ PBL parameterization schemes handle subgrid-scale processes near the surface. In
 
 TC intensity is sensitive to mixing/diffusion, so two modifications were made:
 
-  1. Adjustment to mixing length near the surface so that it is consistent with that used in the surface-layer scheme. (HFSA)
+  1. Adjustment to mixing length near the surface so that it is consistent with that used in the surface-layer scheme (HFSA)
   2. LES-based TC PBL adjustment including model coefficients, Richardson number calculation, high-wind mass flux, etc. (HFSB)
 
 .. _ScaleAwareConvection:
