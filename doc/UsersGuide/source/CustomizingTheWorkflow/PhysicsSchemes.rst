@@ -6,6 +6,51 @@ Physics Schemes in HAFS
 
 This chapter contains information regarding the various physics schemes in HAFS.
 
+.. _SuiteComparison:
+
+================
+Suite Comparison
+================
+
+:numref:`Table %s <PhysicsComparison>` compares the different physics configurations used for Suite 1 (HFSAv2) and Suite 2 (HFSBv2).
+
+.. _PhysicsComparison:
+
+.. list-table:: Suite Comparison
+   :header-rows: 1
+
+   * - Component
+     - Suite 1 (HFSAv2)
+     - Suite 2 (HFSBv2)
+   * - Land/ocean Surface
+     - NOAH LSM VIIRS veg type, **MOM6**
+     - NOAH LSM VIIRS veg type, **HYCOM**
+   * - Surface Layer
+     - GFS, HWRF TC-specific sea surface roughnesses
+     - GFS, HWRF TC-specific sea surface roughnesses
+   * - Boundary Layer
+     - Sa-TKE-EDMF+shear:
+       **sfc_rlm=1**
+       **tc_pbl= 0**
+       **elmx/rlmx=250 (nest)**
+     - Sa-TKE-EDMF+shear:
+       **sfc_rlm=0**
+       **tc_pbl=1**
+       **elmx/rlmx=75 (nest)**
+   * - Microphysics
+     - **Thompson, dt_inner=45s (AL)** 
+       **GFDL MPv1 (EP)**
+     - **Thompson, dt_inner=36s**
+   * - Radiation
+     - **RRTMG Calling frequency 900 s**
+     - **RRTMG Calling frequency 720 s**
+   * - Cumulus convection (deep&shallow)
+     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment:clam_deep=0.15**
+     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment: clam_deep=0.1**
+   * - Gravity wave drag
+     - Improved UGWPv1 (orographic on/convective off)
+     - Improved UGWPv1 (orographic on/convective off)
+
 .. _Land/OceanSurfaceSchemes:
 
 ==========================
@@ -78,7 +123,7 @@ HAFS uses GFDL microphysics and Thompson microphysics, which account for the eff
 
 **GFDL:**
 
-The GFDL microphysics is a single-moment scheme that includes QC, QI, QR, QS, and QG. It is based on the Lin-Lord-Krueger cloud microphysics scheme.
+The GFDL microphysics is a single-moment scheme that includes cloud water content (QC), cloud ice content (QI), rain water content (QR), snow content (QS), and graupel content (Q)G. It is based on the Lin-Lord-Krueger cloud microphysics scheme.
 
 **Thompson:**
 
@@ -106,47 +151,3 @@ Impact of sub-grid scale perturbations excited by orography and convection.
 
 Mesoscale orographic gravity wave drag, low-level flow blocking by subgrid-scale orography, effects of gravity waves produced by horizontal terrain variations, and non-topographic gravity wave drag (GWD) from convection and frontal instability are considered in the model.
 
-.. _SuiteComparison:
-
-================
-Suite Comparison
-================
-
-:numref:`Table %s <PhysicsComparison>` compares the different physics configurations used for Suite 1 (HFSAv2) and Suite 2 (HFSBv2).
-
-.. _PhysicsComparison:
-
-.. list-table:: Suite Comparison
-   :header-rows: 1
-
-   * - Component
-     - Suite 1 (HFSAv2)
-     - Suite 2 (HFSBv2)
-   * - Land/ocean Surface
-     - NOAH LSM VIIRS veg type, **MOM6**
-     - NOAH LSM VIIRS veg type, **HYCOM**
-   * - Surface Layer
-     - GFS, HWRF TC-specific sea surface roughnesses
-     - GFS, HWRF TC-specific sea surface roughnesses
-   * - Boundary Layer
-     - Sa-TKE-EDMF+shear:
-       **sfc_rlm=1**
-       **tc_pbl= 0**
-       **elmx/rlmx=250 (nest)**
-     - Sa-TKE-EDMF+shear:
-       **sfc_rlm=0**
-       **tc_pbl=1**
-       **elmx/rlmx=75 (nest)**
-   * - Microphysics
-     - **Thompson, dt_inner=45s (AL)** 
-       **GFDL MPv1 (EP)**
-     - **Thompson, dt_inner=36s**
-   * - Radiation
-     - **RRTMG Calling frequency 900 s**
-     - **RRTMG Calling frequency 720 s**
-   * - Cumulus convection (deep&shallow)
-     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment:clam_deep=0.15**
-     - sa-SAS +shear progsigma=F (AL), T (EP) **entrainment: clam_deep=0.1**
-   * - Gravity wave drag
-     - Improved UGWPv1 (orographic on/convective off)
-     - Improved UGWPv1 (orographic on/convective off)

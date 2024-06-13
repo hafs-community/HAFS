@@ -24,9 +24,14 @@ copyright = '2021'
 author = ' '
 
 # The short X.Y version
-version = 'v2.0.0'
+version = 'develop'
 # The full version, including alpha/beta/rc tags
 release = 'Develop Branch Documentation'
+
+# Documentation-wide substitutions
+rst_prolog = """
+.. |latestr| replace:: v2.0.0
+"""
 
 numfig = True
 
