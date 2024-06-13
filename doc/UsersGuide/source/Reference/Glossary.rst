@@ -75,7 +75,7 @@ Glossary
       Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`_
    
    GFS
-      Global Forecast System
+      `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`_. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples several models (including atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
    
    GOES-R
       Geostationary Operational Environmental Satellite-R Series
