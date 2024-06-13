@@ -269,7 +269,7 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
     - Upgrade GFDL Tracker.
 
 **Software Dependencies:**
-    - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
+    - See `list of dependencies here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`_.
 
 **Output Changes:**
 
