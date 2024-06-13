@@ -198,7 +198,6 @@ HAFS v2.0.0 Operational Updates
      - JTWC
      - Brian Strahl, Levi Cowan
    
-**Runs on:** WCOSS2; pre-implementation testing performed on Hera and Orion.
 
 Input/Output
 ------------
