@@ -71,7 +71,8 @@ Glossary
       Global Data Assimilation System
    
    GFDL
-      Geophysical Fluid Dynamics Laboratory
+      `Geophysical 
+      Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`_
    
    GFS
       Global Forecast System
