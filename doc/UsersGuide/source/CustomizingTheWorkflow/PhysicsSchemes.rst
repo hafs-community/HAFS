@@ -123,7 +123,7 @@ HAFS uses GFDL microphysics and Thompson microphysics, which account for the eff
 
 **GFDL:**
 
-The GFDL microphysics is a single-moment scheme that includes cloud water content (QC), cloud ice content (QI), rain water content (QR), snow content (QS), and graupel content (Q)G. It is based on the Lin-Lord-Krueger cloud microphysics scheme.
+The GFDL microphysics is a single-moment scheme that includes cloud water content (QC), cloud ice content (QI), rain water content (QR), snow content (QS), and graupel content (QG). It is based on the Lin-Lord-Krueger cloud microphysics scheme.
 
 **Thompson:**
 
