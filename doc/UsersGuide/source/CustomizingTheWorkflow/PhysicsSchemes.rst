@@ -40,6 +40,7 @@ PBL Scheme
 PBL parameterization schemes handle subgrid-scale processes near the surface. In HAFS, the PBL scheme is responsible for handling turbulent scale mixing and diffusion. HAFS uses the GFS TKE-EDMF PBL scheme, with a prognostic Turbulent Kinetic Energy (TKE) equation.
 
 .. code-block:: console
+
    Sub-grid scale turbulent flux = Flux of Large eddies + flux of local small eddies
                                                           mass-flux (MF)           eddy-diffusivity (ED)
 
