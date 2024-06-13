@@ -285,7 +285,7 @@ Computer Resource Information
 **Computation resource updates:**
     - HAFSv2 will use similar computing resources as HAFSv1.
 
-    - HWM: no significant node increase expected for the forecast job.
+    - HAFS Weather Model (HWM): No significant node increase expected for the forecast job.
 
 **List of the module versions used in HAFS:**
     - See `here <https://github.com/hafs-community/HAFS/blob/production/hafs.v2/versions/run.ver>`__
