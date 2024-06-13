@@ -81,7 +81,7 @@ Glossary
       Geostationary Operational Environmental Satellite-R Series
    
    GRIB2
-      Gridded Binary 2
+      Gridded Binary 2; the second version of the World Meterological Organization's (WMO) standard for distributing gridded data.
    
    HAFS
       Hurricane Analysis and Forecast System
