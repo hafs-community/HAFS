@@ -208,8 +208,6 @@ Input/Output
     - GFS/GDAS global wave analysis/forecast for :term:`HFSA` wave component initial and lateral boundary conditions.
     - :term:`OBSPROC` observational data for HAFS data assimilation.
 
-**Input Datasets**
-    - Global Forecast System (GFS, including GFS/GDAS) NetCDF format analysis for atmospheric initial condition, and 3-hourly GRIB2 files (up to 129 h) for atmospheric lateral boundary conditions and atmospheric forcing for oceanic and wave model components. Global RTOFS for oceanic initial and boundary conditions for the ocean model component. GFS/GDAS global wave analysis/forecast for HFSA wave component initial and lateral boundary conditions. OBSPROC observational data for HAFS data assimilation.
 
 **Input DCOM Dependencies**
 - The following scripts require input files from DCOM directory:
