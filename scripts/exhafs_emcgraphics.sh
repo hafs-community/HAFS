@@ -358,8 +358,9 @@ figScriptAll=( \
   plot_storm_wvelz40m.py \
   plot_storm_wvelz70m.py \
   plot_storm_wvelz100m.py \
-  plot_storm_forec_track_tran_temp.py \
-  plot_storm_lat_tran_temp.py \
+  plot_storm_crs_sn_temp.py \
+  plot_storm_crs_trk_temp.py \
+  plot_storm_crs_we_temp.py \
   )
 
 nscripts=${#figScriptAll[*]}
@@ -377,13 +378,7 @@ for((i=0;i<${nscripts};i++)); do
 done
 
 chmod u+x ./$cmdfile
-
-if [ ${ocean_model,,} = mom6 ] && [ ${FHR} -gt 0 ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
-if [ ${ocean_model,,} = hycom ]; then
-   ${APRUNC} ${MPISERIAL} -m ./$cmdfile
-fi
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
 fi #[ ${run_ocean} = yes ]; then
 
