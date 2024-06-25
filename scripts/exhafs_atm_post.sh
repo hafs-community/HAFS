@@ -488,7 +488,13 @@ if [ $SENDCOM = YES ]; then
   fi
   if [ ${nhcpost} = .true. ]; then
     mv ${nhc_grb2file} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+       $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_NHC_GB2 $job ${COMOUTpost}/${nhc_grb2file}
+    fi
     mv ${nhc_grb2indx} ${COMOUTpost}/
+    if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
+       $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_NHC_GB2_WIDX $job ${COMOUTpost}/${nhc_grb2indx}
+    fi
   fi
   if [ ${satpost} = .true. ]; then
     mv ${sat_grb2file} ${COMOUTpost}/
