@@ -128,7 +128,7 @@ HAFS v2.0.0 Operational Updates
 .. list-table:: HAFS Developers
    :header-rows: 1
 
-   * - Area
+   * - Area of Expertise
      - Institution
      - Developers
    * - Atmospheric model dynamics/configurations/workflow
