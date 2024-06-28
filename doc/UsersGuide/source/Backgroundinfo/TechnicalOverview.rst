@@ -279,11 +279,8 @@ Scientific Changes to Improve Track and Intensity Forecast Skills
 
 **Output Changes:**
 
-- **New variables in HAFSv2:**
-    - No
-
-- **Removed variables:**
-    - No
+- *New variables in HAFSv2:* No
+- *Removed variables:* No
 
 Computer Resource Information
 -----------------------------
