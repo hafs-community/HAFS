@@ -216,7 +216,8 @@ Input/Output
 
 
 **Input DCOM Dependencies**
-- The following scripts require input files from DCOM (data input) directory:
+The following scripts require input files from DCOM (data input) directory:
+
     - ``./scripts/exhafs_obs_prep.sh``: To decode/dump TDR/HDOB/TEMPDROP data
     - ``./scripts/exhafs_msg_check.py``: To check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
     - ``./ush/setup_hurricane``: For SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
