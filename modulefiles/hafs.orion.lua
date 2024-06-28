@@ -5,12 +5,12 @@ loads HAFS application level modulefile on Orion
 load("contrib")
 load("noaatools")
 
-prepend_path("MODULEPATH", "/work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.6.0/envs/unified-env/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/work/noaa/epic/role-epic/spack-stack/orion/spack-stack-1.6.0/envs/unified-env-rocky9/install/modulefiles/Core")
 
-stack_intel_ver=os.getenv("stack_intel_ver") or "2022.0.2"
+stack_intel_ver=os.getenv("stack_intel_ver") or "2021.9.0"
 load(pathJoin("stack-intel", stack_intel_ver))
 
-stack_impi_ver=os.getenv("stack_impi_ver") or "2021.5.1"
+stack_impi_ver=os.getenv("stack_impi_ver") or "2021.9.0"
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
@@ -37,7 +37,7 @@ load(pathJoin("netcdf-fortran", netcdf_fortran_ver))
 parallelio_ver=os.getenv("parallelio_ver") or "2.5.10"
 load(pathJoin("parallelio", parallelio_ver))
 
-esmf_ver=os.getenv("esmf_ver") or "8.5.0"
+esmf_ver=os.getenv("esmf_ver") or "8.6.0"
 load(pathJoin("esmf", esmf_ver))
 
 fms_ver=os.getenv("fms_ver") or "2023.04"
@@ -70,10 +70,10 @@ load(pathJoin("w3nco", w3nco_ver))
 gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.6.1"
 load(pathJoin("gftl-shared", gftl_shared_ver))
 
-yafyaml_ver=os.getenv("yafyaml_ver") or "0.5.1"
-load(pathJoin("yafyaml", yafyaml_ver))
+yafyaml_ver=os.getenv("yafyaml_ver") or "0.2.5"
+load(pathJoin("libyaml", yafyaml_ver))
 
-mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.5.0"
+mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.6.0"
 load(pathJoin("mapl", mapl_ver))
 
 bufr_ver=os.getenv("bufr_ver") or "12.0.1"
@@ -86,7 +86,7 @@ sigio_ver=os.getenv("sigio_ver") or "2.3.2"
 load(pathJoin("sigio", sigio_ver))
 
 szip_ver=os.getenv("szip_ver") or "2.1.1"
-load(pathJoin("szip", szip_ver))
+load(pathJoin("libszip", szip_ver))
 
 wrf_io_ver=os.getenv("wrf_io_ver") or "1.2.0"
 load(pathJoin("wrf-io", wrf_io_ver))
@@ -99,20 +99,20 @@ load(pathJoin("grib-util", grib_util_ver))
 
 wgrib2_ver=os.getenv("wgrib2_ver") or "2.0.8"
 load(pathJoin("wgrib2", wgrib2_ver))
---setenv("WGRIB2", "/apps/wgrib-2.0.8/wgrib2/wgrib2")
-
-gempak_ver=os.getenv("gempak_ver") or "7.5.1"
-load(pathJoin("gempak", gempak_ver))
 
 nco_ver=os.getenv("nco_ver") or "5.0.6"
---nco_ver=os.getenv("nco_ver") or "4.9.3"
 load(pathJoin("nco", nco_ver))
 
-cdo_ver=os.getenv("cdo_ver") or "2.0.5"
+cdo_ver=os.getenv("cdo_ver") or "2.2.0"
 load(pathJoin("cdo", cdo_ver))
 
-rocoto_ver=os.getenv("rocoto_ver") or "1.3.6"
-load("rocoto")
+mkl_ver=os.getenv("mkl_ver") or "2023.1.0"
+load(pathJoin("intel-oneapi-mkl", mkl_ver))
+
+tar_ver=os.getenv("tar_ver") or "1.34"
+load(pathJoin("tar", tar_ver))
+
+prepend_path("PATH", "/apps/contrib/rocoto/1.3.7/bin")
 
 unload("py-numpy/1.22.3")
 
