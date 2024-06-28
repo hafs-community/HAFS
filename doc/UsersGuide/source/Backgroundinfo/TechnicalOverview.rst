@@ -335,7 +335,7 @@ All changes have been tested successfully using available input from :numref:`Ta
      - Operational failure
 
 
-* NHC, CPHC, and JTWC were suggested to evaluate model products and MAG was suggested to evaluate GEMPAK files.
+NHC, CPHC, and JTWC were suggested to evaluate model products and MAG was suggested to evaluate GEMPAK files.
 
 Dissemination and Archiving
 ---------------------------
