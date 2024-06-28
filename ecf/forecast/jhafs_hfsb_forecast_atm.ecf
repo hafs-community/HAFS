@@ -19,6 +19,7 @@ export NCTSK='60'
 export OMP_THREADS='2'
 
 export storm_num="%STORMNUM%"
+export RESTART="%RESTART:NO%"
 
 module load PrgEnv-intel/${PrgEnv_intel_ver}
 module load craype/${craype_ver}

@@ -3,7 +3,7 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:15:00
+#PBS -l walltime=00:10:00
 #PBS -l place=vscatter:shared,select=3:ncpus=60:mpiprocs=60:ompthreads=1:mem=240GB
 #PBS -l debug=true
 
