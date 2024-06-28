@@ -107,7 +107,7 @@ Main Assumptions
 
 **Deep Convection:**
 
-A single entraining and detraining plume model is used. The base mass flux operates under a quasi-equilibrium assumption for distances greater than 8 km, determined by a mean updraft velocity for distances less than 8 km. Triggering conditions include the distance between the convection starting level and the level of free convection, sub-cloud convective inhibition, and mean relative humidity.
+A single entraining and detraining plume model is used. The base mass flux operates under a quasi-equilibrium assumption for dx greater than 8 km, determined by a mean updraft velocity for dx less than 8 km. Triggering conditions include the distance between the convection starting level and the level of free convection, sub-cloud convective inhibition, and mean relative humidity.
 
 **Shallow Convection:**
 
