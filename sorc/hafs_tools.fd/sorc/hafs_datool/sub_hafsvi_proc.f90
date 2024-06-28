@@ -1,9 +1,24 @@
 !========================================================================================
-  subroutine hafsvi_preproc(in_dir, in_date, nestdoms, radius, res, out_file)
+  subroutine hafsvi_preproc(in_dir, in_date, nestdoms, radius, res, out_file, vi_cloud)
 
 !-----------------------------------------------------------------------------
 ! HAFS DA tool - hafsvi_preproc
-! Yonghui Weng, 20211210
+! authors and history:
+!      -- 202112, created by Yonghui Weng
+!      -- 202307, JungHoon Shin added vi_cloud
+!
+! Big Change/Update by JungHoon: Feb~July, 2023
+! New input argument "vi_cloud" is introduced
+! If input argument "vi_cloud" is 0, it will handle 17 variables
+! If input argument "vi_cloud" is 1, it will handle 22 variables
+! If input argument "vi_cloud" is 2, it will handle 24 variables
+!
+! 0: NO cloud changes in VI and handles only 17 variables as same as original sub_hafsvi_proc.f90
+! 1: (GFDL microphysics) handles 5 more variables cloud water, rain water, ice, snow, graupel (22 variables)
+! 2: Thompson microphysics: Need to handle two more additional variables (below) on the top of option 1
+! ice water number concentration and rain number concentration (24 variables)
+!
+! These new cloud variables are extracted from fv_tracer.res.tile1.nc
 !
 ! This subroutine read hafs restart files and output hafsvi needed input.
 ! Variables needed:
@@ -25,7 +40,15 @@
 !      WRITE(IUNIT) land                  ! =A101 = land sea mask, B101 = ZNT
 !      WRITE(IUNIT) sfcr                  ! =B101 = Z0
 !      WRITE(IUNIT) C101                  ! =C101 = (10m wind speed)/(level 1 wind speed)
-!
+! 5 new variables added for GFDL microphysics: Feb, 2023 (below)
+!      WRITE(IUNIT) (((qc(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qs(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qg(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+! 2 new addiontal variables added for Thompson microphysics: Jul, 2023 (below)
+!      WRITE(IUNIT) (((NCI(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((NCR(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
 
 !-----------------------------------------------------------------------------
 
@@ -36,7 +59,7 @@
 
   implicit none
 
-  character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file
+  character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file, vi_cloud
   integer, intent(in)           :: nestdoms
 !--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
 !             fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
@@ -57,6 +80,8 @@
 
 !----for hafs restart
   integer  :: ix, iy, iz, kz, ndom, nd
+  integer  :: itotal_var !  Total number of variables handled in this
+                         !  subrotine: yes=22 variables, no=17 variables
   character (len=50) :: nestfl, tilefl, tempfl
                         ! grid_spec.nc : grid_spec.nest02.tile2.nc
                         ! fv_core.res.tile1.nc : fv_core.res.nest02.tile2.nc
@@ -80,6 +105,12 @@
   real    :: cputime1, cputime2, cputime3
   integer :: io_proc, nm, ks, ke, nv
 
+! If input argument is no, only handle 17 variables.
+  if (trim(vi_cloud) == '0') itotal_var=17
+! If input argument is 1, handle 22 variables for GFDL microphysics.
+  if (trim(vi_cloud) == '1') itotal_var=22
+! If input argument is 2, handle 24 variables for Thompson microphysics.
+  if (trim(vi_cloud) == '2') itotal_var=24
 
 !------------------------------------------------------------------------------
 ! 1 --- arg process
@@ -256,7 +287,7 @@
 
      !-------------------------------------------------------------------------
      ! 7 --- output
-     do_out_var_loop: do nrecord = 1, 17
+     do_out_var_loop: do nrecord = 1, itotal_var
         !write(*,*)my_proc_id, '=== nrecord =',nrecord
         !-----------------------------
         !---7.1 record 1: nx, ny, nz
@@ -381,13 +412,31 @@
         !---7.4 record 4: (((tmp(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
         !---7.5 record 5: (((spfh(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
         !---7.8 record 8: (((dzdt(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
-        if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8 ) then
+        !---7.18 record 18: (((qc(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.19 record 19: (((qr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.20 record 20: (((qi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.21 record 21: (((qs(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.22 record 22: (((qg(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---Below two variables are needed for Thompson microphysics
+        !---7.23 record 23: (((nnqi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.24 record 24: (((nnqr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        if ( nrecord == 4 .or.  nrecord == 5 .or.  nrecord == 8  &
+        .or. nrecord == 18 .or. nrecord == 19 .or. nrecord == 20 &
+        .or. nrecord == 21 .or. nrecord == 22 .or. nrecord == 23 &
+        .or. nrecord == 24 ) then
            if ( my_proc_id == io_proc ) then
               !---read in
               allocate(dat4(ix, iy, iz,1))
               if ( nrecord == 4 ) call get_var_data(trim(infile_core), 'T', ix, iy, iz,1, dat4)
               if ( nrecord == 5 ) call get_var_data(trim(infile_tracer), 'sphum', ix, iy, iz,1, dat4)
               if ( nrecord == 8 ) call get_var_data(trim(infile_core), 'W', ix, iy, iz,1, dat4)
+              if ( nrecord == 18 ) call get_var_data(trim(infile_tracer), 'liq_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 19 ) call get_var_data(trim(infile_tracer), 'rainwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 20 ) call get_var_data(trim(infile_tracer), 'ice_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 21 ) call get_var_data(trim(infile_tracer), 'snowwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 22 ) call get_var_data(trim(infile_tracer), 'graupel', ix, iy, iz,1, dat4)
+              if ( nrecord == 23 ) call get_var_data(trim(infile_tracer), 'ice_nc', ix, iy, iz,1, dat4)
+              if ( nrecord == 24 ) call get_var_data(trim(infile_tracer), 'rain_nc', ix, iy, iz,1, dat4)
               !---send to other core
               if ( nprocs > 1 ) then
                  nm=max(1,int((iz+nprocs-1)/nprocs))
@@ -641,7 +690,10 @@
         !-----------------------------
         !---7.18 output 3d
         if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. &
-             nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 )then
+             nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 .or. &
+             nrecord ==18 .or. nrecord ==19 .or. nrecord ==20 .or. &
+             nrecord ==21 .or. nrecord ==22 .or. nrecord ==23 .or. &
+             nrecord ==24 )then
            call mpi_barrier(comm,ierr)
            kz=nz
            if ( nrecord ==  9 .or. nrecord == 11 ) then
@@ -907,7 +959,7 @@
            endif  !if ( my_proc_id == io_proc ) then
         endif
 
-     enddo do_out_var_loop !: for nrecord = 1, 17
+     enddo do_out_var_loop !: for nrecord = 1, itotal_var  ! 24 or 22 or 17 variables
 
      !-------------------------------------------------------------------------
      ! 8 --- clean ingrid gwt
@@ -921,11 +973,22 @@
   end subroutine hafsvi_preproc
 
 !========================================================================================
-  subroutine hafsvi_preproc_nc(in_dir, in_date, nestdoms, radius, res, out_file)
+  subroutine hafsvi_preproc_nc(in_dir, in_date, nestdoms, radius, res, out_file, vi_cloud)
 
 !-----------------------------------------------------------------------------
 ! HAFS DA tool - hafsvi_preproc
 ! Yonghui Weng, 20211210
+!
+! Big Change/Update by JungHoon: Feb~July, 2023
+! New input argument "vi_cloud" is introduced
+! If input argument "vi_cloud" is 0, it will handle 17 variables
+! If input argument "vi_cloud" is 1, it will handle 22 variables
+! If input argument "vi_cloud" is 2, it will handle 24 variables
+!
+! 0: NO cloud changes in VI and handles only 17 variables as same as original sub_hafsvi_proc.f90
+! 1: (GFDL microphysics) handles 5 more variables cloud water, rain water, ice, snow, graupel (22 variables)
+! 2: Thompson microphysics: Need to handle two more additional variables (below) on the top of option 1
+! ice water number concentration and rain number concentration (24 variables)
 !
 ! This subroutine read hafs restart files and output hafsvi needed input.
 ! Variables needed:
@@ -947,8 +1010,16 @@
 !      WRITE(IUNIT) land                  ! =A101 = land sea mask, B101 = ZNT
 !      WRITE(IUNIT) sfcr                  ! =B101 = Z0
 !      WRITE(IUNIT) C101                  ! =C101 = (10m wind speed)/(level 1 wind speed)
+! 5 new variables added for GFDL microphysics: Feb, 2023 (below)
+!      WRITE(IUNIT) (((qc(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qs(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((qg(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+! 2 new addiontal variables added for Thompson microphysics: Jul, 2023 (below)
+!      WRITE(IUNIT) (((NCI(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+!      WRITE(IUNIT) (((NCR(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
 !
-
 !-----------------------------------------------------------------------------
 
   use constants
@@ -958,7 +1029,7 @@
 
   implicit none
 
-  character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file
+  character (len=*), intent(in) :: in_dir, in_date, radius, res, out_file, vi_cloud
   integer, intent(in)           :: nestdoms
 !--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
 !             fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
@@ -979,6 +1050,8 @@
 
 !----for hafs restart
   integer  :: ix, iy, iz, kz, ndom, nd
+  integer  :: itotal_var ! Total number of variables handled in this
+                         ! subrotine: option 2:24, option 1:22, option 0:17
   character (len=50) :: nestfl, tilefl, tempfl
                         ! grid_spec.nc : grid_spec.nest02.tile2.nc
                         ! fv_core.res.tile1.nc : fv_core.res.nest02.tile2.nc
@@ -1003,6 +1076,13 @@
   real    :: cputime1, cputime2, cputime3
   integer :: io_proc, nm, ks, ke, nv
   character (len=50)  :: varname, varname_long, units, nzc
+
+! If input argument is 0, only handle 17 variables.
+  if (trim(vi_cloud) == '0') itotal_var=17
+! If input argument is 1, handle 22 variables for GFDL microphysics.
+  if (trim(vi_cloud) == '1') itotal_var=22
+! If input argument is 2, handle 24 variables for Thompson microphysics.
+  if (trim(vi_cloud) == '2') itotal_var=24
 
 !------------------------------------------------------------------------------
 ! 1 --- arg process
@@ -1218,7 +1298,7 @@
      call mpi_barrier(comm,ierr)
 
      ! 7.2 --- remapp-needed variables:
-     do_out_var_loop: do nrecord = 3, 17
+     do_out_var_loop: do nrecord = 3, itotal_var
         if ( nrecord == 7 .or. nrecord == 10 .or. nrecord == 13 .or. nrecord == 14 ) cycle do_out_var_loop
 
         iz=nz   !same vertical levels
@@ -1264,6 +1344,36 @@
            varname='f10m'
            units='numeric'
            varname_long='(10m wind speed)/(level 1 wind speed)'
+        elseif ( nrecord == 18 ) then
+           varname='liq_wat'
+           units='kg/kg'
+           varname_long='liq_wat'
+        elseif ( nrecord == 19 ) then
+           varname='rainwat'
+           units='kg/kg'
+           varname_long='rainwat'
+        elseif ( nrecord == 20 ) then
+           varname='ice_wat'
+           units='kg/kg'
+           varname_long='ice_wat'
+        elseif ( nrecord == 21 ) then
+           varname='snowwat'
+           units='kg/kg'
+           varname_long='snowwat'
+        elseif ( nrecord == 22 ) then
+           varname='graupel'
+           units='kg/kg'
+           varname_long='graupel'
+        ! For Thompson microphysics nrecord ==23 & 24
+        elseif ( nrecord == 23 ) then
+           varname='ice_nc'
+           units='/kg'
+           varname_long='ice_nc'
+        elseif ( nrecord == 24 ) then
+           varname='rain_nc'
+           units='/kg'
+           varname_long='rain_nc'
+        !-----------------------------
         endif
         nzc='nz'
         if ( iz == nz+1 ) nzc='nz1'
@@ -1370,13 +1480,32 @@
         !---7.4 record 4: (((tmp(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
         !---7.5 record 5: (((spfh(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
         !---7.8 record 8: (((dzdt(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
-        if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8 ) then
+        !---7.18 record 18: (((qc(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.19 record 19: (((qr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.20 record 20: (((qi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.21 record 21: (((qs(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.22 record 22: (((qg(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---Below two variables are needed for Thompson microphysics
+        !---7.23 record 23: (((nnqi(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        !---7.24 record 24: (((nnqr(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
+        if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8    &
+        .or. nrecord ==18 .or. nrecord ==19 .or. nrecord ==20    &
+        .or. nrecord ==21 .or. nrecord ==22 .or. nrecord ==23    &
+        .or. nrecord ==24 ) then
            if ( my_proc_id == io_proc ) then
               !---read in
               allocate(dat4(ix, iy, iz,1))
               if ( nrecord == 4 ) call get_var_data(trim(infile_core), 'T', ix, iy, iz,1, dat4)
               if ( nrecord == 5 ) call get_var_data(trim(infile_tracer), 'sphum', ix, iy, iz,1, dat4)
               if ( nrecord == 8 ) call get_var_data(trim(infile_core), 'W', ix, iy, iz,1, dat4)
+              if ( nrecord == 18 ) call get_var_data(trim(infile_tracer), 'liq_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 19 ) call get_var_data(trim(infile_tracer), 'rainwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 20 ) call get_var_data(trim(infile_tracer), 'ice_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 21 ) call get_var_data(trim(infile_tracer), 'snowwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 22 ) call get_var_data(trim(infile_tracer), 'graupel', ix, iy, iz,1, dat4)
+              ! For Thompson microphysics nrecord ==23 & 24
+              if ( nrecord == 23 ) call get_var_data(trim(infile_tracer), 'ice_nc', ix, iy, iz,1, dat4)
+              if ( nrecord == 24 ) call get_var_data(trim(infile_tracer), 'rain_nc', ix, iy, iz,1, dat4)
               !---send to other core
               if ( nprocs > 1 ) then
                  nm=max(1,int((iz+nprocs-1)/nprocs))
@@ -1538,7 +1667,10 @@
         !-----------------------------
         !---7.18 output 3d
         if ( nrecord == 3 .or. nrecord == 4 .or. nrecord == 5 .or. &
-             nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 )then
+             nrecord == 8 .or. nrecord == 9 .or. nrecord ==11 .or. &
+             nrecord ==18 .or. nrecord ==19 .or. nrecord ==20 .or. &
+             nrecord ==21 .or. nrecord ==22 .or. nrecord ==23 .or. &
+             nrecord ==24 )then
            call mpi_barrier(comm,ierr)
            kz=nz
            if ( nrecord ==  9 .or. nrecord == 11 ) then
@@ -1805,7 +1937,7 @@
            endif  !if ( my_proc_id == io_proc ) then
         endif
 
-     enddo do_out_var_loop !: for nrecord = 1, 17
+     enddo do_out_var_loop !: for nrecord = 1, itotal_var  !We have 17 or 22 or 24 variables now
 
      !-------------------------------------------------------------------------
      ! 8 --- clean ingrid gwt
@@ -1819,11 +1951,26 @@
   end subroutine hafsvi_preproc_nc
 
 !========================================================================================
-  subroutine hafsvi_postproc(in_file, in_date, out_dir, nestdoms)
+  subroutine hafsvi_postproc(in_file, in_date, out_dir, nestdoms, vi_cloud)
 
 !-----------------------------------------------------------------------------
 ! HAFS DA tool - hafsvi_postproc
 ! Yonghui Weng, 20220121
+!
+! Change/Update: Feb 11, 2023
+! Original hafsvi_postproc was designed to handle 14 variables, but new code is
+! changed to handle 5 more variables cloud water, rain water, ice, snow, graupel
+!
+! Change/Update: May, 2023
+! Includes Yonghui's fix: Changing from size(dat43) to size(dat44) in the below part
+! call mpi_recv(dat44, size(dat44), mpi_real, io_proc, 200*nv+ks, comm, status, ierr)
+!
+! FINAL Change/Update: July, 2023
+! New input argument "vi_cloud" is introduced, which shoulde be LOWER CASE
+! 0: NO cloud changes in VI and handles only 14 variables as same as original
+! sub_hafsvi_proc.f90
+! 1: GFDL scheme handles 19 variables, including 5 cloud variables as described in above
+! 2: Thompson scheme handles 21 variables, including 7 cloud variables as described in above
 !
 ! This subroutine reads hafs_vi binary output file and merge it to hafs restart files.
 ! hafs_vi binary output:
@@ -1842,6 +1989,13 @@
 !      WRITE(IUNIT) PD1
 !      WRITE(IUNIT) ETA1
 !      WRITE(IUNIT) ETA2
+!      WRITE(IUNIT) QC   !New variable added in 2023
+!      WRITE(IUNIT) QR   !New variable added in 2023
+!      WRITE(IUNIT) QI   !New variable added in 2023
+!      WRITE(IUNIT) QS   !New variable added in 2023
+!      WRITE(IUNIT) QG   !New variable added in 2023
+!      WRITE(IUNIT) NCI  !New variable added in 2023
+!      WRITE(IUNIT) NCR  !New variable added in 2023
 !
 !      ALLOCATE ( T1(NX,NY,NZ),Q1(NX,NY,NZ) )
 !      ALLOCATE ( U1(NX,NY,NZ),V1(NX,NY,NZ),DZDT(NX,NY,NZ) )
@@ -1852,6 +2006,9 @@
 !      ALLOCATE ( HLON(NX,NY),HLAT(NX,NY) )
 !      ALLOCATE ( VLON(NX,NY),VLAT(NX,NY) )
 !      ALLOCATE ( PMID1(NX,NY,NZ),ZMID1(NX,NY,NZ) )
+!      ALLOCATE ( QC(NX,NY,NZ),QR(NX,NY,NZ),QI(NX,NY,NZ) )
+!      ALLOCATE ( QS(NX,NY,NZ),QG(NX,NY,NZ) )
+!      ALLOCATE ( NCI(NX,NY,NZ),NCR(NX,NY,NZ) )
 
 !-----------------------------------------------------------------------------
 
@@ -1864,6 +2021,7 @@
 
   character (len=*), intent(in) :: in_file,  & ! The VI output binary file on 30x30degree
                                    in_date,  & ! HAFS_restart file date, like 20200825.120000
+                                   vi_cloud, & ! 0: As same as original code, NO cloud remapping, 1: GFDL, 2: Thompson
                                    out_dir     ! HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
                                                ! fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
   integer, intent(in)           :: nestdoms
@@ -1883,6 +2041,8 @@
 
 !----for hafsvi
   integer  :: nx, ny, nz, i360, filetype  ! filetype: 1=bin, 2=nc
+  integer  :: itotal_var !Total number of variables handled in this
+                         !subrotine: option=0: 14 variables, option=1:19 variables,option=2: 21 variables
   real     :: lon1,lat1,lon2,lat2,cen_lat,cen_lon,dlat,dlon
   real, allocatable, dimension(:,:) :: hlon, hlat, vlon, vlat
 
@@ -1897,6 +2057,13 @@
   real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
 
   integer :: io_proc, nm, ks, ke, nv
+
+! If input argument is 0, only handle 14 variables.
+  if (trim(vi_cloud) == '0') itotal_var=14
+! If input argument is 1, handle 19 variables for GFDL microphysics.
+  if (trim(vi_cloud) == '1') itotal_var=19
+! If input argument is 2, handle 21 variables for Thompson microphysics.
+  if (trim(vi_cloud) == '2') itotal_var=21
 
 !------------------------------------------------------------------------------
 ! 1 --- arg process
@@ -2015,7 +2182,7 @@
 
      !-------------------------------------------------------------------------
      ! 5 --- process record one-by-one
-     do_record_loop: do nrecord = 1, 14
+     do_record_loop: do nrecord = 1, itotal_var
 
         if ( my_proc_id == io_proc ) open(iunit, file=trim(in_file), form='unformatted')
 
@@ -2117,13 +2284,24 @@
         endif  !if ( nrecord == 6 ) then   !u,v - 6,7
 
         if ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8 .or. &
-             nrecord == 9 .or. nrecord == 11 ) then
+             nrecord == 9 .or. nrecord ==11 .or.                   &
+             nrecord ==15 .or. nrecord ==16 .or. nrecord ==17 .or. &
+             nrecord ==18 .or. nrecord ==19 .or. nrecord ==20 .or. &
+             nrecord ==21 ) then
            !---record 4 : t1-->T
            !---record 5 : Q1
            !---record 8 : DZDT
            !---record 9 : z1 --> DZ
            !---record 11: p1-->delp, p1(nx,ny,nz+1): (((p1(i,j,k),i=1,nx),j=1,ny),k=nz+1,1,-1)
            !---           p1-->ps
+           !---record 15: QC
+           !---record 16: QR
+           !---record 17: QI
+           !---record 18: QS
+           !---record 19: QG
+           !---Below two varialbes are for Thompson scheme only
+           !---record 20: NCI
+           !---record 21: NCR
            iz=nz
            if ( my_proc_id == io_proc ) then
               !---get data
@@ -2319,7 +2497,10 @@
               deallocate(u1, v1)
            endif
         elseif ( nrecord == 4 .or. nrecord == 5 .or. nrecord == 8 .or. &
-                 nrecord == 9 .or. nrecord == 11 ) then
+                 nrecord == 9 .or. nrecord == 11 .or.   &
+                 nrecord ==15 .or. nrecord == 16 .or. nrecord ==17 .or. &
+                 nrecord ==18 .or. nrecord == 19 .or. nrecord ==20 .or. &
+                 nrecord ==21 ) then
            iz=nz
            nm=max(1,int((iz+nprocs-1)/nprocs))
            if ( my_proc_id == io_proc ) then
@@ -2330,6 +2511,14 @@
               if ( nrecord == 8 ) call get_var_data(trim(ncfile_core), 'W', ix, iy, iz,1, dat4)
               if ( nrecord == 9 ) call get_var_data(trim(ncfile_core), 'DZ', ix, iy, iz,1, dat4)
               if ( nrecord == 11 ) call get_var_data(trim(ncfile_core), 'delp', ix, iy, iz,1, dat4)
+              if ( nrecord == 15 ) call get_var_data(trim(ncfile_tracer), 'liq_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 16 ) call get_var_data(trim(ncfile_tracer), 'rainwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 17 ) call get_var_data(trim(ncfile_tracer), 'ice_wat', ix, iy, iz,1, dat4)
+              if ( nrecord == 18 ) call get_var_data(trim(ncfile_tracer), 'snowwat', ix, iy, iz,1, dat4)
+              if ( nrecord == 19 ) call get_var_data(trim(ncfile_tracer), 'graupel', ix, iy, iz,1, dat4)
+              ! For Thompson microphysics only nrecord ==20 & 21
+              if ( nrecord == 20 ) call get_var_data(trim(ncfile_tracer), 'ice_nc',  ix, iy, iz,1, dat4)
+              if ( nrecord == 21 ) call get_var_data(trim(ncfile_tracer), 'rain_nc', ix, iy, iz,1, dat4)
 
               !---send data to other cores
               if ( nprocs > 1 ) then
@@ -2408,6 +2597,14 @@
               if ( nrecord == 8 ) call update_hafs_restart(trim(ncfile_core), 'W', ix, iy, iz, 1, dat41)
               if ( nrecord == 9 ) call update_hafs_restart(trim(ncfile_core), 'DZ', ix, iy, iz, 1, dat41)
               if ( nrecord ==11 ) call update_hafs_restart(trim(ncfile_core), 'delp', ix, iy, iz, 1, dat41)
+              if ( nrecord ==15 ) call update_hafs_restart(trim(ncfile_tracer), 'liq_wat', ix, iy, iz, 1, dat41)
+              if ( nrecord ==16 ) call update_hafs_restart(trim(ncfile_tracer), 'rainwat', ix, iy, iz, 1, dat41)
+              if ( nrecord ==17 ) call update_hafs_restart(trim(ncfile_tracer), 'ice_wat', ix, iy, iz, 1, dat41)
+              if ( nrecord ==18 ) call update_hafs_restart(trim(ncfile_tracer), 'snowwat', ix, iy, iz, 1, dat41)
+              if ( nrecord ==19 ) call update_hafs_restart(trim(ncfile_tracer), 'graupel', ix, iy, iz, 1, dat41)
+              ! For Thompson microphysics only nrecord ==20 & 21
+              if ( nrecord ==20 ) call update_hafs_restart(trim(ncfile_tracer), 'ice_nc',  ix, iy, iz, 1, dat41)
+              if ( nrecord ==21 ) call update_hafs_restart(trim(ncfile_tracer), 'rain_nc', ix, iy, iz, 1, dat41)
               deallocate(dat41)
 
               !---2d phis

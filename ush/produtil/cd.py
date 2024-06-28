@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Change directory, handle temporary directories
 
 This module provides a means by which to change to a different

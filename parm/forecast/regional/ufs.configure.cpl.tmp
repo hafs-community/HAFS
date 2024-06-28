@@ -1,0 +1,140 @@
+logKindFlag:            ESMF_LOGKIND_MULTI_ON_ERROR
+
+# component list
+_EARTH_component_list_
+
+# component models
+_ATM_model_component_
+_OCN_model_component_
+_WAV_model_component_
+_MED_model_component_
+
+# component petLists
+_ATM_petlist_bounds_
+_OCN_petlist_bounds_
+_MED_petlist_bounds_
+_WAV_petlist_bounds_
+
+# run sequence
+runSeq::
+    @_cpl_dt_
+ _runSeq_ALL_
+    @
+::
+
+DRIVER_attributes::
+::
+
+MED_attributes::
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
+  history_n = 1
+  history_option = nhours
+  history_ymd = -999
+  coupling_mode = hafs
+  normalization = none
+  merge_type = copy
+::
+
+ALLCOMP_attributes::
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
+  ScalarFieldCount = 3
+  ScalarFieldIdxGridNX = 1
+  ScalarFieldIdxGridNY = 2
+  ScalarFieldIdxNextSwCday = 3
+  ScalarFieldName = cpl_scalars
+  start_type = startup
+  case_name = ufs.hafs
+  restart_n = 1
+  restart_option = nhours
+  restart_ymd = -999
+  dbug_flag = 1
+  use_coldstart = true
+  # orb_* for cdeps coupling with data atmosphere
+  orb_eccen = 1.e36
+  orb_iyear = 2000
+  orb_iyear_align = 2000
+  orb_mode = fixed_year
+  orb_mvelp = 1.e36
+  orb_obliq = 1.e36
+  mediator_present = true
+  stop_n = _end_hour_
+  stop_option = nhours
+  stop_ymd = -999
+::
+
+# component attributes
+
+ATM_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+  mesh_atm = _mesh_atm_
+  stop_n = _end_hour_
+  stop_option = nhours
+  stop_ymd = -999
+  write_restart_at_endofrun = .true.
+::
+
+OCN_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+  cdf_impexp_freq = 3
+  cpl_hour = 0
+  cpl_min = 0
+  cpl_sec = _cpl_dt_
+  base_dtg = _base_dtg_
+  merge_import = _merge_import_
+  skip_first_import = .true.
+  hycom_arche_output = .false.
+  hyc_esmf_exp_output = .true.
+  hyc_esmf_imp_output = .true.
+  import_diagnostics = .false.
+  import_setting = flexible
+  hyc_impexp_file = ufs.configure
+  espc_show_impexp_minmax = .true.
+  ocean_start_dtg = _ocean_start_dtg_
+  start_hour = 0
+  start_min = 0
+  start_sec = 0
+  end_hour = _end_hour_
+  end_min = 0
+  end_sec = 0
+::
+
+WAV_attributes::
+  Verbosity = 1
+  Diagnostic = 0
+  OverwriteSlice = false
+  merge_import = .true.
+  mesh_wav = _mesh_wav_
+  multigrid = _multigrid_
+::
+
+# The following are only used by the hycom ocean model. #
+ocn_export_fields::
+  'sst'         'sea_surface_temperature'   'K'
+  'mask'        'ocean_mask'                '1'
+  'cpl_scalars' 'cpl_scalars'               '1'
+::
+
+# The following are only used by the hycom ocean model. #
+ocn_import_fields::
+# 'u10'         'inst_zonal_wind_height10m' 'm_s-1'
+# 'v10'         'inst_merid_wind_height10m' 'm_s-1'
+  'taux10'      'inst_zonal_moment_flx_atm' 'N_m-2'
+  'tauy10'      'inst_merid_moment_flx_atm' 'N_m-2'
+# 'airtmp'      'inst_temp_height2m'        'K'
+# 'airhum'      'inst_spec_humid_height2m'  'kg_kg-1'
+  'prcp'        'inst_prec_rate'            'kg_m-2_s-1'
+  'swflxd'      'inst_net_sw_flx'           'W_m-2'
+  'lwflxd'      'inst_net_lw_flx'           'W_m-2'
+  'mslprs'      'inst_pres_height_surface'  'Pa'
+# 'gt'          'inst_temp_height_surface'  'K'
+  'sensflx'     'inst_sensi_heat_flx'       'W_m-2'
+  'latflx'      'inst_laten_heat_flx'       'W_m-2'
+::

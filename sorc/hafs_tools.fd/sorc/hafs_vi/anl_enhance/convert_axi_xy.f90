@@ -7,6 +7,15 @@
                     SLPE,TENV,PCST,HP,HV,ZMAX,vobs,             &
 		    dp_obs,p_obs,vrmax,PRMAX,RMN,               &
 		    U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
+
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements
+! Revised by: JungHoon Shin 2023 NCEP/EMC
+!                Modify the code: If SLP of modified TC is too deep,
+!                call the shallow composite vortex to alleviate low SLP issue
+
 ! SUBPROGRAM
 !   PRGRMMR
 !
@@ -102,9 +111,9 @@
          NHCT=75
        END IF
 
-       if(p_obs.lt.89510.)then
+       if(p_obs.lt.91510.)then
          NHCT=77
-         print*,'minimum pressure < 900 mb', p_obs
+         print*,'minimum pressure < 915 mb', p_obs
        end if
 
       READ(NHCT)delc,thac    !* vortex lon, lat
@@ -130,7 +139,7 @@
          READ(NHCT)(ur(k,i),i=1,IR1) !* vortex radial wind
          READ(NHCT)(th(k,i),i=1,IR1) !* vortex tangen wind
          print*,'k,th1,2,200=',k,th(k,1),th(k,2),th(k,IR)
-         if(p_obs.lt.89510.)then
+         if(p_obs.lt.91510.)then
            do i=1,IR1
 !            ur(k,i)=ur(k,i)*0.1    !* reduce convergence
             ur(k,i)=ur(k,i)*0.5    !* reduce convergence

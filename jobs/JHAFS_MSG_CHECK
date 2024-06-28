@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export hafs_ver=${hafs_ver:?}
@@ -39,7 +39,7 @@ export COMINmsg=${COMINmsg:-$(compath.py ${envir}/${NET}/${hafs_ver})/inp${RUN}}
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_msg_check.py "${PDY:2:6}" "$cyc"
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${DATAROOT}

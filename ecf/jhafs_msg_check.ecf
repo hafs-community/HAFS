@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:ompthreads=1
+#PBS -l place=vscatter:excl,select=1:ncpus=1:mpiprocs=1:ompthreads=1
 #PBS -l debug=true
 
 model=hafs
@@ -37,35 +37,5 @@ This job will check if hurricane message files are generated in time, and if
 there is active storm while the messages is not present yet in the specic time
 closed to the cycle, an alert email will be sent out to SDM to alert for the
 setup_hurricane.
-
-
-TROUBLESHOOTING
-
-This job will rarely fail since it has little to do; it just sets up
-some directories and makes configuration files.  If this job fails, it
-is likely due to a hardware or other system issue, with one exception...
-
-PROBLEM: Why is there no storm?
-
-The launcher does whatever the NOAA SDM tells it to do.  The NOAA SDM
-uses a script called setup_hurricane to create message files read by
-the launcher job's JHAFS_LAUNCH script.  If the launcher job decided
-not to run a storm, then that means the SDM told it not to.  If there
-should have been a storm, then it likely means there was a
-communication problem, preventing data from getting from NHC or JTWC
-to the NOAA SDM.
-
-For NHC/CPHC storms, the NOAA SDM has a direct line to the on-call
-NHC/CPHC person, who can confirm the absence of a storm.  It may then
-be possible to manually edit the message and nstorms files to add the
-storm in.  Alternatively, you could rerun setup_hurricane, but that
-may change storm priorities.  In that case, you must rerun the entire
-HAFS cycle (all storm slots).  All of this is technical possibility;
-there may be procedural reasons why this cannot be done.
-
-For JTWC storms, the NOAA SDM has the direct line to the JTWC duty
-officer, but there isn't much that can be done.  JTWC lacks any way to
-send vitals after the T+3 deadline.  Hence, a JTWC storm that is
-missed, is missed.
 
 %end

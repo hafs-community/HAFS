@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -33,14 +33,21 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+  if [ ${machine}  = "wcoss2" ]; then
+    module reset
+    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+    module load gsi_${machine}
+    module load cray-pals/1.2.2
+    module load cfp/2.0.4
+  fi
   if [ ${machine}  = "hera" ]; then
     module purge
+    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
     module load gsi_${machine}.intel
-  else
-    if [ ${machine}  = "jet" ]; then
-      module purge
-    fi
+  fi
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]]; then
+    module purge
+    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
     module load gsi_${machine}
   fi
   module list
@@ -111,7 +118,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -177,7 +184,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

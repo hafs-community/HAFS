@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -97,7 +97,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_forecast.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 #===============================================================================
 # post
@@ -119,7 +119,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_post.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 #===============================================================================
 # product
@@ -157,11 +157,11 @@ for ng in $(seq 1 ${ngrids}); do
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
   echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
         ${HOMEhafs}/scripts/exhafs_product.sh \
-        > run_product.${gridstr}.log 2>&1" >> cmdfile_product
+        > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done
 chmod +x cmdfile_product
 ${APRUNC} ${MPISERIAL} -m cmdfile_product
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Check if product/tracker run successfully
 for ng in $(seq 1 ${ngrids}); do
@@ -172,7 +172,7 @@ for ng in $(seq 1 ${ngrids}); do
   fi
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
   cat ./run_product.${gridstr}.log
-  if grep "top of output_all" ./tracker${neststr}/hafs_gettrk.out; then
+  if grep "top of output_all" ./tracker${neststr}/gettrk.out; then
     echo "INFO: successfully ran run_product.${gridstr}"
   else
     echo "FATAL ERROR: failed running run_product.${gridstr}"

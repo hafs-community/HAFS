@@ -1,5 +1,10 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_hrdgraphics.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates HRD graphics through GPLOT.
+################################################################################
 set -xe
 
 CDATE=${CDATE:-${YMDH}}

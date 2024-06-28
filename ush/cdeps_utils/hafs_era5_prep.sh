@@ -1,5 +1,10 @@
-#!/bin/bash
-
+#!/bin/sh
+################################################################################
+# Script Name: hafs_era5_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script prepares and links ERA5 files for CDEPS DATM component.
+################################################################################
 set -xe
 
 set -u
@@ -55,7 +60,7 @@ while (( now <= end && itime < infinity )); do
     else
         usefiles="$usefiles $infile"
         outfile=$( printf "%s/DATM_input_%05d.nc" "$output_path" $itime )
-        ln -sf "$infile" "$outfile"
+        ${NLN} "$infile" "$outfile"
     fi
     now=$( date -d "${now:0:4}-${now:4:2}-${now:6:2}t00:00:00+00 +24 hours" +%Y%m%d )
     itime=$(( itime+1 ))

@@ -1,3 +1,7 @@
+!-----------------------------------------------------------------------+
+! This package of subroutines are used for HAFS grid calculation.
+! authors and history:
+!      -- 202102, created by Yonghui Weng
 !========================================================================================
   subroutine rd_grid_spec_data(ncfile, grid)
 

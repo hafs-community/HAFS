@@ -1,6 +1,14 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_post.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmospheric post-processing steps including
+#   running UPP for regular and satellite post (if needed), subsetting the
+#   vortex tracker needed grib2 records, and NHC requested grib2 records (if
+#   chosen).
+################################################################################
+set -x -o pipefail
 
 export MP_LABELIO=yes
 
@@ -9,36 +17,41 @@ CDATE=${CDATE:-${YMDH}}
 # Sepcial settings if this is an atm_init run
 if [ ${RUN_INIT:-NO} = YES ]; then
 
-# Turn off satpost for atm_init run to save time
+# Turn off satpost and nhcpost for atm_init run to save time
 satpost=.false.
+nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   NHRS_ENS=0
 elif [ ${FGAT_MODEL} = gdas ]; then
-  INPdir=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}
   COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
   NHRS=0
 else
-  INPdir=${WORKhafs}/atm_init/forecast
+  INPdir=${WORKhafs}/intercom/forecast_init
   COMOUTpost=${WORKhafs}/intercom/atm_init
   intercom=${WORKhafs}/intercom/atm_init/post
   NHRS=0
 fi
 
+RESTARTcom=""
+
 else
 
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}
 else
-  INPdir=${WORKhafs}/forecast
+  INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/post
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART
 fi
 
 fi
@@ -56,6 +69,7 @@ if [ ${ENSDA} = YES ]; then
   post_gridspecs=${post_gridspecs_ens:-""}
   trak_gridspecs=${trak_gridspecs_ens:-""}
   satpost=${satpost_ens:-".false."}
+  nhcpost=${nhcpost_ens:-".false."}
 else
   NHRS=${NHRS:-126}
   NBDYHRS=${NBDYHRS:-3}
@@ -64,6 +78,7 @@ else
   post_gridspecs=${post_gridspecs:-""}
   trak_gridspecs=${trak_gridspecs:-""}
   satpost=${satpost:-".false."}
+  nhcpost=${nhcpost:-".false."}
 fi
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
@@ -79,9 +94,12 @@ DATA=${DATA:-${WORKhafs}/atm_post}
 mkdir -p ${COMOUTpost} ${intercom}
 mkdir -p ${DATA}
 
+if [ ! -z "${RESTARTcom}" ]; then
+  mkdir -p ${RESTARTcom}
+fi
+
 FHRB=$(( $((${POST_GROUPI:-1}-1)) * ${NOUTHRS} ))
 FHRI=$(( ${POST_GROUPN:-1} * ${NOUTHRS} ))
-FHRE=${NHRS}
 
 # If desired, deletes all the post output files in COMOUTpost and intercom
 if [ "${POST_CLEANUP^^}" = "YES" ]; then
@@ -101,6 +119,8 @@ if [ "${POST_CLEANUP^^}" = "YES" ]; then
       grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
       sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
       sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+      nhc_grb2file=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2
+      nhc_grb2indx=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2.idx
       trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
       trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
       rm -f ${COMOUTpost}/${grb2file} ${COMOUTpost}/${grb2indx}
@@ -165,6 +185,8 @@ grb2indx=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2.idx
 sat_grb2post=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.postgrb2
 sat_grb2file=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2
 sat_grb2indx=${out_prefix}.${RUN}.${gridstr}.sat.f${FHR3}.grb2.idx
+nhc_grb2file=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2
+nhc_grb2indx=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2.idx
 trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
 trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 
@@ -173,11 +195,11 @@ trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
 if [ -s ${intercom}/post${nestdotstr}f${FHR3} ] && \
-   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/logf${FHR3} ] && \
+   [ ${intercom}/post${nestdotstr}f${FHR3} -nt ${INPdir}/log.atm.f${FHR3} ] && \
    [ -s ${COMOUTpost}/${grb2file} ] && \
    [ -s ${COMOUTpost}/${grb2indx} ]; then
 
-echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/logf${FHR3}"
+echo "post done file ${intercom}/post${nestdotstr}f${FHR3} exist and newer than ${INPdir}/log.atm.f${FHR3}"
 echo "product ${COMOUTpost}/${grb2file} exist"
 echo "product ${COMOUTpost}/${grb2indx} exist"
 echo "skip post for forecast hour ${FHR3} valid at ${NEWDATE}"
@@ -188,43 +210,43 @@ else
 if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
-    sleep 1s
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3} , ${INPdir}/HURPRS${neststr}.GrbF${FHR2} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
-  if [ ! -s ${INPdir}/logf${FHR3} ] || \
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
+  if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/logf${FHR3} not ready, sleep 10s"
+    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${INPdir}/logf${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
-    sleep 1s
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc, ${INPdir}/sfc${nestdotstr}f${FHR3}.nc too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
@@ -260,7 +282,6 @@ KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.
 /
 EOF
 
-rm -f fort.*
 # Copy fix files
 ${NCP} ${PARMhafs}/post/nam_micro_lookup.dat ./eta_micro_lookup.dat
 ${NCP} ${PARMhafs}/post/params_grib2_tbl_new ./params_grib2_tbl_new
@@ -269,13 +290,21 @@ if [ ${satpost} = .true. ]; then
 # ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   # Link crtm fix files
+  # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
     "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
-    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" "ahi_himawari8" \
-    "abi_g16" "abi_g17" ; do
+    "tmi_trmm" "imgr_insat3d" "abi_gr" "abi_g16" \
+    "abi_g17" "ahi_himawari8" ; do
     ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+  done
+  for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
+    "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
+    "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
+    "ssmis_f17" "ssmis_f18" "ssmis_f19" "ssmis_f20" \
+    "tmi_trmm" "v.seviri_m10" "imgr_insat3d" "abi_gr" \
+    "abi_g16" "abi_g17" "ahi_himawari8" ; do
     ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
   done
   for file in "Aerosol" "Cloud"; do
@@ -290,9 +319,11 @@ fi
 
 # Run post
 ${NCP} -p ${POSTEXEC} ./hafs_post.x
-set -o pipefail
-${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./outpost_${NEWDATE}
-set +o pipefail
+#${APRUNC} ./hafs_post.x < itag >> $pgmout 2>errfile
+#export err=$?; err_chk
+#if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
+${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./post_${NEWDATE}.log
+export err=$?; err_chk
 
 mv HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
@@ -349,6 +380,7 @@ if [ ${satpost} = .true. ]; then
 fi
 chmod +x cmdfile
 ${APRUNC} ${MPISERIAL} -m cmdfile
+export err=$?; err_chk
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
 # clean up the temporary files
@@ -374,8 +406,23 @@ fi #if [[ "$outputgrid" = "rotated_latlon"* ]]; then
 
 # Generate the grib2 index file
 ${WGRIB2} -s ${grb2file} > ${grb2indx}
+export err=$?; err_chk
 if [ ${satpost} = .true. ]; then
   ${WGRIB2} -s ${sat_grb2file} > ${sat_grb2indx}
+  export err=$?; err_chk
+fi
+
+# Subsetting hafs grib2 files for NHC
+if [ ${nhcpost} = .true. ]; then
+  PARMlist=$(sed -z 's/\n/|/g' ${PARMhafs}/post/hafs_subset_nhc.txt | sed -e 's/.$//g')
+  ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+  export err=$?; err_chk
+  if [ ${satpost} = .true. ]; then
+    ${WGRIB2} -append ${sat_grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
+    export err=$?; err_chk
+  fi
+  ${WGRIB2} -s ${nhc_grb2file} > ${nhc_grb2indx}
+  export err=$?; err_chk
 fi
 
 # Extract hafstrk grib2 files for the tracker
@@ -386,6 +433,7 @@ PARMlist=${PARMlistp1}"|"${PARMlistp2}"|"${PARMlistp3}
 echo ${PARMlist}
 
 ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
+export err=$?; err_chk
 
 # If desired, create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
 if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
@@ -407,6 +455,7 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
   chmod +x cmdfile_regrid
   ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
+  export err=$?; err_chk
   rm -f cmdfile_merge
  #${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p1 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p1 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p1 >  cmdfile_merge
@@ -414,12 +463,14 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
   chmod +x cmdfile_merge
   ${APRUNC} ${MPISERIAL} -m cmdfile_merge
+  export err=$?; err_chk
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}
 fi
 
 # Generate the index file for the tracker
 ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
+export err=$?; err_chk
 
 # Deliver to intercom
 mv ${trk_grb2file} ${intercom}/
@@ -434,6 +485,10 @@ if [ $SENDCOM = YES ]; then
   mv ${grb2indx} ${COMOUTpost}/
   if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${grb2indx}
+  fi
+  if [ ${nhcpost} = .true. ]; then
+    mv ${nhc_grb2file} ${COMOUTpost}/
+    mv ${nhc_grb2indx} ${COMOUTpost}/
   fi
   if [ ${satpost} = .true. ]; then
     mv ${sat_grb2file} ${COMOUTpost}/
@@ -451,51 +506,121 @@ if [ ${gtype} = regional ]; then
 
 grid_spec=grid_spec${nesttilestr}.nc
 atmos_static=atmos_static${nesttilestr}.nc
-if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
-  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
-  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
-else
-  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
-  atmos_diag=atmos_diag${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
-fi
-fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}${tilestr}.nc
-fv_tracer=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
-fv_srf_wnd=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
-sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
-phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
+oro_data=oro_data${nesttilestr}.nc
+oro_data_ls=oro_data_ls${nesttilestr}.nc
+oro_data_ss=oro_data_ss${nesttilestr}.nc
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
-if [ -s ${INPdir}/${grid_spec} ] && [ ! -s ${INPdir}/RESTART/${grid_spec} ]; then
-  ${NCP} -p ${INPdir}/${grid_spec} ${INPdir}/RESTART/
+if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTART/${grid_spec} ]; then
+  ${NCP} -pL ${INPdir}/${grid_spec} ${INPdir}/RESTART/
 fi
-if [ -s ${INPdir}/${atmos_static} ] && [ ! -s ${INPdir}/RESTART/${atmos_static} ]; then
-  ${NCP} -p ${INPdir}/${atmos_static} ${INPdir}/RESTART/
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
+  ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
 fi
-oro_data=oro_data${nesttilestr}.nc
-if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ! -s ${INPdir}/RESTART/${oro_data} ]; then
+if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
+  ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
+fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
+  ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
-oro_data_ls=oro_data_ls${nesttilestr}.nc
-if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ls} ]; then
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
+  ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
 fi
-oro_data_ss=oro_data_ss${nesttilestr}.nc
-if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ! -s ${INPdir}/RESTART/${oro_data_ss} ]; then
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
+  ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+fi
+if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+   [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
+  ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+fi
 
-if [[ "${is_moving_nest:-.false.}" = *".true."* ]] || [[ "${is_moving_nest:-.false.}" = *".T."* ]]; then
-  # Pass over the grid_mspec files for moving nest (useful for storm cycling)
-  if [ $FHR -lt 12 ] && [ -s ${INPdir}/${grid_mspec} ]; then
-    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30  ]; do sleep 10s; done
-    if [ ! -L ${INPdir}/${grid_mspec} ]; then
-      mv ${INPdir}/${grid_mspec} ${INPdir}/RESTART/${grid_mspec}
-      ${NLN} ${INPdir}/RESTART/${grid_mspec} ${INPdir}/${grid_mspec}
+# grid_mspec files at the current and prior forecast hours
+OLDDATE=$(${NDATE} -${NOUTHRS} $NEWDATE)
+YYYYold=$(echo $OLDDATE | cut -c1-4)
+MMold=$(echo $OLDDATE | cut -c5-6)
+DDold=$(echo $OLDDATE | cut -c7-8)
+HHold=$(echo $OLDDATE | cut -c9-10)
+if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
+  grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}.nc
+else
+  grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
+  grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}${tilestr}.nc
+fi
+# Deliver grid_mspec_old at forecast hours 3, 6, 9
+if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec_old}) )) -lt 30 ]; do sleep 10s; done
+  if [ ${INPdir}/${grid_mspec_old} -nt ${INPdir}/RESTART/${grid_mspec_old} ]; then
+    ${NCP} -pL ${INPdir}/${grid_mspec_old} ${INPdir}/RESTART/
+  fi
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+     [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
+     [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
+    ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+  fi
+fi
+# Deliver grid_mspec at NHRS if NHRS less than 12
+if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${grid_mspec}) )) -lt 30 ]; do sleep 10s; done
+  if [ ${INPdir}/${grid_mspec} -nt ${INPdir}/RESTART/${grid_mspec} ]; then
+    ${NCP} -pL ${INPdir}/${grid_mspec} ${INPdir}/RESTART/
+  fi
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
+     [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
+     [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
+    ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+  fi
+fi
+
+# Deliver restart files for forecast hours 3, 6, 9
+fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}.nc
+fv_core_tile=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}${tilestr}.nc
+fv_tracer_tile=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr}${tilestr}.nc
+fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
+phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
+coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
+  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
+  for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
+    if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+      ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+    fi
+  done
+fi
+
+# Deliver WW3 restart file if needed and exists
+if [ ${run_wave:-no} = yes ]; then
+  ww3_restart=${YYYY}${MM}${DD}.${HH}0000.restart.ww3
+  ww3_restart_f006=${out_prefix}.${RUN}.ww3.restart.f006
+  if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -eq 6 ] && [ -s ${INPdir}/${ww3_restart} ]; then
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ww3_restart}) )) -lt 30 ]; do sleep 10s; done
+    if [ ${INPdir}/${ww3_restart} -nt ${COMOUTpost}/${ww3_restart_f006} ]; then
+      ${FCP} ${INPdir}/${ww3_restart} ${COMOUTpost}/${ww3_restart_f006}
     fi
   fi
-  # Deliver hafs.trak.patcf if exists
-  if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
-    ${NCP} -p ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
+fi
+
+# Deliver hafs.trak.patcf at NHRS if needed and exists
+if [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${fort_patcf} ]; then
+  if [ -s ${INPdir}/${fort_patcf}_save ]; then
+    cat ${INPdir}/${fort_patcf} >> ${INPdir}/${fort_patcf}_save
+    ${FCP} ${INPdir}/${fort_patcf}_save ${COMOUTpost}/${trk_patcf}
+  else
+    ${FCP} ${INPdir}/${fort_patcf} ${COMOUTpost}/${trk_patcf}
   fi
 fi
 

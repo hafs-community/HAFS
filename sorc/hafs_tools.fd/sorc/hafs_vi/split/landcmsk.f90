@@ -1,4 +1,6 @@
 subroutine landcmsk(IK,JK,GLON,GLAT,ZDATG,IFLAG,lsflag,kst)
+!Authors: Qingfu Liu (NCEP/EMC)
+!Revised by Chuan-Kai Wang (NCEP/EMC) 2022
 use tr, only: ING, JNG, IB
 use nhc2
 use nhc3

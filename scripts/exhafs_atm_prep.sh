@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmopsheric preprocessing steps to generate the
+#   model grid and geographical files (topography, surface climatology, etc.)
+################################################################################
+set -x -o pipefail
 
 if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
 
@@ -89,17 +95,17 @@ export FIXfv3=${FIXhafs}/fix_fv3
 export FIXsfc_climo=${FIXhafs}/fix_sfc_climo
 
 if [ ${regional_esg} = yes ]; then
-  export MAKEHGRIDEXEC=${EXEChafs}/hafs_regional_esg_grid.x
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_utils_regional_esg_grid.x
 else
-  export MAKEHGRIDEXEC=${EXEChafs}/hafs_make_hgrid.x
+  export MAKEHGRIDEXEC=${EXEChafs}/hafs_utils_make_hgrid.x
 fi
-export MAKEMOSAICEXEC=${EXEChafs}/hafs_make_solo_mosaic.x
-export FILTERTOPOEXEC=${EXEChafs}/hafs_filter_topo.x
-export FREGRIDEXEC=${EXEChafs}/hafs_fregrid.x
-export OROGEXEC=${EXEChafs}/hafs_orog.x
-export OROGGSLEXEC=${EXEChafs}/hafs_orog_gsl.x
-export SHAVEEXEC=${EXEChafs}/hafs_shave.x
-export SFCCLIMOEXEC=${EXEChafs}/hafs_sfc_climo_gen.x
+export MAKEMOSAICEXEC=${EXEChafs}/hafs_utils_make_solo_mosaic.x
+export FILTERTOPOEXEC=${EXEChafs}/hafs_utils_filter_topo.x
+export FREGRIDEXEC=${EXEChafs}/hafs_utils_fregrid.x
+export OROGEXEC=${EXEChafs}/hafs_utils_orog.x
+export OROGGSLEXEC=${EXEChafs}/hafs_utils_orog_gsl.x
+export SHAVEEXEC=${EXEChafs}/hafs_utils_shave.x
+export SFCCLIMOEXEC=${EXEChafs}/hafs_utils_sfc_climo_gen.x
 
 export MAKEGRIDSSH=${USHhafs}/hafs_make_grid.sh
 export MAKEOROGSSH=${USHhafs}/hafs_make_orog.sh
@@ -168,7 +174,7 @@ export orog_dir=$DATA/orog
 if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   export filter_dir=$DATA/filter_topo
 elif [ $gtype = nest ] || [ $gtype = regional ];  then
-  export filter_dir=$DATA/filter_topo
+# export filter_dir=$DATA/filter_topo
   export filter_dir=$orog_dir   # nested grid topography will be filtered online
 fi
 mkdir -p $grid_dir $orog_dir $filter_dir
@@ -179,8 +185,10 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "............ execute $MAKEGRIDSSH ................."
   if [ $gtype = uniform ];  then
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $script_dir
+    export err=$?; err_chk
   elif [ $gtype = stretch ]; then
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $script_dir
+    export err=$?; err_chk
   fi
   date
   echo "............ execute $MAKEOROGSSH ................."
@@ -191,7 +199,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -210,7 +218,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -237,6 +245,7 @@ elif [ $gtype = nest ]; then
        "$iend_nest" \
        "$jend_nest" \
        $halo $script_dir
+  export err=$?; err_chk
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
@@ -244,7 +253,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -261,7 +270,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -284,6 +293,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
 
   echo "creating regional esg grid"
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+  export err=$?; err_chk
 
   else
 
@@ -296,6 +306,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
        "$iend_nest" \
        "$jend_nest" \
        $halo $script_dir
+  export err=$?; err_chk
 
   fi
 
@@ -306,7 +317,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -323,7 +334,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -386,6 +397,7 @@ if [ $gtype = regional ]; then
   if [ ${nest_grids} -eq 1 ]; then
     echo "Creating regional esg grid"
     ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $target_lon $target_lat $pazi $halop2 $script_dir
+    export err=$?; err_chk
   else
     echo "Regional esg grid parent already generated. No need to generate again."
   fi
@@ -393,13 +405,14 @@ if [ $gtype = regional ]; then
   else
 
   ${APRUNS} $MAKEGRIDSSH $CRES $grid_dir $stretch_fac $target_lon $target_lat $refine_ratio $istart_nest_halo $jstart_nest_halo $iend_nest_halo $jend_nest_halo $halo $script_dir
+  export err=$?; err_chk
 
   fi
 
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -410,6 +423,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $FILTERTOPOSSH .............."
   ${APRUN} $FILTERTOPOSSH $CRES $grid_dir $orog_dir $filter_dir
+  export err=$?; err_chk
 
   echo "............ execute shave to reduce grid and orography files to required compute size .............."
   cd $filter_dir
@@ -420,7 +434,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halop1 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid
 
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 4
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halop1}.nc
@@ -430,7 +446,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halo \'$filter_dir/oro.${CASE}.tile${tile}.nc\' \'$filter_dir/oro.${CASE}.tile${tile}.shave.nc\' >input.shave.orog.halo${halo}
   echo $npts_cgx $npts_cgy $halo \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo}
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo}
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo}
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 3
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo}.nc
@@ -441,7 +459,9 @@ if [ $gtype = regional ]; then
   echo $npts_cgx $npts_cgy $halo0 \'$filter_dir/${CASE}_grid.tile${tile}.nc\' \'$filter_dir/${CASE}_grid.tile${tile}.shave.nc\' >input.shave.grid.halo${halo0}
 
   ${APRUNS} ${SHAVEEXEC} < input.shave.orog.halo${halo0}
+  export err=$?; err_chk
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid.halo${halo0}
+  export err=$?; err_chk
 
   # Copy the shaved files with the halo of 0
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
@@ -452,7 +472,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -571,36 +591,33 @@ vegetation_greenness_method="bilinear"
 /
 EOF
 
-if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
-  ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
+  ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
-$APRUNC ./hafs_sfc_climo_gen.x
-rc=$?
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen.log
+export err=$?; err_chk
 
-if [[ $rc == 0 ]]; then
-  if [[ $GRIDTYPE != "regional" ]]; then
-    for files in *.nc; do
-      if [[ -f $files ]]; then
-        mv $files ${sfc_climo_savedir}/${CASE}.${files}
-      fi
-    done
-  else
-    for files in *.halo.nc; do
-      if [[ -f $files ]]; then
-        file2=${files%.halo.nc}
-        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
-      fi
-    done
-    for files in *.nc; do
-      if [[ -f $files ]]; then
-        file2=${files%.nc}
-        mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
-      fi
-    done
-  fi  # is regional?
+if [[ $GRIDTYPE != "regional" ]]; then
+  for files in *.nc; do
+    if [[ -f $files ]]; then
+      mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    fi
+  done
 else
-  exit $rc
-fi
+  for files in *.halo.nc; do
+    if [[ -f $files ]]; then
+      file2=${files%.halo.nc}
+      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
+    fi
+  done
+  for files in *.nc; do
+    if [[ -f $files ]]; then
+      file2=${files%.nc}
+      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
+    fi
+  done
+fi  # is regional?
 
 if [ $gtype = regional ]; then
   rm -f $out_dir/${CASE}_grid.tile${tile}.nc
@@ -650,21 +667,18 @@ vegetation_greenness_method="bilinear"
 /
 EOF
 
-if [[ ! -e ./hafs_sfc_climo_gen.x ]]; then
-  ${NCP} -p $SFCCLIMOEXEC ./hafs_sfc_climo_gen.x
+if [[ ! -e ./hafs_utils_sfc_climo_gen.x ]]; then
+  ${NCP} -p $SFCCLIMOEXEC ./hafs_utils_sfc_climo_gen.x
 fi
-$APRUNC ./hafs_sfc_climo_gen.x
-rc=$?
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_utils_sfc_climo_gen.x 2>&1 | tee ./sfc_climo_gen_tile${itile}.log
+export err=$?; err_chk
 
-if [[ $rc == 0 ]]; then
-  for files in *.nc; do
-    if [[ -f $files ]]; then
-      mv $files ${sfc_climo_savedir}/${CASE}.${files}
-    fi
-  done
-else
-  exit $rc
-fi
+for files in *.nc; do
+  if [[ -f $files ]]; then
+    mv $files ${sfc_climo_savedir}/${CASE}.${files}
+  fi
+done
 
 done
 

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 """!A shell-like syntax for running serial, MPI and OpenMP programs.
 
 This module implements a shell-like syntax for launching MPI and

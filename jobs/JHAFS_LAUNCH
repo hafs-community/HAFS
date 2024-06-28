@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -78,10 +78,12 @@ abort_reason=""  # if non-empty, storm does not run
 what="message$storm_num" # what storm is being run or aborted?
 messagefile=$COMINmsg/message$storm_num
 
-set +e # to ensure later "if" handles empty files
-nstorms=$( head -1 $COMINmsg/nstorms ) # number of storms: 0-7
-message=$( head -1 "$messagefile" ) # full message contents
-set -e
+if [ -s $COMINmsg/nstorms ]; then
+  nstorms=$( head -1 $COMINmsg/nstorms ) # number of storms: 0-7
+fi
+if [ -s $messagefile ]; then
+  message=$( head -1 "$messagefile" ) # full message contents
+fi
 
 # If nstorms file is missing, use message contents to decide:
 nstorms=${nstorms:-7}
@@ -134,7 +136,7 @@ configmore=" ${HAFS_LAUNCH_EXTRA_CONFIG:-}"
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_launch.py "$PDY$cyc" "$storm" FORECAST $PARMhafs $configmore
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

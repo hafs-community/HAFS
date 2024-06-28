@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_completion.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script logs the completion of an HAFS forecast cycle.
+################################################################################
 ##@namespace ush.hafs_completion
 # A simple script that logs the completion of an HAFS forecast cycle.
 #

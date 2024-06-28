@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_unpost.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script cleans up the HAFS atmopheric, wave and oceanic post-processing
+#   products and files in com and intercom.
+################################################################################
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 
@@ -9,6 +15,8 @@ DATA=${DATA:-${WORKhafs}/unpost}
 
 mkdir -p ${DATA}
 cd ${DATA}
+
+if [ "${POST_CLEANUP^^}" = "YES" ]; then
 
 # Remove atm_post com and intercom output
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.atm.f???.grb2*
@@ -20,6 +28,8 @@ rm -f ${WORKhafs}/intercom/post/post*f???
 # Remove ocn_post com output
 if [ ${run_ocean} = yes ]; then
   rm -f ${COMhafs}/${out_prefix}.${RUN}.hycom.*.f???.nc
+  rm -f ${COMhafs}/${out_prefix}.${RUN}.mom6.*.f???.nc
+  rm -f ${WORKhafs}/intercom/ocn_post/ocnpost*f???
 fi
 
 # Remove wav_post com output
@@ -47,12 +57,13 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.grib.stats.short
 rm -f ${COMhafs}/${out_prefix}.${RUN}.afos
 
 # Remove output com output
-rm -f ${COMhafs}/${out_prefix}.${RUN}.storm_info
 rm -f ${COMhafs}/${out_prefix}.${RUN}.*.swath.grb2*
 
 # Remove gempak com output
 rm -f ${COMhafs}/gempak/${STORMID,,}/${RUN}*_${STORMID,,}
 rm -f ${COMhafs}/gempak/${STORMID,,}/meta/${RUN}*_${STORMID,,}*
 rm -f ${WORKhafs}/intercom/gempak/*.done
+
+fi # if [ "${POST_CLEANUP^^}" = "YES" ]; then
 
 cd ${DATA}

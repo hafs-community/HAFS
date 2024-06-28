@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Sets up signal handlers to ensure a clean exit.
 
 This module is a workaround for a deficiency of Python.  When Python

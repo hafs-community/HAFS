@@ -33,28 +33,28 @@ add_executable(hafs_change_prepbufr_qm_in_circle.x change_prepbufr_qm_in_circle.
 add_executable(hafs_change_prepbufr_qm_typ.x change_prepbufr_qm_typ.f)
 
 target_compile_options(hafs_change_prepbufr_rm_typ_in_circle.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_compile_options(hafs_change_prepbufr_qm_in_circle.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_compile_options(hafs_change_prepbufr_qm_typ.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_link_options(hafs_change_prepbufr_rm_typ_in_circle.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_link_options(hafs_change_prepbufr_qm_in_circle.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_link_options(hafs_change_prepbufr_qm_typ.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -traceback -check all> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
-    -msse2 -fp-model precise -assume byterecl -convert big_endian)
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
+    -traceback -msse2 -fp-model precise -assume byterecl -convert big_endian)
 
 target_link_libraries(
   hafs_change_prepbufr_rm_typ_in_circle.x

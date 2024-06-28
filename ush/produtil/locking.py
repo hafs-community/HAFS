@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Handles file locking using Python "with" blocks.
 
 This module implements a Python with construct that can hold a lock

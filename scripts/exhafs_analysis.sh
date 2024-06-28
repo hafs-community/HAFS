@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_analysis.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script conducts the HAFS atmospheric data assimilation through GSI,
+#   and generate analysis diagnoses (if desired).
+################################################################################
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
@@ -29,6 +35,8 @@ export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
+export nsclgrp=${nsclgrp:-1}
+export naensloc=${naensloc:-1}
 
 export RUN_GSI=${RUN_GSI:-NO}
 export RUN_FGAT=${RUN_FGAT:-NO}
@@ -59,16 +67,9 @@ if [ $GFSVER = PROD2021 ]; then
   export USE_GFS_NEMSIO=.false.
   export USE_GFS_NCIO=.true.
   GSUFFIX=${GSUFFIX:-.nc}
-elif [ $GFSVER = PROD2019 ]; then
-  export atmos=""
-  export USE_GFS_NEMSIO=.true.
-  export USE_GFS_NCIO=.false.
-  GSUFFIX=${GSUFFIX:-.nemsio}
 else
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
 fi
 
 # Diagnostic files options
@@ -163,8 +164,6 @@ export L_HYB_ENS=.true.
 if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
 # Link gdas ensemble members
   mkdir -p ensemble_data
-  ENKF_SUFFIX="s"
-  GSUFFIX=${GSUFFIX:-.nemsio}
   if [ ${l4densvar:-.false.} = ".true." ]; then
     fhrs="03 06 09"
   else
@@ -173,19 +172,8 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
-    if [ $USE_GFS_NEMSIO = .true. ]; then
-    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nemsio} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
-    fi
-    if [ $USE_GFS_NCIO = .true. ]; then
-    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}s${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    elif [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
+    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
       ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
     fi
     echo "./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
@@ -287,20 +275,20 @@ lrun_subdirs=${lrun_subdirs:-".true."}
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
 #${NLN} ${PARMgsi}/nam_global_satangbias.txt ./satbias_angle
 ${NLN} ${PARMgsi}/hafs_satinfo.txt ./satinfo
-#checkgfs $NLN $RADCLOUDINFO cloudy_radiance_info.txt
+#checkgfs ${NLN} $RADCLOUDINFO cloudy_radiance_info.txt
 ${NLN} ${PARMgsi}/atms_beamwidth.txt ./atms_beamwidth.txt
 anavinfo=${PARMgsi}/hafs_anavinfo.tmp
 sed -e "s/_LEV_/${npz:-64}/g" \
     -e "s/_LP1_/${LEVS:-65}/g" \
     ${anavinfo} > ./anavinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
-#checkgfs $NLN $vqcdat       vqctp001.dat
-#checkgfs $NLN $INSITUINFO   insituinfo
+#checkgfs ${NLN} $vqcdat       vqctp001.dat
+#checkgfs ${NLN} $INSITUINFO   insituinfo
 ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/nam_global_pcpinfo.txt ./pcpinfo
-#checkgfs $NLN $AEROINFO     aeroinfo
+#checkgfs ${NLN} $AEROINFO     aeroinfo
 ${NLN} ${PARMgsi}/global_scaninfo.txt ./scaninfo
-#checkgfs $NLN $HYBENSINFO   hybens_info
+#checkgfs ${NLN} $HYBENSINFO   hybens_info
 ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 ${NLN} ${PARMgsi}/prepobs_prep.bufrtable ./prepobs_prep.bufrtable
@@ -331,13 +319,13 @@ if [ ${USE_SELECT:-NO} = "YES" ]; then
    nl=$(file $SELECT_OBS | cut -d: -f2 | grep tar | wc -l)
    if [ $nl -eq 1 ]; then
       rm -f obsinput.tar
-      $NLN $SELECT_OBS obsinput.tar
+      ${NLN} $SELECT_OBS obsinput.tar
       tar -xvf obsinput.tar
       rm -f obsinput.tar
    else
       for filetop in $(ls $SELECT_OBS/obs_input.*); do
          fileloc=$(basename $filetop)
-         $NLN $filetop $fileloc
+         ${NLN} $filetop $fileloc
       done
    fi
 fi
@@ -421,75 +409,75 @@ if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
 else
   touch prepbufr
 fi
-#$NLN $PREPQC           prepbufr
-##$NLN $PREPQCPF         prepbufr_profl
-$NLN $SATWND           satwndbufr
-$NLN $SATWHR           satwhrbufr
-##$NLN $OSCATBF          oscatbufr
-##$NLN $RAPIDSCATBF      rapidscatbufr
-##$NLN $GSNDBF           gsndrbufr
-$NLN $GSNDBF1          gsnd1bufr
-##$NLN $B1HRS2           hirs2bufr
-##$NLN $B1MSU            msubufr
-$NLN $B1HRS3           hirs3bufr
-$NLN $B1HRS4           hirs4bufr
-$NLN $B1AMUA           amsuabufr
-##$NLN $B1AMUB           amsubbufr
-$NLN $B1MHS            mhsbufr
-$NLN $ESHRS3           hirs3bufrears
-$NLN $ESAMUA           amsuabufrears
-##$NLN $ESAMUB           amsubbufrears
-#$NLN $ESMHS            mhsbufrears
-$NLN $HRS3DB           hirs3bufr_db
-##$NLN $AMUADB           amsuabufr_db
-##$NLN $AMUBDB           amsubbufr_db
-#$NLN $MHSDB            mhsbufr_db
-$NLN $SBUVBF           sbuvbufr
-$NLN $OMPSNPBF         ompsnpbufr
-$NLN $OMPSTCBF         ompstcbufr
-$NLN $GOMEBF           gomebufr
-$NLN $OMIBF            omibufr
-$NLN $MLSBF            mlsbufr
-##$NLN $SMIPCP           ssmirrbufr
-##$NLN $TMIPCP           tmirrbufr
-$NLN $AIRSBF           airsbufr
-$NLN $IASIBF           iasibufr
-$NLN $ESIASI           iasibufrears
-$NLN $IASIDB           iasibufr_db
-##$NLN $AMSREBF          amsrebufr
-$NLN $AMSR2BF          amsr2bufr
-$NLN $GMI1CRBF         gmibufr
-$NLN $SAPHIRBF         saphirbufr
-$NLN $SEVIRIBF         seviribufr
-$NLN $CRISBF           crisbufr
-$NLN $ESCRIS           crisbufrears
-$NLN $CRISDB           crisbufr_db
-$NLN $CRISFSBF         crisfsbufr
-$NLN $ESCRISFS         crisfsbufrears
-$NLN $CRISFSDB         crisfsbufr_db
-$NLN $ATMSBF           atmsbufr
-$NLN $ESATMS           atmsbufrears
-$NLN $ATMSDB           atmsbufr_db
-##$NLN $SSMITBF          ssmitbufr
-$NLN $SSMISBF          ssmisbufr
-$NLN $GPSROBF          gpsrobufr
-$NLN $TCVITL           tcvitl
-$NLN $B1AVHAM          avhambufr
-$NLN $B1AVHPM          avhpmbufr
-##$NLN $AHIBF            ahibufr
-##$NLN $ABIBF            abibufr
-##$NLN $HDOB             hdobbufr
+#${NLN} $PREPQC           prepbufr
+##${NLN} $PREPQCPF         prepbufr_profl
+${WLN} $SATWND           satwndbufr
+${WLN} $SATWHR           satwhrbufr
+##${WLN} $OSCATBF          oscatbufr
+##${WLN} $RAPIDSCATBF      rapidscatbufr
+##${WLN} $GSNDBF           gsndrbufr
+${WLN} $GSNDBF1          gsnd1bufr
+##${WLN} $B1HRS2           hirs2bufr
+##${WLN} $B1MSU            msubufr
+${WLN} $B1HRS3           hirs3bufr
+${WLN} $B1HRS4           hirs4bufr
+${WLN} $B1AMUA           amsuabufr
+##${WLN} $B1AMUB           amsubbufr
+${WLN} $B1MHS            mhsbufr
+${WLN} $ESHRS3           hirs3bufrears
+${WLN} $ESAMUA           amsuabufrears
+##${WLN} $ESAMUB           amsubbufrears
+#${WLN} $ESMHS            mhsbufrears
+${WLN} $HRS3DB           hirs3bufr_db
+##${WLN} $AMUADB           amsuabufr_db
+##${WLN} $AMUBDB           amsubbufr_db
+#${WLN} $MHSDB            mhsbufr_db
+${WLN} $SBUVBF           sbuvbufr
+${WLN} $OMPSNPBF         ompsnpbufr
+${WLN} $OMPSTCBF         ompstcbufr
+${WLN} $GOMEBF           gomebufr
+${WLN} $OMIBF            omibufr
+${WLN} $MLSBF            mlsbufr
+##${WLN} $SMIPCP           ssmirrbufr
+##${WLN} $TMIPCP           tmirrbufr
+${WLN} $AIRSBF           airsbufr
+${WLN} $IASIBF           iasibufr
+${WLN} $ESIASI           iasibufrears
+${WLN} $IASIDB           iasibufr_db
+##${WLN} $AMSREBF          amsrebufr
+${WLN} $AMSR2BF          amsr2bufr
+${WLN} $GMI1CRBF         gmibufr
+${WLN} $SAPHIRBF         saphirbufr
+${WLN} $SEVIRIBF         seviribufr
+${WLN} $CRISBF           crisbufr
+${WLN} $ESCRIS           crisbufrears
+${WLN} $CRISDB           crisbufr_db
+${WLN} $CRISFSBF         crisfsbufr
+${WLN} $ESCRISFS         crisfsbufrears
+${WLN} $CRISFSDB         crisfsbufr_db
+${WLN} $ATMSBF           atmsbufr
+${WLN} $ESATMS           atmsbufrears
+${WLN} $ATMSDB           atmsbufr_db
+##${WLN} $SSMITBF          ssmitbufr
+${WLN} $SSMISBF          ssmisbufr
+${WLN} $GPSROBF          gpsrobufr
+${WLN} $TCVITL           tcvitl
+${WLN} $B1AVHAM          avhambufr
+${WLN} $B1AVHPM          avhpmbufr
+##${WLN} $AHIBF            ahibufr
+##${WLN} $ABIBF            abibufr
+##${WLN} $HDOB             hdobbufr
 
-##[[ $DONST = "YES" ]] && $NLN $NSSTBF nsstbufr
+##[[ $DONST = "YES" ]] && ${WLN} $NSSTBF nsstbufr
 
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
 
 if [ -s ${PREPQC}.nr ]; then
   $NCP -L ${PREPQC}.nr    prepbufr
 fi
-# $NLN ${PREPQC}.nr    prepbufr
-  $NLN ${SAPHIRBF}.nr  saphirbufr
-##[[ $DONST = "YES" ]] && $NLN /dev/null nsstbufr
+# ${NLN} ${PREPQC}.nr    prepbufr
+  ${WLN} ${SAPHIRBF}.nr  saphirbufr
+##[[ $DONST = "YES" ]] && ${WLN} /dev/null nsstbufr
 
 fi
 
@@ -548,7 +536,7 @@ if [ ${GENDIAG:-YES} = "YES" ]; then
       for pe in $(seq 0 1 $npe_m1); do
         pedir="dir."$(printf %04i $pe)
         mkdir -p $DIAG_DIR/$pedir
-        $NLN $DIAG_DIR/$pedir $pedir
+        ${NLN} $DIAG_DIR/$pedir $pedir
       done
    else
       echo "FATAL ERROR: lrun_subdirs must be true. lrun_subdirs=$lrun_subdirs"
@@ -588,6 +576,8 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
+    -e "s/_NAENSLOC_/${naensloc:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 #-------------------------------------------------------------------
@@ -595,11 +585,14 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
 #-------------------------------------------------------------------
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_gsi.x
-set -o pipefail
-${APRUNC} ./hafs_gsi.x 2>&1 | tee ./stdout
-set +o pipefail
-
-${NCP} -p ./stdout ${GSISOUT}
+${SOURCE_PREP_STEP}
+#${APRUNC} ./hafs_gsi.x >> $pgmout 2>errfile
+#export err=$?; err_chk
+#if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
+#cat ${pgmout} > ${GSISOUT}
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./gsi.log
+export err=$?; err_chk
+cat ./gsi.log > ${GSISOUT}
 
 # Cat runtime output files.
 cat fort.2* > ${GSISTAT}
@@ -793,6 +786,7 @@ EOFdiag
   if [ $USE_MPISERIAL = "YES" ]; then
     chmod 755 ./mp_diag.sh
     ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
+    export err=$?; err_chk
   fi
 
   # If requested, create diagnostic file tarballs
@@ -826,14 +820,12 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 
 # Save satbias data for next cycle
 if [ ${online_satbias} = "yes" ]; then
-  ${NCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
-  ${NCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
+  ${FCP} satbias_out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias
+  ${FCP} satbias_pc.out $DIAGanl/${out_prefix}.${RUN}.${gridstr}.analysis.abias_pc
 fi
 
 # If no processing error, remove $DIAG_DIR
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
   rm -rf $DIAG_DIR
 fi
-
-exit
 

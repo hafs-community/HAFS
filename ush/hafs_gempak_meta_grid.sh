@@ -1,8 +1,14 @@
 #!/bin/ksh
-# Inherited from HWRF and updated for HAFS.
-# ksh can do floating point calculations directly.
-
-set -xe
+################################################################################
+# Script Name: hafs_gempak_meta_grid.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script makes HAFS GEMPAK meta files for the parent grid.
+# History:
+#   03/18/2023: This script was adopted/inerited from HWRF and updated for HAFS.
+# Note: ksh can do floating point calculations directly.
+################################################################################
+set -x -o pipefail
 
 mkdir -p $DATA/grid
 cd $DATA/grid
@@ -13,19 +19,22 @@ intercom=${intercom:-"${WORKhafs}/intercom/gempak"}
 # Make sure gempak files are ready
 for fhr in $(seq -f'%03g' $fstart $finc $fend); do
   full_domain=${DATA}/${NET}p/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}
-  attempts=1
-  while [ $attempts -le 120 ]; do
+  # Make sure gempak files are ready
+  MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+  n=0
+  while [ $n -le ${MAX_WAIT_TIME} ]; do
     if [ -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "$full_domain, ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ready, continue"
       break
     else
-      sleep 10
-      attempts=$((attempts+1))
+      sleep 10s
     fi
+    if [ $n -gt ${MAX_WAIT_TIME} ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
+      echo "FATAL ERROR: Waited $full_domain too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+      exit 1
+    fi
+    n=$((n+10))
   done
-  if [ $attempts -gt 120 ] && [ ! -f ${intercom}/${NET}p_${PDY}${cyc}f${fhr}_${storm_id}.done ]; then
-    echo "FATAL ERROR: $full_domain still not available after waiting 20 minutes... exiting"
-    exit 1
-  fi
 done
 
 $GEMEXE/gdinfo << EOF
@@ -206,22 +215,21 @@ run
 
 exit
 EOF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 $GEMEXE/gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 ############################################################
 # Gempak does not always have a non-zero return code when it
 # cannot produce the desired grid. Check for this case here.
 ############################################################
 ls -l grid.nmeta
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 GMETAF=${COMOUT}/gempak/${storm_id}/meta/${RUN}_${PDY}_${cyc}_${storm_id}
 if [ ${SENDCOM:-YES} = "YES" ]; then
-  ${NCP} grid.nmeta ${GMETAF}
-# ${NCP} -p grid.nmeta ${GMETAF}
+  ${FCP} grid.nmeta ${GMETAF}
   if [ ${SENDDBN:-NO} = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL $(echo ${RUN} | tr [a-z] [A-Z])_METAFILE $job ${GMETAF}
   fi

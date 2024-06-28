@@ -1,7 +1,11 @@
 #!/bin/sh
-set -eux
-source ./machine-setup.sh > /dev/null 2>&1
+set -xeu
+source ./machine-setup.sh.inc > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
+
+#Supports Debug or Release modes for the build
+BUILD_MODE=${BUILD_MODE:-Release}
+
 cwd=$(pwd)
 
 script_dir=${cwd}
@@ -23,10 +27,8 @@ if [[ ! -d "${finalexecdir}" ]]; then
 fi
 
 #Determine machine and load modules
-set +x
 module use "${script_dir}/hafs_forecast.fd/modulefiles"
-module load "ufs_${MACHINE_ID}"
-set -x
+module load "ufs_${MACHINE_ID}.${RT_COMPILER}"
 
 #Set WW3 directory, switch, prep and post exes 
 cd hafs_forecast.fd/WW3 || exit 1
@@ -61,7 +63,8 @@ echo "Switch file is ${path_build}/switch with switches:"
 cat "${path_build}/switch"
 
 #Build executables: 
-cmake "${WW3_DIR}" -DSWITCH="${path_build}/switch" -DCMAKE_INSTALL_PREFIX=install 
+BUILD_TYPE=${BUILD_MODE}
+cmake "${WW3_DIR}" -DSWITCH="${path_build}/switch" -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 rc=$?
 if (( rc != 0 )); then
   echo "Fatal error in cmake."
@@ -94,4 +97,3 @@ echo "executables are in ${finalexecdir}"
 echo "cleaning up ${path_build}" 
 rm -rf "${path_build}"
 
-exit 0

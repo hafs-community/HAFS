@@ -1,4 +1,6 @@
         subroutine rodist
+        !Authors: Qingfu Liu (NCEP/EMC)
+        !Revised by Chuan-Kai Wang (NCEP/EMC) 2022
         use vect,only:rovect,xvect,yvect,nmx
         use posit, only: xold,yold,xcorn,ycorn
         implicit none

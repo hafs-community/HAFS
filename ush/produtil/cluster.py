@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Provides information about the cluster on which this job is running.""" 
 """Remove and clean WCOSS Cray and WCOSS Dell_p3 related logic and updating
 prodcution machine identifying logic for WCOSS2 (Biju Thomas 10/12/2022)"""

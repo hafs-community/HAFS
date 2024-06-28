@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -84,10 +84,10 @@ cd $DATA
 # Execute ex-script
 if [[ "${run_datm:-no}" = "yes" ]]; then
   ${HOMEhafs}/scripts/exhafs_datm_prep.sh
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 else
   ${HOMEhafs}/scripts/exhafs_atm_prep.sh
-  status=$?; [[ $status -ne 0 ]] && exit $status
+  export err=$?; err_chk
 fi
 
 # Cleanup DATA dir

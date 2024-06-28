@@ -1,6 +1,13 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_ic.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates the atmospheric initial condition (IC) and lateral
+#   boundary condition (LBC) at model intial time (if needed) through the
+#   UFS_UTIL's chgres_cube tool.
+################################################################################
+set -x -o pipefail
 
 nest_grids=${nest_grids:-1}
 
@@ -14,7 +21,7 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
+CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_utils_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
 FGAT_MODEL=${FGAT_MODEL:-gfs}
@@ -70,7 +77,6 @@ else
   exit 9
 fi
 
-OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
 DATA=${DATA:-${WORKhafs}/atm_ic}
 mkdir -p ${OUTDIR} ${DATA}
 
@@ -79,7 +85,7 @@ FIXCASE=${DATA}/grid/${CASE}
 mkdir -p ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
-${NLN} ${GRID_intercom}/${CASE}/* ./
+${RLN} ${GRID_intercom}/${CASE}/* ./
 
 cd $DATA
 
@@ -110,8 +116,8 @@ elif [ $ictype = "gfsgrib2_master" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 files
@@ -120,8 +126,8 @@ elif [ $ictype = "gfsgrib2_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 a and b files
@@ -130,8 +136,8 @@ elif [ $ictype = "gfsgrib2ab_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.50 degree grib2 files
@@ -140,8 +146,8 @@ elif [ $ictype = "gfsgrib2_0p50" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
@@ -150,8 +156,8 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
@@ -166,6 +172,7 @@ if [ $input_type = "grib2" ]; then
         > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
         | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+    export err=$?; err_chk
   else
     ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi
@@ -185,7 +192,7 @@ else
 fi
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
-  ${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
+  ${RLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
   if [ $gtype = nest ]; then
     ${NLN} $FIXDIR/$CASE/${CASE}_coarse_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
   fi
@@ -275,9 +282,10 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_ic.log
+export err=$?; err_chk
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
   mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
@@ -322,7 +330,7 @@ fi
 for itile in $(seq $stile $ntiles); do
 
 inest=$(($itile + 2 - $stile))
-${NLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
+${RLN} $FIXDIR/$CASE/fix_sfc/${CASE}*.nc $FIXDIR/$CASE/.
 ${NLN} $FIXDIR/$CASE/${CASE}_nested0${inest}_mosaic.nc $FIXDIR/$CASE/${CASE}_mosaic.nc
 export GRIDTYPE=nest
 HALO=0
@@ -370,9 +378,12 @@ cat>./fort.41<<EOF
  halo_blend=${halo_blend}
 /
 EOF
-#${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+#${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc.log
+export err=$?; err_chk
+
+
 mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
 mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
 

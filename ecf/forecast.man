@@ -1,0 +1,20 @@
+# MANUAL PAGE FOR FAMILY/SUITE forecast
+%manual
+
+FAMILY forecast
+
+PURPOSE: Runs HFSA and HFSB forecast jobs with different coupled and
+atmospheric-only configurations
+
+This family contains varous type of forecast jobs of HFSA and HFSB
+configurations at different global oceanic basins, only one of which will be
+run.
+
+hfsa_forecast_atm_ocn_wav - HFSA coupled atmosphere-ocean-wave forecast for NATL/EPAC/CPAC storms
+hfsa_forecast_atm_ocn - HFSA coupled atmosphere-ocean forecast for JTWC basins (WPAC/NIO/SH) storms
+hfsa_forecast_atm - HFSA atmosphere-only forecast (failsafe configuration, run only as a fallback option)
+
+hfsb_forecast_atm_ocn - HFSB coupled atmosphere-ocean forecast for NATL/EPAC/CPAC storms
+hfsb_forecast_atm - HFSB atmosphere-only forecast (failsafe configuration, run only as a fallback option)
+
+%end

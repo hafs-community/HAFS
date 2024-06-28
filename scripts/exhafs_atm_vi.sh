@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_vi.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS atmopsheric vortex initialization steps to
+#   relocate and modify the storm vortex (if desired).
+################################################################################
+set -x -o pipefail
 vi_force_cold_start=${vi_force_cold_start:-no}
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
@@ -10,6 +16,8 @@ vi_storm_relocation=${vi_storm_relocation:-yes}
 vi_storm_modification=${vi_storm_modification:-yes}
 vi_adjust_intensity=${vi_adjust_intensity:-yes}
 vi_adjust_size=${vi_adjust_size:-yes}
+vi_composite_vortex=${vi_composite_vortex:-2}
+vi_cloud=${vi_cloud:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
 
@@ -40,7 +48,7 @@ else
 fi
 
 CDATEprior=$(${NDATE} -6 $YMDH)
-DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
 DATA=${DATA:-${WORKhafs}/atm_vi}
 mkdir -p ${DATA}
@@ -123,15 +131,16 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     work_dir=${DATA}/prep_guess
     mkdir -p ${work_dir}
     cd ${work_dir}
-    ${APRUNM} ${DATOOL} hafsvi_preproc \
+    ${APRUNC} ${DATOOL} hafsvi_preproc \
         --in_dir=${RESTARTinp} \
         --debug_level=1 --interpolation_points=5 \
         --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
         --tcvital=${tcvital} \
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
-        --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-    status=$?; [[ $status -ne 0 ]] && exit $status
+        --vi_cloud=${vi_cloud} \
+        --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
+    export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
       mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
       mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -153,15 +162,16 @@ for vortexradius in 30 45; do
   work_dir=${DATA}/prep_init
   mkdir -p ${work_dir}
   cd ${work_dir}
-  ${APRUNM} ${DATOOL} hafsvi_preproc \
+  ${APRUNC} ${DATOOL} hafsvi_preproc \
       --in_dir=${RESTARTinit} \
       --debug_level=1 --interpolation_points=5 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --tcvital=${tcvital} \
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
-      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin
-  status=$?; [[ $status -ne 0 ]] && exit $status
+      --vi_cloud=${vi_cloud} \
+      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
+  export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
     mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
     mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
@@ -208,10 +218,12 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ${NLN} ./trak.fnl.all fort.30
+  ${RLN} ./trak.fnl.all fort.30
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_guess.x ./
-  ${APRUNS} ./hafs_vi_create_trak_guess.x ${STORMID}
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_guess.x ./
+  ${SOURCE_PREP_STEP}
+  ${APRUNS} ./hafs_tools_vi_create_trak_guess.x ${STORMID}
+  export err=$?; err_chk
 
   # split
   # input
@@ -220,18 +232,20 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ../prep_guess/vi_inp_30deg0p02.bin fort.26
   ${NLN} ../prep_guess/vi_inp_45deg0p20.bin fort.46
   # output
-  ${NLN} storm_env fort.56
-  ${NLN} rel_inform fort.52
-  ${NLN} vital_syn fort.55
-  ${NLN} storm_pert fort.71
-  ${NLN} storm_radius fort.85
+  ${RLN} storm_env fort.56
+  ${RLN} rel_inform fort.52
+  ${RLN} vital_syn fort.55
+  ${RLN} storm_pert fort.71
+  ${RLN} storm_radius fort.85
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_split.x ./
   gesfhr=${gesfhr:-6}
   ibgs=0
   iflag_cold=0
   crfactor=${crfactor:-1.0}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor | ${APRUNO} ./hafs_vi_split.x
+  ${SOURCE_PREP_STEP}
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  export err=$?; err_chk
 
   # anl_pert
   work_dir=${DATA}/anl_pert_guess
@@ -244,11 +258,11 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ../split_guess/storm_pert fort.71
   ${NLN} ../split_guess/storm_radius fort.65
   # output
-  ${NLN} storm_pert_new fort.58
-  ${NLN} storm_size_p fort.14
-  ${NLN} storm_sym fort.23
+  ${RLN} storm_pert_new fort.58
+  ${RLN} storm_size_p fort.14
+  ${RLN} storm_sym fort.23
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_guess} -ge 5 ]] || [[ ${vdif_guess} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -271,8 +285,9 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     initopt=0
   fi
   initopt_guess=${initopt}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
-
+  ${SOURCE_PREP_STEP}
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  export err=$?; err_chk
 fi
 
 fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
@@ -312,10 +327,12 @@ if true; then
 
   ${NLN} trak.atcfunix.tmp fort.12
   # output
-  ${NLN} ./trak.fnl.all fort.30
+  ${RLN} ./trak.fnl.all fort.30
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_create_trak_init.x ./
-  ${APRUNS} ./hafs_vi_create_trak_init.x ${STORMID}
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_init.x ./
+  ${SOURCE_PREP_STEP}
+  ${APRUNS} ./hafs_tools_vi_create_trak_init.x ${STORMID}
+  export err=$?; err_chk
 
   # split
   # input
@@ -327,13 +344,13 @@ if true; then
     ${NLN} ../split_guess/storm_radius fort.65
   fi
   # output
-  ${NLN} storm_env fort.56
-  ${NLN} rel_inform fort.52
-  ${NLN} vital_syn fort.55
-  ${NLN} storm_pert fort.71
-  ${NLN} storm_radius fort.85
+  ${RLN} storm_env fort.56
+  ${RLN} rel_inform fort.52
+  ${RLN} vital_syn fort.55
+  ${RLN} storm_pert fort.71
+  ${RLN} storm_radius fort.85
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_split.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_split.x ./
   gesfhr=${gesfhr:-6}
   # Warm start or cold start
   if [ -s fort.65 ]; then
@@ -343,7 +360,9 @@ if true; then
     ibgs=2
     iflag_cold=1
   fi
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 | ${APRUNO} ./hafs_vi_split.x
+  ${SOURCE_PREP_STEP}
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  export err=$?; err_chk
 
   # anl_pert
   work_dir=${DATA}/anl_pert_init
@@ -356,11 +375,11 @@ if true; then
   ${NLN} ../split_init/storm_pert fort.71
   ${NLN} ../split_init/storm_radius fort.65
   # output
-  ${NLN} storm_pert_new fort.58
-  ${NLN} storm_size_p fort.14
-  ${NLN} storm_sym fort.23
+  ${RLN} storm_pert_new fort.58
+  ${RLN} storm_size_p fort.14
+  ${RLN} storm_sym fort.23
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_pert.x ./
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_pert.x ./
   if [ ${vi_storm_modification} = auto ]; then
     # Conduct storm modification only if vdif >= 5 m/s or >= 15% of vmax_vit
     if [[ ${vdif_init} -ge 5 ]] || [[ ${vdif_init} -ge $(printf "%.0f" $(bc <<< "scale=6; ${vmax_vit}*0.15")) ]]; then
@@ -383,7 +402,9 @@ if true; then
     initopt=0
   fi
   initopt_init=${initopt}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_vi_anl_pert.x
+  ${SOURCE_PREP_STEP}
+  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  export err=$?; err_chk
 
 fi
 
@@ -415,16 +436,27 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+  if [[ ${vi_composite_vortex} = 1 ]]; then
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
+  elif [[ ${vi_composite_vortex} = 2 ]]; then
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+  else
+    echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
+    exit 1
+  fi
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
-  ${NLN} storm_anl_bogus                       fort.56
+  ${RLN} storm_anl_bogus                       fort.56
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_bogus.x ./
-  echo 6 ${pubbasin2} | ${APRUNO} ./hafs_vi_anl_bogus.x
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_bogus.x ./
+  ${SOURCE_PREP_STEP}
+  echo 6 ${pubbasin2} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_bogus.x 2>&1 | tee ./vi_anl_bogus.log
+  export err=$?; err_chk
   ${NCP} -p storm_anl_bogus storm_anl
 
 else # warm-start from prior cycle or cold start from global/parent model
@@ -463,14 +495,16 @@ else # warm-start from prior cycle or cold start from global/parent model
   ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
 
   # output
-  ${NLN} storm_env_new fort.36
-  ${NLN} storm_anl_combine fort.56
+  ${RLN} storm_env_new fort.36
+  ${RLN} storm_anl_combine fort.56
 
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
 
-  ${NCP} -p ${EXEChafs}/hafs_vi_anl_combine.x ./
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} | ${APRUNO} ./hafs_vi_anl_combine.x
+  ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
+  ${SOURCE_PREP_STEP}
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
+  export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
   fi
@@ -492,17 +526,28 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.75
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30       fort.77
+    if [[ ${vi_composite_vortex} = 1 ]]; then
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
+    elif [[ ${vi_composite_vortex} = 2 ]]; then
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+    else
+      echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
+      exit 1
+    fi
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output
-    ${NLN} storm_anl_enhance                     fort.56
+    ${RLN} storm_anl_enhance                     fort.56
 
     iflag_cold=${iflag_cold:-0}
-    ${NCP} -p ${EXEChafs}/hafs_vi_anl_enhance.x ./
-    echo 6 ${pubbasin2} ${iflag_cold} | ${APRUNO} ./hafs_vi_anl_enhance.x
+    ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_enhance.x ./
+    ${SOURCE_PREP_STEP}
+    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
+    export err=$?; err_chk
     ${NCP} -p storm_anl_enhance storm_anl
   fi
 
@@ -532,14 +577,15 @@ ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 for nd in $(seq 1 ${nest_grids}); do
-  ${APRUNM} ${DATOOL} hafsvi_postproc \
+  ${APRUNC} ${DATOOL} hafsvi_postproc \
       --in_file=${DATA}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
       --relaxzone=30 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --nestdoms=$((${nd}-1)) \
-      --out_dir=${RESTARTout}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+      --vi_cloud=${vi_cloud} \
+      --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
+  export err=$?; err_chk
 done
 
 #===============================================================================

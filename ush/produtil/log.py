@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Configures logging.
 
 This module configures logging for stdout, stderr and the jlogfile.
@@ -6,7 +8,7 @@ log directly to the jlogfile, and jlogdomain: a string name of the
 logger domain for the jlogfile."""
 
 ##@var __all__
-# Symbols epxorted by "from produtil.log import *"
+# Symbols exported by "from produtil.log import *"
 __all__ = [ 'configureLogging','jlogger','jlogdomain','postmsg',
             'MasterLogFormatter','JLogFormatter','stdout_is_stderr',
             'MasterLogHandler','JLogHandler','set_jlogfile' ]

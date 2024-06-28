@@ -1,6 +1,11 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_gempak.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates HAFS GEMPAK products.
+################################################################################
+set -x -o pipefail
 
 export storm_id=${STORMID,,}
 export fstart=0
@@ -43,14 +48,17 @@ if [ "${gridstr}" = "parent" ]; then
   DATAgempak=${DATA}/${NET}p
   GDOUTF=${NET}p_${PDY}${cyc}f${fhr3}_${storm_id}
   GPOUTF=${COMOUT}/gempak/${storm_id}/${RUN}p_${PDY}${cyc}f${fhr3}_${storm_id}
+  nestdotstr=""
 elif [ "${gridstr}" = "storm" ]; then
   DATAgempak=${DATA}/${NET}
   GDOUTF=${NET}n_${PDY}${cyc}f${fhr3}_${storm_id}
   GPOUTF=${COMOUT}/gempak/${storm_id}/${RUN}n_${PDY}${cyc}f${fhr3}_${storm_id}
+  nestdotstr=".nest$(printf '%02d' ${ng})."
 else
   echo "FATAL ERROR: unknown gridstr of ${gridstr}"
   exit 1
 fi
+PDFILE=${WORKhafs}/intercom/post/post${nestdotstr}f${fhr3}
 
 mkdir -p ${DATAgempak}
 cd ${DATAgempak}
@@ -62,7 +70,7 @@ if [ -e ${intercom}/${GDOUTF}.done ] && \
 
 # Symbolically link ${GDOUTF} and ${GDOUTF}.done files needed by gempak meta file generation.
 ${NLN} ${GPOUTF} ./${GDOUTF}
-${NLN} ${intercom}/${GDOUTF}.done ./
+#${NLN} ${intercom}/${GDOUTF}.done ./
 
 echo "gempak done file ${intercom}/${GDOUTF}.done exist and newer than ${GBINDX}"
 echo "gempak product ${GPOUTF} exist"
@@ -72,21 +80,21 @@ echo "skip gempak for forecast hour ${fhr3}"
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
-  if [ ! -s ${GBFILE} ] || [ ! -s ${GBINDX} ]; then
-    echo "${GBFILE} or ${GBINDX} not ready, sleep 10s"
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
+  if [ ! -s ${PDFILE} ] || [ ! -s ${GBFILE} ] || [ ! -s ${GBINDX} ]; then
+    echo "${PDFILE}, ${GBFILE} or ${GBINDX} not ready, sleep 10s"
     sleep 10s
   else
-    echo "${GBFILE}, ${GBINDX} ready, continue"
-    sleep 1s
+    echo "${PDFILE}, ${GBFILE}, ${GBINDX} ready, continue"
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${PDFILE}, ${GBFILE}, ${GBINDX} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
+  n=$((n+10))
 done
 
 ${GEMEXE:?}/nagrib2 << EOF
@@ -106,19 +114,18 @@ ${GEMEXE:?}/nagrib2 << EOF
 l
 r
 EOF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Gempak does not always have a non-zero return code when it
 # cannot produce the desired grid. Check for this case here.
 ls -l $GDOUTF
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 ${GEMEXE}/gpend
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 if [ "${SENDCOM^^}" = "YES" ]; then
-  ${NCP} $GDOUTF $GPOUTF
-# ${NCP} -p $GDOUTF $GPOUTF
+  ${FCP} $GDOUTF $GPOUTF
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GEMPAK $job $GPOUTF
   fi
@@ -143,7 +150,7 @@ echo "${USHhafs}/hafs_gempak_meta_grid.sh > $DATA/meta_grid.log 2>&1" >> cmdfile
 echo "${USHhafs}/hafs_gempak_meta_nest.sh > $DATA/meta_nest.log 2>&1" >> cmdfile.gempak
 chmod +x cmdfile.gempak
 ${APRUNC} ${MPISERIAL} -m ./cmdfile.gempak
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 cat $DATA/meta_grid.log
 cat $DATA/meta_nest.log

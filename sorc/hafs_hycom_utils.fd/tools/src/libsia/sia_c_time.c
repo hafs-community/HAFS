@@ -6,6 +6,7 @@
 #include <stdio.h>
 #define _XOPEN_SOURCE
 #include <time.h>
+#include <string.h>
 
 char *strptime(const char *s, const char *format, struct tm *tm);
 

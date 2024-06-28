@@ -2,10 +2,27 @@
 ! ABSTRACT: Adding a small fraction of the composite storm to make
 !           the storm intensity match the observation
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: QINGFU LIU, 2013
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: QINGFU LIU, 2013
 !                : Use observed ROCI and Rmax to correct the composite storm
 !                : (old version uses the averaged values from obs and model)
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
+!                  This code reads cloud and vertical velocity fields,
+!                  which is modified by anl_combine.f90, and
+!                  re-interpolcates those variables into newly adjusted
+!                  model pressure level (PMID1) in the TC core region
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
+!                  The code is updated further with one more input argument (ivi_cloud)
+!                  so that cloud modification can be on (1 or 2) or off (0).
+!                  0: No cloud changes in VI, 1: GFDL microphysics, 2: Thompson microphysics
+!                  This change requires changes in exhafs_atm_vi.sh
+!                  Now input arguement is like this:
+!  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !
 !     DECLARE VARIABLES
 !
@@ -15,7 +32,7 @@
       integer ITIM,IUNIT,I360,iflag_cold,IM1,JM1,id_storm,KST
       integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs,IFLAG,K850
       integer ictr,jctr,imn1,imx1,jmn1,jmx1,imax1,jmax1,iter,IMV,JMV
-      integer imax12,jmax12,i_psm,j_psm,k1,ics
+      integer imax12,jmax12,i_psm,j_psm,k1,ics,icen,jcen
       real GAMMA,G,Rd,D608,Cp,GRD,COEF1,COEF2,COEF3,DST1,TENV1,press1
       real pi,pi_deg,arad,rad,TV1,ZSF1,PSF1,A,SUM11,vobs,vobs_o,VRmax
       real SLP1_MEAN,SLP_AVE,SLP_SUM,SLP_MIN,DP_CT,psfc_obs,psfc_cls,PRMAX
@@ -25,6 +42,7 @@
       real UU11,VV11,UUM1,VVM1,QQ1,uv22,QQ,beta1,vmax_1,ff0,ps_min,beta11
       real DIF,U_2S3,WT1,WT2,strm11,strm22,force,force2,PS_C1,PS_C2
       real fact,pt_c1,ps_rat,TEK1,TEK2,ESRR,T_OLD,Q_OLD,ZSFC,TSFC,QENV1
+      real dx,dy,dis
 
 !
       PARAMETER (NST=5,IR=200)
@@ -43,6 +61,12 @@
       REAL(4) LON1,LAT1,LON2,LAT2
 
       REAL(4), ALLOCATABLE :: T1(:,:,:),Q1(:,:,:)
+      REAL(4), ALLOCATABLE :: QC(:,:,:),QR(:,:,:),QS(:,:,:)      !Cloud on hybrid level-from anl_combine
+      REAL(4), ALLOCATABLE :: QI(:,:,:),QG(:,:,:)                !Cloud on hybrid level-from anl_combine
+      REAL(4), ALLOCATABLE :: NCI(:,:,:),NCR(:,:,:) !Cloud concentration on hybrid level-from anl_combine
+      REAL(4), ALLOCATABLE :: QC2(:,:,:),QR2(:,:,:),QS2(:,:,:)   !Final cloud on hybrid level
+      REAL(4), ALLOCATABLE :: QI2(:,:,:),QG2(:,:,:),DZDT2(:,:,:) !Final cloud & W on hybrid level
+      REAL(4), ALLOCATABLE :: NCI2(:,:,:),NCR2(:,:,:)  !Final cloud concentration on hybrid level
       REAL(4), ALLOCATABLE :: U1(:,:,:),V1(:,:,:),DZDT(:,:,:)
       REAL(4), ALLOCATABLE :: Z1(:,:,:),P1(:,:,:)
       REAL(4), ALLOCATABLE :: GLON(:,:),GLAT(:,:)
@@ -69,7 +93,7 @@
 ! working array
 
       REAL(4), ALLOCATABLE :: SLP1(:,:),RIJ(:,:)
-      REAL(4), ALLOCATABLE :: PMID1(:,:,:),ZMID1(:,:,:)
+      REAL(4), ALLOCATABLE :: PMID1(:,:,:),ZMID1(:,:,:),PMID2(:,:,:) !PMID2 will be used for cloud & W
       REAL(4), ALLOCATABLE :: ZS1(:,:),TS1(:,:),QS1(:,:)
 
       REAL(4), ALLOCATABLE :: HLON(:,:),HLAT(:,:)
@@ -117,6 +141,8 @@
 
       REAL(4), ALLOCATABLE :: dist(:,:),PW1(:)
 
+      integer(4), ALLOCATABLE :: itag_c(:,:),itag_w(:,:) ! Tag array for cloud & W relocation
+
       integer(4) IH1(4),JH1(4),IV1(4),JV1(4)
 
       REAL(8) CLON_NEW,CLAT_NEW,CLON_NHC,CLAT_NHC
@@ -132,6 +158,8 @@
       CHARACTER SN*1,EW*1,DEPTH*1
 !zhang:added basin domain shift option
       CHARACTER*2 :: basin
+!shin: cloud modification option
+      integer :: ivi_cloud
 
 !      DATA PW_S/30*1.0,0.95,0.9,0.8,0.7,       &
 !                    0.6,0.5,0.4,0.3,0.2,0.1,45*0./
@@ -155,6 +183,8 @@
        0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1,0.05/)
       PW_M(70:121)=0.0
 
+      dx=0.02        !Grid size in degree of VI input
+      dy=0.02        !Grid size in degree of VI input
 
       COEF1=Rd/Cp
       COEF3=Rd*GAMMA/G
@@ -169,8 +199,10 @@
       arad=6.371E6*rad
       DST1=6.371E6*rad
 
-      READ(5,*)ITIM,basin,iflag_cold
-
+      READ(5,*)ITIM,basin,iflag_cold,ivi_cloud
+      if(ivi_cloud.eq.0) write(*,*) 'Cloud modification is OFF!!'
+      if(ivi_cloud.eq.1) write(*,*) 'Cloud change is ON (GFDL)!!'
+      if(ivi_cloud.eq.2) write(*,*) 'Cloud change is ON (Thompson)!!'
 
 ! READ NEW GFS Env. DATA (New Domain)
 
@@ -198,8 +230,15 @@
       ALLOCATE ( VLON(NX,NY),VLAT(NX,NY) )
 
       ALLOCATE ( PCK(NZ),TEK(NZ),TEK42(KMX2) )
-      ALLOCATE ( dist(NX,NY) )
+      ALLOCATE ( dist(NX,NY), itag_c(NX,NY), itag_w(NX,NY) )
       ALLOCATE ( PMID1(NX,NY,NZ),ZMID1(NX,NY,NZ) )
+      ALLOCATE ( QC(NX,NY,NZ),QR(NX,NY,NZ),QI(NX,NY,NZ) )
+      ALLOCATE ( QS(NX,NY,NZ),QG(NX,NY,NZ) )
+      ALLOCATE ( NCI(NX,NY,NZ),NCR(NX,NY,NZ) )
+      ALLOCATE ( QC2(NX,NY,NZ),QR2(NX,NY,NZ),QI2(NX,NY,NZ) )
+      ALLOCATE ( QS2(NX,NY,NZ),QG2(NX,NY,NZ) )
+      ALLOCATE ( NCI2(NX,NY,NZ),NCR2(NX,NY,NZ) )
+      ALLOCATE ( DZDT2(NX,NY,NZ),PMID2(NX,NY,NZ) )
 
       READ(IUNIT) LON1,LAT1,LON2,LAT2,CENTRAL_LON,CENTRAL_LAT
       READ(IUNIT) PMID1
@@ -207,7 +246,7 @@
       READ(IUNIT) Q1
       READ(IUNIT) U1
       READ(IUNIT) V1
-      READ(IUNIT) DZDT
+      READ(IUNIT) DZDT  ! vertical velocity from anl_combine
       READ(IUNIT) Z1
 !      READ(IUNIT) GLON,GLAT
       READ(IUNIT) HLON,HLAT,VLON,VLAT
@@ -218,8 +257,23 @@
 
       READ(IUNIT) USC
       READ(IUNIT) VSC
+      if(ivi_cloud.ge.1)then
+       READ(IUNIT) QC     ! cloud from anl_combine
+       READ(IUNIT) QR     ! rain from anl_combine
+       READ(IUNIT) QI     ! ice from anl_combine
+       READ(IUNIT) QS     ! snow from anl_combine
+       READ(IUNIT) QG     ! graupel from anl_combine
+       if(ivi_cloud.eq.2)then
+        print*,'Cloud ice and rain number concentrations'
+        READ(IUNIT) NCI    ! Cloud ice water number concentration
+        READ(IUNIT) NCR    ! Rain number concentration
+       endif
+      endif
 
       CLOSE(IUNIT)
+
+      PMID2=PMID1
+      ! Original PMID1 will be save as PMID2 for re-interploation into newly adjusted PMID1
 
       ALLOCATE ( SLP1(NX,NY),RIJ(NX,NY) )
       ALLOCATE ( ZS1(NX,NY),TS1(NX,NY),QS1(NX,NY) )
@@ -351,26 +405,26 @@
 
 ! finsih compute 10m wind
 
-
-      WRITE(62)((SLP1(I,J),I=1,NX),J=1,NY,2)
-      DO K=1,NZ+1
-        WRITE(62)((Z1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
-      DO K=1,NZ+1
-        WRITE(62)((P1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
-      DO K=1,NZ
-        WRITE(62)((T1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
-      DO K=1,NZ
-        WRITE(62)((Q1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
-      DO K=1,NZ
-        WRITE(62)((U1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
-      DO K=1,NZ
-        WRITE(62)((V1(I,J,K),I=1,NX),J=1,NY,2)
-      END DO
+!JH Shin: Blocked output fort.62 since it is not used
+!      WRITE(62)((SLP1(I,J),I=1,NX),J=1,NY,2)
+!      DO K=1,NZ+1
+!        WRITE(62)((Z1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
+!      DO K=1,NZ+1
+!        WRITE(62)((P1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
+!      DO K=1,NZ
+!        WRITE(62)((T1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
+!      DO K=1,NZ
+!        WRITE(62)((Q1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
+!      DO K=1,NZ
+!        WRITE(62)((U1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
+!      DO K=1,NZ
+!        WRITE(62)((V1(I,J,K),I=1,NX),J=1,NY,2)
+!      END DO
 
 !Not used      WBD=-(NX-1)*DLMD
 !Not used      SBD=-((NY-1)/2)*DPHD
@@ -422,6 +476,12 @@
       vobs_o=vobs
       VRmax=Ir_vobs*1.      ! in km
 
+      if(CLON_NHC.lt.-180.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
+
       if(VRmax.lt.19.)VRmax=19.
 
 !      if(id_storm.lt.50.and.Ipsfc.gt.1005)Ipsfc=1005
@@ -451,6 +511,12 @@
 
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
 !wpac      if(I360.eq.360) then
 !wpac        IF(CLON_NHC.gt.0.)CLON_NHC=CLON_NHC-360.
 !wpac      endif
@@ -1381,7 +1447,7 @@
        END DO
        END DO
 
-       print*,'surgace pressure=',press1
+       print*,'surface pressure=',press1
 
        DO J=1,NY
        DO I=1,NX
@@ -1389,6 +1455,146 @@
          V1(I,J,1)=VSC2(I,J)
        END DO
        END DO
+
+!-------------------------------------------------------------------------
+      if(ivi_cloud.ge.1)then
+! From PMID2 to PMID1
+! As PMID1 is newly adjusted in the core region of hurricanes,
+! cloud and vertical velocity fields in the PMID2 are interpoloated into
+! newly adjusted model pressure level PMID1
+! To save computational time, this is done within 6 (2) degrees with
+! respect to the TC center for cloud (vertical velocity) field
+! QC,QR,QI,QS,QG,DZDT: variables in the old PMID1 (i.e.,PMID2) level
+! QC2,QR2,QI2,QS2,QG2,DZDT2: variables in the newly adjusted model
+! pressure level PMID1
+
+      itag_c=0
+      itag_w=0
+
+!$omp parallel do &
+!$omp& private(i,j,dis)
+      do j=1,ny
+       do i=1,nx
+        dis = sqrt( (dx*(i-ictr))**2+(dy*(j-jctr))**2 )
+        if( dis.lt.6.0 ) itag_c(i,j)=1
+        if( dis.lt.2.0 ) itag_w(i,j)=1
+       enddo
+      enddo
+
+! put the variables and only core region will be replaced
+      QC2=QC
+      QR2=QR
+      QS2=QS
+      QG2=QG
+      QI2=QI
+      DZDT2=DZDT
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+      DO J=jctr-450,jctr+450     !Do loop for 900x900 with respect to TC center is fine
+        DO I=ictr-450,ictr+450
+        nloop1: DO N=1,NZ
+            IF(PMID1(I,J,N).GE.PMID2(I,J,1))THEN            ! Below PMV1(I,J,1)
+             if(itag_c(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,1)
+              QR2(I,J,N)=QR(I,J,1)
+              QS2(I,J,N)=QS(I,J,1)
+              QG2(I,J,N)=QG(I,J,1)
+              QI2(I,J,N)=QI(I,J,1)
+             endif
+             if(itag_w(i,j).eq.1)then
+              DZDT2(I,J,N)=DZDT(I,J,1)
+             endif
+            ELSE IF(PMID1(I,J,N).LE.PMID2(I,J,NZ))THEN
+             if(itag_c(i,j).eq.1)then
+              QC2(I,J,N)=QC(I,J,NZ)
+              QR2(I,J,N)=QR(I,J,NZ)
+              QS2(I,J,N)=QS(I,J,NZ)
+              QG2(I,J,N)=QG(I,J,NZ)
+              QI2(I,J,N)=QI(I,J,NZ)
+             endif
+             if(itag_w(i,j).eq.1)then
+              DZDT2(I,J,N)=DZDT(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PMID1(I,J,N).LE.PMID2(I,J,K).and.PMID1(I,J,N).GT.PMID2(I,J,K+1))THEN
+                  W1=ALOG(1.*PMID2(I,J,K+1))-ALOG(1.*PMID2(I,J,K))
+                  W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PMID2(I,J,K)))/W1
+                  if(itag_c(i,j).eq.1)then
+                   QC2(I,J,N)=QC(I,J,K)+ &
+                           (QC(I,J,K+1)-QC(I,J,K))*W
+                   QR2(I,J,N)=QR(I,J,K)+ &
+                           (QR(I,J,K+1)-QR(I,J,K))*W
+                   QS2(I,J,N)=QS(I,J,K)+ &
+                           (QS(I,J,K+1)-QS(I,J,K))*W
+                   QG2(I,J,N)=QG(I,J,K)+ &
+                           (QG(I,J,K+1)-QG(I,J,K))*W
+                   QI2(I,J,N)=QI(I,J,K)+ &
+                           (QI(I,J,K+1)-QI(I,J,K))*W
+                  endif
+                  if(itag_w(i,j).eq.1)then
+                   DZDT2(I,J,N)=DZDT(I,J,K)+ &
+                           (DZDT(I,J,K+1)-DZDT(I,J,K))*W
+                  endif
+                  cycle nloop1
+                END IF
+              END DO
+            END IF
+          END DO nloop1
+        END DO
+      END DO
+
+!======= Same interpolation for two additional Thompson microphysics variables
+      if(ivi_cloud.eq.2)then
+      print*,'Same interpolation for two additional Thompson variables'
+       NCI2=NCI
+       NCR2=NCR
+
+!$omp parallel do &
+!$omp& private(i,j,k,N,W1,W)
+       DO J=jctr-450,jctr+450     !Do loop for 900x900 with respect to TC center is fine
+        DO I=ictr-450,ictr+450
+        nloop2: DO N=1,NZ
+            IF(PMID1(I,J,N).GE.PMID2(I,J,1))THEN            ! Below PMV1(I,J,1)
+             if(itag_c(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,1)
+              NCR2(I,J,N)=NCR(I,J,1)
+             endif
+            ELSE IF(PMID1(I,J,N).LE.PMID2(I,J,NZ))THEN
+             if(itag_c(i,j).eq.1)then
+              NCI2(I,J,N)=NCI(I,J,NZ)
+              NCR2(I,J,N)=NCR(I,J,NZ)
+             endif
+            ELSE
+              DO K=1,NZ-1
+                IF(PMID1(I,J,N).LE.PMID2(I,J,K).and.PMID1(I,J,N).GT.PMID2(I,J,K+1))THEN
+                  W1=ALOG(1.*PMID2(I,J,K+1))-ALOG(1.*PMID2(I,J,K))
+                  W=(ALOG(1.*PMID1(I,J,N))-ALOG(1.*PMID2(I,J,K)))/W1
+                  if(itag_c(i,j).eq.1)then
+                   NCI2(I,J,N)=NCI(I,J,K)+ &
+                           (NCI(I,J,K+1)-NCI(I,J,K))*W
+                   NCR2(I,J,N)=NCR(I,J,K)+ &
+                           (NCR(I,J,K+1)-NCR(I,J,K))*W
+                  endif
+                  cycle nloop2
+                END IF
+              END DO
+            END IF
+          END DO nloop2
+        END DO
+       END DO
+
+      endif
+!===============  Done for Thompson microphysics configuration ================
+
+      endif
+!-------------------------------------------------------------------
+      if(ivi_cloud.eq.0) DZDT2=DZDT
+      ! If cloud relocation is off, simply output DZDT from
+      ! origonal data
+!-------------------------------------------------------------------
+!
 
 !      WRITE(64)((SLP1(I,J),I=1,NX),J=1,NY,2)
 !      DO K=1,NZ+1
@@ -1421,7 +1627,7 @@
       WRITE(IUNIT) Q1
       WRITE(IUNIT) U1
       WRITE(IUNIT) V1
-      WRITE(IUNIT) DZDT
+      WRITE(IUNIT) DZDT2
       WRITE(IUNIT) Z1
 !      WRITE(IUNIT) GLON,GLAT
       WRITE(IUNIT) HLON,HLAT,VLON,VLAT
@@ -1429,6 +1635,17 @@
       WRITE(IUNIT) PD1
       WRITE(IUNIT) ETA1
       WRITE(IUNIT) ETA2
+      if(ivi_cloud.ge.1)then
+       WRITE(IUNIT) QC2
+       WRITE(IUNIT) QR2
+       WRITE(IUNIT) QI2
+       WRITE(IUNIT) QS2
+       WRITE(IUNIT) QG2
+       if(ivi_cloud.eq.2)then
+        WRITE(IUNIT) NCI2
+        WRITE(IUNIT) NCR2
+       endif
+      endif
 
       CLOSE(IUNIT)
 

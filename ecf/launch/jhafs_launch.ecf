@@ -4,9 +4,10 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:mem=10G
+#PBS -l place=shared,select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=10GB
 #PBS -l debug=true
 
+export storm_num="%STORMNUM%"
 model=hafs
 export NET="%NET%"
 export RUN="%RUN%"
@@ -14,15 +15,13 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export storm_num="%STORMNUM%"
-
 module load PrgEnv-intel/${PrgEnv_intel_ver}
 module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5/${hdf5_ver}
-module load netcdf/${netcdf_ver}
+module load hdf5-A/${hdf5_ver}
+module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
 module load crtm/${crtm_ver}
 module load udunits/${udunits_ver}
@@ -37,60 +36,57 @@ ${HOMEhafs}/jobs/JHAFS_LAUNCH
 %manual
 TASK launch
 
-PURPOSE: Creates initial directory structure and configures the
-         rest of the workflow for one storm.
+PURPOSE: Creates initial directory structure and configures the rest of the
+         workflow for one storm.
 
-This job will delete and recreate the $DATA work area for one HAFS
-storm.  It sets several flags to turn on and off parts of the
-workflow, or disable the entire workflow if there is no storm.  All
-logic is triggered by the message file sent by the SDM via
-setup_hurricane.
+This job will create the $DATA work area for one HAFS storm. It sets several
+flags to turn on and off parts of the workflow, or disable the entire workflow
+if there is no storm. All logic is triggered by the message file sent by the
+SDM via setup_hurricane.
 
 Labels:
 
-  stormN - storm1-storm7 for HFSA, storm1-storm5 for HFSB; label tells 
-    whether a storm is to be run.  IF the storm is to be run, it tells 
-    what the storm is, and who sent it (NHC or JTWC).
+  stormN - storm1-storm7 for HFSA; storm1-storm5 for HFSB; label tells whether
+           a storm is to be run. IF the storm is to be run, it tells what the
+           storm is, and who sent it (NHC or JTWC).
 
 Events:
 
-  NoStorm - set if no storm is to be run.  The rest of the workflow sees
-            the event and automatically completes via ecFlow completion clauses.
-   
-  Ocean - for both HFSA and HFSB have ocean coupling with HYCOM
-  
-  Wave - for wave coupling, (only HFSA will run it for NHC basin storms)
-  
-  Analysis - for both HFSA and HFSB will set it for NHC basin storms; 
-             for HFSA with JTWC storms (data assimilation is turned off)
+  NoStorm - set if no storm is to be run. The rest of the workflow sees
+            the event and automatically completes via ecFlow completion clauses
+
+  Ocean - for both HFSA and HFSB with ocean coupling
+
+  Wave - for wave coupling (only HFSA will run it for NHC basin storms)
+
+  Analysis - for both HFSA and HFSB will set it for NHC basin storms;
+             for HFSA with JTWC storms, data assimilation is turned off
 
 TROUBLESHOOTING
 
-This job will rarely fail since it has little to do; it just sets up
-some directories and makes configuration files.  If this job fails, it
-is likely due to a hardware or other system issue, with one exception...
+This job will rarely fail since it has little to do; it just sets up some
+directories and makes configuration files. If this job fails, it is likely due
+to a hardware or other system issue, with one exception...
 
 PROBLEM: Why is there no storm?
 
-The launcher does whatever the NOAA SDM tells it to do.  The NOAA SDM
-uses a script called setup_hurricane to create message files read by
-the launcher job's JHAFS_LAUNCH script.  If the launcher job decided
-not to run a storm, then that means the SDM told it not to.  If there
-should have been a storm, then it likely means there was a
-communication problem, preventing data from getting from NHC or JTWC
-to the NOAA SDM.
+The launcher does whatever the NOAA SDM tells it to do. The NOAA SDM uses a
+script called setup_hurricane to create message files read by the launcher
+job's JHAFS_LAUNCH script. If the launcher job decided not to run a storm, then
+that means the SDM told it not to. If there should have been a storm, then it
+likely means there was a communication problem, preventing data from getting
+from NHC or JTWC to the NOAA SDM.
 
-For NHC/CPHC storms, the NOAA SDM has a direct line to the on-call
-NHC/CPHC person, who can confirm the absence of a storm.  It may then
-be possible to manually edit the message and nstorms files to add the
-storm in.  Alternatively, you could rerun setup_hurricane, but that
-may change storm priorities.  In that case, you must rerun the entire
-HAFS cycle (all storm slots).  All of this is technical possibility;
-there may be procedural reasons why this cannot be done.
+For NHC/CPHC storms, the NOAA SDM has a direct line to the on-call NHC/CPHC
+person, who can confirm the absence of a storm. It may then be possible to
+manually edit the message and nstorms files to add the storm in. Alternatively,
+you could rerun setup_hurricane, but that may change storm priorities. In that
+case, you must rerun the entire HAFS cycle (all storm slots). All of this is
+technical possibility.  There may be procedural reasons why this cannot be
+done.
 
-For JTWC storms, the NOAA SDM has the direct line to the JTWC duty
-officer, but there isn't much that can be done.  JTWC lacks any way to
-send vitals after the T+3 deadline.  Hence, a JTWC storm that is
-missed, is missed.
+For JTWC storms, the NOAA SDM has the direct line to the JTWC duty officer, but
+there isn't much that can be done. JTWC lacks any way to send vitals after the
+T+3 deadline. Hence, a JTWC storm that is missed, is missed.
 
 %end

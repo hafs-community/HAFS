@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Provides information about the batch system.
 
 This module is intended to be used to communicate with the batch

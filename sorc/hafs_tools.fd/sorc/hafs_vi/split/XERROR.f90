@@ -5,7 +5,7 @@
 !C***REVISION DATE  820801   (YYMMDD)
 !C***CATEGORY NO.  R3C
 !C***KEYWORDS  ERROR,XERROR PACKAGE
-!C***AUTHOR  JONES, R. E., (SNLA)
+!C***AUTHORS  JONES, R. E., (SNLA)
 !C***PURPOSE  Processes an error (diagnostic) message.
 !C***DESCRIPTION
 !C     Abstract

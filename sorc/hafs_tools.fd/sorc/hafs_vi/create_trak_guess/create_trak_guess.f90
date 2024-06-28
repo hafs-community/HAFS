@@ -1,5 +1,9 @@
 !---------------------------------------------------------------------------------------------------------
-! This code is designed to replace create_trak_guess.f90 of HWRF: 2022 JungHoon Shin
+! Authors and history
+! Original author: JungHoon Shin 2022 NCEP/EMC
+! Revised by: JungHoon Shin, 2022: Include the scenario when there is no TC center information
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline to distinquish Eastern and Western hemisphere
+! This code is designed to replace create_trak_guess.f90 of HWRF
 ! Usage example:
 !   ./hafs_vi_create_trak_guess.x storm_id
 !   e.g., ./hafs_vi_create_trak_guess.x 13L
@@ -51,12 +55,14 @@ program create_trak_guess
   ! Read TCvital first
   read(11,13) part2,idat2,ihour2,lat2,ns2,lon2,ew2
   if(ns2.eq.'S')lat2=-lat2
+  if(ew2.eq.'W')lon2=-lon2 !ckw
 
   ! Reading fort.12 (previous HAFS forecast ATCF file)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
 
-    if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center. (i.e., lat=0)
+   if(ew.eq.'W')lon=-lon !ckw
+   if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center. (i.e., lat=0)
     if(ns.eq.'S')lat=-lat
     !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
     if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then
@@ -65,7 +71,7 @@ program create_trak_guess
       ! Only for TCs near date line: near the date line (180E or 180W), longitude of tcvital (ew2) and
       ! that of ATCF (ew) could be different. In this case, convent longitude as following.
       ! Then, split.f90 will handle rest of things
-      if(ew2.ne.ew .and. lon.ne.9999) lonhr(ifh-2)=3600-lonhr(ifh-2)
+      !if(ew2.ne.ew .and. lon.ne.9999) lonhr(ifh-2)=3600-lonhr(ifh-2) !ckw
     end if
     !If we find 9-h information or reach the end of file WITHOUT 9-h data, exit the do loop
     if(stat /= 0 .or. ifh.eq.9) exit

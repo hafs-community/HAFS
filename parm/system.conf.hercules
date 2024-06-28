@@ -1,0 +1,51 @@
+## This is the system-specific configuration file for Hercules
+[config]
+## Project disk area
+disk_project=hwrf
+## Project hpss tape area
+tape_project=emc-hwrf
+## CPU account name for submitting jobs to the batch system.
+cpu_account=hurricane
+## Archive path
+archive=disk:/work2/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+
+[dir]
+## Save directory.  Make sure you edit this.
+CDSAVE=/work2/noaa/{disk_project}/save/{ENV[USER]}
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/work2/noaa/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/work2/noaa/{disk_project}/scrub/{ENV[USER]}
+## Syndat directory for finding which cycles to run
+syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+COMINobs={COMgfs}
+COMINgfs={COMgfs}
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
+COMINrtofs={COMrtofs}
+COMINmsg={COMINgfs}
+COMINhafs={COMINgfs}
+DATMdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DOCN
+## A-Deck directory for graphics
+ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/work/noaa/hwrf/noscrub/local/share/cartopy
+
+[forecast]
+quilting_restart=.false.
+
+[holdvars]
+WHERE_AM_I=hercules
+WHICH_JET=none
+

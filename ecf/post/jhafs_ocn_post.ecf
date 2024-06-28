@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=02:30:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=100G
+#PBS -l place=shared,select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=20GB
 #PBS -l debug=true
 
 model=hafs
@@ -25,15 +25,12 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5/${hdf5_ver}
-module load netcdf/${netcdf_ver}
+module load hdf5-A/${hdf5_ver}
+module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
 module load udunits/${udunits_ver}
 module load gsl/${gsl_ver}
 module load nco/${nco_ver}
-module load libjpeg/${libjpeg_ver}
-module load grib_util/${grib_util_ver}
-module load wgrib2/${wgrib2_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_OCN_POST

@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Exceptions raised by the tcutil package
 
 This module contains exceptions raised by the tcutil package.  The only

@@ -17,6 +17,39 @@
 !C       (SH21  SH22),   (SH21  1.E0),   (-1.E0 SH22),   (0.E0  1.E0).
 !C     SEE  SROTMG FOR A DESCRIPTION OF DATA STORAGE IN SPARAM.
 !C
+
+!Adopted from Qingfu Liu (NCEP/EMC). Another similar version is found online (SLATEC https://people.math.sc.edu/Burkardt/f_src/slatec/slatec.f90)
+!! SROTM applies a modified Givens transformation.
+!
+!***LIBRARY   SLATEC (BLAS)
+!***CATEGORY  D1A8
+!***TYPE      SINGLE PRECISION (SROTM-S, DROTM-D)
+!***KEYWORDS  BLAS, LINEAR ALGEBRA, MODIFIED GIVENS ROTATION, VECTOR
+!***AUTHORS  Lawson, C. L., (JPL)
+!           Hanson, R. J., (SNLA)
+!           Kincaid, D. R., (U. of Texas)
+!           Krogh, F. T., (JPL)
+!   REVISED by Chuan-Kai Wang (NCEP/EMC 2022)
+!***DESCRIPTION
+!
+!                B L A S  Subprogram
+!    Description of Parameters
+!
+!     --Input--
+!        N  number of elements in input vector(s)
+!       SX  single precision vector with N elements
+!     INCX  storage spacing between elements of SX
+!       SY  single precision vector with N elements
+!     INCY  storage spacing between elements of SY
+!   SPARAM  5-element vector. SPARAM(1) is SFLAG described below.
+!           Locations 2-5 of SPARAM contain elements of the
+!           transformation matrix H described below.
+!
+!     --Output--
+!       SX  rotated vector (unchanged if N  <=  0)
+!       SY  rotated vector (unchanged if N  <=  0)
+
+
       integer incx,incy,n,i,kx,ky,nsteps
       real,DIMENSION(1):: SX(*),SY(*)
       real, dimension(5):: SPARAM(5)

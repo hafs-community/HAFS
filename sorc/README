@@ -1,0 +1,26 @@
+README for HAFS build and install
+
+Building HAFS is done by running the script "install_hafs.sh". It executes a
+few other scripts to build HAFS binaries, install them at the "exec" folder of
+the HAFS directory tree, link or copy the fixed files to the "fix" folder of
+the HAFS directory tree, and copy the platform-specific configuration file.
+
+Here is an example:
+cd path/to/hafs/sorc
+nohup ./install_hafs.sh [nco] > ./install_hafs.log 2>&1 &
+
+Note: This step may take a while (30 minutes or longer).
+
+The HAFS package currently uses the CMake build generator and GNU make build
+tool. The build scripts create a new/fresh "build" folder to generate object
+files after preprocessing and to link all object files and dependencies that
+produce the executable. The HAFS build system supports Debug and Release build
+types. The default build type is Release.
+
+To build HAFS with DEBUG mode (if desired), one can update
+path/to/hafs/sorc/build_all.sh from
+
+export BUILD_MODE=${BUILD_MODE:-Release}   #|Release|Debug|
+into
+export BUILD_MODE=Debug
+

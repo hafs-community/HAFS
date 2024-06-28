@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void c_stat_lstat(const char *filename,int64_t want_lstat,void **sb,
                   int64_t *ierr,

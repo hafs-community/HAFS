@@ -1,4 +1,6 @@
         subroutine amatrix
+        !Authors: Qingfu Liu (NCEP/EMC)
+        !Revised by Chuan-Kai Wang (NCEP/EMC) 2022
         use matrix, only: a, capd2,nmx
         use posit, only: xold,yold,xcorn,ycorn
         use vect, only: xvect,yvect!,rovect

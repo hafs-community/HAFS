@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -55,7 +55,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export vi_force_cold_start=${vi_force_cold_start:-${force_cold_start:-no}}
+export vi_force_cold_start=${vi_force_cold_start:-${force_cold_start:-${COLDSTART:-NO}}}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
@@ -78,7 +78,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_vi.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

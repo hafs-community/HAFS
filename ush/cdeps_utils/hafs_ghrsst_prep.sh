@@ -1,5 +1,10 @@
-#!/bin/bash
-
+#!/bin/sh
+################################################################################
+# Script Name: hafs_ghrsst_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script prepares GHRSST mesh and input files for the DOCN component.
+################################################################################
 set -xe
 
 set -u
