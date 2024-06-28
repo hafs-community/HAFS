@@ -145,9 +145,10 @@ HAFS uses the RRTMG radiation scheme. For computational efficiency, the correlat
 Gravity Wave Drag
 =================
 
-Impact of sub-grid scale perturbations excited by orography and convection.
+HAFS uses the Unified Gravity Wave Drag (GWD) scheme, which considers:
 
-**HAFS uses the unified GWD scheme:**
-
-Mesoscale orographic gravity wave drag, low-level flow blocking by subgrid-scale orography, effects of gravity waves produced by horizontal terrain variations, and non-topographic gravity wave drag (GWD) from convection and frontal instability are considered in the model.
+* Mesoscale orographic GWD
+* Low-level flow blocking by subgrid-scale orography
+* Effects of gravity waves produced by horizontal terrain variations
+* Non-topographic GWD from convection and frontal instability
 
