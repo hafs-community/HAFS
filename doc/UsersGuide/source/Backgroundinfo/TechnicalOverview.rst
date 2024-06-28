@@ -104,7 +104,7 @@ HAFS v2.0.0 Operational Updates
 
 **Released:** July 01, 2024, 1200UTC
 
-**Location on GitHub:** `HAFS GitHub Repository <https://github.com/hafs-community/HAFS/tree/production/hafs.v2>`
+**Location on GitHub:** `HAFS GitHub Repository <https://github.com/hafs-community/HAFS/tree/production/hafs.v2>`_
 
 **Clone the repository:**
 
