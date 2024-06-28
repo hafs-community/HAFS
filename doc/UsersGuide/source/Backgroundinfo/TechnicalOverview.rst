@@ -110,7 +110,10 @@ HAFS v2.0.0 Operational Updates
 
 .. code-block:: bash
 
-   git clone -b production/hafs.v2 --recursive  https://github.com/hafs-community/HAFS.git ./hafs.v2.0.0
+   git clone -b production/hafs.v2 --recursive  https://github.com/hafs-community/HAFS.git
+
+.. attention::
+   HAFSv2 runs in production on WCOSS2; pre-implementation testing was performed on Hera and Orion. It is likely possible to run on other systems, but additional code modifications may be required to run an experiment, and this capability has not yet been tested.
 
 **Purpose:**
     Run :term:`HAFS`.v2 :term:`HFSA` configuration to provide hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC`, :term:`WPAC`, :term:`NIO`, and :term:`SH` basins. Run :term:`HAFS`.v2 :term:`HFSB` configuration to provide hurricane track and intensity forecast guidance for 5.25 days over :term:`NHC`/:term:`CPHC` basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC` basins.
