@@ -402,11 +402,6 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
-  $NCP -Lp $PREPQC     prepbufr
-else
-  err_exit "${PREPQC} does not exist or is empty. Exiting ..."
-fi
 #${NLN} $PREPQC           prepbufr
 ##${NLN} $PREPQCPF         prepbufr_profl
 ${WLN} $SATWND           satwndbufr
@@ -476,6 +471,14 @@ fi
 # ${NLN} ${PREPQC}.nr    prepbufr
   ${WLN} ${SAPHIRBF}.nr  saphirbufr
 ##[[ $DONST = "YES" ]] && ${WLN} /dev/null nsstbufr
+
+else
+
+if [ -s $PREPQC ]; then
+  $NCP -Lp $PREPQC     prepbufr
+else
+  err_exit "${PREPQC} does not exist or is empty. Exiting ..."
+fi
 
 fi
 
