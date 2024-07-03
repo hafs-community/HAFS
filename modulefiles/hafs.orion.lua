@@ -37,7 +37,7 @@ load(pathJoin("netcdf-fortran", netcdf_fortran_ver))
 parallelio_ver=os.getenv("parallelio_ver") or "2.5.10"
 load(pathJoin("parallelio", parallelio_ver))
 
-esmf_ver=os.getenv("esmf_ver") or "8.5.0"
+esmf_ver=os.getenv("esmf_ver") or "8.6.0"
 load(pathJoin("esmf", esmf_ver))
 
 fms_ver=os.getenv("fms_ver") or "2023.04"
@@ -73,7 +73,7 @@ load(pathJoin("gftl-shared", gftl_shared_ver))
 yafyaml_ver=os.getenv("yafyaml_ver") or "0.2.5"
 load(pathJoin("libyaml", yafyaml_ver))
 
-mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.5.0"
+mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.6.0"
 load(pathJoin("mapl", mapl_ver))
 
 bufr_ver=os.getenv("bufr_ver") or "12.0.1"

@@ -36,13 +36,13 @@ libjpeg_ver=os.getenv("libjpeg_ver")
 load(pathJoin("libjpeg", libjpeg_ver))
 
 hdf5_ver=os.getenv("hdf5_ver")
-load(pathJoin("hdf5-A", hdf5_ver))
+load(pathJoin("hdf5-C", hdf5_ver))
 
 netcdf_ver=os.getenv("netcdf_ver")
-load(pathJoin("netcdf-A", netcdf_ver))
+load(pathJoin("netcdf-C", netcdf_ver))
 
 fms_ver=os.getenv("fms_ver")
-load(pathJoin("fms", fms_ver))
+load(pathJoin("fms-C", fms_ver))
 
 bacio_ver=os.getenv("bacio_ver")
 load(pathJoin("bacio", bacio_ver))
@@ -117,16 +117,16 @@ ncio_ver=os.getenv("ncio_ver")
 load(pathJoin("ncio-A", ncio_ver))
 
 pio_ver=os.getenv("pio_ver")
-load(pathJoin("pio-B", pio_ver))
+load(pathJoin("pio-C", pio_ver))
 
 esmf_ver=os.getenv("esmf_ver")
-load(pathJoin("esmf-B", esmf_ver))
+load(pathJoin("esmf-C", esmf_ver))
 
 gftl_shared_ver=os.getenv("gftl_shared_ver")
 --load(pathJoin("gftl-shared", gftl_shared_ver))
 
 mapl_ver=os.getenv("mapl_ver")
---load(pathJoin("mapl-B", mapl_ver))
+--load(pathJoin("mapl-C", mapl_ver))
 
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
