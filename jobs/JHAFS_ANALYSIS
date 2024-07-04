@@ -36,7 +36,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   if [ ${machine}  = "wcoss2" ]; then
     module reset
     module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}
+    module load gsi_${machine}.intel
     module load cray-pals/1.2.2
     module load cfp/2.0.4
   fi
