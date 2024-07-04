@@ -24,8 +24,6 @@ if [ $# -ne 4 ]; then
    exit 1
 fi
 
-APRUN=${APRUN:-time}
-
 #if [ $gtype = stretch ] || [ $gtype = regional_gfdl ]; then
 if [ $gtype = stretch ] || [ $gtype = regional ] || [ $gtype = regional_gfdl ] || [ $gtype = regional_esg ]; then
   stretch=$stretch_fac
@@ -72,7 +70,7 @@ cat > input.nml <<EOF
 EOF
 
 ${NCP} -p $executable ./hafs_utils_filter_topo.x
-${APRUN} ./hafs_utils_filter_topo.x 2>&1 | tee ./filter_topo.log
+${APRUNO} ./hafs_utils_filter_topo.x 2>&1 | tee ./filter_topo.log
 export err=$?; err_chk
 
 date

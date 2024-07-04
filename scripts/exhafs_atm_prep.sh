@@ -193,12 +193,12 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  echo "${APRUN} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUN} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 2 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 3 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi
@@ -249,9 +249,9 @@ elif [ $gtype = nest ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 1 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   for itile in $(seq 2 $ntiles); do
-    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
@@ -313,9 +313,9 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   # Run multiple tiles simulatneously for the orography
-  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   for itile in $(seq 8 $ntiles); do
-    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
+    echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
@@ -411,7 +411,7 @@ if [ $gtype = regional ]; then
 
   date
   echo "............ execute $MAKEOROGSSH ................."
-  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $script_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
+  echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
   if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
     echo 'wait' >> orog.file1
   fi

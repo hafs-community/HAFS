@@ -7,94 +7,88 @@
 #   static topographic statistics files.
 # History:
 #   04/24/2019: This script was adopted from UFS_UTILS' fv3gfs_make_orog.sh
+#   07/03/2024: Sync with latest UFS_UTILS' fv3gfs_make_orog.sh
+# Usage:
+#  Arguments:
+#    res     - "C" Resolution of model grid - 48, 96, 768, etc.
+#    tile    - Tile number.
+#    griddir - Location of model 'grid' file.
+#    outdir  - Location of the model orography file output by
+#              the 'orog' program.
+#    indir   - Location of input land mask and terrain data.
+#    tmpdir  - Location to create the work direcotry
+#
+#  Input Files:
+#    $GRIDFILE                         - The model 'grid' file
+#                                        containing georeference info.
+#    topography.antarctica.ramp.30s.nc - RAMP terrain data.
+#    landcover.umd.30s.nc              - Global land mask data.
+#    topography.gmted2010.30s.nc       - Global USGS GMTED 2010
+#                                        terrain data.
+#
+#  Output Files:
+#    out.oro.nc - The model orography file (single tile).
+#
+# Condition codes:
+#    0 - Normal termination.
+#    1 - Incorrect number of script arguments.
+#-------------------------------------------------------------------
+
+
 ################################################################################
 set -x -o pipefail
 
 nargv=$#
 
-inorogexist=0
-
-if [ $nargv -eq 6 ];  then  # lat-lon grid
-  lonb=$1
-  latb=$2
-  outdir=$3
-  script_dir=$4
-  is_latlon=1
-  orogfile="none"
-  hist_dir=$5
-  TMPDIR=$6
-  workdir=$TMPDIR/latlon/orog/latlon_${lonb}x${latb}
-elif [ $nargv -eq 7 ]; then  # cubed-sphere grid
+if [ $nargv -eq 6 ]; then
   res=$1
-  lonb=$1
-  latb=$1
   tile=$2
   griddir=$3
   outdir=$4
-  script_dir=$5
-  is_latlon=0
-  orogfile="none"
-  hist_dir=$6
-  TMPDIR=$7
-  workdir=$TMPDIR/C${res}/orog/tile$tile
-elif [ $nargv -eq 8 ]; then  # input your own orography files
-  res=$1
-  lonb=$1
-  latb=$1
-  tile=$2
-  griddir=$3
-  outdir=$4
-  is_latlon=0
-  inputorog=$5
-  script_dir=$6
-  orogfile=$inputorog
-  inorogexist=1
-  hist_dir=$7
-  TMPDIR=$8
-  workdir=$TMPDIR/C${res}/orog/tile$tile
+  indir=$5
+  tmpdir=$6
 else
-  echo "Number of arguments must be 7 or 8 for cubic sphere grid and 6 for lat-lon grid"
-  echo "Usage for cubic sphere grid: $0 resolution tile griddir outdir script_dir hist_dir TMPDIR"
+  echo "FATAL ERROR: Number of arguments must be 6."
+  echo "Usage: $0 resolution tile griddir outdir indir tmpdir."
   exit 1
 fi
 
-indir=$hist_dir
 executable=${OROGEXEC:-$exec_dir/hafs_utils_orog.x}
 
+workdir=$tmpdir/C${res}/orog/tile$tile
 mkdir -p $workdir $outdir
 
-mtnres=1
-efac=0
-blat=0
-
-if [ $is_latlon -eq 1 ]; then
-  OUTGRID="none"
-else
-  OUTGRID="C${res}_grid.tile${tile}.nc"
-fi
+GRIDFILE="C${res}_grid.tile${tile}.nc"
 
 # Make Orograraphy
-echo "OUTGRID = $OUTGRID"
+echo "GRIDFILE = $GRIDFILE"
 echo "workdir = $workdir"
 echo "outdir = $outdir"
 echo "indir = $indir"
 
 cd $workdir
 
-${NLN} ${indir}/thirty.second.antarctic.new.bin fort.15
-${NLN} ${indir}/landcover30.fixed .
-${NLN} ${indir}/gmted2010.30sec.int  fort.235
-if [ $inorogexist -eq 1 ]; then
-   ${NCP} $inputorog .
-fi
+${NLN} ${indir}/topography.antarctica.ramp.30s.nc .
+${NLN} ${indir}/landcover.umd.30s.nc .
+${NLN} ${indir}/topography.gmted2010.30s.nc .
+${NLN} ${griddir}/$GRIDFILE .
 
-if [ $is_latlon -eq 0 ]; then
-   ${NCP} ${griddir}/$OUTGRID .
-fi
+#-------------------------------------------------------------------
+# Set up program namelist. The entries are:
+#
+#  1 - GRIDFILE - model 'grid' file.
+#  2 - Logical to output land mask only. When creating a grid
+#      for the coupled model ("ocn" resolution is specified)
+#      this is true. The mask is then tweaked during the
+#      ocean merge step before the 'orog' program is run again
+#      (in fv3gfs_ocean_merge.sh) to create the full 'orog'
+#      file. When false, the 'orog' program outputs the
+#      full orography file.
+#  3 - The input file from the ocean merge step. Defaults
+#      to 'none' for this script.
+#-------------------------------------------------------------------
 
-echo  $mtnres $lonb $latb $efac $blat > INPS
-echo $OUTGRID >> INPS
-echo $orogfile >> INPS
+echo $GRIDFILE > INPS
 if [ -z ${ocn+x} ]; then
   echo ".false." >> INPS
 else
@@ -108,12 +102,7 @@ ${SOURCE_PREP_STEP}
 ${APRUNO} ./hafs_utils_orog.x < INPS 2>&1 | tee ./orog.log
 export err=$?; err_chk
 
-if [ $is_latlon -eq 1 ]; then
-   outfile=oro.${lonb}x${latb}.nc
-else
-   outfile=oro.C${res}.tile${tile}.nc
-fi
-
+outfile=oro.C${res}.tile${tile}.nc
 mv ./out.oro.nc $outdir/$outfile
 echo "file $outdir/$outfile is created"
 echo "Successfully running $executable "
