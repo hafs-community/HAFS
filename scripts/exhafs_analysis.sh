@@ -297,6 +297,7 @@ for file in $(awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq); do
   ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
   ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
 done
+${NLN} ${FIXcrtm}/amsua_metop-a_v2.SpcCoeff.bin ./amsua_metop-a_v2.SpcCoeff.bin
 
 ${NLN} ${FIXcrtm}/Nalli.IRwater.EmisCoeff.bin ./Nalli.IRwater.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/NPOESS.IRice.EmisCoeff.bin ./NPOESS.IRice.EmisCoeff.bin
