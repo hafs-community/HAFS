@@ -8,21 +8,22 @@
 !                : Use observed ROCI and Rmax to correct the composite storm
 !                : (old version uses the averaged values from obs and model)
 ! Revised by: JungHoon Shin, 2022
-!                : Remove/Clean up "go to" statements and modernizing
-!                : the code
+!                : Remove/Clean up "go to" statements and modernizing the code
 ! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
-!                  This code reads cloud and vertical velocity fields,
-!                  which is modified by anl_combine.f90, and
-!                  re-interpolcates those variables into newly adjusted
+!                  This code reads cloud and vertical velocity fields, which is modified
+!                  by anl_combine.f90, and  re-interpolcates those variables into newly adjusted
 !                  model pressure level (PMID1) in the TC core region
 ! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  The code is updated further with one more input argument (ivi_cloud)
 !                  so that cloud modification can be on (1 or 2) or off (0).
 !                  0: No cloud changes in VI, 1: GFDL microphysics, 2: Thompson microphysics
 !                  This change requires changes in exhafs_atm_vi.sh
-!                  Now input arguement is like this:
-!  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud}
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
+! Revised by: JungHoon Shin June 2024 NCEP/EMC
+!                  Modify the code to produce better SLP (0 or 1 or SLP)
+!                  0: Use old HWRF SLP style, 1: Use advanced HAFS SLP style
+! Usage:
+!  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} ${vi_slp_adjust} | ${APRUNO} ./hafs_vi_anl_enhance.x
 !
 !     DECLARE VARIABLES
 !
@@ -32,17 +33,17 @@
       integer ITIM,IUNIT,I360,iflag_cold,IM1,JM1,id_storm,KST
       integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs,IFLAG,K850
       integer ictr,jctr,imn1,imx1,jmn1,jmx1,imax1,jmax1,iter,IMV,JMV
-      integer imax12,jmax12,i_psm,j_psm,k1,ics,icen,jcen
+      integer imax12,jmax12,i_psm,j_psm,k1,ics,icen,jcen,ithres
       real GAMMA,G,Rd,D608,Cp,GRD,COEF1,COEF2,COEF3,DST1,TENV1,press1
       real pi,pi_deg,arad,rad,TV1,ZSF1,PSF1,A,SUM11,vobs,vobs_o,VRmax
-      real SLP1_MEAN,SLP_AVE,SLP_SUM,SLP_MIN,DP_CT,psfc_obs,psfc_cls,PRMAX
+      real SLP1_MEAN,SLP_AVE,SLP_SUM,SLP_MIN,DP_CT,psfc_obs,psfc_cls,PRMAX,vslp
       real Rctp,cost,TWMAX1,RWMAX1,fact_v,dp_obs,distm,distt,delt_z1,pt_c
       real sum1,dist1,psfc_env,psfc_obs1,vobs_kt,vmax1,vmax2,d_max,RMX_d
       real z0,vmax_s,vmax_s_b,vobs1,RMN,W,W1,crtn,beta,VMAX,UUT,VVT,FF,R_DIST
       real UU11,VV11,UUM1,VVM1,QQ1,uv22,QQ,beta1,vmax_1,ff0,ps_min,beta11
       real DIF,U_2S3,WT1,WT2,strm11,strm22,force,force2,PS_C1,PS_C2
       real fact,pt_c1,ps_rat,TEK1,TEK2,ESRR,T_OLD,Q_OLD,ZSFC,TSFC,QENV1
-      real dx,dy,dis
+      real dx,dy,dis,thres,beta_fac
 
 !
       PARAMETER (NST=5,IR=200)
@@ -199,7 +200,7 @@
       arad=6.371E6*rad
       DST1=6.371E6*rad
 
-      READ(5,*)ITIM,basin,iflag_cold,ivi_cloud
+      READ(5,*)ITIM,basin,iflag_cold,ivi_cloud,ithres
       if(ivi_cloud.eq.0) write(*,*) 'Cloud modification is OFF!!'
       if(ivi_cloud.eq.1) write(*,*) 'Cloud change is ON (GFDL)!!'
       if(ivi_cloud.eq.2) write(*,*) 'Cloud change is ON (Thompson)!!'
@@ -488,6 +489,8 @@
 
       psfc_obs=Ipsfc*100.
       psfc_cls=Ipcls*100.
+      vslp=Ipsfc*100.
+      thres=ithres*100.
 
       PRMAX=Irmax*1.
       Rctp=Irmax*1.       ! in km
@@ -728,7 +731,7 @@
       CALL axisym_xy_new(NX,NY,NZ,KMX,HLON,HLAT,VLON,VLAT,     &
                  CLON_NHC,CLAT_NHC,SLP_1,T_1,Q_1,U_1,V_1,      &
                  TH1,RADIUS2,SLPE,TENV,PCST,HP,HV,ZMAX,vobs1,  &
-                 dp_obs,psfc_obs,RWMAX1,PRMAX,RMN,             &
+                 dp_obs,psfc_obs,vslp,RWMAX1,PRMAX,RMN,        &
 		 U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
 
       k850=1        ! use surface wind
@@ -1120,9 +1123,37 @@
       if(ps_rat.gt.10.)ps_rat=10.0
       if(ps_rat.lt.(-10.))ps_rat=-10.0
 
+      !shin------------------------------------------
+      IF( ithres.eq.0 )THEN
+       beta_fac=ps_rat
+      ENDIF
+
+      IF(ithres.ne.0)THEN
+
+       if( ithres.ne.1 )then
+        if(vslp.ge.thres) beta_fac=ps_rat
+        if(vslp.lt.thres)then
+         beta_fac=beta
+         if(beta_fac.gt.0.8)then
+          beta_fac=sqrt(beta_fac)/2.0
+         endif
+        endif
+       endif
+
+       if( ithres.eq.1 )then
+        beta_fac=beta
+        if(beta_fac.gt.0.8)then
+         beta_fac=sqrt(beta_fac)/2.0
+        endif
+       endif
+
+      ENDIF
+      !shin-----------------------------------------
+
       DO J=1,NY
       DO I=1,NX
-        SLP_1(I,J)=SLP_1(I,J)*ps_rat
+      !  SLP_1(I,J)=SLP_1(I,J)*ps_rat
+        SLP_1(I,J)=SLP_1(I,J)*beta_fac
       END DO
       END DO
 
@@ -1132,7 +1163,8 @@
 	    TEK1=TENV(I,J,K)+T_1(I,J,K)
 !	    T_1(I,J,K)=(T_1(I,J,K)+T_X(I,J,K))*PW(k)
 !            Q_1(I,J,K)=(Q_1(I,J,K)+Q_X(I,J,K))*PW(k)
-	    T_1(I,J,K)=T_X(I,J,K)*PW(k)*ps_rat
+!	    T_1(I,J,K)=T_X(I,J,K)*PW(k)*ps_rat
+            T_1(I,J,K)=T_X(I,J,K)*PW(k)*beta_fac
 !            Q_1(I,J,K)=Q_X(I,J,K)*PW(k)
 	    TEK2=TENV(I,J,K)+T_1(I,J,K)
 	    ESRR=exp(4302.645*(TEK2-TEK1)/((TEK2-29.66)*(TEK1-29.66)))

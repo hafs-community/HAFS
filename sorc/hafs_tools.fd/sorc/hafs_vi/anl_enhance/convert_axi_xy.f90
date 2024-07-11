@@ -5,7 +5,7 @@
                     CLON_NHC,CLAT_NHC,                          &
                     SLP_1,T_1,Q_1,U_1,V_1,th1,rp1,              &
                     SLPE,TENV,PCST,HP,HV,ZMAX,vobs,             &
-		    dp_obs,p_obs,vrmax,PRMAX,RMN,               &
+		    dp_obs,p_obs,vslp,vrmax,PRMAX,RMN,          &
 		    U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
 
 ! Authors and history
@@ -15,7 +15,8 @@
 ! Revised by: JungHoon Shin 2023 NCEP/EMC
 !                Modify the code: If SLP of modified TC is too deep,
 !                call the shallow composite vortex to alleviate low SLP issue
-
+! Revised by: JungHoon Shin 2024 June NCEP/EMC
+!             Modify the code further when the code calls the shallow composite vortex
 ! SUBPROGRAM
 !   PRGRMMR
 !
@@ -29,7 +30,7 @@
       real GAMMA,G,Rd,D608,Cp,eps6,pi,pi180,arad,deg2m,cost,zmax,vobs,p_obs,cost_old
       real count_smth,TWMAX,twsum,RWMAX,Rmax_0,fact,fact1,fact_v,vrmax,FC1,FC2,DFC
       real density,sum_vt,sum_vt2,th_m,xxx,yyy,rmw1,rmw2,dp_obs,roc1,roc2,cut_off
-      real aaa,bbb,ddd,RMN,RMN1,RMN2,prmax,DIF,DTX,DTY,DTR,RIJ_m,PIJ_m
+      real aaa,bbb,ddd,RMN,RMN1,RMN2,prmax,DIF,DTX,DTY,DTR,RIJ_m,PIJ_m,vslp
 !
       PARAMETER (NST=5)
 !     PARAMETER (NX=420,NY=820,NZ=42) !* E-grid dimensions
@@ -111,9 +112,9 @@
          NHCT=75
        END IF
 
-       if(p_obs.lt.91510.)then
+       if(vslp.lt.92010.)then
          NHCT=77
-         print*,'minimum pressure < 915 mb', p_obs
+         print*,'minimum pressure < 920 mb', vslp, p_obs
        end if
 
       READ(NHCT)delc,thac    !* vortex lon, lat
@@ -139,7 +140,7 @@
          READ(NHCT)(ur(k,i),i=1,IR1) !* vortex radial wind
          READ(NHCT)(th(k,i),i=1,IR1) !* vortex tangen wind
          print*,'k,th1,2,200=',k,th(k,1),th(k,2),th(k,IR)
-         if(p_obs.lt.91510.)then
+         if(vslp.lt.92010.)then
            do i=1,IR1
 !            ur(k,i)=ur(k,i)*0.1    !* reduce convergence
             ur(k,i)=ur(k,i)*0.5    !* reduce convergence

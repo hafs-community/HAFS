@@ -94,6 +94,7 @@ export vi_adjust_intensity={vi_adjust_intensity}
 export vi_adjust_size={vi_adjust_size}
 export vi_composite_vortex={vi_composite_vortex}
 export vi_cloud={vi_cloud}
+export vi_slp_adjust={vi_slp_adjust}
 
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}

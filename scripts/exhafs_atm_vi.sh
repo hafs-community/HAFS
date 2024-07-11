@@ -18,6 +18,7 @@ vi_adjust_intensity=${vi_adjust_intensity:-yes}
 vi_adjust_size=${vi_adjust_size:-yes}
 vi_composite_vortex=${vi_composite_vortex:-2}
 vi_cloud=${vi_cloud:-0}
+vi_slp_adjust=${vi_slp_adjust:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
 
@@ -546,7 +547,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_enhance.x ./
     ${SOURCE_PREP_STEP}
-    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
+    echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} ${vi_slp_adjust} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
     export err=$?; err_chk
     ${NCP} -p storm_anl_enhance storm_anl
   fi
