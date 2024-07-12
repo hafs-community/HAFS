@@ -1595,6 +1595,19 @@ class HAFSLauncher(HAFSConfig):
                 logger.info(f'Updated output_grid_cen_lon={output_grid_cen_lon}')
                 logger.info(f'Updated output_grid_cen_lat={output_grid_cen_lat}')
 
+                # For IAU, configure the weight scale based on the storm strength
+                iau_inc_scale=self.getstr('forecast','iau_inc_scale','auto').split(',')
+                if "-999" in iau_inc_scale:
+                    logger.info(f'Original iau_inc_scale={iau_inc_scale}')
+                    logger.info(f'Current wmax={syndat.wmax}')
+                    iau_inc_scale=self.getstr('forecast','iau_inc_scale').split(',')
+                    if syndat.wmax > 33:
+                        iau_inc_scale=str(1.)
+                    else:
+                        iau_inc_scale=str(2.)
+                    self.set('holdvars','iau_inc_scale',''.join(iau_inc_scale))
+                    logger.info(f'Updated iau_inc_scale={iau_inc_scale}')
+
         run_ocean=self.getbool('config','run_ocean')
 
         # Set ocean_start_dtg if needed

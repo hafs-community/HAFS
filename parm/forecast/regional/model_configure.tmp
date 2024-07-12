@@ -46,6 +46,7 @@ nx:                      @[NX]              # number of grid cells along x/y-axi
 ny:                      @[NY]              # needed for lambert_conformal
 dx:                      @[DX]              # grid cell size in x/y direction (meters)
 dy:                      @[DY]              # needed for lambert_conformal
+iau_offset:              0                  # IAU offset hours
 
 <output_grid_02>
 output_grid:             @[OUTPUT_GRID_2]

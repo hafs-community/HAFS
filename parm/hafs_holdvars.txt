@@ -426,6 +426,10 @@ export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
 export nhcpost_ens={nhcpost_ens}
 
+#IAU related options
+export iau_regional={iau_regional}
+export iau_inc_scale={iau_inc_scale}
+
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
 export ocean_domain={ocean_domain}
@@ -452,4 +456,3 @@ if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
   export CDSCRUB={CDSCRUB}
   export RUNhafs={RUNhafs}
 fi
-

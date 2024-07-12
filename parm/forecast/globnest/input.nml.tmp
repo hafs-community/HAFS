@@ -262,9 +262,11 @@
   cpl_imp_mrg    = @[merge_import]
   psautco        = 0.0008, 0.0005
   prautco        = 0.00015, 0.00015
-  iau_delthrs    = 6
-  iaufhrs        = 30
-  iau_inc_files  = ''
+  iau_delthrs    = @[iau_delthrs]
+  iaufhrs        = @[iaufhrs]
+  iau_inc_files  = @[iau_inc_files]
+  iau_regional   = @[iau_regional]
+  iau_inc_scale  = @[iau_inc_scale]
   iau_drymassfixer = .false.
   lgfdlmprad     = @[lgfdlmprad]
   effr_in        = .true.

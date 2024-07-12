@@ -29,6 +29,12 @@ if [ "${ENSDA}" = YES ]; then
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
   fi
+  RESTARTanl=${RESTARTsrc}
+  if [ ${iau_regional:-.false.} = ".true." ] ; then
+    RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_fgat06_ens/mem${ENSID}
+    echo "FATAL ERROR: Currently IAU does not support ensemble"
+    exit 1
+  fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
 else
@@ -39,6 +45,10 @@ else
   else
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
+  fi
+  RESTARTanl=${RESTARTsrc}
+  if [ ${iau_regional:-.false.} = ".true." ] ; then
+    RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_fgat06
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
@@ -230,6 +240,15 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
   export err=$?; err_chk
 done
+
+# Step 4: Increments for IAU
+if [ ${iau_regional:-.false.} = ".true." ]; then
+  ${APRUNC} ${DATOOL} hafs_diff \
+   --in_dir=${RESTARTanl} --in_dir2=${RESTARTmrg} \
+   --infile_date=${ymd}.${hh}0000 --out_file="diff06" \
+   --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud}
+  ${NCP} ./diff* ${RESTARTmrg}/
+fi
 
 else
   echo "FATAL ERROR: only support nest_grids = 1 or 2"

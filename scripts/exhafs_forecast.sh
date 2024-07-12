@@ -170,9 +170,13 @@ if [ ${warm_start_opt} -eq 0 ]; then
   RESTARTinp="UNNEEDED"
 fi
 
+# Set default options for IAU
+iau_inc_files=","
+iau_delthrs=6
+iaufhrs=0
+
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
-
 if [ "${ENSDA}" = YES ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
@@ -1076,6 +1080,12 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   done
 fi
 
+# Linking increment files for IAU
+if [ ${RUN_INIT:-NO} = NO ] && [ ${iau_regional:-.false.} = ".true." ] ; then
+  echo "Xu $PWD"
+  ${RLN} ${RESTARTinp}/diff* ./
+fi
+
 if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
   RESTARTymdh=$(${NDATE} +${FORECAST_RESTART_HR} ${CDATE})
   RESTARTymd=$(echo ${RESTARTymdh} | cut -c1-8)
@@ -1279,6 +1289,9 @@ for n in $(seq 2 ${nest_grids}); do
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
+  if [ ${RUN_INIT:-NO} = NO ] && [ ${iau_regional:-.false.} = ".true." ] ; then
+    iau_inc_files="diff06_nest0${inest}"
+  fi
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
 

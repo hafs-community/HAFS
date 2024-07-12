@@ -7,6 +7,7 @@
 !      -- 202112, added HAVSVI pre- and post-processing by Yonghui Weng
 !      -- 202206, added MPI and openMP by Yonghui Weng
 !      -- 202306, added vi_cloud by JungHoon Shin 
+!      -- 202407, added hafs_diff for IAU increment calculation by Xu Lu
 
 !------------------------------------------------------------------------------
 ! June 2023: New input argument "vi_cloud" is introduced for vi_preproc & vi_postproc
@@ -74,6 +75,11 @@
 !                                       --out_dir=[hafs-restart subfolder]  \
 !                                       --vi_cloud=vi_cloud  \
 !                                       --infile_date=20200825.180000
+!    3.5) hafs_diff: Calculate Increment (difference) between the analysis and
+!       background ready for IAU.
+!       * hafs_datool.x hafs_diff  --in_dir=${analysis dir} --in_dir2=${background dir} \
+!                               --infile_date=20200825.180000 --out_file="diff06" \
+!                               --nestdoms=nestdoms --vi_cloud=vi_cloud
 !=========================================================================
   use module_mpi
   use var_type
@@ -86,7 +92,8 @@
   character (len=2500) :: actions, arg, arg1
   character (len=2500) :: in_dir='w', in_file='w', in_grid='w', &
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
-                          out_dir='w', out_grid='w', out_data='w', out_file='w', infile_date='w'
+                          out_dir='w', out_grid='w', out_data='w', out_file='w', infile_date='w', &
+                          in_dir2='w'
   character (len=50  ) :: vortexradius='w'  ! for vortexreplace, vortexradius=600:900 km
                                             ! for hafsvi_preproc, vortexradius=30 deg or 45 deg
   character (len=50  ) :: relaxzone=''      !
@@ -119,6 +126,7 @@
         n=len_trim(arg)
         select case (arg(1:j-1))
                case ('--in_dir');         in_dir=arg(j+1:n)
+               case ('--in_dir2');        in_dir2=arg(j+1:n)
                case ('-i', '--in_file');  in_file=arg(j+1:n)
                case ('--in_grid');        in_grid=arg(j+1:n)
                case ('--out_dir');        out_dir=arg(j+1:n)
@@ -222,6 +230,14 @@
   if ( trim(actions) == "hafsvi_postproc" ) then
      write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
      call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir), nestdoms, trim(vi_cloud))
+  endif
+
+!----------------------------------------------------------------
+! 5.0 --- IAU_DIFF
+  if ( trim(actions) == "hafs_diff" ) then
+     write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
+     call hafs_diff(trim(in_dir),trim(in_dir2),trim(infile_date), &
+    trim(out_file),nestdoms,trim(vi_cloud))
   endif
 
 !----------------------------------------------------------------
