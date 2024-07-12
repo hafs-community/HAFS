@@ -119,6 +119,7 @@ export DOCN_SOURCE={DOCN_SOURCE}
 export DATM_SOURCE={DATM_SOURCE}
 
 export PARMforecast={PARMforecast}
+export PARMmom6={PARMmom6}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}

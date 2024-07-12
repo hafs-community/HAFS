@@ -17,6 +17,7 @@ hh=$(echo ${CDATE} | cut -c9-10)
 
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
 PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
+PARMmom6=${PARMmom6:-${PARMhafs}/mom6/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -1336,7 +1337,7 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   atparse < ./stream.config.IN > ./stream.config
 
   # MOM_input
-  ${NCP} ${PARMhafs}/mom6/regional/hafs_mom6.input.IN ./hafs_mom6.input.IN
+  ${NCP} ${PARMmom6}/hafs_mom6.input.IN ./hafs_mom6.input.IN
   NIGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
   NJGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
   atparse < ./hafs_mom6.input.IN > ./MOM_input
