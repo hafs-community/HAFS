@@ -241,13 +241,14 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   export err=$?; err_chk
 done
 
-# Step 4: Increments for IAU
+# Step 4: Calculate d02 increments for IAU
 if [ ${iau_regional:-.false.} = ".true." ]; then
   ${APRUNC} ${DATOOL} hafs_diff \
    --in_dir=${RESTARTanl} --in_dir2=${RESTARTmrg} \
-   --infile_date=${ymd}.${hh}0000 --out_file="diff06" \
-   --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud}
-  ${NCP} ./diff* ${RESTARTmrg}/
+   --infile_date=${ymd}.${hh}0000 --out_file="analysis_inc" \
+   --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud} 2>&1 | tee ./analysis_diff.log
+  export err=$?; err_chk
+  ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
 fi
 
 else

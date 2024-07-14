@@ -194,12 +194,12 @@
 
      ! 6 --- dst files
      if ( nd == 1 ) then
-        fl_out=trim(out_file)      !current domain rot-ll file
+        fl_out=trim(out_file)//'.nc'      !current domain rot-ll file
      else if ( nd == 2 ) then
-        fl_out=trim(out_file)//'_'//trim(nestfl)
+        fl_out=trim(out_file)//'_'//trim(nestfl)//'.nc'
      else
         write(tempfl,'(a4,i2.2)')'nest',nd-1
-        fl_out=trim(out_file)//'_'//trim(nestfl)
+        fl_out=trim(out_file)//'_'//trim(nestfl)//'.nc'
      endif
 
      if ( my_proc_id == io_proc ) then

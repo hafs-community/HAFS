@@ -1085,12 +1085,6 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   done
 fi
 
-# Linking increment files for IAU
-if [ ${RUN_INIT:-NO} = NO ] && [ ${iau_regional:-.false.} = ".true." ] ; then
-  echo "Xu $PWD"
-  ${RLN} ${RESTARTinp}/diff* ./
-fi
-
 if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
   RESTARTymdh=$(${NDATE} +${FORECAST_RESTART_HR} ${CDATE})
   RESTARTymd=$(echo ${RESTARTymdh} | cut -c1-8)
@@ -1295,7 +1289,9 @@ for n in $(seq 2 ${nest_grids}); do
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   if [ ${RUN_INIT:-NO} = NO ] && [ ${iau_regional:-.false.} = ".true." ] ; then
-    iau_inc_files="diff06_nest0${inest}"
+    iau_inc_files="analysis_inc_nest0${inest}.nc"
+    # Linking increment file
+    ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/
   fi
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
