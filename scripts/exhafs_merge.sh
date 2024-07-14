@@ -29,12 +29,6 @@ if [ "${ENSDA}" = YES ]; then
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
   fi
-  RESTARTanl=${RESTARTsrc}
-  if [ ${iau_regional:-.false.} = ".true." ] ; then
-    RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_fgat06_ens/mem${ENSID}
-    echo "FATAL ERROR: Currently IAU does not support ensemble"
-    exit 1
-  fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
 else
@@ -45,10 +39,6 @@ else
   else
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
-  fi
-  RESTARTanl=${RESTARTsrc}
-  if [ ${iau_regional:-.false.} = ".true." ] ; then
-    RESTARTsrc=${WORKhafs}/intercom/RESTART_vi_fgat06
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
@@ -243,12 +233,19 @@ done
 
 # Step 4: Calculate d02 increments for IAU
 if [ ${iau_regional:-.false.} = ".true." ]; then
+  RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
   ${APRUNC} ${DATOOL} hafs_diff \
-   --in_dir=${RESTARTanl} --in_dir2=${RESTARTmrg} \
+   --in_dir=${RESTARTmrg} --in_dir2=${RESTARTbkg} \
    --infile_date=${ymd}.${hh}0000 --out_file="analysis_inc" \
    --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud} 2>&1 | tee ./analysis_diff.log
   export err=$?; err_chk
   ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+  # Replace d02 restart files
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+    in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+    ${NCP} -rp ${in_file} ${out_file}
+  done
 fi
 
 else

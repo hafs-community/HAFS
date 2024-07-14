@@ -603,6 +603,7 @@
 !              write(filename,*) 'dat_',trim(varname_long),'.txt'
 !              open (111,file=trim(filename),form='formatted',status='unknown')
 !              write(111,*)dat42(:,:,1,1)
+              dat42(1:10,:,:,1)=0.; dat42(:,1:10,:,1)=0.; dat42(ix-10:ix,:,:,1)=0.; dat42(:,iy-10:iy,:,1)=0.
               call write_nc_real(trim(fl_out), trim(varname_long), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat42, trim(units), trim(varname_long))
 !              close(111)
               deallocate(dat42, dat43)
@@ -647,6 +648,7 @@
                  enddo
                  !write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
+                 dat43(1:10,:,:,1)=0.; dat43(:,1:10,:,1)=0.; dat43(ix-10:ix,:,:,1)=0.; dat43(:,iy-10:iy,:,1)=0.
                  call write_nc_real(trim(fl_out), trim(varname_long), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
@@ -663,6 +665,8 @@
                  u(:,:,k,1)=(dat2 (:,1:iy)+dat2 (:,2:iy+1))/2.0
                  v(:,:,k,1)=(dat21(1:ix,:)+dat21(2:ix+1,:))/2.0
               end do
+              u(1:10,:,:,1)=0.; u(:,1:10,:,1)=0.; u(ix-10:ix,:,:,1)=0.; u(:,iy-10:iy,:,1)=0.
+              v(1:10,:,:,1)=0.; v(:,1:10,:,1)=0.; v(ix-10:ix,:,:,1)=0.; v(:,iy-10:iy,:,1)=0.
               call write_nc_real(trim(fl_out), 'u_inc', nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', u, 'm/s', 'u-component')
               call write_nc_real(trim(fl_out), 'v_inc', nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', v, 'm/s', 'u-component')
               deallocate(dat4u,dat4v,dat2,dat21,dat43u,dat43v,cangu,sangu,cangv,sangv,u,v)
@@ -716,6 +720,8 @@
                     u(:,:,k,1)=(dat2 (:,1:iy)+dat2 (:,2:iy+1))/2.0
                     v(:,:,k,1)=(dat21(1:ix,:)+dat21(2:ix+1,:))/2.0
                  end do
+                 u(1:10,:,:,1)=0.; u(:,1:10,:,1)=0.; u(ix-10:ix,:,:,1)=0.; u(:,iy-10:iy,:,1)=0.
+                 v(1:10,:,:,1)=0.; v(:,1:10,:,1)=0.; v(ix-10:ix,:,:,1)=0.; v(:,iy-10:iy,:,1)=0.
                  call write_nc_real(trim(fl_out), 'u_inc', nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', u, 'm/s', 'u-component')
                  call write_nc_real(trim(fl_out), 'v_inc', nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', v, 'm/s', 'u-component')
                  deallocate(dat43u,dat43v)
@@ -732,6 +738,7 @@
                  do k = 1, kz
                      dat41(:,:,k,1)=dat42(:,:,kz-k+1,1)
                  enddo
+                 dat41(1:10,:,:,1)=0.; dat41(:,1:10,:,1)=0.; dat41(ix-10:ix,:,:,1)=0.; dat41(:,iy-10:iy,:,1)=0.
               else
                  dat41=-999999.
               endif
