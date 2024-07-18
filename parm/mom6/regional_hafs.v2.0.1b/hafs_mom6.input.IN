@@ -60,7 +60,7 @@ THERMO_SPANS_COUPLING = True    !   [Boolean] default = False
                                 ! longer than the coupling timestep. The actual thermodynamic timestep that is
                                 ! used in this case is the largest integer multiple of the coupling timestep
                                 ! that is less than or equal to DT_THERM.
-USE_PSURF_IN_EOS = False        !   [Boolean] default = False
+USE_PSURF_IN_EOS = True         !   [Boolean] default = False
                                 ! If true, always include the surface pressure contributions in equation of
                                 ! state calculations.
 FRAZIL = True                   !   [Boolean] default = False
@@ -689,7 +689,7 @@ MLE_MLD_DECAY_TIME = 2.592E+06  !   [s] default = 0.0
 ENERGETICS_SFC_PBL = True       !   [Boolean] default = False
                                 ! If true, use an implied energetics planetary boundary layer scheme to
                                 ! determine the diffusivity and viscosity in the surface boundary layer.
-EPBL_IS_ADDITIVE = True         !   [Boolean] default = True
+EPBL_IS_ADDITIVE = False        !   [Boolean] default = True
                                 ! If true, the diffusivity from ePBL is added to all other diffusivities.
                                 ! Otherwise, the larger of kappa-shear and ePBL diffusivities are used.
 
@@ -813,20 +813,20 @@ EPBL_VEL_SCALE_FACTOR = 0.5     !   [nondim] default = 1.0
 ! === module MOM_CVMix_KPP ===
 ! This is the MOM wrapper to CVMix:KPP
 ! See http://cvmix.github.io/
-USE_KPP = True                  !   [Boolean] default = False
+USE_KPP = False                  !   [Boolean] default = False
                                 ! If true, turns on the [CVMix] KPP scheme of Large et al., 1994, to calculate
                                 ! diffusivities and non-local transport in the OBL.
-KPP%
-RI_CRIT = 0.20                  !   [nondim] default = 0.3
-                                ! Critical bulk Richardson number used to define depth of the surface Ocean
-                                ! Boundary Layer (OBL).
-USE_KPP_LT_K = False            !   [Boolean] default = False
-                                ! Flag for Langmuir turbulence enhancement of turbulentmixing coefficient.
-STOKES_MIXING = False           !   [Boolean] default = False
-                                ! Flag for Langmuir turbulence enhancement of turbulentmixing coefficient.
-USE_KPP_LT_VT2 = False          !   [Boolean] default = False
-                                ! Flag for Langmuir turbulence enhancement of Vt2in Bulk Richardson Number.
-%KPP
+!KPP%
+!RI_CRIT = 0.20                  !   [nondim] default = 0.3
+!                                ! Critical bulk Richardson number used to define depth of the surface Ocean
+!                                ! Boundary Layer (OBL).
+!USE_KPP_LT_K = False            !   [Boolean] default = False
+!                                ! Flag for Langmuir turbulence enhancement of turbulentmixing coefficient.
+!STOKES_MIXING = False           !   [Boolean] default = False
+!                                ! Flag for Langmuir turbulence enhancement of turbulentmixing coefficient.
+!USE_KPP_LT_VT2 = False          !   [Boolean] default = False
+!                                ! Flag for Langmuir turbulence enhancement of Vt2in Bulk Richardson Number.
+!%KPP
 
 ! === module MOM_regularize_layers ===
 
