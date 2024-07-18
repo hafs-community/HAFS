@@ -125,7 +125,7 @@
   full_zs_filter = @[full_zs_filter_nml]
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
-  pass_full_omega_to_physics_in_non_hydrostatic_mode = .true.
+  pass_full_omega_to_physics_in_non_hydrostatic_mode = .false.
 /
 
 &fv_nest_nml
