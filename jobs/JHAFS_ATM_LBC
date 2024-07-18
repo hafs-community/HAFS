@@ -57,6 +57,7 @@ source ${HOLDVARS}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
+export BC_CLEANUP=${BC_CLEANUP:-NO}
 export BC_GROUPN=${BC_GROUPN:-1}
 export BC_GROUPI=$( printf "%d" "${BC_GROUPI:-1}" )
 

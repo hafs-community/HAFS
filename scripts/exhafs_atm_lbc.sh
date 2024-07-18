@@ -87,6 +87,22 @@ mkdir -p ${OUTDIR} ${DATA}
 FHRB=${FHRB:-${NBDYHRS}}
 FHRE=${FHRE:-${NHRS}}
 FHRI=${FHRI:-${NBDYHRS}}
+
+# If desired, deletes all the BC output files in intercom
+if [ "${BC_CLEANUP^^}" = "YES" ]; then
+  FHR=${FHRB}
+  FHR3=$(printf "%03d" "$FHR")
+  # Loop for forecast hours
+  while [ $FHR -le $FHRE ]; do
+    rm -f ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
+    rm -f ${OUTDIR}/bcf${FHR3}
+    FHR=$(($FHR + $FHRI))
+    FHR3=$(printf "%03d" "$FHR")
+  done
+  # End loop for forecast hours
+fi
+# End if for BC_CLEANUP
+
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
 
@@ -94,6 +110,18 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le ${FHRE} ]; do
 
 date
+
+# Check if bc has processed this forecast hour previously
+if [ -s ${OUTDIR}/bcf${FHR3} ] && \
+   [ -s ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc ]; then
+
+echo "bc done file ${OUTDIR}/bcf${FHR3} exist"
+echo "${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc exist"
+echo "skip bc for forecast hour ${FHR3}"
+
+# Otherwise run bc for this forecast hour
+else
+
 hour_name=${FHR3}
 DATA_BC=${DATA}/bc_f${FHR3}
 FIXDIR=${DATA_BC}/grid
@@ -179,7 +207,11 @@ fi
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
-  if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+  if [ -s ${INIDIR}/${atm_files_input_grid}.idx ] && [ -s ${INIDIR}/${sfc_files_input_grid}.idx ] && \
+     [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+    echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
+    break
+  elif [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${atm_files_input_grid}) )) -lt 10  ]; do sleep 10; done
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${sfc_files_input_grid}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
@@ -188,11 +220,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
     sleep 10s
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INIDIR}/${atm_files_input_grid}, ${INIDIR}/${sfc_files_input_grid} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 # Check and wait for the pgrb2b input data if needed.
@@ -201,7 +233,11 @@ if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
-  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}.idx ] && \
+     [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+    break
+  elif [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
     break
@@ -209,11 +245,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
     sleep 10s
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 fi
@@ -327,6 +363,12 @@ if [ $gtype = regional ]; then
     echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
   fi
 fi
+
+# Write out the bcdone message file
+echo 'done' > ${OUTDIR}/bcf${FHR3}
+
+fi
+# End if for checking if bc has processed this forecast hour previously
 
 FHR=$(($FHR + ${FHRI}))
 FHR3=$(printf "%03d" "$FHR")

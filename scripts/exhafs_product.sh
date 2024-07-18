@@ -146,6 +146,9 @@ rm -f fort.*
 # message files/dirs, as well as passing in tcvitals files.
 ${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
 export err=$?; err_chk
+if [ ! -s allvit ]; then
+  echo "WARNING: No related tcvitals entry found in the syndat_tcvitals file. Continue ..."
+fi
 
 # Prepare the input/output files
 rm -f input.vitals
