@@ -14,6 +14,7 @@ FGAT_HR=${FGAT_HR:-00}
 
 MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+SENDCOM=${SENDCOM:-YES}
 
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
@@ -31,6 +32,7 @@ if [ "${ENSDA}" = YES ]; then
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_analysis_merge_ens/mem${ENSID}
 else
   if [ -e ${WORKhafs}/intercom/RESTART_analysis ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
@@ -42,6 +44,7 @@ else
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_analysis_merge
 fi
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -246,6 +249,11 @@ if [ ${iau_regional:-.false.} = ".true." ]; then
     out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
     ${NCP} -rp ${in_file} ${out_file}
   done
+fi
+
+if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ] ; then
+  mkdir -p ${RESTARTcom}
+  ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
 fi
 
 else
