@@ -247,6 +247,8 @@ if [ ${iau_regional:-.false.} = ".true." ]; then
   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
     out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+    mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+    ${NCP} -rp ${out_file} ${mrg_file}
     ${NCP} -rp ${in_file} ${out_file}
   done
 fi
