@@ -813,7 +813,7 @@ ML_OMEGA_FRAC = 0.001           !   [nondim] default = 0.0
 TKE_DECAY = 0.001                !   [nondim] default = 2.5
                                 ! TKE_DECAY relates the vertical rate of decay of the TKE available for
                                 ! mechanical entrainment to the natural Ekman depth.
-EPBL_MSTAR_SCHEME = "CONSTANT"       ! default = "CONSTANT"
+EPBL_MSTAR_SCHEME = "OM4"       ! default = "CONSTANT"
                                 ! EPBL_MSTAR_SCHEME selects the method for setting mstar.  Valid values are:
                                 !    CONSTANT   - Use a fixed mstar given by MSTAR
                                 !    OM4        - Use L_Ekman/L_Obukhov in the sabilizing limit, as in OM4
@@ -821,11 +821,17 @@ EPBL_MSTAR_SCHEME = "CONSTANT"       ! default = "CONSTANT"
 MSTAR_CAP = 10.0                !   [nondim] default = -1.0
                                 ! If this value is positive, it sets the maximum value of mstar allowed in ePBL.
                                 ! (This is not used if EPBL_MSTAR_SCHEME = CONSTANT).
+MSTAR2_COEF1 = 0.29             !   [nondim] default = 0.3
+                                ! Coefficient in computing mstar when rotation and stabilizing effects are both
+                                ! important (used if EPBL_MSTAR_SCHEME = OM4).
+MSTAR2_COEF2 = 0.152            !   [nondim] default = 0.085
+                                ! Coefficient in computing mstar when only rotation limits the total mixing
+                                ! (used if EPBL_MSTAR_SCHEME = OM4)
 NSTAR = 0.06                    !   [nondim] default = 0.2
                                 ! The portion of the buoyant potential energy imparted by surface fluxes that is
                                 ! available to drive entrainment at the base of mixed layer when that energy is
                                 ! positive.
-MSTAR_CONV_ADJ = 0.66          !   [nondim] default = 0.0
+MSTAR_CONV_ADJ = 0.667          !   [nondim] default = 0.0
                                 ! Coefficient used for reducing mstar during convection due to reduction of
                                 ! stable density gradient.
 USE_MLD_ITERATION = True        !   [Boolean] default = False
