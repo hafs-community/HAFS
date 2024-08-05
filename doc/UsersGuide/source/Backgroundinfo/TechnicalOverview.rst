@@ -233,7 +233,7 @@ Locations for Output
     - HFSB: ``/lfs/h1/ops/prod/com/hafs/v2.0/hfsb.yyyymmdd/hh``
 - **Other servers:**
     - NCEP ftp server, NOMADS, NWS Gateway/SBN
-    - See `NOMADS link here <https://nomads.ncep.noaa.gov/pub/data/nccf/com/hafs/prod/>`_.
+    - See `NOMADS here <https://nomads.ncep.noaa.gov/pub/data/nccf/com/hafs/prod/>`_.
 
 Background
 ----------
