@@ -116,8 +116,8 @@ HAFS v2.0.0 Operational Updates
    HAFSv2 runs in production on WCOSS2; pre-implementation testing was performed on Hera and Orion. It is likely possible to run on other systems, but additional code modifications may be required to run an experiment, and this capability has not yet been tested.
 
 **Purpose:**
-* The :term:`HFSA` configuration provides hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC`, :term:`WPAC`, :term:`NIO`, and :term:`SH` basins. 
-* The :term:`HFSB` configuration provides hurricane track and intensity forecast guidance for 5.25 days over :term:`NHC`/:term:`CPHC` basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC` basins.
+   * The :term:`HFSA` configuration provides hurricane track and intensity forecast guidance to 5.25 days over all global oceanic basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC`, :term:`WPAC`, :term:`NIO`, and :term:`SH` basins. 
+   * The :term:`HFSB` configuration provides hurricane track and intensity forecast guidance for 5.25 days over :term:`NHC`/:term:`CPHC` basins, including :term:`NATL`, :term:`EPAC`, :term:`CPAC` basins.
 
 
 **Developed by:**
@@ -216,7 +216,8 @@ Input/Output
 
 
 **Input DCOM Dependencies**
-- The following scripts require input files from DCOM (data input) directory:
+The following scripts require input files from DCOM (data input) directory:
+
     - ``./scripts/exhafs_obs_prep.sh``: To decode/dump TDR/HDOB/TEMPDROP data
     - ``./scripts/exhafs_msg_check.py``: To check the message files are properly created by checking the original NHC/JTWC message files in the DCOM directory.
     - ``./ush/setup_hurricane``: For SDM to set up hurricane message files by extracting info from the original NHC/JTWC message files in the DCOM directory.
@@ -343,9 +344,10 @@ Dissemination and Archiving
 
 **Dissemination Information:**
 Files were disseminated as follows:
-    - ATCF files to NHC (and CPHC for Central Pacific Basin storms) and JTWC (for all global basins, including SH basins), 
-    - GRIB files to NOMADS
-    - GEMPAK files to MAG
+
+- ATCF files to NHC (and CPHC for Central Pacific Basin storms) and JTWC (for all global basins, including SH basins) 
+- GRIB files to NOMADS
+- GEMPAK files to MAG
 
 All the files in the :term:`COM` directory should be transferred from PROD WCOSS2 to DEV WCOSS2. None of the code is proprietary, and there is no restricted data.
 

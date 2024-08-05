@@ -268,7 +268,7 @@ class NamedDir(TempDir):
         if self._rm_first:
             if os.path.exists(self.dirname):
                 if self._logger is not None:
-                    self._logger.warning('%s: delete directory tree'%(
+                    self._logger.info('%s: delete directory tree'%(
                             self.dirname,))
                     shutil.rmtree(self.dirname,onerror=self._rmerror)
                 else:

@@ -148,7 +148,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   done
 fi
 
-fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
+fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
 cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
@@ -183,7 +183,7 @@ done
 # stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
 
 # Force to cold start storm vortex if desired
-if [[ ${vi_force_cold_start} != "yes" ]]; then
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
@@ -290,7 +290,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   export err=$?; err_chk
 fi
 
-fi # end if [[ ${vi_force_cold_start} != "yes" ]]; then
+fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model

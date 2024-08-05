@@ -32,7 +32,7 @@ release = 'Develop Branch Documentation'
 
 # Documentation-wide substitutions
 rst_prolog = """
-.. |latestr| replace:: v2.0.0
+.. |latestr| replace:: v2.0
 """
 
 numfig = True

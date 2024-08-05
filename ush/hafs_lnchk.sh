@@ -27,7 +27,11 @@ else
    symlink=$3
 fi
 
-ln -sf $2 ${symlink}
+if [ "$1" = "-r" -o -s $2 ] ; then
+  ln -sf $2 ${symlink}
+else
+  echo "WARNING: $2 does not exist or is empty."
+fi
 
 if [ "$1" = "-r" ]; then
   # No checks, same as ln -sf
@@ -46,9 +50,9 @@ elif [ "$1" = "-d" ]; then
 elif [ "$1" = "-e" ]; then
   if [ ! -e ${symlink} ]; then
     echo "FATAL ERROR: Broken symbolic link: ${symlink} => $2. Exiting."
-    exit 1
+	err_exit "$2 does not exist or is empty. Exiting."
   fi
 else
   echo "FATAL ERROR: Unknown command line option: $1."
-  exit 1
+  err_exit "Unknown command line option: $1. Exiting."
 fi

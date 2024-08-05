@@ -172,9 +172,7 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
-    if [ -s ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ]; then
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
-    fi
+    ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
     echo "./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
   done
@@ -404,11 +402,6 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
-if [[ ${use_bufr_nr:-no} = "no" ]] && [ -s $PREPQC ]; then
-  $NCP -Lp $PREPQC     prepbufr
-else
-  touch prepbufr
-fi
 #${NLN} $PREPQC           prepbufr
 ##${NLN} $PREPQCPF         prepbufr_profl
 ${WLN} $SATWND           satwndbufr
@@ -478,6 +471,14 @@ fi
 # ${NLN} ${PREPQC}.nr    prepbufr
   ${WLN} ${SAPHIRBF}.nr  saphirbufr
 ##[[ $DONST = "YES" ]] && ${WLN} /dev/null nsstbufr
+
+else
+
+if [ -s $PREPQC ]; then
+  $NCP -Lp $PREPQC     prepbufr
+else
+  err_exit "${PREPQC} does not exist or is empty. Exiting ..."
+fi
 
 fi
 
