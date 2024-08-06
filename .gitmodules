@@ -14,6 +14,10 @@
     path = sorc/hafs_gsi.fd
     url = https://github.com/hafs-community/GSI.git
     branch = feature/hafs.v2.0.1
+[submodule "sorc/hafs_jedi.fd"]
+    path = sorc/hafs_jedi.fd
+    url = https://github.com/hafs-community/HDASApp.git
+    branch = feature/hafs_jedi
 [submodule "GPLOT"]
     path = sorc/hafs_graphics.fd/hrd_gplot
     url = https://github.com/hafs-community/GPLOT.git
