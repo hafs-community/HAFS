@@ -69,6 +69,7 @@ else:
 
 import produtil.setup, produtil.log, produtil.dbnalert
 import hafs.launcher
+from produtil.fileop import deliver_file
 from produtil.numerics import to_datetime
 from produtil.ecflow import set_ecflow_event
 
@@ -234,9 +235,8 @@ def main():
             f.write(conf.make_holdvars())
 
         holdvars2=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.holdvars.txt')
-        logger.info(holdvars2+': write holdvars here as well')
-        with open(holdvars2,'wt') as f:
-            f.write(conf.make_holdvars())
+        logger.info(holdvars2+': copy holdvars here as well')
+        deliver_file(holdvars, holdvars2, keep=True, logger=logger)
 
         if conf.has_option('config','startfile'):
             startfile=conf.getstr('config','startfile')

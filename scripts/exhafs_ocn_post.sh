@@ -99,11 +99,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
 	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ocnout}) )) -lt 20 ]; do sleep 20; done
     break
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, ${INPdir}/${ocnoutn} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 # Deliver to COMOUTpost

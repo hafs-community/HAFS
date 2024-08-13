@@ -90,11 +90,11 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
     echo "${PDFILE}, ${GBFILE}, ${GBINDX} ready, continue"
     break
   fi
+  n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
     echo "FATAL ERROR: Waited ${PDFILE}, ${GBFILE}, ${GBINDX} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+10))
 done
 
 ${GEMEXE:?}/nagrib2 << EOF
