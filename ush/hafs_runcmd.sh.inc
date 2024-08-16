@@ -52,6 +52,16 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUNF="time"
   export APRUNCFP="time"
   export BACKGROUND="&"
+elif [ "$machine" = gaeaC6 ]; then
+  export time=${time:-/autofs/ncrc-svm1_home2/Biju.Thomas/Usr/Bin/time}
+  export APRUN=${time:-/autofs/ncrc-svm1_home2/Biju.Thomas/Usr/Bin/time}
+  export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
+  export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
+  export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+  export APRUNF=${time:-/autofs/ncrc-svm1_home2/Biju.Thomas/Usr/Bin/time}
+  export APRUNCFP=${time:-/autofs/ncrc-svm1_home2/Biju.Thomas/Usr/Bin/time}
+  export BACKGROUND="&"
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
   export APRUN="time"

@@ -96,6 +96,18 @@ elif [[ -d /lustre && -d /ncrc ]] ; then
   fi
   target=gaea
   module purge
+elif [[ -d /gpfs/f6 ]]; then
+  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]]; then
+    target=gaeaC6
+    source /opt/cray/pe/lmod/8.7.31/init/$__ms_shell
+    target=gaeaC6
+    ulimit -s unlimited
+  elif [[ "$(hostname)" == "dtn"* ]]; then
+    source $MODULESHOME/init/sh
+    module use /sw/rdtn/modulefiles
+    module load hsi
+    target="Gaea_DTN"
+  fi
 elif [[ "$(hostname)" =~ "odin" ]] ; then
   target="odin"
 else
@@ -110,6 +122,7 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
+
 # The following section is only used for the Rocoto workflow
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
@@ -117,6 +130,9 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     module use /apps/ops/test/nco/modulefiles/core
     module load rocoto/${rocoto_ver:-"1.3.5"}
   fi
-  module use ${HOMEhafs}/modulefiles
-  module load hafs.${WHERE_AM_I}
+  if [[ "${WHERE_AM_I}" != "Gaea_DTN" ]]; then
+    module use ${HOMEhafs}/modulefiles
+    module load hafs.${WHERE_AM_I}
+  fi
 fi
+

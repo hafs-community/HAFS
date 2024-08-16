@@ -160,6 +160,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CLUSTER_COMPUTE;
     &CORES_EXTRA;
     &LAUNCH_RESOURCES;
     &ENV_VARS;
@@ -198,6 +199,7 @@
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
     &MEMORY;
@@ -220,6 +222,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CLUSTER_COMPUTE;
     &CORES_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
@@ -240,6 +243,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CLUSTER_COMPUTE;
     &CORES_EXTRA;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
@@ -261,6 +265,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CLUSTER_COMPUTE;
     &CORES_EXTRA;
     &ATM_IC_RESOURCES;
     &ENV_VARS;
@@ -304,6 +309,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ATM_IC_RESOURCES;
     &ENV_VARS;
     <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
@@ -346,6 +352,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ATM_INIT_RESOURCES;
     &ENV_VARS;
 
@@ -368,6 +375,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
+    &CLUSTER_COMPUTE;
     &CORES_EXTRA;
     &ATM_INIT_RESOURCES;
     &ENV_VARS;
@@ -393,6 +401,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -420,6 +429,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -449,6 +459,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ATM_VI_RESOURCES;
     &ENV_VARS;
 
@@ -479,6 +490,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ATM_VI_RESOURCES;
     &ENV_VARS;
     <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
@@ -514,6 +526,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_LBC_RESOURCES;
       &ENV_VARS;
       <envar><name>BC_GROUPN</name><value>1</value></envar>
@@ -555,6 +568,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &DOCN_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -572,6 +586,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &OCN_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -626,6 +641,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &WAV_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -670,6 +686,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &OBS_PREP_RESOURCES;
     &ENV_VARS;
 
@@ -690,6 +707,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ANALYSIS_RESOURCES;
     &ENV_VARS;
     <dependency>
@@ -734,6 +752,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &MERGE_RESOURCES;
     &ENV_VARS;
     <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
@@ -766,6 +785,7 @@
     <queue>&QUEUE_FORECAST;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &FORECAST_RESOURCES;
     &ENV_VARS;
 
@@ -824,6 +844,7 @@
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:05:00</walltime>
     &MEMORY;
@@ -850,6 +871,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_POST_RESOURCES;
       &ENV_VARS;
       <envar><name>POST_GROUPN</name><value>2</value></envar>
@@ -879,6 +901,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &OCN_POST_RESOURCES;
     &ENV_VARS;
 
@@ -906,6 +929,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &WAV_POST_RESOURCES;
     &ENV_VARS;
 
@@ -931,6 +955,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &PRODUCT_RESOURCES;
     &ENV_VARS;
 
@@ -958,6 +983,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &OUTPUT_RESOURCES;
     &ENV_VARS;
 
@@ -1006,6 +1032,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ATM_PREP_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1033,6 +1060,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_IC_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1075,6 +1103,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_INIT_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1102,6 +1131,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &MERGE_RESOURCES;
       &ENV_VARS;
       <envar><name>MERGE_TYPE</name><value>init</value></envar>
@@ -1137,6 +1167,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_VI_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1173,6 +1204,7 @@
         <queue>&QUEUE_PE;</queue>
         &PE_EXTRA;
         &CORES_EXTRA;
+        &CLUSTER_COMPUTE;
         &ATM_LBC_ENS_RESOURCES;
         &ENV_VARS;
         <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1215,6 +1247,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1239,6 +1272,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ENKF_GSI_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1265,6 +1299,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ENKF_GSI_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1286,6 +1321,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1308,6 +1344,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &ENKF_ENKF_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1334,6 +1371,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &MERGE_RESOURCES;
       &ENV_VARS;
       <envar><name>MERGE_TYPE</name><value>analysis</value></envar>
@@ -1369,6 +1407,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &FORECAST_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1417,6 +1456,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &ATM_POST_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
@@ -1443,6 +1483,7 @@
       &RESERVATION;
       <queue>&QUEUE_PE;</queue>
       &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
       &PE_EXTRA;
       &PRODUCT_RESOURCES;
       &ENV_VARS;
@@ -1471,6 +1512,7 @@
     &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &PE_EXTRA;
     &HRDGRAPHICS_RESOURCES;
     &ENV_VARS;
@@ -1497,6 +1539,8 @@
     <!--&RESERV_FCST;-->
     <queue>&QUEUE_PE;</queue>
     &CORES_EXTRA;
+    &SERVICE;
+    &CLUSTER_DT;
     &PE_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;
@@ -1524,6 +1568,7 @@
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_DT;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
     &MEMORY;
@@ -1568,6 +1613,7 @@
     &SERVICE_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_DT;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>06:00:00</walltime>
     &MEMORY;
@@ -1613,6 +1659,8 @@
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &SERVICE;
+    &CLUSTER_DT;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
     &MEMORY;
@@ -1642,6 +1690,8 @@
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
+    &SERVICE;
+    &CLUSTER_DT;
     <cores>1</cores>
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
@@ -1681,6 +1731,7 @@
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
     &MEMORY;
@@ -1735,6 +1786,7 @@
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
     &MEMORY;
