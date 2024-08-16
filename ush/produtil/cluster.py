@@ -8,7 +8,7 @@ prodcution machine identifying logic for WCOSS2 (Biju Thomas 10/12/2022)"""
 #List of symbols exported by "from produtil.cluster import *"
 __all__=['Cluster','where','longname','name','group_quotas','acl_support',
          'no_access_control','use_acl_for_rstdata','ncepprod',
-         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAWCOSS']
+         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAWCOSS','NOAAGaeaC6']
 
 import time, socket, os, re
 
@@ -102,6 +102,8 @@ def where():
             here=WCOSS2()
         elif os.path.exists('/lustre/f2'):
             here=NOAAGAEA()
+        elif os.path.exists('/gpfs/f6'):
+            here=NOAAGaeaC6()
         else:
             here=Cluster(False,False,False,'noname','noname')
     return here
@@ -178,6 +180,14 @@ class NOAAGAEA(Cluster):
     def __init__(self):
         """!constructor for NOAAGAEA"""
         super(NOAAGAEA,self).__init__(False,True,False,'gaea',
+                                      'gaea.rdhpcs.noaa.gov')
+
+class NOAAGaeaC6(Cluster):
+    """!Represents the NOAA GAEA C6 cluster.  Allows ACLs to be used for
+    restricted data, and specifies that group quotas are not in use."""
+    def __init__(self):
+        """!constructor for NOAAGaeaC6"""
+        super(NOAAGaeaC6,self).__init__(False,True,False,'gaea',
                                       'gaea.rdhpcs.noaa.gov')
 
 class NOAAHera(Cluster):
