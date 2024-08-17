@@ -20,8 +20,6 @@ tcvitals generation."""
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
 import os, re, sys, collections, random
-import numpy as np
-import xarray as xr
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
@@ -1448,6 +1446,9 @@ class HAFSLauncher(HAFSConfig):
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
+        import numpy as np
+        import xarray as xr
+
         assert(isinstance(part1,str))
         out=list()
         logger=self.log()

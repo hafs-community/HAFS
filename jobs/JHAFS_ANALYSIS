@@ -40,7 +40,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     module load cray-pals/1.2.2
     module load cfp/2.0.4
   fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeaC6" ]]; then
     module purge
     module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
     module load gsi_${machine}.intel
