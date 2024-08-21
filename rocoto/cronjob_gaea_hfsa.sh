@@ -2,13 +2,21 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
-source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+HOMEhafs=${HOMEhafs:-/gpfs/f6/hurr1/proj-shared/$USER/save/hafs_dev062024}
+source ${HOMEhafs/ush/detect_machine.sh
+if [ ${MACHINE_ID} = gaeaC6 ]; then
+   source $MODULESHOME/init/sh
+   module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
+   module load rocoto
+else 
+   source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
+fi
 
 cd ${HOMEhafs}/rocoto
 EXPT=$(basename ${HOMEhafs})
 #opts="-t -s sites/${WHERE_AM_I:-wcoss2}.ent -f"
-opts="-t -f"
+#opts="-t -f"
+opts="-t -f -s sites/gaeaC6.ent"
 #===============================================================================
 
 ## HFSA with production computation resources on WCOSS2
@@ -24,10 +32,10 @@ opts="-t -f"
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and without wave coupling
-#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
+confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
 ## Technical testing for Hurricane Ida
-#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
-#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
+    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
 
 ## HFSA with dev computation resources for JTWC storms (no DA and without wave coupling)
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_jtwc_dev ../parm/hfsa_dev.conf"
