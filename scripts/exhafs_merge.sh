@@ -1,12 +1,20 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_merge.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs hafs_datool to merge atmospheric restart files. It
+#   supports the merge_type of analysis or init with the merge_method of
+#   domainmerge or vortexreplace.
+################################################################################
+set -x -o pipefail
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
-MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_mpiserial.x}
-DATOOL=${DATOOL:-${EXEChafs}/hafs_datool.x}
+MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+SENDCOM=${SENDCOM:-YES}
 
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
@@ -24,6 +32,7 @@ if [ "${ENSDA}" = YES ]; then
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_analysis_merge_ens/mem${ENSID}
 else
   if [ -e ${WORKhafs}/intercom/RESTART_analysis ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
@@ -35,6 +44,7 @@ else
   fi
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
   RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART_analysis_merge
 fi
 
 elif [ ${MERGE_TYPE} = init ]; then
@@ -110,8 +120,8 @@ for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; 
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+  export err=$?; err_chk
 done
 
 # Regional with one nest configuration
@@ -126,7 +136,7 @@ mkdir -p ${RESTARTtmp}
 
 if [ ${MERGE_TYPE} = analysis ]; then
 
-# Step 1: merge src02 into src01 (for analysis_merge)
+# Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -146,14 +156,14 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_analysis_step1_${var}.log
+  export err=$?; err_chk
 done
 
 elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
-${NLN} ${RESTARTsrc}/* ${RESTARTtmp}/
+${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -172,8 +182,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step1_${var}.log
+  export err=$?; err_chk
 done
 
 else
@@ -201,8 +211,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step2_${var}.log
+  export err=$?; err_chk
 done
 
 # Step 3: merge srcd02 into dstd02
@@ -220,9 +230,33 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
-    --out_file=${out_file}
-  status=$?; [[ $status -ne 0 ]] && exit $status
+    --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
+  export err=$?; err_chk
 done
+
+# Step 4: Calculate d02 increments for IAU
+if [ ${iau_regional:-.false.} = ".true." ]; then
+  RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
+  ${APRUNC} ${DATOOL} hafs_diff \
+   --in_dir=${RESTARTmrg} --in_dir2=${RESTARTbkg} \
+   --infile_date=${ymd}.${hh}0000 --out_file="analysis_inc" \
+   --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud} 2>&1 | tee ./analysis_diff.log
+  export err=$?; err_chk
+  ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+  # Replace d02 restart files
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+    in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+    mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+    ${NCP} -rp ${out_file} ${mrg_file}
+    ${NCP} -rp ${in_file} ${out_file}
+  done
+fi
+
+if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ] ; then
+  mkdir -p ${RESTARTcom}
+  ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
+fi
 
 else
   echo "FATAL ERROR: only support nest_grids = 1 or 2"

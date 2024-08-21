@@ -1,3 +1,5 @@
+#! /usr/bin/env python3 
+
 """!Manipulates Access Control Lists (ACL)
 
 This module is a wrapper around the C libacl library, which provides

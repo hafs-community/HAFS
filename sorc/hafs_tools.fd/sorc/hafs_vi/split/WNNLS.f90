@@ -6,8 +6,9 @@ SUBROUTINE WNNLS(W,MDW,ME,MA,N,L,PRGOPT,X,RNORM,MODE,IWORK,WORK)
 !C***KEYWORDS  CONSTRAINED LEAST SQUARES,CURVE FITTING,DATA FITTING,
 !C             EQUALITY CONSTRAINTS,INEQUALITY CONSTRAINTS,
 !C             NONNEGATIVITY CONSTRAINTS,QUADRATIC PROGRAMMING
-!C***AUTHOR  HANSON, R. J., (SNLA)
-!C           HASKELL, K. H., (SNLA)
+!C***AUTHORS  HANSON, R. J., (SNLA)
+!C            HASKELL, K. H., (SNLA)
+!C   Revised by  Chuan-Kai Wang (NCEP/EMC, 2022): modernizing original code
 !C***PURPOSE  Solve a linearly constrained least squares problem with
 !C            equality constraints and nonnegativity constraints on
 !C            selected variables.

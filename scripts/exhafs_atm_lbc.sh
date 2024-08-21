@@ -1,6 +1,12 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_atm_lbc.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates the atmospheric lateral boundary condition (LBC) at a
+#   specific forecast lead time through the UFS_UTIL's chgres_cube tool.
+################################################################################
+set -x -o pipefail
 
 cyc=${cyc:-00}
 CDATE=${CDATE:-${YMDH}}
@@ -12,7 +18,7 @@ CDATEprior=$(${NDATE} -6 $CDATE)
 PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 cyc_prior=$(echo ${CDATEprior} | cut -c9-10)
 
-CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_chgres_cube.x}
+CHGRESCUBEEXEC=${CHGRESCUBEEXEC:-${EXEChafs}/hafs_utils_chgres_cube.x}
 
 ENSDA=${ENSDA:-NO}
 
@@ -81,6 +87,22 @@ mkdir -p ${OUTDIR} ${DATA}
 FHRB=${FHRB:-${NBDYHRS}}
 FHRE=${FHRE:-${NHRS}}
 FHRI=${FHRI:-${NBDYHRS}}
+
+# If desired, deletes all the BC output files in intercom
+if [ "${BC_CLEANUP^^}" = "YES" ]; then
+  FHR=${FHRB}
+  FHR3=$(printf "%03d" "$FHR")
+  # Loop for forecast hours
+  while [ $FHR -le $FHRE ]; do
+    rm -f ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
+    rm -f ${OUTDIR}/bcf${FHR3}
+    FHR=$(($FHR + $FHRI))
+    FHR3=$(printf "%03d" "$FHR")
+  done
+  # End loop for forecast hours
+fi
+# End if for BC_CLEANUP
+
 FHR=${FHRB}
 FHR3=$( printf "%03d" "$FHR" )
 
@@ -88,6 +110,18 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le ${FHRE} ]; do
 
 date
+
+# Check if bc has processed this forecast hour previously
+if [ -s ${OUTDIR}/bcf${FHR3} ] && \
+   [ -s ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc ]; then
+
+echo "bc done file ${OUTDIR}/bcf${FHR3} exist"
+echo "${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc exist"
+echo "skip bc for forecast hour ${FHR3}"
+
+# Otherwise run bc for this forecast hour
+else
+
 hour_name=${FHR3}
 DATA_BC=${DATA}/bc_f${FHR3}
 FIXDIR=${DATA_BC}/grid
@@ -95,7 +129,7 @@ FIXCASE=${DATA_BC}/grid/${CASE}
 mkdir -p $DATA_BC ${FIXDIR} ${FIXCASE}
 
 cd $FIXDIR/${CASE}
-${NLN} ${GRID_intercom}/${CASE}/* ./
+${RLN} ${GRID_intercom}/${CASE}/* ./
 
 cd ${DATA_BC}
 
@@ -120,8 +154,8 @@ elif [ $bctype = "gfsgrib2_master" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 files
@@ -130,8 +164,8 @@ elif [ $bctype = "gfsgrib2_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 a and b files
@@ -140,8 +174,8 @@ elif [ $bctype = "gfsgrib2ab_0p25" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p25.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.50 degree grib2 files
@@ -150,8 +184,8 @@ elif [ $bctype = "gfsgrib2_0p50" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
@@ -160,8 +194,8 @@ elif [ $bctype = "gfsgrib2_1p00" ]; then
   sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
   input_type="grib2"
-  varmap_file="${HOMEhafs}/sorc/hafs_utils.fd/parm/varmap_tables/GFSphys_var_map.txt"
-  fixed_files_dir_input_grid="${HOMEhafs}/sorc/hafs_utils.fd/fix/fix_chgres"
+  varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
+  fixed_files_dir_input_grid=""
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
@@ -170,9 +204,14 @@ else
 fi
 
 # Check and wait for the input data
-n=1
-while [ $n -le 360 ]; do
-  if [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
+  if [ -s ${INIDIR}/${atm_files_input_grid}.idx ] && [ -s ${INIDIR}/${sfc_files_input_grid}.idx ] && \
+     [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
+    echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
+    break
+  elif [ -s ${INIDIR}/${atm_files_input_grid} ] && [ -s ${INIDIR}/${sfc_files_input_grid} ]; then
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${atm_files_input_grid}) )) -lt 10  ]; do sleep 10; done
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${sfc_files_input_grid}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${atm_files_input_grid} and ${INIDIR}/${sfc_files_input_grid} ready, do chgres_bc"
@@ -181,19 +220,24 @@ while [ $n -le 360 ]; do
     echo "Either ${INIDIR}/${atm_files_input_grid} or ${INIDIR}/${sfc_files_input_grid} not ready, sleep 10"
     sleep 10s
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  n=$((n+10))
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INIDIR}/${atm_files_input_grid}, ${INIDIR}/${sfc_files_input_grid} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$(( n+1 ))
 done
 
 # Check and wait for the pgrb2b input data if needed.
 if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
 
-n=1
-while [ $n -le 360 ]; do
-  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
+  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}.idx ] && \
+     [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
+    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+    break
+  elif [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
 	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
     echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
     break
@@ -201,11 +245,11 @@ while [ $n -le 360 ]; do
     echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
     sleep 10s
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  n=$((n+10))
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$(( n+1 ))
 done
 
 fi
@@ -301,9 +345,11 @@ cat>./fort.41<<EOF
 /
 EOF
 
-${NCP} -p ${CHGRESCUBEEXEC} ./hafs_chgres_cube.x
-${APRUNC} ./hafs_chgres_cube.x
-status=$?; [[ $status -ne 0 ]] && exit $status
+${NCP} -p ${CHGRESCUBEEXEC} ./hafs_utils_chgres_cube.x
+${SOURCE_PREP_STEP}
+${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc_${FHR3}.log
+export err=$?; err_chk
+
 # Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then
@@ -317,6 +363,12 @@ if [ $gtype = regional ]; then
     echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
   fi
 fi
+
+# Write out the bcdone message file
+echo 'done' > ${OUTDIR}/bcf${FHR3}
+
+fi
+# End if for checking if bc has processed this forecast hour previously
 
 FHR=$(($FHR + ${FHRI}))
 FHR3=$(printf "%03d" "$FHR")

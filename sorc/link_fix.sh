@@ -1,6 +1,6 @@
 #!/bin/sh
-set -eux
-source ./machine-setup.sh > /dev/null 2>&1
+set -xeu
+source ./machine-setup.sh.inc > /dev/null 2>&1
 
 # RUN_ENVIR of nco or dev
 RUN_ENVIR=${RUN_ENVIR:-${1:-dev}}
@@ -9,7 +9,7 @@ cwd=$(pwd)
 
 HOMEhafs=$(pwd)/..
 FIXhafs=${HOMEhafs}/fix
-FIXversion=20230518
+FIXversion=20240703
 mkdir -p ${FIXhafs}
 cd ${FIXhafs}
 mkdir -p fix_fv3

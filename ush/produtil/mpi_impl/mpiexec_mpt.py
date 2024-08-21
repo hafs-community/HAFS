@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.mpi_impl.mpiexec_mpt
 # Adds SGI MPT support to produtil.run
 #

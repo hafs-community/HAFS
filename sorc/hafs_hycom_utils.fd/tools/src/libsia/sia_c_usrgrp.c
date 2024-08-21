@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 void sia_c_groupmax(int64_t *n) {
   long l;

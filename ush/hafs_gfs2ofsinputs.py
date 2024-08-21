@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_gfs2ofsinputs.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates atmospheric forcing files needed by HYCOM coupling.
+# History:
+#   05/22/2020: Originally adopted from HWRF/HMON and updated for HAFS.
+################################################################################
 import os, sys, logging
 import produtil.setup
 import produtil.fileop

@@ -275,13 +275,16 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                 self.run_coupled=True
             self.state=COMPLETED
         except Exception as e:
-            logger.error('Unhandled exception in ocean init: %s'
+            logger.critical('FATAL ERROR: Unhandled exception in ocean init: %s'
                          %(str(e),),exc_info=True)
             self.state=FAILED
             raise
+            sys.exit(2)
         except:  # fatal signal, other catastrophic errors
+            logger.critical('FATAL ERROR: Failed in ocean init.')
             self.state=FAILED
             raise
+            sys.exit(2)
 
     def create_bc_ic(self,logger):
         thiscycle=self.conf.cycle
@@ -354,10 +357,11 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                     found=True
         del line,apfile
         if not found:
-            msg='%s: could not find Application=%s RUNmodIDin=%s'%(
+            msg='FATAL ERROR: %s: could not find Application=%s RUNmodIDin=%s'%(
                 aptable,repr(Application),repr(self.RUNmodIDin))
-            logger.error(msg)
+            logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
+            sys.exit(2)
 
         gridtable=self.confstrinterp('{PARMhycom}/hafs_hycom.grid_table')
         found=False
@@ -385,10 +389,11 @@ class HYCOMInit1(hafs.hafstask.HAFSTask):
                     ( self.gridlabelin, self.gridlabelout ) = \
                      (     gridlabelin,      gridlabelout )
         if not found:
-            msg='%s: could not find grid=%s RUNmodIDin=%s'%(
+            msg='FATAL ERROR: %s: could not find grid=%s RUNmodIDin=%s'%(
                 gridtable,repr(self.gridid),repr(RUNmodIDin))
-            logger.error(msg)
+            logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
+            sys.exit(2)
         assert(self.section=='hycominit1')
         self.conf.set(self.section,'RUNmodIDin',self.RUNmodIDin)
         self.conf.set(self.section,'gridlabelin',self.gridlabelin)
@@ -446,9 +451,10 @@ export gridno={gridno}\n'''.format(**self.__dict__))
         elif int(self.ijgrid)==2:
             cmd=alias(batchexe(self.getexe('hafs_isubregion2avg')))
         else:
-            msg='Invalid ijgrid value %s'%(repr(ijgrid),)
+            msg='FATAL ERROR: Invalid ijgrid value %s'%(repr(ijgrid),)
             logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
+            sys.exit(2)
 
         self.linkab('{FIXhycom}/%s.%s.regional.grid'%(RUNmodIDin,gridlabelin),
              'regional.grid')
@@ -487,9 +493,6 @@ export gridno={gridno}\n'''.format(**self.__dict__))
 
         if os.path.exists(rtofsb):
            produtil.fileop.make_symlink(rtofsb,archvb,force=True,logger=logger)
-        else:
-           logger.error('File %s does not exist'%(rtofsb))
-           raise
         if os.path.exists(rtofsa):
            produtil.fileop.make_symlink(rtofsa,archva,force=True,logger=logger)
         elif os.path.exists(rtofsatgz):
@@ -497,8 +500,9 @@ export gridno={gridno}\n'''.format(**self.__dict__))
            with tarfile.open(rtofsatgz,'r:gz') as tgz:
               tgz.extractall()
         else:
-           logger.error('Neither %s nor %s exists'%(rtofsa,rtofsatgz))
+           logger.critical('FATAL ERROR: Neither %s nor %s exists'%(rtofsa,rtofsatgz))
            raise
+           sys.exit(2)
 
         linkf(archva,'archv_in.%d.a'%icount)
         linkf(archvb,'archv_in.%d.b'%icount)
@@ -537,9 +541,6 @@ subregion %s
 
         if os.path.exists(rtofs_restart_b):
            produtil.fileop.make_symlink(rtofs_restart_b,restart_in_b,force=True,logger=logger)
-        else:
-           logger.error('File %s does not exist'%(rtofs_restart_b))
-           raise
         if os.path.exists(rtofs_restart_a):
            produtil.fileop.make_symlink(rtofs_restart_a,restart_in_a,force=True,logger=logger)
         elif os.path.exists(rtofs_restart_atgz):
@@ -547,15 +548,16 @@ subregion %s
            with tarfile.open(rtofs_restart_atgz,'r:gz') as tgz:
               tgz.extractall()
         else:
-           logger.error('Neither %s nor %s exists'%(rtofs_restart_a,rtofs_restart_atgz))
+           logger.critical('FATAL ERROR: Neither %s nor %s exists'%(rtofs_restart_a,rtofs_restart_atgz))
            raise
+           sys.exit(2)
 
         logger.info('restart_in_a=%s'%(repr(restart_in_a)))
         logger.info('restart_in_b=%s'%(repr(restart_in_b)))
 
         if restart_in_a is None:
-            msg='No hycom restart file found.  Giving up.'
-            jlogger.error(msg)
+            msg='WARNING: No hycom restart file found.  Giving up.'
+            jlogger.warning(msg)
             if not allow_fallbacks and not expect:
                 raise hafs.exceptions.OceanRestartMissing(msg)
 
@@ -823,13 +825,16 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                 self.run_coupled=True
             self.state=COMPLETED
         except Exception as e:
-            logger.error('Unhandled exception in ocean init: %s'
+            logger.critical('FATAL ERROR: Unhandled exception in ocean init: %s'
                          %(str(e),),exc_info=True)
             self.state=FAILED
             raise
+            sys.exit(2)
         except:  # fatal signal, other catastrophic errors
+            logger.critical('FATAL ERROR: Failed in ocean init.')
             self.state=FAILED
             raise
+            sys.exit(2)
 
     def select_domain(self,logger):
         hycom_domain=self.confstr('hycom_domain','small')
@@ -856,7 +861,7 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
         elif basin in [ 'SH', 'SP', 'SI' ]:
             Application='hsp60_basin'
         else:
-            msg='No ocean basin available for basin=%s lat=%s.  Run uncoupled.'%(
+            msg='WARNING: No ocean basin available for basin=%s lat=%s.  Run uncoupled.'%(
                 basin,repr(atmos_lon))
             jlogger.warning(msg)
             raise hafs.exceptions.NoOceanBasin(msg)
@@ -881,10 +886,11 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                     found=True
         del line,apfile
         if not found:
-            msg='%s: could not find Application=%s RUNmodIDin=%s'%(
+            msg='FATAL ERROR: %s: could not find Application=%s RUNmodIDin=%s'%(
                 aptable,repr(Application),repr(self.RUNmodIDin))
-            logger.error(msg)
+            logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
+            sys.exit(2)
 
         gridtable=self.confstrinterp('{PARMhycom}/hafs_hycom.grid_table')
         found=False
@@ -912,10 +918,11 @@ class HYCOMInit2(hafs.hafstask.HAFSTask):
                     ( self.gridlabelin, self.gridlabelout ) = \
                      (     gridlabelin,      gridlabelout )
         if not found:
-            msg='%s: could not find grid=%s RUNmodIDin=%s'%(
+            msg='FATAL ERROR: %s: could not find grid=%s RUNmodIDin=%s'%(
                 gridtable,repr(self.gridid),repr(RUNmodIDin))
-            logger.error(msg)
+            logger.critical(msg)
             raise hafs.exceptions.InvalidOceanInitMethod(msg)
+            sys.exit(2)
         assert(self.section=='hycominit2')
         self.conf.set(self.section,'RUNmodIDin',self.RUNmodIDin)
         self.conf.set(self.section,'gridlabelin',self.gridlabelin)
@@ -974,15 +981,16 @@ export gridno={gridno}\n'''.format(**self.__dict__))
                        return (gloc)
                     else:
                        msg='FATAL ERROR: %s: did not exist or was too small after %d seconds'%(gloc,maxwait)
-                       logger.error(msg)
+                       logger.critical(msg)
                        raise hafs.exceptions.NoOceanData(msg)
                        sys.exit(2)
             else:
                 logger.warning('%s<=%s+%s'%(repr(time),repr(atime),repr(epsilon)))
             atime=atime-sixhrs
         msg='FATAL ERROR: Cannot find file for time %s; first file tried %s'%(time.strftime('%Y%m%d%H'),gloc0)
-        self.log().error(msg)
+        self.log().critical(msg)
         raise hafs.exceptions.NoOceanData(msg)
+        sys.exit(2)
 
 
 # seasforce4 (init2) -
@@ -1321,8 +1329,7 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
     def copy_ncks(self,source,target):
         ncks=self.ncks_path
         logger=self.log()
-        produtil.fileop.remove_file(target,logger=logger)
-        checkrun(bigexe(ncks)['-4','-L','6',source,target]<'/dev/null',
+        checkrun(bigexe(ncks)['-O','-4','-L','6',source,target]<'/dev/null',
                  logger=logger)
 
     @property
@@ -1397,12 +1404,6 @@ class HYCOMPost(hafs.hafstask.HAFSTask):
         filepathA=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameA)
         prodnameB=self.timestr('hafs_basin.{fahr:03d}.b',ftime,atime)
         filepathB=self.timestr('{intercom}/hycominit/{pn}',pn=prodnameB)
-        if not os.path.exists(filepathA):
-            logger.error('Cannot find file %s - exiting'%(filepathA))
-            raise
-        if not os.path.exists(filepathB):
-            logger.error('Cannot find file %s - exiting'%(filepathB))
-            raise
         logger.info('Will create ocean products for %s '%(filepathA))
         archxa='archv.a'
         archxb='archv.b'
@@ -1456,11 +1457,12 @@ NetCDF
                         break
                     else:
                         timesslept=timesslept+1
-                        logger.warning('Cannot find file %s %d times'%( repr(logfile),timesslept))
+                        logger.warning('WARNING: Cannot find file %s %d times'%( repr(logfile),timesslept))
                         time.sleep(10)
                 if timesslept>=sleepmax:
-                    logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
+                    logger.critical('FATAL ERROR: Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
                     raise
+                    sys.exit(2)
                 logger.info('Will create ocean products for %s '%( repr(notabin)))
                 afile=''.join(['../../forecast/'+notabin,'.a'])
                 bfile=''.join(['../../forecast/'+notabin,'.b'])
@@ -1511,11 +1513,12 @@ NetCDF
                   break
                else:
                   timesslept=timesslept+1
-                  logger.warning('Cannot find file %s %d times'%( repr(logfile),timesslept))
+                  logger.warning('WARNING: Cannot find file %s %d times'%( repr(logfile),timesslept))
                   time.sleep(10)
             if timesslept>=sleepmax:
-               logger.error('Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
+               logger.critical('FATAL ERROR: Cannot find file %s %d times - exiting'%( repr(logfile),timesslept))
                raise
+               sys.exit(2)
             logger.info('Will create ocean products for %s '%( repr(notabin)))
             afile=''.join(['../../forecast/'+notabin,'.a'])
             bfile=''.join(['../../forecast/'+notabin,'.b'])

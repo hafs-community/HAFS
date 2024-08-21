@@ -26,6 +26,7 @@
 !
 ! \date December 2016
 !
+! from https://icl.utk.edu/lapack-forum/viewtopic.php%3Ff=13&t=5332&p=12719.html
 !  =====================================================================
       SUBROUTINE SROTMG(SD1,SD2,SX1,SY1,SPARAM)
       implicit none

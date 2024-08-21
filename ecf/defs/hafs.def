@@ -27,41 +27,44 @@ extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager
 extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post006
 extern /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
 
-suite para_hafs
+suite para_hafs_v2
   family primary
     family 00
       edit CYC '00'
       family hafs
-        defstatus complete
-        edit QUEUE_ARCH 'prod_transfer'
+#       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
-        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
+        edit hafs_ver 'v2.0.0'
+#       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
+        edit ENVIR 'test'
+        edit QUEUE 'devhigh'
         edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/%EMC_USER%/ecflow/%ENVIR%/packages/hafs.%hafs_ver%'
+#       edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
+#       edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/ecflow_hafs/%ENVIR%/output/prod/today'
+        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
         # End for EMC TEST
-        family v1.0
- #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+        family v2.0
+#           edit ECF_FILES '%PACKAGEHOME%/ecf'
           family hfsa
             edit RUN 'hfsa'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf'
             task jhafs_msg_check
               trigger :TIME >= 0245 and :TIME < 0850
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0310 and :TIME < 0910 and ../jhafs_cleanup==complete 
+                  trigger :TIME >= 0310 and :TIME < 0910 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -97,7 +100,7 @@ suite para_hafs
                   edit RI_EXT '_fgat03'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '03'
-                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear 
+                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
                   trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post003
                 task jhafs_atm_ic_fgat06
                   edit RI_EXT '_fgat06'
@@ -109,7 +112,7 @@ suite para_hafs
                   edit RI_EXT '_fgat09'
                   edit FGAT_MODEL 'gdas'
                   edit FGAT_HR '09'
-                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear 
+                  complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
                   trigger /prod_clone/primary/18/gfs/v16.3/gdas/atmos/post/jgdas_atmos_post_manager:release_post009
                 task jhafs_atm_lbc
                 task jhafs_atm_init
@@ -205,7 +208,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -355,7 +358,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -505,7 +508,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -655,7 +658,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -679,7 +682,7 @@ suite para_hafs
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -805,7 +808,7 @@ suite para_hafs
               endfamily
             endfamily    # storm5
             family storm6
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -955,7 +958,7 @@ suite para_hafs
               endfamily
             endfamily    # storm6
             family storm7
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1108,7 +1111,7 @@ suite para_hafs
           family hfsb
             edit RUN 'hfsb'
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1132,7 +1135,7 @@ suite para_hafs
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1256,7 +1259,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1280,7 +1283,7 @@ suite para_hafs
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1404,7 +1407,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1428,7 +1431,7 @@ suite para_hafs
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1552,7 +1555,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1576,7 +1579,7 @@ suite para_hafs
                   trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
-                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete 
+                  trigger ./jhafs_atm_prep==complete and /prod_clone/primary/00/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120 and /prod_clone/primary/00/rtofs/v2.3/jrtofs_global_analysis==complete
                   event 1 Ocean
                 task jhafs_wav_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Wave==clear
@@ -1700,7 +1703,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 0300 and :TIME < 0900
@@ -1855,36 +1858,38 @@ suite para_hafs
     family 06
       edit CYC '06'
       family hafs
-        defstatus complete
-        edit QUEUE_ARCH 'prod_transfer'
+#       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
-        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
+        edit hafs_ver 'v2.0.0'
+#       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
+        edit ENVIR 'test'
+        edit QUEUE 'devhigh'
         edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/%EMC_USER%/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/ecflow_hafs/%ENVIR%/output/prod/today'
+        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
         # End for EMC TEST
-        family v1.0
- #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+        family v2.0
+#         edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
               trigger :TIME >= 0845 and :TIME < 1450
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
               family launch
                 task jhafs_launch
-                  trigger :TIME >= 0910 and :TIME < 1500 and ../jhafs_cleanup==complete 
+                  trigger :TIME >= 0910 and :TIME < 1500 and ../jhafs_cleanup==complete
                   label storm1 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -1899,7 +1904,7 @@ suite para_hafs
                   trigger ../launch/jhafs_launch==complete
                 task jhafs_obs_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Analysis==clear
-                  trigger ../init/jhafs_atm_init==complete 
+                  trigger ../init/jhafs_atm_init==complete
                 task jhafs_ocn_prep
                   complete ../launch/jhafs_launch==complete and ../launch/jhafs_launch:Ocean==clear
                   trigger ./jhafs_atm_prep==complete and /prod_clone/primary/06/gfs/v16.3/gfs/atmos/post/jgfs_atmos_post_manager:release_post120
@@ -2028,7 +2033,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2178,7 +2183,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2328,7 +2333,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2478,7 +2483,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2628,7 +2633,7 @@ suite para_hafs
               endfamily
             endfamily    # storm5
             family storm6
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2778,7 +2783,7 @@ suite para_hafs
               endfamily
             endfamily    # storm6
             family storm7
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -2931,7 +2936,7 @@ suite para_hafs
           family hfsb
             edit RUN 'hfsb'
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -3079,7 +3084,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -3227,7 +3232,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -3375,7 +3380,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -3523,7 +3528,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 0900 and :TIME < 1500
@@ -3678,30 +3683,32 @@ suite para_hafs
     family 12
       edit CYC '12'
       family hafs
-        defstatus complete
-        edit QUEUE_ARCH 'prod_transfer'
+#        edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
-        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
+        edit hafs_ver 'v2.0.0'
+#        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
+        edit ENVIR 'test'
+        edit QUEUE 'devhigh'
         edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/%EMC_USER%/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/ecflow_hafs/%ENVIR%/output/prod/today'
+        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
         # End for EMC TEST
-        family v1.0
- #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+        family v2.0
+#         edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
               trigger :TIME >= 1450 and :TIME < 2050
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -3851,7 +3858,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4001,7 +4008,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4151,7 +4158,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4301,7 +4308,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4451,7 +4458,7 @@ suite para_hafs
               endfamily
             endfamily    # storm5
             family storm6
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4601,7 +4608,7 @@ suite para_hafs
               endfamily
             endfamily    # storm6
             family storm7
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4754,7 +4761,7 @@ suite para_hafs
           family hfsb
             edit RUN 'hfsb'
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#             edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -4902,7 +4909,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -5050,7 +5057,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -5198,7 +5205,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -5346,7 +5353,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger :TIME >= 1500 and :TIME < 2100
@@ -5501,30 +5508,32 @@ suite para_hafs
     family 18
       edit CYC '18'
       family hafs
-        defstatus complete
-        edit QUEUE_ARCH 'prod_transfer'
+#       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-#       edit hafs_ver 'v1.0.0'
-        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
+        edit hafs_ver 'v2.0.0'
+#       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
         edit MACHINE_SITE 'development'
         edit PROJENVIR 'DEV'
-        edit ENVIR 'para'
-        edit QUEUE 'pridev'
+        edit ENVIR 'test'
+        edit QUEUE 'devhigh'
         edit QUEUE_ARCH 'dev_transfer'
-        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
-        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit PACKAGEHOME '/lfs/h2/emc/global/noscrub/%EMC_USER%/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit PACKAGEHOME '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/packages/hafs.%hafs_ver%'
+#        edit OUTPUTDIR '/lfs/h2/emc/hur/noscrub/emc.hur/hurops/%ENVIR%/output/prod/today'
+        edit OUTPUTDIR '/lfs/h2/emc/ptmp/%EMC_USER%/ecflow_hafs/%ENVIR%/output/prod/today'
+        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
         # End for EMC TEST
-        family v1.0
- #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+        family v2.0
+#          edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
           family hfsa
             edit RUN 'hfsa'
             task jhafs_msg_check
               trigger ((:TIME >= 2050 and :TIME < 2359 ) or :TIME < 0250)
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -5674,13 +5683,13 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
               family launch
                 task jhafs_launch
-                  trigger ((:TIME >= 2110 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete 
+                  trigger ((:TIME >= 2110 and :TIME < 2359 ) or :TIME < 0300) and ../jhafs_cleanup==complete
                   label storm2 ""
                   event 1 NoStorm
                   event 2 Ocean
@@ -5824,7 +5833,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -5974,7 +5983,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6124,7 +6133,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6274,7 +6283,7 @@ suite para_hafs
               endfamily
             endfamily    # storm5
             family storm6
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '6'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6424,7 +6433,7 @@ suite para_hafs
               endfamily
             endfamily    # storm6
             family storm7
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '7'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6577,7 +6586,7 @@ suite para_hafs
           family hfsb
             edit RUN 'hfsb'
             family storm1
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '1'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6725,7 +6734,7 @@ suite para_hafs
               endfamily
             endfamily    # storm1
             family storm2
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '2'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -6873,7 +6882,7 @@ suite para_hafs
               endfamily
             endfamily    # storm2
             family storm3
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '3'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -7021,7 +7030,7 @@ suite para_hafs
               endfamily
             endfamily    # storm3
             family storm4
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '4'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)
@@ -7169,7 +7178,7 @@ suite para_hafs
               endfamily
             endfamily    # storm4
             family storm5
-     #        edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
+#              edit ECF_FILES '%PACKAGEHOME%/ecf/scripts'
               edit STORMNUM '5'
               task jhafs_cleanup
                 trigger ((:TIME >= 2100 and :TIME < 2359 ) or :TIME < 0300)

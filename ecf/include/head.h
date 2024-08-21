@@ -2,7 +2,7 @@ date
 hostname
 set -xe  # print commands as they are executed and enable signal trapping
 
-export PS4='+ $SECONDS + ' 
+export PS4='+ $SECONDS + '
 
 # Variables needed for communication with ecFlow
 export ECF_NAME=%ECF_NAME%
@@ -22,13 +22,6 @@ if [ -d /apps/ops/prod ]; then # On WCOSS2
   set -x
 fi
 
-modelhome=%PACKAGEHOME:%
-eval "export HOME${model:?'model undefined'}=$modelhome"
-eval "versionfile=\$HOME${model}/versions/run.ver"
-if [ -f "$versionfile" ]; then . $versionfile ; fi
-modelver=$(echo ${modelhome} | perl -pe "s:.*?/${model}\.(v[\d\.a-z]+).*:\1:")
-eval "export ${model}_ver=$modelver"
-
 export envir=%ENVIR%
 export MACHINE_SITE=%MACHINE_SITE%
 export RUN_ENVIR=${RUN_ENVIR:-nco}
@@ -44,6 +37,13 @@ if [ -n "%DATAFS:%" ]; then export DATAFS=${DATAFS:-%DATAFS:%}; fi
 export KEEPDATA=${KEEPDATA:-%KEEPDATA:NO%}
 export SENDDBN=${SENDDBN:-%SENDDBN:YES%}
 export SENDDBN_NTC=${SENDDBN_NTC:-%SENDDBN_NTC:YES%}
+
+modelhome=%PACKAGEHOME:%
+eval "export HOME${model:?'model undefined'}=$modelhome"
+eval "versionfile=\$HOME${model}/versions/run.ver"
+if [ -f "$versionfile" ]; then . $versionfile ; fi
+modelver=$(echo ${modelhome} | perl -pe "s:.*?/${model}\.(v[\d\.a-z]+).*:\1:")
+eval "export ${model}_ver=$modelver"
 
 if [ -d /apps/ops/prod ]; then # On WCOSS2
   set +x

@@ -42,6 +42,9 @@ BDECKhafs=/lfs4/HFIP/hwrf-data/hwrf-input/abdeck/btk
 ## cartopyDataDir directory for graphics
 cartopyDataDir=/mnt/lfs4/HFIP/hwrfv3/local/share/cartopy
 
+[forecast]
+quilting_restart=.false.
+
 [holdvars]
 WHERE_AM_I=jet
 WHICH_JET=x

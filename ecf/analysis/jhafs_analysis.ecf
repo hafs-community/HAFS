@@ -4,7 +4,7 @@
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
 #PBS -l walltime=00:30:00
-#PBS -l place=vscatter:excl,select=10:ncpus=128:mpiprocs=16:ompthreads=8
+#PBS -l place=vscatter:excl,select=15:ncpus=128:mpiprocs=16:ompthreads=8
 #PBS -l debug=true
 
 model=hafs
@@ -14,11 +14,9 @@ export cyc="%CYC%"
 %include <head.h>
 %include <envir-p1.h>
 
-export TOTAL_TASKS='160'
+export TOTAL_TASKS='240'
 export NCTSK='16'
 export OMP_THREADS='8'
-export OMP_PLACES=cores
-export OMP_STACKSIZE=1G
 export FI_OFI_RXM_SAR_LIMIT=3145728
 
 export storm_num="%STORMNUM%"
@@ -28,12 +26,12 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5/${hdf5_ver}
-module load netcdf/${netcdf_ver}
+module load hdf5-A/${hdf5_ver}
+module load netcdf-A/${netcdf_ver}
 module load python/${python_ver}
 module load crtm/${crtm_ver}
-module load ncio/${ncio_ver}
-module load ncdiag/${ncdiag_ver}
+module load ncio-A/${ncio_ver}
+module load ncdiag-A/${ncdiag_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_ANALYSIS

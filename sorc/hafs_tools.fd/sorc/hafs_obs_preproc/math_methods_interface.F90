@@ -474,8 +474,12 @@ contains
 
        ! Compute local variables
 
-       var(i) = norma + (((grid%var(i) - grid%varmin)*(normb - norma))/    &
+       if (grid%varmax .ne. grid%varmin) then
+          var(i) = norma + (((grid%var(i) - grid%varmin)*(normb - norma))/    &
             & (grid%varmax - grid%varmin))
+       else
+          var(i) = norma
+       endif
 
     end do ! do i = 1, grid%n
 

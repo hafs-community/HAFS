@@ -51,7 +51,7 @@ def ask(question):
         elif x.lower()=='n\n':
             return False
         elif itry>=itrytoohard:
-            sys.stderr.write('Giving up after %d failed responses.'%itry)
+            sys.stderr.write('FATAL ERROR: Giving up after %d failed responses.'%itry)
             sys.exit(2)
         else:
             sys.stdout.write('Please answer y or n.')
@@ -116,7 +116,7 @@ Configuration ([conf]):
 section.option=value -- override conf options on the command line
 /path/to/file.conf -- additional conf files to parse''', file=sys.stderr)
     if message is not None:
-        print(str(message).rstrip()+'\n', file=sys.stderr)
+        print('FATAL ERROR: '+str(message).rstrip()+'\n', file=sys.stderr)
     sys.exit(2)
 
 ########################################################################
@@ -154,17 +154,17 @@ if HOMEhafs is not None:
     if PARMhafs is None:           PARMhafs=os.path.join(HOMEhafs,'parm')
 
 if USHhafs is None:
-    print("Cannot guess $USHhafs.  Please set $HOMEhafs or " \
+    print("FATAL ERROR: Cannot guess $USHhafs.  Please set $HOMEhafs or " \
         "$USHhafs in environment.", file=sys.stderr)
     sys.exit(2)
 
 if PARMhafs is None:
-    print("Cannot guess $PARMhafs.  Please set $HOMEhafs or " \
+    print("FATAL ERROR: Cannot guess $PARMhafs.  Please set $HOMEhafs or " \
         "$PARMhafs in environment.", file=sys.stderr)
     sys.exit(2)
 
 if HOMEhafs is None:
-    print("Cannot guess $HOMEhafs.  Please set $HOMEhafs " \
+    print("FATAL ERROR: Cannot guess $HOMEhafs.  Please set $HOMEhafs " \
         "in the environment.", file=sys.stderr)
     sys.exit(2)
 
@@ -418,9 +418,9 @@ try:
     conf.timeless_sanity_check(enset,logger)
 except Exception as e:
     tcutil.rocoto.sanity_check_failed(logger,e)
-    logger.error("HAFS Sanity Checker Designation: INSANE!")
-    logger.error("Check your configuration for errors.")
-    logger.error("See earlier messages for clues.")
+    logger.error("FATAL ERROR: HAFS Sanity Checker Designation: INSANE!")
+    logger.error("FATAL ERROR: Check your configuration for errors.")
+    logger.error("FATAL ERROR: See earlier messages for clues.")
     sys.exit(1)
 logger.info("I think I'm sane.")
 
@@ -567,7 +567,7 @@ else:
 bad=False
 for k,v in VARS.items():
     if not isinstance(v,str):
-        logger.error('%s: value is not a string.  '
+        logger.error('FATAL ERROR: %s: value is not a string.  '
                      'It is type %s with value %s'%(
                 str(k),type(v).__name__,repr(v)))
         bad=True
@@ -596,7 +596,7 @@ havexml=isnonempty(outxml)
 if havexml:
     if not force and \
           not ask('ALERT! %s: XML file exists.  Overwrite (y/n)?'%(outxml,)):
-        logger.error('%s: file exists, user does not want to overwrite.'
+        logger.error('FATAL ERROR: %s: file exists, user does not want to overwrite.'
                      %(outxml,))
         sys.exit(1)
     else:
@@ -615,7 +615,7 @@ if havedb:
                        %(outdb,))
         remove_file(outdb)
     else:
-        logger.error('%s: database exists, user does not want to delete '
+        logger.error('FATAL ERROR: %s: database exists, user does not want to delete '
                      'or use it.  Aborting.')
         sys.exit(2)
 
@@ -643,7 +643,7 @@ result=run(cmd,logger=logger)
 
 if result:
     sys.exit(result)
-    produtil.jlogger.critical('rocotorun failed')
+    produtil.jlogger.critical('FATAL ERROR: rocotorun failed')
 
 produtil.log.postmsg('Successfully ran rocotorun for %s.'%(outbase,))
 bakdb=outdb+'.bak'

@@ -1,5 +1,11 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: hafs_completion.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script makes a "donefile" that indicates the completion of the
+#   forecast and post-processing jobs, before the archive and scrub jobs.
+################################################################################
 ##@namespace ush.hafs_donefile
 # A simple script that makes a "donefile" that indicates the
 # completion of one ensemble member's work, before archiving and

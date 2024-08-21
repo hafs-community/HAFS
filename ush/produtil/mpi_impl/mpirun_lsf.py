@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 ##@namespace produtil.mpi_impl.mpirun_lsf
 # Adds LSF+IBMPE support to produtil.run
 #

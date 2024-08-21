@@ -3,8 +3,8 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:15:00
-#PBS -l place=vscatter,select=1:ncpus=1:mpiprocs=1:ompthreads=1
+#PBS -l walltime=00:10:00
+#PBS -l place=shared,select=1:ncpus=1:mpiprocs=1:ompthreads=1:mem=4GB
 #PBS -l debug=true
 
 model=hafs
@@ -21,6 +21,8 @@ export OMP_THREADS='1'
 export storm_num="%STORMNUM%"
 
 module list
+
+export POST_CLEANUP=NO
 
 ${HOMEhafs}/jobs/JHAFS_UNPOST
 

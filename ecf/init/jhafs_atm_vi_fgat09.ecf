@@ -3,8 +3,8 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=00:30:00
-#PBS -l place=vscatter:excl,select=1:ncpus=108:mpiprocs=8:ompthreads=16
+#PBS -l walltime=00:25:00
+#PBS -l place=vscatter:excl,select=1:ncpus=128:mpiprocs=8:ompthreads=16
 #PBS -l debug=true
 
 model=hafs
@@ -19,14 +19,17 @@ export NCTSK='8'
 export OMP_THREADS='16'
 
 export storm_num="%STORMNUM%"
+export COLDSTART="%COLDSTART:NO%"
 
 module load PrgEnv-intel/${PrgEnv_intel_ver}
 module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5/${hdf5_ver}
-module load netcdf/${netcdf_ver}
+module load hdf5-A/${hdf5_ver}
+module load netcdf-A/${netcdf_ver}
+module load ncio-A/${ncio_ver}
+module load ncdiag-A/${ncdiag_ver}
 module load python/${python_ver}
 module list
 

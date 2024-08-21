@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: tcutil_multistorm_sort.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides the multistorm sort function.
+# History:
+#   04/21/2023: Adapted from HWRF and improved for HAFS.
+################################################################################
 
 import logging, os, sys, re, functools
 import produtil.setup
@@ -73,14 +81,14 @@ def main(args):
     for arg in args[2:]:
         if len(arg)==1:
             if 'LECWPQSAB'.find(arg.upper())<0:
-                logger.error('Invalid basin %s'%(arg,))
-                exit(2)
+                logger.error('FATAL ERROR: Invalid basin %s'%(arg,))
+                sys.exit(2)
             basins=basins+arg.upper()
             continue
         m=re.match('(\d\d[LECWPQSAB])=(\d+)',arg.upper())
         if not m:
-            logger.error('Unrecognized argument: '+arg)
-            exit(2)
+            logger.error('FATAL ERROR: Unrecognized argument: '+arg)
+            sys.exit(2)
         (storm,userprio)=m.groups()
         userprios[storm]=int(userprio)
 
@@ -89,8 +97,8 @@ def main(args):
     if 'SYNDAThafs' in os.environ:
         vitfiles=[os.environ['SYNDAThafs']+'/syndat_tcvitals.%Y',]
     else:
-        logger.error('Fatal Error: cannot find the needed environment variable of SYNDAThafs.')
-        exit(2)
+        logger.error('FATAL ERROR: cannot find the needed environment variable of SYNDAThafs.')
+        sys.exit(2)
 
     rv.readfiles([ cyc.strftime(v) for v in vitfiles ],
                   raise_all=False)

@@ -1,33 +1,44 @@
-logKindFlag:            ESMF_LOGKIND_MULTI_ON_ERROR
+##############################################
+#####  UFS Run-Time Configuration File  ######
+##############################################
 
-# component list
-EARTH_component_list: MED ATM DAT OCN
+# ESMF #
+logKindFlag:            ESMF_LOGKIND_MULTI_ON_ERROR
+#globalResourceControl:  _globalResourceControl_
+
+# EARTH #
+_EARTH_component_list_
 EARTH_attributes::
   Verbosity = 0
 ::
 
 # MED #
-MED_model:                      cmeps
+_MED_model_component_
 _MED_petlist_bounds_
+#MED_omp_num_threads:            _MED_omp_num_threads_
 MED_attributes::
   Verbosity = 0
   Diagnostic = 0
   DumpFields = false
-  ATM_model = fv3
-  DAT_model = datm
-  OCN_model = mom6
-  MED_model = cmeps
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
   history_n = 240
   history_option = nhours
   history_ymd = -999
-  coupling_mode = hafs_mom6
-  #normalization = none
-  #merge_type = copy
+  coupling_mode = hafs.mom6
+  normalization = none
+  merge_type = copy
+  pio_rearranger = box
+  ocn_use_data_first_import = .true.
+  wav_use_data_first_import = .true.
 ::
 
 # ATM #
-ATM_model:                      fv3
+_ATM_model_component_
 _ATM_petlist_bounds_
+#ATM_omp_num_threads:            _ATM_omp_num_threads_
 ATM_attributes::
   Verbosity = 0
   Diagnostic = 0
@@ -39,51 +50,41 @@ ATM_attributes::
   write_restart_at_endofrun = .true.
 ::
 
-DAT_model:                     datm
-_DAT_petlist_bounds_
-DAT_attributes::
-  Verbosity = 0
-  DumpFields = false
-  mesh_atm = datm_gfs_mesh.nc
-  diro = "."
-  logfile = atm.log
-  stop_ymd = -999
-  #write_restart_at_endofrun = .true.
-::
-
 # OCN #
-OCN_model:                      mom6
+_OCN_model_component_
 _OCN_petlist_bounds_
+#OCN_omp_num_threads:            _OCN_omp_num_threads_
 OCN_attributes::
   Verbosity = 0
   Diagnostic = 0
-  DumpFields = false
-  history_n = 3
+  history_n = _NOUTHRS_
   history_option = nhours
-  merge_import = .true.
-  skip_first_import = .true.
-  mesh_ocn = mom6_mesh.nc
-  #import_diagnostics = .true.
-  #import_setting = flexible
+  merge_import = .false.
+  skip_first_import = .false.
+  use_mommesh = true
+  eps_imesh = 2.5e-1
+  mesh_ocn = INPUT/mom6_mesh.nc
+::
+
+# WAV #
+_WAV_model_component_
+_WAV_petlist_bounds_
+#WAV_omp_num_threads:            _WAV_omp_num_threads_
+WAV_attributes::
+  Verbosity = 0
+  Diagnostic = 0
+  OverwriteSlice = false
+  merge_import = .false.
+  mesh_wav = ww3_mesh.nc
+  user_sets_restname = false
 ::
 
 # Run Sequence #
 runSeq::
-@360
-  ATM -> MED :remapMethod=redist
-  DAT -> MED :remapMethod=redist
-  MED med_phases_post_atm
-  MED med_phases_post_dat
-  OCN -> MED :remapMethod=redist
-  MED med_phases_prep_atm
-  MED med_phases_prep_ocn_accum
-  MED med_phases_prep_ocn_avg
-  MED -> ATM :remapMethod=redist
-  MED -> OCN :remapMethod=redist
-  ATM
-  DAT
-  OCN
-  MED med_phases_restart_write
+@_cpl_dt_
+ _runSeq_ALL_
+# MED med_phases_restart_write
+# MED med_phases_history_write
 @
 ::
 
@@ -92,26 +93,20 @@ DRIVER_attributes::
 ::
 
 ALLCOMP_attributes::
-  ATM_model = fv3
-  DAT_model = datm
-  OCN_model = mom6
-  MED_model = cmeps
-  ScalarFieldCount = 3
+  _ATM_model_attribute_
+  _OCN_model_attribute_
+  _WAV_model_attribute_
+  _MED_model_attribute_
+  ScalarFieldCount = 2
   ScalarFieldIdxGridNX = 1
   ScalarFieldIdxGridNY = 2
-  ScalarFieldIdxNextSwCday = 3
   ScalarFieldName = cpl_scalars
   start_type = startup
   case_name = ufs.hafs
   restart_n = 240
   restart_option = nhours
   restart_ymd = -999
-  use_mommesh = true
-  eps_imesh = 2.5e-1
-  dbug_flag = 20
-  use_coldstart = true
-  coldair_outbreak_mod = .false.
-  flds_wiso = .false.
+  dbug_flag = 0
   orb_eccen = 1.e36
   orb_iyear = 2000
   orb_iyear_align = 2000
@@ -119,7 +114,7 @@ ALLCOMP_attributes::
   orb_mvelp = 1.e36
   orb_obliq = 1.e36
   mediator_present = true
-  stop_n = _end_hour_
+  stop_n = _NHRS_
   stop_option = nhours
   stop_ymd = -999
 ::

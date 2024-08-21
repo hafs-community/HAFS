@@ -1,9 +1,14 @@
 #!/bin/sh
-
-set -xe
+################################################################################
+# Script Name: exhafs_ocn_post.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script runs the HAFS oceanic post-processing steps for MOM6 coupling.
+################################################################################
+set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
-
+ENSDA=${ENSDA:-NO}
 if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/ocn_post_ens/mem${ENSID}
@@ -38,6 +43,7 @@ mkdir -p ${DATA}
 
 cd ${DATA}
 
+#FHR=${FHRB:-0}
 FHR=${FHRB:-${NOUTHRS}}
 FHR2=$(printf "%02d" "$FHR")
 FHR3=$(printf "%03d" "$FHR")
@@ -50,6 +56,7 @@ YYYY=$(echo $NEWDATE | cut -c1-4)
 MM=$(echo $NEWDATE | cut -c5-6)
 DD=$(echo $NEWDATE | cut -c7-8)
 HH=$(echo $NEWDATE | cut -c9-10)
+
 ocnout=ocn_${YYYY}_${MM}_${DD}_${HH}.nc
 
 if [ $FHR -lt $NHRS ]; then
@@ -78,29 +85,30 @@ echo "skip ocnpost for forecast hour ${FHR3} valid at ${NEWDATE}"
 else
 
 # Wait for model output
-n=1
-while [ $n -le 360 ]; do
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1800}
+n=0
+while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/${ocnout} ] || \
      [ ! -s ${INPdir}/${ocnoutn} ]; then
-    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, or ${INPdir}/${ocnoutn} not ready, sleep 20s"
-    sleep 20s
+    echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, or ${INPdir}/${ocnoutn} not ready, sleep 10s"
+    sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, and ${INPdir}/${ocnoutn} exist"
     echo "Wait ${INPdir}/${ocnout} to be old enough, then do ocn post"
 	while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/${ocnout}) )) -lt 20 ]; do sleep 20; done
     break
   fi
-  if [ $n -ge 360 ]; then
-    echo "FATAL ERROR: Waited too many times: $n. Exiting"
+  n=$((n+10))
+  if [ $n -gt ${MAX_WAIT_TIME} ]; then
+    echo "FATAL ERROR: Waited ${INPdir}/log.atm.f${FHR3}, ${INPdir}/${ocnout}, ${INPdir}/${ocnoutn} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
-  n=$((n+1))
 done
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  ${NCP} -p ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
+  ${FCP} ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
 fi
 
 # Write out the ocnpostdone message file
@@ -116,5 +124,19 @@ FHR3=$(printf "%03d" "$FHR")
 done
 # End loop for forecast hours
 
-cd ${DATA}
+# Special treatment for ocn f000 history output (actually first time step output)
+# Deliver oicout to COMOUTpost
+# Note: This is because the oicout file will not be ready/closed until the forecast completes.
+NEWDATE=$CDATE
+YYYY=$(echo $NEWDATE | cut -c1-4)
+MM=$(echo $NEWDATE | cut -c5-6)
+DD=$(echo $NEWDATE | cut -c7-8)
+HH=$(echo $NEWDATE | cut -c9-10)
+oicout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
+oicpost=${out_prefix}.${RUN}.mom6.f000.nc
 
+if [ $SENDCOM = YES ]; then
+  ${FCP} ${INPdir}/${oicout} ${COMOUTpost}/${oicpost}
+fi
+
+cd ${DATA}

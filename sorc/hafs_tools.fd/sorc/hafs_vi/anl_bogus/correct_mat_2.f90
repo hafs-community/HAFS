@@ -5,6 +5,12 @@
 		      CLON_NEW,CLAT_NEW,PS_C1,                  &
 		      beta,fact,ics,SN)
 
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: Chanh Kieu
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements
+
 ! input:   IR1,NX,NY,KMX
 ! input:   U_2S,T_2S,Q_2S,SLP_2S variables from guess storm
 ! input:   HLON,HLAT,VLON,VLAT,TEK,temp_e

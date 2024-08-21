@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -xeu
 #------------------------------------
 # USER DEFINED STUFF:
 #
@@ -25,7 +25,7 @@ mkdir -p ../exec
 # INCLUDE PARTIAL BUILD
 #------------------------------------
 
-. ./partial_build.sh
+. ./partial_build.sh.inc
 
 #------------------------------------
 # build libraries first
@@ -102,4 +102,3 @@ echo " .... Building ww3_utils .... "
 
 echo;echo " .... Build system finished .... "
 
-exit

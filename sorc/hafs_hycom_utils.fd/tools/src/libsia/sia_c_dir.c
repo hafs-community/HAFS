@@ -39,16 +39,17 @@ int64_t c_closedir(DIR *dp) {
 }
 
 int64_t c_readdir(DIR *d,struct dirent *entry) {
-  struct dirent *out=NULL;
-  int ret;
-  /*  fprintf(stderr,"read_dir_r(%llx,%llx,%llx)\n",
-      d,entry,&out);*/
-  ret=readdir_r(d,entry,&out);
-  if(ret>0) {
-    return -ret;
-  } else if(out!=entry) {
-    return 0;
-  } else {
+  if(d == NULL) {
+    printf("Unable to read directory: sia_c_dir.c->c_readdir\n");
+    return -999;
+  }
+  errno = 0; 
+  entry=readdir(d);
+  if (errno != 0) {
+     return -abs(errno);
+   } else if(entry==NULL) {
+     return 0;
+   } else { 
     return strlen(entry->d_name);
   }
 }

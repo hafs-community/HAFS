@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -58,10 +58,50 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
 
+# Set FORECAST_RESTART to YES if this is a restart run for the forecast job
+export FORECAST_RESTART=${FORECAST_RESTART:-${RESTART:-NO}}
+if [ "${FORECAST_RESTART}" = "YES" ]; then
+  if grep -h 'Current model time' ${WORKhafs}/intercom/RESTART/????????.??0000.coupler.res ; then
+    RESTART_ctime=$(grep -h 'Current model time' ${WORKhafs}/intercom/RESTART/????????.??0000.coupler.res | tail -n 1)
+    RESTART_ymdh=$(echo ${RESTART_ctime} | awk '{printf("%04d%02d%02d%02d", $1, $2, $3, $4)}')
+    RESTART_HR=$(${NHOUR} ${RESTART_ymdh} ${YMDH} | sed 's/^0*//')
+  else
+    RESTART_HR=0
+  fi
+  # Set the forecast hour to restart the forecast. Defualt -999, automatically
+  # detected based on the available completed restart files from the prior
+  # forecast job run.
+  export FORECAST_RESTART_HR=${FORECAST_RESTART_HR:--999}
+  if [ "${FORECAST_RESTART_HR}" = "-999" ] || [[ ${FORECAST_RESTART_HR} -ge ${RESTART_HR} ]]; then
+    echo "INFO: Automatically set FORECAST_RESTART_HR according to the optimal RESTART_HR of ${RESTART_HR}, or"
+    echo "INFO: FORECAST_RESTART_HR is greater than or equal to the optimal RESTART_HR of ${RESTART_HR}"
+    echo "INFO: Set FORECAST_RESTART_HR to RESTART_HR of ${RESTART_HR}"
+    export FORECAST_RESTART_HR=${RESTART_HR}
+  else
+    echo "WARNING: FORECAST_RESTART_HR of ${FORECAST_RESTART_HR} is less than the optimal RESTART_HR of ${RESTART_HR}"
+    echo "WARNING: Continue anyway"
+  fi
+  export FORECAST_RESTART_HC="_restart_$(printf '%03d' ${FORECAST_RESTART_HR})"
+  if [[ ${FORECAST_RESTART_HR} -lt 12 ]]; then
+    echo "WARNING: Either no available restart files to restart the forecast"
+    echo "WARNING: Or the available restart files at restart hour of ${FORECAST_RESTART_HR} is less than 12"
+    echo "WARNING: Both scenarios require rerunning the forecast from forecast hour 0"
+    echo "WARNING: Reset FORECAST_RESTART=NO"
+    echo "WARNING: Rerun from forecast hour 0 instead"
+    export FORECAST_RESTART=NO
+    export FORECAST_RESTART_HR=0
+    export FORECAST_RESTART_HC=""
+  fi
+else
+  export FORECAST_RESTART=NO
+  export FORECAST_RESTART_HR=0
+  export FORECAST_RESTART_HC=""
+fi
+
 # Create DATA dir
 # Deterministic or ensemble
 if [ "${ENSDA:-NO}" != "YES" ]; then
-  export DATA=${WORKhafs}/forecast
+  export DATA=${WORKhafs}/forecast${FORECAST_RESTART_HC}
 else
   export DATA=${WORKhafs}/forecast_ens/mem${ENSID:-001}
 fi
@@ -74,7 +114,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_forecast.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

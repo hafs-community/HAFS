@@ -2,30 +2,35 @@
 !
 ! ABSTRACT: Correct storm size based on observation and model forecast
 !
-! ORIGINAL AUTHOR: QINGFU LIU, NCEP/EMC, 2007
-! REVISED  AUTHOR: Kelvin Yeh (AOML/HRD), JULY 2010
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC, 2007
+! Revised by: Kelvin Yeh (AOML/HRD), JULY 2010
 !                : Extend the storm size correction to 2 parameters
-! REVISED  AUTHOR: Qingfu Liu, 2013
+! Revised by: Qingfu Liu, 2013
 !                : Storm size diagnoses moved to hwrf_pert_ct.f90
 !                : ROCI is used only as reference, R34 calculation is fixed
-! REVISED  AUTHOR: Mingjing Tong 2013
+! Revised by: Mingjing Tong 2013
 !                  Added option (INITOPT) to do relcation only or to do full
 !                  vortex initialization. Modified to allow vortex
 !                  initialization at other time levels
-! REVISED  AUTHOR: JungHoon Shin Feb 2023 NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
 !                  VI is upgraded A LOT so that cloud fields and vertical
 !                  velocity can be relocated on GFS (IGFS_FLAG: 0) or
 !                  cycled from previous HAFS 6-h forecast (IGFS_FLAG: 6)
 !                  For this new VI, split.f90, anl_combine.f90,
 !                  anl_enhance.f90 need to be change. We don't need to
 !                  change anl_pert.f90 (I already confirmed)
-! REVISED  AUTHOR: JungHoon Shin July 2023 NCEP/EMC
+! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  The code is updated further with one more input
 !                  argument (ivi_cloud) so that cloud modification can be on (1 or 2) or off (0).
 !                  0: No cloud changes in VI, 1: GFDL microphysics, 2:Thompson microphysics
 !                  This change requires changes in exhafs_atm_vi.sh
 !                  Now input arguement is like this:
 !  ./hafs_vi_anl_combine.x ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud}
+! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 !______________________________________________________________________________
 
 ! DECLARE VARIABLES
@@ -230,8 +235,11 @@
       CLAT_NHC=ICLAT*0.1
       CLON_NHC=ICLON*0.1
 
+
       IF(SN.eq.'S')CLAT_NHC=-CLAT_NHC
       IF(EW.eq.'W')CLON_NHC=-CLON_NHC
+
+      print*,CLON_NHC !ckw
 !
 !
       psfc_obs = Ipsfc*100. !* pmin (Pa)
@@ -275,6 +283,14 @@
       READ(IUNIT) NX,NY,NZ,I360
 
       print*,'NX,NY,NZ=',NX,NY,NZ
+
+     print*,'CLON_NHC',CLON_NHC,I360 !ckw
+      if(I360.eq.360.and.CLON_NHC.lt.0.) then !ckw
+        CLON_NHC=CLON_NHC+360. !ckw
+        EW='E' !ckw
+      endif !ckw
+
+      print*,'CLON_NHC',CLON_NHC
 
       NX1=NX+1
       NY1=NY+1
@@ -490,7 +506,7 @@
       WBD = LON1
       SBD = LAT1
 
-      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP
+!      write(*,*)'DLMD,DPHD,PT,PDTOP=',DLMD,DPHD,PT,PDTOP !ckw
       write(*,*)'WBD,SBD,CENTRAL_LON,CENTRAL_LAT=',    &
                  WBD,SBD,CENTRAL_LON,CENTRAL_LAT
       do k=1,nz1
@@ -515,10 +531,41 @@
       DLMD = (LON2-LON1)/(NX-1)
       DPHD = (LAT2-LAT1)/(NY-1)
 
+      write(*,*)'DLMD,DPHD',DLMD,DPHD !ckw
+
       CALL EARTH_LATLON_AGRID ( HLAT3,HLON3,VLAT3,VLON3,  & ! lat, lon at H, V points
                           LON1,LAT1,LON2,LAT2,        &  ! input res, west & south bdry
                           CLAT1,CLON1,              & ! central lat,lon, all in degree
                           NX,NY )
+
+
+      print*, CLON1,CENTRAL_LON
+      print*,'HLAT,HLON,VLAT,VLON=',                  &
+              HLAT(1,1),HLON(1,1),VLAT(1,1),VLON(1,1)
+      print*,'HLAT3,HLON3,VLAT3,VLON3=',                  &
+              HLAT3(1,1),HLON3(1,1),VLAT3(1,1),VLON3(1,1)
+
+!ckw
+      if(I360.eq.360) then
+        DO J=1,NY
+        DO I=1,NX
+          IF(HLON3(I,J).LT.0.)HLON3(I,J)=HLON3(I,J)+360.
+          IF(VLON3(I,J).LT.0.)VLON3(I,J)=VLON3(I,J)+360.
+        END DO
+        END DO
+      endif
+!ckw
+!ckw not need
+!      if(I360.eq.180) then
+!        DO J=1,NY
+!        DO I=1,NX
+!          IF(HLON3(I,J).GT.0.)HLON3(I,J)=HLON3(I,J)-360.
+!          IF(VLON3(I,J).GT.0.)VLON3(I,J)=VLON3(I,J)-360.
+!        END DO
+!        END DO
+!      endif
+
+!ckw
 
 !wpac      if(I360.eq.360) then
 !wpac        DO J=1,NY
@@ -614,11 +661,17 @@
       READ(NCHT) ST_NAME(KST)
       PRINT*,'ST_NAME=',ST_NAME(KST)
       READ(NCHT) CLON_NEW,CLAT_NEW
+
+
+!      if(I360.eq.360.and.CLON_NEW.lt.-180.) then !ckw
+      if(I360.eq.360.and.CLON_NEW.lt.0.) then
+        CLON_NEW=CLON_NEW+360. !ckw
+        EW='E' !ckw
+      endif !ckw
 !
 !wpac      if(I360.eq.360)then
 !wpac       IF (CLON_NEW.gt.0.) CLON_NEW=CLON_NEW-360.
 !wpac      endif
-
       PRINT*,CLON_NEW,CLAT_NEW
 !
       print*,'HLAT2,HLON2=',HLAT2(1,1),HLON2(1,1)
@@ -704,7 +757,7 @@
 !      read(23)ftmin1,ftmax1,ctmin1,ctmax1
 
        rewind(23)
-
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
 ! READ forecast storm pressure
 
         IF(ST_NAME(KST)(3:3).eq.'L') basin='AL'
@@ -738,6 +791,10 @@
                   end if
                 end do
               end if
+              exit
+            else !ckw
+              VMX06=-999. !ckw
+              PMN06=-999. !ckw
             END IF
           END IF
         if(stat /= 0) exit   !shin
@@ -1460,6 +1517,8 @@
       PRINT*,'DLMD2,DPHD2,WBD2,SBD2,CENTRAL_LAT2,CENTRAL_LON2=', &
               DLMD2,DPHD2,WBD2,SBD2,CENTRAL_LAT2,CENTRAL_LON2
 
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
+
       NXT=IWMAX1-IWMIN1+1
       NYT=JWMAX1-JWMIN1+1
       NXT1=min(NXT+1,NX)
@@ -1574,6 +1633,7 @@
 !      CLON_NEW1=CLON_NEW
       CLAT_NEW=CLAT_NHC
       CLON_NEW=CLON_NHC
+      print*,'CLON_NEW,CLON_NHC',CLON_NEW,CLON_NHC
 
       print*,'domain 3=',HLON3(1,1),HLON3(NX,NY),HLAT3(1,1),HLAT3(NX,NY)
       print*,'domain 1=',HLON1(1,1),HLON1(NXT,NYT),HLAT1(1,1),HLAT1(NXT,NYT)
@@ -2422,7 +2482,7 @@
 
       print*,'NX,NY,NZ=',NX,NY,NZ,I360
 
-      print*,'PDTOP,PT=',PDTOP,PT
+!      print*,'PDTOP,PT=',PDTOP,PT !ckw not used
 
 !JH Shin: Blocked output fort.63 since it is not used
 !     WRITE(63)((SLP1(I,J),I=1,NX),J=1,NY,2)

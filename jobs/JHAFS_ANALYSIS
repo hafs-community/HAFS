@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -36,19 +36,14 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   if [ ${machine}  = "wcoss2" ]; then
     module reset
     module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}
+    module load gsi_${machine}.intel
     module load cray-pals/1.2.2
     module load cfp/2.0.4
   fi
-  if [ ${machine}  = "hera" ]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]]; then
     module purge
     module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
     module load gsi_${machine}.intel
-  fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]]; then
-    module purge
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}
   fi
   module list
 else
@@ -118,7 +113,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -184,7 +179,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_analysis.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

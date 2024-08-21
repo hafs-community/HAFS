@@ -4,7 +4,7 @@
 !C***REVISION DATE  820801   (YYMMDD)
 !C***CATEGORY NO.  Z
 !C***KEYWORDS  ERROR,XERROR PACKAGE
-!C***AUTHOR  JONES, R. E., (SNLA)
+!C***AUTHORS  JONES, R. E., (SNLA)
 !C***PURPOSE  Symbolic dump (should be locally written).
 !C***DESCRIPTION
 !C        ***Note*** Machine Dependent Routine

@@ -16,7 +16,9 @@ C-----------------------------------------------------------------------
       CHARACTER*11 CTEXT(IQMVAR)
      
       REAL*8  RID_8(3),OBS_8(5,255),BMISS,GETBMISS
-      REAL    RID(3),OBS(5,255)
+c      REAL    RID(3),OBS(5,255)
+      REAL*8 RID(3)
+      REAL OBS(5,255)
       REAL*8  QM1(255),QM1x(255)
       REAL*8  QM2(255),QM2x(255)
       REAL*8  QM3(255),QM3x(255)

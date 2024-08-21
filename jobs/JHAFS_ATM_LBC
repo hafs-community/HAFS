@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -57,6 +57,7 @@ source ${HOLDVARS}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
+export BC_CLEANUP=${BC_CLEANUP:-NO}
 export BC_GROUPN=${BC_GROUPN:-1}
 export BC_GROUPI=$( printf "%d" "${BC_GROUPI:-1}" )
 
@@ -75,7 +76,7 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_lbc.sh
-status=$?; [[ $status -ne 0 ]] && exit $status
+export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}

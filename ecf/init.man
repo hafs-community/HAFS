@@ -1,0 +1,30 @@
+# MANUAL PAGE FOR FAMILY/SUITE init
+%manual
+
+FAMILY init
+
+PURPOSE: Runs HAFS atmospheric initialization jobs to generate initial
+condition, lateral boundary condition and conduct vortex initialization.
+
+This family of HAFS jobs run HAFS initialization steps to generate atmospheric
+initial condition and lateral boundary condition, conduct vortex
+initialization, and prepare FGAT for atmospheric data assimilation.
+
+  atm_ic - generates atmospheric IC from GFS analysis at current cycle
+  atm_ic_fgat03 - generates atmospheric IC from GDAS 3-h forecast at current cycle -3h
+  atm_ic_fgat06 - generates atmospheric IC from GDAS 6-h forecast at current cycle
+  atm_ic_fgat09 - generates atmospheric IC from GDAS 9-h forecast at current cycle +3h
+
+  atm_init - run one-time step atmospheric forecast and postprocessing steps from atm_ic
+  atm_init_fgat03 - run one-time step atmospheric forecast and postprocessing steps from atm_ic_fgat03
+  atm_init_fgat06 - run one-time step atmospheric forecast and postprocessing steps from atm_ic_fgat06
+  atm_init_fgat09 - run one-time step atmospheric forecast and postprocessing steps from atm_ic_fgat09
+
+  atm_vi - conduct vortex initialization based on atm_ic and prior cycle's 6-h HAFS forecast
+  atm_vi_fgat03 - conduct vortex initialization based on atm_ic_fgat03 and prior cycle's 3-h HAFS forecast
+  atm_vi_fgat06 - conduct vortex initialization based on atm_ic_fgat06 and prior cycle's 6-h HAFS forecast
+  atm_vi_fgat09 - conduct vortex initialization based on atm_ic_fgat09 and prior cycle's 9-h HAFS forecast
+
+  atm_lbc - generates atmospheric lateral boundary condition
+
+%end

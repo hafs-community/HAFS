@@ -1,5 +1,13 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: produtil_deliver.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script provides access to the produtil.fileop.deliver_file()
+#   function to shell programs.
+# History:
+#   04/21/2019: Adapted and converted from HWRF.
+################################################################################
 ##@namespace produtil_deliver
 # A test program for the produtil.fileop.deliver_file() function.
 #
@@ -119,13 +127,13 @@ def main():
         deliver_file(infile,outfile,logger=logging.getLogger(),**kwargs)
         sys.exit(0)
     except DeliveryFailed as d:
-        logging.critical(str(d))
+        logging.critical('FATAL ERROR: '+str(d))
         sys.exit(1)
     except (IOError,OSError) as e:
-        logging.critical('%s delivery: %s' % (infile,str(e)))
+        logging.critical('FATAL ERROR: %s delivery: %s' % (infile,str(e)))
         sys.exit(1)
     except (KeyboardInterrupt,CaughtSignal) as e:
-        logging.critical('%s delivery: abort due to signal: %s'%(infile,str(e)))
+        logging.critical('FATAL ERROR: %s delivery: abort due to signal: %s'%(infile,str(e)))
         sys.exit(1)
 
 if __name__=='__main__': main()

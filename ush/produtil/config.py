@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """!Parses UNIX conf files and makes the result readily available
 
 The produtil.config module reads configuration information for a
@@ -697,10 +699,10 @@ class ProdConfig(object):
 
         for path in infiles:
             if not os.path.exists(path):
-                logger.error(path+': conf file does not exist.')
+                logger.error('FATAL ERROR: '+path+': conf file does not exist.')
                 sys.exit(2)
             elif not os.path.isfile(path):
-                logger.error(path+': conf file is not a regular file.')
+                logger.error('FATAL ERROR: '+path+': conf file is not a regular file.')
                 sys.exit(2)
             elif not produtil.fileop.isnonempty(path):
                 if verbose:

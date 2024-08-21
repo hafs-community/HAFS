@@ -125,6 +125,7 @@
   full_zs_filter = @[full_zs_filter_nml]
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
+  pass_full_omega_to_physics_in_non_hydrostatic_mode = .false.
 /
 
 &fv_nest_nml
@@ -215,11 +216,13 @@
   cnvcld         = .true.
   shal_cnv       = @[shal_cnv_nml] !Shallow convection
   do_deep        = @[do_deep_nml]
-  imfshalcnv     = 2
-  imfdeepcnv     = 2
+  imfshalcnv     = @[imfshalcnv]
+  imfdeepcnv     = @[imfdeepcnv]
   clam_deep      = @[clam_deep]
   betal_deep     = 0.05
   betas_deep     = 0.05
+  c1_deep        = @[c1_deep]
+  c1_shal        = @[c1_shal]
   progsigma      = @[progsigma]
   betascu        = @[betascu]
   betamcu        = @[betamcu]
@@ -253,14 +256,17 @@
   cplflx         = @[cplflx]
   cplice         = .false.
   cplocn2atm     = @[cplocn2atm]
+  icplocn2atm    = @[icplocn2atm]
   cplwav         = @[cplwav]
   cplwav2atm     = @[cplwav2atm]
   cpl_imp_mrg    = @[merge_import]
   psautco        = 0.0008, 0.0005
   prautco        = 0.00015, 0.00015
-  iau_delthrs    = 6
-  iaufhrs        = 30
-  iau_inc_files  = ''
+  iau_delthrs    = @[iau_delthrs]
+  iaufhrs        = @[iaufhrs]
+  iau_inc_files  = @[iau_inc_files]
+  iau_regional   = @[iau_regional]
+  iau_inc_scale  = @[iau_inc_scale]
   iau_drymassfixer = .false.
   lgfdlmprad     = @[lgfdlmprad]
   effr_in        = .true.

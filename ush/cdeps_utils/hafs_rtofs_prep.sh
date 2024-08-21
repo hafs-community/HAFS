@@ -1,5 +1,10 @@
-#!/bin/bash
-
+#!/bin/sh
+################################################################################
+# Script Name: hafs_rtofs_prep.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script prepares RTOFS mesh and input files for the DOCN component.
+################################################################################
 set -xe
 
 merged="${1:-merged.nc}"

@@ -1,3 +1,10 @@
+################################################################################
+# Script Name: hafs_pre_job.sh.inc
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script detects HAFS running platform and prepares module environment.
+################################################################################
+
 # Create a test function for sh vs. bash detection.  The name is
 # randomly generated to reduce the chances of name collision.
 __ms_function_name="setup__test_function__$$"
@@ -109,7 +116,6 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     source ${HOMEhafs}/versions/run.ver
     module use /apps/ops/test/nco/modulefiles/core
     module load rocoto/${rocoto_ver:-"1.3.5"}
-    export PATH=${HOMEhafs}/ush${PATH:+:$PATH}
   fi
   module use ${HOMEhafs}/modulefiles
   module load hafs.${WHERE_AM_I}

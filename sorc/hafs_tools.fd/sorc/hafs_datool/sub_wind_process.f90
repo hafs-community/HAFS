@@ -2,8 +2,8 @@
   subroutine cal_uv_coeff_fv3(nx, ny, grid_lat, grid_lon, cangu, sangu, cangv, sangv)
 !-----------------------------------------------------------------------------
 ! This subroutine is adopated from gsi/mod_fv3_lola.f90
-! Yonghui Weng, 20210319
-!       --
+! authors and history:
+!      -- 202103, created by Yonghui Weng
 !-----------------------------------------------------------------------------
   use constants
   implicit none

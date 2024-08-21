@@ -1,5 +1,11 @@
 #!/bin/sh
-
+################################################################################
+# Script Name: exhafs_emcgraphics.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script generates EMC graphics through hafs_graphcs.
+################################################################################
+#
 set -xe
 
 date
@@ -323,8 +329,11 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
+
+#==============================================================================
 
 cd ${WORKgraph}
 
@@ -431,6 +440,7 @@ if [ ${stormDomain} = "storm" ]; then
     1003 \
     1003 \
     1003 \
+    1003 \
     )
 fi
 
@@ -448,6 +458,7 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
 
@@ -455,65 +466,80 @@ date
 # For the ocean figures
 #==============================================================================
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model,,} = hycom ]; then
+if [ ${run_ocean} = yes ]; then
+	
+IFHR=0
+FHR=0
+FHR3=$( printf "%03d" "$FHR" )
+
+# Loop for forecast hours
+while [ $FHR -le $NHRS ];
+do
 
 cd ${WORKgraph}
 
-# Wait for hycompost and product output
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-n=1
-while [ $n -le 600 ]; do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc ] && [ -f ${atcfFile} ]; then
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc and ${atcfFile} exist"
-    sleep 1s
-    break
-  else
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.hycom.3z.f${NHR3}.nc or ${atcfFile} not ready, sleep 60s"
-    sleep 60s
-  fi
-  n=$(( n+1 ))
-done
+if [ ${ocean_model,,} = hycom ] && [[ $(($FHR%2)) -ne 0 ]]; then
+    echo "Forecast hour f${FHR3} does not exist"
+    FHR=$(($FHR + $NOUTHRS))
+    FHR3=$( printf "%03d" "$FHR" )
+    continue
+fi
 
 #Generate the cmdfile
-cmdfile='cmdfile_ocean'
+cmdfile="cmdfile_ocean.${FHR3}"
 rm -f $cmdfile
 touch $cmdfile
 
 figScriptAll=( \
-  "plot_sst.py" \
-  "plot_sss.py" \
-  "plot_mld.py" \
-  "plot_ohc.py" \
-  "plot_z20.py" \
-  "plot_z26.py" \
-  "plot_storm_sst.py" \
-  "plot_storm_sss.py" \
-  "plot_storm_mld.py" \
-  "plot_storm_ohc.py" \
-  "plot_storm_z20.py" \
-  "plot_storm_z26.py" \
-  "plot_storm_tempz40m.py" \
-  "plot_storm_tempz70m.py" \
-  "plot_storm_tempz100m.py" \
-  "plot_storm_wvelz40m.py" \
-  "plot_storm_wvelz70m.py" \
-  "plot_storm_wvelz100m.py" \
+  plot_sst.py \
+  plot_sss.py \
+  plot_mld.py \
+  plot_ohc.py \
+  plot_z20.py \
+  plot_z26.py \
+  plot_storm_sst.py \
+  plot_storm_sss.py \
+  plot_storm_mld.py \
+  plot_storm_ohc.py \
+  plot_storm_z20.py \
+  plot_storm_z26.py \
+  plot_storm_tempz40m.py \
+  plot_storm_tempz70m.py \
+  plot_storm_tempz100m.py \
+  plot_storm_wvelz40m.py \
+  plot_storm_wvelz70m.py \
+  plot_storm_wvelz100m.py \
+  plot_storm_crs_sn_temp.py \
+  plot_storm_crs_trk_temp.py \
+  plot_storm_crs_we_temp.py \
   )
 
 nscripts=${#figScriptAll[*]}
-
-trackOn=True
+TRACKON="yes"
 
 for((i=0;i<${nscripts};i++)); do
-  echo ${figScriptAll[$i]}
-  echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $trackOn ${figScriptAll[$i]} \
-        > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.log 2>&1" >> $cmdfile
+  fhhh="f${FHR3}"
+  if [ ${ocean_model,,} = mom6 ] && [ ${figScriptAll[$i]: 11:5} = wvelz ]; then
+     echo "Vertical velocity plots for MOM6 are not being produced yet."
+  else
+     echo ${figScriptAll[$i]} ${fhhh}
+     echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $TRACKON ${figScriptAll[$i]} $fhhh \
+	> ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  fi
 done
 
 chmod u+x ./$cmdfile
-${APRUNC} ${MPISERIAL} -m ./$cmdfile
 
-fi #if [ ${run_ocean} = yes ] && [ ${ocean_model,,} = hycom ]; then
+${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
+
+IFHR=$(($IFHR + 1))
+FHR=$(($FHR + $NOUTHRS))
+FHR3=$( printf "%03d" "$FHR" )
+
+done #End loop for forecast hours
+
+fi #[ ${run_ocean} = yes ]; then
 
 #==============================================================================
 # For the wave figures
@@ -586,6 +612,7 @@ done
 
 chmod u+x ./$cmdfile
 ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+export err=$?; err_chk
 
 date
 

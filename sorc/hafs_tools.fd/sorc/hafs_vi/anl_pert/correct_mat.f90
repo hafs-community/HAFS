@@ -4,6 +4,12 @@
                       TEK,PCST,RADIUS,RADIUS1,CLON_NEW,CLAT_NEW,        &
 		      CFT,beta11,IR_1,IFLAG,KM1)
 
+! Authors and history
+! Original author: QINGFU LIU, NCEP/EMC
+! Revised by: JungHoon Shin, 2022
+!                : Remove/Clean up "go to" statements and modernizing
+!                : the code
+
 ! input:   IR1,NX,NY,KMX
 ! input:   U_2S,T_2S,Q_2S,SLP_2S variables from guess storm
 ! input:   HLON,HLAT,VLON,VLAT,TEK,PCST
@@ -329,7 +335,7 @@
       end do
 
       do m=1,IR1
-	print*,'ctmp,cmix,test1111=',m,ctmp(m,1),cmix(m,1)
+	print*,'m,ctmp,cmix= ',m,ctmp(m,1),cmix(m,1)
       end do
 
 

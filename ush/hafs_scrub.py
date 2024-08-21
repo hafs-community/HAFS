@@ -299,6 +299,6 @@ if __name__=='__main__':
         produtil.setup.setup()
         main()
     except Exception as e:
-        jlogger.critical('HAFS scrubber is aborting: '+str(e),exc_info=True)
+        jlogger.critical('FATAL ERROR: HAFS scrubber is aborting: '+str(e),exc_info=True)
         sys.exit(2)
 

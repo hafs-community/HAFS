@@ -3,7 +3,8 @@
 
 !-----------------------------------------------------------------------------
 ! HAFS DA tool - remap
-! Yonghui Weng, 20210201
+! authors and history:
+!      -- 202102, created by Yonghui Weng
 !
 ! This subroutine drives the interpolation from one-grid to another grid.
 !     src_file + dst_file -- > out_file in dst_grid: merge src_file and dst_file to out_file

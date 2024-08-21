@@ -92,7 +92,9 @@ export vi_storm_relocation={vi_storm_relocation}
 export vi_storm_modification={vi_storm_modification}
 export vi_adjust_intensity={vi_adjust_intensity}
 export vi_adjust_size={vi_adjust_size}
+export vi_composite_vortex={vi_composite_vortex}
 export vi_cloud={vi_cloud}
+export vi_slp_adjust={vi_slp_adjust}
 
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}
@@ -117,6 +119,7 @@ export DOCN_SOURCE={DOCN_SOURCE}
 export DATM_SOURCE={DATM_SOURCE}
 
 export PARMforecast={PARMforecast}
+export PARMmom6={PARMmom6}
 
 export NHRS={NHRS}
 export NBDYHRS={NBDYHRS}
@@ -192,6 +195,8 @@ export s_ens_v={s_ens_v}
 export online_satbias={online_satbias}
 export l_both_fv3sar_gfs_ens={l_both_fv3sar_gfs_ens}
 export l4densvar={l4densvar}
+export nsclgrp={nsclgrp}
+export naensloc={naensloc}
 export nhr_obsbin={nhr_obsbin}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
@@ -207,6 +212,8 @@ export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
 export write_dopost={write_dopost}
 export output_history={output_history}
+
+export quilting_restart={quilting_restart}
 
 export glob_k_split={glob_k_split}
 export glob_n_split={glob_n_split}
@@ -275,7 +282,11 @@ export fhswr={fhswr}
 export fhlwr={fhlwr}
 export iaer={iaer}
 export lseaspray={lseaspray}
+export imfshalcnv={imfshalcnv}
+export imfdeepcnv={imfdeepcnv}
 export clam_deep={clam_deep}
+export c1_deep={c1_deep}
+export c1_shal={c1_shal}
 export progsigma={progsigma}
 export betascu={betascu}
 export betamcu={betamcu}
@@ -302,6 +313,7 @@ export out_gridnames={out_gridnames}
 export post_gridspecs={post_gridspecs}
 export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
+export nhcpost={nhcpost}
 export trkd12_combined={trkd12_combined}
 
 # atm_init related items
@@ -412,14 +424,21 @@ export output_grid_dlat_ens={output_grid_dlat_ens}
 export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
+export nhcpost_ens={nhcpost_ens}
+
+#IAU related options
+export iau_regional={iau_regional}
+export iau_inc_scale={iau_inc_scale}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
+export ocean_domain={ocean_domain}
 export cpl_dt={cpl_dt}
 export cpl_atm_ocn={cpl_atm_ocn}
 export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
+export icplocn2atm={icplocn2atm}
 
 export run_wave={run_wave}
 export wave_model={wave_model}
@@ -437,4 +456,3 @@ if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
   export CDSCRUB={CDSCRUB}
   export RUNhafs={RUNhafs}
 fi
-

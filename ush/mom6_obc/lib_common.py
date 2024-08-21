@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 
 import numpy as np
 
@@ -28,7 +29,6 @@ def distance_on_unit_sphere(lat1, long1, lat2, long2):
     dist = np.arccos(cos)
 
     return dist
-
 
 def find_subset(target_grid, lon_src, lat_src):
     ''' for a given regional target grid, find the subset of the source grid
@@ -80,7 +80,6 @@ def find_subset(target_grid, lon_src, lat_src):
           imin, imax, jmin, jmax)
 
     return imin, imax, jmin, jmax
-
 
 def supergrid_to_staggered(field, pointtype):
     ''' extract field from supergrid on its staggered location,
