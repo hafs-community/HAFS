@@ -3,7 +3,7 @@ set -x
 date
 
 HOMEhafs=${HOMEhafs:-/gpfs/f6/hurr1/proj-shared/$USER/save/hafs_dev062024}
-source ${HOMEhafs/ush/detect_machine.sh
+source ${HOMEhafs}/ush/detect_machine.sh
 if [ ${MACHINE_ID} = gaeaC6 ]; then
    source $MODULESHOME/init/sh
    module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
