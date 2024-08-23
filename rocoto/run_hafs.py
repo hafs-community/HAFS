@@ -633,7 +633,7 @@ else:
     WHERE_AM_I=clustername
 
 cmd = exe('sh') [
-    '-c','rocotorun --verbose=5 -d %s -w %s'
+    '-c','which ruby ; which rocotorun ; rocotorun --verbose=5 -d %s -w %s'
     %(  shbackslash(outdb),
        shbackslash(outxml) ) ] .env(QUIET_PRE_JOB='YES',
                                     HOMEhafs=HOMEhafs,

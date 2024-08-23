@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/gpfs/f6/hurr1/proj-shared/$USER/save/hafs_dev062024}
+HOMEhafs=${HOMEhafs:-/gpfs/f6/hurr1/proj-shared/save/Biju.Thomas/hafs.v2.0.1}
 source ${HOMEhafs}/ush/detect_machine.sh
 if [ ${MACHINE_ID} = gaeaC6 ]; then
    source $MODULESHOME/init/sh
@@ -32,7 +32,7 @@ opts="-t -f -s sites/gaeaC6.ent"
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and without wave coupling
-confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
+confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_0hfsa_dev ../parm/hfsa_dev.conf"
 ## Technical testing for Hurricane Ida
 ./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
     config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=no
