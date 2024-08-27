@@ -304,6 +304,8 @@ cat>./fort.41<<EOF
  regional=${regional}
  halo_bndy=${halo_bndy}
  halo_blend=${halo_blend}
+! chgres_cube aborts when seeing this file in lbc mode:
+! thomp_mp_climo_file="${thomp_mp_climo_input:-$FIXhafs/fix_am/Thompson_MP_MONTHLY_CLIMO.nc}"
 /
 EOF
 

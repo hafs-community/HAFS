@@ -189,7 +189,10 @@
   moninq_fac     = -1.0   ! HWRF_moninedmf
   do_mynnedmf    = @[do_mynnedmf]
   do_mynnsfclay  = @[do_mynnsfclay]
+  bl_mynn_edmf   = @[bl_mynn_edmf]
+  bl_mynn_edmf_mom = @[bl_mynn_edmf_mom]
   bl_mynn_tkeadvect = @[bl_mynn_tkeadvect]
+  fscav_aero     = @[fscav_aero]
   satmedmf       = @[satmedmf]
   isatmedmf      = 1
   lseaspray      = @[lseaspray]
@@ -202,8 +205,8 @@
   cnvcld         = .true.
   shal_cnv       = @[shal_cnv_nml]
   do_deep        = @[do_deep_nml]
-  imfshalcnv     = @[imfshalcnv]
-  imfdeepcnv     = @[imfdeepcnv]
+  imfshalcnv     = @[imfshalcnv_nml]
+  imfdeepcnv     = @[imfdeepcnv_nml]
   clam_deep      = @[clam_deep]
   betal_deep     = 0.05
   betas_deep     = 0.05
@@ -233,7 +236,9 @@
   iopt_tbot      = 2
   iopt_stc       = 3
   iopt_trs       = @[iopt_trs]
-  lsoil_lsm      = 4
+  kice           = @[kice]
+  lsoil_lsm      = @[lsoil_lsm]
+  lkm            = 0 ! disable lake model
   debug          = .false.
   oz_phys        = .false.
   oz_phys_2015   = .true.
@@ -282,6 +287,7 @@
   print_diff_pgr = .true.
   do_ugwp        = .false.
   do_tofd        = .false.
+  sfclay_compute_flux = @[sfclay_compute_flux]
 
   ! Smoke/dust
   seas_opt       = @[seas_opt_nml]

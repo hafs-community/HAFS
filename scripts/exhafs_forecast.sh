@@ -138,7 +138,13 @@ if [ "${ENSDA}" = YES ]; then
 
   # Additional physics settings
   glob_sedi_semi=${glob_sedi_semi_ens:-.true.}
+  glob_cnvgwd=${glob_cnvgwd_ens:-.true.}
+  glob_imfshalcnv=${glob_imfshalcnv_ens:-.true.}
+  glob_imfdeepcnv=${glob_imfdeepcnv_ens:-.true.}
   sedi_semi=${sedi_semi_ens:-.true.}
+  cnvgwd=${cnvgwd_ens:-.true.}
+  imfshalcnv=${imfshalcnv_ens:-.true.}
+  imfdeepcnv=${imfdeepcnv_ens:-.true.}
 
   # Smoke/Dust settings (GFS_typedefs.F90 namelist defaults)
   glob_seas_opt=${glob_seas_opt_ens:-2}
@@ -972,8 +978,6 @@ for n in $(seq 1 ${nest_grids}); do
   joffset="$joffset,$(( ($jstart_nest_tmp-1)/2 + 1))"
 done
 
-imfshalcnv=${glob_imfshalcnv:-2}
-imfdeepcnv=${glob_imfdeepcnv:-2}
 ccpp_suite_nml=${ccpp_suite_glob}
 layoutx_nml=${glob_layoutx}
 layouty_nml=${glob_layouty}
@@ -1009,7 +1013,9 @@ do_deep_nml=${glob_do_deep:-.true.}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
 sedi_semi_nml=${glob_sedi_semi:-.true.}
-
+cnvgwd_nml=${glob_cnvgwd:-.true.}
+imfshalcnv_nml=${glob_imfshalcnv:-.true.}
+imfdeepcnv_nml=${glob_imfdeepcnv:-.true.}
 seas_opt_nml=${glob_seas_opt:-2}
 dust_opt_nml=${glob_dust_opt:-1}
 drydep_opt_nml=${glob_drydep_opt:-1}
@@ -1082,6 +1088,9 @@ for n in $(seq 1 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
   sedi_semi_nml=$( echo ${sedi_semi} | cut -c , -f ${n} )
+  cnvgwd_nml=$( echo ${cnvgwd} | cut -d , -f ${n} )
+  imfshalcnv_nml=$( echo ${imfshalcnv} | cut -d , -f ${n} )
+  imfdeepcnv_nml=$( echo ${imfdeepcnv} | cut -d , -f ${n} )
 
   # Smoke/dust
   seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
@@ -1196,15 +1205,18 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.tile1.nc ./fv_srf_wnd.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
-# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
-# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  rm -f phy_data.nc sfc_data.nc
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
-  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
-  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    rm -f ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
+    rm -f ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   # fi
@@ -1401,6 +1413,9 @@ nrows_blend=${halo_blend}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
 sedi_semi_nml=$( echo ${sedi_semi} | cut -d , -f ${n} )
+cnvgwd_nml=$( echo ${cnvgwd} | cut -d , -f ${n} )
+imfshalcnv_nml=$( echo ${imfshalcnv} | cut -d , -f ${n} )
+imfdeepcnv_nml=$( echo ${imfdeepcnv} | cut -d , -f ${n} )
 
 # Smoke/dust
 seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )
@@ -1464,6 +1479,9 @@ for n in $(seq 2 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
 
   sedi_semi_nml=$( echo ${sedi_semi} | cut -d , -f ${n} )
+  cnvgwd_nml=$( echo ${cnvgwd} | cut -d , -f ${n} )
+  imfshalcnv_nml=$( echo ${imfshalcnv} | cut -d , -f ${n} )
+  imfdeepcnv_nml=$( echo ${imfdeepcnv} | cut -d , -f ${n} )
 
   # Smoke/dust
   seas_opt_nml=$( echo ${seas_opt} | cut -d , -f ${n} )

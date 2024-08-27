@@ -246,8 +246,15 @@ export glob_sfc_rlm={glob_sfc_rlm}
 export glob_tc_pbl={glob_tc_pbl}
 export glob_shal_cnv={glob_shal_cnv}
 export glob_do_deep={glob_do_deep}
-export glob_imfshalcnv={glob_imfshalcnv}
-export glob_imfdeepcnv={glob_imfdeepcnv}
+
+export imfshalcnv_ens={forecast_ens/imfshalcnv_ens}
+export imfdeepcnv_ens={forecast_ens/imfdeepcnv_ens}
+export glob_imfshalcnv_ens={forecast_ens/imfshalcnv_ens}
+export glob_imfdeepcnv_ens={forecast_ens/imfdeepcnv_ens}
+export imfshalcnv={forecast/imfshalcnv}
+export imfdeepcnv={forecast/imfdeepcnv}
+export glob_imfshalcnv={forecast/imfshalcnv}
+export glob_imfdeepcnv={forecast/imfdeepcnv}
 
 export k_split={k_split}
 export n_split={n_split}
@@ -291,6 +298,7 @@ export dt_inner={dt_inner}
 export dnats={dnats}
 export do_sat_adj={do_sat_adj}
 export lgfdlmprad={lgfdlmprad}
+export fscav_aero='{fscav_aero}'
 export lsm={lsm}
 export ialb={ialb}
 export iems={iems}
@@ -352,6 +360,17 @@ export betamcu={betamcu}
 export betamcu_nest={betamcu_nest}
 export betadcu={betadcu}
 export betadcu_nest={betadcu_nest}
+export sfclay_compute_flux={sfclay_compute_flux}
+
+export bl_mynn_edmf_mom={bl_mynn_edmf_mom}
+export bl_mynn_edmf={bl_mynn_edmf}
+export hurr_pbl={hurr_pbl}
+export satmedmf={satmedmf}
+export glob_cnvgwd={glob_cnvgwd}
+export cnvgwd={cnvgwd}
+
+export kice={kice}
+export lsoil_lsm={lsoil_lsm}
 
 export output_grid={output_grid}
 export output_grid_cen_lon={output_grid_cen_lon}
@@ -496,6 +515,9 @@ export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
 export nhcpost_ens={nhcpost_ens}
+
+export glob_cnvgwd_ens={glob_cnvgwd_ens}
+export cnvgwd_ens={cnvgwd_ens}
 
 export postxconfig_satpost="{postxconfig_satpost}"
 export postxconfig_nosat="{postxconfig_nosat}"
