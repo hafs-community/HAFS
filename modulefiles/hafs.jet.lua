@@ -6,7 +6,7 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver)) 
 
@@ -114,8 +114,8 @@ load(pathJoin("cdo", cdo_ver))
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.7"
 load("rocoto")
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hwrfv3/local/modulefiles")
-load(pathJoin("python", "wcoss2_env"))
+xarray_ver=os.getenv("xarray_ver") or "2023.7.0"
+load(pathJoin("py-xarray", xarray_ver))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
