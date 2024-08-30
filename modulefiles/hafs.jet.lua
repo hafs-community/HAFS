@@ -117,6 +117,12 @@ load("rocoto")
 xarray_ver=os.getenv("xarray_ver") or "2023.7.0"
 load(pathJoin("py-xarray", xarray_ver))
 
+netcdf4_ver=os.getenv("netcdf4_ver") or "1.5.8"
+load(pathJoin("py-netcdf4", netcdf4_ver))
+
+scipy_ver=os.getenv("scipy_ver") or "1.11.3"
+load(pathJoin("py-scipy", scipy_ver))
+
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
 setenv("CMAKE_Fortran_COMPILER", "mpiifort")
