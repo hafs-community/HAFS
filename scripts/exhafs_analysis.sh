@@ -161,6 +161,11 @@ if [ ${RUN_ENVAR} = "YES" ]; then
 
 export L_HYB_ENS=.true.
 
+if [ ${RUN_ENSDA} = "YES" ] && [ ! -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+  echo "WARNING: No HAFS ensemble was found! Use GDAS!"
+  RUN_ENSDA=NO
+fi
+
 if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
 # Link gdas ensemble members
   mkdir -p ensemble_data

@@ -81,6 +81,7 @@
   <!ENTITY GSI_D03 "@[GSI_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
+  <!ENTITY RRFS_RECENTER "@[RRFS_RECENTER]">
   <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
   <!ENTITY RUN_ANALYSIS_MERGE_ENS "@[RUN_ANALYSIS_MERGE_ENS]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
@@ -1013,6 +1014,7 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
+        <taskdep task="atm_prep_mvnest"/>
         <!-- Wait until the deterministic forecast job is running or completed. -->
         <or>
           <taskdep task="forecast" state="RUNNING"/>
@@ -1376,6 +1378,9 @@
 
       <dependency>
         <and>
+@** if RUN_ATM_MVNEST==YES
+          <taskdep task="atm_prep_mvnest"/>
+@** endif
           <metataskdep metatask="atm_ic_ens"/>
 @** if gtype==regional
           <metataskdep metatask="atm_lbc_ens"/>

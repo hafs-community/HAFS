@@ -1641,6 +1641,9 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
+        rrfs_recenter_flag=self.getbool('config','rrfs_recenter')
+        self.set('holdvars','cap_rrfs_recenter',('YES' if rrfs_recenter_flag else 'NO'))
+
         atm_mvnest_flag=self.getbool('config','run_atm_mvnest')
         self.set('holdvars','cap_run_atm_mvnest',('YES' if atm_mvnest_flag else 'NO'))
 

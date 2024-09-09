@@ -501,7 +501,8 @@ cat fort.2* > ${GSISTAT}
 if [ ${RUN_SELECT:-NO} = "YES" ]; then
   echo $(date) START tar obs_input
   rm -f ./obsinput.tar
-  ${NLN} $SELECT_OBS ./obsinput.tar
+#  ${NLN} $SELECT_OBS ./obsinput.tar
+  ln -sf $SELECT_OBS ./obsinput.tar
   tar -cvf obsinput.tar obs_input.*
   echo $(date) END tar obs_input
 fi

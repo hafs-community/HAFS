@@ -44,6 +44,7 @@
 ##      * Merging internal libraries into a single folder with a single driver script
 ##      * Ported hafs_change_prepbufr under hafs_tools.fd from HWRF (2021-06-07)
 ## Added hafs_datool & hafs_vi to CMake based build: Biju Thomas 2022-01-25
+## Added enmean_recenter from RRFS: Xu Lu 2024-08-05
 #################################################################################
 
 set -x -e
@@ -249,6 +250,46 @@ _hafsutils_vi (){
 
 #----
 
+# FUNCTION:
+
+# _hafsenmean_recenter.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility vi
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafsenmean_recenter (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    # BUILD_TYPE supports RELEASE OR DEBUG MODE
+    cmake ../hafs_enmean_recenter -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
+
+    # Build the hafs_vi application.
+    make all VERBOSE=3
+
+    # Move the hafs_vi application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+#----
+
 
 # FUNCTION:
 
@@ -290,6 +331,7 @@ build_hafsutils (){
      # Build the vi application
     _hafsutils_vi
 
+    _hafsenmean_recenter
 }
 
 #----

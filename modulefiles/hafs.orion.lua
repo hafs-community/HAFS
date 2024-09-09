@@ -103,6 +103,9 @@ load(pathJoin("wgrib2", wgrib2_ver))
 nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio", ncio_ver))
+
 cdo_ver=os.getenv("cdo_ver") or "2.2.0"
 load(pathJoin("cdo", cdo_ver))
 

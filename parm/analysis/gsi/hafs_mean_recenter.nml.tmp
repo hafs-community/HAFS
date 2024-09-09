@@ -1,0 +1,16 @@
+&setup
+  fv3_io_layout_y=1,
+  ens_size=_ENS_SIZE_,
+  filebase='fv3sar_tile1'
+  filetail(1)='dynvar'
+  filetail(2)='tracer'
+  filetail(3)='sfcvar'
+  numvar(1)=9
+  numvar(2)=10
+  numvar(3)=7
+  varlist(1)="u v W DZ T delp phis ua va"
+  varlist(2)="sphum liq_wat ice_wat rainwat snowwat graupel ice_nc rain_nc o3mr sgs_tke"
+  varlist(3)="t2m q2m f10m tsfc tsfcl emis_ice emis_lnd"
+  l_write_mean=_L_WRITE_MEAN_
+  l_recenter=_L_RECENTER_
+/
