@@ -85,6 +85,14 @@ echo " .... Building gsi .... "
 }
 
 #------------------------------------
+# build jedi
+#------------------------------------
+$Build_jedi && {
+echo " .... Building gsi .... "
+./build_jedi.sh > $logs_dir/build_jedi.log 2>&1
+}
+
+#------------------------------------
 # build hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
