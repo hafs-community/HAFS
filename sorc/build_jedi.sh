@@ -12,5 +12,5 @@ cd hafs_jedi.fd
 
 
 export BUILD_TYPE=${BUILD_MODE}
-./build.sh -f -t ${target} > ../logs/build_jedi.log 2>&1 & 
+./build.sh -f -t ${target} 
 
