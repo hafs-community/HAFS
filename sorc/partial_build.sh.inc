@@ -10,6 +10,7 @@
                        "Build_hycom_utils" \
                        "Build_ww3_utils" \
                        "Build_gsi" \
+                       "Build_jedi" \
                       )
 
 #
