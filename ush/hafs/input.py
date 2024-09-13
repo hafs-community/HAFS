@@ -467,7 +467,7 @@ class InputSource(object):
         The location parameter is a URL from file, sftp, ftp or htar.
         Examples:
 
-        * local files: file:///lfs4/HFIP/hwrf-data/hafs-input/
+        * local files: file:///lfs5/HFIP/hwrf-data/hafs-input/
         * scp:         sftp://Some.Username@dtn-zeus.rdhpcs.noaa.gov/
         * ftp:         ftp://anonymous@ftpprd.ncep.noaa.gov/
         * htar:        htar:///NCEPPROD/1year/hpssprod/runhistory/rh2012/201204/20120418/

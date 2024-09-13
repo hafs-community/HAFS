@@ -6,12 +6,15 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver)) 
 
-stack_impi_ver=os.getenv("stack_impi_ver") or "2021.5.1" 
-load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
+stack_mpi_ver=os.getenv("stack_mpi_ver") or "2021.5.1" 
+load(pathJoin("stack-intel-oneapi-mpi", stack_mpi_ver))
+
+impi_ver=os.getenv("impi_ver") or "2024.2.1" 
+load(pathJoin("impi", impi_ver))
 
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
@@ -117,8 +120,14 @@ load(pathJoin("cdo", cdo_ver))
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.7"
 load("rocoto")
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hwrfv3/local/modulefiles")
-load(pathJoin("python", "wcoss2_env"))
+xarray_ver=os.getenv("xarray_ver") or "2023.7.0"
+load(pathJoin("py-xarray", xarray_ver))
+
+netcdf4_ver=os.getenv("netcdf4_ver") or "1.5.8"
+load(pathJoin("py-netcdf4", netcdf4_ver))
+
+scipy_ver=os.getenv("scipy_ver") or "1.11.3"
+load(pathJoin("py-scipy", scipy_ver))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
