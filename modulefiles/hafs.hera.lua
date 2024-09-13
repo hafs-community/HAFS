@@ -127,9 +127,6 @@ load(pathJoin("py-xarray", xarray_ver))
 scipy_ver=os.getenv("scipy_ver") or "1.11.3"
 load(pathJoin("py-scipy", scipy_ver))
 
-prepend_path("MODULEPATH", "/scratch1/NCEPDEV/hwrf/noscrub/local/modulefiles")
---load(pathJoin("python", "wcoss2_env"))
-
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
 setenv("CMAKE_Fortran_COMPILER", "mpiifort")
