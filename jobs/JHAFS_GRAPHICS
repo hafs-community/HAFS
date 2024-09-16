@@ -34,6 +34,9 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
   if [ "${GRAPH}" = "EMC" ]; then
+    if [ ${machine} = hera ]; then 
+       module purge
+    fi
     module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles
     module load graphics.run.${machine}
   elif [ "${GRAPH}" = "HRD" ]; then
