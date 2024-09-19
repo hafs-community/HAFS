@@ -13,7 +13,7 @@
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
     url = https://github.com/RoyCaitSith/Orion_GSI.git
-    branch = support/HAFS
+    branch = cygnss_spd
 [submodule "GPLOT"]
     path = sorc/hafs_graphics.fd/hrd_gplot
     url = https://github.com/RoyCaitSith/Orion_GPLOT.git
