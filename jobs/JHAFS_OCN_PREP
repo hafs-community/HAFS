@@ -29,6 +29,12 @@ export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
+
+source ${HOLDVARS}
+
 if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
@@ -52,12 +58,6 @@ fi
 source ${USHhafs}/hafs_runcmd.sh.inc
 
 env
-
-export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
-export CONFhafs=$COMhafs/$stormlabel.conf
-export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
-
-source ${HOLDVARS}
 
 export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
 
