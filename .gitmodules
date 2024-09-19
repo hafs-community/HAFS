@@ -1,24 +1,24 @@
 [submodule "ufs-weather-model"]
     path = sorc/hafs_forecast.fd
-    url = https://github.com/hafs-community/ufs-weather-model.git
+    url = https://github.com/RoyCaitSith/Orion_ufs-weather-model.git
     branch = support/HAFS
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
-    url = https://github.com/hafs-community/UFS_UTILS.git
+    url = https://github.com/RoyCaitSith/Orion_UFS_UTILS.git
     branch = support/HAFS
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
-    url = https://github.com/hafs-community/gfdl-tracker.git
+    url = https://github.com/RoyCaitSith/Orion_gfdl-tracker.git
     branch = support/HAFS
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
-    url = https://github.com/hafs-community/GSI.git
+    url = https://github.com/RoyCaitSith/Orion_GSI.git
     branch = support/HAFS
 [submodule "GPLOT"]
     path = sorc/hafs_graphics.fd/hrd_gplot
-    url = https://github.com/hafs-community/GPLOT.git
+    url = https://github.com/RoyCaitSith/Orion_GPLOT.git
     branch = support/HAFS
 [submodule "hafs_graphics"]
     path = sorc/hafs_graphics.fd/emc_graphics
-    url = https://github.com/hafs-community/hafs_graphics.git
+    url = https://github.com/RoyCaitSith/Orion_hafs_graphics.git
     branch = support/HAFS
