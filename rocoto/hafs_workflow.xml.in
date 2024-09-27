@@ -1539,8 +1539,7 @@
     <!--&RESERV_FCST;-->
     <queue>&QUEUE_PE;</queue>
     &CORES_EXTRA;
-    &SERVICE;
-    &CLUSTER_DT;
+    &CLUSTER_COMPUTE;
     &PE_EXTRA;
     &EMCGRAPHICS_RESOURCES;
     &ENV_VARS;

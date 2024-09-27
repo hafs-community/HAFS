@@ -112,6 +112,9 @@ load(pathJoin("py-xarray",xarray_ver))
 pynetcdf4_ver=os.getenv("pynetcdf4_ver") or "1.5.8"
 load(pathJoin("py-netcdf4", pynetcdf4_ver))
 
+pyyaml_ver=os.getenv("pyyaml_ver") or "6.0"
+load(pathJoin("py-pyyaml", pyyaml_ver))
+
 esmf_ver=os.getenv("esmf_ver") or "8.6.0"
 load(pathJoin("esmf", esmf_ver))
 
