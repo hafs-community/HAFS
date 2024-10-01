@@ -97,6 +97,7 @@ elif [[ -d /lustre && -d /ncrc ]] ; then
   target=gaea
   module purge
 elif [[ -d /gpfs/f6 ]]; then
+  module reset
   if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]]; then
     target=gaeaC6
     source /opt/cray/pe/lmod/8.7.31/init/$__ms_shell
