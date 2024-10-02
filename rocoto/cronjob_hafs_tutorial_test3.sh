@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/work2/noaa/hwrf/tutorial/save/${USER}/hafs_202405}
+HOMEhafs=${HOMEhafs:-/work2/noaa/hwrf/tutorial/save/${USER}/hafs-ncmrwf}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -11,22 +11,15 @@ opts="-t -f"
 scrubopt="config.scrub_work=no config.scrub_com=no config.archive=none"
 
 #===============================================================================
- # HAFS tutorial test 3: Regional coarse-resolution, moving-nesting,
- # atmosphere-only configuration with vortex initialization and ocean coupling
- # Hurricane Ida 09L2021
- ./run_hafs.py ${opts} 2021082712 09L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_tutorial_test3 \
-     config.NHRS=12 ${scrubopt} config.run_emcgraphics=yes \
-     ../parm/tutorial/hafs_tutorial_test3.conf
+ # HAFS tutorial test 3: HAFSv2A JTWC configuration using dev computation resources with 72-h forecast
+ # Mocha 01B2023
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_tutorial_test3 ../parm/hfsa_dev.conf"
+ ./run_hafs.py ${opts} 2023051106 01B HISTORY ${confopts} ${scrubopt} config.NHRS=72 config.run_emcgraphics=yes
 
-## HAFS tutorial test 3a: Regional coarse-resolution, moving-nesting,
-## atmosphere-only configuration with vortex initialization, data assimilation
-## and ocean coupling
-## Hurricane Ida 09L2021
-#./run_hafs.py ${opts} 2021082712 09L HISTORY \
-#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_tutorial_test3a \
-#    config.NHRS=12 ${scrubopt} config.run_emcgraphics=yes \
-#    ../parm/tutorial/hafs_tutorial_test3a.conf
+## HAFS tutorial test 3a: HAFSv2A JTWC configuration with DA and using dev computation resources with 72-h forecast
+## Remal 01B2024
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_tutorial_test3a ../parm/tutorial/hafs_tutorial_test3a.conf"
+#./run_hafs.py ${opts} 2024052512 01B HISTORY ${confopts} ${scrubopt} config.NHRS=72 config.run_emcgraphics=yes
 
 #===============================================================================
 
