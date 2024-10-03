@@ -1658,8 +1658,7 @@
     &SERIAL_EXTRA;
     <cores>1</cores>
     &CORES_EXTRA;
-    &SERVICE;
-    &CLUSTER_DT;
+    &CLUSTER_COMPUTE;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
     <walltime>00:15:00</walltime>
     &MEMORY;
@@ -1689,8 +1688,7 @@
     &RESERVATION;
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
-    &SERVICE;
-    &CLUSTER_DT;
+    &CLUSTER_COMPUTE;
     <cores>1</cores>
     &CORES_EXTRA;
     <envar><name>TOTAL_TASKS</name><value>1</value></envar>
