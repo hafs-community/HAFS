@@ -22,6 +22,7 @@ satpost=.false.
 nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-1}
   INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
@@ -43,6 +44,7 @@ RESTARTcom=""
 else
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-1}
   INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}

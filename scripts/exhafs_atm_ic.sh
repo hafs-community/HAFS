@@ -9,7 +9,6 @@
 ################################################################################
 set -x -o pipefail
 
-nest_grids=${nest_grids:-1}
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
@@ -29,6 +28,7 @@ FGAT_HR=${FGAT_HR:-00}
 
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
+  nest_grids=${nest_grids:-1}
   NBDYHRS=${NBDYHRS:-3}
   CASE=${CASE:-C768}
   CRES=$(echo $CASE | cut -c 2-)
@@ -38,6 +38,7 @@ if [ ${ENSDA} != YES ]; then
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/grid
 else
+  nest_grids=${nest_grids_ens:-1}
   NBDYHRS=${NBDYHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
   CRES=$(echo $CASE | cut -c 2-)

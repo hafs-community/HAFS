@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(
-  HAFS_ENMEAN_RECENTER
+  HAFS_ENS_MEAN_RECENTER
   LANGUAGES C Fortran)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Modules/")
@@ -20,7 +20,7 @@ set(fortran_srcs
   module_mpi_arrange.f90
   ens_mean_recenter.f90)
 
-set (exe_name hafs_enmean_recenter.x)
+set (exe_name hafs_ens_mean_recenter.x)
 set (exec_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../exec)
 
 add_executable(${exe_name} ${fortran_srcs})

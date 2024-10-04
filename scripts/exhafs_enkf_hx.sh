@@ -213,7 +213,7 @@ if [ ${USE_SELECT:-NO} = "YES" ]; then
    nl=$(file $SELECT_OBS | cut -d: -f2 | grep tar | wc -l)
    if [ $nl -eq 1 ]; then
       rm -f obsinput.tar
-      ${NLN} $SELECT_OBS obsinput.tar
+      ${RLN} $SELECT_OBS obsinput.tar
       tar -xvf obsinput.tar
       rm -f obsinput.tar
    else
@@ -501,8 +501,7 @@ cat fort.2* > ${GSISTAT}
 if [ ${RUN_SELECT:-NO} = "YES" ]; then
   echo $(date) START tar obs_input
   rm -f ./obsinput.tar
-#  ${NLN} $SELECT_OBS ./obsinput.tar
-  ln -sf $SELECT_OBS ./obsinput.tar
+  ${RLN} $SELECT_OBS ./obsinput.tar
   tar -cvf obsinput.tar obs_input.*
   echo $(date) END tar obs_input
 fi

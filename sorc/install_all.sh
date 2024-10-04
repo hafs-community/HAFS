@@ -71,7 +71,7 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
-  ${CP} hafs_tools.fd/exec/hafs_enmean_recenter.x                    ../exec/hafs_tools_enmean_recenter.x
+  ${CP} hafs_tools.fd/exec/hafs_ens_mean_recenter.x                    ../exec/hafs_tools_ens_mean_recenter.x
 }
 
 #------------------------------------

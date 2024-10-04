@@ -97,7 +97,7 @@ cd $DATA
 if [ "${RRFS_RECENTER}" = NO ] || [ ${ldo_enscalc_option} -eq 0 ]; then
   ${HOMEhafs}/scripts/exhafs_enkf.sh
 else
-  ${HOMEhafs}/scripts/exhafs_recenter.sh
+  ${HOMEhafs}/scripts/exhafs_ens_mean_recenter.sh
 fi
 export err=$?; err_chk
 

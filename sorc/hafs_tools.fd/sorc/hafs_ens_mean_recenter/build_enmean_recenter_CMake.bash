@@ -15,8 +15,8 @@ fi
 mkdir ${BuildDir}
 cd ${BuildDir}
 
-cmake ../hafs_enmean_recenter  -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
+cmake ../hafs_ens_mean_recenter  -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DBUILD_TYPE=RELEASE
 make VERBOSE=3
 make install
 
-# ./build_enmean_recenter_CMake.bash > build.log 2>&1 &
+# ./build_ens_mean_recenter_CMake.bash > build.log 2>&1 &

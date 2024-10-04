@@ -84,28 +84,27 @@ else # enkf_recenter
   ${NLN} control_tracer control_fv_tracer.res.tile1.nc
   ${NLN} control_dynvar control_fv_core.res.tile1.nc
   MERGE_CMD="${APRUNC} ${DATOOL} remap"
-for var in fv_core.res.tile1 fv_tracer.res.tile1 sfc_data; do
-  in_grid=${WORKhafs}/intercom/RESTART_analysis/grid_spec.nc
-  out_grid=${RESTARTens_inp}/${memstr}/grid_spec.nc
-  in_file=${WORKhafs}/intercom/RESTART_analysis/${PDY}.${cyc}0000.${var}.nc
-  out_file=./control_${var}.nc
-  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-    exit 1
-  fi
-  if [ ${GRID_RATIO_ENS} -eq 1 ]; then
-    ${NCP} $in_file $out_file
-  else
-    ${MERGE_CMD} \
-      --in_grid=${in_grid} \
-      --out_grid=${out_grid} \
-      --in_file=${in_file} \
-      --out_file=${out_file}
-      status=$?; [[ $status -ne 0 ]] && exit $status
-  fi
-done
-
+  for var in fv_core.res.tile1 fv_tracer.res.tile1 sfc_data; do
+    in_grid=${WORKhafs}/intercom/RESTART_analysis/grid_spec.nc
+    out_grid=${RESTARTens_inp}/${memstr}/grid_spec.nc
+    in_file=${WORKhafs}/intercom/RESTART_analysis/${PDY}.${cyc}0000.${var}.nc
+    out_file=./control_${var}.nc
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+      ${NCP} $in_file $out_file
+    else
+      ${MERGE_CMD} \
+        --in_grid=${in_grid} \
+        --out_grid=${out_grid} \
+        --in_file=${in_file} \
+        --out_file=${out_file}
+        status=$?; [[ $status -ne 0 ]] && exit $status
+    fi
+  done
   ${NCP} ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_dynvar
   ${NCP} ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_tracer
   ${NCP} ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.sfc_data.nc fv3sar_tile1_sfcvar
@@ -119,14 +118,15 @@ done
   done
 fi
 
-${NCP}  ${PARMgsi}/hafs_mean_recenter.nml.tmp ./
+${NCP}  ${PARMgsi}/hafs_ens_mean_recenter.nml.tmp ./
 sed -e "s/_ENS_SIZE_/${nens:-40}/g" \
     -e "s/_L_WRITE_MEAN_/${MEAN:-.false.}/g" \
     -e "s/_L_RECENTER_/${RECENTER:-.false.}/g" \
-    hafs_mean_recenter.nml.tmp > hafs_mean_recenter.nml
+    hafs_ens_mean_recenter.nml.tmp > hafs_ens_mean_recenter.nml
 
-RECENTEREXEC=${RECENTEREXEC:-$HOMEhafs/exec/hafs_tools_enmean_recenter.x}
-${APRUNC} ${RECENTEREXEC} < hafs_mean_recenter.nml 2>&1 | tee stdout
+RECENTEREXEC=${RECENTEREXEC:-$HOMEhafs/exec/hafs_tools_ens_mean_recenter.x}
+${APRUNC} ${RECENTEREXEC} hafs_ens_mean_recenter.nml 2>&1 | tee stdout
+export err=$?; err_chk
 
 if  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean
   memstr="ensmean"

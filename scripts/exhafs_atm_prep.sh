@@ -16,6 +16,7 @@ if [ ${ENSDA:-NO} = YES ]; then
   export gtype=${gtype_ens:-regional}
   export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
   export LEVS=${LEVS_ENS:-65}
+  export nest_grids=${nest_grids_ens:-1}
   export istart_nest=${istart_nest_ens:-46}
   export jstart_nest=${jstart_nest_ens:-238}
   export iend_nest=${iend_nest_ens:-1485}

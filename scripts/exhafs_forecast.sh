@@ -41,6 +41,7 @@ FORECAST_RESTART_HC=${FORECAST_RESTART_HC:-""}
 # Reset options specific to the ensemble forecast if needed
 if [ "${ENSDA}" = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  export nest_grids=${nest_grids_ens:-1}
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
     NHRS=${NHRS:-126}
   else

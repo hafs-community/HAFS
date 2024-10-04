@@ -129,6 +129,7 @@ export APRUNC=${APRUNS}
 
 if [ ${ENSDA} = YES ]; then
   export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/product
+  nest_grids=${nest_grids_ens:-1}
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/product
 else
