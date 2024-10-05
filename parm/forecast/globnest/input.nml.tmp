@@ -125,6 +125,8 @@
   full_zs_filter = @[full_zs_filter_nml]
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
+
+  sa3dtke_dyco = @[sa3dtke_dyco]
 /
 
 &fv_nest_nml
@@ -200,6 +202,7 @@
   cal_pre        = .false.
   redrag         = .true.
   dspheat        = .true.
+  sa3dtke        = @[sa3dtke]
   hybedmf        = .false.
   hurr_pbl       = .true. ! HWRF moninedmf
   moninq_fac     = -1.0   ! HWRF_moninedmf

@@ -267,6 +267,9 @@ export do_shum={do_shum}
 export do_skeb={do_skeb}
 export npz={npz}
 
+export sa3dtke_dyco={sa3dtke_dyco}
+export sa3dtke={sa3dtke}
+
 export imp_physics={imp_physics}
 export iovr={iovr}
 export dt_inner={dt_inner}
