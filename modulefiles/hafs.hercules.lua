@@ -118,10 +118,14 @@ load(pathJoin("tar", tar_ver))
 rocoto_ver=os.getenv("rocoto_ver") or "default"
 load(pathJoin("rocoto", rocoto_ver))
 
-unload("py-numpy/1.22.3")
+xarray_ver=os.getenv("xarray_ver") or "2023.7.0"
+load(pathJoin("py-xarray", xarray_ver))
 
-prepend_path("MODULEPATH", "/work/noaa/hwrf/noscrub/local/modulefiles")
-load(pathJoin("python", "wcoss2_env"))
+netcdf4_ver=os.getenv("netcdf4_ver") or "1.5.8"
+load(pathJoin("py-netcdf4", netcdf4_ver))
+
+scipy_ver=os.getenv("scipy_ver") or "1.11.3"
+load(pathJoin("py-scipy", scipy_ver)) 
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")
