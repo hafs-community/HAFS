@@ -8,11 +8,11 @@
   <!ENTITY SERIAL_EXTRA    "">
   <!ENTITY QUEUE_SHARED    "windfall">
   <!ENTITY SHARED_EXTRA    "">
-  <!ENTITY QUEUE_SERVICE   "windfall">
+  <!ENTITY QUEUE_SERVICE   "hpss">
   <!ENTITY CLUSTER_COMPUTE "<native>--clusters=c6</native>">
   <!ENTITY CLUSTER_DT      "<native>--clusters=es</native>">
-  <!ENTITY SERVICE         "<native>--partition=ldtn_c5</native>">
-  <!ENTITY SERVICE_EXTRA   "<native>--partition=rdtn_c5</native>">
+  <!ENTITY SERVICE         "<native>--partition=dtn_f5_f6</native>">
+  <!ENTITY SERVICE_EXTRA   "<native>--partition=dtn_f5_f6</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>96</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>96</nodesize>">
   <!ENTITY RESERVATION     "">
