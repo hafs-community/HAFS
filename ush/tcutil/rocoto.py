@@ -7,6 +7,7 @@ workflow manager."""
 # List of symbols exported by "from tcutil.rocoto import *"
 __all__=['cycles_as_entity']
 
+import sys
 import io, random
 import tcutil.numerics
 
