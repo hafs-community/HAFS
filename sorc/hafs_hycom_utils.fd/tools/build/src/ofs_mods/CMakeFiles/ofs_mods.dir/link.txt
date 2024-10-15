@@ -1,0 +1,2 @@
+/usr/bin/ar qc libofs_mods.a CMakeFiles/ofs_mods.dir/zh.F.o CMakeFiles/ofs_mods.dir/mod_xc.F.o CMakeFiles/ofs_mods.dir/mod_za.F.o CMakeFiles/ofs_mods.dir/mod_zb.F.o CMakeFiles/ofs_mods.dir/wtime.F.o
+/usr/bin/ranlib libofs_mods.a

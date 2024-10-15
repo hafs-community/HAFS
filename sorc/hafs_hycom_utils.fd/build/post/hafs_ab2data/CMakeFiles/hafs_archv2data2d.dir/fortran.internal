@@ -1,0 +1,6 @@
+# The fortran modules provided by this target.
+provides
+ mod_plot.mod
+ mod_xc.mod
+ mod_za.mod
+ mod_zb.mod

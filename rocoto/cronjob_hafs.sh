@@ -20,8 +20,8 @@ opts="-t -f"
 #   config.EXPT=${EXPT} config.SUBEXPT=${EXPT} # Laura
 
 # Run one cycle of a storm
- ./run_hafs.py ${opts} 2020082512 13L HISTORY config.EXPT=${EXPT}
-
+# ./run_hafs.py ${opts} 2020082512 13L HISTORY config.EXPT=${EXPT}
+ ./run_hafs.py ${opts} 2021082806 09L HISTORY config.EXPT=${EXPT}
 #===============================================================================
 
 date

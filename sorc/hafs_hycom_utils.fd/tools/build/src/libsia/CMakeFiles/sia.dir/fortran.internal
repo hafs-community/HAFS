@@ -1,0 +1,13 @@
+# The fortran modules provided by this target.
+provides
+ sia_cmdarg.mod
+ sia_const.mod
+ sia_dir.mod
+ sia_fileop.mod
+ sia_glob.mod
+ sia_mpi_worklist.mod
+ sia_stat.mod
+ sia_subprocess.mod
+ sia_time.mod
+ sia_treewalk.mod
+ sia_usrgrp.mod

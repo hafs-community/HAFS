@@ -1,0 +1,10 @@
+# The fortran modules provided by this target.
+provides
+ constants_mod.mod
+ horiz_interp_mod.mod
+ mod_dump.mod
+ mod_flags.mod
+ mod_geom.mod
+ mod_grib2io.mod
+ mod_hycomio1.mod
+ mod_hytime.mod

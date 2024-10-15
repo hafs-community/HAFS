@@ -1,0 +1,2 @@
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/exec/mpiserial.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/exec/hafs_nhc_products.x

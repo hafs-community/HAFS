@@ -1,0 +1,11 @@
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv2data2d
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv2data3z
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv3z2nc
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv2restart
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_rtofs_subregion
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_gfs2ofs2
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_restart2restart
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_get_rtofs
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv2ncdf2d
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_hycom_utils.fd/exec/hafs_archv2ncdf3z

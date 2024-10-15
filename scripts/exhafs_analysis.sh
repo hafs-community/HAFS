@@ -334,7 +334,7 @@ if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 # Link GFS/GDAS input and observation files
 COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
 COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
-COMIN_CYG=${COMIN_CYG:-${COMINcygnss}/CYGNSS/Ida/$PDY}
+COMIN_CYG=${COMIN_CYG:-${COMINcygnss}/Cygnss_bufr/Ida/$PDY}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}

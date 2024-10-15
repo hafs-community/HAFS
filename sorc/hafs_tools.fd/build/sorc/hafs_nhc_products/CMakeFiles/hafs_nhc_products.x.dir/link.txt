@@ -1,0 +1,1 @@
+/apps/spack-managed/oneapi-2023.1.0/intel-oneapi-mpi-2021.9.0-a66eaipzsnyrdgaqzxmqmqz64qzvhkse/bin/mpiifort -O2 -traceback CMakeFiles/hafs_nhc_products.x.dir/create_stats_short.f90.o -o hafs_nhc_products.x 

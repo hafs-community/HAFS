@@ -1,0 +1,40 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/hafs_archv2data3z.dir/ab2grib.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/archv2data3z.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/bigrd1.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/bigrid.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/blkin.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/dum_gks.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/extrct.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/extrot.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/fordate.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/getdat.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/getdat4rtofs.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/getdepth.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/getdtm.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/grib_maps.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/gribit.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/horout_nc.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/indxi.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/indxj.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/layer2z.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/mod_plot.F.o"
+  "CMakeFiles/hafs_archv2data3z.dir/mod_xc.F.o"
+  "CMakeFiles/hafs_archv2data3z.dir/mod_za.F.o"
+  "CMakeFiles/hafs_archv2data3z.dir/mod_zb.F.o"
+  "CMakeFiles/hafs_archv2data3z.dir/pakk.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/poisnd.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/pot2pot0.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/psmoo.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/sbmerg.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/wtime.F.o"
+  "CMakeFiles/hafs_archv2data3z.dir/zebra.f.o"
+  "CMakeFiles/hafs_archv2data3z.dir/zh.F.o"
+  "hafs_archv2data3z"
+  "hafs_archv2data3z.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang Fortran)
+  include(CMakeFiles/hafs_archv2data3z.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

@@ -1,0 +1,7 @@
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/create_trak_guess/../../../exec/hafs_vi_create_trak_guess.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/create_trak_init/../../../exec/hafs_vi_create_trak_init.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/split/../../../exec/hafs_vi_split.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/anl_pert/../../../exec/hafs_vi_anl_pert.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/anl_combine/../../../exec/hafs_vi_anl_combine.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/anl_enhance/../../../exec/hafs_vi_anl_enhance.x
+/work2/noaa/uswrp-uu/rfeng/software/Orion_HAFS/sorc/hafs_tools.fd/sorc/hafs_vi/anl_bogus/../../../exec/hafs_vi_anl_bogus.x

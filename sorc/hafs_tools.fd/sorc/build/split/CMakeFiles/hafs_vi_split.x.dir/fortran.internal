@@ -1,0 +1,18 @@
+# The fortran modules provided by this target.
+provides
+ fft99_mod.mod
+ fileconst.mod
+ matrix.mod
+ mcoef3.mod
+ nhc.mod
+ nhc1.mod
+ nhc2.mod
+ nhc3.mod
+ posit.mod
+ rsfc.mod
+ setparms.mod
+ stname.mod
+ tcvit.mod
+ tr.mod
+ vect.mod
+ xxx.mod

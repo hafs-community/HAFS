@@ -1,0 +1,1 @@
+/apps/spack-managed/oneapi-2023.1.0/intel-oneapi-mpi-2021.9.0-a66eaipzsnyrdgaqzxmqmqz64qzvhkse/bin/mpiicc -O0 CMakeFiles/mpiserial.x.dir/mpiserial.c.o -o mpiserial.x 
