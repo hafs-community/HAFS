@@ -25,6 +25,7 @@ hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
 export COMINgfs=${COMINgfs:?}
+export COMINcygnss=${COMINcygnss:?}
 export COMINgdas=${COMINgdas:?}
 export COMINobs=${COMINobs:?}
 export COMINhafs=${COMINhafs:-${COMINgfs}}
@@ -333,6 +334,7 @@ if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 # Link GFS/GDAS input and observation files
 COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
 COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
+COMIN_CYG=${COMIN_CYG:-${COMINcygnss}/CYGNSS/Ida/$PDY}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
@@ -402,6 +404,7 @@ B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
+${WLN} $CYGNSS           cygnssbufr
 #${NLN} $PREPQC           prepbufr
 ##${NLN} $PREPQCPF         prepbufr_profl
 ${WLN} $SATWND           satwndbufr
