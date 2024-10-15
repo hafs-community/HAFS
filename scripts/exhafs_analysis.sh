@@ -337,6 +337,7 @@ COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
 COMIN_CYG=${COMIN_CYG:-${COMINcygnss}/Cygnss_bufr/Ida/$PDY}
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
+CYGNSS=${CYGNSS:-${COMIN_CYG}/${CPREFIX}.tm00.bufr_d}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
 PREPQCPF=${PREPQCPF:-${COMIN_OBS}/${OPREFIX}prepbufr.acft_profiles${OSUFFIX}}
 NSSTBF=${NSSTBF:-${COMIN_OBS}/${OPREFIX}nsstbufr${OSUFFIX}}
