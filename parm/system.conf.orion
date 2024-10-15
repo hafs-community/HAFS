@@ -1,23 +1,24 @@
 ## This is the system-specific configuration file for Orion
 [config]
 ## Project disk area
-disk_project=hwrf
+disk_project=uswrp-uu
 ## Project hpss tape area
 tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
-cpu_account=hurricane
+cpu_account=uswrp-uu
 ## Archive path
-archive=disk:/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+archive=disk:/work2/noaa/{disk_project}/{ENV[USER]}/noscrub/hafsarch/{SUBEXPT}/{out_prefix}.tar
 
 [dir]
 ## Save directory.  Make sure you edit this.
-CDSAVE=/work/noaa/{disk_project}/save/{ENV[USER]}
+CDSAVE=/work2/noaa/{disk_project}/{ENV[USER]}/software
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+CDNOSCRUB=/work2/noaa/{disk_project}/{ENV[USER]}/noscrub/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
-CDSCRUB=/work/noaa/{disk_project}/scrub/{ENV[USER]}
+CDSCRUB=/work2/noaa/{disk_project}/{ENV[USER]}/scrub
 ## Syndat directory for finding which cycles to run
 syndat=/work/noaa/hwrf/noscrub/input/SYNDAT-PLUS
+storm_name=Ida
 #oldcom={ENV[COMOLD]}
 COMOLD={oldcom}
 COMIN={COMhafs}
@@ -25,6 +26,7 @@ COMOUT={COMhafs}
 COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
 COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
 COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+COMcygnss=/work2/noaa/uswrp-uu/rfeng/data/CYGNSS
 COMINobs={COMgfs}
 COMINgfs={COMgfs}
 COMINgdas={COMgfs}
@@ -33,8 +35,8 @@ COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2
 COMINrtofs={COMrtofs}
 COMINmsg={COMINgfs}
 COMINhafs={COMINgfs}
-DATMdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DATM
-DOCNdir=/work/noaa/{disk_project}/noscrub/{ENV[USER]}/DOCN
+DATMdir=/work2/noaa/{disk_project}/{ENV[USER]}/noscrub/DATM
+DOCNdir=/work2/noaa/{disk_project}/{ENV[USER]}/noscrub/DOCN
 ## A-Deck directory for graphics
 ADECKhafs=/work/noaa/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
