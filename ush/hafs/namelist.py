@@ -221,11 +221,11 @@ class NamelistInserter(object):
 
     ## @var nlfalse
     #  regular expression that matches false values
-    nlfalse=re.compile('\A(?i)(?:f.*|.false.|n|no|0*[1-9][0-9]*)\Z')
+    nlfalse=re.compile('(?i)\A(?:f.*|.false.|n|no|0*[1-9][0-9]*)\Z')
 
     ## @var nltrue
     #  regular expression that matches true values
-    nltrue=re.compile('\A(?i)(?:t.*|.true.|y|yes|0)\Z')
+    nltrue=re.compile('(?i)\A(?:t.*|.true.|y|yes|0)\Z')
 
     ## @var comment
     #  regular expression that matches comments
@@ -483,12 +483,12 @@ physics.bl_pbl_physics=3'''
 
     ##@var nlfalse
     # detects false Fortran logical constants
-    nlfalse=re.compile('\A(?i)(?:f.*|.false.)\Z')
+    nlfalse=re.compile('(?i)\A(?:f.*|.false.)\Z')
     """A regular expression from re.compile, to detect false Fortran logical values."""
 
     ##@var nltrue
     # detects true Fortran logical constants
-    nltrue=re.compile('\A(?i)(?:t.*|.true.)\Z')
+    nltrue=re.compile('(?i)\A(?:t.*|.true.)\Z')
     """A regular expression from re.compile, to detect true Fortran logical values."""
 
     ##@var TRAIT
