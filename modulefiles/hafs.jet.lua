@@ -13,9 +13,6 @@ load(pathJoin("stack-intel", stack_intel_ver))
 stack_mpi_ver=os.getenv("stack_mpi_ver") or "2021.5.1" 
 load(pathJoin("stack-intel-oneapi-mpi", stack_mpi_ver))
 
-impi_ver=os.getenv("impi_ver") or "2024.2.1" 
-load(pathJoin("impi", impi_ver))
-
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
 load(pathJoin("cmake", cmake_ver))
 
