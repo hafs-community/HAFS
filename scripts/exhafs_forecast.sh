@@ -1258,7 +1258,7 @@ cd ..
 # Prepare diag_table, field_table, input.nml, input_nest02.nml, model_configure, and ufs.configure
 ${NCP} ${PARMforecast}/diag_table.tmp .
 if [ ${imp_physics:-11} = 8 ]; then
-  ${NCP} ${PARMforecast}/field_table_thompson ./field_table
+  ${NCP} ${PARMforecast}/field_table_thompson_aero ./field_table
 else
   ${NCP} ${PARMforecast}/field_table .
 fi
