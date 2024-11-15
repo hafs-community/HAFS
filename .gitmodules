@@ -16,5 +16,5 @@
     branch = production/hafs.v2
 [submodule "hafs_graphics"]
     path = sorc/hafs_graphics.fd/emc_graphics
-    url = https://github.com/hafs-community/hafs_graphics.git
-    branch = feature/hafs.v2.0.1
+    url = https://github.com/SamuelTrahanNOAA/hafs_graphics.git
+    branch = bugfix/hafs.v2.0.1-upper
