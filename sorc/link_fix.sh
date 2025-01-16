@@ -15,6 +15,7 @@ cd ${FIXhafs}
 mkdir -p fix_fv3
 if [ ${target} == "wcoss2" ]; then
   FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  ln -sf /lfs/h2/emc/hur/noscrub/biju.thomas/save/hafs_jedi_mom6/fix/fix_mom6_3dvar fix_mom6_3dvar    #Temporary only
 elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
