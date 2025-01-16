@@ -64,6 +64,8 @@ OCN_attributes::
   use_mommesh = true
   eps_imesh = 2.5e-1
   mesh_ocn = INPUT/mom6_mesh.nc
+  restart_fh = _restart_fh_
+  write_restart_at_endofrun = .true.
 ::
 
 # WAV #

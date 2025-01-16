@@ -175,6 +175,11 @@ iau_inc_files=","
 iau_delthrs=6
 iaufhrs=0
 
+# Set MOM6 restart frequency
+mom6_restart_fh=${mom6_restart_fh:-999}
+
+stop_n=${NHRS:-126}
+
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
 if [ "${ENSDA}" = YES ]; then
@@ -185,6 +190,7 @@ if [ "${ENSDA}" = YES ]; then
   intercompost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercomocnpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/ocn_post
   intercomgempak=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/gempak
+  run_ocean=no
 elif [ ${FGAT_MODEL} = gdas ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
@@ -193,6 +199,7 @@ elif [ ${FGAT_MODEL} = gdas ]; then
   intercompost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
   intercomocnpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/ocn_post
   intercomgempak=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/gempak
+  run_ocean=no
 else
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
@@ -201,12 +208,15 @@ else
   intercompost=${WORKhafs}/intercom/atm_init/post
   intercomocnpost=${WORKhafs}/intercom/atm_init/ocn_post
   intercomgempak=${WORKhafs}/intercom/atm_init/gempak
+  run_ocean=yes
 fi
 NHRS=$(awk "BEGIN {print ${dt_atmos}/3600}")
 NHRS_ENS=$(awk "BEGIN {print ${dt_atmos}/3600}")
 restart_interval="$(awk "BEGIN {print ${dt_atmos}/3600}") 6"
+mom6_restart_fh=${NHRS}
+mom_input_filename='n'
 warm_start_opt=0
-run_ocean=no
+cpl_dt=${dt_atmos}
 run_wave=no
 ccpp_suite_regional=${ccpp_suite_regional_init:-$ccpp_suite_regional}
 ccpp_suite_glob=${ccpp_suite_glob_init:-$ccpp_suite_glob}
@@ -227,6 +237,13 @@ output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
 
 else # Otherwise this a regular forecast run
 
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_ocn_da} = yes ]; then
+  mom_input_filename='r'
+  mkdir -p INPUT
+  ${NLN} ${WORKhafs}/intercom/ocn_prep/mom6/MOM.res.nc INPUT/MOM.res.nc
+else
+  mom_input_filename='n'
+fi
 if [ "${ENSDA}" = YES ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
@@ -1175,13 +1192,14 @@ sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "s/_base_dtg_/${base_dtg}/g" \
     -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
     -e "s/_end_hour_/${end_hour}/g" \
-    -e "s/_NHRS_/${NHRS}/g" \
+    -e "s/_NHRS_/${stop_n}/g" \
     -e "s/_NOUTHRS_/${NOUTHRS}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     -e "/_mesh_atm_/d" \
     -e "s/_mesh_wav_/ww3_mesh.nc/g" \
     -e "s/_multigrid_/false/g" \
-    ufs.configure.tmp > ufs.configure
+    -e "s/_restart_fh_/${mom6_restart_fh}/g" \
+    ./ufs.configure.tmp > ufs.configure
 
 ngrids=${nest_grids}
 n=1
@@ -1354,6 +1372,8 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   ${NCP} ${PARMmom6}/hafs_mom6.input.IN ./hafs_mom6.input.IN
   NIGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
   NJGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
+  DT_MOM6=${cpl_dt}
+  DT_THERM_MOM6=${cpl_dt}
   atparse < ./hafs_mom6.input.IN > ./MOM_input
 
 fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then

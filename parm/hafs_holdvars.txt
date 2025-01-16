@@ -431,6 +431,7 @@ export iau_regional={iau_regional}
 export iau_inc_scale={iau_inc_scale}
 
 export run_ocean={run_ocean}
+export run_ocn_da={run_ocn_da}
 export ocean_model={ocean_model}
 export ocean_domain={ocean_domain}
 export cpl_dt={cpl_dt}
