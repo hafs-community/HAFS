@@ -177,7 +177,7 @@
         <!-- AND... don't start until 3:20 past the synoptic time.  The
         GFS does not start until then, so there is little point to
         starting earlier. -->
-        <timedep><cyclestr offset="3:20:00">@Y@m@d@H@M@S</cyclestr></timedep>
+        <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
       </and>
     </dependency>
 
@@ -352,6 +352,7 @@
     <dependency>
       <and>
         <taskdep task="atm_ic"/>
+        <taskdep task="ocn_prep"/>
       </and>
     </dependency>
   </task>
@@ -616,6 +617,28 @@
   </task>
 @** endif
 
+@** if RUN_OCN_DA==YES
+  <task name="ocn_da" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_OCN_DA</command>
+    <jobname>hafs_ocn_da_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ocn_da.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &OCN_DA_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <taskdep task="atm_init"/>
+        <taskdep task="ocn_prep"/>
+      </and>
+    </dependency>
+  </task>
+@** endif
+
 @** if RUN_WAVE==YES
   <task name="wav_prep" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_WAV_PREP</command>
@@ -809,6 +832,9 @@
         </or>
 @** if RUN_OCEAN==YES
         <taskdep task="ocn_prep"/>
+@** endif
+@** if RUN_OCN_DA==YES
+        <taskdep task="ocn_da"/>
 @** endif
       </and>
     </dependency>

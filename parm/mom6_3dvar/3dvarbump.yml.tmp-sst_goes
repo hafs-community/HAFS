@@ -1,0 +1,118 @@
+# common filters used later on
+_: &land_mask
+  filter: Domain Check
+  where:
+  - variable: {name: GeoVaLs/sea_area_fraction}
+    minvalue: 0.5
+
+cost function:
+  cost type: 3D-Var
+  time window:
+    begin: WINDOWBEGIN
+    length: P2D
+  analysis variables: &soca_vars [socn, tocn, ssh]
+  geometry: &geom_small
+    geom_grid_file: ./soca_gridspec.nc
+    mom6_input_nml: ./input.nml
+    fields metadata: ./fields_metadata.yml
+
+  background:
+    read_from_file: 1
+    # TODO this is wrong? should use low res to avoid interp?
+    basename: ./restarts/
+    ocn_filename: MOM.res.nc
+    date: DATE
+    state variables: [hocn, socn, tocn, ssh, mld, layer_depth]
+
+  background error:
+    covariance model: SABER
+    saber central block:
+      saber block name: BUMP_NICAS
+      read:
+        io:
+          data directory: bump_nicas/parameters_bump_cor_nicas
+          files prefix: bump
+        drivers:
+          multivariate strategy: univariate
+          read local nicas: true
+        grids:
+        - model:
+            variables:
+            - socn
+            - tocn
+        - model:
+            variables:
+            - ssh
+    saber outer blocks:
+    - saber block name: StdDev
+      read:
+        model file:
+          datetime: DATE
+          set datetime on read: true
+          basename: ./StdDev/
+          ocn_filename: 20230905.180000.stddev.ocn.nc
+          date: DATE
+
+    linear variable change:
+      input variables: *soca_vars
+      output variables: *soca_vars
+      linear variable changes:
+      - linear variable change name: BalanceSOCA
+        kst:
+          dsdtmax: 0.1
+          dsdzmin: 3.0e-6
+          dtdzmin: 1.0e-6
+          nlayers: 10
+        ksshts:
+          nlayers: 10
+
+  observations:
+    observers:
+    - obs space:
+        name: SeaSurfaceTemp
+        obsdataout:
+          engine:
+            type: H5File
+            obsfile: output/sst_goes.3dvarbump.nc
+        obsdatain:
+          engine:
+            type: H5File
+            obsfile: obs/sst_goes.nc
+        simulated variables: [seaSurfaceTemperature]
+      obs operator:
+        name: Identity
+        observation alias file: testinput/obsop_name_map.yml
+      obs error:
+        covariance model: diagonal
+      obs filters:
+      - *land_mask
+      - filter: Bounds Check
+        minvalue: 5.0
+        maxvalue: 35.0
+      - filter: Background Check
+        threshold: 5
+      - filter: Domain Check
+        where:
+        - variable: {name: ObsError/seaSurfaceTemperature}
+          minvalue: 0.001
+
+variational:
+  minimizer:
+    algorithm: RPCG
+  iterations:
+  - geometry: *geom_small
+    ninner: 100
+    gradient norm reduction: 1e-3
+    test: on
+    diagnostics:
+      departures: ombg
+
+output:
+  datadir: output
+  exp: 3dvarbump
+  type: an
+
+final:
+  diagnostics:
+    departures: oman
+
