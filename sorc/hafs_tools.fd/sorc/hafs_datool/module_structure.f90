@@ -60,6 +60,17 @@ module var_type
  end type tc_track_info
  type(tc_track_info)    :: tc
 
+ type llxy_cons   !for the generalized transform
+      real                                 :: rlon_min_dd,rlon_max_dd,rlat_min_dd,rlat_max_dd
+      real                                 :: pihalf,sign_pole,rlambda0
+      real                                 :: atilde_x,btilde_x,atilde_y,btilde_y
+      real                                 :: btilde_xinv,btilde_yinv
+      integer                              :: nlon,nlat,nxtilde,nytilde
+      integer, allocatable, dimension(:,:) :: i0_tilde, j0_tilde, ip_tilde, jp_tilde
+      real, allocatable, dimension(:,:)    :: xtilde0, ytilde0, cos_beta_ref, sin_beta_ref, region_lat, region_lon
+      logical:: lallocated = .false.
+ end type llxy_cons
+
  integer                :: debug_level  ! default is 1, only print basic information
                                         !            2-9:
 

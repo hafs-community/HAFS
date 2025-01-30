@@ -1010,6 +1010,25 @@
   end function lowercase
 
 !-----------------------------------------------------------------------+
+  function strrep(string, charset, target_char)
+  
+  implicit none
+  character(len=*), intent(in) :: string
+  character(len=1), intent(in) :: charset, target_char
+  character(len(string))       :: strrep
+  integer :: n, ns
+  ns = len(string)
+  strrep(1:ns) = ' '
+  do n = 1, ns
+     if (string(n:n) == charset) then
+        strrep(n:n) = target_char
+     else
+        strrep(n:n) = string(n:n)
+     end if
+  end do
+  end function strrep
+
+!-----------------------------------------------------------------------+
   subroutine longitude_expand_360to540(nx, ny, lon)
 
   implicit none

@@ -38,7 +38,7 @@ export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 export nsclgrp=${nsclgrp:-1}
 export naensloc=${naensloc:-1}
 
-export RUN_GSI=${RUN_GSI:-NO}
+export ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 export RUN_FGAT=${RUN_FGAT:-NO}
 export FGAT=${FGAT:-NO}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
@@ -76,8 +76,8 @@ fi
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
 
-if [ ! ${RUN_GSI} = "YES" ]; then
-  echo "RUN_GSI: ${RUN_GSI} is not YES"
+if [ ! ${ANALYSIS_MODEL} = "GSI" ]; then
+  echo "ANALYSIS_MODEL: ANALYSIS_MODEL is not GSI, should go to exhafs_analysis_atm.sh"
   echo "Do nothing. Exiting"
   exit
 fi

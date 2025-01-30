@@ -1,0 +1,34 @@
+input coeff file: gdas.#HH#.abias
+input err file: gdas.#HH#.abias_pc
+output:
+- sensor: cris_n20
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_cris_n20_#HH#.nc
+
+- sensor: cris_npp
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_cris_npp_#HH#.nc

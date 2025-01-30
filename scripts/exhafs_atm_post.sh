@@ -22,9 +22,15 @@ satpost=.false.
 nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-1}
   INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
+  if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
+    INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+  fi
   NHRS_ENS=0
 elif [ ${FGAT_MODEL} = gdas ]; then
   INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}
@@ -43,6 +49,7 @@ RESTARTcom=""
 else
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-1}
   INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}

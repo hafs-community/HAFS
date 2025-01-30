@@ -12,7 +12,7 @@
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "4"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -67,6 +67,7 @@
   <!ENTITY RUN_ATM_MVNEST_ENS "@[RUN_ATM_MVNEST_ENS]">
   <!ENTITY RUN_ATM_INIT "@[RUN_ATM_INIT]">
   <!ENTITY RUN_ATM_INIT_FGAT "@[RUN_ATM_INIT_FGAT]">
+  <!ENTITY RUN_ATM_INIT_FGAT_ENS "@[RUN_ATM_INIT_FGAT_ENS]">
   <!ENTITY RUN_ATM_INIT_ENS "@[RUN_ATM_INIT_ENS]">
   <!ENTITY RUN_ATM_MERGE "@[RUN_ATM_MERGE]">
   <!ENTITY RUN_ATM_MERGE_FGAT "@[RUN_ATM_MERGE_FGAT]">
@@ -75,10 +76,11 @@
   <!ENTITY RUN_ATM_VI_FGAT "@[RUN_ATM_VI_FGAT]">
   <!ENTITY RUN_ATM_VI_ENS "@[RUN_ATM_VI_ENS]">
   <!ENTITY RUN_FGAT "@[RUN_FGAT]">
-  <!ENTITY RUN_GSI "@[RUN_GSI]">
-  <!ENTITY GSI_D01 "@[GSI_D01]">
-  <!ENTITY GSI_D02 "@[GSI_D02]">
-  <!ENTITY GSI_D03 "@[GSI_D03]">
+  <!ENTITY ANALYSIS_MODEL "@[ANALYSIS_MODEL]">
+  <!ENTITY RUN_ANALYSIS "@[RUN_ANALYSIS]">
+  <!ENTITY ANALYSIS_D01 "@[ANALYSIS_D01]">
+  <!ENTITY ANALYSIS_D02 "@[ANALYSIS_D02]">
+  <!ENTITY ANALYSIS_D03 "@[ANALYSIS_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
   <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
@@ -455,7 +457,7 @@
     <dependency>
       <and>
         <taskdep task="atm_init"/>
-	<or>
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
@@ -659,7 +661,7 @@
   </task>
 @** endif
 
-@** if RUN_GSI==YES
+@** if RUN_ANALYSIS==YES
 
   <task name="obs_prep" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_OBS_PREP</command>
@@ -674,10 +676,7 @@
     &ENV_VARS;
 
     <dependency>
-      <or>
-        <taskdep task="atm_ic" state="RUNNING"/>
-        <taskdep task="atm_ic"/>
-      </or>
+      <taskdep task="atm_prep"/>
     </dependency>
   </task>
 
@@ -685,8 +684,12 @@
     <command>&JOBhafs;/JHAFS_ANALYSIS</command>
     <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_analysis.log</cyclestr></join>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <account>&ACCOUNT;</account>
     &RESERVATION;
+@** if ANALYSIS_MODEL==JEDI
+    &MEMORYJEDI;
+@** endif
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -696,12 +699,24 @@
       <and>
         <taskdep task="atm_ic"/>
         <taskdep task="obs_prep"/>
-        <streq><left>&RUN_GSI;</left><right>YES</right></streq>
+        <streq><left>&RUN_ANALYSIS;</left><right>YES</right></streq>
 @** if RUN_ATM_VI_FGAT==YES
         <or>
           <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
           <metataskdep metatask="atm_vi_fgat"/>
         </or>
+@** else
+        <or>
+          <taskdep task="atm_vi"/>
+        </or>
+@** endif
+@** if ANALYSIS_MODEL==JEDI
+        <taskdep task="atm_prep_ens"/>
+@**   if RUN_ATM_INIT_FGAT_ENS==YES
+        <metataskdep metatask="atm_init_fgat_ens"/>
+@**   else
+        <metataskdep metatask="atm_init_ens"/>
+@**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
         <or>
@@ -748,7 +763,7 @@
         </or>
         <or>
           <taskdep task="analysis"/>
-          <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
+          <strneq><left>&RUN_ANALYSIS;</left><right>YES</right></strneq>
         </or>
       </and>
     </dependency>
@@ -798,7 +813,7 @@
 @** if RUN_ATM_VI==YES
             <taskdep task="atm_vi"/>
 @** endif
-@** if RUN_GSI==YES
+@** if RUN_ANALYSIS==YES
             <taskdep task="analysis"/>
 @** endif
 @** if RUN_ANALYSIS_MERGE==YES
@@ -996,7 +1011,10 @@
   </task>
 @** endif
 
-@** if RUN_ENSDA==YES
+<!-- @** if RUN_ANALYSIS==YES -->
+@** if ANALYSIS_MODEL==JEDI
+<!-- !!!!!!!!!!!!!!!!!!!!! XL Note, this should be ENSDA==YES || ANALYSIS_MODEL==JEDI !!!!!!!!!!!!!-->
+
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_PREP</command>
     <jobname>hafs_atm_prep_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1011,14 +1029,7 @@
     <envar><name>ENSDA</name><value>YES</value></envar>
 
     <dependency>
-      <and>
-        <taskdep task="launch"/>
-        <!-- Wait until the deterministic forecast job is running or completed. -->
-        <or>
-          <taskdep task="forecast" state="RUNNING"/>
-          <taskdep task="forecast"/>
-        </or>
-      </and>
+      <taskdep task="launch"/>
     </dependency>
   </task>
 
@@ -1045,6 +1056,8 @@
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
           </or>
+<!-- XL
+-->
           <!-- Second dependency: the GFS output must be available -->
           <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
@@ -1062,7 +1075,52 @@
       </dependency>
     </task>
   </metatask>
-
+@** if RUN_ATM_INIT_FGAT_ENS==YES
+    <metatask name="atm_ic_fgat_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <metatask name="atm_ic_fgat_ens_fgroup">
+      <var name="FGAT_HR">03 06 09</var>
+      <task name="atm_ic_fgat#FGAT_HR#_ens#MEM#" maxtries="&MAX_TRIES;">
+        <command>&JOBhafs;/JHAFS_ATM_IC</command>
+        <join><cyclestr>&WORKhafs;/hafs_atm_ic_fgat#FGAT_HR#_#MEM#.log</cyclestr></join>
+        <account>&ACCOUNT;</account>
+        &RESERVATION;
+        <queue>&QUEUE_PE;</queue>
+        &PE_EXTRA;
+        &CORES_EXTRA;
+        &ATM_IC_RESOURCES;
+        &ENV_VARS;
+        <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+        <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+        <envar><name>ENSDA</name><value>YES</value></envar>
+        <envar><name>ENSID</name><value>#MEM#</value></envar>
+        <dependency>
+          <and>
+            <taskdep task="atm_prep"/>
+            <streq><left>&RUN_DATM;</left><right>NO</right></streq>
+            <or>
+              <taskdep task="input"/>
+              <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
+            </or>
+            <!-- Second dependency: the GDAS output must be available -->
+            <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
+            <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
+            <and>
+  @**   if GFSVER==PROD2019
+              <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.atmf0#FGAT_HR#.nemsio</cyclestr></datadep>
+              <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.sfcf0#FGAT_HR#.nemsio</cyclestr></datadep>
+  @**   endif
+  @**   if GFSVER==PROD2021
+              <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.atmf0#FGAT_HR#.nc</cyclestr></datadep>
+              <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.sfcf0#FGAT_HR#.nc</cyclestr></datadep>
+  @**   endif
+            </and>
+          </and>
+        </dependency>
+      </task>
+    </metatask>
+  </metatask>
+@** endif
 @** if RUN_ATM_INIT_ENS==YES
   <metatask name="atm_init_ens">
     <var name="MEM">&ENSIDS;</var>
@@ -1075,7 +1133,7 @@
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
-      &ATM_INIT_RESOURCES;
+      &ATM_INIT_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
@@ -1087,6 +1145,34 @@
         </and>
       </dependency>
     </task>
+  </metatask>
+@** endif
+
+@** if RUN_ATM_INIT_FGAT_ENS==YES
+  <metatask name="atm_init_fgat_ens">
+    <var name="MEM">&ENSIDS;</var>
+    <metatask name="atm_init_fgat_ens_fgroup">
+      <var name="FGAT_HR">03 06 09</var>
+      <task name="atm_init_fgat#FGAT_HR#_ens#MEM#" maxtries="&MAX_TRIES;">
+        <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+        <jobname>hafs_atm_init_fgatFGAT_HR#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+        <join><cyclestr>&WORKhafs;/hafs_atm_init_fgat#FGAT_HR#_ens#MEM#.log</cyclestr></join>
+        <account>&ACCOUNT;</account>
+        &RESERVATION;
+        <queue>&QUEUE_PE;</queue>
+        &PE_EXTRA;
+        &CORES_EXTRA;
+        &ATM_INIT_ENS_RESOURCES;
+        &ENV_VARS;
+        <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
+        <envar><name>FGAT_HR</name><value>#FGAT_HR#</value></envar>
+        <envar><name>ENSDA</name><value>YES</value></envar>
+        <envar><name>ENSID</name><value>#MEM#</value></envar>
+        <dependency>
+          <taskdep task="atm_ic_fgat#FGAT_HR#_ens#MEM#"/>
+        </dependency>
+      </task>
+    </metatask>
   </metatask>
 @** endif
 
@@ -1358,6 +1444,7 @@
   </metatask>
 @** endif
 
+@** if RUN_ENSDA==YES
   <metatask name="forecast_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="forecast_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1459,7 +1546,7 @@
       </dependency>
     </task>
   </metatask>
-
+@** endif
 @** endif
 
 @** if RUN_HRDGRAPHICS==YES

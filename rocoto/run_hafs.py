@@ -556,7 +556,7 @@ for (key,val) in conf.items('rocotostr'):
 for (key,val) in conf.items('rocotobool'):
     VARS[key]=yesno(conf.getbool('rocotobool',key))
 
-if conf.getbool('config','run_ensda',False):
+if conf.getbool('config','run_ensda',False) or conf.getstr('config','analysis_model','JEDI'):
     ens_size=conf.getint('config','ENS_SIZE',40)
     assert(ens_size>=1)
     ensids=' '.join([ '%03d'%(i+1) for i in range(ens_size) ])

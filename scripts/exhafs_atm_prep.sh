@@ -15,6 +15,7 @@ if [ ${ENSDA:-NO} = YES ]; then
   export CASE=${CASE_ENS:-C768}
   export gtype=${gtype_ens:-regional}
   export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}
+  export nest_grids=${nest_grids_ens:-1}
   export LEVS=${LEVS_ENS:-65}
   export istart_nest=${istart_nest_ens:-46}
   export jstart_nest=${jstart_nest_ens:-238}
@@ -354,6 +355,16 @@ if [ $gtype = regional ]; then
   export ntiles=1
   tile=7
 
+  iend_nest2=$(echo $iend_nest | cut -d , -f 2)
+  istart_nest2=$(echo $istart_nest | cut -d , -f 2)
+  jend_nest2=$(echo $jend_nest | cut -d , -f 2)
+  jstart_nest2=$(echo $jstart_nest | cut -d , -f 2)
+  refine_ratio2=$(echo $refine_ratio | cut -d , -f 2)
+  nptsx2=$(($iend_nest2 - $istart_nest2 + 1))
+  nptsy2=$(($jend_nest2 - $jstart_nest2 + 1))
+  npts_cgx2=$(($nptsx2 * $refine_ratio2 / 2))
+  npts_cgy2=$(($nptsy2 * $refine_ratio2 / 2))
+
   # number of parent points
   iend_nest=$(echo $iend_nest | cut -d , -f 1)
   istart_nest=$(echo $istart_nest | cut -d , -f 1)
@@ -438,6 +449,20 @@ if [ $gtype = regional ]; then
   ${APRUNS} ${SHAVEEXEC} < input.shave.grid
   export err=$?; err_chk
 
+  ntile=$((${tile} + 1))
+  ntiles=$((${tile} + ${nest_grids} -1))
+  while [ $ntile -le $ntiles ]; do
+    echo $npts_cgx2 $npts_cgy2 $halop1 \'$filter_dir/oro.${CASE}.tile${ntile}.nc\' \'$filter_dir/oro.${CASE}.tile${ntile}.shave.nc\' >input.shave.orog_nest
+    echo $npts_cgx2 $npts_cgy2 $halop1 \'$filter_dir/${CASE}_grid.tile${ntile}.nc\' \'$filter_dir/${CASE}_grid.tile${ntile}.shave.nc\' >input.shave.grid_nest
+    ${APRUNS} ${SHAVEEXEC} < input.shave.orog_nest
+    export err=$?; err_chk
+    ${APRUNS} ${SHAVEEXEC} < input.shave.grid_nest
+    export err=$?; err_chk
+    ${NCP} $filter_dir/oro.${CASE}.tile${ntile}.shave.nc $out_dir/${CASE}_oro_data.tile${ntile}.halo${halop1}.nc
+    ${NCP} $filter_dir/${CASE}_grid.tile${ntile}.shave.nc  $out_dir/${CASE}_grid.tile${ntile}.halo${halop1}.nc
+    ntile=$(($ntile + 1))
+  done
+
   # Copy the shaved files with the halo of 4
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halop1}.nc
   ${NCP} $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halop1}.nc
@@ -467,6 +492,28 @@ if [ $gtype = regional ]; then
   ${NCP} $filter_dir/oro.${CASE}.tile${tile}.shave.nc $out_dir/${CASE}_oro_data.tile${tile}.halo${halo0}.nc
   ${NCP} $filter_dir/${CASE}_grid.tile${tile}.shave.nc  $out_dir/${CASE}_grid.tile${tile}.halo${halo0}.nc
 
+
+  ntile=$((${tile} + 1))
+  ntiles=$((${tile} + ${nest_grids} -1))
+  while [ $ntile -le $ntiles ]; do
+    echo $npts_cgx2 $npts_cgy2 $halo \'$filter_dir/oro.${CASE}.tile${ntile}.nc\' \'$filter_dir/oro.${CASE}.tile${ntile}.shave.nc\' >input.shave.orog_nest.halo${halo}
+    echo $npts_cgx2 $npts_cgy2 $halo \'$filter_dir/${CASE}_grid.tile${ntile}.nc\' \'$filter_dir/${CASE}_grid.tile${ntile}.shave.nc\' >input.shave.grid_nest.halo${halo}
+    ${APRUNS} ${SHAVEEXEC} < input.shave.orog_nest.halo${halo}
+    export err=$?; err_chk
+    ${APRUNS} ${SHAVEEXEC} < input.shave.grid_nest.halo${halo}
+    export err=$?; err_chk
+    ${NCP} $filter_dir/oro.${CASE}.tile${ntile}.shave.nc $out_dir/${CASE}_oro_data.tile${ntile}.halo${halo}.nc
+    ${NCP} $filter_dir/${CASE}_grid.tile${ntile}.shave.nc  $out_dir/${CASE}_grid.tile${ntile}.halo${halo}.nc
+    echo $npts_cgx2 $npts_cgy2 $halo0 \'$filter_dir/oro.${CASE}.tile${ntile}.nc\' \'$filter_dir/oro.${CASE}.tile${ntile}.shave.nc\' >input.shave.orog_nest.halo${halo0}
+    echo $npts_cgx2 $npts_cgy2 $halo0 \'$filter_dir/${CASE}_grid.tile${ntile}.nc\' \'$filter_dir/${CASE}_grid.tile${ntile}.shave.nc\' >input.shave.grid_nest.halo${halo0}
+    ${APRUNS} ${SHAVEEXEC} < input.shave.orog_nest.halo${halo0}
+    export err=$?; err_chk
+    ${APRUNS} ${SHAVEEXEC} < input.shave.grid_nest.halo${halo0}
+    export err=$?; err_chk
+    ${NCP} $filter_dir/oro.${CASE}.tile${ntile}.shave.nc $out_dir/${CASE}_oro_data.tile${ntile}.halo${halo0}.nc
+    ${NCP} $filter_dir/${CASE}_grid.tile${ntile}.shave.nc  $out_dir/${CASE}_grid.tile${ntile}.halo${halo0}.nc
+    ntile=$(($ntile + 1))
+  done
   if [ ${use_orog_gsl:-no} = yes ]; then
 
   date
@@ -562,6 +609,13 @@ elif [ $gtype = regional ]; then
   ${NLN} $out_dir/${CASE}_oro_data.tile${tile}.halo${HALO}.nc $out_dir/${CASE}_oro_data.tile${tile}.nc
   if [ $nest_grids -gt 1 ];  then
     mosaic_file=${out_dir}/${CASE}_coarse_mosaic.nc
+    ntile=$((${tile} + 1))
+    ntiles=$((${tile} + ${nest_grids} -1))
+    while [ $ntile -le $ntiles ]; do
+      ${NLN} $out_dir/${CASE}_grid.tile${ntile}.halo${halo0}.nc $out_dir/${CASE}_grid.tile${ntile}.nc
+      ${NLN} $out_dir/${CASE}_oro_data.tile${ntile}.halo${halo0}.nc $out_dir/${CASE}_oro_data.tile${ntile}.nc
+      ntile=$(($ntile + 1))
+    done
   else
     mosaic_file=${out_dir}/${CASE}_mosaic.nc
   fi

@@ -1,0 +1,16 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "gsrcsr",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : ['NC021046'],
+  "data_description" : "NC021046 ABI, GOES-16; NC021046 ABI, GOES-17,  NC021046 ABI, GOES-18", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "ABI",  "sensor_full_name": "Advanced Baseline Imager",  "sensor_id": 617 },
+  "satellite_info"   : [
+                          { "satellite_name": "g16", "satellite_full_name": "GOES-16", "satellite_id": 270, "launch time": "20171119" },
+                          { "satellite_name": "g17", "satellite_full_name": "GOES-17", "satellite_id": 271, "launch time": "20180301" },
+                          { "satellite_name": "g18", "satellite_full_name": "GOES-18", "satellite_id": 272, "launch time": "20220301" } ]
+}

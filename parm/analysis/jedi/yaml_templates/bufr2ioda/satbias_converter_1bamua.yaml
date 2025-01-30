@@ -1,0 +1,67 @@
+input coeff file: gdas.#HH#.abias
+input err file: gdas.#HH#.abias_pc
+output:
+- sensor: amsua_metop-a
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_amsua_metop-a_#HH#.nc
+
+- sensor: amsua_metop-b
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_amsua_metop-b_#HH#.nc
+
+- sensor: amsua_n18
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_amsua_n18_#HH#.nc
+
+- sensor: amsua_n19
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_amsua_n19_#HH#.nc
+
