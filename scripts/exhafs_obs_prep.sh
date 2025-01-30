@@ -6,7 +6,7 @@
 #   This script runs the HAFS specific observation preprocessing steps needed
 #   by data assimilation.
 ################################################################################
-set -x -o pipefail
+set -e -x -o pipefail
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
@@ -16,17 +16,19 @@ dy=$(echo $CDATE | cut -c7-8)
 
 atmos="atmos/"
 COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-RUN_GSI=${RUN_GSI:-NO}
+RUN_ANALYSIS=${RUN_ANALYSIS:-NO}
+ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 use_bufr_nr=${use_bufr_nr:-no}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
-if [ ${RUN_GSI} = "NO" ]; then
-  echo "RUN_GSI: $RUN_GSI"
+if [ ${RUN_ANALYSIS} = "NO" ]; then
+  echo "RUN_ANALYSIS: $RUN_ANALYSIS"
   echo "Do nothing. Exiting"
   exit
 fi
 
 PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
+PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 SENDCOM=${SENDCOM:-YES}
 intercom=${intercom:-${WORKhafs}/intercom/obs_prep}
 mkdir -p ${COMhafs} ${intercom}
@@ -360,4 +362,78 @@ fi # end if [ ! -s ${intercom}/${NFtempdrop} ] && [ -s ${intercom}/${NFdropsonde
 
 cd ${DATA}
 
+mkdir -p jedi_ioda
+cd jedi_ioda
+########## Prepare executables & bufr files #######################
+convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18"
+radtypes="atms_npp atms_n20 amsua_n18 amsua_n19 iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
+sattypes="atms 1bamua mtiasi gsrcsr"
+#radtypes="cris_n20 cris_npp"
+#sattypes="crisf4"
+obstypes="ADPUPA ${radtypes} ${convtypes}"
+IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
+IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
+tilestr=` expr ${nest_grids} + 6 `
+GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
+output_dir=${DATA}/jedi_ioda/output
+${NCP} ${IODAEXEC} .
+${NCP} ${IODABCEXEC} .
+for file in ${sattypes}; do
+  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
+done
+${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr hafs.t${cyc}z.prepbufr
+
+${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias gdas.t${cyc}z.abias
+${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias_pc gdas.t${cyc}z.abias_pc
+sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
+########## Prepare yaml or json files #######################
+${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
+mkdir output
+for file in ${sattypes}; do
+ if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ]; then
+  sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
+ fi
+ if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
+  sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml > satbias_converter_${file}.yaml
+ fi
+done
+############### RUN bufr2ioda, either using exec or python #######################
+bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir}
+export err=$?; err_chk
+for file in ${sattypes}; do
+ if [ -s bufr_ncep_${file}.yaml ]; then
+  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml # use executable to convert sat radiances
+  export err=$?; err_chk
+ fi
+done
+######## Temp convert prepbufr only #####
+ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+sed -e "s|#HH#|t${cyc}z|g" \
+    -e "s|#ANADATE#|${ANADATE}|g" \
+    ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_prepbufr.yaml > bufr_ncep_prepbufr.yaml
+${APRUNS} ${IODAEXEC} bufr_ncep_prepbufr.yaml # use executable to convert prepbufr, may need to merge with satwnd if both using the same exe
+export err=$?; err_chk
+########## Converting ATMS NPP/N20 to ioda nc #################
+for file in ${sattypes}; do
+ if [ -s satbias_converter_${file}.yaml ]; then
+  ${APRUNS} ${IODABCEXEC} satbias_converter_${file}.yaml #Bias File 2 IODA
+  export err=$?; err_chk
+ fi
+done
+
+for file in ${radtypes}; do
+ if [ -s ${output_dir}/satbias_${file}_t${cyc}z.nc ]; then
+  ${NCP} ${output_dir}/satbias_${file}_t${cyc}z.nc ${output_dir}/satbias_${file}_t${cyc}z_cov.nc
+ fi
+done
+########## Getting lapse rate for each satellite radiance from gdas ################
+for file in ${radtypes}; do
+  awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/${file}.tlapse.txt
+done
+
+########## Converting ATMS NPP/N20 to ioda nc Done #################
+for file in ${output_dir}/*; do
+  ${NCP} ${file} ${intercom}/
+done
+cd ${DATA}
 date

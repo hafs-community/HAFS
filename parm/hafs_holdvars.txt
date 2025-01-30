@@ -63,6 +63,7 @@ export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
 export RUN_ATM_MVNEST_ENS={RUN_ATM_MVNEST_ENS}
 export RUN_ATM_INIT={RUN_ATM_INIT}
 export RUN_ATM_INIT_FGAT={RUN_ATM_INIT_FGAT}
+export RUN_ATM_INIT_FGAT_ENS={RUN_ATM_INIT_FGAT_ENS}
 export RUN_ATM_INIT_ENS={RUN_ATM_INIT_ENS}
 export RUN_ATM_MERGE={RUN_ATM_MERGE}
 export RUN_ATM_MERGE_FGAT={RUN_ATM_MERGE_FGAT}
@@ -70,16 +71,16 @@ export RUN_ATM_MERGE_ENS={RUN_ATM_MERGE_ENS}
 export RUN_ATM_VI={RUN_ATM_VI}
 export RUN_ATM_VI_FGAT={RUN_ATM_VI_FGAT}
 export RUN_ATM_VI_ENS={RUN_ATM_VI_ENS}
-export RUN_GSI={RUN_GSI}
+export RUN_ANALYSIS={RUN_ANALYSIS}
 export RUN_FGAT={RUN_FGAT}
 export RUN_ENVAR={RUN_ENVAR}
 export RUN_ENSDA={RUN_ENSDA}
 export RUN_ENKF={RUN_ENKF}
 export RUN_ANALYSIS_MERGE={RUN_ANALYSIS_MERGE}
 export RUN_ANALYSIS_MERGE_ENS={RUN_ANALYSIS_MERGE_ENS}
-export GSI_D01={GSI_D01}
-export GSI_D02={GSI_D02}
-export GSI_D03={GSI_D03}
+export ANALYSIS_D01={ANALYSIS_D01}
+export ANALYSIS_D02={ANALYSIS_D02}
+export ANALYSIS_D03={ANALYSIS_D03}
 export FGATSTR={FGATSTR}
 export FGATINV={FGATINV}
 export FGATEND={FGATEND}
@@ -429,6 +430,14 @@ export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
 export nhcpost_ens={nhcpost_ens}
+
+#JEDI related options
+export loc_h={loc_h}
+export loc_v={loc_v}
+export l4denvar={l4denvar}
+export layoutx_jedi={layoutx_jedi}
+export layouty_jedi={layouty_jedi}
+export ANALYSIS_MODEL={analysis_model}
 
 #IAU related options
 export iau_regional={iau_regional}

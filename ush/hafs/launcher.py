@@ -1444,7 +1444,7 @@ class HAFSLauncher(HAFSConfig):
         Part 1 is mandatory, but part2 is optional.  It also fills in
         a few custom derived variables:
 
-        *  cap_run_gsi --- capitalized version of [config] section run_gsi
+        *  cap_run_analysis --- capitalized version of [config] section run_analysis
         *  cap_run_vortexinit --- capitalized version of [config] entry run_vortexinit
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
@@ -1621,17 +1621,17 @@ class HAFSLauncher(HAFSConfig):
         if run_ocean and ocean_start_dtg=='auto':
             self.set('holdvars','ocean_start_dtg','%.5f'%(ocean_start_dtg_float))
 
-        gsi_flag=self.getbool('config','run_gsi')
-        self.set('holdvars','cap_run_gsi',('YES' if gsi_flag else 'NO'))
+        analysis_flag=self.getbool('config','run_analysis')
+        self.set('holdvars','cap_run_analysis',('YES' if analysis_flag else 'NO'))
 
-        gsi_flag=self.getbool('config','gsi_d01')
-        self.set('holdvars','cap_gsi_d01',('YES' if gsi_flag else 'NO'))
+        analysis_flag=self.getbool('config','analysis_d01')
+        self.set('holdvars','cap_analysis_d01',('YES' if analysis_flag else 'NO'))
 
-        gsi_flag=self.getbool('config','gsi_d02')
-        self.set('holdvars','cap_gsi_d02',('YES' if gsi_flag else 'NO'))
+        analysis_flag=self.getbool('config','analysis_d02')
+        self.set('holdvars','cap_analysis_d02',('YES' if analysis_flag else 'NO'))
 
-        gsi_flag=self.getbool('config','gsi_d03')
-        self.set('holdvars','cap_gsi_d03',('YES' if gsi_flag else 'NO'))
+        analysis_flag=self.getbool('config','analysis_d03')
+        self.set('holdvars','cap_analysis_d03',('YES' if analysis_flag else 'NO'))
 
         fgat_flag=self.getbool('config','run_fgat')
         self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
@@ -1656,6 +1656,9 @@ class HAFSLauncher(HAFSConfig):
 
         atm_init_fgat_flag=self.getbool('config','run_atm_init_fgat')
         self.set('holdvars','cap_run_atm_init_fgat',('YES' if atm_init_fgat_flag else 'NO'))
+
+        atm_init_fgat_ens_flag=self.getbool('config','run_atm_init_fgat_ens')
+        self.set('holdvars','cap_run_atm_init_fgat_ens',('YES' if atm_init_fgat_ens_flag else 'NO'))
 
         atm_init_ens_flag=self.getbool('config','run_atm_init_ens')
         self.set('holdvars','cap_run_atm_init_ens',('YES' if atm_init_ens_flag else 'NO'))

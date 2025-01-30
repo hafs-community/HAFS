@@ -67,6 +67,7 @@ else
   exit 1
 
 fi # if [ ${MERGE_TYPE} = analysis ]; then
+RESTARTsrc=${WORKhafs}/intercom/RESTART_vi ###XL
 
 CDATE=${CDATE:-$YMDH}
 ymd=$(echo $CDATE | cut -c1-8)
@@ -135,6 +136,13 @@ RESTARTtmp=${DATA}/RESTARTtmp
 mkdir -p ${RESTARTtmp}
 
 if [ ${MERGE_TYPE} = analysis ]; then
+
+##XL Step 0: update u based on ua
+#${APRUNC} ${DATOOL} ua_update_u \
+#   --in_grid=${RESTARTsrc}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc \
+#   --in_file=${RESTARTsrc}/${ymd}.${hh}0000.fv_core.res.nest02.tile2.nc
+#echo "Xu convert done"
+#exit
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/

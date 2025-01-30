@@ -68,13 +68,16 @@ fi
 
 if [ "${ENSDA}" = YES ]; then
   export DATAinit=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
+  if [ ${RUN_ATM_INIT_FGAT_ENS:-NO} = YES ]; then
+   export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}${jobidstr}
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
 else
   export DATAinit=${WORKhafs}/atm_init${jobidstr}
 fi
 
-if [ "${SCRUBDATA:-YES}" = YES ]; then
+if [ "${SCRUBDATA:-YES}" = YES ] && [ "${ENSDA}" != YES ]; then
   rm -rf $DATAinit
 fi
 mkdir -p $DATAinit
@@ -104,7 +107,6 @@ cd $DATA
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_post.sh
 export err=$?; err_chk
-
 #===============================================================================
 # product
 
@@ -112,6 +114,9 @@ export OMP_NUM_THREADS=1
 export APRUNC=${APRUNS}
 
 export DATA=${DATAinit}/product
+if [ ${ENSDA} = YES ]; then
+  export nest_grids=${nest_grids_ens:-1}
+fi
 mkdir -p $DATA
 cd $DATA
 
@@ -162,7 +167,6 @@ for ng in $(seq 1 ${ngrids}); do
     exit 1
   fi
 done
-
 #===============================================================================
 # Cleanup DATA dir
 cd ${WORKhafs}

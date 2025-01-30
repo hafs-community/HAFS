@@ -1,0 +1,474 @@
+    - obs space:
+        name: CRIS-FSR N20
+        obsdatain:
+          engine:
+            type: H5File
+            obsfile: obs/hafs.#HH#.cris_n20.nc
+        obsdataout:
+          engine:
+            type: H5File
+            obsfile: hofx/hofx.cris_n20_#HH#.nc
+        io pool:
+          max pool size: 1
+        simulated variables: [brightness_temperature]
+        channels: &cris_n20_channels 1-430
+    
+      # Observation Operator
+      # --------------------
+      obs operator:
+        name: CRTM
+        Absorbers: [H2O, O3]
+        Clouds: [Water, Ice]
+        Cloud_Fraction: 1.0
+        obs options:
+          Sensor_ID: cris-fsr_n20
+          EndianType: little_endian
+          CoefficientPath: crtm/
+    
+      # Observation Bias Correction (VarBC)
+      # -----------------------------------
+      obs bias:
+        input file: obs/satbias_cris_n20_#HH#.nc
+        output file: bc/out_satbias_cris_n20_#HH#.nc
+        variational bc:
+          predictors:
+          - name: constant
+          - name: lapseRate
+            order: 2
+            tlapse: &cris_n20_tlapse obs/cris_n20.tlapse.txt
+          - name: lapseRate
+            tlapse: *cris_n20_tlapse
+          - name: emissivityJacobian
+          - name: sensorScanAngle
+            order: 4
+          - name: sensorScanAngle
+            order: 3
+          - name: sensorScanAngle
+            order: 2
+          - name: sensorScanAngle
+        covariance:
+          minimal required obs number: 20
+          variance range: [1.0e-6, 10.0]
+          step size: 1.0e-4
+          largest analysis variance: 10000.0
+          prior:
+            input file: obs/satbias_cris_n20_#HH#_cov.nc
+            inflation:
+              ratio: 1.1
+              ratio for small dataset: 2.0
+          output file: bc/out_satbias_cris_n20_#HH#_cov.nc
+
+      obs pre filters:
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/latitude
+            minvalue: #MIN_LAT#
+            maxvalue: #MAX_LAT#
+        action:
+           name: reduce obs space
+
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/longitude
+            minvalue: #MIN_LON#
+            maxvalue: #MAX_LON#
+        action:
+           name: reduce obs space
+
+      obs post filters:
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: *atms_n20_channels
+        test variables:
+        - name: GeoVaLs/observable_domain_mask
+          flag all filter variables if any test variable is out of bounds: true
+          minvalue: 0.0
+          maxvalue: 0.5
+      #
+      #obs filters:
+      ##  Wavenumber Check
+      #- filter: BlackList
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981,
+      #              1982, 1983, 1984, 1985, 1986, 1987, 2119, 2140, 2143, 2147,
+      #              2153, 2158, 2161, 2168, 2171, 2175, 2182
+      #  where:
+      #  - variable:
+      #      name: solar_zenith_angle@MetaData
+      #    maxvalue: 88.9999
+      #  - variable:
+      #      name: water_area_fraction@GeoVaLs
+      #    minvalue: 1.0e-12
+      #  action:
+      #    name: reject
+      #- filter: BlackList
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  action:
+      #    name: inflate error
+      #    inflation variable:
+      #      name: ObsErrorFactorWavenumIR@ObsFunction
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      options:
+      #        channels: *{{observation_from_jcb}}_simulated_channels
+      ##  Observation Range Sanity Check
+      #- filter: Bounds Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  minvalue: 50.00001
+      #  maxvalue: 449.99999
+      #  action:
+      #    name: reject
+      ##  Topography Check
+      #- filter: BlackList
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  action:
+      #    name: inflate error
+      #    inflation variable:
+      #      name: ObsErrorFactorTopoRad@ObsFunction
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      options:
+      #        channels: *{{observation_from_jcb}}_simulated_channels
+      #        sensor: *{{observation_from_jcb}}_sensor_id
+      ##  Transmittance Top Check
+      #- filter: BlackList
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  action:
+      #    name: inflate error
+      #    inflation variable:
+      #      name: ObsErrorFactorTransmitTopRad@ObsFunction
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      options:
+      #        channels: *{{observation_from_jcb}}_simulated_channels
+      ##  Cloud Detection Check
+      #- filter: Bounds Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  test variables:
+      #  - name: CloudDetectMinResidualIR@ObsFunction
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #    options:
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      use_flag: [ -1,  1,  1, -1,  1, -1,  1, -1,  1,  1,
+      #                   1,  1,  1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                  -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1,  1, -1, -1, -1,  1, -1,
+      #                  -1,  1, -1, -1,  1, -1,  1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1,  1, -1, -1,  1, -1, -1, -1,  1,  1,
+      #                   1,  1, -1, -1, -1, -1,  1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                  -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1,  1,  1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1,  1,  1, -1, -1, -1, -1, -1,  1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1]
+      #      use_flag_clddet: [ -1,  1, -1, -1, -1, -1,  1, -1,  1, -1,
+      #                          1, -1,  1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                         -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                         -1,  1, -1, -1,  1, -1, -1, -1,  1, -1,
+      #                         -1,  1, -1, -1,  1, -1,  1, -1,  1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                          1,  1, -1, -1, -1, -1,  1,  1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                         -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1,  1,  1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                         -1]
+      #      obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
+      #  maxvalue: 1.0e-12
+      #  action:
+      #    name: reject
+      ## Surface Temperature Jacobian Check over Land
+      #- filter: Bounds Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  where:
+      #  - variable:
+      #      name: water_area_fraction@GeoVaLs
+      #    maxvalue: 0.99
+      #  test variables:
+      #  - name: brightness_temperature_jacobian_surface_temperature@ObsDiag
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  maxvalue: 0.2
+      ##  NSST Retrieval Check
+      #- filter: Bounds Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  test variables:
+      #  - name: NearSSTRetCheckIR@ObsFunction
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #    options:
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      use_flag: [ -1,  1,  1, -1,  1, -1,  1, -1,  1,  1,
+      #                   1,  1,  1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                  -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1,  1, -1, -1, -1,  1, -1,
+      #                  -1,  1, -1, -1,  1, -1,  1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1,  1, -1, -1,  1, -1, -1, -1,  1,  1,
+      #                   1,  1, -1, -1, -1, -1,  1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                  -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1,  1,  1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1,  1,  1, -1, -1, -1, -1, -1,  1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1 ]
+      #      obserr_demisf: [0.01,0.02,0.03,0.02,0.03]
+      #      obserr_dtempf: [0.50,2.00,4.00,2.00,4.00]
+      #  maxvalue: 1.0e-12
+      #  action:
+      #    name: reject
+      ##  Surface Jacobians Check
+      #- filter: BlackList
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  action:
+      #    name: inflate error
+      #    inflation variable:
+      #      name: ObsErrorFactorSurfJacobianRad@ObsFunction
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      options:
+      #        channels: *{{observation_from_jcb}}_simulated_channels
+      #        obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+      #        obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
+      ##  Gross check
+      #- filter: Background Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  function absolute threshold:
+      #  - name: ObsErrorBoundIR@ObsFunction
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #    options:
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      obserr_bound_latitude:
+      #        name: ObsErrorFactorLatRad@ObsFunction
+      #        options:
+      #          latitude_parameters: [25.0, 0.5, 0.04, 1.0]
+      #      obserr_bound_transmittop:
+      #        name: ObsErrorFactorTransmitTopRad@ObsFunction
+      #        channels: *{{observation_from_jcb}}_simulated_channels
+      #        options:
+      #          channels: *{{observation_from_jcb}}_simulated_channels
+      #      obserr_bound_max: [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+      #                          2.0 ]
+      #  action:
+      #    name: reject
+      ##  Useflag Check
+      #- filter: Bounds Check
+      #  filter variables:
+      #  - name: brightness_temperature
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #  test variables:
+      #  - name: ChannelUseflagCheckRad@ObsFunction
+      #    channels: *{{observation_from_jcb}}_simulated_channels
+      #    options:
+      #      channels: *{{observation_from_jcb}}_simulated_channels
+      #      use_flag: [ -1,  1,  1, -1,  1, -1,  1, -1,  1,  1,
+      #                   1,  1,  1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1,  1, -1,  1, -1,  1,
+      #                  -1,  1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1, -1,  1, -1, -1, -1,  1,
+      #                  -1, -1, -1,  1, -1, -1, -1,  1, -1, -1,
+      #                  -1,  1, -1, -1,  1, -1, -1, -1,  1, -1,
+      #                  -1,  1, -1, -1,  1, -1,  1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1,  1, -1, -1,  1, -1, -1, -1,  1,  1,
+      #                   1,  1, -1, -1, -1, -1,  1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                  -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1,  1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1,  1,  1, -1, -1, -1, -1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1,  1,  1, -1, -1, -1, -1, -1,  1,
+      #                  -1, -1, -1, -1, -1, -1,  1, -1, -1, -1,
+      #                   1, -1, -1, -1, -1, -1, -1,  1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1,  1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      #                  -1 ]
+      #  minvalue: 1.0e-12
+      #  action:
+      #    name: reject
+    
+    
+      # GeoVaLs for Driving Observation Operators (testing mode)
+      # --------------------------------------------------------
+      geovals:
+        filename: "{{atmosphere_obsdatain_path}}/{{atmosphere_obsdatain_prefix}}{{observation_from_jcb}}_geoval{{atmosphere_obsdatain_suffix}}"
+    
+      # Passed benchmark for UFO testing
+      # --------------------------------
+      passedBenchmark: 0

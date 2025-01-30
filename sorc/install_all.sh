@@ -4,6 +4,7 @@ set -xeu
 cwd=$(pwd)
 
 CP='/bin/cp -rp'
+LN='/bin/ln -sf'
 
 #------------------------------------
 # INCLUDE PARTIAL BUILD
@@ -85,7 +86,10 @@ $Build_gsi && {
 # install jedi
 #------------------------------------
 $Build_jedi && {
-  ${CP} hafs_jedi.fd/build/bin/gdas.x                                ../exec/hafs_jedi.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/gdas.x                                ../exec/hafs_jedi.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/bufr2ioda.x                           ../exec/hafs_ioda.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_bc2ioda.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/gdas_fv3jedi_error_covariance_toolbox.x ../exec/hafs_nicas.x
 }
 
 #------------------------------------

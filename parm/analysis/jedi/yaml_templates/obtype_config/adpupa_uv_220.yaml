@@ -1,0 +1,246 @@
+    - obs space:
+        name: sondes
+        obsdatain:
+          engine:
+            type: H5File
+            obsfile: obs/hafs.#HH#.ADPUPA.nc
+        obsdataout:
+          engine:
+            type: H5File
+            obsfile: hofx/diag_adpupa_uv_220_#HH#.nc
+            allow overwrite: true
+        io pool:
+          max pool size: 1
+        observed variables: [windEastward, windNorthward]
+        simulated variables: [windEastward, windNorthward]
+      obs operator:
+        name: Composite
+        components: 
+        - name: VertInterp
+          vertical coordinate: air_pressure
+          observation vertical coordinate: pressure
+          observation vertical coordinate group: MetaData
+          interpolation method: log-linear
+          variables:
+          - name: windEastward
+          - name: windNorthward
+
+      obs error:
+        covariance model: diagonal
+
+      obs pre filters:
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/latitude
+            minvalue: #MIN_LAT#
+            maxvalue: #MAX_LAT#
+        action:
+           name: reduce obs space
+
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/longitude
+            minvalue: #MIN_LON#
+            maxvalue: #MAX_LON#
+        action:
+           name: reduce obs space
+
+      obs post filters:
+      - filter: Bounds Check
+        filter variables:
+        - name: windEastward
+        test variables:
+        - name: GeoVaLs/observable_domain_mask
+          flag all filter variables if any test variable is out of bounds: true
+          minvalue: 0.0
+          maxvalue: 0.5
+
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: windEastward
+        - name: windNorthward
+        where:
+        - variable: QualityMarker/windEastward
+          is_in: 4-15
+        action:
+          name: reject
+
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/timeOffset
+            minvalue: -10800.0
+            maxvalue: 10800.0
+
+      # ----------------------------------
+      # windEastward
+      # ----------------------------------
+      # Initial error assignment
+      - filter: Perform Action
+        filter variables:
+        - name: windEastward
+        - name: windNorthward
+        where:
+        - variable: ObsType/windEastward
+          is_in: 220
+        action:
+          name: assign error
+          error function:
+            name: ObsFunction/ObsErrorModelStepwiseLinear
+            options:
+              xvar:
+                name: MetaData/pressure
+              xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000, 65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000, 10000, 7500, 5000, 4000, 3000, 2000, 1000, 500, 400, 300, 200, 100, 0]
+              errors: [1.8521, 2.0636, 2.2799, 2.4211, 2.4934, 2.5155, 2.5027, 2.4785, 2.4533, 2.4381, 2.4381, 2.4579, 2.5012, 2.5738, 2.6365, 2.6858, 2.7667, 2.8971, 3.0477, 3.107, 3.0218, 2.8734, 2.7083, 2.552, 2.4364, 2.3654, 2.3111, 2.2438, 2.1753, 2.1299, 2.1085, 2.1007, 2.096]
+      # Error inflation based on pressure check (setup2.f90)
+      # WindEastward
+      - filter: Perform Action
+        filter variables:
+        - name: windEastward
+        where:
+        - variable: ObsType/windEastward
+          is_in: 220
+        action:
+          name: inflate error
+          inflation variable:
+            name: ObsFunction/ObsErrorFactorPressureCheck
+            options:
+              variable: windEastward
+              inflation factor: 4.0
+      # windNorthward
+      - filter: Perform Action
+        filter variables:
+        - name: windNorthward
+        where:
+        - variable: ObsType/windNorthward
+          is_in: 220
+        action:
+          name: inflate error
+          inflation variable:
+            name: ObsFunction/ObsErrorFactorPressureCheck
+            options:
+              variable: windNorthward
+              inflation factor: 4.0
+      # Error inflation based on errormod (qcmod.f90)
+      # WindEastward
+      - filter: Perform Action
+        filter variables:
+        - name: windEastward
+        where:
+        - variable: ObsType/windEastward
+          is_in: 220
+        action:
+          name: inflate error
+          inflation variable:
+            name: ObsFunction/ObsErrorFactorConventional
+            options:
+              inflate variables: [windEastward]
+              pressure: MetaData/pressure
+      # WindNorthward
+      - filter: Perform Action
+        filter variables:
+        - name: windNorthward
+        where:
+        - variable: ObsType/windNorthward
+          is_in: 220
+        action:
+          name: inflate error
+          inflation variable:
+            name: ObsFunction/ObsErrorFactorConventional
+            options:
+              inflate variables: [windNorthward]
+              pressure: MetaData/pressure
+      # Bounds check
+      - filter: Bounds Check
+        apply at iterations: 0,1
+        filter variables:
+        - name: windEastward
+        - name: windNorthward
+        minvalue: -200.
+        maxvalue: 200.
+        action:
+          name: reject
+      # Gross Error Check (windEastward)
+      - filter: Background Check
+        apply at iterations: 0,1
+        filter variables:
+        - name: windEastward
+        function absolute threshold:
+        - name: ObsFunction/WindsSPDBCheck
+          options:
+            wndtype:    [ 220 ]
+            cgross:     [ 8.0 ]
+            error_min:  [ 1.4 ]
+            error_max:  [ 6.1 ]
+            variable: windEastward
+        where:
+        - variable: QualityMarker/windEastward
+          is_not_in: 3
+        action:
+          name: reject
+        defer to post: true
+
+      # Gross Error Check (windNorthward)
+      - filter: Background Check
+        apply at iterations: 0,1
+        filter variables:
+        - name: windNorthward
+        function absolute threshold:
+        - name: ObsFunction/WindsSPDBCheck
+          options:
+            wndtype:    [ 220 ]
+            cgross:     [ 8.0 ]
+            error_min:  [ 1.4 ]
+            error_max:  [ 6.1 ]
+            variable: windNorthward
+        where:
+        - variable: QualityMarker/windNorthward
+          is_not_in: 3
+        action:
+          name: reject
+        defer to post: true
+      # Gross Error Check (windEastward): cgross*0.7 if QualityMarker=3
+      - filter: Background Check
+        apply at iterations: 0,1
+        filter variables:
+        - name: windEastward
+        function absolute threshold:
+        - name: ObsFunction/WindsSPDBCheck
+          options:
+            wndtype:    [ 220 ]
+            cgross:     [ 5.6 ]
+            error_min:  [ 1.4 ]
+            error_max:  [ 6.1 ]
+            variable: windEastward
+        where:
+        - variable: QualityMarker/windEastward
+          is_in: 3
+        action:
+          name: reject
+        defer to post: true
+
+      # Gross Error Check (windNorthward): cgross*0.7 if QualityMarker=3
+      - filter: Background Check
+        apply at iterations: 0,1
+        filter variables:
+        - name: windNorthward
+        function absolute threshold:
+        - name: ObsFunction/WindsSPDBCheck
+          options:
+            wndtype:    [ 220 ]
+            cgross:     [ 5.6 ]
+            error_min:  [ 1.4 ]
+            error_max:  [ 6.1 ]
+            variable: windNorthward
+        where:
+        - variable: QualityMarker/windNorthward
+          is_in: 3
+        action:
+          name: reject
+        defer to post: true

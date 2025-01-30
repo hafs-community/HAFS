@@ -9,7 +9,6 @@
 ################################################################################
 set -x -o pipefail
 
-nest_grids=${nest_grids:-1}
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
@@ -30,6 +29,7 @@ FGAT_HR=${FGAT_HR:-00}
 # Set options specific to the deterministic/ensemble forecast
 if [ ${ENSDA} != YES ]; then
   NBDYHRS=${NBDYHRS:-3}
+  nest_grids=${nest_grids:-1}
   CASE=${CASE:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype:-regional}
@@ -39,6 +39,7 @@ if [ ${ENSDA} != YES ]; then
   GRID_intercom=${WORKhafs}/intercom/atm_prep/grid
 else
   NBDYHRS=${NBDYHRS_ENS:-3}
+  nest_grids=${nest_grids_ens:-1}
   CASE=${CASE_ENS:-C768}
   CRES=$(echo $CASE | cut -c 2-)
   gtype=${gtype_ens:-regional}
@@ -98,6 +99,9 @@ if [ $ictype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nc
+    if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
+      atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
+    fi
   elif [ ${FGAT_MODEL} = gdas ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nc

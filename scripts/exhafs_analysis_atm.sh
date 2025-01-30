@@ -1,0 +1,760 @@
+#!/bin/sh
+################################################################################
+# Script Name: exhafs_analysis.sh
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script conducts the HAFS atmospheric data assimilation through GSI,
+#   and generate analysis diagnoses (if desired).
+################################################################################
+set -x -o pipefail
+
+CDATE=${CDATE:-${YMDH}}
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+hh=$(echo $CDATE | cut -c9-10)
+CDATEprior=$(${NDATE} -6 $CDATE)
+ymdprior=$(echo ${CDATEprior} | cut -c1-8)
+hhprior=$(echo ${CDATEprior} | cut -c9-10)
+CDATEtm03=$(${NDATE} -3 $CDATE)
+ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+CDATEtp03=$(${NDATE} +3 $CDATE)
+ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
+nest_grids=${nest_grids:-1}
+npx_nest=$( echo ${npx} | cut -d , -f 2 )
+npy_nest=$( echo ${npy} | cut -d , -f 2 )
+if [ ${nest_grids} -eq 2 ]; then
+  cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f2)
+  cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f2)
+else
+  cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f1)
+  cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f1)
+fi
+MIN_LON=$(echo "$cenlon - 10" | bc)
+MAX_LON=$(echo "$cenlon + 10" | bc)
+MIN_LAT=$(echo "$cenlat -  8" | bc)
+MAX_LAT=$(echo "$cenlat +  8" | bc)
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+MERGE_CMD="${APRUNS} ${DATOOL} remap"
+#### XL to be considered for triple nested domain configuration
+#### Currently only for dual res, double nest
+
+# Force JEDI layout here? Should move to parm
+
+export PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
+export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
+export COMINgfs=${COMINgfs:?}
+export COMINgdas=${COMINgdas:?}
+export COMINobs=${COMINobs:?}
+export COMINhafs=${COMINhafs:-${COMINgfs}}
+export DONST=${DONST:-"NO"}
+export LEVS=${LEVS:-65}
+export use_bufr_nr=${use_bufr_nr:-no}
+export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
+export s_ens_h=${s_ens_h:-150}
+export s_ens_v=${s_ens_v:--0.5}
+export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
+export nsclgrp=${nsclgrp:-1}
+export naensloc=${naensloc:-1}
+
+export ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
+export RUN_FGAT=${RUN_FGAT:-NO}
+export FGAT=${FGAT:-NO}
+export RUN_ENVAR=${RUN_ENVAR:-NO}
+export RUN_ENSDA=${RUN_ENSDA:-NO}
+export ENSDA=${ENSDA:-NO}
+export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
+export online_satbias=${online_satbias:-no}
+export l_both_fv3sar_gfs_ens=${l_both_fv3sar_gfs_ens:-.false.}
+export n_ens_gfs=${n_ens_gfs:-80}
+export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
+export l4densvar=${l4densvar:-.false.}
+export nhr_obsbin=${nhr_obsbin:--1}
+
+export ANALYSIS_D01=${ANALYSIS_D01:-NO}
+export ANALYSIS_D02=${ANALYSIS_D02:-NO}
+export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
+export neststr=${neststr:-""} # ".nest02" for domain 02
+export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
+export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
+
+export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
+export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
+
+FV3_CORE_ENS_FILE=${PDY}.${cyc}0000.fv_core.res.tile1.nc
+FV3_TRCR_ENS_FILE=${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+FV3_SFCD_ENS_FILE=${PDY}.${cyc}0000.sfc_data.nc
+FV3_SFCW_ENS_FILE=${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
+FV3_CPLR_ENS_FILE=${PDY}.${cyc}0000.coupler.res
+FV3_AKBK_ENS_FILE=${PDY}.${cyc}0000.fv_core.res.nc
+FV3_CORE_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res.tile1.nc
+FV3_TRCR_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_tracer.res.tile1.nc
+FV3_SFCD_ENS_FILE3=${ymdtm03}.${hhtm03}0000.sfc_data.nc
+FV3_SFCW_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res.tile1.nc
+FV3_CPLR_ENS_FILE3=${ymdtm03}.${hhtm03}0000.coupler.res
+FV3_AKBK_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res.nc
+FV3_CORE_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res.tile1.nc
+FV3_TRCR_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_tracer.res.tile1.nc
+FV3_SFCD_ENS_FILE9=${ymdtp03}.${hhtp03}0000.sfc_data.nc
+FV3_SFCW_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res.tile1.nc
+FV3_CPLR_ENS_FILE9=${ymdtp03}.${hhtp03}0000.coupler.res
+FV3_AKBK_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res.nc
+FV3_CORE_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc
+FV3_TRCR_FILE=${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
+FV3_SFCD_FILE=${PDY}.${cyc}0000.sfc_data${neststr}${tilestr}.nc
+FV3_SFCW_FILE=${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+FV3_CPLR_FILE=${PDY}.${cyc}0000.coupler.res
+FV3_AKBK_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}.nc
+FV3_CORE_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc
+FV3_TRCR_FILE3=${ymdtm03}.${hhtm03}0000.fv_tracer.res${neststr}${tilestr}.nc
+FV3_SFCD_FILE3=${ymdtm03}.${hhtm03}0000.sfc_data${neststr}${tilestr}.nc
+FV3_SFCW_FILE3=${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+FV3_CPLR_FILE3=${ymdtm03}.${hhtm03}0000.coupler.res
+FV3_AKBK_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}.nc
+FV3_CORE_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc
+FV3_TRCR_FILE9=${ymdtp03}.${hhtp03}0000.fv_tracer.res${neststr}${tilestr}.nc
+FV3_SFCD_FILE9=${ymdtp03}.${hhtp03}0000.sfc_data${neststr}${tilestr}.nc
+FV3_SFCW_FILE9=${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
+FV3_CPLR_FILE9=${ymdtp03}.${hhtp03}0000.coupler.res
+FV3_AKBK_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}.nc
+
+if [ $GFSVER = PROD2021 ]; then
+  export atmos="atmos/"
+  export USE_GFS_NEMSIO=.false.
+  export USE_GFS_NCIO=.true.
+  GSUFFIX=${GSUFFIX:-.nc}
+else
+  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
+  exit 9
+fi
+
+# Diagnostic files options
+export netcdf_diag=${netcdf_diag:-".true."}
+export binary_diag=${binary_diag:-".false."}
+
+if [ ! ${RUN_ANALYSIS} = "YES" ]; then
+  echo "RUN_ANALYSIS: ${RUN_ANALYSIS} is not YES"
+  echo "Do nothing. Exiting"
+  exit
+fi
+
+export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
+export OBSIODA_DIR=${OBSIODA_DIR:-${WORKhafs}/intercom/obs_prep}
+export DIAGanl=${DIAGanl:-${COMhafs}}
+mkdir -p ${RESTARTanl}
+mkdir -p ${DIAGanl}
+
+# We should already be in $DATA, but extra cd to be sure.
+cd $DATA
+# Link DataFix files
+${NCP} ${PARMjedi}/Fix/* .
+sed -e "s|_NPX_|${npx_ens}|g" \
+    -e "s|_NPY_|${npy_ens}|g" \
+    -e "s|_NPZ_|${npz_ens}|g" \
+    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic.nc|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    -e "s|_DLON_|${target_lon}|g" \
+    -e "s|_DLAT_|${target_lat}|g" \
+    ${PARMjedi}/Fix/input_hafs.nml > input_hafs.nml
+
+if [ ${nest_grids} -ge 2 ]; then
+sed -e "s|_NPX_|${npx_nest}|g" \
+    -e "s|_NPY_|${npy_nest}|g" \
+    -e "s|_NPZ_|${npz}|g" \
+    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_nest.nc|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    -e "s|_DLON_|${target_lon}|g" \
+    -e "s|_DLAT_|${target_lat}|g" \
+    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_nest.nml
+fi
+
+# Copy the first guess or fgat files
+if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi_fgat09
+elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge_fgat09
+elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init_fgat03
+  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
+  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init_fgat09
+else
+  if [ ${RUN_ATM_VI} = "YES" ]; then
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi
+  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge
+  elif [ ${RUN_ATM_INIT} = "YES" ]; then
+    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
+    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
+  else
+    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
+  fi
+fi
+RESTARTinp=${RESTARTinp_fgat06}
+
+if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
+  echo "WARNING: First guess for DA/Analysis missing"
+  echo "WARNING: Do nothing, Exiting"
+  exit
+fi
+mkdir ${DATA}/bkg
+cd ${DATA}/bkg
+${NLN} ${RESTARTinp}/${FV3_CORE_FILE} .
+${NLN} ${RESTARTinp}/${FV3_TRCR_FILE} .
+${NLN} ${RESTARTinp}/${FV3_SFCD_FILE} .
+${NLN} ${RESTARTinp}/${FV3_SFCW_FILE} .
+${NLN} ${RESTARTinp}/${FV3_CPLR_FILE} .
+${NLN} ${RESTARTinp}/${FV3_AKBK_FILE} .
+if [ ${RUN_FGAT} = "YES" ]; then
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_CORE_FILE3} .
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_TRCR_FILE3} .
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_SFCD_FILE3} .
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_SFCW_FILE3} .
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_CPLR_FILE3} .
+  ${NLN} ${RESTARTinp_fgat03}/${FV3_AKBK_FILE3} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_CORE_FILE9} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_TRCR_FILE9} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_SFCD_FILE9} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_SFCW_FILE9} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_CPLR_FILE9} .
+  ${NLN} ${RESTARTinp_fgat09}/${FV3_AKBK_FILE9} .
+  ${NLN} ${FV3_CPLR_FILE} ${PDY}.${cyc}0000.coupler${neststr}${tilestr}.res
+  ${NLN} ${FV3_CPLR_FILE3} ${ymdtm03}.${hhtm03}0000.coupler${neststr}${tilestr}.res
+  ${NLN} ${FV3_CPLR_FILE9} ${ymdtp03}.${hhtp03}0000.coupler${neststr}${tilestr}.res
+fi
+if [ ${nest_grids} -ge 2 ]; then
+ ${NLN} ${RESTARTinp}/${FV3_CORE_ENS_FILE} .
+ ${NLN} ${RESTARTinp}/${FV3_TRCR_ENS_FILE} .
+ ${NLN} ${RESTARTinp}/${FV3_SFCD_ENS_FILE} .
+ ${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
+ ${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
+ ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
+fi
+
+${NLN} ${RESTARTinp}/oro_data${nesttilestr}.nc .
+${NLN} ${RESTARTinp}/atmos_static${nesttilestr}.nc .
+${NLN} ${RESTARTinp}/grid_spec${nesttilestr}.nc .
+
+if [ ${RUN_ENVAR} = "YES" ]; then
+  mkdir ${DATA}/ensemble_data
+  cd ${DATA}/ensemble_data
+  rm -f cmdfile_interpolate_ens_*
+  for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
+  do
+   mkdir ${DATA}/ensemble_data/mem${mem}
+   if [ ${RUN_ENSDA} = "YES" ]; then
+    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+   else
+    if [ ${l4denvar:-.false.} = ".true." ]; then
+     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat06_ens/mem${mem}
+    else
+     RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${mem}
+    fi
+   fi
+   fhh="06"
+   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
+   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
+   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+     ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
+     in_grid=${RESTARTens}/grid_spec.nc
+     out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+     if [ "${var}" = "sfc_data" ]; then
+      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.nc
+     else
+      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.tile1.nc
+     fi
+     out_file=${DATA}/ensemble_data/mem${mem}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc
+     if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+        [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+       echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+       exit 1
+     fi
+     if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+       cat > interpolate_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${NCP} $in_file $out_file
+EOFcopy
+     else
+       cat > interpolate_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${MERGE_CMD} \
+    --in_grid=${in_grid} \
+    --out_grid=${out_grid} \
+    --in_file=${in_file} \
+    --out_file=${out_file} 2>&1 | tee ./inter_ens${mem}_${var}.log
+EOFcopy
+     fi
+     chmod +x ./interpolate_ens${mem}_${var}.sh
+     echo "./interpolate_ens${mem}_${var}.sh" >> cmdfile_interpolate_ens_${var}
+   done
+   if [ ${l4denvar:-.false.} = ".true." ]; then
+     export ENS_NSTARTHR=3
+     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}
+     fhh="03"
+     ${NLN} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
+     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+       ${NCP} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
+       in_grid=${RESTARTens}/grid_spec.nc
+       out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+       if [ "${var}" = "sfc_data" ]; then
+        in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.nc
+       else
+        in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.tile1.nc
+       fi
+       out_file=${DATA}/ensemble_data/mem${mem}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc
+       if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+          [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+         echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+         exit 1
+       fi
+       if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+         cat > interpolate03_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${NCP} $in_file $out_file
+EOFcopy
+     else
+       cat > interpolate03_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${MERGE_CMD} \
+    --in_grid=${in_grid} \
+    --out_grid=${out_grid} \
+    --in_file=${in_file} \
+    --out_file=${out_file} 2>&1 | tee ./inter03_ens${mem}_${var}.log
+EOFcopy
+       fi
+       chmod +x ./interpolate03_ens${mem}_${var}.sh
+       echo "./interpolate03_ens${mem}_${var}.sh" >> cmdfile_interpolate03_ens_${var}
+     done
+     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}
+     fhh="09"
+     ${NLN} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
+     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+       ${NCP} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
+       in_grid=${RESTARTens}/grid_spec.nc
+       out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+       if [ "${var}" = "sfc_data" ]; then
+        in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.nc
+       else
+        in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.tile1.nc
+       fi
+       out_file=${DATA}/ensemble_data/mem${mem}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc
+       if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+          [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+         echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+         exit 1
+       fi
+       if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+         cat > interpolate09_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${NCP} $in_file $out_file
+EOFcopy
+     else
+       cat > interpolate09_ens${mem}_${var}.sh << EOFcopy
+#!/bin/sh
+  set -x
+  ${MERGE_CMD} \
+    --in_grid=${in_grid} \
+    --out_grid=${out_grid} \
+    --in_file=${in_file} \
+    --out_file=${out_file} 2>&1 | tee ./inter09_ens${mem}_${var}.log
+EOFcopy
+       fi
+       chmod +x ./interpolate09_ens${mem}_${var}.sh
+       echo "./interpolate09_ens${mem}_${var}.sh" >> cmdfile_interpolate09_ens_${var}
+     done
+   fi
+#    ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE} .
+#    ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE} .
+#    ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE} .
+#    ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE} .
+#    ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE} .
+#    ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE} .
+#    if [ ${l4denvar:-.false.} = ".true." ]; then
+#      export ENS_NSTARTHR=3
+#      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}
+#      fhh="03"
+#      ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE3} .
+#      ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE3} .
+#      ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE3} .
+#      ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE3} .
+#      ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE3} .
+#      ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE3} .
+#      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}
+#      fhh="09"
+#      ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE9} .
+#      ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE9} .
+#      ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE9} .
+#      ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE9} .
+#      ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE9} .
+#      ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE9} .
+#    fi
+  done
+  if [ ${n_ens_fv3sar} -le ${TOTAL_TASKS} ]; then
+   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+    srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}
+    if [ ${l4denvar:-.false.} = ".true." ]; then
+      srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile03_interpolate_ens_${var}
+      srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile09_interpolate_ens_${var}
+    fi
+   done
+  else
+    echo "Warning!!! TOTAL_TASKS ${TOTAL_TASKS} is not enough for parallel running Interpolation. At least ${n_ens_fv3sar} is needed. Use serial for now. May take too long!!!"
+   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+    chmod +x cmdfile_interpolate_ens_${var}
+    ./cmdfile_interpolate_ens_${var}
+    if [ ${l4denvar:-.false.} = ".true." ]; then
+      chmod +x cmdfile_interpolate03_ens_${var}
+      ./cmdfile_interpolate03_ens_${var}
+      chmod +x cmdfile_interpolate09_ens_${var}
+      ./cmdfile_interpolate09_ens_${var}
+    fi
+   done
+  fi
+fi # endif ${RUN_ENVAR}
+#exit #XL
+
+# Stat files
+RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
+DASTAT=${DASTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dastat}
+DASOUT=${DASOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dasout}
+# Obs diag
+RUN_SELECT=${RUN_SELECT:-"NO"}
+USE_SELECT=${USE_SELECT:-"NO"}
+USE_RADSTAT=${USE_RADSTAT:-"NO"}
+SELECT_OBS=${SELECT_OBS:-${COMhafs}/${out_prefix}.${RUN}.${gridstr}.obsinput.tar}
+GENDIAG=${GENDIAG:-"YES"}
+DIAG_SUFFIX=${DIAG_SUFFIX:-""}
+if [ $netcdf_diag = ".true." ]; then
+   DIAG_SUFFIX="${DIAG_SUFFIX}.nc4"
+fi
+DIAG_COMPRESS=${DIAG_COMPRESS:-"YES"}
+DIAG_TARBALL=${DIAG_TARBALL:-"YES"}
+USE_MPISERIAL=${USE_MPISERIAL:-"YES"}
+USE_CFP=${USE_CFP:-"NO"}
+CFP_MP=${CFP_MP:-"NO"}
+nm=""
+if [ $CFP_MP = "YES" ]; then
+  nm=0
+fi
+
+export DIAG_DIR=${DIAG_DIR:-./hofx}
+REMOVE_DIAG_DIR=${REMOVE_DIAG_DIR:-"NO"}
+
+# Set script / GSI control parameters
+lrun_subdirs=${lrun_subdirs:-".true."}
+
+#----------------------------------------------
+# Link all the necessary fix files
+#----------------------------------------------
+# Link CRTM coefficient files based on entries in satinfo file
+mkdir ${DATA}/crtm
+cd ${DATA}/crtm
+
+############ XL Need to update hafs_jedi crtm from 2.4.0.1 to 2.4.1
+#for file in $(awk '{if($1!~"!"){print $1}}' ${PARMjedi}/satinfo | sort | uniq); do
+#  ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+#  ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+#done
+#${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
+#${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
+#${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+############ XL Need to update hafs_jedi crtm from 2.4.0.1 to 2.4.1
+############ Use HDASApp build for temporary getaround
+CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
+#"/work/noaa/hwrf/save/xulu/hafsv2_featurejedi/sorc/hafs_jedi.fd/bundle//test-data-release/crtm/2.4.1_skylab_4.0"
+for file in $(awk '{if($1!~"!"){print $1}}' ${DATA}/satinfo | sort | uniq); do
+  ${NLN} ${CRTM_TEMP}/SpcCoeff/Little_Endian/${file}.SpcCoeff.bin ./
+  ${NLN} ${CRTM_TEMP}/TauCoeff/ODPS/Little_Endian/${file}.TauCoeff.bin ./
+done
+${NLN} ${CRTM_TEMP}/EmisCoeff/MW_Water/Little_Endian/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
+for file in `ls ${CRTM_TEMP}/EmisCoeff/*/*/*/NPO*.bin`; do
+  ${NLN} ${file} ./
+done
+for file in `ls ${CRTM_TEMP}/EmisCoeff/*/*/Nall*.bin`; do
+  ${NLN} ${file} ./
+done
+for file in `ls ${CRTM_TEMP}/EmisCoeff/*/*/*/Nall*.bin`; do
+  ${NLN} ${file} ./
+done
+${NLN} ${CRTM_TEMP}/AerosolCoeff/Little_Endian/AerosolCoeff.bin ./AerosolCoeff.bin
+${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
+
+
+# Link GFS/GDAS input and observation files
+convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
+convsubtypes="adpupa_airTemperature_120 adpupa_uv_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
+radtypes="atms_npp amsua_n19 atms_n20 abi_g16 iasi_metop-b"
+#radtypes="abi_g16"
+obstypes="${convtypes} ${convsubtypes} ${radtypes}"
+bctypes="${radtypes}"
+mkdir ${DATA}/obs
+cd ${DATA}/obs
+for file in ${convtypes}; do
+  ${NLN} ${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc .
+done
+
+for file in ${radtypes}; do
+  ${NLN} ${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc .
+  ${NLN} ${OBSIODA_DIR}/${file}.tlapse.txt .
+done
+
+for file in ${bctypes}; do
+  ${NLN} ${OBSIODA_DIR}/satbias_${file}_t${cyc}z.nc .
+  ${NLN} ${OBSIODA_DIR}/satbias_${file}_t${cyc}z_cov.nc .
+done
+mkdir ${DATA}/bc #Create bc for output
+
+# Create mosaic files
+mkdir ${DATA}/INPUT
+cd ${DATA}/INPUT
+${NCP} ${WORKhafs}/intercom/grid_ens/${CASE}/${CASE}_grid.tile7.halo3.nc .
+${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
+${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/grid/${CASE} --mosaic ${CASE}_mosaic --tile_file ${CASE}_grid.tile7.halo3.nc 
+if [ ${nest_grids} -ge 2 ]; then
+ ${NCP} ${WORKhafs}/intercom/grid/${CASE}/${CASE}_grid.tile8.halo3.nc .
+ ${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
+ ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/grid/${CASE} --mosaic ${CASE}_mosaic_nest --tile_file ${CASE}_grid.tile8.halo3.nc
+fi
+### XL need to think about tile #, is 7 & 8 always the default value?
+#??XL: Do it here or in atm_prep
+
+#----------------------------------------------
+# Prepare NICAS LOCALIZATION
+# ?? Should we do it here? XL
+#----------------------------------------------
+cd ${DATA}
+export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
+export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
+mkdir ${DATA}/bump
+if [ ${nest_grids} -ge 2 ]; then
+  INPUT_HAFS_NML=input_hafs_nest.nml
+else
+  INPUT_HAFS_NML=input_hafs.nml
+fi
+INPUT_HAFS_ENS_NML=input_hafs_nest.nml
+sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_ANALYSISDATE_|'${yr}-${mn}-${dy}T${hh}:00:00Z'|g" \
+    -e "s|_LOC_H_|${loc_h}|g" \
+    -e "s|_LOC_V_|${loc_v}|g" \
+    ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
+${NCP} ${EXEChafs}/hafs_nicas.x .
+#srun -l -n ${TOTAL_TASKS} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+#srun -l -n ${TOTAL_TASKS} /work/noaa/hwrf/save/xulu/JEDI/newest/GDASApp20241209/build/bin/gdas_fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
+srun -l -n ${TOTAL_TASKS} /work/noaa/hwrf/save/xulu/JEDI/newest/HDASApp/build/bin/fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
+rm nicas.log.*
+#----------------------------------------------
+# Prepare yaml
+#----------------------------------------------
+cd ${DATA}
+mkdir ${DATA}/hofx #Create hofx for diagfile output
+if [ ${l4denvar:-.false.} = ".true." ]; then
+sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_FV3_CORE_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_FV3_CORE_ENS_FILE3_|${FV3_CORE_FILE3}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE3_|${FV3_TRCR_FILE3}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE3_|${FV3_SFCD_FILE3}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE3_|${FV3_SFCW_FILE3}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE3_|${FV3_CPLR_FILE3}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE3_|${FV3_AKBK_FILE3}|g" \
+    -e "s|_FV3_CORE_ENS_FILE9_|${FV3_CORE_FILE9}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE9_|${FV3_TRCR_FILE9}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE9_|${FV3_SFCD_FILE9}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE9_|${FV3_SFCW_FILE9}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE9_|${FV3_CPLR_FILE9}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE9_|${FV3_AKBK_FILE9}|g" \
+    -e "s|_FV3_CORE_FILE3_|${FV3_CORE_FILE3}|g" \
+    -e "s|_FV3_TRCR_FILE3_|${FV3_TRCR_FILE3}|g" \
+    -e "s|_FV3_SFCD_FILE3_|${FV3_SFCD_FILE3}|g" \
+    -e "s|_FV3_SFCW_FILE3_|${FV3_SFCW_FILE3}|g" \
+    -e "s|_FV3_CPLR_FILE3_|${FV3_CPLR_FILE3}|g" \
+    -e "s|_FV3_AKBK_FILE3_|${FV3_AKBK_FILE3}|g" \
+    -e "s|_FV3_CORE_FILE9_|${FV3_CORE_FILE9}|g" \
+    -e "s|_FV3_TRCR_FILE9_|${FV3_TRCR_FILE9}|g" \
+    -e "s|_FV3_SFCD_FILE9_|${FV3_SFCD_FILE9}|g" \
+    -e "s|_FV3_SFCW_FILE9_|${FV3_SFCW_FILE9}|g" \
+    -e "s|_FV3_CPLR_FILE9_|${FV3_CPLR_FILE9}|g" \
+    -e "s|_FV3_AKBK_FILE9_|${FV3_AKBK_FILE9}|g" \
+    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
+    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
+    -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
+    -e "s|#HH#|t${cyc}z|g" \
+    -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    ${basic_yaml_dir}/fv3jedi_4denvar.yaml > ./jedi.yaml
+elif [ ${RUN_FGAT} = NO ]; then
+sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_FV3_CORE_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
+    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
+    -e "s|#HH#|t${cyc}z|g" \
+    -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    ${basic_yaml_dir}/fv3jedi_3denvar.yaml > ./jedi.yaml
+else
+sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
+    -e "s|_FV3_CORE_FILE3_|${FV3_CORE_FILE3}|g" \
+    -e "s|_FV3_TRCR_FILE3_|${FV3_TRCR_FILE3}|g" \
+    -e "s|_FV3_SFCD_FILE3_|${FV3_SFCD_FILE3}|g" \
+    -e "s|_FV3_SFCW_FILE3_|${FV3_SFCW_FILE3}|g" \
+    -e "s|_FV3_CPLR_FILE3_|${FV3_CPLR_FILE3}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
+    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
+    -e "s|#HH#|t${cyc}z|g" \
+    -e "s|_NEST_TILE_STR_|${neststr}${tilestr}|g" \
+    -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    ${basic_yaml_dir}/fv3jedi_3dfgat.yaml > ./jedi.yaml
+fi
+
+for obstype in ${obstypes}; do
+ cat "${obs_yaml_dir}/${obstype}.yaml" >> temp.yaml.tmp
+done
+
+sed -e "s|#HH#|t${cyc}z|g" \
+    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
+    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
+    -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
+    -e "s|#MIN_LAT#|${MIN_LAT}|g" \
+    -e "s|#MAX_LAT#|${MAX_LAT}|g" \
+    -e "s|#MIN_LON#|${MIN_LON}|g" \
+    -e "s|#MAX_LON#|${MAX_LON}|g" \
+     temp.yaml.tmp > temp.yaml
+
+sed -i '/@OBSERVATIONS@/{
+        r '"temp.yaml"'
+        d
+}' ./jedi.yaml
+#-------------------------------------------------------------------
+# Link the executable and run the analysis
+#-------------------------------------------------------------------
+#ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
+#ANALYSISEXEC=/work/noaa/hwrf/save/xulu/JEDI/newest/HDASApp/build/bin/fv3jedi_var.x
+ANALYSISEXEC=/work/noaa/hwrf/save/xulu/JEDI/newest/GDASApp20241230/build/bin/gdas.x
+${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
+${SOURCE_PREP_STEP}
+
+#srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} jedi.yaml jedi.out
+srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
+export err=$?; err_chk #XL Note: Need to add exit when error check failed, currently will continue
+rm jedi.out.*
+cat ./jedi.out > ${DASOUT}
+
+for file in ${radtypes}; do
+  tar cvf ${RADSTAT} hofx/hofx.${file}_t${cyc}z.nc
+done
+
+if [ ${l4denvar:-.false.} = ".true." ]; then
+# ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTanl}/${FV3_CORE_FILE}
+ ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
+ ${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
+ ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
+ ${NCP} ${DATA}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${FV3_CPLR_FILE}
+else
+ ${NCP} ${DATA}/analysis.coupler.res        ${RESTARTanl}/${FV3_CPLR_FILE}
+ ${NCP} ${DATA}/analysis.sfc_data.nc        ${RESTARTanl}/${FV3_SFCD_FILE}
+ ${NCP} ${DATA}/analysis.fv_srf_wnd.res.nc  ${RESTARTanl}/${FV3_SFCW_FILE}
+# ${NCP} ${DATA}/analysis.fv_core.res.nc     ${RESTARTanl}/${FV3_CORE_FILE}
+ ${NCP} ${DATA}/analysis.fv_tracer.res.nc   ${RESTARTanl}/${FV3_TRCR_FILE}
+fi
+${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/
+${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/
+${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
+${NCP} ${RESTARTinp}/${FV3_AKBK_FILE} ${RESTARTanl}/
+
+# pass over phy_data as well
+${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+
+if [[ ! -z "$neststr" ]] ; then
+ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ fi
+fi
+
+## Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
+DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+${APRUNS} ${DATOOL} ua_update_u \
+   --in_grid=${RESTARTanl}/grid_spec${nesttilestr}.nc \
+   --in_file=${DATA}/analysis.fv_core.res.nc \
+   --out_file=${RESTARTanl}/${FV3_CORE_FILE}
+
+ncks -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} -A ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
+
+# Pass over the grid_mspec files for moving nest
+if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
+  if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
+    # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
+  else
+    # "grid_mspec.nest02_${yr}_${mn}_${dy}_${cyc}.tile2.nc" for domain 02
+    ${NCP} -p ${RESTARTinp}/grid_mspec${neststr}_${yr}_${mn}_${dy}_${cyc}${tilestr}.nc ${RESTARTanl}/
+  fi
+fi

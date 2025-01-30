@@ -1,0 +1,35 @@
+input coeff file: gdas.#HH#.abias
+input err file: gdas.#HH#.abias_pc
+output:
+- sensor: iasi_metop-b
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_iasi_metop-b_#HH#.nc
+
+- sensor: iasi_metop-c
+  predictors:
+  - constant
+  - sensorZenithAngle
+  - cloudWaterContent
+  - lapseRate_order_2
+  - lapseRate
+  - cosineOfLatitudeTimesOrbitNode
+  - sineOfLatitude
+  - emissivityJacobian
+  - sensorScanAngle_order_4
+  - sensorScanAngle_order_3
+  - sensorScanAngle_order_2
+  - sensorScanAngle
+  output file: output/satbias_iasi_metop-c_#HH#.nc
+

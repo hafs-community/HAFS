@@ -28,32 +28,52 @@ export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
-if [ "${RUN_ENVIR^^}" != "NCO" ]; then
-  # Detect platform and load modules if not run by NCO
+if [ "${ANALYSIS_MODEL}" = "GSI" ]; then
+  if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+    # Detect platform and load modules if not run by NCO
+    source ${USHhafs}/hafs_pre_job.sh.inc
+    export machine=${WHERE_AM_I:-wcoss2}
+    if [ ${machine}  = "wcoss2" ]; then
+      module reset
+      module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+      module load gsi_${machine}.intel
+      module load cray-pals/1.2.2
+      module load cfp/2.0.4
+    fi
+    if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]]; then
+      module purge
+      module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+      module load gsi_${machine}.intel
+    fi
+    module list
+  else
+    # Run by NCO on WCOSS2
+    export machine=${WHERE_AM_I:-wcoss2}
+    # Prepend $USHhafs to python package search path
+    export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+    # Initialize PDY
+  # setpdy.sh # only needed for the launch job
+    # Get PDY
+    source ${WORKhafs}/PDY
+  fi
+else
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [ ${machine}  = "wcoss2" ]; then
-    module reset
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}.intel
-    module load cray-pals/1.2.2
-    module load cfp/2.0.4
-  fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]]; then
-    module purge
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}.intel
-  fi
-  module list
-else
-  # Run by NCO on WCOSS2
-  export machine=${WHERE_AM_I:-wcoss2}
-  # Prepend $USHhafs to python package search path
-  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
-  # Initialize PDY
-# setpdy.sh # only needed for the launch job
-  # Get PDY
-  source ${WORKhafs}/PDY
+  module purge
+  module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
+  module load GDAS/${machine}.intel
+  export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export SLURM_QOS=debug
+  export MAIN_DEBUG=1
+  export OOPS_DEBUG=1
+  export OOPS_TRACE=1
+  export IODA_PRINT_RUNSTATS=1
+  export CMAKE_OPTS="${CMAKE_OPTS:+${CMAKE_OPTS}:}: -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC"
+  export I_MPI_DEBUG=10
+  ulimit -s unlimited
+  ulimit -v unlimited
+  ulimit -a
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
@@ -66,8 +86,8 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export GSI_D01=${GSI_D01:-NO}
-export GSI_D02=${GSI_D02:-NO}
+export ANALYSIS_D01=${ANALYSIS_D01:-NO}
+export ANALYSIS_D02=${ANALYSIS_D02:-NO}
 export ENSDA=${ENSDA:-NO}
 
 export CDATE=${CDATE:-${YMDH}}
@@ -96,7 +116,7 @@ RESTARTinp=${RESTARTinp_fgat06}
 
 #===============================================================================
 # Run analysis for d01 if needed
-if [ ${GSI_D01} = YES ]; then
+if [ ${ANALYSIS_D01} = YES ]; then
 
 export gridstr=$(echo ${out_gridnames} | cut -d, -f 1)
 export neststr=${neststr:-""}
@@ -111,8 +131,16 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_analysis.sh
-export err=$?; err_chk
+if [ "${ANALYSIS_MODEL}" = "GSI" ] || [ "${ANALYSIS_MODEL}" = "gsi" ]; then
+ ${HOMEhafs}/scripts/exhafs_analysis.sh
+ export err=$?; err_chk
+elif [ "${ANALYSIS_MODEL}" = "JEDI" ] || [ "${ANALYSIS_MODEL}" = "jedi" ]; then
+ ${HOMEhafs}/scripts/exhafs_analysis_atm.sh
+ export err=$?; err_chk
+else
+ echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"
+ exit
+fi
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -158,11 +186,11 @@ fi
 
 fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
 
-fi #end if [ ${GSI_D01} = YES ]; then
+fi #end if [ ${ANALYSIS_D01} = YES ]; then
 
 #===============================================================================
 # Run analysis for d02 if needed
-if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
+if [ ${ANALYSIS_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
 export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
 export neststr=".nest02"
@@ -177,8 +205,16 @@ mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_analysis.sh
-export err=$?; err_chk
+if [ "${ANALYSIS_MODEL}" = "GSI" ] || [ "${ANALYSIS_MODEL}" = "gsi" ]; then
+ ${HOMEhafs}/scripts/exhafs_analysis.sh
+ export err=$?; err_chk
+elif [ "${ANALYSIS_MODEL}" = "JEDI" ] || [ "${ANALYSIS_MODEL}" = "jedi" ]; then
+ ${HOMEhafs}/scripts/exhafs_analysis_atm.sh
+ export err=$?; err_chk
+else
+ echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"
+ exit
+fi
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -186,7 +222,7 @@ if [ "${KEEPDATA:-YES}" != "YES" ]; then
   rm -rf $DATA
 fi
 
-elif [ ${GSI_D02} != YES ] && [[ $nest_grids -ge 2 ]]; then
+elif [ ${ANALYSIS_D02} != YES ] && [[ $nest_grids -ge 2 ]]; then
 
 export neststr=".nest02"
 export tilestr=".tile2"
@@ -224,7 +260,7 @@ fi
 
 fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
 
-fi #end if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
+fi #end if [ ${ANALYSIS_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
 #===============================================================================
 date

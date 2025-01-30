@@ -1,0 +1,17 @@
+{
+  "data_format"      : "bufr_d",
+  "data_type"        : "satwnd",
+  "cycle_type"       : "{{ RUN }}",
+  "cycle_datetime"   : "{{ current_cycle | to_YMDH }}",
+  "dump_directory"   : "{{ DMPDIR }}",
+  "ioda_directory"   : "{{ COM_OBS }}",
+  "subsets"          : [ "NC005030", "NC005031", "NC005032", "NC005034", "NC005039" ],
+  "data_description" : "NC005030 NESDIS SATWIND, GOES IR(LW);  NC005031 NESDIS SATWIND, GOES WV-IMG/DL; NC005032 NESDIS SATWIND, GOES VIS; NC005034 NESDIS SATWIND, GOES WV-IMG/CT; NC005039 NESDIS SATWIND, GOES IR(SW)", 
+  "data_provider"    : "U.S. NOAA/NESDIS",
+  "sensor_info"      : { "sensor_name": "ABI",  "sensor_full_name": "Advanced Baseline Imager",  "sensor_id": 617 },
+  "satellite_info"   : [
+                          { "satellite_name": "GOES-16", "satellite_full_name": "Geostationary Operational Satellite - 16", "satellite_id": 270, "launch time": "20161119" },
+                          { "satellite_name": "GOES-17", "satellite_full_name": "Geostationary Operational Satellite - 17", "satellite_id": 271, "launch time": "20180301" },
+                          { "satellite_name": "GOES-18", "satellite_full_name": "Geostationary Operational Satellite - 18", "satellite_id": 272, "launch time": "20220301" }
+                       ]
+}

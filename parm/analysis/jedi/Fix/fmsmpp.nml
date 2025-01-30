@@ -1,0 +1,17 @@
+&fms_io_nml
+       checksum_required       = F
+/
+
+&fms_nml
+       print_memory_usage=.false.
+       domains_stack_size = 30000000
+/
+
+&mpp_io_nml
+       header_buffer_val       = 16384
+       global_field_on_root_pe = T
+       io_clocks_on            = F
+       shuffle                 = 0
+       deflate_level           = -1
+       cf_compliance           = F
+/

@@ -46,6 +46,7 @@ if [ "${ENSDA}" = YES ]; then
   else
     NHRS=${NHRS_ENS:-6}
   fi
+  nest_grids=${nest_grids_ens:-1}
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
@@ -186,6 +187,14 @@ if [ "${ENSDA}" = YES ]; then
   intercompost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercomocnpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/ocn_post
   intercomgempak=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/gempak
+  if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
+   INPdir=${WORKhafs}/intercom/chgres_ens/mem${ENSID}
+   OUTdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}_ens/mem${ENSID}
+   RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+   intercompost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+   intercomocnpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/ocn_post
+   intercomgempak=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/gempak
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}
@@ -268,7 +277,7 @@ if [ ${RUN_ATM_VI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi
   #warm_start_opt=3
 fi
-if [ ${RUN_GSI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ANALYSIS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis
   #warm_start_opt=5
@@ -751,7 +760,6 @@ fi
 # Clean up RESTART and OUTdir if not a restart run
 if [ ! "${FORECAST_RESTART}" = "YES" ]; then
   rm -f RESTART/*
-  rm -rf ${OUTdir}
 fi
 mkdir -p ${OUTdir}
 cd ${OUTdir}

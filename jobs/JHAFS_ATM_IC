@@ -57,15 +57,20 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
-export FGAT_HR=${FGAT_HR:-00}
 
 if [ ${ENSDA} = YES ]; then
+  export FGAT_HR=${FGAT_HR:-06}
   export DATA=${WORKhafs}/atm_ic_ens/mem${ENSID}${jobidstr}
+  if [ ${RUN_ATM_INIT_FGAT_ENS:-NO} = YES ]; then
+    export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}_ens/mem${ENSID}${jobidstr}
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}${jobidstr}
 else
   export DATA=${WORKhafs}/atm_ic${jobidstr}
 fi
+
+export FGAT_HR=${FGAT_HR:-00}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
