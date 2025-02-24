@@ -31,7 +31,7 @@ if [ "$1" = "-r" -o -s $2 ] ; then
   ln -sf $2 ${symlink}
 else
   echo "WARNING: $2 does not exist or is empty."
-fi
+fi 
 
 if [ "$1" = "-r" ]; then
   # No checks, same as ln -sf
