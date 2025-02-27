@@ -12,7 +12,7 @@
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "2"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -760,7 +760,7 @@
 
 @** endif
 
-  <task name="forecast" maxtries="&MAX_TRIES;">
+  <task name="forecast" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast.log</cyclestr></join>
@@ -1662,6 +1662,12 @@
           <taskdep task="forecast" cycle_offset="6:00:00"/>
           <taskdep task="scrub_work" cycle_offset="6:00:00"/>
         </or>
+        <or>
+          <not><cycleexistdep cycle_offset="12:00:00"/></not>
+          <taskdep task="forecast" state="RUNNING" cycle_offset="12:00:00"/>
+          <taskdep task="forecast" cycle_offset="12:00:00"/>
+          <taskdep task="scrub_work" cycle_offset="12:00:00"/>
+        </or>
       </and>
     </dependency>
   </task>
@@ -1692,6 +1698,15 @@
             <taskdep task="archive_tape" cycle_offset="6:00:00"/>
             <taskdep task="archive_disk" cycle_offset="6:00:00"/>
             <datadep age="&COM_SCRUB_TIME;"><cyclestr offset="6:00:00">&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
+          </and>
+          <taskdep task="scrub_com" cycle_offset="6:00:00"/>
+        </or>
+        <or>
+          <not><cycleexistdep cycle_offset="12:00:00"/></not>
+          <and>
+            <taskdep task="archive_tape" cycle_offset="12:00:00"/>
+            <taskdep task="archive_disk" cycle_offset="12:00:00"/>
+            <datadep age="&COM_SCRUB_TIME;"><cyclestr offset="12:00:00">&COMhafs;/&STORMLABEL;.done</cyclestr></datadep>
           </and>
           <taskdep task="scrub_com" cycle_offset="6:00:00"/>
         </or>
