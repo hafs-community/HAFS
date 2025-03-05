@@ -198,7 +198,7 @@
                 name: CLWRetFromObs@DerivedMetaData
               clwbkg_function:
                 name: CLWRetFromBkg@DerivedMetaData
-              clwret_clearsky: [ 0.030,  0.030,  0.030,  0.020,  0.030,
+              clwret_clearsky: &atms_n20_obsx0 [ 0.030,  0.030,  0.030,  0.020,  0.030,
                                  0.080,  0.150,  0.000,  0.000,  0.000,
                                  0.000,  0.000,  0.000,  0.000,  0.000,
                                  0.020,  0.030,  0.030,  0.030,  0.030,
@@ -216,22 +216,18 @@
               channels: *atms_n20_channels
               xvar:
                 name: CLWRetSymmetric@DerivedMetaData
-              x0:    [ 0.030,  0.030,  0.030,  0.020,  0.030,
-                       0.080,  0.150,  0.000,  0.000,  0.000,
-                       0.000,  0.000,  0.000,  0.000,  0.000,
-                       0.020,  0.030,  0.030,  0.030,  0.030,
-                       0.050,  0.100]
-              x1:    [ 0.350,  0.380,  0.400,  0.450,  0.500,
+              x0: *atms_n20_obsx0
+              x1: &atms_n20_obsx1 [ 0.350,  0.380,  0.400,  0.450,  0.500,
                        1.000,  1.000,  0.000,  0.000,  0.000,
                        0.000,  0.000,  0.000,  0.000,  0.000,
                        0.350,  0.500,  0.500,  0.500,  0.500,
                        0.500,  0.500]
-              err0:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
+              err0: &atms_n20_obserr0 [ 4.500,  4.500,  4.500,  2.500,  0.550,
                        0.300,  0.300,  0.400,  0.400,  0.400,
                        0.450,  0.450,  0.550,  0.800,  4.000,
                        4.000,  4.000,  3.500,  3.000,  3.000,
                        3.000,  3.000]
-              err1:  [20.000, 25.000, 12.000,  7.000,  3.500,
+              err1: &atms_n20_obserr1 [20.000, 25.000, 12.000,  7.000,  3.500,
                        3.000,  0.800,  0.400,  0.400,  0.400,
                        0.450,  0.450,  0.550,  0.800,  4.000,
                       19.000, 30.000, 25.000, 16.500, 12.000,
@@ -347,11 +343,7 @@
             channels: *atms_n20_channels
             options:
               channels: *atms_n20_channels
-              obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
-                                  0.300,  0.300,  0.400,  0.400,  0.400,
-                                  0.450,  0.450,  0.550,  0.800,  4.000,
-                                  4.000,  4.000,  3.500,  3.000,  3.000,
-                                  3.000,  3.000]
+              obserr_clearsky: *atms_n20_obserr0
               clwret_function:
                 name: CLWRetFromObs@DerivedMetaData
               obserr_function:
@@ -463,11 +455,7 @@
               obserr_function:
                 name: InitialObsError@DerivedMetaData
                 channels: *atms_n20_channels
-              obserr_clearsky:  [ 4.500,  4.500,  4.500,  2.500,  0.550,
-                                  0.300,  0.300,  0.400,  0.400,  0.400,
-                                  0.450,  0.450,  0.550,  0.800,  4.000,
-                                  4.000,  4.000,  3.500,  3.000,  3.000,
-                                  3.000,  3.000]
+              obserr_clearsky: *atms_n20_obserr0
 
       - filter: Perform Action
         filter variables:
@@ -545,11 +533,11 @@
             channels: *atms_n20_channels
             use passive_bc: true
             sensor: atms_n20
-            use_flag: [ 1,  1,  1,  1,  1,
-                        1,  1,  1,  1,  1,
-                        1,  1,  1,  1,  4,
-                        1,  1,  1,  1,  1,
-                        1,  1]
+            use_flag: &atms_n20_useflag [1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1,
+                        1, 1,-1,-1,-1,
+                        1, 1, 1, 1, 1,
+                        1, 1]
         maxvalue: 1.0e-12
         actions:
           - name: set
@@ -567,11 +555,7 @@
           channels: *atms_n20_channels
           options:
             channels: *atms_n20_channels
-            use_flag: [ 1,  1,  1,  1,  1,
-                        1,  1,  1,  1,  1,
-                        1,  1,  1,  1,  4,
-                        1,  1,  1,  1,  1,
-                        1,  1]
+            use_flag: *atms_n20_useflag
         minvalue: 1.0e-12
         actions:
           - name: set

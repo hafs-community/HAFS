@@ -311,7 +311,7 @@
           channels: *abi_g18_channels
           options:
             channels: *abi_g18_channels
-            use_flag: &abi_g18_useflag [-1,1,-1,1,-1,-1,-1,-1,-1,-1]
+            use_flag: &abi_g18_useflag [-1,1,1,1,-1,-1,-1,-1,-1,-1]
             use_flag_clddet: [-2, -2, -2, -2, -2, -2, -2, -2, -2, -2]
             obserr_dtempf: [0.5, 2.0, 4.0, 2.0, 4.0]        
             error parameter vector: *abi_g18_obserr

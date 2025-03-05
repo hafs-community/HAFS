@@ -90,6 +90,7 @@ $Build_jedi && {
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/bufr2ioda.x                           ../exec/hafs_ioda.x
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_bc2ioda.x
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/gdas_fv3jedi_error_covariance_toolbox.x ../exec/hafs_nicas.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/bufr2netcdf.x                         ../exec/hafs_bufr2netcdf.x
 }
 
 #------------------------------------

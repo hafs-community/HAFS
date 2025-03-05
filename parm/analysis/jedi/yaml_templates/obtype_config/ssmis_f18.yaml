@@ -1,0 +1,371 @@
+    - obs space:
+        name: SSMIS F18
+        obsdatain:
+          engine:
+            type: H5File
+            obsfile: obs/hafs.#HH#.ssmis_f18.nc
+        obsdataout:
+          engine:
+            type: H5File
+            obsfile: hofx/hofx.ssmis_f18_#HH#.nc
+        io pool:
+          max pool size: 1
+        simulated variables: [brightnessTemperature]
+        channels: &ssmis_f18_channels 1-24
+    
+      # Observation Operator
+      # --------------------
+      obs operator:
+        name: CRTM
+        Absorbers: [H2O,O3,CO2]
+        Clouds: [Water, Ice]
+        Cloud_Fraction: 1.0
+        SurfaceWindGeoVars: uv
+        obs options:
+          Sensor_ID: ssmis_f18
+          EndianType: little_endian
+          CoefficientPath: crtm/
+        linear obs operator:
+          Absorbers: [H2O,O3]
+    
+      # Observation Bias Correction (VarBC)
+      # -----------------------------------
+      obs bias:
+        input file: obs/satbias_ssmis_f18_#HH#.nc
+        output file: bc/out_satbias_ssmis_f18_#HH#.nc
+        variational bc:
+          predictors:
+          - name: constant
+          - name: cloudWaterContent
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+          - name: cosineOfLatitudeTimesOrbitNode
+          - name: sineOfLatitude
+          - name: lapseRate
+            order: 2
+            tlapse: &ssmis_f18_tlapse obs/ssmis_f18.tlapse.txt
+          - name: lapseRate
+            tlapse: *ssmis_f18_tlapse
+          - name: emissivityJacobian
+          - name: sensorScanAngle
+            order: 4
+          - name: sensorScanAngle
+            order: 3
+          - name: sensorScanAngle
+            order: 2
+          - name: sensorScanAngle
+    
+        covariance:
+          minimal required obs number: 20
+          variance range: [1.0e-6, 10.0]
+          step size: 1.0e-4
+          largest analysis variance: 10000.0
+          prior:
+            input file: obs/satbias_ssmis_f18_#HH#_cov.nc
+            inflation:
+              ratio: 1.1
+              ratio for small dataset: 2.0
+          output file: bc/out_satbias_ssmis_f18_#HH#_cov.nc
+
+      obs pre filters:
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/latitude
+            minvalue: #MIN_LAT#
+            maxvalue: #MAX_LAT#
+        action:
+           name: reduce obs space
+
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/longitude
+            minvalue: #MIN_LON#
+            maxvalue: #MAX_LON#
+        action:
+           name: reduce obs space
+
+     # Observation Prior Filters (QC)
+     # ------------------------------
+      obs prior filters:
+      - filter: Perform Action
+        filter variables:
+        - name: brightnessTemperature
+          channels: *ssmis_f18_channels
+        action:
+          name: assign error
+          error parameter vector: &ssmis_f18_obserr [1.5,0.5,0.5,0.5,0.5,1,1,3,3,3,3,2.4,1.27,1.44,3,1.34,1.74,3.75,3,3,2,6.4,1,1]
+  
+    # Observation Post Filters (QC)
+    # -----------------------------
+      obs post filters:
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: *ssmis_f18_channels
+        test variables:
+        - name: GeoVaLs/observable_domain_mask
+          flag all filter variables if any test variable is out of bounds: true
+          minvalue: 0.0
+          maxvalue: 0.5
+
+      #step1: Gross check (setuprad)
+      - filter: Background Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-24
+        threshold: 1.5
+        action:
+          name: reject
+      #step1: Gross check(qcmod)
+      - filter: Background Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-24
+        absolute threshold: 3.5
+        remove bias correction: true
+        action:
+          name: reject
+
+      # clw check
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1,8-11,17-18
+        test variables:
+        - name: ObsFunction/CLWRetMW_SSMIS
+          options:
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+            varGroup: ObsValue
+        minvalue: 0.0
+        maxvalue: 0.1
+        where:
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
+      # ch2
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 2,12-16
+        test variables:
+        - name: ObsFunction/CLWRetMW_SSMIS
+          options:
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+            varGroup: ObsValue
+        minvalue: 0.0
+        maxvalue: 0.2
+        where:
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
+      #ch3
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 3
+        test variables:
+        - name: ObsFunction/CLWRetMW_SSMIS
+          options:
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+            varGroup: ObsValue
+        minvalue: 0.0
+        maxvalue: 0.6
+        where:
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
+      #ch4-7
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 4-7
+        test variables:
+        - name: ObsFunction/CLWRetMW_SSMIS
+          options:
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+            varGroup: ObsValue
+        minvalue: 0.0
+        maxvalue: 2.0
+        where:
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
+      #ch19-24
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 19-24
+        test variables:
+        - name: ObsFunction/CLWRetMW_SSMIS
+          options:
+            sensor: SSMIS
+            ch19h: 12
+            ch19v: 13
+            ch22v: 14
+            ch37h: 15
+            ch37v: 16
+            ch91v: 17
+            ch91h: 18
+            varGroup: ObsValue
+        minvalue: 0.0
+        maxvalue: 10.0
+        where:
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
+
+      - filter: Difference Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-2,12-16
+        reference: brightnessTemperature_2@ObsValue
+        value: brightnessTemperature_2@HofX
+        minvalue: -1.5
+        maxvalue: 1.5
+        where:
+        - variable:
+            name: water_area_fraction@GeoVaLs
+          maxvalue: 0.99
+
+      #QC_terrain: If seviri and terrain height > 2km. do not use
+      - filter: Domain Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-24
+        where:
+        - variable:
+            name: height_above_mean_sea_level_at_surface@GeoVaLs
+          maxvalue: 2000.0
+
+      #do not use over mixed surface
+      - filter: BlackList
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-3,8-18
+        where:
+        - variable:
+            name: land_area_fraction@GeoVaLs
+          maxvalue: 0.99
+        - variable:
+            name: water_area_fraction@GeoVaLs
+          maxvalue: 0.99
+        - variable:
+            name: ice_area_fraction@GeoVaLs
+          maxvalue: 0.99
+        - variable:
+            name: surface_snow_area_fraction@GeoVaLs
+          maxvalue: 0.99
+      #step4: Generate q.c. bounds and modified variances
+      - filter: BlackList
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-24
+        action:
+          name: inflate error
+          inflation variable:
+      #  Surface Jacobian check
+            name: ObsErrorFactorSurfJacobianRad@ObsFunction
+            channels: 1-24
+            options:
+              channels: 1-24
+              sensor: ssmis_f18
+              obserr_demisf: [0.010, 0.010, 0.010, 0.010, 0.010]
+              obserr_dtempf: [0.500, 0.500, 0.500, 0.500, 0.500]
+
+      # Data Thinning
+      - filter: Gaussian Thinning
+        filter variables:
+        - name: brightnessTemperature
+          channels: *ssmis_f18_channels
+        horizontal_mesh: 45
+        use_reduced_horizontal_grid: true
+        distance_norm: geodesic
+      #  round_horizontal_bin_count_to_nearest: true
+      #  partition_longitude_bins_using_mesh: true
+        action:
+          name: reject
+
+      #  Useflag Check
+      - filter: Bounds Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-24
+        test variables:
+        - name: ChannelUseflagCheckRad@ObsFunction
+          channels: 1-24
+          options:
+            channels: 1-24
+            use_flag: &ssmis_f18_obsuse [-1,-1,-1,-1,-1,
+                        -1,-1,-1,-1,-1,
+                        -1,-1,-1,-1,-1,
+                        -1,-1,-1,-1,-1,
+                        -1,-1,-1,-1]
+        minvalue: 1.0e-12
+        action:
+          name: reject
+
+#      # Step 12: Is this corresponds to Tz retrieval check? Why not using in GDASApp? Do we need it?
+#      - filter: Bounds Check
+#        filter variables:
+#        - name: brightnessTemperature
+#          channels: *ssmis_f18_channels
+#        test variables:
+#        - name: NearSSTRetCheckIR@ObsFunction
+#          channels: *ssmis_f18_channels
+#          options:
+#            channels: *ssmis_f18_channels
+#            use_flag: *ssmis_f18_obsuse
+#        obserr_demisf: [0.010, 0.010, 0.010, 0.010, 0.010]
+#        obserr_dtempf: [0.500, 0.500, 0.500, 0.500, 0.500]
+#        maxvalue: 1.0e-12
+#        action:
+#          name: reject
+#      # scattering affected data removal is also not found. Do we need it?

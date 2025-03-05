@@ -152,8 +152,9 @@
         action:
           name: reject
           name: reduce obs space
-      # Step 6: Wavenumber Check
+
       obs post filters:
+      # Online Domain check
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -164,6 +165,7 @@
           minvalue: 0.0
           maxvalue: 0.5
 
+      # Step 6: Wavenumber Check
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
@@ -194,6 +196,7 @@
             channels: *iasi_metop-b_channels
             options:
               channels: *iasi_metop-b_channels
+
       # Step 8: Observation Range Sanity Check
       - filter: Bounds Check
         filter variables:

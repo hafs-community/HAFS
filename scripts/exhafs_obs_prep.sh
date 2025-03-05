@@ -13,6 +13,18 @@ CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
+#CDATEtm03=$(${NDATE} -3 $CDATE)
+#ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+#yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+#mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+#dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+#hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+#CDATEtp03=$(${NDATE} +3 $CDATE)
+#ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+#yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+#mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+#dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+#hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
 atmos="atmos/"
 COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
@@ -365,12 +377,16 @@ cd ${DATA}
 mkdir -p jedi_ioda
 cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18"
-radtypes="atms_npp atms_n20 amsua_n18 amsua_n19 iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
-sattypes="atms 1bamua mtiasi gsrcsr"
-#radtypes="cris_n20 cris_npp"
-#sattypes="crisf4"
-obstypes="ADPUPA ${radtypes} ${convtypes}"
+#XL convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18"
+#XL radtypes="atms_npp atms_n20 amsua_n18 amsua_n19 iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18 ssmis_f17"
+#XL sattypes="atms 1bamua mtiasi gsrcsr ssmisu"
+#XL obstypes="ADPUPA ${radtypes} ${convtypes}"
+#XL satbufrs="atms 1bamua mtiasi gsrcsr ssmisu"
+radtypes="atms_n20 atms_npp" # amsua_n18 amsua_n19 ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b"
+sattypes="atms" # ssmis" # amsua"
+satbufrs="atms" # ssmisu" # 1bamua esamua"
+#convbufrs="satwnd_amv_abi"
+obstypes="${radtypes} ${convtypes}"
 IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
 IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
 tilestr=` expr ${nest_grids} + 6 `
@@ -378,11 +394,10 @@ GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile$
 output_dir=${DATA}/jedi_ioda/output
 ${NCP} ${IODAEXEC} .
 ${NCP} ${IODABCEXEC} .
-for file in ${sattypes}; do
+for file in ${satbufrs}; do
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
 done
 ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr hafs.t${cyc}z.prepbufr
-
 ${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias gdas.t${cyc}z.abias
 ${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias_pc gdas.t${cyc}z.abias_pc
 sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
@@ -398,7 +413,7 @@ for file in ${sattypes}; do
  fi
 done
 ############### RUN bufr2ioda, either using exec or python #######################
-bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir}
+#bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir}
 export err=$?; err_chk
 for file in ${sattypes}; do
  if [ -s bufr_ncep_${file}.yaml ]; then
@@ -407,12 +422,25 @@ for file in ${sattypes}; do
  fi
 done
 ######## Temp convert prepbufr only #####
-ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
-sed -e "s|#HH#|t${cyc}z|g" \
-    -e "s|#ANADATE#|${ANADATE}|g" \
-    ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_prepbufr.yaml > bufr_ncep_prepbufr.yaml
-${APRUNS} ${IODAEXEC} bufr_ncep_prepbufr.yaml # use executable to convert prepbufr, may need to merge with satwnd if both using the same exe
-export err=$?; err_chk
+#ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+#sed -e "s|#HH#|t${cyc}z|g" \
+#    -e "s|#ANADATE#|${ANADATE}|g" \
+#    ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_prepbufr.yaml > bufr_ncep_prepbufr.yaml
+#${APRUNS} ${IODAEXEC} bufr_ncep_prepbufr.yaml # use executable to convert prepbufr, may need to merge with satwnd if both using the same exe
+#export err=$?; err_chk
+############### RUN bufrquery #######################
+#${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
+#${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
+#for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
+# ${NCP} -rp ${file} .
+#done
+#for file in ${sattypes}; do
+# if [[ "${file}" = "ssmis" ]]; then
+#  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}u.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+# else
+#  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+# fi
+#done
 ########## Converting ATMS NPP/N20 to ioda nc #################
 for file in ${sattypes}; do
  if [ -s satbias_converter_${file}.yaml ]; then

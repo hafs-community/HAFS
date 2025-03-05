@@ -105,10 +105,10 @@
                   clwret_ch238: 1
                   clwret_ch314: 2
                   clwret_types: [ObsValue, HofX]
-              x0: &obsx0 [0.05,0.03,0.03,0.02,0.0,0.1,0.,0.,0.,0.,0.,0.,0.,0.,0.03]
-              x1: &obsx1 [0.60,0.45,0.40,0.45,1.0,1.5,0.,0.,0.,0.,0.,0.,0.,0.,0.2]
-              err0: &obserr0 [3.000,2.200,2.000,0.600,0.300,0.230,0.250,0.275,0.340,0.400,0.600,1.000,1.500,2.000,3.500]
-              err1: &obserr1 [20.000,18.000,12.000,3.000,0.500,0.300,0.250,0.275,0.340,0.400,0.600,1.000,1.500,2.000,18.000]
+              x0: &amsua_n19_obsx0 [0.05,0.03,0.03,0.02,0.0,0.1,0.,0.,0.,0.,0.,0.,0.,0.,0.03]
+              x1: &amsua_n19_obsx1 [0.60,0.45,0.40,0.45,1.0,1.5,0.,0.,0.,0.,0.,0.,0.,0.,0.2]
+              err0: &amsua_n19_obserr0 [2.500,2.200,2.000,0.550,0.300,0.230,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,3.500]
+              err1: &amsua_n19_obserr1 [20.000,18.000,12.000,3.000,0.500,0.300,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,18.000]
       #  CLW Retrieval Check
       - filter: Bounds Check
         filter variables:
@@ -147,7 +147,7 @@
           channels: *amsua_n19_channels
           options:
             channels: *amsua_n19_channels
-            obserr_clearsky: *obserr0
+            obserr_clearsky: *amsua_n19_obserr0
             clwret_function:
               name: ObsFunction/CLWRetMW
               options:
@@ -165,10 +165,10 @@
                     clwret_ch238: 1
                     clwret_ch314: 2
                     clwret_types: [ObsValue, HofX]
-                x0: *obsx0
-                x1: *obsx1
-                err0: *obserr0
-                err1: *obserr1
+                x0: *amsua_n19_obsx0
+                x1: *amsua_n19_obsx1
+                err0: *amsua_n19_obserr0
+                err1: *amsua_n19_obserr1
         maxvalue: 0.0
         action:
           name: reject
@@ -183,7 +183,7 @@
             name: ObsFunction/ObsErrorFactorTopoRad
             channels: *amsua_n19_channels
             options:
-              sensor: &sensor_id amsua_n19
+              sensor: &amsua_n19_sensor amsua_n19
               channels: *amsua_n19_channels
       #  Transmittnace Top Check
       - filter: BlackList
@@ -196,7 +196,7 @@
             name: ObsFunction/ObsErrorFactorTransmitTopRad
             channels: *amsua_n19_channels
             options:
-              sensor: *sensor_id
+              sensor: *amsua_n19_sensor
               channels: *amsua_n19_channels
       #  Surface Jacobian check
       - filter: BlackList
@@ -209,7 +209,7 @@
             name: ObsFunction/ObsErrorFactorSurfJacobianRad
             channels: *amsua_n19_channels
             options:
-              sensor: *sensor_id
+              sensor: *amsua_n19_sensor
               channels: *amsua_n19_channels
               obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
               obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
@@ -224,7 +224,7 @@
             name: ObsFunction/ObsErrorFactorSituDependMW
             channels: *amsua_n19_channels
             options:
-              sensor: *sensor_id
+              sensor: *amsua_n19_sensor
               channels: *amsua_n19_channels
               clwobs_function:
                 name: ObsFunction/CLWRetMW
@@ -265,7 +265,7 @@
                       clwret_ch314: 2
                       clwret_types: [HofX]
                       bias_application: HofX
-                  clwret_clearsky: *obsx0
+                  clwret_clearsky: *amsua_n19_obsx0
               obserr_function:
                 name: ObsFunction/ObsErrorModelRamp
                 channels: *amsua_n19_channels
@@ -277,11 +277,11 @@
                       clwret_ch238: 1
                       clwret_ch314: 2
                       clwret_types: [ObsValue, HofX]
-                  x0: *obsx0
-                  x1: *obsx1
-                  err0: *obserr0
-                  err1: *obserr1
-              obserr_clearsky: *obserr0
+                  x0: *amsua_n19_obsx0
+                  x1: *amsua_n19_obsx1
+                  err0: *amsua_n19_obserr0
+                  err1: *amsua_n19_obserr1
+              obserr_clearsky: *amsua_n19_obserr0
 
       #  Gross check
       - filter: Background Check
@@ -292,7 +292,7 @@
         - name: ObsFunction/ObsErrorBoundMW
           channels: *amsua_n19_channels
           options:
-            sensor: *sensor_id
+            sensor: *amsua_n19_sensor
             channels: *amsua_n19_channels
             obserr_bound_latitude:
               name: ObsFunction/ObsErrorFactorLatRad
@@ -308,7 +308,7 @@
               channels: *amsua_n19_channels
               options:
                 channels: *amsua_n19_channels
-                sensor: *sensor_id
+                sensor: *amsua_n19_sensor
             obserr_function:
               name: ObsFunction/ObsErrorModelRamp
               channels: *amsua_n19_channels
@@ -321,10 +321,10 @@
                     clwret_ch314: 2
                     clwret_types: [ObsValue, HofX]
                     bias_application: HofX
-                x0: *obsx0
-                x1: *obsx1
-                err0: *obserr0
-                err1: *obserr1
+                x0: *amsua_n19_obsx0
+                x1: *amsua_n19_obsx1
+                err0: *amsua_n19_obserr0
+                err1: *amsua_n19_obserr1
             obserr_bound_max: [4.5, 4.5, 4.5, 2.5, 2.0,
                                2.0, 2.0, 2.0, 2.0, 2.0,
                                2.5, 3.5, 4.5, 4.5, 4.5]
@@ -340,10 +340,10 @@
           channels: *amsua_n19_channels
           options:
             channels: *amsua_n19_channels
-            sensor: *sensor_id
-            use_flag: [1, 1, 1, 1, 1,
-                       0, 1, 1, 1, 1,
-                       0, 0, 0, 0, 1]
+            sensor: *amsua_n19_sensor
+            use_flag: &amsua_n19_useflag [1, 1, 1, 1, 1,
+                       1,-1,-1, 1, 1,
+                       1,-1,-1,-1, 1]
         maxvalue: 1.0e-12
         action:
           name: reject
@@ -356,11 +356,9 @@
         - name: ObsFunction/ChannelUseflagCheckRad
           channels: *amsua_n19_channels
           options:
-            sensor: *sensor_id
+            sensor: *amsua_n19_sensor
             channels: *amsua_n19_channels
-            use_flag: [1, 1, 1, 1, 1,
-                       0, 1, 1, 1, 1,
-                       0, 0, 0, 0, 1]
+            use_flag: *amsua_n19_useflag
         minvalue: 1.0e-12
         action:
           name: reject
