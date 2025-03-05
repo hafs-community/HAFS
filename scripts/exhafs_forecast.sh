@@ -298,6 +298,11 @@ if [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/m
   RESTARTinp=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   #warm_start_opt=1
 fi
+if [ ${RUN_ATM_INIT_FGAT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+  warmstart_from_restart=yes
+  RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+  #warm_start_opt=1
+fi
 if [ ${RUN_ATM_MERGE_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}

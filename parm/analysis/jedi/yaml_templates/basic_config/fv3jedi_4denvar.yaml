@@ -83,7 +83,7 @@ cost function:
       filetype: fms restart
       datapath: bkg/
       <<: *fv3file_names3
-    state variables: &3dvars_state [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_thickness,water_vapor_mixing_ratio_wrt_moist_air,layer_thickness,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,cloud_ice_number_concentration,rain_number_concentration,ozone_mass_mixing_ratio,phis,slmsk,sheleg,skin_temperature_at_surface,vtype,stype,vfrac,stc,smc,snwdph,u_srf,v_srf,f10m]
+      state variables: &3dvars_state [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_thickness,water_vapor_mixing_ratio_wrt_moist_air,layer_thickness,cloud_liquid_ice,cloud_liquid_water,snow_water,rain_water,graupel,cloud_ice_number_concentration,rain_number_concentration,ozone_mass_mixing_ratio,phis,slmsk,sheleg,skin_temperature_at_surface,vtype,stype,vfrac,stc,smc,snwdph,u_srf,v_srf,f10m]
     - datetime: _ANALYSISDATE_
       filetype: fms restart
       datapath: bkg/
@@ -151,7 +151,14 @@ variational:
     geometry:
       <<: *ens_geometry_configs
     diagnostics:
-      departures: ombg
+      departures: ombg1
+  - ninner: 50
+    gradient norm reduction: 1e-60
+    test: on
+    geometry:
+      <<: *ens_geometry_configs
+    diagnostics:
+      departures: ombg2
 final:
   diagnostics:
     departures: oman

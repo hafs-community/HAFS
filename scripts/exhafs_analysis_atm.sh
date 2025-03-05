@@ -193,21 +193,13 @@ elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
   RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init_fgat09
 else
   if [ ${RUN_ATM_VI} = "YES" ]; then
-    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
-    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi
   elif [ ${RUN_ATM_MERGE} = "YES" ]; then
-    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
-    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
   elif [ ${RUN_ATM_INIT} = "YES" ]; then
-    RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
-    RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
+    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
   else
-    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
     RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
-    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
   fi
 fi
 RESTARTinp=${RESTARTinp_fgat06}
@@ -225,6 +217,10 @@ ${NLN} ${RESTARTinp}/${FV3_SFCD_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_SFCW_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_CPLR_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_AKBK_FILE} .
+### Additional step to copy surface height into SFC_DATA file for SSMIS DA
+ncks -v zsurf ${RESTARTinp}/atmos_static.nc -o zsurf.nc
+ncks -A zsurf.nc ${FV3_SFCD_FILE}
+
 if [ ${RUN_FGAT} = "YES" ]; then
   ${NLN} ${RESTARTinp_fgat03}/${FV3_CORE_FILE3} .
   ${NLN} ${RESTARTinp_fgat03}/${FV3_TRCR_FILE3} .
@@ -259,6 +255,8 @@ if [ ${RUN_ENVAR} = "YES" ]; then
   mkdir ${DATA}/ensemble_data
   cd ${DATA}/ensemble_data
   rm -f cmdfile_interpolate_ens_*
+  export icount=1
+  export ibatch=1
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
   do
    mkdir ${DATA}/ensemble_data/mem${mem}
@@ -307,18 +305,18 @@ EOFcopy
 EOFcopy
      fi
      chmod +x ./interpolate_ens${mem}_${var}.sh
-     echo "./interpolate_ens${mem}_${var}.sh" >> cmdfile_interpolate_ens_${var}
+     echo "./interpolate_ens${mem}_${var}.sh" >> cmdfile_interpolate_ens_${var}_batch${ibatch}
    done
    if [ ${l4denvar:-.false.} = ".true." ]; then
      export ENS_NSTARTHR=3
      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}
      fhh="03"
-     ${NLN} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-     ${NLN} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
      for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-       ${NCP} ${RESTARTinp}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
+       ${NCP} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
        in_grid=${RESTARTens}/grid_spec.nc
-       out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+       out_grid=${RESTARTinp_fgat03}/grid_spec${nesttilestr}.nc
        if [ "${var}" = "sfc_data" ]; then
         in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.nc
        else
@@ -348,16 +346,16 @@ EOFcopy
 EOFcopy
        fi
        chmod +x ./interpolate03_ens${mem}_${var}.sh
-       echo "./interpolate03_ens${mem}_${var}.sh" >> cmdfile_interpolate03_ens_${var}
+       echo "./interpolate03_ens${mem}_${var}.sh" >> cmdfile_interpolate03_ens_${var}_batch${ibatch}
      done
      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}
      fhh="09"
-     ${NLN} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-     ${NLN} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
+     ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
      for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-       ${NCP} ${RESTARTinp}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
+       ${NCP} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
        in_grid=${RESTARTens}/grid_spec.nc
-       out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+       out_grid=${RESTARTinp_fgat09}/grid_spec${nesttilestr}.nc
        if [ "${var}" = "sfc_data" ]; then
         in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.nc
        else
@@ -387,8 +385,14 @@ EOFcopy
 EOFcopy
        fi
        chmod +x ./interpolate09_ens${mem}_${var}.sh
-       echo "./interpolate09_ens${mem}_${var}.sh" >> cmdfile_interpolate09_ens_${var}
+       echo "./interpolate09_ens${mem}_${var}.sh" >> cmdfile_interpolate09_ens_${var}_batch${ibatch}
      done
+   fi
+   if [ ${icount} -lt 20 ]; then
+     icount=$((icount + 1))
+   else
+     icount=1
+     ibatch=$((ibatch + 1))
    fi
 #    ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE} .
 #    ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE} .
@@ -416,27 +420,31 @@ EOFcopy
 #      ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE9} .
 #    fi
   done
-  if [ ${n_ens_fv3sar} -le ${TOTAL_TASKS} ]; then
-   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-    srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}
-    if [ ${l4denvar:-.false.} = ".true." ]; then
-      srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile03_interpolate_ens_${var}
-      srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile09_interpolate_ens_${var}
-    fi
-   done
-  else
+  ibatch=$((ibatch - 1))
+  for i in $(seq 1 ${ibatch}); do
+   if [ ${n_ens_fv3sar} -le ${TOTAL_TASKS} ]; then
+    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+#     srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}_batch${ibatch}
+     srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}_batch${ibatch}
+     if [ ${l4denvar:-.false.} = ".true." ]; then
+       srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate03_ens_${var}_batch${ibatch}
+       srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate09_ens_${var}_batch${ibatch}
+     fi
+    done
+   else
     echo "Warning!!! TOTAL_TASKS ${TOTAL_TASKS} is not enough for parallel running Interpolation. At least ${n_ens_fv3sar} is needed. Use serial for now. May take too long!!!"
-   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-    chmod +x cmdfile_interpolate_ens_${var}
-    ./cmdfile_interpolate_ens_${var}
-    if [ ${l4denvar:-.false.} = ".true." ]; then
-      chmod +x cmdfile_interpolate03_ens_${var}
-      ./cmdfile_interpolate03_ens_${var}
-      chmod +x cmdfile_interpolate09_ens_${var}
-      ./cmdfile_interpolate09_ens_${var}
-    fi
-   done
-  fi
+    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+     chmod +x cmdfile_interpolate_ens_${var}_batch${ibatch}
+     ./cmdfile_interpolate_ens_${var}_batch${ibatch}
+     if [ ${l4denvar:-.false.} = ".true." ]; then
+       chmod +x cmdfile_interpolate03_ens_${var}_batch${ibatch}
+       ./cmdfile_interpolate03_ens_${var}_batch${ibatch}
+       chmod +x cmdfile_interpolate09_ens_${var}_batch${ibatch}
+       ./cmdfile_interpolate09_ens_${var}_batch${ibatch}
+     fi
+    done
+   fi
+  done
 fi # endif ${RUN_ENVAR}
 #exit #XL
 
@@ -508,10 +516,10 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
-convsubtypes="adpupa_airTemperature_120 adpupa_uv_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
-radtypes="atms_npp amsua_n19 atms_n20 abi_g16 iasi_metop-b"
-#radtypes="abi_g16"
+#convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
+#convsubtypes="adpupa_airTemperature_120 adpupa_uv_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
+#radtypes="atms_npp amsua_n19 atms_n20 abi_g16 iasi_metop-b ssmis_f17 "
+radtypes="atms_npp atms_n20"
 obstypes="${convtypes} ${convsubtypes} ${radtypes}"
 bctypes="${radtypes}"
 mkdir ${DATA}/obs
@@ -571,9 +579,8 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
-#srun -l -n ${TOTAL_TASKS} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
-#srun -l -n ${TOTAL_TASKS} /work/noaa/hwrf/save/xulu/JEDI/newest/GDASApp20241209/build/bin/gdas_fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
-srun -l -n ${TOTAL_TASKS} /work/noaa/hwrf/save/xulu/JEDI/newest/HDASApp/build/bin/fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
+srun -l -n ${TOTAL_TASKS} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+#srun -l -n ${TOTAL_TASKS} /scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas_fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
 rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
@@ -695,12 +702,10 @@ sed -i '/@OBSERVATIONS@/{
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
 #-------------------------------------------------------------------
-#ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
-#ANALYSISEXEC=/work/noaa/hwrf/save/xulu/JEDI/newest/HDASApp/build/bin/fv3jedi_var.x
-ANALYSISEXEC=/work/noaa/hwrf/save/xulu/JEDI/newest/GDASApp20241230/build/bin/gdas.x
+ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
 ${SOURCE_PREP_STEP}
-
+#ANALYSISEXEC=/scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas.x
 #srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} jedi.yaml jedi.out
 srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
 export err=$?; err_chk #XL Note: Need to add exit when error check failed, currently will continue
@@ -740,10 +745,15 @@ if [[ ! -z "$neststr" ]] ; then
 fi
 
 ## Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
+if [ ${l4denvar:-.false.} = ".true." ]; then
+ IN_FILE=${DATA}/${PDY}.${cyc}0000.fv_core.res.nc
+else
+ IN_FILE=${DATA}/analysis.fv_core.res.nc
+fi
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 ${APRUNS} ${DATOOL} ua_update_u \
    --in_grid=${RESTARTanl}/grid_spec${nesttilestr}.nc \
-   --in_file=${DATA}/analysis.fv_core.res.nc \
+   --in_file=${IN_FILE} \
    --out_file=${RESTARTanl}/${FV3_CORE_FILE}
 
 ncks -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} -A ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file

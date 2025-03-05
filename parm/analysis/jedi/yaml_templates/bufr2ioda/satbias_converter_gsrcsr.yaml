@@ -13,6 +13,7 @@ default predictors: &default_preds
 - sensorScanAngle_order_3
 - sensorScanAngle_order_2
 - sensorScanAngle
+
 output:
 - sensor: abi_g16
   output file: output/satbias_abi_g16_#HH#.nc

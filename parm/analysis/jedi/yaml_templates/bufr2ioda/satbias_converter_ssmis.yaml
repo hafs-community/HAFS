@@ -15,18 +15,14 @@ default predictors: &default_preds
 - sensorScanAngle
 
 output:
-- sensor: amsua_metop-a
-  output file: output/satbias_amsua_metop-a_#HH#.nc
+- sensor: ssmis_f17
+  output file: output/satbias_ssmis_f17_#HH#.nc
   predictors: *default_preds
 
-- sensor: amsua_metop-b
-  output file: output/satbias_amsua_metop-b_#HH#.nc
+- sensor: ssmis_f18
+  output file: output/satbias_ssmis_f18_#HH#.nc
   predictors: *default_preds
 
-- sensor: amsua_n18
-  output file: output/satbias_amsua_n18_#HH#.nc
-  predictors: *default_preds
-
-- sensor: amsua_n19
-  output file: output/satbias_amsua_n19_#HH#.nc
+- sensor: ssmis_f19
+  output file: output/satbias_ssmis_f19_#HH#.nc
   predictors: *default_preds

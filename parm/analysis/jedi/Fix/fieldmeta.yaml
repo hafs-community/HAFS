@@ -1,10 +1,10 @@
 field metadata:
 
-- long name: u_component_of_native_D_grid_wind
-  io name: u
+- long name: eastward_wind
+  io name: ua
 
-- long name: v_component_of_native_D_grid_wind
-  io name: v
+- long name: northward_wind
+  io name: va
 
 - long name: air_temperature
   io name: T
