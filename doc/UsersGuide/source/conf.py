@@ -30,6 +30,11 @@ version = 'develop'
 # The full version, including alpha/beta/rc tags
 release = 'Develop Branch Documentation'
 
+# Documentation-wide substitutions
+rst_prolog = """
+.. |latestr| replace:: v2.0
+"""
+
 numfig = True
 
 

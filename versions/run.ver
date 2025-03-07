@@ -1,8 +1,8 @@
 #! /bin/sh
 
-export hafs_ver=v2.0.3
+export hafs_ver=v2.0.6
 export gfs_ver=v16.3
-export rtofs_ver=v2.3
+export rtofs_ver=v2.4
 export obsproc_ver=v1.2
 
 export envvar_ver=1.0
@@ -56,7 +56,7 @@ export ncdiag_ver=1.1.2
 #export COMPATH=/lfs/h1/ops/prod/com/gfs:/lfs/h1/ops/prod/com/rtofs:/lfs/h1/ops/prod/com/obsproc
 #export COMINarch=/lfs/h1/ops/prod/com/gfs/v16.3/syndat
 #export COMINmsg=/lfs/h1/ops/prod/com/hafs/v1.0/inphfsa
-#export MAILTO="wei.wei@noaa.gov"
-#export MAILFROM="wei.wei@noaa.gov"
+#export MAILTO="floyd.fayton@noaa.gov"
+#export MAILFROM="floyd.fayton@noaa.gov"
 #export EMAIL_SDM=NO
 

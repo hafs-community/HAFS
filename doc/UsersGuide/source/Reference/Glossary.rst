@@ -6,6 +6,9 @@ Glossary
 
 .. glossary::
 
+   AMVs
+      Atmospheric Motion Vectors
+   
    CCPP
       The `Common Community Physics Package <https://dtcenter.org/community-code/common-community-physics-package-ccpp>`_ is a forecast-model agnostic, vetted collection of code containing atmospheric physical parameterizations and suites of parameterizations for use in Numerical Weather Prediction (NWP) along with a framework that connects the physics to the host forecast model.
 
@@ -17,7 +20,16 @@ Glossary
 
    CMEPS
       The `Community Mediator for Earth Prediction Systems <https://github.com/NOAA-EMC/CMEPS>`__ (CMEPS) is a :term:`NUOPC`-compliant :term:`mediator` used for coupling Earth system model components. It is currently being used in NCAR's Community Earth System Model (:term:`CESM`) and NOAA's subseasonal-to-seasonal (S2S) coupled system. More information is available in the `CMEPS Documentation <https://escomp.github.io/CMEPS/versions/master/html/index.html>`__.
-
+   
+   COM
+      On operational systems such as WCOSS, this is the name of the directory used to store output files and other data that need to be archived.
+   
+   CPHC
+      Central Pacific Hurricane Center
+   
+   CPAC
+      Central Pacific
+   
    cron
    crontab
    cron table
@@ -39,24 +51,58 @@ Glossary
    dynamical core
       Global atmospheric model based on fluid dynamics principles, including Euler's equations of motion.
 
+   EDMF
+      Eddy-Diffusivity Mass-Flux
+
+   EPAC
+      Eastern Pacific
+
    ESMF
       `Earth System Modeling Framework <https://earthsystemmodeling.org/docs/release/latest/ESMF_usrdoc/>`__. The ESMF defines itself as "a suite of software tools for developing high-performance, multi-component Earth science modeling applications." It is a community-developed software infrastructure for building and coupling models. 
 
    FGAT
-      First Guess at Approximate Time. 
+      First Guess at Approximate Time
 
    FV3
       The Finite-Volume Cubed-Sphere :term:`dynamical core` (dycore). Developed at NOAA's `Geophysical 
       Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`__ (GFDL), it is a scalable and flexible dycore capable of both hydrostatic and non-hydrostatic atmospheric simulations. It is the dycore used in the UFS Weather Model.
-
+   
+   GDAS
+      Global Data Assimilation System
+   
+   GFDL
+      `Geophysical 
+      Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`_
+   
+   GFS
+      `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`_. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples several models (including atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
+   
+   GOES-R
+      Geostationary Operational Environmental Satellite-R Series
+   
+   GRIB2
+      Gridded Binary 2; the second version of the World Meterological Organization's (WMO) standard for distributing gridded data.
+   
+   HAFS
+      Hurricane Analysis and Forecast System
+   
+   HFSA
+      Hurricane Forecast System Configuration A
+   
+   HFSB
+      Hurricane Forecast System Configuration B
+   
    HPC
-      High-Performance Computing.
+      High-Performance Computing
 
    HPSS
-      NOAA's High Performance Storage System (HPSS).
+      NOAA's High Performance Storage System (HPSS)
 
    HYCOM
       The HYbrid Coordinate Ocean Model (`HYCOM <https://www.hycom.org/>`__) was developed to address known shortcomings in the vertical coordinate scheme of the Miami Isopycnic-Coordinate Ocean Model (MICOM). HYCOM is a primitive equation, general circulation model with vertical coordinates that remain isopycnic in the open, stratified ocean. However, the isopycnal vertical coordinates smoothly transition to z-coordinates in the weakly stratified upper-ocean mixed layer, to terrain-following sigma coordinates in shallow water regions, and back to z-level coordinates in very shallow water. The latter transition prevents layers from becoming too thin where the water is very shallow. See the `HYCOM User's Guide <https://www.hycom.org/attachments/063_hycom_users_guide.pdf>`__ for more information on using the model. The `HYCOM model code <https://github.com/NOAA-EMC/HYCOM-src>`__ is publicly available on GitHub. 
+   
+   JTWC
+      Joint Typhoon Warning Center
 
    Mediator
       A mediator, sometimes called a coupler, is a software component that includes code for representing component interactions. Typical operations include merging data fields, ensuring consistent treatment of coastlines, computing fluxes, and temporal averaging.
@@ -65,7 +111,13 @@ Glossary
    MOM6
    Modular Ocean Model
       MOM6 is the latest generation of the Modular Ocean Model. It is numerical model code for simulating the ocean general circulation. MOM6 was originally developed by the `Geophysical Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/mom-ocean-model/>`__. Currently, `MOM6 code <https://github.com/mom-ocean/MOM6>`__ and an `extensive suite of test cases <https://github.com/NOAA-GFDL/MOM6-examples/wiki>`__ are available under an open-development software framework. Although there are many public forks of MOM6, the `NOAA EMC fork <https://github.com/NOAA-EMC/MOM6>`__ is used in the UFS Weather Model. 
-
+   
+   MP
+      Microphysics
+   
+   NATL
+      North Atlantic
+   
    NCAR
       The `National Center for Atmospheric Research <https://ncar.ucar.edu/>`__. 
 
@@ -75,6 +127,12 @@ Glossary
 
    netCDF
       NetCDF (`Network Common Data Form <https://www.unidata.ucar.edu/software/netcdf/>`__) is a file format and community standard for storing multidimensional scientific data. It includes a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data.
+   
+   NHC
+      National Hurricane Center
+   
+   NIO
+      Northern Indian Ocean
 
    NUOPC
    National Unified Operational Prediction Capability
@@ -85,10 +143,28 @@ Glossary
       NUOPC applications are built on four generic components: driver, model, :term:`mediator`, and connector. For more information, visit the `NUOPC website <https://earthsystemmodeling.org/nuopc/>`__.
 
    NWP
-      Numerical Weather Prediction (NWP) takes current observations of weather and processes them with computer models to forecast the future state of the weather. 
+      Numerical Weather Prediction (NWP) takes current observations of weather and processes them with computer models to forecast the future state of the weather.
+   
+   OBSPROC
+      Observation Processing
+   
+   PBL
+      Planetary Boundary Layer
+
+   RTOFS
+      Real-Time Ocean Forecast System
+
+   SASAS
+      Simplified Arakawa-Schubert and Adjusted Sigma   
+
+   SH
+      Southern Hemisphere
 
    TC
-      Tropical cyclone.
+      Tropical cyclone
+   
+   TKE
+      Turbulent Kinetic Energy
 
    UFS
       The Unified Forecast System is a community-based, coupled, comprehensive Earth modeling 
@@ -111,10 +187,11 @@ Glossary
       A prognostic model that can be used for short- and medium-range research and
       operational forecasts. It can be an atmosphere-only model or an atmospheric
       model coupled with one or more additional components, such as a wave or ocean model. HAFS uses the `UFS Weather Model <https://github.com/ufs-community/ufs-weather-model>`__.
-
+   
+   WPAC
+      Western Pacific
+   
    WW3
    WWIII
    WaveWatch III
       WAVEWATCH III (WW3) is a community wave modeling framework that includes the latest scientific advancements in the field of wind-wave modeling and dynamics. The core of the framework consists of the WAVEWATCH III third-generation wave model (WAVE-height, WATer depth and Current Hindcasting), developed at NOAA/:term:`NCEP`. WAVEWATCH III differs from its predecessors in many important points such as governing equations, model structure, numerical methods, and physical parameterizations. The model code is publicly available on GitHub at https://github.com/NOAA-EMC/WW3. 
-
-

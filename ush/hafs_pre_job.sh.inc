@@ -26,7 +26,7 @@ fi
 target=""
 USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
-if [[ -d /lfs4 ]] ; then
+if [[ -d /lfs5 ]] ; then
   # We are on NOAA Jet
   if ( ! eval module help > /dev/null 2>&1 ) ; then
     echo load the module command 1>&2

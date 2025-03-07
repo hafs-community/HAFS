@@ -354,7 +354,11 @@ sed -e "s/_analdate_/${analdate}/g" \
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_tools_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_tools_obs_preproc.x
 ${APRUNS} ./hafs_tools_obs_preproc.x 2>&1 | tee ./obs_preproc.out
-export err=$?; err_chk
+status=$?
+if [[ $status -ne 0 ]]; then
+  echo "WARNING: hafs_tools_obs_preproc.x encountered issue when processing tempdrop observations with exit code of $status. Continue ..."
+fi
+
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}
