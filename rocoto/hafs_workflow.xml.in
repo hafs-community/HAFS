@@ -1155,7 +1155,7 @@
       <var name="FGAT_HR">03 06 09</var>
       <task name="atm_init_fgat#FGAT_HR#_ens#MEM#" maxtries="&MAX_TRIES;">
         <command>&JOBhafs;/JHAFS_ATM_INIT</command>
-        <jobname>hafs_atm_init_fgatFGAT_HR#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+        <jobname>hafs_atm_init_fgat#FGAT_HR#_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
         <join><cyclestr>&WORKhafs;/hafs_atm_init_fgat#FGAT_HR#_ens#MEM#.log</cyclestr></join>
         <account>&ACCOUNT;</account>
         &RESERVATION;
