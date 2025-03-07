@@ -414,13 +414,13 @@ for file in ${sattypes}; do
 done
 ############### RUN bufr2ioda, either using exec or python #######################
 #bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir}
-export err=$?; err_chk
-for file in ${sattypes}; do
- if [ -s bufr_ncep_${file}.yaml ]; then
-  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml # use executable to convert sat radiances
-  export err=$?; err_chk
- fi
-done
+#export err=$?; err_chk
+#for file in ${sattypes}; do
+# if [ -s bufr_ncep_${file}.yaml ]; then
+#  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml # use executable to convert sat radiances
+#  export err=$?; err_chk
+# fi
+#done
 ######## Temp convert prepbufr only #####
 #ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
 #sed -e "s|#HH#|t${cyc}z|g" \
@@ -429,18 +429,18 @@ done
 #${APRUNS} ${IODAEXEC} bufr_ncep_prepbufr.yaml # use executable to convert prepbufr, may need to merge with satwnd if both using the same exe
 #export err=$?; err_chk
 ############### RUN bufrquery #######################
-#${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
-#${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
-#for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
-# ${NCP} -rp ${file} .
-#done
-#for file in ${sattypes}; do
-# if [[ "${file}" = "ssmis" ]]; then
-#  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}u.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-# else
-#  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-# fi
-#done
+${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
+${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
+for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
+ ${NCP} -rp ${file} .
+done
+for file in ${sattypes}; do
+ if [[ "${file}" = "ssmis" ]]; then
+  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}u.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+ else
+  ${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${file}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+ fi
+done
 ########## Converting ATMS NPP/N20 to ioda nc #################
 for file in ${sattypes}; do
  if [ -s satbias_converter_${file}.yaml ]; then
