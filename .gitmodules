@@ -22,3 +22,7 @@
     path = sorc/hafs_graphics.fd/emc_graphics
     url = https://github.com/hafs-community/hafs_graphics.git
     branch = support/HAFS
+[submodule "sorc/hafs_jedi.fd"]
+    path = sorc/hafs_jedi.fd
+    url = https://github.com/hafs-community/HDASApp.git
+    branch = feature/hafs_jedi_workflow
