@@ -8,6 +8,8 @@
 ################################################################################
 set -x -o pipefail
 
+export USE_CFP=${USE_CFP:NO}
+
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
@@ -422,17 +424,35 @@ EOFcopy
   done
   ibatch=$((ibatch - 1))
   for i in $(seq 1 ${ibatch}); do
-   if [ ${n_ens_fv3sar} -le ${TOTAL_TASKS} ]; then
+   if [ ${n_ens_fv3sar} -le ${TOTAL_NODES} ]; then
     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-#     srun --mem=0 --ntasks=${n_ens_fv3sar} --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}_batch${ibatch}
-     srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate_ens_${var}_batch${ibatch}
-     if [ ${l4denvar:-.false.} = ".true." ]; then
-       srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate03_ens_${var}_batch${ibatch}
-       srun --mem=0 --ntasks=20 --ntasks-per-node=1 --cpus-per-task=1  ${MPISERIAL} -m cmdfile_interpolate09_ens_${var}_batch${ibatch}
-     fi
+       ncmd=$(cat ./cmdfile_interpolate_ens_${var}_batch${ibatch} | wc -l)
+       ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+       if [ $USE_CFP = "YES" ] ; then 
+          $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate_ens_${var}_batch${ibatch}
+       else
+          $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate_ens_${var}_batch${ibatch}
+       fi
+       if [ ${l4denvar:-.false.} = ".true." ]; then
+          if [ $USE_CFP = "YES" ] ; then 
+              ncmd=$(cat ./cmdfile_interpolate03_ens_${var}_batch${ibatch} | wc -l)
+              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS)) 
+              $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate03_ens_${var}_batch${ibatch} 
+              ncmd=$(cat ./cmdfile_interpolate09_ens_${var}_batch${ibatch} | wc -l)
+              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+              $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate09_ens_${var}_batch${ibatch}  
+          else
+              ncmd=$(cat ./cmdfile_interpolate03_ens_${var}_batch${ibatch} | wc -l)
+              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS)) 
+              $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate03_ens_${var}_batch${ibatch}
+              ncmd=$(cat ./cmdfile_interpolate09_ens_${var}_batch${ibatch} | wc -l)
+              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+              $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate09_ens_${var}_batch${ibatch}
+          fi
+       fi
     done
    else
-    echo "Warning!!! TOTAL_TASKS ${TOTAL_TASKS} is not enough for parallel running Interpolation. At least ${n_ens_fv3sar} is needed. Use serial for now. May take too long!!!"
+    echo "Warning!!! TOTAL_NODES ${TOTAL_NODES} is not enough for parallel running Interpolation. At least ${n_ens_fv3sar} is needed. Use serial for now. May take too long!!!"
     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
      chmod +x cmdfile_interpolate_ens_${var}_batch${ibatch}
      ./cmdfile_interpolate_ens_${var}_batch${ibatch}
@@ -579,8 +599,7 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
-srun -l -n ${TOTAL_TASKS} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
-#srun -l -n ${TOTAL_TASKS} /scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas_fv3jedi_error_covariance_toolbox.x bump_nicas.yaml nicas.log
+${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log 
 rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
@@ -706,8 +725,7 @@ ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
 ${SOURCE_PREP_STEP}
 #ANALYSISEXEC=/scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas.x
-#srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} jedi.yaml jedi.out
-srun -l -n ${TOTAL_TASKS} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
+${APRUNC} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
 export err=$?; err_chk #XL Note: Need to add exit when error check failed, currently will continue
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
