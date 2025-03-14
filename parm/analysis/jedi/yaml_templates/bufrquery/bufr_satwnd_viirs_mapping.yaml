@@ -1,0 +1,157 @@
+bufr:
+  subsets:
+    - NC005091
+
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+        second: "*/SECO"
+
+    latitude:
+      query: "*/CLATH"
+
+    longitude:
+      query: "*/CLONH"
+
+    satelliteId:
+      query: "*/SAID"
+
+    satelliteZenithAngle:
+      query: "*/SAZA"
+
+    sensorCentralFrequency:
+      query: "*/SCCF"
+
+    pressure:
+      query: "*/PRLC[1]"
+
+    # Processing Center
+    dataProviderOrigin:
+      query: '*/OGCE[1]'
+    
+    # Generating Application - contains multiple types
+    generatingApplication:
+      query: '*/AMVQIC/GNAPS'
+
+    # Quality Information - contains multiple types
+    qualityInformation:
+      query: '*/AMVQIC/PCCF'
+
+    # Wind Retrieval Method Information - Computation 
+    windComputationMethod:
+      query: '*/SWCM'
+
+    # ObsValue - Wind Direction
+    windDirection:
+      query: '*/WDIR'
+
+    # ObsValue - Wind Speed
+    windSpeed:
+      query: '*/WSPD'
+
+  splits:
+    satId:
+      category:
+        variable: satelliteId
+        map:
+          _224: npp 
+          _225: n20
+          _226: n21
+
+encoder:
+# type: netcdf
+
+# dimensions:
+
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "SUOMI-NPP/NOAA-20/NOAA-21"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Low-Earth Orbiting Operational Satellite"
+
+    - name: "sensor"
+      type: string
+      value: "Visible Infrared Imaging Radiometer Suite"
+
+    - name: "source"
+      type: string
+      value: "NCEP BUFR Dump for satellite derived atmospheric motion vectors (satwnd)"
+
+    - name: "providerFullName"
+      type: string
+      value: "National Environmental Satellite, Data, and Information Service"
+
+    - name: "processingLevel"
+      type: string
+      value: "Level-2"
+
+    - name: "converter"
+      type: string
+      value: "BUFR"
+
+  variables:
+
+    # MetaData 
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degrees_north"
+      range: [ -90, 90 ]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degrees_east"
+      range: [ -180, 180 ]
+
+    - name: "MetaData/satelliteIdentifier"
+      source: variables/satelliteId
+      longName: "Satellite Identifier"
+
+    - name: "MetaData/satelliteZenithAngle"
+      source: variables/satelliteZenithAngle
+      longName: "Satellite Zenith Angle"
+      units: "degree"
+      range: [ 0, 90 ]
+
+    - name: "MetaData/sensorCentralFrequency"
+      source: variables/sensorCentralFrequency
+      longName: "Satellite Channel Center Frequency"
+      units: "Hz"
+
+    - name: "MetaData/dataProviderOrigin"
+      source: variables/dataProviderOrigin
+      longName: "Identification of Originating/Generating Center"
+
+    - name: "MetaData/windComputationMethod"
+      source: variables/windComputationMethod
+      longName: "Satellite-derived Wind Computation Method"
+
+    - name: "MetaData/pressure"
+      source: variables/pressure
+      longName: "Pressure"
+      units: "pa"
+
+    - name: "ObsValue/windDirection"
+      source: variables/windDirection
+      longName: "Wind Direction"
+      units: "degree"
+
+    - name: "ObsValue/windSpeed"
+      source: variables/windSpeed
+      longName: "Wind Speed"
+      units: "m s-1"

@@ -34,7 +34,15 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   export machine=${WHERE_AM_I:-wcoss2}
   module use ${USHhafs}/modulefiles
   module load hafs_obs_prep_${machine}
-  export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7${PYTHONPATH:+:$PYTHONPATH}
+#  module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
+#  module load obsforge/${machine}.intel
+  if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
+    export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
+    export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10/site-packages
+  else
+    export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7:${PYTHONPATH}
+    export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7/site-packages
+  fi
   module list
 else
   # Run by NCO on WCOSS2

@@ -1,0 +1,230 @@
+bufr:
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+        second: "*/SECO"
+
+    latitude:
+      query: "*/CLATH"
+
+    longitude:
+      query: "*/CLONH"
+
+    satelliteId:
+      query: "*/SAID"
+
+    sensorId:
+      query: "*/SIID[1]"
+
+    scanLineNumber:
+      query: "*/SLNM"
+
+    gqisFlagQual:
+      query: "*/QGFQ"
+
+    fieldOfViewNumber:
+      query: "*/FOVN"
+
+    sensorScanPosition:
+      sensorScanPosition:
+        fieldOfViewNumber: "*/FOVN"
+        sensor: iasi 
+
+    solarZenithAngle:
+      query: "*/SOZA"
+
+    solarAzimuthAngle:
+      query: "*/SOLAZI"
+
+    sensorZenithAngle:
+      query: "*/SAZA"
+
+    sensorAzimuthAngle:
+      query: "*/BEARAZ"
+
+    stationElevation:
+      query: "*/SELV"
+      type: float 
+
+    sensorViewAngle:
+      sensorScanAngle:
+        fieldOfViewNumber: "*/FOVN"
+        scanStart: -48.330
+        scanStep: 3.334
+        scanStepAdjust: 0.625 
+        sensor: iasi
+
+    fractionOfClearPixelsInFOV:
+      query: "*/IASIL1CS{1}/FCPH"
+
+    sensorChannelNumber:
+      query: "*/IASICHN/CHNM"
+
+    # ObsValue
+    spectralRadiance:
+      spectralRadiance:
+        sensorChannelNumber: "*/IASICHN/CHNM"
+        startChannel: "*/IASIL1CB/STCH"
+        endChannel: "*/IASIL1CB/ENCH"
+        scaleFactor: "*/IASIL1CB/CHSF"
+        scaledSpectralRadiance: "*/IASICHN/SCRA"
+
+  splits:
+    satId:
+      category:
+        variable: satelliteId
+        map:
+          _3: metop-b
+          _4: metop-a
+          _5: metop-c
+
+encoder:
+  type: netcdf
+
+  dimensions:
+    - name: Channel
+      source: variables/sensorChannelNumber
+      path: "*/IASICHN"
+
+    - name: Cluster 
+      path: "*/IASIL1CS"
+
+    - name: Band 
+      path: "*/IASIL1CB"
+
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "Meteorological Operational Satellite"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "EUMETSAT Polar System in sunsynchronous orbit"
+
+    - name: "source"
+      type: string
+      value: "MTYP 021-241 IASI 1C RADIANCES (VARIABLE CHNS) (METOP)"
+
+    - name: "sourceFiles"
+      type: string
+      value: "gdas.t00z.mtiasi.tm00.bufr_d"
+
+    - name: "datetimeReference"
+      type: string
+      value: "2021-08-01T00:00:00Z"
+
+    - name: "sensor"
+      type: string
+      value: "IASI"
+
+    - name: "processingLevel"
+      type: string
+      value: "Level-1C"
+
+    - name: "converter"
+      type: string
+      value: "BUFR"
+
+  variables:
+
+    # MetaData 
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degrees_north"
+      range: [ -90, 90 ]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degrees_east"
+      range: [ -180, 180 ]
+
+    - name: "MetaData/satelliteIdentifier"
+      source: variables/satelliteId
+      longName: "Satellite Identifier"
+
+    - name: "MetaData/instrumentIdentifier"
+      source: variables/sensorId
+      longName: "Satellite Instrument Identifier"
+
+    - name: "MetaData/scanLineNumber"
+      source: variables/scanLineNumber
+      longName: "Scan Line Number"
+
+    - name: "MetaData/qualityFlags"
+      source: variables/gqisFlagQual
+      longName: "Individual IASI-System Quality Flag"
+
+    - name: "MetaData/fieldOfViewNumber"
+      source: variables/fieldOfViewNumber
+      longName: "Field of View Number"
+
+    - name: "MetaData/sensorScanPosition"
+      source: variables/sensorScanPosition
+      longName: "Sensor Scan Position"
+
+    - name: "MetaData/solarZenithAngle"
+      source: variables/solarZenithAngle
+      longName: "Solar Zenith Angle"
+      units: "degree"
+      range: [ 0, 180 ]
+
+    - name: "MetaData/solarAzimuthAngle"
+      source: variables/solarAzimuthAngle
+      longName: "Solar Azimuth Angle"
+      units: "degree"
+      range: [ 0, 360 ]
+
+    - name: "MetaData/sensorZenithAngle"
+      source: variables/sensorZenithAngle
+      longName: "Sensor Zenith Angle"
+      units: "degree"
+      range: [ 0, 90 ]
+
+    - name: "MetaData/sensorAzimuthAngle"
+      source: variables/sensorAzimuthAngle
+      longName: "Sensor Azimuth Angle"
+      units: "degree"
+      range: [ 0, 360 ]
+
+    - name: "MetaData/sensorViewAngle"
+      source: variables/sensorViewAngle
+      longName: "Sensor View Angle"
+      units: "degree"
+
+    - name: "MetaData/stationElevation"
+      source: variables/stationElevation
+      longName: "Altitude of Satellite"
+      units: "m"
+
+    - name: "MetaData/sensorChannelNumber"
+      source: variables/sensorChannelNumber
+      longName: "Sensor Channel Number"
+
+    - name: "MetaData/fractionOfClearPixelsInFOV"
+      source: variables/fractionOfClearPixelsInFOV
+      longName: "Fraction of Clear Pixels in a Field of View"
+      units: "1"
+      range: [0, 100]
+
+#   The unit from BUFR is W m-2 sr-1 m -- this is radiance per wavenumber
+    - name: "ObsValue/radiance"
+      source: variables/spectralRadiance
+      longName: "IASI Spectral Radiance"
+      units: "W m-2 sr-1"  # units: "W m-2 sr-1 m-1"
+#      chunks: [1000, 154]
+#      chunks: [1000, 616]
+#      compressionLevel: 4
+
