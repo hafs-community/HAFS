@@ -3,7 +3,7 @@
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.ADPUPA.nc
+            obsfile: obs/hafs.#HH#.adpsfc.nc
         obsdataout:
           engine:
             type: H5File

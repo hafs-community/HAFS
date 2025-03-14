@@ -537,9 +537,9 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 #convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
-#convsubtypes="adpupa_airTemperature_120 adpupa_uv_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
+#convsubtypes="adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
 #radtypes="atms_npp amsua_n19 atms_n20 abi_g16 iasi_metop-b ssmis_f17 "
-radtypes="atms_npp atms_n20"
+radtypes="ssmis_f17"
 obstypes="${convtypes} ${convsubtypes} ${radtypes}"
 bctypes="${radtypes}"
 mkdir ${DATA}/obs

@@ -119,5 +119,5 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   fi
   module use ${HOMEhafs}/modulefiles
   module load hafs.${WHERE_AM_I}
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib:${HOMEhafs}/sorc/hafs_jedi.fd/build/fv3
 fi

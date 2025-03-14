@@ -1,34 +1,45 @@
-import contextlib
-import errno
 import grp
 import os
 import shutil
+from contextlib import contextmanager
+from logging import getLogger
 
 __all__ = ['mkdir', 'mkdir_p', 'rmdir', 'chdir', 'rm_p', 'cp',
            'get_gid', 'chgrp']
 
+logger = getLogger(__name__.split('.')[-1])
+
 
 def mkdir_p(path):
     try:
-        os.makedirs(path)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise OSError(f"unable to create directory at {path}")
+        os.makedirs(path, exist_ok=True)
+    except OSError:
+        raise OSError(f"unable to create directory at {path}")
 
 
 mkdir = mkdir_p
 
 
-def rmdir(dir_path):
+def rmdir(dir_path, missing_ok=False):
+    """
+    Attempt to delete a directory and all of its contents.
+    If ignore_missing is True, then a missing directory will not raise an error.
+    """
+
     try:
         shutil.rmtree(dir_path)
-    except OSError as exc:
-        raise OSError(f"unable to remove {dir_path}")
+
+    except FileNotFoundError:
+        if missing_ok:
+            logger.warning(f"WARNING cannot remove the target path {dir_path} because it does not exist")
+        else:
+            raise FileNotFoundError(f"Target directory ({dir_path}) cannot be removed because it does not exist")
+
+    except OSError:
+        raise OSError(f"Unable to remove the target directory: {dir_path}")
 
 
-@contextlib.contextmanager
+@contextmanager
 def chdir(path):
     """Change current working directory and yield.
     Upon completion, the working directory is switched back to the directory at the time of call.
@@ -45,22 +56,35 @@ def chdir(path):
         do_thing_2
     """
     cwd = os.getcwd()
+    # Try to change paths.
     try:
         os.chdir(path)
+    except OSError:
+        raise OSError(f"Failed to change directory to ({path})")
+
+    # If successful, yield to the calling "with" statement.
+    try:
         yield
     finally:
-        print(f"WARNING: Unable to chdir({path})")  # TODO: use logging
+        # Once the with is complete, head back to the original working directory
         os.chdir(cwd)
 
 
-def rm_p(path):
+def rm_p(path, missing_ok=True):
+    """
+    Attempt to delete a file.
+    If missing_ok is True, an error is not raised if the file does not exist.
+    """
+
     try:
         os.unlink(path)
-    except OSError as exc:
-        if exc.errno == errno.ENOENT:
-            pass
+    except FileNotFoundError:
+        if missing_ok:
+            logger.warning(f"WARNING cannot remove the file {path} because it does not exist")
         else:
-            raise OSError(f"unable to remove {path}")
+            raise FileNotFoundError(f"The file {path} does not exist")
+    except OSError:
+        raise OSError(f"unable to remove {path}")
 
 
 def cp(source: str, target: str) -> None:
@@ -84,9 +108,10 @@ def cp(source: str, target: str) -> None:
     try:
         shutil.copy2(source, target)
     except OSError:
-        raise OSError(f"unable to copy {source} to {target}")
-    except Exception as exc:
-        raise Exception(exc)
+        raise OSError(f"Unable to copy {source} to {target}")
+    except Exception as ee:
+        logger.exception(f"An unknown error occurred while copying {source} to {target}")
+        raise ee
 
 
 # Group ID number for a given group name
