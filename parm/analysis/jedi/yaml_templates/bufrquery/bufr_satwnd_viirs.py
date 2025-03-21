@@ -76,14 +76,26 @@ def _make_description(mapping_path, update=False):
                 'units': '1',
                 'longName': 'Wind Generating Application',
             },
-            # MetaData/qualityInformationWithoutForecast will be inferred from variables/qualityInformation
+            # MetaData/qiWithoutForecast will be inferred from variables/qualityInformation
             # following a search for the proper variables/generatingApplication column
             {
-                'name': 'MetaData/qualityInformationWithoutForecast',
-                'source': 'variables/qualityInformationWithoutForecast',
+                'name': 'MetaData/qiWithoutForecast',
+                'source': 'variables/qiWithoutForecast',
                 'units': 'percent',
                 'longName': 'Quality Information Without Forecast',
-            }
+            },
+            {
+                'name': 'MetaData/height',
+                'source': 'variables/height',
+                'units': 'm',
+                'longName': 'Observation Height',
+            },
+            {
+                'name': 'MetaData/stationElevation',
+                'source': 'variables/stationElevation',
+                'units': 'm',
+                'longName': 'Station Height',
+            },
         ]
 
         # Loop through each variable and add it to the description
@@ -205,7 +217,12 @@ def _make_obs(comm, input_path, mapping_path):
             paths = container.get_paths('variables/windComputationMethod', cat)
             dummy = container.get('variables/windSpeed', cat)
             container.add('variables/windGeneratingApplication', dummy, paths, cat)
-            container.add('variables/qualityInformationWithoutForecast', dummy, paths, cat)
+            container.add('variables/qiWithoutForecast', dummy, paths, cat)
+            # Fake Height variable
+            height = np.full_like(swcm, None, dtype=object)
+            container.add('variables/height', height, paths, cat)
+            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/stationElevation', stheight, paths, cat)
 
         else:
             # Add new variables: ObsType/windEastward & ObsType/windNorthward
@@ -240,7 +257,7 @@ def _make_obs(comm, input_path, mapping_path):
             container.add('variables/windEastward', uob, paths, cat)
             container.add('variables/windNorthward', vob, paths, cat)
 
-            # Add new variables: MetaData/windGeneratingApplication and qualityInformationWithoutForecast
+            # Add new variables: MetaData/windGeneratingApplication and qiWithoutForecast
             gnap2D = container.get('variables/generatingApplication', cat)
             pccf2D = container.get('variables/qualityInformation', cat)
 
@@ -251,7 +268,12 @@ def _make_obs(comm, input_path, mapping_path):
 
             paths = container.get_paths('variables/windComputationMethod', cat)
             container.add('variables/windGeneratingApplication', gnap, paths, cat)
-            container.add('variables/qualityInformationWithoutForecast', qifn, paths, cat)
+            container.add('variables/qiWithoutForecast', qifn, paths, cat)
+            # Fake Height variable
+            height = np.full_like(swcm, None, dtype=object)
+            container.add('variables/height', height, paths, cat)
+            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/stationElevation', stheight, paths, cat)
 
     # Check
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')

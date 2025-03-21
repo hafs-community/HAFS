@@ -48,7 +48,7 @@ bufr:
       query: '*/OGCE[1]'
 
     # Quality Information - Quality Indicator  
-    qualityInformationWithoutForecast:
+    qiWithoutForecast:
       query: '*/AMVQIC{2}/PCCF'
 
     # Quality Information - Expected Error  
@@ -161,8 +161,8 @@ encoder:
       source: variables/dataProviderOrigin
       longName: "Identification of Originating/Generating Center"
 
-    - name: "MetaData/qualityInformationWithoutForecast"
-      source: variables/qualityInformationWithoutForecast
+    - name: "MetaData/qiWithoutForecast"
+      source: variables/qiWithoutForecast
       longName: "Quality Information Without Forecast"
 
     - name: "MetaData/expectedError"

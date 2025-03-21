@@ -39,8 +39,8 @@ _ens_geometry: &ens_geometry_configs
 cost function:
   cost type: 3D-FGAT
   time window:
-     begin: _INITIALDATE_
-     length: PT6H
+    begin: _INITIALDATE_
+    length: PT6H
   tolerance AD resolution change: 1.0e-13
   geometry:
     <<: *geometry_configs

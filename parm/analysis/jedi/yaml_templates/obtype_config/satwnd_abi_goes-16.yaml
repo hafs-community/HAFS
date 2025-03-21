@@ -30,22 +30,22 @@
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/latitude
-            minvalue: #MIN_LAT#
-            maxvalue: #MAX_LAT#
+        - variable:
+            name: MetaData/latitude
+          minvalue: #MIN_LAT#
+          maxvalue: #MAX_LAT#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/longitude
-            minvalue: #MIN_LON#
-            maxvalue: #MAX_LON#
+        - variable:
+            name: MetaData/longitude
+          minvalue: #MIN_LON#
+          maxvalue: #MAX_LON#
         action:
-           name: reduce obs space
+          name: reduce obs space
       # Observation Prior Filters (QC)
       # ------------------------------
       obs prior filters:

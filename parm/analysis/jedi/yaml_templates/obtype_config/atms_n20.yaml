@@ -15,8 +15,10 @@
         channels: &atms_n20_channels 1-22
       obs operator:
         name: CRTM
-        Absorbers: [H2O,O3]
-        SurfaceWindGeoVars: uv
+        Absorbers: [H2O,O3,CO2]
+        Clouds: [Water, Ice]
+        Cloud_Fraction: 1.0
+        Cloud_Seeding: true
         obs options:
           Sensor_ID: atms_n20
           EndianType: little_endian
@@ -60,22 +62,22 @@
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/latitude
-            minvalue: #MIN_LAT#
-            maxvalue: #MAX_LAT#
+        - variable:
+            name: MetaData/latitude
+          minvalue: #MIN_LAT#
+          maxvalue: #MAX_LAT#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/longitude
-            minvalue: #MIN_LON#
-            maxvalue: #MAX_LON#
+        - variable:
+            name: MetaData/longitude
+          minvalue: #MIN_LON#
+          maxvalue: #MAX_LON#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       # Step 0-A: Create Diagnostic Flags
       - filter: Create Diagnostic Flags
@@ -107,6 +109,9 @@
         - name: UseflagCheck
           initial value: false
           force reinitialization: false
+
+      # Observation Post Filters (QC)
+      # -----------------------------
       obs post filters:
       - filter: Bounds Check
         filter variables:
@@ -170,6 +175,7 @@
               - name: CLWRetFromObs@DerivedMetaData
               - name: CLWRetFromBkg@DerivedMetaData
               total coefficient: 0.5
+
       # Calculate scattering index from observation
       - filter: Variable Assignment
         assignments:
@@ -232,6 +238,7 @@
                        0.450,  0.450,  0.550,  0.800,  4.000,
                       19.000, 30.000, 25.000, 16.500, 12.000,
                        9.000,  6.500]
+
       # Calculate Innovation@DerivedMetaData
       - filter: Variable Assignment
         assignments:
@@ -248,15 +255,16 @@
               - name: brightnessTemperature@HofX
                 channels: *atms_n20_channels
               coefs: [1, -1]
-      - filter: Bounds Check
-        filter variables:
-        #- name: brightnessTemperature
-        - name: HofX/brightnessTemperature
-          channels: *atms_n20_channels
-        minvalue: 50.00001
-        maxvalue: 449.99999
-        action:
-          name: reject
+
+#      - filter: Bounds Check
+#        filter variables:
+#        - name: HofX/brightnessTemperature
+#          channels: *atms_n20_channels
+#        minvalue: 50.00001
+#        maxvalue: 449.99999
+#        action:
+#          name: reject
+
       # Step 0-C: Assign Initial All-Sky Observation Error
       - filter: Perform Action
         filter variables:
@@ -267,6 +275,7 @@
           error function:
             name: InitialObsError@DerivedMetaData
             channels: *atms_n20_channels
+
       # Step 1: Remove Observations from the Edge of the Scan
       - filter: Domain Check
         filter variables:
@@ -280,6 +289,7 @@
           - name: set
             flag: ScanEdgeRemoval
           - name: reject
+
       # Step 2: Data Thinning
       - filter: Gaussian Thinning
         horizontal_mesh: 145
@@ -291,6 +301,7 @@
           - name: set
             flag: Thinning
           - name: reject
+
       # Step 3A: CLW Retrieval Check (observation_based)
       - filter: Bounds Check
         filter variables:
@@ -316,6 +327,7 @@
           - name: set
             flag: CLWRetrievalCheck
           - name: reject
+
       # Step 4: Window Channel Sanity Check
       - filter: Bounds Check
         filter variables:
@@ -363,6 +375,7 @@
             flag: HydrometeorCheck
             ignore: rejected observations
           - name: reject
+
       # Step 6: Observation Error Inflation based on Topography Check
       - filter: Variable Assignment
         assignments:
@@ -385,6 +398,7 @@
           inflation variable:
             name: ObsErrorFactorTopo@DerivedMetaData
             channels: *atms_n20_channels
+
       # Step 7: Obs Error Inflation based on TOA Transmittancec Check
       - filter: Variable Assignment
         assignments:
@@ -421,6 +435,7 @@
               channels: *atms_n20_channels
               obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
               obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
+
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
@@ -521,6 +536,7 @@
             flag: GrossCheck
             ignore: rejected observations
           - name: reject
+
       # Step 11: Inter-Channel Check
       - filter: Bounds Check
         filter variables:

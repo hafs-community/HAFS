@@ -105,6 +105,18 @@ def _make_description(mapping_path, update=False):
                 'units': 'm s-1',
                 'longName': 'Northward Wind Component',
             },
+            {
+                'name': 'MetaData/height',
+                'source': 'variables/height',
+                'units': 'm',
+                'longName': 'Observation Height',
+            },
+            {
+                'name': 'MetaData/stationElevation',
+                'source': 'variables/stationElevation',
+                'units': 'm',
+                'longName': 'Station Height',
+            },
         ]
 
         # Loop through each variable and add it to the description
@@ -196,6 +208,11 @@ def _make_obs(comm, input_path, mapping_path):
             wob = container.get('variables/windSpeed', cat)
             container.add('variables/windEastward', wob, paths, cat)
             container.add('variables/windNorthward', wob, paths, cat)
+            # Fake Height variable
+            height = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/height', height, paths, cat)
+            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/stationElevation', stheight, paths, cat)
 
         else:
             # Add new variables: ObsType/windEastward & ObsType/windNorthward
@@ -229,6 +246,12 @@ def _make_obs(comm, input_path, mapping_path):
             paths = container.get_paths('variables/windSpeed', cat)
             container.add('variables/windEastward', uob, paths, cat)
             container.add('variables/windNorthward', vob, paths, cat)
+
+            # Fake Height variable
+            height = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/height', height, paths, cat)
+            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            container.add('variables/stationElevation', stheight, paths, cat)
 
     # Check
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')

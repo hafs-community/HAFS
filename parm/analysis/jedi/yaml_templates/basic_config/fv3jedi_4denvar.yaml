@@ -67,8 +67,8 @@ _ens_geometry: &ens_geometry_configs
 cost function:
   cost type: 4D-Ens-Var
   time window:
-     begin: _INITIALDATE_
-     length: PT6H
+    begin: _INITIALDATE_
+    length: PT6H
   subwindow: PT3H
   parallel subwindows: false
   tolerance AD resolution change: 1.0e-13

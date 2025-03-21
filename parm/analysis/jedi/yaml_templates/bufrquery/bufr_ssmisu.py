@@ -109,8 +109,8 @@ def _make_description(mapping_path, update=False):
                 'longName': 'Sensor Azimuth Angle',
             },
             {
-                'name': 'MetaData/satelliteAscendDescendInfo',
-                'source': 'variables/satelliteAscendDescendInfo',
+                'name': 'MetaData/satelliteAscendingFlag',
+                'source': 'variables/satelliteAscendingFlag',
                 'units': '1',
                 'longName': 'Satellite Ascending/Descending Node Infomration (Ascend:1; Descend:-1)',
             },
@@ -367,7 +367,7 @@ def _make_obs(comm, input_path, mapping_path):
         # Compute solar angle fields from container variables
         paths = container.get_paths('variables/fieldOfViewNumber', cat)
         nodeinfo = determine_satellite_ascend_descent_mode(container, cat)
-        container.add('variables/satelliteAscendDescendInfo',
+        container.add('variables/satelliteAscendingFlag',
                       nodeinfo,
                       paths,
                       category=cat)
