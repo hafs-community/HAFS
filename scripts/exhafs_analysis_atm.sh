@@ -470,7 +470,7 @@ fi # endif ${RUN_ENVAR}
 
 # Stat files
 RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
-DASTAT=${DASTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dastat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat}
 DASOUT=${DASOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dasout}
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
@@ -732,7 +732,10 @@ rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
 for file in ${radtypes}; do
-  tar cvf ${RADSTAT} hofx/hofx.${file}_t${cyc}z.nc
+  tar cvf ${RADSTAT} hofx/diag_${file}_t${cyc}z.nc
+done
+for file in ${convtypes}; do
+  tar cvf ${CNVSTAT} hofx/diag_${file}_t${cyc}z.nc
 done
 
 if [ ${l4denvar:-.false.} = ".true." ]; then

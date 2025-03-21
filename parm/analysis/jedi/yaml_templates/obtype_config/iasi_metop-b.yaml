@@ -7,7 +7,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/hofx.iasi_metop-b_#HH#.nc
+            obsfile: hofx/diag_iasi_metop-b_#HH#.nc
         io pool:
           max pool size: 1
         observed variables: [radiance]

@@ -7,7 +7,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/hofx.abi_g16_#HH#.nc
+            obsfile: hofx/diag_abi_g16_#HH#.nc
         io pool:
           max pool size: 1
         simulated variables: [brightnessTemperature]

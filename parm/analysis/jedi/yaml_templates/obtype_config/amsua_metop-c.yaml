@@ -7,7 +7,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/hofx.amsua_metop-c_#HH#.nc
+            obsfile: hofx/diag_amsua_metop-c_#HH#.nc
         io pool:
           max pool size: 1
         simulated variables: [brightnessTemperature]
