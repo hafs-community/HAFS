@@ -24,7 +24,7 @@
           CoefficientPath: crtm/
         linear obs operator:
           Absorbers: [H2O, O3]
-  
+
       obs bias:
         input file: obs/satbias_iasi_metop-b_#HH#.nc
         output file: bc/out_satbias_iasi_metop-b_#HH#.nc
@@ -60,22 +60,22 @@
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/latitude
-            minvalue: #MIN_LAT#
-            maxvalue: #MAX_LAT#
+        - variable:
+            name: MetaData/latitude
+          minvalue: #MIN_LAT#
+          maxvalue: #MAX_LAT#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/longitude
-            minvalue: #MIN_LON#
-            maxvalue: #MAX_LON#
+        - variable:
+            name: MetaData/longitude
+          minvalue: #MIN_LON#
+          maxvalue: #MAX_LON#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       # Step 1: Create Derived Variables
       # Assign channel wavenumbers in m-1
@@ -93,7 +93,7 @@
               coefs: [25.0]
               intercept: 64475.0
               use channel numbers: true
-  
+
       # Step 2: Transform radiance to brightness temperature
       - filter: Variable Transforms
         Transform: SatBrightnessTempFromRad
@@ -108,17 +108,8 @@
         planck2: 1.4387774e-2
         SkipWhenNoObs: False
 
-#      - filter: Print Filter Data
-#        message: Printing filter data after the Background Check has run.
-#        filter variables:
-#        - variable: ObsValue/radiance
-#        - variable: ObsValue/brightnessTemperature
-#        - variable: DerivedObsValue/brightnessTemperature
-############################################
 
       # Step 3: Assign Observation Error
-      # Observation Prior Filters (QC)
-#      obs prior filters:
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
@@ -127,7 +118,6 @@
           name: assign error
           error parameter vector: &iasi_metop-b_obserr [1.38,0.81,0.75,0.79,0.72,0.74,0.68,0.72,0.65,0.65,0.65,0.69,0.64,0.64,0.65,0.67,0.62,0.61,0.62,0.64,0.59,0.76,1.22,0.78,0.64,0.62,0.61,0.69,0.65,0.59,0.61,0.59,0.68,0.62,0.68,4.38,3.05,2.31,1.56,1.33,1.58,0.93,1.67,0.72,0.57,0.58,0.55,0.68,0.59,0.68,0.59,0.65,0.58,0.62,0.64,0.58,0.64,0.55,0.64,0.50,0.82,0.59,0.62,0.51,0.64,0.52,0.51,0.51,0.76,0.52,0.57,0.55,0.69,0.58,0.65,0.61,0.59,0.64,0.76,0.72,1.05,0.75,0.51,0.65,1.30,0.69,0.93,1.49,1.12,0.68,0.66,0.67,0.59,0.59,0.69,0.67,0.64,0.62,0.72,0.69,0.66,0.79,0.78,0.74,0.88,0.77,0.88,0.86,1.00,0.87,0.85,0.88,0.84,0.84,0.84,0.80,0.80,0.87,0.98,0.52,0.65,0.69,0.61,0.60,0.67,0.79,0.62,0.66,0.70,0.65,0.62,0.61,0.62,0.53,0.60,0.68,0.95,0.63,0.97,0.65,0.98,0.58,0.73,0.65,0.85,0.99,0.76,0.85,0.97,0.77,0.62,0.63,1.21,1.41,1.55,1.78,1.35,1.14,1.69,1.79,1.46,1.63,1.94,2.01,1.24,1.76,1.26,1.47,1.90,1.66,2.13,1.49,1.52,1.55,1.96,2.31,2.33,2.32,2.31,2.33,2.23,2.33,1.84,2.29,2.28,2.28,2.28,2.26,2.26,2.26,2.27,2.24,2.23,2.24,2.26,2.28,2.28,2.30,2.15,2.31,2.37,2.27,2.29,2.29,2.23,2.28,2.32,2.32,2.31,2.32,2.32,2.31,2.31,2.28,2.29,2.28,2.26,2.29,2.27,2.26,2.25,2.27,2.24,2.21,2.24,2.17,2.18,2.17,2.21,1.99,2.16,2.20,2.13,2.12,2.13,2.10,2.12,2.11,2.09,2.09,2.08,2.09,2.04,2.04,2.10,2.01,2.05,2.03,2.06,1.98,1.95,1.94,1.91,1.70,1.76,1.77,1.83,2.04,1.91,1.99,1.99,2.07,2.02,2.04,2.10,2.06,2.18,2.21,2.24,2.23,2.23,1.98,2.20,2.18,2.18,2.21,2.23,2.24,2.24,2.25,1.80,2.24,1.73,1.73,2.27,1.67,2.21,1.72,2.23,2.23,2.23,2.24,2.23,2.12,2.17,1.74,2.02,1.88,1.67,1.73,1.83,1.82,1.73,1.83,2.19,1.84,1.89,1.60,1.71,1.86,1.85,1.84,1.87,1.91,1.52,1.95,1.87,1.89,1.91,1.91,1.93,1.90,1.91,1.90,1.89,1.89,1.91,1.90,1.91,1.91,1.91,1.93,1.94,1.91,1.92,1.77,1.91,1.95,1.19,1.96,1.98,1.94,1.55,1.91,1.92,1.92,1.97,1.93,1.99,1.86,1.12,1.93,1.92,1.95,1.85,1.84,1.91,1.12,1.82,1.82,1.95,1.24,1.94,1.96,1.21,1.83,1.96,1.36,1.96,1.82,1.92,1.68,1.93,1.23,1.96,1.93,1.86,1.41,1.16,1.60,1.25,1.20,1.65,1.66,1.87,1.94,1.96,1.91,1.25,1.93,1.91,1.70,0.99,1.81,1.92,1.95,1.50,1.47,1.15,1.58,1.18,1.82,1.13,1.83,1.91,1.26,1.27,1.91,1.45,1.60,1.29,1.94,1.94,1.23,1.95,1.21,1.94,1.86,1.90,1.33,1.75,2.02,1.98,2.03,1.83,1.50,2.04,2.02,1.90,2.00,2.02,1.95,1.93,1.95,1.95,1.99,2.00,1.94,1.96,1.86,1.92,1.88,1.86,1.84,1.87,1.77,1.89,1.89,1.88,1.94,1.82,1.79,1.86,2.06,2.33,1.88,1.86,1.81,1.80,1.80,1.86,1.90,2.00,2.06,2.10,2.20,2.00,2.16,1.98,1.80,1.80,1.85,1.75,2.04,2.19,2.14,2.19,1.86,2.10,2.11,2.18,2.03,2.28,2.19,2.26,2.26,2.21,2.21,2.26,2.33,2.27,2.21,2.12,2.23,2.26,2.25,1.88,2.26,2.24,2.36,2.29,2.35,2.30,2.27,2.08,2.05,2.27,2.28,2.27,2.28,1.97,2.25,2.25,2.25,2.31,2.28,2.27,2.13,2.24,2.28,2.28,2.41,2.34,9.32,2.28,2.38,2.27,2.27,2.39,2.11,2.09,2.10,2.06,2.12,2.08,2.00,1.93,2.02,2.55,1.54,1.64,1.51,1.55,2.82,2.92,2.55,2.37,1.85,1.60,1.72,1.74,1.79,1.90,1.94,2.00,2.04,2.08,2.12,2.13,2.16,2.18,2.18,2.20,2.20,2.41,2.39,2.38,2.40,2.42,2.41,2.43,2.45,2.43,2.45,2.43,2.40,2.44,2.40,2.42,2.43,2.45,2.45,2.45,2.46,2.45,2.45,2.43,2.51,2.48,2.48,2.53,2.46,2.49,2.50,2.50,2.50,2.52,2.52,2.54,2.50,2.48,2.50,2.55,2.50,2.48,2.50,2.50,2.52,2.52,2.48,2.50,2.50,2.52,2.46,2.53,9.00]
 
-############################################
       # Step 4: Remove Observations from the Edge of the Scan
       - filter: Domain Check
         filter variables:
@@ -140,6 +130,7 @@
         action:
           name: reject
           name: reduce obs space
+
       # Step 5: Data Thinning
       - filter: Gaussian Thinning
         filter variables:
@@ -153,6 +144,8 @@
           name: reject
           name: reduce obs space
 
+      # Observation Post Filters (QC)
+      # -----------------------------
       obs post filters:
       # Online Domain check
       - filter: Bounds Check
@@ -184,6 +177,7 @@
           minvalue: 1.0e-12
         action:
           name: reject
+
       # Step 7: Observation Error Inflation based on Wavenumber
       - filter: Perform Action
         filter variables:
@@ -206,6 +200,7 @@
         maxvalue: 549.99999
         action:
           name: reject
+
       # Step 9: Topography Check
       - filter: Perform Action
         filter variables:
@@ -219,7 +214,7 @@
             options:
               channels: *iasi_metop-b_channels
               sensor: &sensor_id iasi_metop-b
-  
+
       # Step 10: Transmittance Top Check
       - filter: Perform Action
         filter variables:
@@ -232,6 +227,7 @@
             channels: *iasi_metop-b_channels
             options:
               channels: *iasi_metop-b_channels
+
       # Step 11: Cloud Detection Check
       - filter: Bounds Check
         filter variables:
@@ -249,7 +245,7 @@
         maxvalue: 1.0e-12
         action:
           name: reject
-  
+
       # Step 12: NSST Retrieval Check
       - filter: Bounds Check
         filter variables:
@@ -266,6 +262,7 @@
         maxvalue: 1.0e-12
         action:
           name: reject
+
       # Step 13: Surface Jacobians Check
       - filter: Perform Action
         filter variables:
@@ -281,6 +278,7 @@
               obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
               obserr_dtempf: [0.50, 2.00, 4.00, 2.00, 4.00]
               sensor: *sensor_id
+
       # Step 14: Gross check
       - filter: Background Check
         filter variables:
@@ -304,6 +302,7 @@
             error parameter vector: *iasi_metop-b_obserr
         action:
           name: reject
+
       # Step 15: Useflag Check
       - filter: Bounds Check
         filter variables:

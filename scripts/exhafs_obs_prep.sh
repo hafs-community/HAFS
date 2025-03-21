@@ -382,11 +382,12 @@ cd jedi_ioda
 #XL sattypes="atms 1bamua mtiasi gsrcsr ssmisu"
 #XL obstypes="ADPUPA ${radtypes} ${convtypes}"
 #XL satbufrs="atms 1bamua mtiasi gsrcsr ssmisu"
-convtypes="adpsfc sfcshp satwnd_abi satwnd_viirs"
-convbufrs="prepbufr prepbufr satwnd satwnd"
-radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c"
+airctypes="aircft aircar"
+convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp"
+convbufrs="satwnd satwnd prepbufr prepbufr"
 sattypes="atms ssmis amsua iasi"
 satbufrs="atms ssmisu 1bamua mtiasi"
+radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c"
 obstypes="${radtypes} ${convtypes}"
 IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
 IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
@@ -398,7 +399,7 @@ ${NCP} ${IODABCEXEC} .
 for file in ${satbufrs}; do
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
 done
-${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge?
+#${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
 ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
 ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
 ${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias gdas.t${cyc}z.abias
@@ -424,6 +425,19 @@ done
 #  export err=$?; err_chk
 # fi
 #done
+ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+mkdir temp
+cd temp
+ split_by_subset ../gfs.t${cyc}z.prepbufr.bufr_d
+cd ..
+for file in ${airctypes}; do
+ if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ -s temp/${file^^} ] ; then
+  sed -e "s|#HH#|t${cyc}z|g" \
+      -e "s|#ANADATE#|${ANADATE}|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
+  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml
+ fi
+done
+rm -rf temp
 ######## Temp convert prepbufr only #####
 #ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
 #sed -e "s|#HH#|t${cyc}z|g" \
@@ -443,7 +457,7 @@ for file in $sattypes; do
   bufr=$1
   if [[ "${file}" = "amsua" ]]; then
    ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-#   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+#   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
   else
    python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
   fi
@@ -461,6 +475,8 @@ for file in $convtypes; do
   fi
   shift
 done
+${APRUNT1} -n 4 ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.prepbufr.bufr_d bufr_adpupa_mapping.yaml output/hafs.t${cyc}z.adpupa.nc # somehow too many cores will crash the code.
+
 
 ########## Converting ATMS NPP/N20 to ioda nc #################
 for file in ${sattypes}; do

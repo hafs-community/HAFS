@@ -3,7 +3,7 @@
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.adpsfc.nc
+            obsfile: obs/hafs.#HH#.adpupa.nc
         obsdataout:
           engine:
             type: H5File
@@ -29,22 +29,22 @@
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/latitude
-            minvalue: #MIN_LAT#
-            maxvalue: #MAX_LAT#
+        - variable:
+            name: MetaData/latitude
+          minvalue: #MIN_LAT#
+          maxvalue: #MAX_LAT#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/longitude
-            minvalue: #MIN_LON#
-            maxvalue: #MAX_LON#
+        - variable:
+            name: MetaData/longitude
+          minvalue: #MIN_LON#
+          maxvalue: #MAX_LON#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       obs post filters:
       - filter: Bounds Check

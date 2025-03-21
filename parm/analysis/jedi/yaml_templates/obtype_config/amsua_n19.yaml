@@ -15,14 +15,12 @@
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3]
-        SurfaceWindGeoVars: uv
+        Clouds: [Water, Ice]
+        Cloud_Fraction: 1.0
         obs options:
           Sensor_ID: amsua_n19
           EndianType: little_endian
           CoefficientPath: crtm/
-          IRVISlandCoeff: IGBP
-        linear obs operator:
-          Absorbers: [H2O, O3]
 
       obs bias:
         input file: obs/satbias_amsua_n19_#HH#.nc
@@ -60,22 +58,22 @@
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/latitude
-            minvalue: #MIN_LAT#
-            maxvalue: #MAX_LAT#
+        - variable:
+            name: MetaData/latitude
+          minvalue: #MIN_LAT#
+          maxvalue: #MAX_LAT#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       - filter: Domain Check
         apply at iterations: 0,1
         where:
-          - variable:
-              name: MetaData/longitude
-            minvalue: #MIN_LON#
-            maxvalue: #MAX_LON#
+        - variable:
+            name: MetaData/longitude
+          minvalue: #MIN_LON#
+          maxvalue: #MAX_LON#
         action:
-           name: reduce obs space
+          name: reduce obs space
 
       obs post filters:
       - filter: Bounds Check
@@ -109,6 +107,7 @@
               x1: &amsua_n19_obsx1 [0.60,0.45,0.40,0.45,1.0,1.5,0.,0.,0.,0.,0.,0.,0.,0.,0.2]
               err0: &amsua_n19_obserr0 [2.500,2.200,2.000,0.550,0.300,0.230,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,3.500]
               err1: &amsua_n19_obserr1 [20.000,18.000,12.000,3.000,0.500,0.300,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,18.000]
+
       #  CLW Retrieval Check
       - filter: Bounds Check
         filter variables:
@@ -123,6 +122,7 @@
         maxvalue: 999.0
         action:
           name: reject
+
       #  CLW Retrieval Check
       - filter: Bounds Check
         filter variables:
@@ -137,6 +137,7 @@
         maxvalue: 999.0
         action:
           name: reject
+
       #  Hydrometeor Check (cloud/precipitation affected chanels)
       - filter: Bounds Check
         filter variables:
@@ -172,6 +173,7 @@
         maxvalue: 0.0
         action:
           name: reject
+
       #  Topography check
       - filter: BlackList
         filter variables:
@@ -185,6 +187,7 @@
             options:
               sensor: &amsua_n19_sensor amsua_n19
               channels: *amsua_n19_channels
+
       #  Transmittnace Top Check
       - filter: BlackList
         filter variables:
@@ -198,6 +201,7 @@
             options:
               sensor: *amsua_n19_sensor
               channels: *amsua_n19_channels
+
       #  Surface Jacobian check
       - filter: BlackList
         filter variables:
@@ -213,6 +217,7 @@
               channels: *amsua_n19_channels
               obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
               obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
+
       #  Situation dependent Check
       - filter: BlackList
         filter variables:
@@ -330,6 +335,17 @@
                                2.5, 3.5, 4.5, 4.5, 4.5]
         action:
           name: reject
+
+      # Data Thinning
+      - filter: Gaussian Thinning
+        horizontal_mesh: 45
+        use_reduced_horizontal_grid: true
+        distance_norm: geodesic
+        actions:
+          - name: set
+            flag: Thinning
+          - name: reject
+
       #  Inter-channel check
       - filter: Bounds Check
         filter variables:
@@ -347,6 +363,7 @@
         maxvalue: 1.0e-12
         action:
           name: reject
+
       #  Useflag check
       - filter: Bounds Check
         filter variables:
@@ -362,4 +379,3 @@
         minvalue: 1.0e-12
         action:
           name: reject
-
