@@ -7,7 +7,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/hofx.atms_n20_#HH#.nc
+            obsfile: hofx/diag_atms_n20_#HH#.nc
         io pool:
           max pool size: 1
         simulated variables: [brightnessTemperature]
