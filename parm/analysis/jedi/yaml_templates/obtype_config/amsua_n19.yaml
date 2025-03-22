@@ -75,6 +75,16 @@
         action:
           name: reduce obs space
 
+      # Step 0-A: Create Diagnostic Flags
+      - filter: Create Diagnostic Flags
+        filter variables:
+        - name: brightnessTemperature
+          channels: *amsua_n19_channels
+        flags:
+        - name: Thinning
+          initial value: false
+          force reinitialization: false
+
       obs post filters:
       - filter: Bounds Check
         filter variables:
