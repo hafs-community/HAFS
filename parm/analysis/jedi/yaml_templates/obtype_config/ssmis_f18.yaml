@@ -99,25 +99,12 @@
         action:
           name: reduce obs space
 
-      # Step 0-A: Create Diagnostic Flags
-      - filter: Create Diagnostic Flags
-        filter variables:
-        - name: brightnessTemperature
-          channels: *ssmis_f18_channels
-        flags:
-        - name: Thinning
-          initial value: false
-          force reinitialization: false
-        - name: UseflagCheck
-          initial value: false
-          force reinitialization: false
-
-      - filter: BlackList
+      - filter: RejectList
         where:
         - variable:
             name: ObsValue/brightnessTemperature
             channels: *ssmis_f18_channels
-          value: is_valid
+          value: is_not_valid
         action:
           name: reduce obs space
 
@@ -167,6 +154,17 @@
           type: int
           value: 85
 
+      # Step 0-A: Create Diagnostic Flags
+      - filter: Create Diagnostic Flags
+        filter variables:
+        - name: brightnessTemperature
+          channels: *ssmis_f18_channels
+        flags:
+        - name: UseflagCheck
+          initial value: false
+          force reinitialization: false
+
+
       # Step 0: Data Thinning
       - filter: Gaussian Thinning
         filter variables:
@@ -198,7 +196,7 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_n18_channels
+          channels: *ssmis_f18_channels
         test variables:
         - name: GeoVaLs/observable_domain_mask
           flag all filter variables if any test variable is out of bounds: true
@@ -213,9 +211,9 @@
         absolute threshold: 3.5
         remove bias correction: true
         where:
-          - variable:
-              name: GeoVaLs/water_area_fraction
-            minvalue: 0.99
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
         action:
           name: reject
 
@@ -280,10 +278,10 @@
         absolute threshold: 3.5
         remove bias correction: true
         where:
-          - variable:
-              name: GeoVaLs/water_area_fraction
-            maxvalue: 0.99
-            max_exclusive: true
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          maxvalue: 0.99
+          max_exclusive: true
         action:
           name: reject
 
@@ -357,21 +355,21 @@
         value: DerivedMetaData/SSMISScatteringIndex11
         maxvalue: 2
 
-      # Step 8: NSST retrieval check
-      - filter: Bounds Check
-        filter variables:
-        - name: brightnessTemperature
-          channels: *ssmis_f18_channels
-        test variables:
-        - name: ObsFunction/NearSSTRetCheckIR
-          channels: *ssmis_f18_channels
-          options:
-            channels: *ssmis_f18_channels
-            use_flag: &ssmis_f18_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
-            error parameter vector: *ssmis_f18_obserr
-        maxvalue: 1.0e-12
-        action:
-          name: reject
+#      # Step 8: NSST retrieval check
+#      - filter: Bounds Check
+#        filter variables:
+#        - name: brightnessTemperature
+#          channels: *ssmis_f18_channels
+#        test variables:
+#        - name: ObsFunction/NearSSTRetCheckIR
+#          channels: *ssmis_f18_channels
+#          options:
+#            channels: *ssmis_f18_channels
+#            use_flag: &ssmis_f18_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
+#            error parameter vector: *ssmis_f18_obserr
+#        maxvalue: 1.0e-12
+#        action:
+#          name: reject
 
       # Step 9: Error inflation based on surface jacobian
       - filter: Variable Assignment
@@ -495,7 +493,6 @@
               - name: ObsErrorData/brightnessTemperature_5
               coefs: [ 0.75 ]
               exponents: [ -1 ]
-
       - filter: Background Check
         filter variables:
         - name: brightnessTemperature_5
@@ -913,7 +910,8 @@
           channels: *ssmis_f18_channels
           options:
             channels: *ssmis_f18_channels
-            use_flag: *ssmis_f18_obsuse
+#            use_flag: *ssmis_f18_obsuse
+            use_flag: &ssmis_f18_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
         minvalue: 1.0e-12
         actions:
         - name: set

@@ -426,18 +426,16 @@ done
 # fi
 #done
 ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
-mkdir temp
-cd temp
- split_by_subset ../gfs.t${cyc}z.prepbufr.bufr_d
-cd ..
 for file in ${airctypes}; do
- if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ -s temp/${file^^} ] ; then
+ export AVAIL=` binv gfs.t${cyc}z.prepbufr.bufr_d | grep "${file^^}" | wc -l `
+ if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ "${AVAIL}" -gt 0 ] ; then
   sed -e "s|#HH#|t${cyc}z|g" \
       -e "s|#ANADATE#|${ANADATE}|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
   ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml
+ else
+  echo "Skipping ${file^^}: YAML missing or AVAIL=0"
  fi
 done
-rm -rf temp
 ######## Temp convert prepbufr only #####
 #ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
 #sed -e "s|#HH#|t${cyc}z|g" \
