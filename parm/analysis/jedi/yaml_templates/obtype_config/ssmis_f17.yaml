@@ -99,25 +99,12 @@
         action:
           name: reduce obs space
 
-      # Step 0-A: Create Diagnostic Flags
-      - filter: Create Diagnostic Flags
-        filter variables:
-        - name: brightnessTemperature
-          channels: *ssmis_f17_channels
-        flags:
-        - name: Thinning
-          initial value: false
-          force reinitialization: false
-        - name: UseflagCheck
-          initial value: false
-          force reinitialization: false
-
-      - filter: BlackList
+      - filter: RejectList
         where:
         - variable:
             name: ObsValue/brightnessTemperature
             channels: *ssmis_f17_channels
-          value: is_valid
+          value: is_not_valid
         action:
           name: reduce obs space
 
@@ -166,6 +153,17 @@
         - name: DerivedMetaData/thinningScore
           type: int
           value: 85
+
+      # Step 0-A: Create Diagnostic Flags
+      - filter: Create Diagnostic Flags
+        filter variables:
+        - name: brightnessTemperature
+          channels: *ssmis_f17_channels
+        flags:
+        - name: UseflagCheck
+          initial value: false
+          force reinitialization: false
+
 
       # Step 0: Data Thinning
       - filter: Gaussian Thinning
@@ -357,21 +355,21 @@
         value: DerivedMetaData/SSMISScatteringIndex11
         maxvalue: 2
 
-      # Step 8: NSST retrieval check
-      - filter: Bounds Check
-        filter variables:
-        - name: brightnessTemperature
-          channels: *ssmis_f17_channels
-        test variables:
-        - name: ObsFunction/NearSSTRetCheckIR
-          channels: *ssmis_f17_channels
-          options:
-            channels: *ssmis_f17_channels
-            use_flag: &ssmis_f17_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
-            error parameter vector: *ssmis_f17_obserr
-        maxvalue: 1.0e-12
-        action:
-          name: reject
+#      # Step 8: NSST retrieval check
+#      - filter: Bounds Check
+#        filter variables:
+#        - name: brightnessTemperature
+#          channels: *ssmis_f17_channels
+#        test variables:
+#        - name: ObsFunction/NearSSTRetCheckIR
+#          channels: *ssmis_f17_channels
+#          options:
+#            channels: *ssmis_f17_channels
+#            use_flag: &ssmis_f17_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
+#            error parameter vector: *ssmis_f17_obserr
+#        maxvalue: 1.0e-12
+#        action:
+#          name: reject
 
       # Step 9: Error inflation based on surface jacobian
       - filter: Variable Assignment
@@ -912,7 +910,8 @@
           channels: *ssmis_f17_channels
           options:
             channels: *ssmis_f17_channels
-            use_flag: *ssmis_f17_obsuse
+#            use_flag: *ssmis_f17_obsuse
+            use_flag: &ssmis_f17_obsuse [1,-1,-1,-1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1]
         minvalue: 1.0e-12
         actions:
         - name: set
