@@ -18,9 +18,6 @@
       obs operator:
         name: CRTM
         Absorbers: [H2O, O3, CO2]
-        Clouds: [Water, Ice]
-        Cloud_Fraction: 1.0
-        SurfaceWindGeoVars: uv
         obs options:
           Sensor_ID: ssmis_f17
           EndianType: little_endian
@@ -117,7 +114,7 @@
       - filter: Variable Assignment
         where:
         - variable:
-            name: MetaData/surfaceFlag
+            name: MetaData/earthSurfaceFlag
           is_in: 5, 7, 10     # ocean/water
         assignments:
         - name: DerivedMetaData/thinningScore
@@ -127,7 +124,7 @@
       - filter: Variable Assignment
         where:
         - variable:
-            name: MetaData/surfaceFlag
+            name: MetaData/earthSurfaceFlag
           is_in: 0 , 12     # land
         assignments:
         - name: DerivedMetaData/thinningScore
@@ -137,7 +134,7 @@
       - filter: Variable Assignment
         where:
         - variable:
-            name: MetaData/surfaceFlag
+            name: MetaData/earthSurfaceFlag
           is_in: 3, 4, 9    # Ice/Sea Ice/Frozen Soil
         assignments:
         - name: DerivedMetaData/thinningScore
@@ -147,7 +144,7 @@
       - filter: Variable Assignment
         where:
         - variable:
-            name: MetaData/surfaceFlag
+            name: MetaData/earthSurfaceFlag
           is_in: 8, 11      # Snow
         assignments:
         - name: DerivedMetaData/thinningScore
