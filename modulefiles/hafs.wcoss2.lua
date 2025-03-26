@@ -20,8 +20,8 @@ load(pathJoin("cray-pals", cray_pals_ver))
 cmake_ver=os.getenv("cmake_ver")
 load(pathJoin("cmake", cmake_ver))
 
-python_ver=os.getenv("python_ver")
-load(pathJoin("python", python_ver))
+--python_ver=os.getenv("python_ver")
+--load(pathJoin("python", python_ver))
 
 jasper_ver=os.getenv("jasper_ver")
 load(pathJoin("jasper", jasper_ver))
@@ -130,6 +130,9 @@ mapl_ver=os.getenv("mapl_ver")
 
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
+
+prepend_path("MODULEPATH", "/apps/dev/lmodules")
+load("intel/19.1.3.304/ve/hafs/2.1")
 
 setenv("CC", "cc")
 setenv("CXX", "CC")
