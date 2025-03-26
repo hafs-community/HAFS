@@ -428,6 +428,22 @@ if [ ${nhcpost} = .true. ]; then
     ${WGRIB2} -append ${sat_grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
     export err=$?; err_chk
   fi
+  # Regridding hafs storm domain grib2 files for NHC on a subdomain of a fixed domain with a fixed resolution
+  if [ ${gridstr} = "storm" ]; then
+    grb2file_raw=${nhc_grb2file}_raw
+    mv ${nhc_grb2file} ${grb2file_raw}
+	nhc_nlon=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 1))
+	nhc_nlat=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 2))
+	nhc_lon0=$(printf "%.1f" $(bc <<< "scale=1; $(${WGRIB2} -ijlat 1 1 -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -d "," -f 3 | cut -d "=" -f 2)"))
+	nhc_lat0=$(printf "%.1f" $(bc <<< "scale=1; $(${WGRIB2} -ijlat 1 1 -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -d "," -f 4 | cut -d "=" -f 2)"))
+	nhc_dlon=$(printf "%.2f" $(bc <<< "scale=2; $(echo ${output_grid_dlon} | cut -d , -f ${ng})"))
+	nhc_dlat=$(printf "%.2f" $(bc <<< "scale=2; $(echo ${output_grid_dlat} | cut -d , -f ${ng})"))
+    nhc_gridspecs="latlon ${nhc_lon0}:${nhc_nlon}:${nhc_dlon} ${nhc_lat0}:${nhc_nlat}:${nhc_dlat}"
+    opts='-new_grid_winds earth -set_grib_type complex3'
+    echo "INFO: generating ${nhc_grb2file} ..."
+    ${WGRIB2} ${grb2file_raw} ${opts} -new_grid ${nhc_gridspecs} ${nhc_grb2file}
+    export err=$?; err_chk
+  fi
   ${WGRIB2} -s ${nhc_grb2file} > ${nhc_grb2indx}
   export err=$?; err_chk
 fi
