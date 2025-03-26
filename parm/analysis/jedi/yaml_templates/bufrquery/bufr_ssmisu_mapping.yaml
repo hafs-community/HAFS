@@ -31,7 +31,7 @@ bufr:
     fieldOfViewNumber:
       query: "*/FOVN"
 
-    surfaceFlag:
+    earthSurfaceFlag:
       query: "*/SFLG"
 
     rainFlag:
@@ -169,8 +169,8 @@ encoder:
       longName: "Sensor View Angle"
       units: "degree"
   
-    - name: "MetaData/surfaceFlag"
-      source: variables/surfaceFlag
+    - name: "MetaData/earthSurfaceFlag"
+      source: variables/earthSurfaceFlag
       longName: "Surface Flag"
   
     - name: "MetaData/rainFlag"
