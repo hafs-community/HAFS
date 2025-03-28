@@ -51,7 +51,7 @@ background error:
           value: _LOC_H_000.0
         vertical length-scale:
         - groups: *3dvars
-          value: _LOC_V_000.0
+          value: _LOC_V_
       grids:
       - model:
           variables:
