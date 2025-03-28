@@ -14,7 +14,7 @@ SDM via setup_hurricane.
 Labels:
 
   stormN - storm1-storm7 for HFSA; storm1-storm5 for HFSB; label tells whether
-           a storm is to be run. IF the storm is to be run, it tells what the
+           a storm is to be run. If the storm is to be run, it tells what the
            storm is, and who sent it (NHC or JTWC).
 
 Events:

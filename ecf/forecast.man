@@ -6,7 +6,7 @@ FAMILY forecast
 PURPOSE: Runs HFSA and HFSB forecast jobs with different coupled and
 atmospheric-only configurations
 
-This family contains varous type of forecast jobs of HFSA and HFSB
+This family contains various types of forecast jobs of HFSA and HFSB
 configurations at different global oceanic basins, only one of which will be
 run.
 
