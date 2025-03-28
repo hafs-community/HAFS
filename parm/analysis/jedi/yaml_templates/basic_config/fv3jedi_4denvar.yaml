@@ -30,6 +30,7 @@ _geometry: &geometry_configs
     field table filename: field_table
   fieldsets:
     fieldset: dynamics_hafs.yaml
+  vert coordinate: logp
 
 _ens_filenames: &ens_fv3file_names
   filename_core: '_FV3_CORE_ENS_FILE_'
@@ -63,6 +64,7 @@ _ens_geometry: &ens_geometry_configs
     field table filename: field_table
   fieldsets:
     fieldset: dynamics_hafs.yaml
+  vert coordinate: logp
 
 cost function:
   cost type: 4D-Ens-Var
