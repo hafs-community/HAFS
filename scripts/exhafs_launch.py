@@ -119,7 +119,6 @@ def main():
     hafs.launcher module to create the initial directory structure and
     conf file."""
     logger=logging.getLogger('exhafs_launch')
-    PARAFLAG = ( os.environ.get('RUN_ENVIR','DEV').upper() != 'NCO' )
     logger.info('Top of exhafs_launch.')
 
     short_opts = "m:M:n"

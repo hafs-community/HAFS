@@ -9,7 +9,6 @@ export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
 export envir=${envir:-test}
-export RUN_ENVIR=${RUN_ENVIR:-DEV}
 
 export EMAIL_SDM=${EMAIL_SDM:-NO}
 export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}

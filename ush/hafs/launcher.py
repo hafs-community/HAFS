@@ -1378,7 +1378,6 @@ class HAFSLauncher(HAFSConfig):
             Default: set to value of EXPT       """
         ENV=os.environ
         logger=self.log()
-        PARAFLAG=( ENV.get('RUN_ENVIR','DEV').upper()!='NCO' )
 
         def set_default(section,option,default,env1=None,env2=None):
             if not self.has_option(section,option):
