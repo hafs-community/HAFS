@@ -304,7 +304,7 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     moreopt=collections.defaultdict(dict)
     for iarg in range(len(args)):
         logger.info(args[iarg])
-        m=re.match('''(?x)
+        m=re.match(r'''(?x)
           (?P<section>[a-zA-Z][a-zA-Z0-9_]*)
            \.(?P<option>[^=]+)
            =(?P<value>.*)$''',args[iarg])

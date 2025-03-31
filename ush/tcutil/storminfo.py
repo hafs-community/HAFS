@@ -258,7 +258,7 @@ def floatlatlon(string,fact=10.0):
     @note This function does not accept negative numbers.  That means
     the tcvitals "badval" -999 or -99 or -9999 will result in a None
     return value.    """
-    m=re.search('\A(?P<num>0*\d+)(?:(?P<positive>[NnEe ])|(?P<negative>[SsWw]))\Z',string)
+    m=re.search(r'\A(?P<num>0*\d+)(?:(?P<positive>[NnEe ])|(?P<negative>[SsWw]))\Z',string)
     if m:
         mdict=m.groupdict()
         latlon=float(mdict['num'])/fact
@@ -951,7 +951,7 @@ class StormInfo(object):
         is missing or None, and the tcvitals does not specify the
         century either, then InvalidVitals will be raised.  If both
         are available, the tcvitals century is used."""
-        m=re.search('''(?xi)
+        m=re.search(r'''(?xi)
           (?P<center>\S+) \s+ (?P<stnum>\d\d)(?P<rawbasin>[A-Za-z])
           \s+ (?P<rawstormname>[A-Za-z_ -]+)
           \s+ (?P<rawcentury>\d\d)? (?P<rawYYMMDD>\d\d\d\d\d\d)

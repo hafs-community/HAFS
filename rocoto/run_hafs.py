@@ -283,22 +283,22 @@ if outdb[-4:]=='.xml':
           'not end with ".xml".')
 
 for arg in args:
-    if re.match('\A\d\d\Z',arg):
+    if re.match(r'\A\d\d\Z',arg):
         logger.info('ensemble id')
         # Single ensemble ID
         enset.add('%02d'%int(arg,10))
-    elif re.match('\A\d\d-\d\d\Z',arg):
+    elif re.match(r'\A\d\d-\d\d\Z',arg):
         logger.info('list of ensemble ids')
         # List of ensemble IDs
         en1=int(arg[0:2],10)
         en2=int(arg[3:],10)
         enset.update([ "%02d"%(x+en1) for x in range(en2-en1+1) ])
-    elif re.match('\A\d{10}\Z',arg):
+    elif re.match(r'\A\d{10}\Z',arg):
         logger.info('single date/time')
         # Single date/time
         cycleset.add(arg)
         dateargs.append(arg)
-    elif re.match('\A\d{4}\Z',arg):
+    elif re.match(r'\A\d{4}\Z',arg):
         logger.info('year')
         # Year
         start=to_datetime(arg+'01010000')
@@ -308,7 +308,7 @@ for arg in args:
             cycleset.add(now.strftime('%Y%m%d%H'))
             now+=cycling_interval
         dateargs.append(arg)
-    elif re.match('\A\d{10}-\d{10}\Z',arg):
+    elif re.match(r'\A\d{10}-\d{10}\Z',arg):
         logger.info('range of cycles')
         # Range of date/times
         start=to_datetime(arg[0:10])
@@ -318,7 +318,7 @@ for arg in args:
             cycleset.add(now.strftime('%Y%m%d%H'))
             now+=cycling_interval
         dateargs.append(start)
-    elif re.match('\A\d\d[A-Z]\Z',arg.upper()):
+    elif re.match(r'\A\d\d[A-Z]\Z',arg.upper()):
         logger.info('storm id')
         # Storm ID.  This ends our argument parsing.  We pass the
         # remaining arguments on to parse_launch_args.
@@ -331,7 +331,7 @@ for arg in args:
                 logger.info('Disabling renumbering for test storm '+arg)
                 renumber=False
         break
-    elif re.match('\AH214:\d\d\d\d\Z',arg.upper()):
+    elif re.match(r'\AH214:\d\d\d\d\Z',arg.upper()):
         # H214 cycle requested
         logger.info('H214 - use the H214 benchmark cycles')
         parse_tcvitals=False
@@ -356,7 +356,7 @@ case_root=args[firstarg+1]
 logger.info('Running for storm '+stid.upper())
 
 def fullify(s):
-    m=re.match('''(?x)(?P<section>[a-zA-Z][a-zA-Z0-9_]*)\.(?P<option>[^=]+)=(?P<value>.*)$''',s)
+    m=re.match(r'''(?x)(?P<section>[a-zA-Z][a-zA-Z0-9_]*)\.(?P<option>[^=]+)=(?P<value>.*)$''',s)
     if not m:
         return os.path.abspath(s)
     else:

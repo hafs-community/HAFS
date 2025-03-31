@@ -208,7 +208,7 @@ class ATParser:
             self.warn(
                 'Ignoring unknown function \"%s\" -- I only know these: %s'
                  %(fun1, ' '.join(list(functions.keys()))))
-        m=re.match('\.([A-Za-z0-9_]+)(.*)',morefun)
+        m=re.match(r'\.([A-Za-z0-9_]+)(.*)',morefun)
         if m:
             (fun2,morefun2)=m.groups()
             return self.applyfun(val,fun2,morefun2)
@@ -220,7 +220,7 @@ class ATParser:
         @param optional if False, raise an exception if the variable is
           unset.  If True, return '' for unset variables.
         @protected"""
-        m=re.match('([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)(.*)',varname)
+        m=re.match(r'([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)(.*)',varname)
         if m:
             (varname,fun1,morefun)=m.groups()
             val=self.from_var(varname,optional=optional)
@@ -508,7 +508,7 @@ class ATParser:
                 self.warn(self.replace_vars(m.group(1)))
             return
 
-        m=re.match('^\s*\@\*\*\s*else\s*if\s+([A-Za-z_][A-Za-z_0-9.]*)\s*([!=])=\s*(.*?)\s*\Z',line)
+        m=re.match(r'^\s*\@\*\*\s*else\s*if\s+([A-Za-z_][A-Za-z_0-9.]*)\s*([!=])=\s*(.*?)\s*\Z',line)
         if m:
             if top_state('ignore'): return
             (left, comp, right) = m.groups()
@@ -582,7 +582,7 @@ class ATParser:
 
         m=re.match(r'^\s*\@\*\*.*',line)
         if m:
-            raise ParserSyntaxError('Invalid \@** directive in line \"%s\".  Ignoring line.\n'%(line,))
+            raise ParserSyntaxError('Invalid \\@** directive in line \"%s\".  Ignoring line.\n'%(line,))
         
         if self._states and not self.active: 
             return # inside a disabled block
