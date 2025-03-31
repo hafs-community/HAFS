@@ -24,6 +24,7 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.*.sat.f???.grb2*
 rm -f ${COMhafs}/${out_prefix}.${RUN}.trak.patcf
 rm -f ${WORKhafs}/intercom/post/${out_prefix}.${RUN}.*.trk.f???.grb2*
 rm -f ${WORKhafs}/intercom/post/post*f???
+rm -f ${WORKhafs}/intercom/product/trak*f???
 
 # Remove ocn_post com output
 if [ ${run_ocean} = yes ]; then
