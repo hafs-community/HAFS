@@ -219,7 +219,7 @@
         filter variables:
         - name: brightnessTemperature
           channels: *abi_g16_channels
-        horizontal_mesh: 145
+        horizontal_mesh: 45
         use_reduced_horizontal_grid: true
         distance_norm: maximum
         time_mesh: 'PT06H'
