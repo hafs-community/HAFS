@@ -292,7 +292,7 @@
 
       # Step 2: Data Thinning
       - filter: Gaussian Thinning
-        horizontal_mesh: 145
+        horizontal_mesh: 45
         use_reduced_horizontal_grid: true
         distance_norm: geodesic
       #  round_horizontal_bin_count_to_nearest: true
