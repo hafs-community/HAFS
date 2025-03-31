@@ -56,7 +56,7 @@ source ${HOLDVARS}
 
 export POST_CLEANUP=${POST_CLEANUP:-NO}
 
-export DATA=${WORKhafs}/unpost
+export DATA=${WORKhafs}/unpost${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA

@@ -57,16 +57,16 @@ mkdir -p ${DATA}
 cd $DATA
 # Prepare tcvitals file
 if [ ${FGAT_HR} = 03 ]; then
-  ${NCP} ${WORKhafs}/tm03vit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tm03vit tcvitals.vi
   gesfhr=3
 elif [ ${FGAT_HR} = 06 ]; then
-  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
-  ${NCP} ${WORKhafs}/tp03vit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tp03vit tcvitals.vi
   gesfhr=9
 else
-  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
 fi
 # Convert 1800W to 1800E for date line TCs

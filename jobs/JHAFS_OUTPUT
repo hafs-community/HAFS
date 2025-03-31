@@ -56,7 +56,7 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export DATA=${WORKhafs}/output
+export DATA=${WORKhafs}/output${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA

@@ -374,7 +374,7 @@ def load(filename):
 
     WORKhafs=conf.getdir('WORKhafs')
 
-    tmpvit=os.path.join(WORKhafs,'tmpvit')
+    tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
     logger.info(tmpvit+': read vitals for current cycle')
     #syndat is a StormInfo object
     with open(tmpvit,'rt') as f:
@@ -382,7 +382,7 @@ def load(filename):
         syndat=syndat[0]
     logger.info('Current cycle vitals: '+syndat.as_tcvitals())
 
-    oldvit=os.path.join(WORKhafs,'oldvit')
+    oldvit=os.path.join(WORKhafs,'intercom','launch','oldvit')
     logger.info(oldvit+': read vitals for prior cycle')
     with open(oldvit,'rt') as f:
         oldsyndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
@@ -420,14 +420,14 @@ def _load_multistorm(fakestormid,conf,logger):
 
         #parse_tcvitals returns a 1 element list with element[0] being the StormInfo object.
         #That is we append [0] for each storm in a multistorm below.
-        tmpvit=os.path.join(WORKhafs4real,'tmpvit')
+        tmpvit=os.path.join(WORKhafs4real,'intercom','launch','tmpvit')
         logger.info(tmpvit+': Multistorm %s: read vitals for current cycle'%(stormid))
         with open(tmpvit,'rt') as f:
             syndat_multistorm.append(tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)[0])
         logger.info('Multistorm %s: Current cycle vitals: %s'%(
             stormid,str(syndat_multistorm[i].as_tcvitals())))
 
-        oldvit=os.path.join(WORKhafs4real,'oldvit')
+        oldvit=os.path.join(WORKhafs4real,'intercom','launch','oldvit')
         logger.info(oldvit+': Multistorm %s: read vitals for prior cycle'%(stormid))
         with open(oldvit,'rt') as f:
             oldsyndat_multistorm.append(tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)[0])
@@ -589,6 +589,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
 
     produtil.fileop.makedirs(conf.getdir('com'),logger=logger)
     produtil.fileop.makedirs(conf.getdir('WORKhafs'),logger=logger)
+    produtil.fileop.makedirs(os.path.join(conf.getdir('WORKhafs'),'intercom','launch'),logger=logger)
     #produtil.fileop.makedirs(conf.getdir('lockdir'),logger=logger)
     #griblockdir=conf.getstr('regribber','griblockdir','')
     #if griblockdir:
@@ -619,6 +620,9 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         conf.write(f)
 
     with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
+        f.write(conf.strinterp(
+                'config','export cyc={HH}\nexport PDY={YMD}\nYMDH={YMDH}\n'))
+    with open(os.path.join(conf.getdir('WORKhafs'),'intercom','launch','PDY'),'wt') as f:
         f.write(conf.strinterp(
                 'config','export cyc={HH}\nexport PDY={YMD}\nYMDH={YMDH}\n'))
 
@@ -694,11 +698,11 @@ class HAFSLauncher(HAFSConfig):
         @returns the vitals path"""
         if storm_num is not None:
             storm_num=int(storm_num)
-            vitfile=os.path.join(self.getdir('WORKhafs'),
+            vitfile=os.path.join(self.getdir('WORKhafs'),'intercom','launch',
                 'storm%d.vitals'%(storm_num,))
         else:
             stormlabel=self.getstr('config','stormlabel','storm1')
-            vitfile=os.path.join(self.getdir('WORKhafs'),
+            vitfile=os.path.join(self.getdir('WORKhafs'),'intercom','launch',
                 '%s.vitals'%(stormlabel,))
         return vitfile
 
@@ -1125,7 +1129,7 @@ class HAFSLauncher(HAFSConfig):
             for vit in renumbered.each(stormid=STID):
                 print(vit.old().as_tcvitals(), file=vitalsout)
 
-        filename=os.path.join(self.getdir('WORKhafs'),'tmpvit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tmpvit')
         logger.info(filename+': write current cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.syndat.as_tcvitals(), file=tmpvit)
@@ -1134,7 +1138,7 @@ class HAFSLauncher(HAFSConfig):
         logger.info('deliver tmpvit '+filename+' to '+comfile)
         produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
 
-        filename=os.path.join(self.getdir('WORKhafs'),'oldvit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','oldvit')
         logger.info(filename+': write prior cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
@@ -1145,7 +1149,7 @@ class HAFSLauncher(HAFSConfig):
         tm03syndat.wmax=max(min(tm03syndat.wmax, 99), 0)
         tm03syndat.pmin=int(round(oldsyndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
         tm03syndat.pmin=max(min(tm03syndat.pmin, 1100), 800)
-        filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tm03vit')
         logger.info(filename+': write tm03 vitals here')
         with open(filename,'wt') as tmpvit:
             print(tm03syndat.as_tcvitals(), file=tmpvit)
@@ -1156,7 +1160,7 @@ class HAFSLauncher(HAFSConfig):
        #tp03syndat.wmax=max(min(tp03syndat.wmax, 99), 0)
        #tp03syndat.pmin=int(round(syndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
        #tp03syndat.pmin=max(min(tp03syndat.pmin, 1100), 800)
-        filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tp03vit')
         logger.info(filename+': write tp03 vitals here')
         with open(filename,'wt') as tmpvit:
             print(tp03syndat.as_tcvitals(), file=tmpvit)
@@ -1483,7 +1487,7 @@ class HAFSLauncher(HAFSConfig):
             EXEChafs=self.getstr('dir','EXEChafs','exec')
 
             # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
-            with NamedDir(os.path.join(WORKhafs, 'launch/make_hgrid'),logger=logger,rm_first=True) as d:
+            with NamedDir(os.path.join(WORKhafs,'launch'+os.environ.get('jobidstr',''),'make_hgrid'),logger=logger,rm_first=True) as d:
                 if gtype=='nest':
                     executable=os.path.join(EXEChafs, 'hafs_utils_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
@@ -1538,7 +1542,7 @@ class HAFSLauncher(HAFSConfig):
                     logger.warning('Unsupported gtype.')
 
                 # Get storm center lon/lat from tmpvit
-                tmpvit=os.path.join(WORKhafs,'tmpvit')
+                tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
                 #syndat is a StormInfo object
                 with open(tmpvit,'rt') as f:
                     syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)

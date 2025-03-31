@@ -7,6 +7,12 @@
 #   purpose to help HAFS application to easily support multiple platforms.
 ################################################################################
 
+# Set jobname, jobid, jobidstr
+export job=${job:-${PBS_JOBNAME:-${SLURM_JOB_NAME}}}
+export jobid=${jobid:-$job.${PBS_JOBID:-${SLURM_JOB_ID}}}
+export jobidstr=${jobidstr:-".${PBS_JOBID:-${SLURM_JOB_ID}}"}
+if [[ "${jobidstr}" = "." ]]; then export jobidstr=""; fi
+
 # Set job node/core, mpi/omp environment
 export TOTAL_TASKS=${TOTAL_TASKS:-1}
 export NCTSK=${NCTSK:-1}

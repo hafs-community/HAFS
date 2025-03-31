@@ -1465,7 +1465,7 @@ NetCDF
                 timesslept=0
                 sleepmax=180
                 while timesslept<sleepmax:
-                    if os.path.exists("../../forecast/"+logfile):
+                    if os.path.exists("../../intercom/forecast/"+logfile):
                         break
                     else:
                         timesslept=timesslept+1
@@ -1476,8 +1476,8 @@ NetCDF
                     raise
                     sys.exit(2)
                 logger.info('Will create ocean products for %s '%( repr(notabin)))
-                afile=''.join(['../../forecast/'+notabin,'.a'])
-                bfile=''.join(['../../forecast/'+notabin,'.b'])
+                afile=''.join(['../../intercom/forecast/'+notabin,'.a'])
+                bfile=''.join(['../../intercom/forecast/'+notabin,'.b'])
                 archxa='archv.a'
                 archxb='archv.b'
                 produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)
@@ -1521,7 +1521,7 @@ NetCDF
             timesslept=0
             sleepmax=180
             while timesslept<sleepmax:
-               if os.path.exists("../../forecast/"+logfile):
+               if os.path.exists("../../intercom/forecast/"+logfile):
                   break
                else:
                   timesslept=timesslept+1
@@ -1532,8 +1532,8 @@ NetCDF
                raise
                sys.exit(2)
             logger.info('Will create ocean products for %s '%( repr(notabin)))
-            afile=''.join(['../../forecast/'+notabin,'.a'])
-            bfile=''.join(['../../forecast/'+notabin,'.b'])
+            afile=''.join(['../../intercom/forecast/'+notabin,'.a'])
+            bfile=''.join(['../../intercom/forecast/'+notabin,'.b'])
             archxa='archs.a'
             archxb='archs.b'
             produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)

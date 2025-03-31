@@ -96,8 +96,8 @@ COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 mkdir -p ${COMOUTproduct}
 mkdir -p ${DATA}
 
-tmp_vital=${WORKhafs}/tmpvit
-old_vital=${WORKhafs}/oldvit
+tmp_vital=${WORKhafs}/intercom/launch/tmpvit
+old_vital=${WORKhafs}/intercom/launch/oldvit
 
 #===============================================================================
 # Run GFDL vortextracker

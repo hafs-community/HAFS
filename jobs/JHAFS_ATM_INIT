@@ -67,11 +67,11 @@ if [ ${FGAT_MODEL} = gdas ]; then
 fi
 
 if [ "${ENSDA}" = YES ]; then
-  export DATAinit=${WORKhafs}/atm_init_ens
+  export DATAinit=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}
+  export DATAinit=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
 else
-  export DATAinit=${WORKhafs}/atm_init
+  export DATAinit=${WORKhafs}/atm_init${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
@@ -82,15 +82,7 @@ cd $DATAinit
 
 #===============================================================================
 # forecast
-
-if [ "${ENSDA}" = YES ]; then
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/forecast
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/forecast
-else
-  export DATA=${WORKhafs}/atm_init/forecast
-fi
-
+export DATA=${DATAinit}/forecast
 mkdir -p $DATA
 cd $DATA
 
@@ -105,14 +97,7 @@ export TOTAL_TASKS=240
 export OMP_NUM_THREADS=1
 source ${USHhafs}/hafs_runcmd.sh.inc
 
-if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/post
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/post
-else
-  export DATA=${WORKhafs}/atm_init/post
-fi
-
+export DATA=${DATAinit}/post
 mkdir -p $DATA
 cd $DATA
 
@@ -126,14 +111,7 @@ export err=$?; err_chk
 export OMP_NUM_THREADS=1
 export APRUNC=${APRUNS}
 
-if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}/product
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}/product
-else
-  export DATA=${WORKhafs}/atm_init/product
-fi
-
+export DATA=${DATAinit}/product
 mkdir -p $DATA
 cd $DATA
 

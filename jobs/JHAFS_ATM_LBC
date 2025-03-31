@@ -62,9 +62,9 @@ export BC_GROUPI=$( printf "%d" "${BC_GROUPI:-1}" )
 
 # Deterministic or ensemble
 if [ ${ENSDA} != YES ]; then
-  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}
+  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}${jobidstr}
 else
-  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_lbc${BC_GROUPI}_ens/mem${ENSID}${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then

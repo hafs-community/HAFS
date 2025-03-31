@@ -87,10 +87,10 @@ elif [[ -d /gpfs/f6 ]]; then
   source $MODULESHOME/init/sh
   export LMOD_IGNORE_CACHE=1
   module reset
-  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]]; then
+  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]] ; then
     target=gaeac6
     ulimit -s unlimited
-  elif [[ "$(hostname)" == "dtn"* ]]; then
+  elif [[ "$(hostname)" == "dtn"* ]] ; then
     target="gaeac6dtn"
     module use /usw/hpss/modulefiles
     module load hsi
@@ -122,7 +122,6 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
-
 # The following section is only used for the Rocoto workflow
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
@@ -134,9 +133,8 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
      module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
      module load rocoto/1.3.7_fix
   fi
-  if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]]; then
+  if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]] ; then
     module use ${HOMEhafs}/modulefiles
     module load hafs.${WHERE_AM_I}
   fi
 fi
-

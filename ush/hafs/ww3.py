@@ -21,12 +21,12 @@ from tcutil.numerics import to_datetime, to_datetime_rel, to_fraction, to_timede
 from hafs.exceptions import WW3InputError
 
 prodnames={
-    'mod_def':       ( './mod_def.ww3', '{intercom}/ww3/mod_def.ww3' ),
-    'ww3_mesh':      ( './ww3_mesh.nc', '{intercom}/ww3/ww3_mesh.nc' ),
-    'wind':          ( './wind.ww3', '{intercom}/ww3/wind.ww3' ),
-    'current':       ( './current.ww3', '{intercom}/ww3/current.ww3' ),
-    'restart':       ( './restart.ww3', '{intercom}/ww3/restart_init.ww3' ) }
-#   'ww3_shel':      ( './ww3_shel.inp', '{intercom}/ww3/ww3_shel.inp' ) }
+    'mod_def':       ( './mod_def.ww3', '{intercom}/wav_prep/ww3/mod_def.ww3' ),
+    'ww3_mesh':      ( './ww3_mesh.nc', '{intercom}/wav_prep/ww3/ww3_mesh.nc' ),
+    'wind':          ( './wind.ww3', '{intercom}/wav_prep/ww3/wind.ww3' ),
+    'current':       ( './current.ww3', '{intercom}/wav_prep/ww3/current.ww3' ),
+    'restart':       ( './restart.ww3', '{intercom}/wav_prep/ww3/restart_init.ww3' ) }
+#   'ww3_shel':      ( './ww3_shel.inp', '{intercom}/wav_prep/ww3/ww3_shel.inp' ) }
 
 ########################################################################
 class WW3Init(hafs.hafstask.HAFSTask):
@@ -56,7 +56,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         atime=tcutil.numerics.to_datetime(self.conf.cycle)
         ww3_bdy=self.confstr('ww3_bdy','no')
         if ww3_bdy == 'yes':
-            prodnames['nest']=( './nest.ww3', '{intercom}/ww3/nest.ww3' )
+            prodnames['nest']=( './nest.ww3', '{intercom}/wav_prep/ww3/nest.ww3' )
         with self.dstore.transaction():
             for prodname,filepaths in prodnames.items():
                 (localpath,compath)=filepaths
@@ -139,6 +139,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
 
     def deliver_products(self):
         logger=self.log()
+        produtil.fileop.makedirs(self.timestr('{intercom}/wav_prep/ww3'),logger=logger)
         for prodname,stuff in self._products.items():
             (prod,localpath)=stuff
             prod.deliver(frominfo=localpath,keep=True,logger=logger)
@@ -545,17 +546,17 @@ class WW3Post(hafs.hafstask.HAFSTask):
         try:
             with NamedDir(self.workdir,keep=True,logger=logger,rm_first=True) as d:
                 # Prepare mod_def.ww3
-                ww3moddef=self.icstr('{intercom}/ww3/mod_def.ww3')
+                ww3moddef=self.icstr('{intercom}/wav_prep/ww3/mod_def.ww3')
                 deliver_file(ww3moddef,'mod_def.ww3',force=True,logger=logger)
                 # Prepare and deliver out_grd.ww3
                 if self.outstep>0:
-                    ww3out=self.icstr('{WORKhafs}/forecast/out_grd.ww3')
+                    ww3out=self.icstr('{WORKhafs}/intercom/forecast/out_grd.ww3')
                     deliver_file(ww3out,'out_grd.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outgrd']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                 # Prepare and deliver out_pnt.ww3
                 if self.pntstep>0:
-                    ww3pnt=self.icstr('{WORKhafs}/forecast/out_pnt.ww3')
+                    ww3pnt=self.icstr('{WORKhafs}/intercom/forecast/out_pnt.ww3')
                     deliver_file(ww3pnt,'out_pnt.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outpnt']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)

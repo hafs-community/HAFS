@@ -30,7 +30,7 @@ if [ ${ENSDA:-NO} = YES ]; then
   export delx_nest=${delx_nest_ens:-0.03}
   export dely_nest=${dely_nest_ens:-0.03}
   export halop2=${halop2_ens:-5}
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_prep_ens/grid_ens/${CASE}}
 else
   export CASE=${CASE:-C768}
   export gtype=${gtype:-regional}
@@ -49,7 +49,7 @@ else
   export delx_nest=${delx_nest:-0.03}
   export dely_nest=${dely_nest:-0.03}
   export halop2=${halop2:-5}
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_prep/grid/${CASE}}
 fi
 
 else # Moving nest is enabled
@@ -76,7 +76,7 @@ if [[ "${is_moving_nest}" = *".true."* ]]; then
   export delx_nest=${delx_nest_mvnest1res:-0.01}
   export dely_nest=${dely_nest_mvnest1res:-0.01}
   export halop2=${halop2_mvnest1res:-15}
-  export OUTDIR=${WORKhafs}/intercom/grid_mvnest1res/${CASE}
+  export OUTDIR=${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE}
 fi
 
 fi
@@ -115,7 +115,7 @@ export FILTERTOPOSSH=${USHhafs}/hafs_filter_topo.sh
 export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
 export script_dir=${USHhafs}
 export exec_dir=${EXEChafs}
-export out_dir=${OUTDIR:-${WORKhafs}/intercom/grid}
+export out_dir=${OUTDIR:-${WORKhafs}/intercom/atm_prep/grid}
 export DATA=${DATA:-${WORKhafs}/atm_prep}
 mkdir -p ${out_dir}
 

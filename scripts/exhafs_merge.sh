@@ -85,13 +85,13 @@ ${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/
 if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then
 
 if [ ${FGAT_HR} = 03 ]; then
-  tcvital=${WORKhafs}/tm03vit
+  tcvital=${WORKhafs}/intercom/launch/tm03vit
 elif [ ${FGAT_HR} = 06 ]; then
-  tcvital=${WORKhafs}/tmpvit
+  tcvital=${WORKhafs}/intercom/launch/tmpvit
 elif [ ${FGAT_HR} = 09 ]; then
-  tcvital=${WORKhafs}/tp03vit
+  tcvital=${WORKhafs}/intercom/launch/tp03vit
 else
-  tcvital=${WORKhafs}/tmpvit
+  tcvital=${WORKhafs}/intercom/launch/tmpvit
 fi
 if [ ${merge_method} = vortexreplace ]; then
   MERGE_CMD="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
@@ -238,7 +238,7 @@ if [ ${RUN_GSI} = "YES" ] && [ ${GSI_D02} = "YES" ]; then
 
 # Step 4: Calculate d02 increments for IAU
 # Extract vmax from tcvitals (m/s)
-${NCP} ${WORKhafs}/tmpvit tcvitals
+${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals
 vmax_vit=$(cat tcvitals | cut -c68-69 | bc -l)
 export err=$?; err_chk
 if [ ${vmax_vit} -gt ${fwd_vmax_threshold:-33} ]; then
@@ -251,7 +251,7 @@ if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
   RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
-  if [ -s ${WORKhafs}/tmpvit ]; then
+  if [ -s ./tcvitals ]; then
     iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
   fi
   if [ -s ${in_grid} ]; then

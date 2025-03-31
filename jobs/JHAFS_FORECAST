@@ -100,9 +100,9 @@ fi
 # Create DATA dir
 # Deterministic or ensemble
 if [ "${ENSDA:-NO}" != "YES" ]; then
-  export DATA=${WORKhafs}/forecast${FORECAST_RESTART_HC}
+  export DATA=${WORKhafs}/forecast${FORECAST_RESTART_HC}${jobidstr}
 else
-  export DATA=${WORKhafs}/forecast_ens/mem${ENSID:-001}
+  export DATA=${WORKhafs}/forecast_ens/mem${ENSID:-001}${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then

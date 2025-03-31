@@ -258,8 +258,8 @@ done
 #==============================================================================
 
 # Prepare atmospheric forcings from GFS forcing
-mkdir -p ${WORKhafs}/ocn_prep/mom6_forcings
-cd ${WORKhafs}/ocn_prep/mom6_forcings
+mkdir -p ${DATA}/mom6_forcings
+cd ${DATA}/mom6_forcings
 
 PARMave=":USWRF:surface|:DSWRF:surface|:ULWRF:surface|:DLWRF:surface|:UFLX:surface|:VFLX:surface|:SHTFL:surface|:LHTFL:surface"
 PARMins=":UGRD:10 m above ground|:VGRD:10 m above ground|:PRES:surface|:PRATE:surface|:TMP:surface"

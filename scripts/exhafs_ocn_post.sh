@@ -10,11 +10,11 @@ set -x -o pipefail
 CDATE=${CDATE:-${YMDH}}
 ENSDA=${ENSDA:-NO}
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/ocn_post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/ocn_post_ens/mem${ENSID}
 else
-  INPdir=${WORKhafs}/forecast
+  INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/ocn_post
 fi

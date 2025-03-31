@@ -63,15 +63,15 @@ export FGAT_HR=${FGAT_HR:-00}
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
   if [ "${ENSDA}" = YES ]; then
-    export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}
+    export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}${jobidstr}
   else
-    export DATA=${WORKhafs}/analysis_merge
+    export DATA=${WORKhafs}/analysis_merge${jobidstr}
   fi
 elif [ ${MERGE_TYPE} = init ]; then
   if [ ${FGAT_MODEL} = gdas ]; then
-    export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}
+    export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}${jobidstr}
   else
-    export DATA=${WORKhafs}/atm_merge
+    export DATA=${WORKhafs}/atm_merge${jobidstr}
   fi
 else
   echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"

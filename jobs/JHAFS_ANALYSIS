@@ -102,7 +102,7 @@ export gridstr=$(echo ${out_gridnames} | cut -d, -f 1)
 export neststr=${neststr:-""}
 export tilestr=${tilestr:-".tile1"}
 export nesttilestr=${nesttilestr:-""}
-export DATA=${WORKhafs}/analysis
+export DATA=${WORKhafs}/analysis${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
@@ -168,7 +168,7 @@ export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
 export neststr=".nest02"
 export tilestr=".tile2"
 export nesttilestr=".nest02.tile2"
-export DATA=${WORKhafs}/analysis_d02
+export DATA=${WORKhafs}/analysis_d02${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
