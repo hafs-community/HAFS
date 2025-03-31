@@ -1780,14 +1780,14 @@ fi
 
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
   # Use date2jday.sh from prod_util to get julian day
-  JDAY=$(date2jday.sh ${YYYY}${MM}${DD})
+  JDAY=$(date2jday.sh ${YYYY}${MM}${DD} | cut -c5-)
   if [ $FHR -gt 0 ] ; then
-    ${RLN} ${OUTdir}/archs_${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archs_${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archs_${YYYY}_${JDAY}_${HH}.txt ./
-    ${RLN} ${OUTdir}/archv_${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archv_${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archv_${YYYY}_${JDAY}_${HH}.txt ./
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.a ./
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.b ./
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.txt ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.a ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.b ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.txt ./
   fi
 fi
 
