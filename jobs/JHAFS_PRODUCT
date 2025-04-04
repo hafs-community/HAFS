@@ -5,8 +5,14 @@ export PS4='+ $SECONDS + '
 set -x
 
 export cycle=${cycle:-t${cyc:?}z}
-export storm_num=${storm_num:-1}
-export stormlabel=${stormlabel:-storm$storm_num}
+# export storm_num=${storm_num:-1}
+# export stormlabel=${stormlabel:-storm$storm_num}
+# Lew.Gramer@noaa.gov 2024-04-22:
+real_stormlabel=${stormlabel:-storm1}
+real_storm_num=${real_stormlabel: -1}
+stormlabel=${real_stormlabel}
+storm_num=${stormlabel: -1}
+# LJG
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
@@ -54,6 +60,8 @@ export CONFhafs=$COMhafs/$stormlabel.conf
 export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
+stormlabel=${real_stormlabel}
+storm_num=${stormlabel: -1}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
@@ -63,6 +71,19 @@ if [ ${ENSDA} = YES ]; then
 else
   export DATA=${WORKhafs}/product
 fi
+
+# Lew.Gramer@noaa.gov 2024-04-26: variables needed for HAFS-M
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export FAKESTORMID=${FAKESTORMID:-00L}
+# LJG
+
+# Lew.Gramer@noaa.gov 2024-04-26
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/\/${STORMID}//${FAKESTORMID}}")}
+echo "DEBUG: JHAFS_PRODUCT: FAKEWORKhafs = ${FAKEWORKhafs}"
+# LJG
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
@@ -76,18 +97,37 @@ else
   ngrids=${nest_grids}
 fi
 
+# Lew.Gramer@noaa.gov (per Ghassan.Alaka@noaa.gov)
+# If multistorm, limit ngrids=1 for the fake storm (00l)
+#if [ ${RUN_MULTISTORM} == "YES" ] && [ ${STORMID,,} == "00l" ] && [ ${run_init:-no} == "no" ]; then
+# Lew.Gramer@noaa.gov
+if [ ${RUN_MULTISTORM} == "YES" ] && [ ${STORMID,,} == "00l" ] && [ ${RUN_INIT:-NO} == "NO" ]; then
+# LJG
+  ngrids=1
+fi
+#LJG
+
 rm -f cmdfile_product
 # Loop for grids/domains to prepare the cmdfile
 for ng in $(seq 1 ${ngrids}); do
   if [[ $ng -eq 1 ]]; then
     neststr=""
     tilestr=".tile1"
-  else
+    # LJG
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  # LJG
+  elif [ ${RUN_INIT:-NO} == "YES" ]; then
     neststr=".nest$(printf '%02d' ${ng})"
     tilestr=".tile$(printf '%d' ${ng})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  else
+    neststr=".nest$(printf '%02d' ${storm_num})"
+    tilestr=".tile$(printf '%d' ${storm_num})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${storm_num})
   fi
-  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
-  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
+  # LJG
+  #gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr} lasttile=$(( ${ng} == ${ngrids} )); \
         ${HOMEhafs}/scripts/exhafs_product.sh \
         > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done
@@ -105,10 +145,20 @@ export err=$?; err_chk
 for ng in $(seq 1 ${ngrids}); do
   if [[ $ng -eq 1 ]]; then
     neststr=""
-  else
+    #LJG
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  #LJG
+  elif [ ${RUN_INIT:-NO} == "YES" ]; then
     neststr=".nest$(printf '%02d' ${ng})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  else
+    #neststr=".nest$(printf '%02d' ${ng})"
+    #LJG
+    neststr=".nest$(printf '%02d' ${storm_num})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${storm_num})
   fi
-  gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  #LJG
+  #gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
   cat ./run_product.${gridstr}.log
   if grep "top of output_all" ./tracker${neststr}/gettrk.out; then
     echo "INFO: successfully ran run_product.${gridstr}"

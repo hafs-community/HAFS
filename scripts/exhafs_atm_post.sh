@@ -13,6 +13,11 @@ set -x -o pipefail
 export USE_CFP=${USE_CFP:NO}
 export MP_LABELIO=yes
 
+# Lew.Gramer@noaa.gov 2024-04-22:
+stormlabel=${stormlabel:-storm1}
+storm_num=${stormlabel: -1}
+# LJG
+
 CDATE=${CDATE:-${YMDH}}
 
 # Sepcial settings if this is an atm_init run
@@ -48,6 +53,14 @@ if [ "${ENSDA}" = YES ]; then
   COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
   RESTARTcom=${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}
+# Ghassan.Alaka@noaa.gov 2024-01-09
+# Add a new IF branch to check the fake storm directory for the
+# forecast outputs when running multistorm.
+elif [ ${RUN_MULTISTORM} = YES ]; then
+  INPdir=${INPdir:-${FAKEWORKhafs}/forecast}
+  COMOUTpost=${COMhafs}
+  intercom=${WORKhafs}/intercom/post
+# GJA
 else
   INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
@@ -159,26 +172,56 @@ else
   ngrids=${nest_grids}
 fi
 
+# Lew.Gramer@noaa.gov
+# If multistorm, limit ngrids=1 for the fake storm (00l)
+if [ ${RUN_MULTISTORM} == "YES" ] && [ ${STORMID,,} == "00l" ] && [ ${RUN_INIT:-NO} == "NO" ]; then
+  echo "DEBUG: exhafs_atm_post.sh: LINE 158: ngrids=${ngrids} - 1"
+  ngrids=1
+fi
+# LJG
+
 # Loop for grids/domains
 for ng in $(seq 1 ${ngrids}); do
 
+# Lew.Gramer@noaa.gov
+# "nestcnt": "1" for 00L, "2" for the primary storm, "3", for the second, etc.
 if [[ $ng -eq 1 ]]; then
+  nestcnt=${ng}
   neststr=""
   tilestr=".tile1"
   nesttilestr=""
   nestdotstr=""
+elif [ ${RUN_INIT:-NO} == "YES" ]; then
+  nestcnt=${ng}
+  #nestcnt=${storm_num}
+  neststr=".nest$(printf '%02d' ${nestcnt})"
+  tilestr=".tile$(printf '%d' ${nestcnt})"
+  nesttilestr=".nest$(printf '%02d' ${nestcnt}).tile$(printf '%d' ${nestcnt})"
+  nestdotstr=".nest$(printf '%02d' ${nestcnt})."
 else
-  neststr=".nest$(printf '%02d' ${ng})"
-  tilestr=".tile$(printf '%d' ${ng})"
-  nesttilestr=".nest$(printf '%02d' ${ng}).tile$(printf '%d' ${ng})"
-  nestdotstr=".nest$(printf '%02d' ${ng})."
+  nestcnt=${storm_num}
+  # neststr=".nest$(printf '%02d' ${ng})"
+  # tilestr=".tile$(printf '%d' ${ng})"
+  # nesttilestr=".nest$(printf '%02d' ${ng}).tile$(printf '%d' ${ng})"
+  # nestdotstr=".nest$(printf '%02d' ${ng})."
+  neststr=".nest$(printf '%02d' ${nestcnt})"
+  tilestr=".tile$(printf '%d' ${nestcnt})"
+  nesttilestr=".nest$(printf '%02d' ${nestcnt}).tile$(printf '%d' ${nestcnt})"
+  nestdotstr=".nest$(printf '%02d' ${nestcnt})."
 fi
 
-gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+# gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
 
-outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
-postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${ng})
-trakgridspecs=$(echo ${trak_gridspecs} | cut -d, -f ${ng})
+# outputgrid=$(echo ${output_grid} | cut -d, -f ${ng})
+# postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${ng})
+# trakgridspecs=$(echo ${trak_gridspecs} | cut -d, -f ${ng})
+
+gridstr=$(echo ${out_gridnames} | cut -d, -f ${nestcnt})
+
+outputgrid=$(echo ${output_grid} | cut -d, -f ${nestcnt})
+postgridspecs=$(echo ${post_gridspecs} | cut -d, -f ${nestcnt})
+trakgridspecs=$(echo ${trak_gridspecs} | cut -d, -f ${nestcnt})
+#LJG
 
 grb2post=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.postgrb2
 grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
@@ -191,7 +234,9 @@ nhc_grb2indx=${out_prefix}.${RUN}.${gridstr}.nhc.f${FHR3}.grb2.idx
 trk_grb2file=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2
 trk_grb2indx=${out_prefix}.${RUN}.${gridstr}.trk.f${FHR3}.grb2.ix
 
-fort_patcf="fort.6$(printf '%02d' ${ng})"
+# LJG
+#fort_patcf="fort.6$(printf '%02d' ${ng})"
+fort_patcf="fort.6$(printf '%02d' ${nestcnt})"
 trk_patcf=${out_prefix}.${RUN}.trak.patcf
 
 # Check if post has processed this forecast hour previously
@@ -291,7 +336,6 @@ if [ ${satpost} = .true. ]; then
 # ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs_sat.txt ./postxconfig-NT.txt
   ${NCP} ${PARMhafs}/post/postxconfig-NT-hafs.txt ./postxconfig-NT.txt
   # Link crtm fix files
-  # Link crtm fix files
   for file in "amsre_aqua" "imgr_g11" "imgr_g12" "imgr_g13" \
     "imgr_g15" "imgr_mt1r" "imgr_mt2" "seviri_m10" \
     "ssmi_f13" "ssmi_f14" "ssmi_f15" "ssmis_f16" \
@@ -338,8 +382,11 @@ if [ ${postgridspecs} = auto ]; then
   clat=$(echo ${output_grid_cen_lat} | cut -d , -f 1)
   lon_span=$(echo ${output_grid_lon_span} | cut -d , -f 1)
   lat_span=$(echo ${output_grid_lat_span} | cut -d , -f 1)
-  latlon_dlon=$(printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${ng}))
-  latlon_dlat=$(printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${ng}))
+  # LJG
+  # latlon_dlon=$(printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${ng}))
+  # latlon_dlat=$(printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${ng}))
+  latlon_dlon=$(printf "%.6f" $(echo ${output_grid_dlon} | cut -d , -f ${nestcnt}))
+  latlon_dlat=$(printf "%.6f" $(echo ${output_grid_dlat} | cut -d , -f ${nestcnt}))
   if [[ "$outputgrid" = "rotated_latlon"* ]]; then
     latlon_lon0=$(printf "%.6f" $(bc <<< "scale=6; ${clon}-${lon_span}/2.0-9.0"))
     latlon_nlon=$(printf "%.0f" $(bc <<< "scale=6; (${lon_span}+18.0)/${latlon_dlon}"))
@@ -443,9 +490,13 @@ ${WGRIB2} ${grb2file} -match "${PARMlist}" -grib ${trk_grb2file}
 export err=$?; err_chk
 
 # If desired, create the combined grid01 and grid02 hafstrk grib2 file and use it to replace the grid02 hafstrk grib2 file
-if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
+#if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
+# Lew.Gramer@noaa.gov, 2025-02-10
+if [ ${trkd12_combined:-no} = "yes" ] && [ ${nestcnt} -eq 2 ]; then
   gridstr01=$(echo ${out_gridnames} | cut -d, -f 1)
-  gridstr02=$(echo ${out_gridnames} | cut -d, -f 2)
+  #gridstr02=$(echo ${out_gridnames} | cut -d, -f 2)
+  gridstr02=$(echo ${out_gridnames} | cut -d, -f ${nestcnt})
+  #LJG
   gridstr12="merged"
   trkd01_grb2file=${out_prefix}.${RUN}.${gridstr01}.trk.f${FHR3}.grb2
   trkd02_grb2file=${out_prefix}.${RUN}.${gridstr02}.trk.f${FHR3}.grb2
