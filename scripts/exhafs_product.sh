@@ -395,18 +395,18 @@ if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = 
     export nesttilestr=".nest02.tile2"
   fi
   if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_vi_fgat06
+    RESTARTinp=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat06
+    RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
   elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat06
+    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   else
     if [ ${RUN_ATM_VI} = "YES" ]; then
       RESTARTinp=${WORKhafs}/intercom/RESTART_vi
     elif [ ${RUN_ATM_MERGE} = "YES" ]; then
-      RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat06
+      RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
     elif [ ${RUN_ATM_INIT} = "YES" ]; then
-      RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat06
+      RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
     else
       RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
     fi
@@ -420,13 +420,13 @@ if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = 
   out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
     if [ "${var}" = "sfc_data" ]; then
-      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.nc
+      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.nc
     else
-      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.tile1.nc
+      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.tile1.nc
     fi
-    out_file=${RESTARTens}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc
+    out_file=${RESTARTens}/${PDY}.${HH}0000.${var}${nesttilestr}.nc
     if [ ${GRID_RATIO_ENS} -ne 1 ]; then
-      ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc ${out_file}
+      ${NCP} ${RESTARTinp}/${PDY}.${HH}0000.${var}${nesttilestr}.nc ${out_file}
     fi
     if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
        [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
