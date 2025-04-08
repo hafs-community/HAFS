@@ -52,3 +52,4 @@ export pio_ver=2.5.10
 export pio_C_ver=2.5.10
 export ncdiag_ver=1.1.2
 export pnetcdf_C_ver=1.12.2
+export hafs_ve_ver=2.1
