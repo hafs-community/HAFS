@@ -266,6 +266,14 @@ if [ ${RUN_ENVAR} = "YES" ]; then
     for file in `ls ${RESTARTens}/*`; do
       ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
     done
+    if [ ${l4denvar:-.false.} = ".true." ] && [ ${RUN_ENSDA} = "NO" ]; then
+      for file in `ls ${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}/*`; do
+        ${WLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+      done
+      for file in `ls ${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}/*`; do
+        ${WLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+      done
+    fi
   done
 fi
 
