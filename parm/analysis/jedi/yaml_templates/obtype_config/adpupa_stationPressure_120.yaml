@@ -10,7 +10,7 @@
             obsfile: hofx/diag_adpupa_stationPressure_120_#HH#.nc
             allow overwrite: true
         io pool:
-          max pool size: 1
+          max pool size: 40
         observed variables: [stationPressure]
         simulated variables: [stationPressure]
 

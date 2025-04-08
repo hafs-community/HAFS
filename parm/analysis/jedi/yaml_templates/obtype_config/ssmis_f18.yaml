@@ -9,7 +9,7 @@
             type: H5File
             obsfile: hofx/diag_ssmis_f18_#HH#.nc
         io pool:
-          max pool size: 1
+          max pool size: 40
         simulated variables: [brightnessTemperature]
         channels: &ssmis_f18_channels 1-24
 

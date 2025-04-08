@@ -219,9 +219,6 @@ ${NLN} ${RESTARTinp}/${FV3_SFCD_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_SFCW_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_CPLR_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_AKBK_FILE} .
-### Additional step to copy surface height into SFC_DATA file for SSMIS DA
-ncks -v zsurf ${RESTARTinp}/atmos_static.nc -o zsurf.nc
-ncks -A zsurf.nc ${FV3_SFCD_FILE}
 
 if [ ${RUN_FGAT} = "YES" ]; then
   ${NLN} ${RESTARTinp_fgat03}/${FV3_CORE_FILE3} .
@@ -255,218 +252,22 @@ ${NLN} ${RESTARTinp}/grid_spec${nesttilestr}.nc .
 
 if [ ${RUN_ENVAR} = "YES" ]; then
   mkdir ${DATA}/ensemble_data
-  cd ${DATA}/ensemble_data
-  rm -f cmdfile_interpolate_ens_*
-  export icount=1
-  export ibatch=1
-  for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
-  do
-   mkdir ${DATA}/ensemble_data/mem${mem}
-   if [ ${RUN_ENSDA} = "YES" ]; then
-    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
-   else
-    if [ ${l4denvar:-.false.} = ".true." ]; then
-     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat06_ens/mem${mem}
+  for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
+    mkdir ${DATA}/ensemble_data/mem${mem}
+    if [ ${RUN_ENSDA} = "YES" ]; then
+     RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
     else
-     RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${mem}
-    fi
-   fi
-   fhh="06"
-   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-   ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-     ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-     in_grid=${RESTARTens}/grid_spec.nc
-     out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
-     if [ "${var}" = "sfc_data" ]; then
-      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.nc
-     else
-      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.tile1.nc
-     fi
-     out_file=${DATA}/ensemble_data/mem${mem}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc
-     if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-        [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-       echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-       exit 1
-     fi
-     if [ ${GRID_RATIO_ENS} -eq 1 ]; then
-       cat > interpolate_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${NCP} $in_file $out_file
-EOFcopy
-     else
-       cat > interpolate_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter_ens${mem}_${var}.log
-EOFcopy
-     fi
-     chmod +x ./interpolate_ens${mem}_${var}.sh
-     echo "./interpolate_ens${mem}_${var}.sh" >> cmdfile_interpolate_ens_${var}_batch${ibatch}
-   done
-   if [ ${l4denvar:-.false.} = ".true." ]; then
-     export ENS_NSTARTHR=3
-     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}
-     fhh="03"
-     ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-     ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-       ${NCP} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-       in_grid=${RESTARTens}/grid_spec.nc
-       out_grid=${RESTARTinp_fgat03}/grid_spec${nesttilestr}.nc
-       if [ "${var}" = "sfc_data" ]; then
-        in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.nc
-       else
-        in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.tile1.nc
-       fi
-       out_file=${DATA}/ensemble_data/mem${mem}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc
-       if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-          [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-         echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-         exit 1
-       fi
-       if [ ${GRID_RATIO_ENS} -eq 1 ]; then
-         cat > interpolate03_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${NCP} $in_file $out_file
-EOFcopy
-     else
-       cat > interpolate03_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter03_ens${mem}_${var}.log
-EOFcopy
-       fi
-       chmod +x ./interpolate03_ens${mem}_${var}.sh
-       echo "./interpolate03_ens${mem}_${var}.sh" >> cmdfile_interpolate03_ens_${var}_batch${ibatch}
-     done
-     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}
-     fhh="09"
-     ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-     ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-     for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-       ${NCP} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-       in_grid=${RESTARTens}/grid_spec.nc
-       out_grid=${RESTARTinp_fgat09}/grid_spec${nesttilestr}.nc
-       if [ "${var}" = "sfc_data" ]; then
-        in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.nc
-       else
-        in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.tile1.nc
-       fi
-       out_file=${DATA}/ensemble_data/mem${mem}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc
-       if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-          [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-         echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-         exit 1
-       fi
-       if [ ${GRID_RATIO_ENS} -eq 1 ]; then
-         cat > interpolate09_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${NCP} $in_file $out_file
-EOFcopy
-     else
-       cat > interpolate09_ens${mem}_${var}.sh << EOFcopy
-#!/bin/sh
-  set -x
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter09_ens${mem}_${var}.log
-EOFcopy
-       fi
-       chmod +x ./interpolate09_ens${mem}_${var}.sh
-       echo "./interpolate09_ens${mem}_${var}.sh" >> cmdfile_interpolate09_ens_${var}_batch${ibatch}
-     done
-   fi
-   if [ ${icount} -lt 20 ]; then
-     icount=$((icount + 1))
-   else
-     icount=1
-     ibatch=$((ibatch + 1))
-   fi
-#    ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE} .
-#    ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE} .
-#    ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE} .
-#    ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE} .
-#    ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE} .
-#    ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE} .
-#    if [ ${l4denvar:-.false.} = ".true." ]; then
-#      export ENS_NSTARTHR=3
-#      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}
-#      fhh="03"
-#      ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE3} .
-#      ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE3} .
-#      ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE3} .
-#      ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE3} .
-#      ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE3} .
-#      ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE3} .
-#      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}
-#      fhh="09"
-#      ${NLN} ${RESTARTens}/${FV3_CORE_ENS_FILE9} .
-#      ${NLN} ${RESTARTens}/${FV3_TRCR_ENS_FILE9} .
-#      ${NLN} ${RESTARTens}/${FV3_SFCD_ENS_FILE9} .
-#      ${NLN} ${RESTARTens}/${FV3_SFCW_ENS_FILE9} .
-#      ${NLN} ${RESTARTens}/${FV3_CPLR_ENS_FILE9} .
-#      ${NLN} ${RESTARTens}/${FV3_AKBK_ENS_FILE9} .
-#    fi
-  done
-  ibatch=$((ibatch - 1))
-  for i in $(seq 1 ${ibatch}); do
-   if [ ${n_ens_fv3sar} -le ${TOTAL_NODES} ]; then
-    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-       ncmd=$(cat ./cmdfile_interpolate_ens_${var}_batch${ibatch} | wc -l)
-       ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-       if [ $USE_CFP = "YES" ] ; then 
-          $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate_ens_${var}_batch${ibatch}
-       else
-          $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate_ens_${var}_batch${ibatch}
-       fi
-       if [ ${l4denvar:-.false.} = ".true." ]; then
-          if [ $USE_CFP = "YES" ] ; then 
-              ncmd=$(cat ./cmdfile_interpolate03_ens_${var}_batch${ibatch} | wc -l)
-              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS)) 
-              $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate03_ens_${var}_batch${ibatch} 
-              ncmd=$(cat ./cmdfile_interpolate09_ens_${var}_batch${ibatch} | wc -l)
-              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-              $APRUNT1 -n ${ncmd_max}  cfp ./cmdfile_interpolate09_ens_${var}_batch${ibatch}  
-          else
-              ncmd=$(cat ./cmdfile_interpolate03_ens_${var}_batch${ibatch} | wc -l)
-              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS)) 
-              $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate03_ens_${var}_batch${ibatch}
-              ncmd=$(cat ./cmdfile_interpolate09_ens_${var}_batch${ibatch} | wc -l)
-              ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-              $APRUNT1 --ntasks=${ncmd_max} ${MPISERIAL} -m ./cmdfile_interpolate09_ens_${var}_batch${ibatch}
-          fi
-       fi
-    done
-   else
-    echo "Warning!!! TOTAL_NODES ${TOTAL_NODES} is not enough for parallel running Interpolation. At least ${n_ens_fv3sar} is needed. Use serial for now. May take too long!!!"
-    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-     chmod +x cmdfile_interpolate_ens_${var}_batch${ibatch}
-     ./cmdfile_interpolate_ens_${var}_batch${ibatch}
      if [ ${l4denvar:-.false.} = ".true." ]; then
-       chmod +x cmdfile_interpolate03_ens_${var}_batch${ibatch}
-       ./cmdfile_interpolate03_ens_${var}_batch${ibatch}
-       chmod +x cmdfile_interpolate09_ens_${var}_batch${ibatch}
-       ./cmdfile_interpolate09_ens_${var}_batch${ibatch}
+      RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat06_ens/mem${mem}
+     else
+      RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${mem}
      fi
+    fi
+    for file in `ls ${RESTARTens}/*`; do
+      ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
     done
-   fi
   done
-fi # endif ${RUN_ENVAR}
-#exit #XL
+fi
 
 # Stat files
 RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
@@ -738,6 +539,7 @@ for file in ${convtypes}; do
   tar cvf ${CNVSTAT} hofx/diag_${file}_t${cyc}z.nc
 done
 
+#Store the output to intercom
 if [ ${l4denvar:-.false.} = ".true." ]; then
 # ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTanl}/${FV3_CORE_FILE}
  ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}

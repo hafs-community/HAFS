@@ -9,7 +9,7 @@
             type: H5File
             obsfile: hofx/diag_atms_npp_#HH#.nc
         io pool:
-          max pool size: 1
+          max pool size: 40
         simulated variables: [brightnessTemperature]
         observed variables: [brightnessTemperature]
         channels: &atms_npp_channels 1-22

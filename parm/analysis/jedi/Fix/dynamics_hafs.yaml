@@ -226,7 +226,7 @@ Fields:
 
   - FieldIONames: [phis]
     FieldName: phis
-    LongName: surface_geopotential_height
+    LongName: geopotential_height_at_surface
     Units: m
     Levels: 1
     IOFile: core
