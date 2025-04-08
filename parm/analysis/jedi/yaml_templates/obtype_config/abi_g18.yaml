@@ -9,7 +9,7 @@
             type: H5File
             obsfile: hofx/diag_abi_g18_#HH#.nc
         io pool:
-          max pool size: 1
+          max pool size: 40
         simulated variables: [brightnessTemperature]
         channels: &abi_g18_channels [7-16]
 

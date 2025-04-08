@@ -46,6 +46,9 @@ field metadata:
 - long name: ice_area_fraction
   io file: slmsk
 
+- long name: surface_snow_area_fraction
+  io file: slmsk
+
 - long name: soilMoistureVolumetric 
   io name: smc
   io file: surface

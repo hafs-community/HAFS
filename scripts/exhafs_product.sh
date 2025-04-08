@@ -384,4 +384,65 @@ fi
 
 fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
+##### Adding interpolation from d01 to nest domain for JEDI #####
+if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = "JEDI" ]; then
+  DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+  MERGE_CMD="${APRUNS} ${DATOOL} remap"
+  if [ ${GRID_RATIO_ENS} -ne 1 ]; then
+    export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
+    export neststr=".nest02"
+    export tilestr=".tile2"
+    export nesttilestr=".nest02.tile2"
+  fi
+  if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+    RESTARTinp=${WORKhafs}/intercom/RESTART_vi_fgat06
+  elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+    RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat06
+  elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat06
+  else
+    if [ ${RUN_ATM_VI} = "YES" ]; then
+      RESTARTinp=${WORKhafs}/intercom/RESTART_vi
+    elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+      RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat06
+    elif [ ${RUN_ATM_INIT} = "YES" ]; then
+      RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat06
+    else
+      RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
+    fi
+  fi
+  if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
+    RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}/
+  else
+    RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  fi
+  in_grid=${RESTARTens}/grid_spec.nc
+  out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+    if [ "${var}" = "sfc_data" ]; then
+      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.nc
+    else
+      in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.tile1.nc
+    fi
+    out_file=${RESTARTens}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc
+    if [ ${GRID_RATIO_ENS} -ne 1 ]; then
+      ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc ${out_file}
+    fi
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+      echo "No need to Interpolate"
+    else
+      ${MERGE_CMD} \
+        --in_grid=${in_grid} \
+        --out_grid=${out_grid} \
+        --in_file=${in_file} \
+        --out_file=${out_file} 2>&1 | tee ./inter_ens${mem}_${var}${FGAT_HR}.log
+    fi
+  done
+fi
+
 cd ${DATA}

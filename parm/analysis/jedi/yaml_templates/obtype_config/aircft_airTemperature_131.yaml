@@ -15,7 +15,7 @@
              obsfile: AIRCFT_IODA_hofx_t_131.nc
              allow overwrite: true
          io pool:
-           max pool size: 1
+           max pool size: 40
          observed variables: [airTemperature]
          simulated variables: [airTemperature]
 
