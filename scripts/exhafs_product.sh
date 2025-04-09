@@ -378,26 +378,11 @@ if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = 
     export tilestr=".tile2"
     export nesttilestr=".nest02.tile2"
   fi
-  if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
-  elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-  elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
-    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
-  else
-    if [ ${RUN_ATM_VI} = "YES" ]; then
-      RESTARTinp=${WORKhafs}/intercom/RESTART_vi
-    elif [ ${RUN_ATM_MERGE} = "YES" ]; then
-      RESTARTinp=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-    elif [ ${RUN_ATM_INIT} = "YES" ]; then
-      RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
-    else
-      RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
-    fi
-  fi
   if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
+    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
     RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}/
   else
+    RESTARTinp=${WORKhafs}/intercom/RESTART_init
     RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   fi
   in_grid=${RESTARTens}/grid_spec.nc
