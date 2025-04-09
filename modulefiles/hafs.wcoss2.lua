@@ -122,8 +122,8 @@ load(pathJoin("esmf-C", esmf_ver))
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
 
-hafs_ve_ver=os.getenv("hafs_ve_ver")
-load(pathJoin("ve/hafs", hafs_ve_ver))
+ve_hafs_ver=os.getenv("ve_hafs_ver")
+load(pathJoin("ve/hafs", ve_hafs_ver))
 
 setenv("CC", "cc")
 setenv("CXX", "CC")
