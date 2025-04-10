@@ -50,7 +50,7 @@ ncks -A ${CDATE:0:8}.${CDATE:8:2}0130.MOM.res_4.nc MOM.res.nc
 cd ${WORK3DVAR}
 ${USHhafs}/hafs_mom6_3dvar_run.var.sh > ${WORK3DVAR}/hafs_mom6_3dvar_run.var.log
 
-OUTPUT_DIR=${WORK3DVAR}/output
+OUTPUT_DIR=${WORK3DVAR}/data_output
 if [[ -d "$OUTPUT_DIR" && $(ls $OUTPUT_DIR -1q | wc -l) -lt 2 ]]; then
   echo "3DVAR analysis has NO output files"
     echo "  $OUTPUT_DIR"
@@ -59,7 +59,7 @@ fi
 
 # 3  Deliver MOM.res.nc updated by 3DVAR to intercom
 cp ./restarts/MOM.res.nc MOM.res.nc
-ln -sf ./output/ocn.3dvarbump.an.${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}T${CDATE:8:2}:00:00Z.nc ocn.ana.nc
+ln -sf ./data_output/ocn.3dvar.an.${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}T${CDATE:8:2}:00:00Z.nc ocn.ana.nc
 
 ncks -A -v Temp,Salt,ave_ssh ./ocn.ana.nc ./TS3D_SSH.nc
 ncrename -d zaxis_1,Layer -d yaxis_1,lath -d xaxis_1,lonh ./TS3D_SSH.nc
@@ -71,7 +71,7 @@ cp ./MOM.res.nc ${WORKhafs}/intercom/ocn_prep/mom6/.
 cp -p ./TS3D_SSH.nc ${COMhafs}/${out_prefix}.${RUN}.mom6.analysis.nc
 
 cd ${WORK3DVAR}/output
-for obs_file in `ls *.3dvarbump.nc`; do
+for obs_file in `ls *.3dvar.nc`; do
   cp -p ${obs_file} ${COMhafs}/${out_prefix}.${RUN}.mom6.${obs_file%%.*}.nc
 done
 
