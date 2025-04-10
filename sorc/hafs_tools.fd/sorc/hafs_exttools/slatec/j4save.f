@@ -7,6 +7,7 @@ C            handling routines.
 C***LIBRARY   SLATEC (XERROR)
 C***TYPE      INTEGER (J4SAVE-I)
 C***KEYWORDS  ERROR MESSAGES, ERROR NUMBER, RECALL, SAVE, XERROR
+C*** Authors and history
 C***AUTHOR  Jones, R. E., (SNLA)
 C***DESCRIPTION
 C

@@ -20,6 +20,7 @@ subroutine basis_function_b_val ( tdata, tval, yval )
 !
 !    This code is distributed under the GNU LGPL license.
 !
+!  Authors and history
 !  Modified:
 !
 !    06 April 1999

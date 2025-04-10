@@ -1,5 +1,6 @@
 C A collection of subroutines for thermodynamic analysis. 
 C Adapted from "Thermodynamic Analysis Procedures at the
+C Authors and history:
 C National Severe Storms Forecast Center", Doswell, et al 1982
 C 9th conf on wx fcst and anal, AMS p304-309
       function wobf(T)
