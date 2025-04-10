@@ -372,13 +372,13 @@ mkdir ${DATA}/bc #Create bc for output
 # Create mosaic files
 mkdir ${DATA}/INPUT
 cd ${DATA}/INPUT
-${NCP} ${WORKhafs}/intercom/grid_ens/${CASE}/${CASE}_grid.tile7.halo3.nc .
+${NCP} ${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_grid.tile7.halo3.nc .
 ${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
-${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/grid/${CASE} --mosaic ${CASE}_mosaic --tile_file ${CASE}_grid.tile7.halo3.nc 
+${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic --tile_file ${CASE}_grid.tile7.halo3.nc 
 if [ ${nest_grids} -ge 2 ]; then
- ${NCP} ${WORKhafs}/intercom/grid/${CASE}/${CASE}_grid.tile8.halo3.nc .
+ ${NCP} ${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_grid.tile8.halo3.nc .
  ${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
- ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/grid/${CASE} --mosaic ${CASE}_mosaic_nest --tile_file ${CASE}_grid.tile8.halo3.nc
+ ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic_nest --tile_file ${CASE}_grid.tile8.halo3.nc
 fi
 ### XL need to think about tile #, is 7 & 8 always the default value?
 #??XL: Do it here or in atm_prep
