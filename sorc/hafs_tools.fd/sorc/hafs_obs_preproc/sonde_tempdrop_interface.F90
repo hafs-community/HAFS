@@ -196,6 +196,7 @@ contains
     logical                                                             :: find_rel
     logical                                                             :: find_spg
     logical                                                             :: find_spl
+    integer                                                             :: iost
     
     !=====================================================================
 
@@ -206,22 +207,13 @@ contains
     find_spg    = .false.
     find_spl    = .false.
     open(99,file=trim(adjustl(infile)),status='old')
-100 read(99,'(a)',end=1000) line
-    if(index(line,'REL') .ne. 0) find_rel = .true.
-    goto 100
-1000 continue
-    close(99)
-    open(99,file=trim(adjustl(infile)),status='old')
-101 read(99,'(a)',end=1001) line
-    if(index(line,'SPG') .ne. 0) find_spg = .true.
-    goto 101
-1001 continue
-    close(99)
-    open(99,file=trim(adjustl(infile)),status='old')
-102 read(99,'(a)',end=1002) line
-    if(index(line,'SPL') .ne. 0) find_spl = .true.
-    goto 102
-1002 continue
+    do_read1: do
+       read(99,'(a)',iostat=iost)line
+       if(iost.ne.0)exit do_read1
+       if(index(line,'REL') .ne. 0) find_rel = .true.
+       if(index(line,'SPG') .ne. 0) find_spg = .true.
+       if(index(line,'SPL') .ne. 0) find_spl = .true.
+    enddo do_read1
     close(99)
 
     ! Check local variable and proceed accordingly
@@ -371,27 +363,26 @@ contains
 
     ! Loop through local variable
 
-    do i = 1, hsa_interp%nz
+    do_loop1: do i = 1, hsa_interp%nz
 
        ! Check local variable and proceed accordingly
 
        if((hsa_interp%p(i) .ge. hsa_interp%pmin) .and. (hsa_interp%t(i)    &
             & .ge. -90.0)) then
 
-	    ! Define local variables
+	       ! Define local variables
 
-	    ppres = hsa_interp%p(i)
-	    ptemp = hsa_interp%t(i)
-	    goto 1000
+	       ppres = hsa_interp%p(i)
+	       ptemp = hsa_interp%t(i)
+	       exit do_loop1
 
        end if ! if((hsa_interp%p(i) .ge. hsa_interp%pmin) .and.
               ! (hsa_interp%t(i) .ge. -90.0))
 
-    end do ! do i = 1, hsa_interp%nz
+    end do do_loop1 ! do i = 1, hsa_interp%nz
 
     ! Define local variables
 
-1000 continue
     call time_methods_hmsts(hsa_interp%reltime,time_hmsts)
     ptime                          = float(time_hmsts)
     hsa_interp%time(hsa_interp%nz) = ptime
@@ -821,7 +812,7 @@ contains
        
        ! Loop through local variables
 
-       do i = 1, hsa%nz
+       do_loop2: do i = 1, hsa%nz
  
           ! Check local variable and proceed accordingly
 
@@ -840,18 +831,16 @@ contains
              ! Define local variables
 
              hsa%t(i) = dstvar
-             goto 1000
+             exit do_loop2
 
           end if ! if((hsa%p(i) .le. hsa%pmax) .and. (hsa%p(i)
                  ! .ge. hsa%pmin) .and. (hsa%t(i) .eq. spval)
                  ! .and. ((hsa%tail(i) .eq. 'MANL') .or. (hsa%tail(i)
                  ! .eq. 'SIGL')))
 
-       end do ! do i = 1, hsa%nz
+       end do do_loop2 ! do i = 1, hsa%nz
 
        ! Define local variables
-
-1000   continue
 
        ! Deallocate memory for local variables
 
@@ -933,7 +922,7 @@ contains
 
        ! Loop through local variables
 
-       do i = 1, hsa%nz
+       do_loop3: do i = 1, hsa%nz
  
           ! Check local variable and proceed accordingly
 
@@ -952,18 +941,16 @@ contains
              ! Define local variables
 
              hsa%u(i) = dstvar
-             goto 1001
+             exit do_loop3
 
           end if ! if((hsa%p(i) .le. hsa%pmax) .and. (hsa%p(i)
                  ! .ge. hsa%pmin) .and. (hsa%u(i) .eq. spval)
                  ! .and. ((hsa%tail(i) .eq. 'MANL') .or. (hsa%tail(i)
                  ! .eq. 'SIGL')))
 
-       end do ! do i = 1, hsa%nz
+       end do do_loop3 ! do i = 1, hsa%nz
 
        ! Define local variables
-
-1001   continue
 
        ! Deallocate memory for local variables
 
@@ -1045,7 +1032,7 @@ contains
 
        ! Loop through local variables
 
-       do i = 1, hsa%nz
+       do_loop4: do i = 1, hsa%nz
  
           ! Check local variable and proceed accordingly
 
@@ -1064,18 +1051,16 @@ contains
              ! Define local variables
 
              hsa%v(i) = dstvar
-             goto 1002
+             exit do_loop4
 
           end if ! if((hsa%p(i) .le. hsa%pmax) .and. (hsa%p(i)
                  ! .ge. hsa%pmin) .and. (hsa%v(i) .eq. spval)
                  ! .and. ((hsa%tail(i) .eq. 'MANL') .or. (hsa%tail(i)
                  ! .eq. 'SIGL')))
 
-       end do ! do i = 1, hsa%nz
+       end do do_loop4 ! do i = 1, hsa%nz
 
        ! Define local variables
-
-1002   continue
 
        ! Deallocate memory for local variables
 
@@ -1161,7 +1146,7 @@ contains
 
        ! Loop through local variables
 
-       do i = 1, hsa%nz
+       do_loop5: do i = 1, hsa%nz
  
           ! Check local variable and proceed accordingly
 
@@ -1180,18 +1165,16 @@ contains
              ! Define local variables
 
              hsa%z(i) = dstvar
-             goto 1003
+             exit do_loop5
 
           end if ! if((hsa%p(i) .le. hsa%pmax) .and. (hsa%p(i)
                  ! .ge. hsa%pmin) .and. (hsa%z(i) .eq. spval)
                  ! .and. ((hsa%tail(i) .eq. 'MANL') .or. (hsa%tail(i)
                  ! .eq. 'SIGL')))
 
-       end do ! do i = 1, hsa%nz
+       end do do_loop5 ! do i = 1, hsa%nz
 
        ! Define local variables
-
-1003   continue
 
        ! Deallocate memory for local variables
 
@@ -1280,7 +1263,7 @@ contains
 
        ! Loop through local variables
 
-       do i = 1, hsa%nz
+       do_loop6: do i = 1, hsa%nz
  
           ! Check local variable and proceed accordingly
 
@@ -1299,18 +1282,16 @@ contains
              ! Define local variables
 
              hsa%rh(i) = dstvar
-             goto 1004
+             exit do_loop6
 
           end if ! if((hsa%p(i) .le. hsa%pmax) .and. (hsa%p(i)
                  ! .ge. hsa%pmin) .and. (hsa%rh(i) .eq. spval)
                  ! .and. ((hsa%tail(i) .eq. 'MANL') .or. (hsa%tail(i)
                  ! .eq. 'SIGL')))
 
-       end do ! do i = 1, hsa%nz
+       end do do_loop6 ! do i = 1, hsa%nz
 
        ! Define local variables
-
-1004   continue
 
        ! Deallocate memory for local variables
 
@@ -1736,53 +1717,54 @@ contains
     
     ! Check local variable and proceed accordingly
 
-    if(hsa%nz .le. 0) goto 1000
-
-    ! Define local variables
-
-    call plevs_sonde(hsa)
-
-    ! Check local variable and proceed accordingly
-
-    if(hsa%nmnlevs .le. 1) goto 1000
-
-    ! Compute local variables
-
-    call timeinfo_sonde(hsa)
-
-    ! Define local variables
-
-    hsa_interp%nz = hsa%nz
-    call variable_interface_setup_struct(hsa_interp)
-    hsa_interp    = hsa
-
-    ! Compute local variables
-
-    call interp_sonde(hsa_interp,meteo)
-    call compute_meteo(meteo)
-    call compute_drift(hsa,hsa_interp,meteo)
-
-    ! Define local variables
-
-    error_filename = trim(adjustl(hsa%filename))//'.error'
-    skewt_filename = trim(adjustl(hsa%filename))//'.nc'
-    call fileio_interface_write(error_filename,hsa,meteo)
-    hsa%filename   = trim(adjustl(hsa%filename))//'.drft'
-    call fileio_interface_write(hsa)
-
-    ! Check local variable and proceed accordingly
-
-    if(tempdrop_write_nc_skewt) then
+    if ( hsa%nz > 0 ) then
 
        ! Define local variables
 
-       call fileio_interface_write(sonde,meteo,skewt_filename)
+       call plevs_sonde(hsa)
 
-    end if ! if(tempdrop_write_nc_skewt)
+       ! Check local variable and proceed accordingly
 
-    ! Define local variables
+       if(hsa%nmnlevs > 1) then
+
+         ! Compute local variables
+
+         call timeinfo_sonde(hsa)
+
+         ! Define local variables
+
+         hsa_interp%nz = hsa%nz
+         call variable_interface_setup_struct(hsa_interp)
+         hsa_interp    = hsa
+
+         ! Compute local variables
+
+         call interp_sonde(hsa_interp,meteo)
+         call compute_meteo(meteo)
+         call compute_drift(hsa,hsa_interp,meteo)
+
+         ! Define local variables
+
+         error_filename = trim(adjustl(hsa%filename))//'.error'
+         skewt_filename = trim(adjustl(hsa%filename))//'.nc'
+         call fileio_interface_write(error_filename,hsa,meteo)
+         hsa%filename   = trim(adjustl(hsa%filename))//'.drft'
+         call fileio_interface_write(hsa)
+
+         ! Check local variable and proceed accordingly
+
+         if(tempdrop_write_nc_skewt) then
+
+            ! Define local variables
+
+            call fileio_interface_write(sonde,meteo,skewt_filename)
+
+         end if ! if(tempdrop_write_nc_skewt)
+
+         ! Define local variables
     
-1000 continue
+       endif  !if(hsa%nmnlevs > 1) then
+    endif  !if ( hsa%nz > 0 ) then
 
     ! Deallocate memory for local variables
 
@@ -1859,7 +1841,7 @@ contains
 
     ! Define counting variables
 
-    integer                                                             :: i, j
+    integer                                                             :: i, j, iost
 
     !=====================================================================
     
@@ -1875,113 +1857,114 @@ contains
     iflag       = 1
     lupa        = 150
     open(12,file=trim(adjustl(infile)),status='old')
-20  read(12,'(a)',end=1000) line
+    do_read12: do
+       read(12,'(a)',iostat=iost)line
+       if( iost .ne. 0 ) exit do_read12
 
-    ! Check local variable and proceed accordingly
+       ! Check local variable and proceed accordingly
 
-    if(line(1:5) .eq. 'Sonde') then
+       if(line(1:5) .eq. 'Sonde') then
 
-       ! Define local variables
+          ! Define local variables
 
-       read(line(30:31),'(i2)') idys
-       read(line(33:35),'(a3)') month
-       read(line(37:38),'(i2)') iyrs
-       hsa%yyyy = 1900 + iyrs
+          read(line(30:31),'(i2)') idys
+          read(line(33:35),'(a3)') month
+          read(line(37:38),'(i2)') iyrs
+          hsa%yyyy = 1900 + iyrs
 
-       ! Loop through local variable
+          ! Loop through local variable
 
-       do i = 1, size(month_data)
+          do i = 1, size(month_data)
+
+             ! Check local variable and proceed accordingly
+
+             if(month_data(i) .eq. month) then
+
+                ! Define local variables
+
+                imns = i
+
+             end if ! if(month_data(i) .eq. month)
+
+          end do ! do i = 1, size(month_data)
+
+       end if ! if(line(1:5) .eq. 'Sonde')
+
+       ! Check local variable and proceed accordingly
+
+       if(line(1:5) .eq. '61616') then
+
+          ! Define local variables
+
+          read(line(7:11),'(a)') acid
+          strstrt = index(line,'OB')
+          strstop = strstrt + 5
+          read(line(strstop-2:strstop),'(a2)') obnum
 
           ! Check local variable and proceed accordingly
 
-          if(month_data(i) .eq. month) then
+          if(trim(adjustl(obnum)) .eq. '') obnum = '00'
+       
+          ! Check local variable and proceed accordingly
+
+          if(acid(1:1) .eq. 'A') then
 
              ! Define local variables
 
-             imns = i
+             iac = 30
 
-          end if ! if(month_data(i) .eq. month)
+          else if(acid(5:5) .eq. 'F') then
 
-       end do ! do i = 1, size(month_data)
+             ! Define local variables
 
-    end if ! if(line(1:5) .eq. 'Sonde')
+             iac = 8
 
-    ! Check local variable and proceed accordingly
+          else   ! if(acid(1:1) .eq. 'A')
 
-    if(line(1:5) .eq. '61616') then
+             ! Define local variables
 
-       ! Define local variables
+             read(line(11:11),'(i1)') iac
+             iac = iac + 40
 
-       read(line(7:11),'(a)') acid
-       strstrt = index(line,'OB')
-       strstop = strstrt + 5
-       read(line(strstop-2:strstop),'(a2)') obnum
+          end if ! if(acid(1:1) .eq. 'A')
+
+       end if ! if(line(1:5) .eq. '61616')
 
        ! Check local variable and proceed accordingly
 
-       if(trim(adjustl(obnum)) .eq. '') obnum = '00'
+       if(idys .eq. 0 .or. imns .eq. 0 .or. iyrs .eq. 0) then
        
-       ! Check local variable and proceed accordingly
-
-       if(acid(1:1) .eq. 'A') then
-
           ! Define local variables
-
-          iac = 30
-
-       else if(acid(5:5) .eq. 'F') then
-
-          ! Define local variables
-
-          iac = 8
-
-       else   ! if(acid(1:1) .eq. 'A')
-
-          ! Define local variables
-
-          read(line(11:11),'(i1)') iac
-          iac = iac + 40
-
-       end if ! if(acid(1:1) .eq. 'A')
-
-    end if ! if(line(1:5) .eq. '61616')
-
-    ! Check local variable and proceed accordingly
-
-    if(idys .eq. 0 .or. imns .eq. 0 .or. iyrs .eq. 0) then
        
+          strstrt = index(infile,'/',back=.true.) + 1
+          strstop = strstrt + 3
+          read(infile(strstrt:strstop),'(i4)') hsa%yyyy
+          strstrt = index(infile,'/',back=.true.) + 3
+          strstop = strstrt + 1
+          read(infile(strstrt:strstop),'(i2)') iyrs
+          strstrt = strstop + 1
+          strstop = strstrt + 1
+          read(infile(strstrt:strstop),'(i2)') imns
+          strstrt = strstop + 1
+          strstop = strstrt + 1
+          read(infile(strstrt:strstop),'(i2)') idys
+          strstrt = strstop + 1
+          strstop = strstrt + 1
+          read(infile(strstrt:strstop),'(i2)') ihrs
+          strstrt = strstop + 1
+          strstop = strstrt + 1
+          read(infile(strstrt:strstop),'(i2)') inns
+
+       end if ! if(idys .eq. 0 .or. imns .eq. 0 .or. iyrs .eq. 0)
+
        ! Define local variables
-       
-       strstrt = index(infile,'/',back=.true.) + 1
-       strstop = strstrt + 3
-       read(infile(strstrt:strstop),'(i4)') hsa%yyyy
-       strstrt = index(infile,'/',back=.true.) + 3
-       strstop = strstrt + 1
-       read(infile(strstrt:strstop),'(i2)') iyrs
-       strstrt = strstop + 1
-       strstop = strstrt + 1
-       read(infile(strstrt:strstop),'(i2)') imns
-       strstrt = strstop + 1
-       strstop = strstrt + 1
-       read(infile(strstrt:strstop),'(i2)') idys
-       strstrt = strstop + 1
-       strstop = strstrt + 1
-       read(infile(strstrt:strstop),'(i2)') ihrs
-       strstrt = strstop + 1
-       strstop = strstrt + 1
-       read(infile(strstrt:strstop),'(i2)') inns
 
-    end if ! if(idys .eq. 0 .or. imns .eq. 0 .or. iyrs .eq. 0)
-
-    ! Define local variables
-
-    hsa%mm              = imns
-    hsa%dd              = idys
-    hsa%hh              = ihrs
-    hsa%nn              = inns
-    hsa%ss              = 0
-    goto 20
-1000 continue
+       hsa%mm              = imns
+       hsa%dd              = idys
+       hsa%hh              = ihrs
+       hsa%nn              = inns
+       hsa%ss              = 0
+    enddo do_read12
     close(12)
     meteo%acid          = acid
     meteo%obnum         = obnum
@@ -1996,86 +1979,85 @@ contains
 
        ! Loop through local variable
 
-       do i = 1, 1000
+       do_loopfile: do i = 1, 1000
 
        	  ! Define local variables
     
-	  write(hsa%filename,501) trim(adjustl(datapath)), acid, obnum,    &
+	        write(hsa%filename,501) trim(adjustl(datapath)), acid, obnum,    &
              & iyrs, imns, idys, i
-	  inquire(file=trim(adjustl(hsa%filename)),exist=exist_chk)
-          if(.not. exist_chk) goto 1001
+	        inquire(file=trim(adjustl(hsa%filename)),exist=exist_chk)
+          if(.not. exist_chk) exit do_loopfile
 
-       end do ! do i = 1, 1000
+       end do do_loopfile ! do i = 1, 1000
 
     end	if ! if(exist)
 
     ! Define local variables
     
-1001 continue
     open(99,file=trim(adjustl(hsa%filename)),form='formatted')
     open(12,file=trim(adjustl(infile)),status='old')
-21  read(12,'(a)',end=1002) line
+    do_readinfile: do
+       read(12,'(a)',iostat=iost) line
        
-    ! Check local variable and proceed accordingly
+       ! Check local variable and proceed accordingly
 
-    if(index(line,'REL') .ne. 0) then
+       if(index(line,'REL') .ne. 0) then
+
+          ! Check local variable and proceed accordingly
+
+          if((len(trim(adjustl(line))) - index(line,'REL')) .lt. 21)         &
+               & return
+
+          ! Define local variables
+
+          call spginfo(line,hsa%reltime,hsa%rellat,hsa%rellon,'REL')
+
+       endif ! if(index(line,'REL') .ne. 0)
 
        ! Check local variable and proceed accordingly
 
-       if((len(trim(adjustl(line))) - index(line,'REL')) .lt. 21)         &
-            & return
+       if(index(line,'SPG') .ne. 0) then
 
-       ! Define local variables
+          ! Check local variable and proceed accordingly
 
-       call spginfo(line,hsa%reltime,hsa%rellat,hsa%rellon,'REL')
+          if((len(trim(adjustl(line))) - index(line,'SPG')) .lt. 21)         &
+               & return
 
-    endif ! if(index(line,'REL') .ne. 0)
+          ! Define local variables
 
-    ! Check local variable and proceed accordingly
+          call spginfo(line,hsa%spgtime,hsa%spglat,hsa%spglon,'SPG')
 
-    if(index(line,'SPG') .ne. 0) then
-
-       ! Check local variable and proceed accordingly
-
-       if((len(trim(adjustl(line))) - index(line,'SPG')) .lt. 21)         &
-            & return
-
-       ! Define local variables
-
-       call spginfo(line,hsa%spgtime,hsa%spglat,hsa%spglon,'SPG')
-
-    endif ! if(index(line,'SPG') .ne. 0)
-
-    ! Check local variable and proceed accordingly
-
-    if(index(line,'SPL') .ne. 0) then
+       endif ! if(index(line,'SPG') .ne. 0)
 
        ! Check local variable and proceed accordingly
 
-       if((len(trim(adjustl(line))) - index(line,'SPL')) .lt. 21)         &
-            & return
+       if(index(line,'SPL') .ne. 0) then
+
+          ! Check local variable and proceed accordingly
+
+          if((len(trim(adjustl(line))) - index(line,'SPL')) .lt. 21)         &
+               & return
+
+          ! Define local variables
+
+          call spginfo(line,hsa%spgtime,hsa%spglat,hsa%spglon,'SPL')
+
+       end if ! if(index(line,'SPL') .ne. 0)
+
+       ! Check local variable and proceed accordingly
+
+       if((index(line,'XX') .ne. 0)) then
+
+          ! Compute local variables
+
+          call drop(99,iwx,iflag,iyrs,imns,idys,line,hsa%psfc,meteo%acid,    &
+               & meteo%obnum)
+
+       end if ! if(index(line,'XX') .ne. 0)
 
        ! Define local variables
-
-       call spginfo(line,hsa%spgtime,hsa%spglat,hsa%spglon,'SPL')
-
-    end if ! if(index(line,'SPL') .ne. 0)
-
-    ! Check local variable and proceed accordingly
-
-    if((index(line,'XX') .ne. 0)) then
-
-       ! Compute local variables
-
-       call drop(99,iwx,iflag,iyrs,imns,idys,line,hsa%psfc,meteo%acid,    &
-            & meteo%obnum)
-
-    end if ! if(index(line,'XX') .ne. 0)
-
-    ! Define local variables
     
-    goto 21
-1002 continue
+    enddo do_readinfile
     close(12)
     close(99)
     call fileio_interface_read(hsa)

@@ -1053,7 +1053,7 @@ contains
 
     ! Define counting variables
 
-    integer                                                             :: i
+    integer                                                             :: i, iost
 
     !=====================================================================
 
@@ -1061,10 +1061,11 @@ contains
 
     hsa%nz = 0
     open(99,file=trim(adjustl(hsa%filename)),form='formatted')
-1000 read(99,*,end=1001) dummy
-    hsa%nz = hsa%nz + 1
-    goto 1000
-1001 continue
+    do_read_99: do
+       read(99,*,iostat=iost)dummy
+       if(iost.ne.0)exit
+       hsa%nz = hsa%nz + 1
+    enddo do_read_99
     close(99)
     call variable_interface_setup_struct(hsa)
     open(99,file=trim(adjustl(hsa%filename)),form='formatted')
@@ -1125,7 +1126,7 @@ contains
     
     ! Define counting variables
 
-    integer                                                             :: i
+    integer                                                             :: i,iost
 
     !=====================================================================
 
@@ -1133,10 +1134,11 @@ contains
 
     sonde%nsondes = 0
     open(99,file=trim(adjustl(sonde_filelist)),form='formatted')
-1000 read(99,*,end=1001) dummy
-    sonde%nsondes = sonde%nsondes + 1
-    goto 1000
-1001 continue
+    do_read99: do
+       read(99,*,iostat = iost)dummy
+       if( iost .ne. 0 ) exit
+       sonde%nsondes = sonde%nsondes + 1
+    enddo do_read99
     close(99)
 
     ! Define local variables
@@ -1208,7 +1210,7 @@ contains
 
     ! Define counting variables
 
-    integer                                                             :: i
+    integer                                                             :: i, iost
 
     !=====================================================================
 
@@ -1216,10 +1218,11 @@ contains
 
     ntcs = 0
     open(99,file=trim(adjustl(filename)),form='formatted')
-1000 read(99,*,end=1001) dummy
-    ntcs = ntcs + 1
-    goto 1000
-1001 continue
+    do_read99: do
+       read(99,*,iostat=iost)dummy
+       if( iost .ne. 0 ) exit
+       ntcs = ntcs + 1
+    enddo do_read99
     close(99)
 
     ! Allocate memory for local variables
@@ -1320,7 +1323,7 @@ contains
     
     ! Define counting variables
 
-    integer                                                             :: i, j
+    integer                                                             :: i, j, iost
 
     !=====================================================================
 
@@ -1329,17 +1332,20 @@ contains
     vdm%nvdm = 0
     vdm%nobs = 0
     open(99,file=trim(adjustl(filename)),form='formatted')
-1000 read(99,*,end=1003) vdm_filename
-    vdm%nvdm = vdm%nvdm + 1
-    nobs = 0
-    open(98,file=trim(adjustl(vdm_filename)),form='formatted')
-1001 read(98,*,end=1002) dummy
-    nobs = nobs + 1
-    goto 1001
-1002 continue
-    vdm%nobs = max(vdm%nobs,(nobs - 1))
-    goto 1000
-1003 continue
+    do_read99: do
+       read(99,*,iostat=iost)vdm_filename
+       if( iost .ne. 0 ) exit do_read99
+       vdm%nvdm = vdm%nvdm + 1
+       nobs = 0
+       open(98,file=trim(adjustl(vdm_filename)),form='formatted')
+       do_read98: do
+          read(98,*,iostat=iost)dummy
+          if( iost .ne. 0 ) exit do_read98
+          nobs = nobs + 1
+          vdm%nobs = max(vdm%nobs,(nobs - 1))
+       enddo do_read98
+       close(98)
+    enddo do_read99
     close(99)
     call variable_interface_setup_struct(vdm)
     open(99,file=trim(adjustl(filename)),form='formatted')

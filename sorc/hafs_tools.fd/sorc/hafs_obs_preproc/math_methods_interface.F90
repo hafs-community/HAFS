@@ -377,7 +377,7 @@ contains
 
     ! Loop through local variable
 
-    do i = 2, interp_p%nz
+    do_interploop: do i = 2, interp_p%nz
 
        ! Check local variable and proceed accordingly
 
@@ -387,7 +387,7 @@ contains
 
           idx_b = i - 1
           idx_t = i
-          goto 1000
+          exit do_interploop
 
        end if ! if(dstp .le. interp_p%p(i-1) .and. dstp
               ! .gt. interp_p%p(i))
@@ -395,8 +395,6 @@ contains
     end do ! do i = 2, interp_p%nz
 
     ! Define local variables
-
-1000 continue
 
     ! Check local variable and proceed accordingly
 
