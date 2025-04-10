@@ -1191,6 +1191,7 @@
         <queue>&QUEUE_PE;</queue>
         &PE_EXTRA;
         &CORES_EXTRA;
+        &CLUSTER_COMPUTE;
         &ATM_INIT_ENS_RESOURCES;
         &ENV_VARS;
         <envar><name>FGAT_MODEL</name><value>gdas</value></envar>
