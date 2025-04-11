@@ -85,7 +85,7 @@ def main(args):
                 sys.exit(2)
             basins=basins+arg.upper()
             continue
-        m=re.match('(\d\d[LECWPQSAB])=(\d+)',arg.upper())
+        m=re.match(r'(\d\d[LECWPQSAB])=(\d+)',arg.upper())
         if not m:
             logger.error('FATAL ERROR: Unrecognized argument: '+arg)
             sys.exit(2)

@@ -613,7 +613,7 @@ subregion %s
         blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
-                m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
+                m=re.match(r"^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
                 if m:
                     (val,kwd)=m.groups(0)
                     val=float(val)
@@ -1318,7 +1318,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
-                m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
+                m=re.match(r"^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
                 if m:
                     (val,kwd)=m.groups(0)
                     val=float(val)

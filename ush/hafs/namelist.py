@@ -102,7 +102,7 @@ def __to_fortnml_impl(py,recursed=False,exc_hint=''):
 
 ##@var fortnml_parse
 # a regular expression for tokenizing a fortran namelist scalar value
-fortnml_parse=re.compile("""(?ix)\s*(?:
+fortnml_parse=re.compile(r"""(?ix)\s*(?:
     (?P<fraction>[0-9]+[+][0-9]+[/][0-9]+) |
     \"(?P<dqchar>(?:[^\"]+|\"\")+)\" |
     \'(?P<sqchar>(?:[^\']+|\'\')+)\' |
@@ -217,19 +217,19 @@ class NamelistInserter(object):
 
     ## @var find_ltgt
     # regular expression that finds namelist insertion data @<...@>
-    find_ltgt=re.compile('''(?P<pre>(?:[^<]|"(?:[^"]|""")*"|'(?:[^']|'{3})*')*)<(?:(?P<typ>[^:]*):)?(?P<var>[^>\[]*)(?:\[(?P<sub>[^\]]*)\])?>(?P<rest>.*)''')
+    find_ltgt=re.compile(r'''(?P<pre>(?:[^<]|"(?:[^"]|""")*"|'(?:[^']|'{3})*')*)<(?:(?P<typ>[^:]*):)?(?P<var>[^>\[]*)(?:\[(?P<sub>[^\]]*)\])?>(?P<rest>.*)''')
 
     ## @var nlfalse
     #  regular expression that matches false values
-    nlfalse=re.compile('(?i)\A(?:f.*|.false.|n|no|0*[1-9][0-9]*)\Z')
+    nlfalse=re.compile(r'(?i)\A(?:f.*|.false.|n|no|0*[1-9][0-9]*)\Z')
 
     ## @var nltrue
     #  regular expression that matches true values
-    nltrue=re.compile('(?i)\A(?:t.*|.true.|y|yes|0)\Z')
+    nltrue=re.compile(r'(?i)\A(?:t.*|.true.|y|yes|0)\Z')
 
     ## @var comment
     #  regular expression that matches comments
-    comment=re.compile('(?P<code>(?:[^!]|\"(?:[^\"]|\"\"\")*\"|\'(?:[^\']|\'\'\')*\')*)(?P<comment>!.*$)?')
+    comment=re.compile(r'(?P<code>(?:[^!]|\"(?:[^\"]|\"\"\")*\"|\'(?:[^\']|\'\'\')*\')*)(?P<comment>!.*$)?')
 
     def __init__(self,conf,section):
         """!NamelistInserter constructor
@@ -479,16 +479,16 @@ physics.bl_pbl_physics=3'''
     # A regular expression from re.compile.  This is used to scan
     # config section option names to detect if they are namelist
     # variable names (format: section.variable).
-    nlentry=re.compile('\A(?:(?P<section>[a-zA-Z_][a-zA-Z0-9_]*)\.)?(?P<var>[a-zA-Z_][a-zA-Z0-9_%]*)\Z')
+    nlentry=re.compile(r'\A(?:(?P<section>[a-zA-Z_][a-zA-Z0-9_]*)\.)?(?P<var>[a-zA-Z_][a-zA-Z0-9_%]*)\Z')
 
     ##@var nlfalse
     # detects false Fortran logical constants
-    nlfalse=re.compile('(?i)\A(?:f.*|.false.)\Z')
+    nlfalse=re.compile(r'(?i)\A(?:f.*|.false.)\Z')
     """A regular expression from re.compile, to detect false Fortran logical values."""
 
     ##@var nltrue
     # detects true Fortran logical constants
-    nltrue=re.compile('(?i)\A(?:t.*|.true.)\Z')
+    nltrue=re.compile(r'(?i)\A(?:t.*|.true.)\Z')
     """A regular expression from re.compile, to detect true Fortran logical values."""
 
     ##@var TRAIT
@@ -571,7 +571,7 @@ physics.bl_pbl_physics=3'''
                         trim=sec2.strip()
                         if len(trim)>0 and not trim in touched:
                             parseme.append(trim)
-                elif re.match('\A[a-zA-Z_][a-zA-Z_0-9%]*\Z',key):
+                elif re.match(r'\A[a-zA-Z_][a-zA-Z_0-9%]*\Z',key):
                     self.trait_set_if_unset(m.group('var'),
                                             from_fortnml(value))
                 elif logger is not None:

@@ -1336,8 +1336,8 @@ class ProdConfig(object):
             if default is not None:
                 return bool(default)
             raise
-        if re.match('(?i)\A(?:T|\.true\.|true|yes|on|1)\Z',s):   return True
-        if re.match('(?i)\A(?:F|\.false\.|false|no|off|0)\Z',s): return False
+        if re.match(r'(?i)\A(?:T|\.true\.|true|yes|on|1)\Z',s):   return True
+        if re.match(r'(?i)\A(?:F|\.false\.|false|no|off|0)\Z',s): return False
         try:
             return int(s)==0
         except ValueError as e: pass
