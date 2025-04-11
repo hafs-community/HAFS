@@ -36,12 +36,6 @@ sed -i "s;YMDH;${YMDH};g" 3dvar.yml.tmp
 sed -i "s;HH;${YMDH:8:2};g" 3dvar.yml.tmp
 mv 3dvar.yml.tmp 3dvar.yml
 
-# batch
-cp /u/yongzuo.li/backup/run_jedi.sh.tmp .
-sed -i "s;YMDH;${YMDH};g" run_jedi.sh.tmp
-mv run_jedi.sh.tmp run_jedi.sh
-chmod +x run_jedi.sh
-
 # obs settings
 source ${HOMEhafs}/parm/mom6_3dvar/obspath.config
 export obs_files_dir=${obs_src_dir}/${YMDH:0:4}/${YMDH:0:8}
