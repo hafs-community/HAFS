@@ -1,4 +1,4 @@
-#! /usr/bin/env python3 
+#! /usr/bin/env python3
 
 """!Handles data restriction classes.
 
@@ -11,9 +11,9 @@ Some do not implement access control mechanisms that are usable for
 the restricted data (such as NOAA Jet).  For those systems,
 RstNoAccessControl is raised if one attempts to restrict a file."""
 
-##@var __all__ 
+##@var __all__
 # List of symbols exported by "from produtil.rstprod import *"
-__all__= [ 'RestrictionClass', 'tag_rstprod', 'rstprod_tagger', 
+__all__= [ 'RestrictionClass', 'tag_rstprod', 'rstprod_tagger',
            'make_rstprod_tagger' ]
 
 class RstprodError(Exception):
@@ -77,9 +77,9 @@ class RestrictionClass(object):
     @endcode"""
     def __init__(self,group,use_acl=None,logger=None):
         """!Create a new RestrictionClass object for the specified
-        group.  
+        group.
         @param group The group may be the string group name, or the numeric
-        group id.  
+        group id.
         @param use_acl If use_acl is unspecified, then
         produtil.cluster.use_acl_for_rstdata() is used to decide.
         @param logger a logging.Logger for log messages"""
@@ -190,7 +190,7 @@ class RestrictionClass(object):
         @param chmod chmodding function
         @param logger a logging.Logger for log messages
         @protected """
-        if logger is not None: 
+        if logger is not None:
             logger.info('%s: chgrp to %s'%(str(target),self.__groupname))
         chown(target,-1,self.__groupid)
         if stat.S_ISDIR(st_mode):
@@ -230,7 +230,7 @@ class RestrictionClass(object):
     def restrict_file(self,filename,st_mode=None,logger=None):
         """!Adds the requested restrictions to the specified file or
         directory.  This routine needs to stat the opened file to get
-        the stat.st_mode.  
+        the stat.st_mode.
         @param st_mode To avoid a stat call, send st_mode into the
         optional argument.
         @param filename the target file
@@ -252,7 +252,7 @@ class RestrictionClass(object):
         @param st_mode To avoid a stat call, send st_mode into the optional argument.
         @param fd the target file descriptor
         @param logger a logging.Logger for log messages"""
-        if hasattr(fd,'fileno'): 
+        if hasattr(fd,'fileno'):
             fd=fd.fileno()
         if st_mode is None:
             if logger is not None:
@@ -282,14 +282,14 @@ def tag_rstprod(target,logger=None):
     """!Places a file or directory under the rstprod restriction class.
     This command will attempt to raise RstprodForbidden if it is run
     on a cluster that is not supposed to have rstprod data (only
-    GAEA, Zeus and WCOSS are allowed).  
+    GAEA, Zeus and WCOSS are allowed).
 
     This routine uses the approved rstprod protection mechanisms on
     each cluster:
 
     *  Zeus --- place the file in the rstprod access control list, and
              make it unreadable to anyone else.
-      
+
     *  WCOSS --- place the file in group rstprod and remove permissions
               for others.
 
@@ -308,4 +308,4 @@ def tag_rstprod(target,logger=None):
         raise TypeError('The tag_rstprod target argument must be an int, a file '
                         'or a basestring.  You supplied a %s %s'
                         %(type(target).__name__,repr(target)))
-        
+

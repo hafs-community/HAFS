@@ -11,10 +11,10 @@ general-purpose pipeline execution."""
 
 ##@var __all__
 # List of symbols exported by "from produtil.pipeline import *"
-__all__ = [ "launch", "manage", "PIPE", "ERR2OUT", "kill_all", 
+__all__ = [ "launch", "manage", "PIPE", "ERR2OUT", "kill_all",
             "kill_for_thread" ]
 
-class NoMoreProcesses(KeyboardInterrupt): 
+class NoMoreProcesses(KeyboardInterrupt):
     """!Raised when the produtil.sigsafety package catches a fatal
     signal.  Indicates to callers that the thread should exit."""
 
@@ -32,10 +32,10 @@ class Constant(object):
         if r is None:
             r='Constant(%s)@0x%x'%(repr(s),id(self))
         self.__r=r
-    def __str__(self): 
+    def __str__(self):
         """!Returns the s argument to the constructor."""
         return self.__s
-    def __repr__(self): 
+    def __repr__(self):
         """!Returns the r argument of the constructor."""
         return self.__r
 
@@ -57,7 +57,7 @@ ERR2OUT=Constant('ERR2OUT')
 def unblock(stream,logger=None):
     """!Attempts to modify the given stream to be non-blocking.  This
     only works with streams that have an underlying POSIX fileno, such
-    as those from open.  
+    as those from open.
 
     Will re-raise any exception received, other than AttributeError
     and EnvironmentError.  Hence, I/O errors and attempts to make a
@@ -81,13 +81,13 @@ def call_fcntrl(stream,on,off,logger=None):
             fd=stream
         else:
             fd=stream.fileno()
-    except (AttributeError,EnvironmentError) as ee: 
+    except (AttributeError,EnvironmentError) as ee:
         if logger is not None:
             logger.warning('%s: stream has no fileno, cannot switch to '
                            'non-blocking I/O: %s'%
                            (repr(stream),str(ee)),exc_info=True)
         return False
-    
+
     try:
         flags=fcntl.fcntl(fd, fcntl.F_GETFL)
         fcntl.fcntl(fd, fcntl.F_SETFL, (flags|on) & ~off)
@@ -123,7 +123,7 @@ def pclose(i):
         try:
             os.close(i)
         except EnvironmentError as e: pass
-        if i in pipes_to_close: 
+        if i in pipes_to_close:
             pipes_to_close.remove(i)
 
 def pclose_all(i=None,o=None,e=None,logger=None):
@@ -140,7 +140,7 @@ def pclose_all(i=None,o=None,e=None,logger=None):
                 os.close(p)
         pipes_to_close.clear()
 
-def launch(cmd, env=None, stdin=None, stdout=None, stderr=None, 
+def launch(cmd, env=None, stdin=None, stdout=None, stderr=None,
            debug=False, cd=None):
     """!Starts the specified command (a list), with the specified
     environment (or None to copy this process's environment).
@@ -173,19 +173,19 @@ def launch(cmd, env=None, stdin=None, stdout=None, stderr=None,
 
     if stdin is PIPE:
         (stdinC,stdinP)=pipe(logger)
-        if debug: 
+        if debug:
             logger.debug("Pipe for stdin: %d<==%d"%(stdinC,stdinP))
     else:
         stdinC=stdin
     if stdout is PIPE:
         (stdoutP,stdoutC)=pipe(logger)
-        if debug: 
+        if debug:
             logger.debug("Pipe for stdout: %d<==%d"%(stdoutP,stdoutC))
     else:
         stdoutC=stdout
     if stderr is PIPE:
         (stderrP,stderrC)=pipe(logger)
-        if debug: 
+        if debug:
             logger.debug("Pipe for stderr: %d<==%d"%(stderrP,stderrC))
     elif stderr is not ERR2OUT:
         stderrC=stderr
@@ -228,7 +228,7 @@ def launch(cmd, env=None, stdin=None, stdout=None, stderr=None,
 
     if isinstance(cd,str):
         os.chdir(cd)
-    
+
     # We are in the child process
     pclose_all(i=stdin,o=stdout,e=stderr)
 
@@ -268,7 +268,7 @@ def launch(cmd, env=None, stdin=None, stdout=None, stderr=None,
 
     if debug:
         logger.debug("Reset signal handlers on child.")
-    
+
     signal.signal(signal.SIGHUP,signal.SIG_DFL)
     signal.signal(signal.SIGTERM,signal.SIG_DFL)
     signal.signal(signal.SIGINT,signal.SIG_DFL)
@@ -331,7 +331,7 @@ def kill_all():
 def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
            childset=None,sleeptime=None,binary=False):
     """!Watches a list of processes, handles their I/O, returns when
-    all processes have exited and all I/O is complete.  
+    all processes have exited and all I/O is complete.
 
     @warning You should not be calling this function unless you are
       modifying the implementation of Pipeline.  Use the produtil.run
@@ -345,7 +345,7 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
     @param childset the set of child process ids
     @param sleeptime sleep time between checks of child processes
     @param logger Logs to the specified object, at level DEBUG, if a logger is
-    specified.  
+    specified.
     @returns a tuple containing the stdout string (or None), the
     stderr string (or None) and a dict mapping from process id to the
     return value from os.wait4 called on that process."""
@@ -368,7 +368,7 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
     errf=filenoify(errf)
 
     if inf is not None:
-        if instr is None: 
+        if instr is None:
             instr=""
         if logger is not None:
             logger.debug("Will write instr (%d bytes) to %d."
@@ -433,7 +433,7 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
                         n=None
                     else:
                         raise
-                if n: 
+                if n:
                     if logger is not None:
                         logger.debug("Wrote %d bytes to %d."%(n,tgt))
                     nin+=n
@@ -499,7 +499,7 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
                     try:
                         ms.remove(tgt)
                     except (ValueError,KeyError,TypeError) as e:
-                        if logger is not None: 
+                        if logger is not None:
                             logger.debug(
                                 "Cannot remove pid %d from _manage_set: %s"
                                 %(tgt,str(e)),exc_info=True)
@@ -507,7 +507,7 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
                         try:
                             childset.remove(tgt)
                         except (ValueError,KeyError,TypeError) as e:
-                            if logger is not None: 
+                            if logger is not None:
                                 logger.debug(
                                     "Cannot remove pid %d from childset: %s"
                                     %(tgt,str(e)),exc_info=True)
@@ -559,12 +559,12 @@ def manage(proclist,inf=None,outf=None,errf=None,instr=None,logger=None,
 
 ########################################################################
 
-def simple_run(cmd, env=None, stdin=None, stdout=None, stderr=None, 
+def simple_run(cmd, env=None, stdin=None, stdout=None, stderr=None,
                debug=False, cd=None, logger=None, binary=False):
     (pid, stdinP, stdoutP, stderrP) = launch(
         cmd,env,stdin,stdout,stderr,debug,cd)
     (outstder, errstr, done) = \
-      manage([pid], inf=stdinP, outf=stdoutP, errf=stderrP, logger=logger, 
+      manage([pid], inf=stdinP, outf=stdoutP, errf=stderrP, logger=logger,
              binary=binary )
     result=done[pid][1]
     if os.WIFEXITED(result):
@@ -660,7 +660,7 @@ class Pipeline(object):
     def terminate(self):
         """!Sends SIGTERM to all children."""
         self.send_signal(signal.SIGTERM)
-    def kill(self): 
+    def kill(self):
         """!Sends SIGKILL to all children."""
         self.send_signal(signal.SIGKILL)
 
@@ -679,7 +679,7 @@ class Pipeline(object):
             if self.__managed: return
             (o,e,m)=manage(
                 [q[0] for q in self.__quads],
-                self.__stdin, self.__stdout, self.__stderr, 
+                self.__stdin, self.__stdout, self.__stderr,
                 self.__instring, self.__logger, self.__children,
                 sleeptime, self.__binary)
             self.__managed=m
@@ -712,7 +712,7 @@ class Pipeline(object):
         return o
 
     @property
-    def out(self): 
+    def out(self):
         """!The stdout from the pipeline.  Will be Null if the pipeline
         was redirected to a file, or if the constructor's capture
         option was not True."""

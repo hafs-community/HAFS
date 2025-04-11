@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""!Provides information about the cluster on which this job is running.""" 
+"""!Provides information about the cluster on which this job is running."""
 """Remove and clean WCOSS Cray and WCOSS Dell_p3 related logic and updating
 prodcution machine identifying logic for WCOSS2 (Biju Thomas 10/12/2022)"""
 
@@ -40,7 +40,7 @@ class Cluster(object):
 
     ##@var acl_support
     #  True if the system uses Access Control Lists (ACLs)
-    #  to control access to files.  
+    #  to control access to files.
 
     ##@var use_acl_for_rstdata
     #  True if the scripts should use ACLs to
@@ -51,7 +51,7 @@ class Cluster(object):
     ##@var  production
     #  True if this system is production (real-time
     #  forecasting) environment, and False otherwise.  Most systems
-    #  should set this to False.  
+    #  should set this to False.
 
     ##@var name
     #  a short name of this cluster.  Must be a valid Python
@@ -222,7 +222,7 @@ class MSUOrion(Cluster):
 
 class NOAAWCOSS(Cluster):
     """!Represents the NOAA WCOSS clusters, Tide, Gyre and the test
-    system Eddy.  
+    system Eddy.
 
     Automatically determines which WCOSS the program is on based on
     the first letter of socket.gethostname().  Will report no ACL
@@ -255,7 +255,7 @@ class NOAAWCOSS(Cluster):
 
     @property
     def production(self):
-        """!Is this the WCOSS2 production machine?  
+        """!Is this the WCOSS2 production machine?
 
         The name of the WCOSS2 production machine: cactus or dogwood
         luna as determined by the /lfs/h1/ops/prod/config/prodmachinefile file.

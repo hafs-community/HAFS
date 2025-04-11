@@ -22,7 +22,7 @@
 </envar>
 <envar>
   <name>hafs_ver</name>
-  <value>v1.0.0</value>
+  <value>v2.1.0</value>
 </envar>
 <envar>
   <name>NET</name>
@@ -63,8 +63,4 @@
 <envar>
   <name>HOLDVARS</name>
   <value><cyclestr>&HOLDVARS;</cyclestr></value>
-</envar>
-<envar>
-  <name>jlogfile</name>
-  <value>&LOGhafs;/jlogfile</value>
 </envar>

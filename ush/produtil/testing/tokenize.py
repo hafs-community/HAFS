@@ -28,7 +28,7 @@ class Token(object):
 
     def __init__(self,token_type,token_value,filename,lineno):
         """!Constructor for Token
-        
+
         @param token_type The type of token, a string
         @param token_value The text this token represents, a string.
 
@@ -80,7 +80,7 @@ class Tokenizer(object):
 
     def copy(self):
         """!Duplicates this object
-        
+
         At present, a Tokenizer has no internal state information.
         Hence, this is equivalent to Tokenizer().  This may change in
         the future.  Hence, if you want to copy a Tokenizer, you
@@ -145,17 +145,17 @@ class Tokenizer(object):
         """!Tokenizes the specified file, acting as an iterator over Token objects.
 
         Loops over the text of the given file, creating Token objects
-        and yielding them.  
+        and yielding them.
 
         @param text The text to tokenize.
         @param filename The file from which the text originates.  This may be used
-          for two purposes.  The first is error reporting, and the second is 
-          "load" statements, which load files relative to the path to the 
+          for two purposes.  The first is error reporting, and the second is
+          "load" statements, which load files relative to the path to the
           current file.
         @param first_line The line number for the first line of the file."""
         lineno=first_line
         for m in self.re.finditer(text):
-            if m is None: 
+            if m is None:
                 raise ValueError('SHOULD NOT GET HERE: no match on "%s"'%(line,))
             # else:
             #     for dkey,dval in m.groupdict().iteritems():
@@ -231,7 +231,7 @@ class TokenizeFile(object):
 
     ##@var tokenizer
     # The Tokenizer object that turns text into sequences of Token objects.
-    
+
     ##@var fileobj
     # A file-like object that produces text for the tokenizer
 
@@ -248,8 +248,8 @@ class TokenizeFile(object):
         @param tokenizer The Tokenizer-like object to parse.
         @param fileobj The opened file-like object to read.
         @param filename The file from which the text originates.  This may be used
-          for two purposes.  The first is error reporting, and the second is 
-          "load" statements, which load files relative to the path to the 
+          for two purposes.  The first is error reporting, and the second is
+          "load" statements, which load files relative to the path to the
           current file.
         @param first_line The line number for the first line of the file."""
         self.tokenizer=tokenizer

@@ -13,12 +13,12 @@ functions=dict(lc=lambda x:str(x).lower(),
                len=lambda x:str(len(x)),
                trim=lambda x:str(x).strip())
 
-class ParserSyntaxError(Exception): 
+class ParserSyntaxError(Exception):
     """!Raised when the parser encounters a syntax error."""
 class ScriptAssertion(Exception):
     """!Raised when a script @[VARNAME:?message] is encountered, and
     the variable does not exist."""
-class ScriptAbort(Exception): 
+class ScriptAbort(Exception):
     """!Raised when an "@** abort" directive is reached in a script."""
 class NoSuchVariable(Exception):
     """!Raised when a script requests an unknown variable."""
@@ -65,7 +65,7 @@ def replace_backslashed(text):
 
 # Parser states:
 
-##@var outer 
+##@var outer
 # Parser state for the portion of the file outside @[] and @** blocks
 outer=dict(active=True,in_if_block=False,in_ifelse_block=False,used_if=False,ignore=False)
 
@@ -85,7 +85,7 @@ if_used_if=dict(active=False,in_if_block=True,in_ifelse_block=True,used_if=True,
 # Parser state for inside an "else" block
 if_active_else=dict(active=True,in_if_block=False,in_ifelse_block=True,used_if=True,ignore=False)
 
-##@var if_inactive_else 
+##@var if_inactive_else
 # Parser state for inside an "else" block that was not used
 if_inactive_else=dict(active=False,in_if_block=False,in_ifelse_block=True,used_if=True,ignore=False)
 
@@ -99,7 +99,7 @@ ignore_else_block=dict(active=False,in_if_block=False,in_ifelse_block=True,used_
 
 class ATParser:
     """!Takes input files or other data, and replaces certain strings
-    with variables or functions.  
+    with variables or functions.
 
     The calling convention is quite simple:
     @code{.py}
@@ -120,7 +120,7 @@ class ATParser:
     My storm is Katrina and the RSMC is unknown.
     @endcode
     since NAME is set, but RSMC and center are unset.
-    
+
     There are also block if statements:
     @code{.unformatted}
     @** if NAME==BILLY
@@ -231,7 +231,7 @@ class ATParser:
             return ''
         else:
             raise NoSuchVariable(self.infile,varname)
-    
+
     def optional_var(self,varname):
         """!Return the value of a variable with functions applied, or
         '' if the variable is unset.
@@ -245,7 +245,7 @@ class ATParser:
         @param varname the name of the variable.
         @protected"""
         return self.from_var(varname,optional=False)
-    
+
     def replace_vars(self,text):
         """!Expand @@[...] blocks in a string.
         @param text the string
@@ -349,7 +349,7 @@ class ATParser:
                     (test,thendo,elsedo)=mo.groups()
                 test=self.replace_vars(test)
                 if operator=='==':
-                    return self.replace_vars( 
+                    return self.replace_vars(
                         thendo if (val==test) else elsedo)
                 else:
                     return self.replace_vars(
@@ -395,12 +395,12 @@ class ATParser:
         out.write('STATE STACK: \n')
         for state in self._states:
             out.write('state: ')
-            if state['ignore']: 
+            if state['ignore']:
                 out.write('ignoring block: ')
             out.write('active ' if(state['active']) else 'inactive ')
-            if state['in_if_block']: 
+            if state['in_if_block']:
                 out.write('in if block, before else ')
-            if state['in_ifelse_block']: 
+            if state['in_ifelse_block']:
                 out.write('in if block, after else ')
             if not state['in_if_block'] and not state['in_ifelse_block']:
                 out.write('not if or else')
@@ -411,7 +411,7 @@ class ATParser:
         s=out.getvalue()
         out.close()
         return s
-    
+
     @property
     def active(self):
         """!Is the current block active?
@@ -462,10 +462,10 @@ class ATParser:
             lineno+=1
 
     def parse_line(self,line,filename,lineno):
-        """!Parses one line of text.  
+        """!Parses one line of text.
         @param line the line of text.
         @param filename the name of the source file, for error messages
-        @param lineno the line number within the source file, for 
+        @param lineno the line number within the source file, for
           error messages"""
         top_state=self.top_state
         replace_state=self.replace_state
@@ -583,8 +583,8 @@ class ATParser:
         m=re.match(r'^\s*\@\*\*.*',line)
         if m:
             raise ParserSyntaxError('Invalid \\@** directive in line \"%s\".  Ignoring line.\n'%(line,))
-        
-        if self._states and not self.active: 
+
+        if self._states and not self.active:
             return # inside a disabled block
 
         # Replace text of the form @[VARNAME] with the contents of the

@@ -20,7 +20,7 @@ class Implementation(ImplementationBase):
     This module is part of the mpi_impl package -- see produtil.mpi_impl
     for details.  This implements execution of serial programs when one
     is inside an aprun execution."""
-    
+
     @staticmethod
     def name():
         return 'inside_aprun'
@@ -48,7 +48,7 @@ class Implementation(ImplementationBase):
     def openmp(self,arg,threads):
         """!When more than one thread is requested, this raises
         OpenMPDisabled to indicate OpenMP is not allowed.
-        
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -57,7 +57,7 @@ class Implementation(ImplementationBase):
             threads=int(threads)
             if threads!=1:
                 raise OpenMPDisabled("You cannot start a new OpenMP program from within an aprun invocation.")
-    
+
     def mpirunner(self,arg,**kwargs):
         """!Raises an exception to indicate MPI is not supported
         @param arg,kwargs Ignored."""
@@ -67,7 +67,7 @@ class Implementation(ImplementationBase):
         """!Returns False to indicate MPI is not supported."""
         return False
 
-    def make_bigexe(self,exe,**kwargs): 
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.

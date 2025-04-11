@@ -36,7 +36,7 @@ locks=set()
 locks_okay=True
 
 def disable_locking():
-    """!Entirely disables all locking in this module.  
+    """!Entirely disables all locking in this module.
 
     If this is called, any locking attempts will raise
     LockingDisabled.  That exception derives directly from
@@ -61,7 +61,7 @@ class LockHeld(Exception):
 class LockingDisabled(BaseException):
     """!This exception is raised when a thread attempts to acquire a
     lock while Python is exiting according to produtil.sigsafety.
-    
+
     @warning This is a subclass of BaseException, not Exception, to
     attempt to cleanly kill the thread."""
 
@@ -73,14 +73,14 @@ class LockFile(object):
           ... do things while file is locked ...
       ...file is no longer locked.
     @endcode"""
-    def __hash__(self): 
+    def __hash__(self):
         """!Return a hash of this object."""
         return hash(id(self))
     def __eq__(self,other):
         """!Is this lock the same as that lock?"""
         return self is other
     def __init__(self,filename,until=None,logger=None,max_tries=10,sleep_time=3,first_warn=0,giveup_quiet=False):
-        """!Creates an object that will lock the specified file.  
+        """!Creates an object that will lock the specified file.
         @param filename the file to lock
         @param until Unused.
         @param logger Optional: a logging.Logger to log messages

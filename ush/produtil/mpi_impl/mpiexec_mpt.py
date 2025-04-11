@@ -22,12 +22,12 @@ from produtil.mpiprog import MIXED_VALUES
 
 class Implementation(ImplementationBase):
     """Adds SGI MPT support to produtil.run
-    
+
     This class is part of the produtil.mpi_impl package.  It underlies
     the produtil.run.openmp, produtil.run.mpirun , and
     produtil.run.mpiserial functions, providing the implementation
     needed to run with the SGI MPT MPI implementation.
-    
+
     @warning This class assumes the TOTAL_TASKS environment variable is
     set to the maximum number of MPI ranks the program has available to
     it.  That is used when the mpirunner is called with the
@@ -36,7 +36,7 @@ class Implementation(ImplementationBase):
     @staticmethod
     def name():
         return 'mpiexec_mpt'
-    
+
     @staticmethod
     def detect(mpiexec_mpt_path=None,mpiserial_path=None,total_tasks=None,logger=None,force=False,silent=False):
         """!Detects whether the SGI MPT is available by looking for mpiexec_mpt."""
@@ -79,7 +79,7 @@ class Implementation(ImplementationBase):
 
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -92,7 +92,7 @@ class Implementation(ImplementationBase):
         else:
             del arg.threads
         return arg
-    
+
     def guess_nthreads(self,default):
         """!Tries to guess the number of threads in use
         @param default the value to return if the function cannot guess"""
@@ -103,18 +103,18 @@ class Implementation(ImplementationBase):
         omp = (1 if omp is None else omp)
         mkl = (1 if mkl is None else mkl)
         return omp*mkl
-    
+
     def can_run_mpi(self):
         """!Does this class represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
+
     def mpirunner(self,arg,allranks=False,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -162,4 +162,4 @@ class Implementation(ImplementationBase):
             s='%d'%arg.threads
             runner.env(OMP_NUM_THREADS=s,MKL_NUM_THREADS='1')
         return runner
-    
+

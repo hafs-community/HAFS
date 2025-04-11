@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 ##@namespace produtil.testing.parse
-# This module contains the parser for the produtil.testing test suite.  
+# This module contains the parser for the produtil.testing test suite.
 #
 # The main interface to the produtil.testing parser is
 # produtil.testing.parse.Parser.parse().  It constructs an internal
@@ -175,7 +175,7 @@ class Parser(object):
             self._resolve_deps_impl(result,processed,runcon)
         return result
     def iterrun(self,runset='**all**'):
-        """!Iterates over all runnables in the runset.  
+        """!Iterates over all runnables in the runset.
 
         @param runset The runset of interest.  If no runset is
         specified then the special "**all**" runset is used, which
@@ -191,7 +191,7 @@ class Parser(object):
         for setname,runset in self.__runsets.items():
             yield setname,runset
     def con(self,token=None,scopes=None):
-        """!Returns a context for the given token and scope.  
+        """!Returns a context for the given token and scope.
 
         @param token Used to determine the file and line number.  If
         the token is None, then a fileless context is used.  This
@@ -243,11 +243,11 @@ class Parser(object):
         function on each, and then adds runcon to newset.  The result
         is that the newset will contain all runnable objects in
         correct dependency order.
-        
+
         @param newset The ListableSet to receive the runnable objects
         @param processed a set of all runnable objects already
         processed or being processed by recursive calls to this
-        function. 
+        function.
         @param runcon The runnable object to process, a RunConPair
         @returns None"""
         if not isinstance(runcon,RunConPair):
@@ -326,7 +326,7 @@ class Parser(object):
         Skips over the "," and whitespace between arguments.
 
         @param tokiter a peekable iterator that yields tokens
-        @param ends: optional; the termination token for the argument list. Default: ")" 
+        @param ends: optional; the termination token for the argument list. Default: ")"
         @return True if we are still inside the argument list, or False otherwise"""
         if ends is None: ends=[')']
         peek=tokiter.peek()
@@ -441,7 +441,7 @@ class Parser(object):
             scope.settemplate(self.action_string([scope]+scopes,token))
         else:
             self.error('embed script contents',token)
-        if parse_between: 
+        if parse_between:
             parse_between(tokiter)
         return (nametoken.token_value,scope)
 
@@ -479,7 +479,7 @@ class Parser(object):
                 return # reached end of list.
             next(tokiter) # discard ","
             peek=tokiter.peek()
-                
+
     def parse_deplist(self,tokiter,scopes,task,ends):
         """!Parses and iterates over a list of dependencies.
 
@@ -541,7 +541,7 @@ class Parser(object):
             token=next(tokiter)
             while token.token_type==end_of_line_type:
                 token=next(tokiter)
- 
+
             if token.token_type=='varname' and token.token_value=='use':
                 peek=tokiter.peek()
                 if peek.token_type!='varname':
@@ -645,7 +645,7 @@ class Parser(object):
 
     def parse_spawn_element(self,tokiter,scopes,spawn,ends):
         """!Parses one element (block of MPI ranks) of a process
-        spawning block.  
+        spawning block.
 
         Parses the individual, comma-separated elements of a spawn block:
 
@@ -697,7 +697,7 @@ class Parser(object):
             self.error('spawn process',token,'no command nor arguments')
         for arg in args:
             assert(isinstance(arg,Token))
-        argobjs=[ 
+        argobjs=[
             self.action_string(allscopes,arg) for arg in args]
         return argobjs,scope
 
@@ -705,7 +705,7 @@ class Parser(object):
         """!Parses a subprocess spawning subblock.
 
         Parses a block of this form:
-        
+
         @code
            {"program_name", ranks=32, threads=1}
         @endcode
@@ -725,7 +725,7 @@ class Parser(object):
         @returns None
         @see parse_spawn_element()"""
         token=next(tokiter)
-        while token.token_type==end_of_line_type: 
+        while token.token_type==end_of_line_type:
             token=next(tokiter)
         while token.token_type not in ends:
             if token.token_type!='{':
@@ -811,7 +811,7 @@ class Parser(object):
 
     def parse_load(self,tokiter,scope,seen_run):
         """!Parses a "load" statement.
-        
+
         Parses a statement of this form:
 
         @code
@@ -856,7 +856,7 @@ class Parser(object):
                     allow_load=True,
                     scope_name='global scope',
                     seen_run=seen_run)
-        
+
     def parse_subscope(
         self,tokiter,scopes,ends,parse_between,
         allow_overwrite=True,allow_resolve=True,
@@ -881,7 +881,7 @@ class Parser(object):
                 sys.stderr.write('%s:%d: %s\n'%(
                         filename,lineno,str(e)))
             raise
-        
+
     def parse_subscope_impl(
         self,tokiter,scopes,ends,parse_between,
         allow_overwrite=True,allow_resolve=True,
@@ -913,7 +913,7 @@ class Parser(object):
           such as declarations, array elements, or arguments.
         @param allow_overwrite are we allowed to replace values
           that are already set in the scope?
-          
+
         @param allow_resolve When a variable reference is encountered,
         are we allowed to resolve it within the scope that is being
         parsed?
@@ -923,7 +923,7 @@ class Parser(object):
           This is intended for use in argument lists.
         @param allow_use Are "use" statements allowed in this scope?
         @param scope_name The name of this scope, used for error reporting.
-        @param only_scalars If True, then only strings and numbers are 
+        @param only_scalars If True, then only strings and numbers are
           allowed to be assigned to variables.  If False, anything
           can be assigned.
         @param allow_load Do we allow "load" statements in this scope?
@@ -1256,7 +1256,7 @@ class Parser(object):
         @param key_token The token containing the name of the scope
         that is to be used.
 
-        @param only_scalars If True, then it is an error to "use" a 
+        @param only_scalars If True, then it is an error to "use" a
         scope that contains variables with non-scalar values.
 
         @returns None"""
@@ -1405,7 +1405,7 @@ class Parser(object):
         """!Requests that a specified object be available for running,
         without putting it in any runset.  This is used to implement
         the part of the "run" statement before set lists.
-        
+
         @param obj The object to run.
         @param con The produtil.testing.parsetree.Context from which
         the run statement is made."""

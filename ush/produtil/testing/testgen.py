@@ -19,7 +19,7 @@ __all__=[ 'TestGen' ]
 
 class TestGen(object):
     """!"""
-    def __init__(self, run_mode, OutputType, outloc, inloc, dry_run, 
+    def __init__(self, run_mode, OutputType, outloc, inloc, dry_run,
                  unique_id, logger=None, verbose=True, PWD=None,
                  setarith=None, platform_name=None):
         """!Constructor for TestGen
@@ -81,7 +81,7 @@ class TestGen(object):
         """!Resolves the given variable reference within the global scope
 
         @param varname a variable reference, such as "plat%BASELINE"
-        to send to self.scope.resolve().  
+        to send to self.scope.resolve().
 
         @returns the string value of the varname
 
@@ -170,4 +170,4 @@ class TestGen(object):
         @see generate()"""
         self.parse()
         self.generate()
-            
+

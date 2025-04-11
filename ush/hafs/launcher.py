@@ -956,7 +956,7 @@ class HAFSLauncher(HAFSConfig):
         (self.syndat.old()).
 
         @param loud If loud=True (the default), then a message is sent
-        to the jlogfile via postmsg with the seed, and information
+        to the jloggerf via postmsg with the seed, and information
         about the calculation that went into it."""
         si=self.syndat.old() # storminfo before renumbering
         icycle=int(self.cycle.strftime('%Y%m%d%H'))

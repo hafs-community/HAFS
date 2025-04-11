@@ -140,7 +140,7 @@ def hup_handler(signum,frame):
     produtil.locking.disable_locking()
     raise HangupSignal(signum)
 
-def term_handler(signum,frame): 
+def term_handler(signum,frame):
     """!This is the signal handler for raising FatalSignal.
     @param signum,frame signal information"""
     global caught_signal,caught_class

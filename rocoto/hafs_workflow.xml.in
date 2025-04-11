@@ -153,7 +153,7 @@
 
   <task name="launch" maxtries="99">
     <!--<command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>-->
-    <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' config.HOMEhafs='&HOMEhafs;' dir.USHhhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
+    <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' dir.HOMEhafs='&HOMEhafs;' dir.USHhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
     <account>&ACCOUNT;</account>
@@ -1766,8 +1766,7 @@
   </task>
 
   <!-- Final task.  This task exists mainly to set the "final" state
-  for the cycle (final="true"), and it also sents a "cycle completed"
-  message to the jlogfile.  It is here, instead of in an entity, so
+  for the cycle (final="true"). It is here, instead of in an entity, so
   that you can edit the <dependency> section to match your
   configuration.
 

@@ -22,7 +22,7 @@ def setup(ignore_hup=False,dbnalert_logger=None,jobname=None,cluster=None,
     At present, it:
 
     1. Installs signal handlers that will cleanly abort the process.
-    2. Sets up logging to the jlogfile, if $jlogfile is in the environment.
+    2. Sets up logging to the jloggerf, if $jloggerf is in the environment.
     3. Sets up logging to stdout and stderr.
     4. Sets up the produtil.dbnalert module so DBNAlert objects will
     function properly

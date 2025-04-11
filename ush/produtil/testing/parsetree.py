@@ -19,14 +19,14 @@ from produtil.testing.utilities import *
 from produtil.testing.tokenize import *
 
 __all__=[ 'Context', 'BaseObject', 'null_value', 'TypelessObject', 'Scope',
-          'make_params', 'make_scope', 'call_scope', 'Builtin', 'Copy', 
+          'make_params', 'make_scope', 'call_scope', 'Builtin', 'Copy',
           'CopyDir', 'Link', 'AtParse', 'BitCmp', 'Criteria', 'Filters',
           'Rank', 'SpawnProcess', 'EmbedBash', 'Task', 'Build', 'Platform',
           'Test', 'AutoDetectPlatform', 'Numeric', 'String', 'Environ',
           'Md5Cmp', 'Reference', 'NccmpVars']
 
 class Context(object):
-    """!Represents the context from which a BaseObject is accessed.  
+    """!Represents the context from which a BaseObject is accessed.
 
     The Context is used during any evaluation of a BaseObject to a
     logical, numeric, block of bash code, or other type.  A Context consists
@@ -120,7 +120,7 @@ def fileless_context(scopes=None,filename=None,lineno=None,
         run_mode,logger,verbose)
 
 class BaseObject(object):
-    """!Base class of the parsetree hierarchy.  
+    """!Base class of the parsetree hierarchy.
 
     This class implements default behaviors representative of any
     parsetree node.  The properties and functions should be overridden
@@ -183,13 +183,13 @@ class BaseObject(object):
         if iself<iother: return -1
         if iself>iother: return 1
         return 0
-    def is_valid_rvalue(self,con): 
+    def is_valid_rvalue(self,con):
         """!Can this value be assigned to a variable?
         @returns True if this BaseObject represents a value that can be
         assigned to a variable, False otherwise
         @param con the Context in which this object is being evaluated"""
         return True
-    def string_context(self,con): 
+    def string_context(self,con):
         """!Expresses this object as a printable string
 
         Expresses the object as a human-readable string in the provide
@@ -198,7 +198,7 @@ class BaseObject(object):
         @returns A string representation of this object
         @param con the Context in which this object is being evaluated"""
         return "null"
-    def logical_context(self,con): 
+    def logical_context(self,con):
         """!Expresses this object as a printable string
 
         Expresses the object as a boolean True/False value.  The
@@ -207,7 +207,7 @@ class BaseObject(object):
         @returns A boolean representation of this object
         @param con the Context in which this object is being evaluated"""
         return False
-    def numeric_context(self,con): 
+    def numeric_context(self,con):
         """!Expresses this object as a float
 
         Expresses the object as a Python float.  The default implementation
@@ -253,7 +253,7 @@ class BaseObject(object):
         the prepend list.
         @returns self"""
         raise NotImplementedError('Subclass %s did not implement rescope()'%(type(self).__name__,))
-    def run(self,con): 
+    def run(self,con):
         """!Instructs this object to execute.
 
         Subclasses that can be executed, such as scripts, must
@@ -281,7 +281,7 @@ class BaseObject(object):
         return '<BaseObject@%s>'%(id(self),)
 
 ##@var null_value
-# A special constant that indicates a variable without a value. 
+# A special constant that indicates a variable without a value.
 # @warning Terrible things will happen if you overwrite this.
 null_value=BaseObject([])
 
@@ -326,7 +326,7 @@ class Reference(BaseObject):
             defscopes=list()
         super(Reference,self).__init__(defscopes,set_flags=False)
         self.__path=path
-        
+
     @property
     def is_scope(self):
         return self.dereference().is_scope
@@ -442,13 +442,13 @@ class Scope(BaseObject):
 
         self.__overrides[names[0]].append([ names[1:],the_string])
 
-    def validate_parameter(self,name): 
+    def validate_parameter(self,name):
         """!Raises an exception if the given name is not an acceptable
         keyword for constants or parameters.  The default
         implementation does nothing."""
         pass
 
-    def new_empty(self): 
+    def new_empty(self):
         """!Returns a new, empty scope that is within the same parent
         scope of this Scope (has the same defscopes)."""
         return Scope(self.defscopes)
@@ -459,7 +459,7 @@ class Scope(BaseObject):
         @param con the Context in which this object is being evaluated"""
         raise PTParserError("Cannot express a hash in a bash string.")
 
-    def string_context(self,con): 
+    def string_context(self,con):
         """!Evaluates the _as_string variable in this scope, in a
         string context, if it is defined.  Otherwise, returns the
         Python id of this Scope (id(self)) as a string.
@@ -503,7 +503,7 @@ class Scope(BaseObject):
         @param con the Context in which this object is being evaluated (unused)"""
         return len(self.__vars) + len(self.__parameters) + len(self.__const)
 
-    def logical_context(self,con): 
+    def logical_context(self,con):
         """!Evaluates this scope in a logical context
         @returns True if any variables, parameters (function call
         arguments) or constants are defined in this Scope.  Returns False otherwise.
@@ -626,7 +626,7 @@ class Scope(BaseObject):
         if used_scope.haslocal('RUNDIR'):
             mycon=fileless_context([self])
             usedcon=fileless_context([used_scope])
-                
+
         return found_non_scalars
     def apply_parameters(self,scope,con):
         """!Implements a function call using this Scope as the parameter list.
@@ -636,7 +636,7 @@ class Scope(BaseObject):
         self's parameters are used for the default argument values.
         The "scope" argument to apply_parameters() contains values to
         override those.  Hence, self is the function definition and
-        scope is the values set in the function call.  
+        scope is the values set in the function call.
 
         A third Scope is created, containing the result of applying
         the function call and default values.  That third Scope has no
@@ -692,12 +692,12 @@ class Scope(BaseObject):
 
     def subscope(self,key):
         """!Returns a Scope within this Scope, with the given name.
-        
+
         @param key a valid identifier within this scope
         @returns a Scope with the given name, within this Scope
         @raise ValueError if the key contains a "%"
         @raise TypeError if the key refers to something in this Scope
-          that is not a Scope.  This is detected through the is_scope 
+          that is not a Scope.  This is detected through the is_scope
           attribute or property."""
         if "%" in key:
             raise ValueError("Key \"%s\" is not a valid identifier"%(key,))
@@ -718,7 +718,7 @@ class Scope(BaseObject):
     def getlocal(self,key):
         """!Return the value of a key local to this scope without
         searching other scopes.  Will raise ValueError if the key
-        contains a "%" 
+        contains a "%"
 
         @param key a valid identifier within this scope
         @returns The value of the key from this scope.
@@ -841,7 +841,7 @@ class Scope(BaseObject):
             search=[found]
         if found is None:
             raise PTKeyError(key)
-        # if subscopes: 
+        # if subscopes:
         #     return ( found, scopestack )
         # else:
         return found
@@ -890,7 +890,7 @@ class Scope(BaseObject):
     def expand_string(self,string,con,scopes=None):
         """!Performs string expansion.
 
-        Expands escape characters and variable references in a string.  
+        Expands escape characters and variable references in a string.
 
         @param string a python string to expand
         @param con the Context in which this object is being evaluated
@@ -981,7 +981,7 @@ def call_scope(scope,con,defscopes,**kwargs):
     s=scope.apply_parameters(parms,con)
     assert(s.no_nulls())
     return s
-    
+
 ########################################################################
 
 class Builtin(Scope):
@@ -1236,7 +1236,7 @@ class BitCmp(Builtin):
         return BitCmp(self.defscopes,empty=True)
     def run(self,con):
         """!Executes the bit-for-bit comparison
-        @returns True if the files match and False if they do not.  
+        @returns True if the files match and False if they do not.
         @param con the Context in which this object is being evaluated"""
         src=self.resolve('src').string_context(con)
         tgt=self.resolve('tgt').string_context(con)
@@ -1291,10 +1291,10 @@ class NccmpVars(Builtin):
     are the two files to compare"""
     def __init__(self,defscopes,empty=False):
         """!Constructor for NccmpVars
-        
+
        @param defscopes a stack of Scope objects to the point at which
        this BitCmp was defined, innermost Scope first
-        
+
         @param empty if True, the "src" and "tgt" parameters will be
         set to the null_value.  If False, no variables will be set."""
         super(NccmpVars,self).__init__(defscopes,'.nccmp_vars.')
@@ -1432,7 +1432,7 @@ class Criteria(TypelessObject):
                 assert(callme)
             rtgt=tgt.rescope(scopemap,prepend)
             f.__tgtlist.append(rtgt)
-            f.__opmap[rtgt]=[ 
+            f.__opmap[rtgt]=[
                 callme.rescope(scopemap,prepend)
                 for callme in self.__opmap[tgt] ]
         assert(f.__tgtlist)
@@ -1478,7 +1478,7 @@ class Criteria(TypelessObject):
                 if callme==mycall:
                     found=True
                     break
-            if not found: 
+            if not found:
                 self.__opmap[tgt].append(callme)
                 self.__tgtlist.append(tgt)
         assert(self.__tgtlist)
@@ -1762,7 +1762,7 @@ def expand_lists(iterable,max_depth=None):
     for i in iterable:
         if isinstance(i,list) or isinstance(i,tuple):
             if max_depth is None:
-                for k in expand_lists(i): 
+                for k in expand_lists(i):
                     yield k
             elif max_depth>=0:
                 for k in expand_lists(i,max_depth-1):
@@ -1844,11 +1844,11 @@ class SpawnProcess(TypelessObject):
         affinity='core'
         if max_ppn_tpn>nodesize:
             # If it is bigger than that, try the number of cpus.
-            nodesize=min_cpus_per_core*cores_per_node 
+            nodesize=min_cpus_per_core*cores_per_node
             affinity='cpu'
         if max_ppn_tpn>nodesize:
             # Caller wants to overcommit a node.  This usually fails,
-            # but we'll try to request it anyway.  
+            # but we'll try to request it anyway.
             nodesize=max(nodesize,max_ppn_tpn)
 
         return MPI,nodesize,affinity,max_threads,nodes,max_ppn_tpn,max_ppn,packed
@@ -1879,7 +1879,7 @@ class SpawnProcess(TypelessObject):
             request+='<nodes>' + ('+'.join(nodespecs)) + '</nodes>\n'
 
         return request
-        
+
     def bash_context(self,con):
         """!Generates a bash code block to run the specified program
 
@@ -1908,7 +1908,7 @@ class SpawnProcess(TypelessObject):
                 nthreads,))
         if not have_ranks:
             # Serial or openmp program.
-            out.write(' '.join([r.bash_context(con) 
+            out.write(' '.join([r.bash_context(con)
                                 for r in self.__ranks[0].args]))
             out.write('\n')
         else:
@@ -2003,7 +2003,7 @@ class EmbedBash(Scope):
         self's parameters are used for the default argument values.
         The "scope" argument to apply_parameters() contains values to
         override those.  Hence, self is the function definition and
-        scope is the values set in the function call.  
+        scope is the values set in the function call.
 
         A third Scope is created, containing the result of applying
         the function call and default values.  That third Scope has no
@@ -2034,11 +2034,11 @@ class EmbedBash(Scope):
         @param con the Context in which this object is being evaluated"""
         return self.__template is not None
 
-    def string_context(self,con): 
+    def string_context(self,con):
         """!Evaluates this EmbedBash in a string context.
 
         Executes this EmbedBash via run(), converts the result to a
-        number (via numeric_context()) and then to a string via "%d" 
+        number (via numeric_context()) and then to a string via "%d"
 
         @param con the Context in which this object is being evaluated
         @returns the string copy of the numeric result of run()"""
@@ -2098,7 +2098,7 @@ class EmbedBash(Scope):
         stream=io.StringIO()
         env=dict()
         unset_me=list()
-        
+
         set_pre=''
         try:
             if self.getlocal('export.vars').logical_context(con):
@@ -2135,7 +2135,7 @@ class EmbedBash(Scope):
         """!Runs the script generated by bash_context()
 
         Uses produtil.run.run() and produtil.run.exe() to execute this
-        bash code block.  
+        bash code block.
 
         @returns the result of produtil.run.run()
 
@@ -2159,13 +2159,13 @@ class EmbedBash(Scope):
         env=dict(self.iterlocal())
         if env: cmd.env(**env)
         return produtil.run.run(cmd)
-            
-    def logical_context(self,con): 
+
+    def logical_context(self,con):
         """!Executes this EmbedBash, returning True if the script
         returns a 0 status, and False otherwise.
 
         Uses run() to execute this program, via numeric_context() to
-        get the numeric return value.  
+        get the numeric return value.
 
         @returns True if the script return value was 0, False otherwise
         @param con the Context in which this object is being evaluated"""
@@ -2238,7 +2238,7 @@ class Task(Scope):
         return self.haslocal(self.runvar) and \
             self.getlocal(self.runvar) is not null_value
 
-    def string_context(self,con): 
+    def string_context(self,con):
         """!Generates a string that represents this Task
 
         Calls runvar's string_context function and returns that as
@@ -2265,8 +2265,8 @@ class Task(Scope):
 
         @return the result of runvar's run function"""
         return self.getlocal(self.runvar).run(con)
-            
-    def logical_context(self,con): 
+
+    def logical_context(self,con):
         """!Generates a number that represents this Task
 
         Calls runvar's numeric_context function and returns that as
@@ -2437,7 +2437,7 @@ class Test(Scope):
             raise PTParserError('Compset is missing the step: '+step)
         return True
 
-    def string_context(self,con): 
+    def string_context(self,con):
         """!Raises TypeError to indicate that a test cannot be evaluated
         @param con the Context in which this object is being evaluated"""
         raise TypeError('A Test cannot be evaluated in a string context.')
@@ -2451,8 +2451,8 @@ class Test(Scope):
         """!Raises TypeError to indicate that a test cannot be evaluated
         @param con the Context in which this object is being evaluated"""
         raise TypeError('A Test cannot be run directly.')
-            
-    def logical_context(self,con): 
+
+    def logical_context(self,con):
         """!Raises TypeError to indicate that a test cannot be evaluated
         @param con the Context in which this object is being evaluated"""
         raise TypeError('A Test cannot be evaluated in a logical context.')
@@ -2486,7 +2486,7 @@ class AutoDetectPlatform(object):
         Resolves "detect" via Platform.resolve() on all platforms
         given to add().  Evaluates the resulting values in a logical
         context, and constructs a list with all Platform objects whose
-        logical context is True.  
+        logical context is True.
 
         @param con the Context in which this object is being evaluated
         @returns the list of detected platforms.  This list will be
@@ -2543,12 +2543,12 @@ class Numeric(BaseObject):
         return str(self.__value)
     def __repr__(self):
         return repr(self.__value)
-    def rescope(self,scopemap=None,prepend=None): 
+    def rescope(self,scopemap=None,prepend=None):
         """!Returns a copy of self
         @param scopemap ignored
         @param prepend ignored"""
         return Numeric(self.__value)
-    
+
 ########################################################################
 
 class String(BaseObject):
@@ -2670,7 +2670,7 @@ class Environ(Scope):
         """!Constructor for Environ"""
         super(Environ,self).__init__([])
         self.can_be_used=False
-    def new_empty(self): 
+    def new_empty(self):
         """!Returns a new Environ via Environ.__init__()"""
         return Environ()
     def bash_context(self,con):
@@ -2745,7 +2745,7 @@ class Environ(Scope):
     def haslocal(self,key):
         """!Is this environment variable set?
 
-        Checks os.environ for the environment variable.  
+        Checks os.environ for the environment variable.
 
         @returns True if the environment variable is set, False
         otherwise.  Environment variables that are set to the null

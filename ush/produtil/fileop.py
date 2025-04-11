@@ -101,9 +101,9 @@ class DeliveryFailed(Exception):
 
     ##@var fromfile
     # The source file
- 
+
     ##@var tofile
-    # The target file 
+    # The target file
 
     def __str__(self):
         """!Human-readable description of this error."""
@@ -163,13 +163,13 @@ def chdir(path,logger=None):
         raise
 
 def touch(filename, times=None):
-    """!Open the file for append and set mtime and atime. 
+    """!Open the file for append and set mtime and atime.
 
     Opens the specified file in append mode, but writes nothing.  Sets
-    the access and modification times. 
+    the access and modification times.
 
     @param filename the string filename
-    @param times A 2-tuple of numbers, of the form (atime, mtime). 
+    @param times A 2-tuple of numbers, of the form (atime, mtime).
       These are UNIX epoch times (seconds since 1970 began in UTC)."""
     with open(filename, 'a'):
         os.utime(filename, times)
@@ -248,9 +248,9 @@ def makedirs(filename,numtries=10,logger=None):
                 continue
             raise
 
-########################################################################    
+########################################################################
 def remove_file(filename,info=True,logger=None):
-    """!Deletes the specified file.  
+    """!Deletes the specified file.
 
     Does nothing if the filename is None, is the empty string or
     already does not exist.  Otherwise, the file is deleted.
@@ -266,16 +266,16 @@ def remove_file(filename,info=True,logger=None):
         os.unlink(filename)
     except EnvironmentError as e:
         if e.errno!=errno.ENOENT: # ENOENT = file does not exist
-            if logger is not None: 
+            if logger is not None:
                 logger.warning('%s: cannot remove: %s'%(filename,str(e)),
                                exc_info=True)
             raise
-        if logger is not None: 
+        if logger is not None:
             log=logger.info if info else logger.warning
             log('%s: cannot remove; does not exist.'%(filename,))
 
 def rmall(*args,**kwargs):
-    """!Deletes the specified list of files.  
+    """!Deletes the specified list of files.
 
     Deletes files listed in "args".  Each one is passed to
     remove_file.  Exceptions that derive from EnvironmentError are
@@ -342,11 +342,11 @@ def isnonempty(filename):
     ret=s is not None and s.st_size>0
     return ret
 
-########################################################################    
+########################################################################
 def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
                  tempprefix=None,permmask=0o02,removefailed=True,
                  logger=None,preserve_perms=True,preserve_times=True,
-                 preserve_group=None,copy_acl=None,moveok=True, 
+                 preserve_group=None,copy_acl=None,moveok=True,
                  force=True, copier=None):
     """!This moves or copies the file "infile" to "outfile" in a unit
     operation; outfile will never be seen in an incomplete state.
@@ -376,7 +376,7 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
       and moveok=True, the file might be delivered by a "mv"
       operation, avoiding any data duplication (no "cp").
     @param verify If a "cp" is done, reopen the target and source and
-      verify they are the same.  Note that providing a copier will 
+      verify they are the same.  Note that providing a copier will
       break the verification functionality if the copier changes the
       contents of the destination file (such as a copier that compresses).
     @param blocksize block size during copy operations
@@ -391,7 +391,7 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
       the new file
     @param preserve_group If True, copy the old file's group ID to the
       new file
-    @param copy_acl If True, copy the access control lists from one file 
+    @param copy_acl If True, copy the access control lists from one file
       to another
     @param moveok If True, delivery by "mv" is allowed.  Must also set
       keep=False.
@@ -399,10 +399,10 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
       TargetFileExists) if the target file already exists.
     @param copier If present, this function or callable object is used to
       copy data from the source file to the temporary file before moving
-      it to the target.  The copier is called as 
+      it to the target.  The copier is called as
            copier(infile,temp_file_name,temp_file_object)
       Where the temp_file_name is the name of the destination file and
-      the temp_file_object is an object that can be used to write to 
+      the temp_file_object is an object that can be used to write to
       the file.  The copier should NOT close the temp_file_object. """
     if preserve_group is None:
         preserve_group = not produtil.cluster.group_quotas()
@@ -494,7 +494,7 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
                 if logger is not None:
                     logger.info('%s: could not deliver by os.rename: %s'
                                 %(actual_outfile,str(e)))
-                                
+
     # If we get here, then the files are in different filesystems or
     # we're being asked to keep a copy or os.rename failed.  That
     # means we need to copy to a temporary file and move it to the
@@ -535,7 +535,7 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
                 # Usually this is not an error: it means the user is
                 # not in the group
                 if logger is not None:
-                    logger.warning('%s: cannot copy groupid to %s: %s' 
+                    logger.warning('%s: cannot copy groupid to %s: %s'
                                    % (infile,tempname,str(e)))
         if preserve_perms:
             os.chmod(tempname,istat.st_mode&~permmask)
@@ -563,7 +563,7 @@ def deliver_file(infile,outfile,keep=True,verify=False,blocksize=1048576,
 ########################################################################
 def find_exe(name,dirlist=None,raise_missing=True):
     """!Searches the $PATH or a specified iterable of directory names
-    to find an executable file with the given name.  
+    to find an executable file with the given name.
 
     Returns the executable's location.  If the executable cannot be
     found, and raise_missing=True, raises CannotFindExe, otherwise
@@ -624,7 +624,7 @@ def make_symlinks_in(sources,targetdir,force=False,renamer=None,logger=None,
       renamer=lambda s: os.path.basename(s)+'.linkified')
 
     will create a.linkified, linked to /path/to/a, and b.linkified,
-    linked to /path/to/b in directory "." 
+    linked to /path/to/b in directory "."
     @param sources The list of files to link to.
     @param targetdir The directory in which to place the links.
     @param force Remove existing files if needed.
@@ -742,7 +742,7 @@ def replace_symlink(source,target,logger=None,max_tries=20):
 def unblock(stream,logger=None):
     """!Attempts to modify the given stream to be non-blocking.  This
     only works with streams that have an underlying POSIX fileno, such
-    as those from open.  
+    as those from open.
 
     Will re-raise any exception received, other than AttributeError
     and EnvironmentError.  Hence, I/O errors and attempts to make a
@@ -766,13 +766,13 @@ def call_fcntrl(stream,on,off,logger=None):
             fd=stream
         else:
             fd=stream.fileno()
-    except (AttributeError,EnvironmentError) as ee: 
+    except (AttributeError,EnvironmentError) as ee:
         if logger is not None:
             logger.warning('%s: stream has no fileno, cannot switch to '
                            'non-blocking I/O: %s'%
                            (repr(stream),str(ee)),exc_info=True)
         return False
-    
+
     try:
         flags=fcntl.fcntl(fd, fcntl.F_GETFL)
         fcntl.fcntl(fd, fcntl.F_SETFL, (flags|on) & ~off)
@@ -841,7 +841,7 @@ def fortcopy(forts,basedir=None,logger=None,only_log_errors=False,**kwargs):
     All other keyword arguments are sent to deliver_file.
     @param forts Mapping from Fortran unit number to copy target.
     @param basedir Where to put the files instead of the current directory.
-    @param logger A logging.Logger for log messages.    
+    @param logger A logging.Logger for log messages.
     @param only_log_errors Only log failed operations instead of logging everything.
     @param kwargs All other keyword arguments are passed to deliver_file()"""
     for (i,filename) in forts.items():
@@ -893,7 +893,7 @@ def norm_abs_path(rel,fromdir=None):
     system-specific weirdness, such as a/./b, a/../b, ~username and so
     on.  This will raise RelativePathError if the resulting path is
     not absolute.
-    @param rel the path 
+    @param rel the path
     @param fromdir the directory from which we want the relative path"""
     return os.path.relpath(rel,norm_expand_path(fromdir))
 
@@ -905,7 +905,7 @@ def check_last_lines(filename,searchstr,lastbytes=10000,logger=None):
     raise an exception if the file is non-existent or cannot be read.
 
     @param filename The file to search (a string).
-    @param searchstr The string to search for.  Must not contain 
+    @param searchstr The string to search for.  Must not contain
         end-of-line chars.
     @param lastbytes The number of bytes at the end of the file to check.
         Can be larger than the file size.
@@ -952,7 +952,7 @@ def check_file(filename,min_size=None,min_mtime_age=None,
     @returns True if requirements are met, False otherwise.    """
     try:
         s=os.stat(filename)
-        if s.st_size<min_size: 
+        if s.st_size<min_size:
             if logger is not None:
                 logger.info('%s: too small'%(filename,))
             return False
@@ -960,19 +960,19 @@ def check_file(filename,min_size=None,min_mtime_age=None,
                 or min_ctime_age is not None:
             now=int(time.time())
             if min_mtime_age is not None:
-                if not now-s.st_mtime>min_mtime_age: 
+                if not now-s.st_mtime>min_mtime_age:
                     if logger is not None:
                         logger.info('%s: not old enough (modification time)'
                                     %(filename,))
                     return False
             if min_atime_age is not None:
-                if not now-s.st_atime>min_atime_age: 
+                if not now-s.st_atime>min_atime_age:
                     if logger is not None:
                         logger.info('%s: not old enough (access time)'
                                     %(filename,))
                     return False
             if min_ctime_age is not None:
-                if not now-s.st_ctime>min_ctime_age: 
+                if not now-s.st_ctime>min_ctime_age:
                     if logger is not None:
                         logger.info('%s: not old enough (inode change time)'
                                     %(filename,))
@@ -998,7 +998,7 @@ class FileWaiter:
         @param flist the file or list of files to wait for.  This is simply
               sent into self.add.
         @param min_size minimum file size
-        @param min_mtime_age minimum modification time age, 
+        @param min_mtime_age minimum modification time age,
         @param min_atime_age minimum access time age.
         @param min_ctime_age time since last file status change (see stat(2))
         @param min_fraction the minimum fraction of the provided files
@@ -1046,7 +1046,7 @@ class FileWaiter:
         """!Checks to see if one file meets the requirements set in the
         constructor.  This default implementation calls check_file.
         This is in a separate member function so that a subclass can
-        override the file checking method.  
+        override the file checking method.
         @returns True if the file is "ready," and False if it is not.
         @param filename the path to the file to check
         @param logger a logging.Logger for messages"""
@@ -1057,7 +1057,7 @@ class FileWaiter:
         """!Resets internal information about which files have been
         seen."""
         self._found=set()
-        
+
     def iterfound(self):
         """!Iterates over all files that were found."""
         for filename in self._found: yield filename
@@ -1087,7 +1087,7 @@ class FileWaiter:
         else:
             flogger=None
         while None is None:
-            if len(self._fset)<=0: 
+            if len(self._fset)<=0:
                 if logger is not None:
                     logger.info('No files to check.')
                 return True
@@ -1099,13 +1099,13 @@ class FileWaiter:
             frac=float(nfound)/nfiles
             needfiles=math.ceil(self.min_fraction*nfiles)
 
-            if frac>=self.min_fraction-1e-5: 
+            if frac>=self.min_fraction-1e-5:
                 logger.info('Have required fraction of files.')
                 return True
-            if now-start>=maxwait: 
+            if now-start>=maxwait:
                 logger.info('Waited too long.  Giving up.')
                 return False
-            
+
             if not first:
                 sleepnow=max(0,min(sleeptime,start+maxwait-now-1))
                 if sleepnow<1e-3:
@@ -1133,7 +1133,7 @@ class FileWaiter:
                         flogger.info('%s: found this one (%d of %d found).'
                                     %(filename,len(self._found),
                                       len(self._fset)))
-                
+
         return len(self._found)>=len(self._fset)
 
 def wait_for_files(flist,logger=None,maxwait=1800,sleeptime=20,
@@ -1150,7 +1150,7 @@ def wait_for_files(flist,logger=None,maxwait=1800,sleeptime=20,
         @param maxwait maximum seconds to wait
         @param sleeptime sleep time in seconds between checks
         @param min_size minimum file size
-        @param min_mtime_age minimum modification time age, 
+        @param min_mtime_age minimum modification time age,
         @param min_atime_age minimum access time age.
         @param min_ctime_age time since last file status change (see stat(2))
         @param min_fraction the minimum fraction of the provided files

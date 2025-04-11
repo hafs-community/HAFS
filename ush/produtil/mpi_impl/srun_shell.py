@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-##@namespace produtil.mpi_impl.srun 
+##@namespace produtil.mpi_impl.srun
 # Adds SLURM srun support to produtil.run
 #
 # This module is part of the mpi_impl package -- see produtil.mpi_impl
@@ -25,14 +25,14 @@ class RunShellCommand(object):
 
 class Implementation(ImplementationBase):
     """Adds SLURM srun support to produtil.run
-    
+
     This module is part of the mpi_impl package -- see produtil.mpi_impl
     for details.  This translates produtil.run directives to SLURM srun
     commands."""
 
     ##@var srun_path
     # Path to the srun program
-    
+
     @staticmethod
     def name():
         return 'srun_shell'
@@ -60,7 +60,7 @@ class Implementation(ImplementationBase):
 
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -73,18 +73,18 @@ class Implementation(ImplementationBase):
         else:
             del arg.threads
             return arg
-    
+
     def can_run_mpi(self):
         """!Does this module represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
+
     def mpirunner(self,arg,allranks=False,nodesize=None,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -97,7 +97,7 @@ class Implementation(ImplementationBase):
         if not self.silent:
             logging.getLogger('srun').info("%s => %s"%(repr(arg),repr(f)))
         return f
-    
+
     def mpirunner_impl(self,arg,allranks=False,nodesize=None,label_io=False,**kwargs):
         """!This is the underlying implementation of mpirunner and should
         not be called directly."""
@@ -111,7 +111,7 @@ class Implementation(ImplementationBase):
         if serial and parallel:
             raise MPIMixed('Cannot mix serial and parallel MPI ranks in the '
                            'same MPI program.')
-    
+
 
         if arg.mixedlocalopts():
             raise MPILocalOptsMixed('Cannot mix different local options for different executables or blocks of MPI ranks in impi')
@@ -126,7 +126,7 @@ class Implementation(ImplementationBase):
 
         arbitrary_pl=list()
         layout_pl=list()
-    
+
         if arg.nranks()==1 and allranks:
             srun_args.append('--distribution=block:block')
             arglist=[ str(a) for a in arg.to_arglist(

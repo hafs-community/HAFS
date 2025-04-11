@@ -2,26 +2,26 @@
 
 """!Configures logging.
 
-This module configures logging for stdout, stderr and the jlogfile.
+This module configures logging for stdout, stderr and the jloggerf.
 It also contains the jlogger, a logger.Logger object that is used to
-log directly to the jlogfile, and jlogdomain: a string name of the 
-logger domain for the jlogfile."""
+log directly to the jloggerf, and jlogdomain: a string name of the
+logger domain for the jloggerf."""
 
 ##@var __all__
 # Symbols exported by "from produtil.log import *"
 __all__ = [ 'configureLogging','jlogger','jlogdomain','postmsg',
             'MasterLogFormatter','JLogFormatter','stdout_is_stderr',
-            'MasterLogHandler','JLogHandler','set_jlogfile' ]
+            'MasterLogHandler','JLogHandler','set_jloggerf' ]
 
 import logging, os, sys, traceback, threading
 import produtil.batchsystem
 
 ##@var logthread
-# string for log messages to indicate thread number/name 
-logthread='' 
+# string for log messages to indicate thread number/name
+logthread=''
 
 ##@var jlogdomain
-# Logging domain for the jlogfile
+# Logging domain for the jloggerf
 jlogdomain='jlog'
 
 ##@var jlogger
@@ -58,7 +58,7 @@ class ThreadLogger(logging.Logger):
         return x
 
 def postmsg(message):
-    """!Sends the message to the jlogfile logging stream at level INFO.
+    """!Sends the message to the jloggerf logging stream at level INFO.
 
     This is identical to:
     @code
@@ -67,35 +67,35 @@ def postmsg(message):
     @param message the message to log."""
     return jlogger.info(message)
 
-def set_jlogfile(filename):
+def set_jloggerf(filename):
     """!Tells the jlogger to log to the specified file instead of the
-    current jlogfile.  Also updates the jlogfile environment variable.
+    current jloggerf.  Also updates the jloggerf environment variable.
     The argument must be a filename.
-    @param filename the new jlogfile"""
-    jloghandler.set_jlogfile(filename)
-    os.environ['jlogfile']=filename
+    @param filename the new jloggerf"""
+    jloghandler.set_jloggerf(filename)
+    os.environ['jloggerf']=filename
 
-class MasterLogFormatter(logging.Formatter): 
+class MasterLogFormatter(logging.Formatter):
     """!This is a custom log formatter that inserts the thread or
     process (logthread) that generated the log message.  Also, it
     always directly calls formatException from format, ensuring that
     cached information is not used.  That allows a subclass
-    (JLogFormatter) to ignore exceptions.""" 
-    def __init__(self,fmt=None,datefmt=None,logthread=None): 
+    (JLogFormatter) to ignore exceptions."""
+    def __init__(self,fmt=None,datefmt=None,logthread=None):
         """!MasterLogFormatter constructor
         @param fmt the log message format
         @param datefmt the date format
         @param logthread the thread name for logging
         @note See the Python logging module documentation for details."""
         logging.Formatter.__init__(self,fmt=fmt,datefmt=datefmt)
-        self._logthread=None 
+        self._logthread=None
     @property
     def logthread(self):
         """!The name of the batch thread or process that generated log
-        messages, if the LogRecord does not supply that already.""" 
-        global logthread # use global value if I don't have one 
-        if self._logthread is None: return logthread 
-        return self._logthread 
+        messages, if the LogRecord does not supply that already."""
+        global logthread # use global value if I don't have one
+        if self._logthread is None: return logthread
+        return self._logthread
     def format(self, record):
         """!Replaces the logging.Formatter.format() function.
 
@@ -152,17 +152,17 @@ class MasterLogHandler(logging.Handler):
 
     This is a custom logging Handler class used for multi-process or
     multi-job batch scripts.  It has a higher minimum log level for
-    messages not sent to the jlogfile domain.  Also, for every log
+    messages not sent to the jloggerf domain.  Also, for every log
     message, the log file is opened, the message is written and the
     file is closed.  This is done to mimic the postmsg command.
     Exception information is never sent to the log file."""
     def __init__(self,logger,jlogdomain,otherlevels,joformat,jformat):
         """!MasterLogHandler constructor
         @param logger The logging.Logger for the master process.
-        @param jlogdomain The logging domain for the jlogfile.
-        @param otherlevels Log level for any extrema to go to the jlogfile.
+        @param jlogdomain The logging domain for the jloggerf.
+        @param otherlevels Log level for any extrema to go to the jloggerf.
         @param joformat Log format for other streams.
-        @param jformat Log format for the jlogfile stream."""
+        @param jformat Log format for the jloggerf stream."""
         logging.Handler.__init__(self)
         self._logger=logger
         self._otherlevels=otherlevels
@@ -194,10 +194,10 @@ class MasterLogHandler(logging.Handler):
         self._logger.write(message)
 
 class JLogHandler(MasterLogHandler):
-    """!Custom LogHandler for the jlogfile.
+    """!Custom LogHandler for the jloggerf.
 
-    This is a custom logging Handler class for the jlogfile.  It has a
-    higher minimum log level for messages not sent to the jlogfile
+    This is a custom logging Handler class for the jloggerf.  It has a
+    higher minimum log level for messages not sent to the jloggerf
     domain.  Also, for every log message, the log file is opened, the
     message is written and the file is closed.  This is done to mimic
     the postmsg command.  Exception information is never sent to the
@@ -219,7 +219,7 @@ class JLogHandler(MasterLogHandler):
                     try:
                         os.makedirs(dirn)
                     except EnvironmentError as e:
-                        if os.path.isdir(dirn): 
+                        if os.path.isdir(dirn):
                             break
                         elif os.path.exists(dirn):
                             raise
@@ -230,12 +230,12 @@ class JLogHandler(MasterLogHandler):
                 f.write(message)
         else:
             self._logger.write(message)
-    def set_jlogfile(self, filename):
-        """!Set the location of the jlogfile
-        @param filename The path to the jlogfile."""
+    def set_jloggerf(self, filename):
+        """!Set the location of the jloggerf
+        @param filename The path to the jloggerf."""
         if not isinstance(filename,str):
             raise TypeError(
-                'In JLogHandler.set_jlogfile, the filename must be a '
+                'In JLogHandler.set_jloggerf, the filename must be a '
                 'string.  You passed a %s %s.'
                 %(type(filename).__name__,repr(filename)))
         self._logger=filename
@@ -303,7 +303,7 @@ def mpi_redirect(threadname,stderrfile,stdoutfile,
             # Only reopen if stderr differs from stdout.
             fd=os.open(str(stderrfile),openmode)
         os.dup2(fd,2)
-    
+
         oformat=MasterLogFormatter(
             "%(asctime)s.%(msecs)03d %(name)s %(logthread)s (%(filename)s:"
             "%(lineno)d) %(levelname)s: %(message)s",
@@ -312,7 +312,7 @@ def mpi_redirect(threadname,stderrfile,stdoutfile,
         # Create the master log handler.  It will send to the old stderr
         # (from before the redirection), and send everything from
         # masterlevel and higher from any logging domain.  Anything sent
-        # to the jlogfile, at any level, will be sent to the master log
+        # to the jloggerf, at any level, will be sent to the master log
         # file as well.
         mloghandler=MasterLogHandler(olderr,masterdomain,threadlevel,oformat,
                                      oformat)
@@ -330,8 +330,8 @@ def _set_master_domain(d):
     global masterlogger, masterdomain
     masterdomain=d
     masterlogger=logging.getLogger(d)
-    
-def configureLogging(jlogfile=None,
+
+def configureLogging(jloggerf=None,
                      level=logging.INFO, # all messages filtered by this
                      jloglevel=logging.INFO,
                      japplevel=logging.ERROR, # should be >=jloglevel
@@ -339,7 +339,7 @@ def configureLogging(jlogfile=None,
                      ologlevel=logging.NOTSET,
                      thread_logger=False,
                      masterdomain='master'):
-    """!Configures log output to stderr, stdout and the jlogfile
+    """!Configures log output to stderr, stdout and the jloggerf
 
     Configures log file locations and logging levels for all streams.
 
@@ -348,15 +348,15 @@ def configureLogging(jlogfile=None,
           level will be discarded regardless of other settings.
     * jloglevel - this limit is applied before japplevel
 
-    @param jlogfile path to the jlogfile. Default: use
-            os.environ('jlogfile') if set.  Otherwise, stderr.
+    @param jloggerf path to the jloggerf. Default: use
+            os.environ('jloggerf') if set.  Otherwise, stderr.
     @param level minimum logging level globally.  Set to INFO by default.
             Change this to logging.DEBUG if you're debugging the program.
-    @param jloglevel minimum logging level to send to jlogfile
-    @param japplevel minimum logging level to send to jlogfile from all
+    @param jloglevel minimum logging level to send to jloggerf
+    @param japplevel minimum logging level to send to jloggerf from all
             domains except that specified in jlogdomain.  Be careful
             when changing this as it logs directly to the WCOSS-wide
-            jlogfile in operations.
+            jloggerf in operations.
     @param eloglevel minimum logging level to send to stderr from ALL logs
             Set to None to disable stderr logging
     @param ologlevel minimum logging level to send to stdout from ALL logs
@@ -373,22 +373,22 @@ def configureLogging(jlogfile=None,
         logging.setLoggerClass(produtil.log.ThreadLogger)
 
     _set_master_domain(masterdomain)
-    
+
     root=logging.getLogger()
     if level!=logging.NOTSET:
         root.setLevel(level) # set global minimum logging level
 
     # Configure log formatting:
-    jlog=logging.getLogger('jlogfile')
+    jlog=logging.getLogger('jloggerf')
     jobstr=os.environ.get('job',None)
     if jobstr is None:
         jobstr=produtil.batchsystem.jobname()
     jobstr=str(jobstr).replace('(','_').replace(')','_').replace('%','_')
-    # Format for jlogfile domain logging to jlogfile:
+    # Format for jloggerf domain logging to jloggerf:
     jformat=JLogFormatter(
         "%(asctime)sZ "+jobstr+"-%(levelname)s: %(logthread)s %(message)s",
         "%m/%d %H:%M:%S")
-    # Format for other domains logging to jlogfile is the same, but
+    # Format for other domains logging to jloggerf is the same, but
     # with the domain added:
     joformat=JLogFormatter(
         "%(asctime)sZ "+jobstr+
@@ -423,16 +423,16 @@ def configureLogging(jlogfile=None,
             if eloglevel!=logging.NOTSET: elogstream.setLevel(eloglevel)
             root.addHandler(elogstream)
 
-    # Configure jlogfile logging:
-    #   jlogfile domain: INFO and higher
+    # Configure jloggerf logging:
+    #   jloggerf domain: INFO and higher
     #   all domains: ERROR and higher
-    if jlogfile is None:
-        # Try to get the jlogfile from the environment if none is specified:
-        var=str(os.environ.get('jlogfile',''))
-        if len(var)>0: jlogfile=var
-    # If we still don't have the jlogfile, use stderr:
-    jlogfile=str(jlogfile) if jlogfile is not None else sys.stderr
-    jloghandler=JLogHandler(jlogfile,jlogdomain,japplevel,joformat,jformat)
+    if jloggerf is None:
+        # Try to get the jloggerf from the environment if none is specified:
+        var=str(os.environ.get('jloggerf',''))
+        if len(var)>0: jloggerf=var
+    # If we still don't have the jloggerf, use stderr:
+    jloggerf=str(jloggerf) if jloggerf is not None else sys.stderr
+    jloghandler=JLogHandler(jloggerf,jlogdomain,japplevel,joformat,jformat)
     if jloglevel!=logging.NOTSET: jloghandler.setLevel(jloglevel)
 
     root.addHandler(jloghandler)

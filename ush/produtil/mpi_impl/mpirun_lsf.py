@@ -39,7 +39,7 @@ class Implementation(ImplementationBase):
 
     ##@var mpirun_lsf_path
     # Path to the mpirun.lsf program, or None if it isn't found.
-    
+
     @staticmethod
     def name():
         return 'mpirun_lsf'
@@ -70,10 +70,10 @@ class Implementation(ImplementationBase):
         p=produtil.pipeline.Pipeline(sync,capture=True,logger=logger)
         version=p.to_string()
         status=p.poll()
-    
+
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -86,23 +86,23 @@ class Implementation(ImplementationBase):
         else:
             del arg.threads
         return arg
-   
+
     def can_run_mpi(self):
         """!Does this module represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
+
     def info(self,message,logger=None):
         if logger is None: logger=self.logger
         if not self.silent:
             logger.info(message)
-    
+
     def mpirunner(self,arg,allranks=False,logger=None,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -129,11 +129,11 @@ class Implementation(ImplementationBase):
         if not arg.threads:
             threads=1
         sthreads='%d'%threads
-    
+
         more_env={}
         if kwargs.get('label_io',False):
             more_env={'MP_LABELIO':'yes'}
-    
+
         if serial and parallel:
             raise MPIMixed(
                 'Cannot mix serial and parallel MPI ranks in the same '
@@ -178,7 +178,7 @@ class Implementation(ImplementationBase):
                                                        **kwargs))
             return runner.env(OMP_NUM_THREADS=sthreads,MKL_NUM_THREADS='1') \
                          .env(**more_env)
-        else:        
+        else:
             lines=[a for a in arg.to_arglist(to_shell=True,expand=True)]
             runner=produtil.prog.Runner([self.mpirun_lsf_path],
                                         prerun=CMDFGen('mpirun_lsf_cmdf',lines,
@@ -188,5 +188,5 @@ class Implementation(ImplementationBase):
                                                        **kwargs))
             return runner.env(OMP_NUM_THREADS=sthreads,MKL_NUM_THREADS='1') \
                          .env(**more_env)
-    
-    
+
+

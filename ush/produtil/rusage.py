@@ -60,14 +60,14 @@ rnamemap=dict(core='core file size',
 short human-readable string explaining the resource's meaning."""
 
 def setrlimit(logger=None, ignore=False, hard=False, **kwargs):
-    """!Sets resource limits.  
+    """!Sets resource limits.
 
     @param ignore If ignore=True, ignores any errors from
-       getrlimit or setrlimit.  
+       getrlimit or setrlimit.
     @param hard If hard=True, attempts to set hard
-    limits, which generally requires administrator privileges.  
+    limits, which generally requires administrator privileges.
     @param logger The logger argument sets the logger (default:
-    produtil.setrlimit logging domain).  
+    produtil.setrlimit logging domain).
     @param kwargs The kwargs should be a list of resource limits.
     Accepted resource limits:
     *  core   = core file size (RLIMIT_CORE)
@@ -85,7 +85,7 @@ def setrlimit(logger=None, ignore=False, hard=False, **kwargs):
     for k,v in kwargs.items():
         try:
             (softL,hardL)=resource.getrlimit(rtypemap[k])
-            if hard: 
+            if hard:
                 hardL=kwargs[k]
             softL=kwargs[k]
             if logger is not None:
@@ -125,7 +125,7 @@ class RLimit(object):
             if k[0:8]=='_limits_':
                 (soft,hard)=v
                 if(soft<0): soft=hard
-                if soft<0: 
+                if soft<0:
                     out.write('%7s - %25s = (unlimited)\n'%(kk,rnamemap[kk]))
                 else:
                     out.write('%7s - %25s = %g\n'%(kk,rnamemap[kk],soft))
@@ -223,7 +223,7 @@ class RUsage(object):
     ##@var rusage_before
     # Resource usage before monitoring began
 
-    ##@var rusage_after 
+    ##@var rusage_after
     # The resource usage after monitoring ended
 
     ##@var time_before

@@ -32,7 +32,7 @@ class RocotoTask(object):
         """!Constructor for RocotoTask
 
         @param name the task name
-        @param obj a produtil.testing.parsetree.Task containing 
+        @param obj a produtil.testing.parsetree.Task containing
           information about the task to run
         @param mode the run mode: produtil.testing.utilities.BASELINE
           or produtil.testing.utilities.EXECUTION"""
@@ -293,7 +293,7 @@ fi
         """!Resolves the specified variable reference within the
         global scope
 
-        @param var A variable reference, such as "varname" or "scope1%scope2%varname" 
+        @param var A variable reference, such as "varname" or "scope1%scope2%varname"
         @returns The value of the variable as a produtil.testing.parsetree.BaseObject
           or subclass thereof."""
         try:

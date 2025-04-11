@@ -5,7 +5,7 @@ a flat bash script that will run the entire test suite, one test at a
 time."""
 
 import io
- 
+
 __all__=['bash_functions','BashRunner']
 
 import produtil.testing.parsetree
@@ -192,7 +192,7 @@ class ProdutilRunner(produtil.testing.parsetree.Context):
         super(ProdutilRunner,self).__init__(
             scopes,token,run_mode,logger)
         MPI=MPI.lower()
-        
+
         # Convert from common synonyms:
         if MPI=='lsf':      MPI='mpirun_lsf'
         if MPI=='lsfcray':  MPI='lsf_cray_intel'   # alias for Rocoto lsfcray
@@ -222,7 +222,7 @@ class ProdutilRunner(produtil.testing.parsetree.Context):
 
             if cmd is not None and not ranks:
                 raise PTParserError('Error: mixing MPI and non-MPI programs in the same command is not supported.')
-        
+
             args=[ arg.string_context(self) for arg in rank.args ]
 
             if ranks:
@@ -235,7 +235,7 @@ class ProdutilRunner(produtil.testing.parsetree.Context):
 
             if ranks and ppn:
                 cmdpart=cmdpart.rpn(ppn)
-            
+
             if threads:
                 cmdpart=produtil.run.openmp(cmdpart,threads=threads,mpiimpl=mpiimpl)
 

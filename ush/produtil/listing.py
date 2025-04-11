@@ -21,7 +21,7 @@ class Listing(object):
        print Listing("/usr/local",hidden=True)
     @endcode
 
-    To log messages related to failures of lstat and readlink, pass 
+    To log messages related to failures of lstat and readlink, pass
     a logging.Logger:
     @code
        print Listing("/usr/local",hidden=True,logger=logger)
@@ -59,7 +59,7 @@ class Listing(object):
         listing=os.listdir(path)
         contents=dict()
         for item in listing:
-            if item[0]=='.' and not hidden: 
+            if item[0]=='.' and not hidden:
                 # Skip "hidden" files.
                 continue
             loc=os.path.join(path,item)

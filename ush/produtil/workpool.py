@@ -75,7 +75,7 @@ class WorkTask(object):
     done=property(_get_done,_set_done,_del_done,
                   """Is this work done?  True or False.""")
 
-def do_nothing(): 
+def do_nothing():
     """!Does nothing.  Used to implement worker termination."""
 
 ##@var TERMINATE
@@ -85,9 +85,9 @@ TERMINATE=WorkTask(do_nothing)
 
 class WorkPool(object):
     """!A pool of threads that perform some list of tasks.  There is a
-    function add_work() that adds a task to be performed.  
+    function add_work() that adds a task to be performed.
 
-    Example: print the numbers from 1 to 10 in no particular order, 
+    Example: print the numbers from 1 to 10 in no particular order,
     in three threads:
     @code
     def printit(num):
@@ -124,7 +124,7 @@ class WorkPool(object):
     ##@var logger
     # a logging.Logger for log messages
 
-    def __enter__(self): 
+    def __enter__(self):
         """!Does nothing. Called from atop a "with" block."""
         return self
     def __exit__(self,etype,value,traceback):
@@ -153,7 +153,7 @@ class WorkPool(object):
         for thread in self._threads:
             ex=thread.exception
             if ex is not None: yield ex
-            
+
     def _info(self,message):
         """!Log to INFO level
         @param message the message to log"""
@@ -212,7 +212,7 @@ class WorkPool(object):
                 "In WorkPool.add_work, thread %s is not the master "
                 "thread and is not a work thread."%(str(me),))
 
-        if self.nthreads<1: 
+        if self.nthreads<1:
             if args is None:
                 work()
             else:
@@ -340,7 +340,7 @@ class WorkPool(object):
 
     def barrier(self):
         """!Waits for all threads to reach the barrier function.  This
-        can only be called by the master thread.  
+        can only be called by the master thread.
 
         Upon calling, the master thread adds a WorkTask for each
         thread, telling the thread to call self.barrier().  Once all

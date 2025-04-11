@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """!Common utilities used by other parts of the produtil.testing package."""
-        
+
 import sys, re, io, collections, os, datetime, logging
 
 ##@var __all__
@@ -19,7 +19,7 @@ class PTKeyError(PTParserError,KeyError): pass
 #     """!Unused; needs to be removed.
 
 #     @todo Remove this function."""
-#     pass 
+#     pass
 
 ##@var module_logger
 # The default logging.Logger to use if no logger is specified.
@@ -106,7 +106,7 @@ def splitkey(key):
 def dqstring2bracestring(dq):
     """!Converts a bash-style double quote string to a tripple brace
     string.
-    @param dq The bash-style double quote string, minus the 
+    @param dq The bash-style double quote string, minus the
       surrounding double quotes."""
     output=io.StringIO()
     for m in re.finditer(r'''(?xs)
@@ -227,7 +227,7 @@ class peekable(object):
             yield v
 
     @property
-    def child(self): 
+    def child(self):
         """!Returns the iterator"""
         return self.__child
 

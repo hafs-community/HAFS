@@ -11,7 +11,7 @@ all sorts of tricks).  This module is also the interface to the
 various produtil.mpi_impl.* modules that generate the shell command to
 run MPI programs.  This module is built on top of the produtil.prog
 module and uses it to run the MPI-launching program for your local
-cluster (mpiexec, mpirun, poe, etc.)  
+cluster (mpiexec, mpirun, poe, etc.)
 
 In addition, this module contains code to simplify adding new MPI
 implementations to the produtil.mpi_impl subpackage.  High-level code,
@@ -26,7 +26,7 @@ for you:
                  as a produtil.prog.Runner, or to an array of strings
                  for a command file.
 
-* nranks     --- calculates the number of requested MPI ranks 
+* nranks     --- calculates the number of requested MPI ranks
 
 * expand_iter --- iterates over groups of identical MPI ranks
 
@@ -53,18 +53,18 @@ import logging
 import produtil.prog
 from produtil.prog import ProgSyntaxError, shbackslash
 
-class MPIProgSyntaxError(ProgSyntaxError): 
+class MPIProgSyntaxError(ProgSyntaxError):
     """!Base class of syntax errors in MPI program specifications"""
-class ComplexProgInput(MPIProgSyntaxError): 
+class ComplexProgInput(MPIProgSyntaxError):
     """!Raised when something that cannot be expressed as a pure MPI
     rank is given as a pure MPI rank."""
-class NotMPIProg(ProgSyntaxError): 
+class NotMPIProg(ProgSyntaxError):
     """!Raised when an MPI program was expected but something else was
     given."""
-class NotSerialProg(ProgSyntaxError): 
+class NotSerialProg(ProgSyntaxError):
     """!Raised when a serial program was expected, but something else
     was given."""
-class InputsNotStrings(ProgSyntaxError): 
+class InputsNotStrings(ProgSyntaxError):
     """!Raised when the validation scripts were expecting string
     arguments or string executable names, but something else was
     found."""
@@ -166,7 +166,7 @@ class MPIRanksBase(object):
             else:
                 for x in between: yield x%kw
             kw['n']=count
-            for x in before: 
+            for x in before:
                 assert(isinstance(x,str))
                 yield x%kw
             if include_localopts:
@@ -186,7 +186,7 @@ class MPIRanksBase(object):
         was called to add localopt values."""
         return bool(self._localopts)
     def setlocalopts(self,localopts):
-        """!Sets MPI options that are only meaningful to the currently 
+        """!Sets MPI options that are only meaningful to the currently
         used MPI configuration.
 
         This function lets the ush-level scripts pass platform-specific
@@ -204,7 +204,7 @@ class MPIRanksBase(object):
         self._localopts=[ x for x in localopts ]
         return self
     def addlocalopts(self,localopts):
-        """!Adds MPI options that are only meaningful to the currently 
+        """!Adds MPI options that are only meaningful to the currently
         used MPI configuration.
 
         This function lets the ush-level scripts pass platform-specific
@@ -218,7 +218,7 @@ class MPIRanksBase(object):
         @param localopts Iterable of options to set.  These will
           extend the list of local options, adding the iterable of
           specified options to the end.  Use addlocalopt() to add one
-          option, or setlocalopt() to replace the entire list.        
+          option, or setlocalopt() to replace the entire list.
         @returns  self"""
         self._localopts.extend(localopts)
         return self
@@ -238,7 +238,7 @@ class MPIRanksBase(object):
         @param localopts Options to set.  These will append the given
           options to the end of the list of local options.  Use
           addlocalopts() to add a list to the end, or setlocalopts()
-          to replace the entire list.        
+          to replace the entire list.
         @returns self"""
         self._localopts.append(localopts)
         return self
@@ -609,7 +609,7 @@ class MPIRanksSPMD(MPIRanksBase):
         MPI components.
         @returns a tuple (serial,parallel) where serial is True if
         there are serial components, and parallel is True if there are
-        parallel components.  If there are no components, returns 
+        parallel components.  If there are no components, returns
         (False,False)"""
         if self._count>0:
             return self._mpirank.check_serial()
@@ -947,10 +947,10 @@ class MPIRank(MPIRanksBase):
     def ngroups(self):
         """!Returns 1: the number of groups of identical ranks."""
         return 1
-    def ranks(self): 
+    def ranks(self):
         """!Yields self once: all MPI ranks."""
         yield self
-    def groups(self,threads=False): 
+    def groups(self,threads=False):
         """!Yields (self,1): all groups of identical ranks and the
         number per group."""
         if threads:
@@ -986,7 +986,7 @@ class MPIRank(MPIRanksBase):
             and self.samelocalopts(other) \
             and self._turbomode==other._turbomode \
             and self._ranks_per_node==other._ranks_per_node
-    def check_serial(self): 
+    def check_serial(self):
         """!Returns (False,True): this is a pure parallel program."""
         return (False,True)
 
@@ -1042,7 +1042,7 @@ class MPISerial(MPIRank):
     @property
     def runner(self):
         return self._runner
-    def validate(self): 
+    def validate(self):
         """!Does nothing."""
     def __eq__(self,other):
         """!Returns True if other is an MPISerial with the same Runner,
@@ -1053,7 +1053,7 @@ class MPISerial(MPIRank):
             self._turbomode==other._turbomode and \
             self._threads==other._threads and \
             self._localopts==other._localopts
-    def check_serial(self): 
+    def check_serial(self):
         """!Returns (True,False) because this is a serial program
         (True,) and not a parallel program (,False)."""
         return (True,False)
@@ -1079,7 +1079,7 @@ def collapse(runner):
             rc[-1][1]+=count
         else:
             rc.append([rank,count])
-            
+
     for rank,count in rc:
         SPMDs.append(MPIRanksSPMD(rank,count))
 

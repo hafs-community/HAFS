@@ -1,6 +1,6 @@
-#! /usr/bin/env python3 
+#! /usr/bin/env python3
 
-##@namespace produtil.mpi_impl.srun 
+##@namespace produtil.mpi_impl.srun
 # Adds SLURM srun support to produtil.run
 #
 # This module is part of the mpi_impl package -- see produtil.mpi_impl
@@ -18,7 +18,7 @@ from produtil.mpiprog import MIXED_VALUES
 
 class Implementation(ImplementationBase):
     """Adds SLURM srun support to produtil.run
-    
+
     This module is part of the mpi_impl package -- see produtil.mpi_impl
     for details.  This translates produtil.run directives to SLURM srun
     commands."""
@@ -36,7 +36,7 @@ class Implementation(ImplementationBase):
             raise MPIEnvironmentInvalid(
                 '%s is not an integer (is \"%s\" instead)'%(
                     varname,os.environ[varname]))
-    
+
     def get_pack_group_sizes_from_environment(self):
         if 'SLURM_PACK_SIZE' not in os.environ:
             return [self.get_int_env('SLURM_NPROCS')]
@@ -46,7 +46,7 @@ class Implementation(ImplementationBase):
             group_size=self.get_int_env('SLURM_NPROCS_PACK_GROUP_%d'%ipack)
             pack_group_sizes[ipack]=group_size
         return pack_group_sizes
-    
+
     def fake_pack_group_sizes(self, mpiprog):
         return [ count for rank,count in mpiprog.expand_iter(False) ]
 
@@ -108,7 +108,7 @@ class Implementation(ImplementationBase):
 
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -123,11 +123,11 @@ class Implementation(ImplementationBase):
                     threads=ont
             except (KeyError,TypeError,ValueError) as e:
                 pass
-    
+
         if threads is None:
             nodesize=self.nodesize
             threads=max(1,nodesize-1)
-            
+
         threads=int(threads)
         if hasattr(arg,'argins'):
             if not self.silent:
@@ -140,19 +140,19 @@ class Implementation(ImplementationBase):
         if hasattr(arg,'threads'):
             arg.threads=threads
         return arg
-    
+
     def can_run_mpi(self):
         """!Does this module represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([
             self.srun_path,'--ntasks','1',str(exe)],**kwargs)
-    
+
     def mpirunner(self,arg,allranks=False,scheduler_distribution=None,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -165,7 +165,7 @@ class Implementation(ImplementationBase):
         if not self.silent:
             logging.getLogger('srun').info("%s => %s"%(repr(arg),repr(f)))
         return f
-    
+
     def mpirunner_impl(self,arg,allranks,scheduler_distribution,**kwargs):
         """!This is the underlying implementation of mpirunner and should
         not be called directly."""
@@ -174,7 +174,7 @@ class Implementation(ImplementationBase):
         if serial and parallel:
             raise MPIMixed('Cannot mix serial and parallel MPI ranks in the '
                            'same MPI program.')
-    
+
 
         if arg.mixedlocalopts():
             raise MPILocalOptsMixed(
@@ -186,7 +186,7 @@ class Implementation(ImplementationBase):
                 'executables or blocks of MPI ranks in slurm')
 
         srun_args=[self.srun_path,'--export=ALL']
-    
+
         if arg.nranks()==1 and allranks:
             pack_group_sizes=self.get_pack_group_sizes(arg,scheduler_distribution)
             pack_size=len(pack_group_sizes)
@@ -225,7 +225,7 @@ class Implementation(ImplementationBase):
             pack_group_sizes=self.get_pack_group_sizes(arg,scheduler_distribution)
             next_unused_group=0
             first=True
-            
+
             srun_args=[self.srun_path]
 
             for rank_group,nranks in arg.expand_iter(False):
@@ -250,7 +250,7 @@ class Implementation(ImplementationBase):
                 if remaining_ranks:
                     raise MPITooManyRanks('Too many MPI programs or MPI ranks for the requested program; request more pack groups or more ranks per group.')
             result=produtil.prog.Runner(srun_args)
-    
+
         if arg.threads:
             result.env(OMP_NUM_THREADS=arg.threads,
                        KMP_NUM_THREADS=arg.threads)
