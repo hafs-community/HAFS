@@ -146,6 +146,7 @@
   surface_dir = "INPUT/moving_nest"
   is_moving_nest = @[is_moving_nest]
   vortex_tracker = @[vortex_tracker]
+  static_grid_ratio = @[static_grid_ratio]
   ntrack = @[ntrack]
   move_cd_x = @[move_cd_x]
   move_cd_y = @[move_cd_y]
