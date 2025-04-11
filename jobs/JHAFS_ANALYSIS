@@ -34,10 +34,19 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   export machine=${WHERE_AM_I:-wcoss2}
   if [ ${machine}  = "wcoss2" ]; then
     module reset
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}.intel
-    module load cray-pals/1.2.2
-    module load cfp/2.0.4
+    module load PrgEnv-intel/${PrgEnv_intel_ver}
+    module load craype/${craype_ver}
+    module load intel/${intel_ver}
+    module load cray-mpich/${cray_mpich_ver}
+    module load cray-pals/${cray_pals_ver}
+    module load hdf5-A/${hdf5_ver}
+    module load netcdf-A/${netcdf_ver}
+    module load ve/hafs/${ve_hafs_ver}
+    module load crtm/${crtm_ver}
+    module load ncio-A/${ncio_ver}
+    module load ncdiag-A/${ncdiag_ver}
+    module load cfp/${cfp_ver}
+    module load prod_util/${prod_util_ver}
   fi
   if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]]; then
     module purge
