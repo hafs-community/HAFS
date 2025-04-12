@@ -74,7 +74,7 @@ YYMMDD=$(echo $PDY | cut -c3-)
 ${NLN} $PARMhafs/gempak/datatype.tbl datatype.tbl
 
 $GEMEXE/gdplot2_nc <<EOF
-GDFILE  = ${NET}P:${storm_id} | ${YYMMDD}/${cyc}00
+GDFILE  = HAFSP:${storm_id} | ${YYMMDD}/${cyc}00
 GDATTIM = FALL
 DEVICE	= $device
 PANEL	= 0
