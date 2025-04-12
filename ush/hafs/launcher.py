@@ -600,7 +600,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     for var in ( 'WORKhafs', 'HOMEhafs', 'com' ):
         expand=conf.getstr('dir',var)
         logger.info('Replace [dir] %s with %s'%(var,expand))
-        conf.set('dir',var,expand)
+    #   conf.set('dir',var,expand)
 
     if stid is not None:
         conf.decide_domain_center()
@@ -1422,10 +1422,12 @@ class HAFSLauncher(HAFSConfig):
         #    NWPROD='{HOMEhafs}/nwport'
 
         def dirset(evar,deff,parent='{HOMEhafs}'):
-            if evar in ENV:
-                self._conf.set('dir',evar,ENV[evar])
-            elif not self._conf.has_option('dir',evar):
+            if not self._conf.has_option('dir',evar):
                 self._conf.set('dir',evar,parent+'/'+deff.lower())
+        #   if evar in ENV:
+        #       self._conf.set('dir',evar,ENV[evar])
+        #   elif not self._conf.has_option('dir',evar):
+        #       self._conf.set('dir',evar,parent+'/'+deff.lower())
 
         dirset('FIXhafs','fix')
         dirset('USHhafs','ush')

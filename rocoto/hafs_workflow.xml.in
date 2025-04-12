@@ -153,7 +153,7 @@
 
   <task name="launch" maxtries="99">
     <!--<command>&PRE; &EXhafs;/exhafs_launch.py &SID; <cyclestr>@Y@m@d@H</cyclestr></command>-->
-    <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' dir.HOMEhafs='&HOMEhafs;' dir.USHhafs='&USHhafs;' &MORE_LAUNCH_VARS; </cyclestr></command>
+    <command>&PRE; &EXhafs;/exhafs_launch.py &MULTISTORM_SIDS; &BASINS; &RENUM; <cyclestr>@Y@m@d@H &SID; &CASE_ROOT; '&PARMhafs;' config.EXPT='&EXPT;' config.SUBEXPT='&SUBEXPT;' &MORE_LAUNCH_VARS; </cyclestr></command>
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
     <account>&ACCOUNT;</account>
