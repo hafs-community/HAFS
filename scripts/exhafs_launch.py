@@ -5,6 +5,15 @@
 # Abstract:
 #   This script creates the initial HAFS directory structure and configurations
 #   for executing a specific forecast cycle.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   04/21/2023: Finalize for HAFSv1 implementation
+#   06/02/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Usage:
+#   exhafs_launch.py YYYYMMDDHH STID CASE_ROOT /path/to/parm [options]
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a

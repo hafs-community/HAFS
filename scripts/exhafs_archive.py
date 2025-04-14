@@ -5,6 +5,13 @@
 # Abstract:
 #   This script generates an archive file from HAFS COM directory outputs. The
 #   archive file can be either on disk or on the HPSS archive (via htar).
+# History:
+#   04/21/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   03/20/2023: Finalized version for HAFSv1 implementation
+#   04/06/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 ##@namespace scripts.exhafs_archive
 # Generates an archive file from HAFS COM directory outputs.  This

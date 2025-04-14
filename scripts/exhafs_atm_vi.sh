@@ -5,6 +5,15 @@
 # Abstract:
 #   This script runs the HAFS atmopsheric vortex initialization steps to
 #   relocate and modify the storm vortex (if desired).
+# History:
+#   01/25/2022: Enable vortex initialization tasks in HAFS application workflow
+#   02/06/2022: Use hafs_datool to prepare VI input and interpolate VI analysis
+#               back to restart files
+#   03/02/2022: Enable handling the regional moving nesting configuration
+#   06/12/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 vi_force_cold_start=${vi_force_cold_start:-no}

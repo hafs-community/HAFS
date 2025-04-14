@@ -6,6 +6,11 @@
 #   This script runs the HAFS oceanic preprocessing steps to generate MOM6
 #   coupling needed ocean initial condition (IC), open boundary condition (OBC)
 #   and atmospheric forcings.
+# History:
+#   05/13/2023: Enabled MOM6 coupling in HAFS application/workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

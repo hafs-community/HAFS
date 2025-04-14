@@ -7,6 +7,11 @@
 #   length. And it generates outputs, products, and restart files, needed for
 #   other model initilization processes/steps (e.g., vortex initilization, data
 #   assimilation).
+# History:
+#   04/13/2025: Script added for HAFSv2.1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

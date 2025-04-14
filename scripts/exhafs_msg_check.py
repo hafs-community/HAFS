@@ -5,6 +5,11 @@
 # Abstract:
 #   This script checks storm messages and sends an alert email if encountering
 #   an issue.
+# History:
+#   03/20/2023: Script added for HAFS Ecflow workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 import os, sys, re, logging, glob
 

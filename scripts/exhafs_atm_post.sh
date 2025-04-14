@@ -7,6 +7,18 @@
 #   running UPP for regular and satellite post (if needed), subsetting the
 #   vortex tracker needed grib2 records, and NHC requested grib2 records (if
 #   chosen).
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   09/10/2021: Changes for HAFS satellite post
+#      02/2021: Introduce support for moving nesting configurations
+#      01/2023: Add swath products based on parent domain output
+#   05/02/2023: Finalize for HAFSv1 operational implementation
+#   06/25/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+#   03/26/2025: Generate NHC storm grib2 files on a subset of a fixed domain to
+#               better faciliate AWIPS display
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

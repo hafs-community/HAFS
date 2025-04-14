@@ -5,6 +5,23 @@
 # Abstract:
 #   This script runs a HAFS forecast with various coldstart/warmstart and
 #   uncoupled/coupled configurations.
+# History:
+#   04/17/2019: Initial version introduced in HAFS application
+#   04/27/2019: Support both static and relocatable regional configurations
+#   05/02/2019: Add support of running global-nesting configuration
+#      05/2020: Enable HAFS HYCOM ocean coupling
+#   06/01/2020: Add multiple global static nesting capability
+#   08/18/2021: Add WW3 wave coupling support in the HAFS application/workflow
+#   12/17/2021: Introduce regional and global storm-following moving nesting
+#   05/02/2022: Support running HAFS ensembles with stocahstic physics
+#   02/27/2023: Introduce HAFS MOM6 ocean coupling
+#   04/09/2023: Improvements for HAFSv1 operational implementation
+#      04/2024: Enable the atmosphere-only forecast job restart capability
+#      05/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+#      07/2024: Add 3DIAU related capabilities for HAFS regional configuration
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

@@ -4,6 +4,11 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script runs the HAFS oceanic post-processing steps for MOM6 coupling.
+# History:
+#   05/13/2023: Enabled MOM6 coupling in HAFS application/workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

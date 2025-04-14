@@ -5,6 +5,13 @@
 # Abstract:
 #   This script runs the HAFS atmopsheric preprocessing steps to generate the
 #   model grid and geographical files (topography, surface climatology, etc.)
+# History:
+#      06/2023: Initial version for HAFSv1 operational implementation
+#   07/04/2024: Substantialy speeded up atm_prep job through enabling OMP
+#               threading for the filter_topo and make_orog_gsl steps
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -686,4 +693,3 @@ fi
 # End of run for the global or regional nested tiles.
 #----------------------------------------------------------------
 
-exit

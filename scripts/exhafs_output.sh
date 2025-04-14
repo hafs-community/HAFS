@@ -5,6 +5,12 @@
 # Abstract:
 #   This script delivers some HAFS output files, sends a notification email (if
 #   desired), and generate the HAFS swath grib2 files.
+# History:
+#   06/02/2023: Initial version for HAFSv1 operational implementation
+#   04/19/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
