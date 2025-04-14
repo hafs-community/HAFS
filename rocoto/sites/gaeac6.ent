@@ -58,10 +58,10 @@
   <!ENTITY FORECAST_RESOURCES_1380PE "<nodes>23:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1440PE "<nodes>24:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1440</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2700PE "<nodes>45:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2700</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
-  <!ENTITY FORECAST_RESOURCES_2760PE "<nodes>45:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2760</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_2760PE "<nodes>45:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2760</value></envar><envar><name>NCTSK</name><value>60</value></envar><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar> &FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2820PE "<nodes>47:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2820</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2940PE "<nodes>49:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2940</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
-  <!ENTITY FORECAST_RESOURCES_3060PE "<nodes>51:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>3060</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_3060PE "<nodes>51:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>3060</value></envar><envar><name>NCTSK</name><value>60</value></envar><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar> &FORECAST_EXTRA;">
 
   <!ENTITY ATM_POST_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY OCN_POST_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
