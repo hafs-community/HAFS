@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: prelaunch.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains utility functions for the hafs.launcher.launch()
+#   prelaunch argument. These functions edit the configuration of an individual
+#   cycle before the cycle starts.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   03/20/2023: Finalize for HAFSv1 implementation
+#   05/13/2024: Improve logging for HAFSv2 upgrade
+################################################################################
 
 """!Functions called automatically before a cycle is launched.
 

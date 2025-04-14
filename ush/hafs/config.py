@@ -1,4 +1,18 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: config.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script parses UNIX conf files and makes the result readily available.
+#   It reads configuration information for the HAFS system from one or more
+#   *.conf files, via the Python ConfigParser module. This module also
+#   automatically fills in certain information, such as fields calculated from
+#   the tcvitals or date. The result is accessible via the HAFSConfig class,
+#   which provides many ways of automatically accessing configuration options.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   03/20/2023: Finalize for HAFSv1 implementation
+################################################################################
 
 """!parses UNIX conf files and makes the result readily available
 

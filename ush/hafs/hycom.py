@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: hycom.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The module handles HAFS HYCOM coupling related initialization and
+#   post-processing steps.
+# History:
+#   05/22/2020: Initial version to support HYCOM coupling in HAFS
+#   04/29/2022: Enable using HYCOM NHC domain for AL, EP, CP storms
+#   06/02/2023: Finalize for HAFSv1 implementation
+#   04/18/2024: Improve logging and error handling for HAFSv2 upgrade
+################################################################################
 
 """HYCOM related initialization and post-processing jobs."""
 

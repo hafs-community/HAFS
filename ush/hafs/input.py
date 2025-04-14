@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: input.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The module implements the input data staging functionality for HAFS.
+# History:
+#   04/10/2019: Initial version for HAFS application (adapted from HWRF)
+################################################################################
 
 """!Obtains input data needed by various subclasses of
 hafs.hafstask.HAFSTask.

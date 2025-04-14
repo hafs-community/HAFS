@@ -1,4 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: launcher.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module creates the initial HAFS directory structure, and loads
+#   information into each job. It is used to create the initial HAFS conf file
+#   in the first HAFS job via the hafs.launcher.launch(). The
+#   hafs.launcher.load() then reloads that configuration. The launch() function
+#   does more than just create the conf file though. It parses the tcvitals,
+#   creates several initial files and directories and runs a sanity check on
+#   the whole setup.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   05/26/2020: Enable supporting for HYCOM ocean coupling
+#      12/2020: Enable supporting various DA capabilities (FGAT, EnVar, ENSDA)
+#      03/2022: Enable regional/global moving nesting configurations
+#   05/20/2022: Support vortex initialiation capability
+#   03/27/2023: Finalize for HAFSv1 implementation
+#   04/19/2024: Improvements (error/exception handling) for HAFSv2 upgrade
+#   07/12/2024: Add 3DIAU related changes
+################################################################################
 
 """!Creates the initial HAFS directory structure, loads information into each job.
 

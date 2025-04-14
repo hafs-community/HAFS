@@ -1,4 +1,15 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: namelist.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module provides different ways to generate Fortran namelist files from
+#   HAFSConfig sections.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   05/26/2020: Enable supporting for HYCOM ocean coupling
+#   03/20/2023: Finalize for HAFSv1 implementation
+################################################################################
 
 """!This module provides two different ways to generate Fortran
 namelist files from HAFSConfig sections:
