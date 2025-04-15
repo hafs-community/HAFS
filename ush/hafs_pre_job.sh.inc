@@ -3,6 +3,8 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script detects HAFS running platform and prepares module environment.
+# History:
+#   04/04/2019: This script was adopted/inerited from HWRF and updated for HAFS.
 ################################################################################
 
 # Create a test function for sh vs. bash detection.  The name is

@@ -5,6 +5,8 @@
 #   This script sets job node/core, mpi/omp environment, job run commands, as
 #   well as some commonly used commands and environment variables. The main
 #   purpose to help HAFS application to easily support multiple platforms.
+# History:
+#   10/14/2019: Initial version constructed for HAFS.
 ################################################################################
 
 # Set jobname, jobid, jobidstr
