@@ -1,15 +1,22 @@
 #! /usr/bin/env python3
-
-"""!Handles data restriction classes.
-
-Implements access control mechanisms for NOAA data.  Although this was
-written for the NOAA Restricted Data (rstprod), it can be used for
-general access control.  It is also more general than NOAA, so long as
-one correctly initializes the produtil.cluster module.  The mechanism
-used depends on the cluster, due to varying capabilities throughout.
-Some do not implement access control mechanisms that are usable for
-the restricted data (such as NOAA Jet).  For those systems,
-RstNoAccessControl is raised if one attempts to restrict a file."""
+################################################################################
+# Script Name: rstprod.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract: 
+#   Implements access control mechanisms for NOAA data.  Although this was
+#   written for the NOAA Restricted Data (rstprod), it can be used for
+#   general access control.  It is also more general than NOAA, so long as
+#   one correctly initializes the produtil.cluster module.  The mechanism
+#   used depends on the cluster, due to varying capabilities throughout.
+#   Some do not implement access control mechanisms that are usable for
+#   the restricted data (such as NOAA Jet).  For those systems,
+#   RstNoAccessControl is raised if one attempts to restrict a file.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # List of symbols exported by "from produtil.rstprod import *"

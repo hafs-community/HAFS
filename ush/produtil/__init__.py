@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract: 
+#     This script serves as marker for "produtil" package
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@namespace produtil
 # Platform-independent weather and ocean forecasting utility package.

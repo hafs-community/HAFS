@@ -1,5 +1,15 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: impi.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module provides Intel MPI support to produtil.run
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################   
 ##@namespace produtil.mpi_impl.impi
 
 import os, sys, logging

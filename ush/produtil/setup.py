@@ -1,9 +1,16 @@
 #! /usr/bin/env python3
-
-"""!Contains setup(), which initializes the produtil package.
-
-This module contains the setup() function that should be called once
-by every Python process started, immediately after Python starts."""
+################################################################################
+# Script Name: setup.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module contains the setup() function that should be called once
+#   by every Python process started, immediately after Python starts.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes: 
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@var __all__
 # Lists symbols exported by "from produtil.setup import *"

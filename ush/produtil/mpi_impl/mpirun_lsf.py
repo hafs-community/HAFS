@@ -1,19 +1,28 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: mpirun_lsf.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module adds LSF+IBMPE support to produtil.run
+#   It is part of the produtil.mpi_impl package.  It underlies
+#   the produtil.run.openmp, produtil.run.mpirun , and
+#   produtil.run.mpiserial functions, providing the implementation
+#   needed to run with LSF combined with the IBMPE MPI implementation.
+#   It may work with other MPI implementations connected to LSF, as long
+#   as they use mpirun.lsf to launch MPI programs.
+#   @note Unlike other MPI implementations, LSF does not allow changing of the
+#   number of MPI ranks used when running an MPI program.  You can only run
+#   on all provided ranks, or one rank.  Hence the TOTAL_TASKS variable used
+#   elsewhere in produtil, is ignored here.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@namespace produtil.mpi_impl.mpirun_lsf
-# Adds LSF+IBMPE support to produtil.run
-#
-# This module is part of the produtil.mpi_impl package.  It underlies
-# the produtil.run.openmp, produtil.run.mpirun , and
-# produtil.run.mpiserial functions, providing the implementation
-# needed to run with LSF combined with the IBMPE MPI implementation.
-# It may work with other MPI implementations connected to LSF, as long
-# as they use mpirun.lsf to launch MPI programs.
-#
-# @note Unlike other MPI implementations, LSF does not allow changing of the
-#  number of MPI ranks used when running an MPI program.  You can only run
-#  on all provided ranks, or one rank.  Hence the TOTAL_TASKS variable used
-#  elsewhere in produtil, is ignored here.
+
 import os, socket, logging, io
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline
 

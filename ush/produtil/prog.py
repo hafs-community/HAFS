@@ -1,9 +1,19 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: prog.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module implements the produtil.run: It provides the object tree for
+#   representing shell commands.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!Implements the produtil.run: provides the object tree for
-representing shell commands.
-
-Do not load this module directly except for type checking
+""" Do not load this module directly except for type checking
 (instanceof(o,produtil.prog.Runner)).  It is meant to be used only by
 the produtil.run module.  This module is part of the implementation of
 a shell-like syntax for running programs.  The rest of the

@@ -1,11 +1,20 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: srun_shell.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module adds SLURM srun support to produtil.run
+#   It is a part of the mpi_impl package -- see produtil.mpi_impl
+#   for details.  This translates produtil.run directives to SLURM srun
+#   commands.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON) 
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-##@namespace produtil.mpi_impl.srun
-# Adds SLURM srun support to produtil.run
-#
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.  This translates produtil.run directives to SLURM srun
-# commands.
+##@namespace produtil.mpi_impl.srun  
 
 import os, logging, re
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline

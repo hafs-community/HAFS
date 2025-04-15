@@ -1,12 +1,20 @@
 #! /usr/bin/env python3
-
-"""!Stores products and tasks in an sqlite3 database file.
-
-This module maintains an sqlite3 database file that stores information
-about Products and Tasks.  A Product is a file or group of files
-created by some Task.  Both Product and Task classes derive from
-Datum, which is the base class of anything that can be stored in the
-Datastore."""
+################################################################################
+# Script Name:  datastore.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Stores products and tasks in an sqlite3 database file.
+#   This module maintains an sqlite3 database file that stores information
+#   about Products and Tasks.  A Product is a file or group of files
+#   created by some Task.  Both Product and Task classes derive from
+#   Datum, which is the base class of anything that can be stored in the
+#   Datastore.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (improved from HWRF)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 import sqlite3, threading, collections, re, contextlib, time, random,\
     traceback, datetime, logging, os, time

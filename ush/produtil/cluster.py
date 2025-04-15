@@ -1,8 +1,19 @@
 #! /usr/bin/env python3
-
-"""!Provides information about the cluster on which this job is running."""
-"""Remove and clean WCOSS Cray and WCOSS Dell_p3 related logic and updating
-prodcution machine identifying logic for WCOSS2 (Biju Thomas 10/12/2022)"""
+################################################################################
+# Script Name: cluster.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Provides information about the cluster on which this job is running.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON and 
+#   improved)
+#   10/12/2022: Removed and cleaned WCOSS Cray and WCOSS Dell_p3 related logic 
+#   and updated for prodcution machine identifying logic for WCOSS2
+#   08/16/2024: Added the logic to identify GaeaC6  platform
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 #List of symbols exported by "from produtil.cluster import *"

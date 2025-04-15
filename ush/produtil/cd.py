@@ -1,21 +1,27 @@
 #! /usr/bin/env python3
-
-"""!Change directory, handle temporary directories
-
-This module provides a means by which to change to a different
-directory in a Python "with" block and change back out afterwards,
-regardless of what happens inside the block.  It can, optionally,
-create a new directory, and optionally delete it at the end of the
-block.  There are two classes:
-
-*  TempDir - creates a temporary directory with a randomly-generated
-     name, chdirs to the directory, and chdirs back out afterwards.
-     It can be configured to delete the directory afterwards (the
-     default) or not.
-
-*  NamedDir - a subclass of TempDir that uses a specific directory
-     rather than a randomly-generated one.  By default, the directory
-     is NOT deleted at the end of the block.  That can be configured."""
+################################################################################
+# Script Name: cd.py 
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Change directory, handle temporary directories
+#   This module provides a means by which to change to a different
+#   directory in a Python "with" block and change back out afterwards,
+#   regardless of what happens inside the block.  It can, optionally,
+#   create a new directory, and optionally delete it at the end of the
+#   block.  There are two classes:
+#   *  TempDir - creates a temporary directory with a randomly-generated
+#      name, chdirs to the directory, and chdirs back out afterwards.
+#      It can be configured to delete the directory afterwards (the
+#      default) or not.
+#   *  NamedDir - a subclass of TempDir that uses a specific directory
+#      rather than a randomly-generated one.  By default, the directory
+#      is NOT deleted at the end of the block.  That can be configured.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 import tempfile, os, re, logging, sys, shutil, errno, stat
 import produtil.listing

@@ -1,13 +1,21 @@
 #! /usr/bin/env python3
-
-"""!Parses UNIX conf files and makes the result readily available
-
-The produtil.config module reads configuration information for a
-production system from one or more *.conf files, via the Python
-ConfigParser module.  This module also automatically fills in certain
-information, such as fields calculated from the tcvitals or date.  The
-result is accessible via the ProdConfig class, which provides many
-ways of automatically accessing configuration options."""
+################################################################################ 
+# Script Name: config.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract: 
+#   Parses UNIX conf files and makes the result readily available
+#   The produtil.config module reads configuration information for a
+#   production system from one or more *.conf files, via the Python
+#   ConfigParser module.  This module also automatically fills in certain
+#   information, such as fields calculated from the tcvitals or date.  The
+#   result is accessible via the ProdConfig class, which provides many
+#   ways of automatically accessing configuration options.
+# History:
+# 06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF and improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # decides what symbols are imported by "from produtil.config import *"

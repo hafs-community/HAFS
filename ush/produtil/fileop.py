@@ -1,10 +1,19 @@
 #! /usr/bin/env python3
-
-"""!This module provides a set of utility functions to do filesystem
-operations.  It replaces or improves upon several os, stat, and sys
-module functions by working around Python bugs, providing an API layer
-that allows forward compatibility to future Python versions, and
-adding logging capabilities."""
+################################################################################
+# Script Name: fileop.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract: 
+#   This module provides a set of utility functions to do filesystem
+#   operations.  It replaces or improves upon several os, stat, and sys
+#   module functions by working around Python bugs, providing an API layer
+#   that allows forward compatibility to future Python versions, and
+#    adding logging capabilities.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF and improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # List of symbols exported by "from produtil.fileop import *"

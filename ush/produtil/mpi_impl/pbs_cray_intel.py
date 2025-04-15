@@ -1,12 +1,20 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: pbs_cray_intel.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds support for PBSPro+mpiexec with the Intel OpenMP to produtil.run
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details. Similar to lsf_cray_intel.py but for WCOSS2's PBSPro 
+#   and Cray combination
+# History:
+#   03/09/2022: Initial version for HAFS applicaton
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted 
+################################################################################
 
 ## @namespace produtil.mpi_impl.pbs_cray_intel
-# Adds support for PBSPro+mpiexec with the Intel OpenMP to produtil.run
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.
-# Similar to lsf_cray_intel.py but for WCOSS2's PBSPro and Cray combination
-# Biju Thomas on 3/9/2022
-#
 
 import os, socket, logging, sys
 import produtil.fileop,produtil.prog,produtil.mpiprog, produtil.run

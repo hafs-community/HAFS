@@ -1,16 +1,24 @@
 #! /usr/bin/env python3
-
-"""!Manipulates Access Control Lists (ACL)
-
-This module is a wrapper around the C libacl library, which provides
-support for POSIX Access Control Lists, as defined by the abandoned
-draft standard "IEEE 1003.1e draft 17".  Only the widely-supported
-features are implemented.  It is intended to be used with the Linux
-libacl, but might be portable to other versions if the module-scope
-acl_library variable is changed to the name of your "dll" or "so" file
-for libacl and values of ACL_TYPE_ACCESS and ACL_TYPE_DEFAULT are
-changed.  In addition, one must change the means by which errno is
-accessed if switching from glibc to another C library."""
+################################################################################  
+# Script Name: acl.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Manipulates Access Control Lists (ACL)
+#   This module is a wrapper around the C libacl library, which provides
+#   support for POSIX Access Control Lists, as defined by the abandoned
+#   draft standard "IEEE 1003.1e draft 17".  Only the widely-supported
+#   features are implemented.  It is intended to be used with the Linux
+#   libacl, but might be portable to other versions if the module-scope
+#   acl_library variable is changed to the name of your "dll" or "so" file
+#   for libacl and values of ACL_TYPE_ACCESS and ACL_TYPE_DEFAULT are
+#   changed.  In addition, one must change the means by which errno is
+#   accessed if switching from glibc to another C library.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:                                                                                   
+#   == 0 : success                                                                                   
+#   != 0 : fatal error encounted                                                                     
+################################################################################
 
 import ctypes, os, stat
 

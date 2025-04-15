@@ -1,6 +1,15 @@
 #! /usr/bin/env python3
-
-"""!Contains the Listing class, which emulates "ls -l"."""
+################################################################################
+# Script Name: listing.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Contains the Listing class, which emulates "ls -l".
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 ##@var __all__
 # Symbols exported by "from produtil.listing import *"

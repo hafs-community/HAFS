@@ -1,16 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: mpi_impl_base.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Utilities like CMDFGen to simplify adding new MPI implementations to the
+#   produtil.run suite of modules.
+#   This module contains classes and functions to assist developers in
+#   extending the functionality of the produtil.mpi_impl package.  The
+#   main highlight is the CMDFGen, which generates command files.  Some
+#   MPI implementations, and the mpiserial program, want to read a file
+#   with one line per MPI rank telling what program to run on each rank.
+#   For example, LSF+IBMPE and LoadLeveler+IBMPE work this way if one
+#   wants to run different programs on different ranks.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@namespace produtil.mpi_impl.mpi_impl_base
-# Utilities like CMDFGen to simplify adding new MPI implementations to the
-# produtil.run suite of modules.
-#
-# This module contains classes and functions to assist developers in
-# extending the functionality of the produtil.mpi_impl package.  The
-# main highlight is the CMDFGen, which generates command files.  Some
-# MPI implementations, and the mpiserial program, want to read a file
-# with one line per MPI rank telling what program to run on each rank.
-# For example, LSF+IBMPE and LoadLeveler+IBMPE work this way if one
-# wants to run different programs on different ranks.
 
 import tempfile,stat,os, logging, io, re
 

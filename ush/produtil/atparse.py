@@ -1,7 +1,16 @@
 #! /usr/bin/env python3
-
-"""!ATParser is a text parser that replaces strings with variables and
-function output."""
+################################################################################
+# Script Name: atparse.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   ATParser is a text parser that replaces strings with variables and
+#   function output.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 import sys, os, re, io, logging
 

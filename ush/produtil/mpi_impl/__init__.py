@@ -1,4 +1,19 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract:
+#   This script serves as marker for "mpi_impl" package  and it implement the 
+#   execution of externals MPI programs
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and
+#   improved)
+#   03/28/2022: Add support for WCOSS2's PBS pro scheduler and HPE/Cray 
+#   Programming Environment combination
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@namespace produtil.mpi_impl
 # Converts a group of MPI ranks to a runnable command.

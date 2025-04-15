@@ -1,19 +1,27 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: mpiexec.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds MPICH or MVAPICH2 support to produtil.run
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details.  This implements the Hydra MPI wrapper and MPICH MPI
+#   implementation with Intel OpenMP, but may work for other MPI
+#   implementations that use the "mpiexec" command and OpenMP
+#   implementations that use the KMP_NUM_THREADS or OMP_NUM_THREADS
+#   environment variables.
+#   @warning This module assumes the TOTAL_TASKS environment variable is
+#   set to the maximum number of MPI ranks the program has available to
+#   it. That is used when the mpirunner is called with the
+#   allranks=True option.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-##@namespace produtil.mpi_impl.mpiexec
-# Adds MPICH or MVAPICH2 support to produtil.run
-#
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.  This implements the Hydra MPI wrapper and MPICH MPI
-# implementation with Intel OpenMP, but may work for other MPI
-# implementations that use the "mpiexec" command and OpenMP
-# implementations that use the KMP_NUM_THREADS or OMP_NUM_THREADS
-# environment variables.
-#
-# @warning This module assumes the TOTAL_TASKS environment variable is
-# set to the maximum number of MPI ranks the program has available to
-# it.  That is used when the mpirunner is called with the
-# allranks=True option.
+##@namespace produtil.mpi_impl.mpiexec  
 
 import os, logging
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline

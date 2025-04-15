@@ -1,17 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: mpiexec_mpt.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds SGI MPT support to produtil.run
+#   This module is part of the produtil.mpi_impl package.  It underlies
+#   the produtil.run.openmp, produtil.run.mpirun , and
+#   produtil.run.mpiserial functions, providing the implementation
+#   needed to run with the SGI MPT MPI implementation.
+#   @warning This module assumes the TOTAL_TASKS environment variable is
+#   set to the maximum number of MPI ranks the program has available to
+#   it. That is used when the mpirunner is called with the
+#   allranks=True option.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@namespace produtil.mpi_impl.mpiexec_mpt
-# Adds SGI MPT support to produtil.run
-#
-# This module is part of the produtil.mpi_impl package.  It underlies
-# the produtil.run.openmp, produtil.run.mpirun , and
-# produtil.run.mpiserial functions, providing the implementation
-# needed to run with the SGI MPT MPI implementation.
-#
-# @warning This module assumes the TOTAL_TASKS environment variable is
-# set to the maximum number of MPI ranks the program has available to
-# it.  That is used when the mpirunner is called with the
-# allranks=True option.
 
 import os, logging
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline

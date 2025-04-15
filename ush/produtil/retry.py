@@ -1,7 +1,15 @@
 #! /usr/bin/env python3
-
-"""!Contains retry_io() which automates retrying operations."""
-
+################################################################################
+# Script Name: retry.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module contains retry_io() which automates retrying operations.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 ##@var __all__
 # Symbols exported by "from produtil.retry import *"
 __all__=['retry_io']

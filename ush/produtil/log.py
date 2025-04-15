@@ -1,11 +1,19 @@
 #! /usr/bin/env python3
-
-"""!Configures logging.
-
-This module configures logging for stdout, stderr and the jloggerf.
-It also contains the jlogger, a logger.Logger object that is used to
-log directly to the jloggerf, and jlogdomain: a string name of the
-logger domain for the jloggerf."""
+################################################################################
+# Script Name: log.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract: 
+#   This module configures logging for stdout, stderr and the jloggerf.
+#   It also contains the jlogger, a logger.Logger object that is used to
+#   log directly to the jloggerf, and jlogdomain: a string name of the
+#   logger domain for the jloggerf.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and 
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # Symbols exported by "from produtil.log import *"

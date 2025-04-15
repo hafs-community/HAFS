@@ -1,11 +1,20 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: lsf_cray_intel.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds support for LSF+aprun with the Intel OpenMP to produtil.run
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details.  This implements the bizarre combination of LSF, Cray
+#   aprun with Intel OpenMP.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ## @namespace produtil.mpi_impl.lsf_cray_intel
-# Adds support for LSF+aprun with the Intel OpenMP to produtil.run
-#
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.  This implements the bizarre combination of LSF, Cray
-# aprun with Intel OpenMP.
 
 import os, socket, logging, sys
 import produtil.fileop,produtil.prog,produtil.mpiprog, produtil.run

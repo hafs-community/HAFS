@@ -1,11 +1,20 @@
 #! /usr/bin/env python3
-
-"""!Time manipulation and other numerical routines.
-
-This module implements various simple numerical algorithms, such as
-partial sorting, time manipulation or fraction-to-date conversions.
-It also contains two array-like classes that take datetime objects as
-indices."""
+################################################################################
+# Script Name: numerics.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module implements various simple numerical algorithms, such as
+#   partial sorting, time manipulation or fraction-to-date conversions.
+#   It also contains two array-like classes that take datetime objects as
+#   indices
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+#   04/11/2024: Changed the Python strings, that contains backslashes, to raw 
+#   strings so that the backslashes were not interpreting as escape sequences
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # The symbols exported by "from produtil.numerics import *"

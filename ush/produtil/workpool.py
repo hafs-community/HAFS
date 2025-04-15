@@ -1,7 +1,16 @@
 #! /usr/bin/env python3
-
-"""!Contains the WorkPool class, which maintains pools of threads
-that perform small tasks."""
+################################################################################ 
+# Script Name: workpool.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract: 
+#   This module contains the WorkPool class, which maintains pools of threads
+#   that perform small tasks.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes: 
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 ##@var __all__
 # List of symbols exported by "from produtil.workpool import *"

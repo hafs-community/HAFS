@@ -1,13 +1,22 @@
 #! /usr/bin/env python3
-
-"""!Internal module that launches and monitors processes.
-
-Do not use this module directly: it is part of the internal
-implementation of the produtil.prog and produtil.run modules.  It
-converts a produtil.prog.Runner object to processes, and monitors the
-processes until they exit, sending and receiving data as needed.  This
-replaces the built-in "subprocess" module which is not capable of
-general-purpose pipeline execution."""
+################################################################################
+# Script Name: pipeline.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract:
+#  This script serve as an internal module that launches and monitors processes 
+#  Do not use this module directly: it is part of the internal
+#  implementation of the produtil.prog and produtil.run modules.  It
+#  converts a produtil.prog.Runner object to processes, and monitors the
+#  processes until they exit, sending and receiving data as needed.  This
+#  replaces the built-in "subprocess" module which is not capable of
+#  general-purpose pipeline execution.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 ##@var __all__
 # List of symbols exported by "from produtil.pipeline import *"

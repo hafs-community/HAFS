@@ -1,46 +1,50 @@
 #! /usr/bin/env python3
-
-"""!Sets up signal handlers to ensure a clean exit.
-
-This module is a workaround for a deficiency of Python.  When Python
-receives a fatal signal other than SIGINT, it exits immediately
-without freeing utilized resources or otherwise cleaning up.  This
-module causes Python to raise a fatal exception, that does NOT derive
-from Exception, if a fatal signal is received.  Note that there is a
-critical flaw in this design: raising an exception in a signal handler
-only raises it in the main (initial) thread.  Other threads must call
-the produtil.sigsafety.checksig function as frequently as possible to
-check if a signal has been caught.  That function will raise the
-appropriate exception if a signal was caught, or return immediately
-otherwise.
-
-The reason this HAD to be added to produtil is that the lack of proper
-signal handling caused major problems.  In particular, it completely
-broke file locking on Lustre and Panasas.  Both filesystems will
-sometimes forget a file lock is released if the lock was held by a
-process that exited abnormally.  There were also unverified cases of
-this happening with GPFS.  Correctly handling SIGTERM, SIGQUIT, SIGHUP
-and SIGINT has solved that problem thus far.
-
-The base class of any exception thrown due to a signal is CaughtSignal.
-It has two subclasses: FatalSignal, which is raised when a fatal
-signal is received, and HangupSignal.  The HangupSignal is raised by
-SIGHUP, unless the install_handlers requests otherwise.  Scripts
-should catch HangupSignal if the program is intended to ignore
-hangups.  However, nothing should ever catch FatalSignal.  Only
-__exit__ and finalize blocks should be run in that situation, and they
-should run as quickly as possible.
-
-The install_handlers installs the signal handlers: term_handler and
-optionally hup_handler.  The raise_signals option specifies the list
-of signals that will raise FatalSignal, defaulting to SIGTERM, SIGINT
-and SIGQUIT.  If SIGHUP is added to that list, then it will raise
-FatalSignal as well.  Otherwise, the ignore_hup option controls the
-SIGHUP behavior: if True, SIGHUP is simply ignored, otherwise it
-raises HangupSignal.
-
-One can call install_handlers directly, though it is recommended to
-call produtil.setup.setup instead."""
+################################################################################
+# Script Name: sigsafety.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Sets up signal handlers to ensure a clean exit.
+#   This module is a workaround for a deficiency of Python.  When Python
+#   receives a fatal signal other than SIGINT, it exits immediately
+#   without freeing utilized resources or otherwise cleaning up.  This
+#   module causes Python to raise a fatal exception, that does NOT derive
+#   from Exception, if a fatal signal is received.  Note that there is a
+#   critical flaw in this design: raising an exception in a signal handler
+#   only raises it in the main (initial) thread.  Other threads must call
+#   the produtil.sigsafety.checksig function as frequently as possible to
+#   check if a signal has been caught.  That function will raise the
+#   appropriate exception if a signal was caught, or return immediately
+#   otherwise.
+#   The reason this HAD to be added to produtil is that the lack of proper
+#   signal handling caused major problems.  In particular, it completely
+#   broke file locking on Lustre and Panasas.  Both filesystems will
+#   sometimes forget a file lock is released if the lock was held by a
+#   process that exited abnormally.  There were also unverified cases of
+#   this happening with GPFS.  Correctly handling SIGTERM, SIGQUIT, SIGHUP
+#   and SIGINT has solved that problem thus far.
+#   The base class of any exception thrown due to a signal is CaughtSignal.
+#   It has two subclasses: FatalSignal, which is raised when a fatal
+#   signal is received, and HangupSignal.  The HangupSignal is raised by
+#   SIGHUP, unless the install_handlers requests otherwise.  Scripts
+#   should catch HangupSignal if the program is intended to ignore
+#   hangups.  However, nothing should ever catch FatalSignal.  Only
+#   __exit__ and finalize blocks should be run in that situation, and they
+#   should run as quickly as possible.
+#   The install_handlers installs the signal handlers: term_handler and
+#   optionally hup_handler.  The raise_signals option specifies the list
+#   of signals that will raise FatalSignal, defaulting to SIGTERM, SIGINT
+#   and SIGQUIT.  If SIGHUP is added to that list, then it will raise
+#   FatalSignal as well.  Otherwise, the ignore_hup option controls the
+#   SIGHUP behavior: if True, SIGHUP is simply ignored, otherwise it
+#   raises HangupSignal.
+#   One can call install_handlers directly, though it is recommended to
+#   call produtil.setup.setup instead.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 import produtil.locking, produtil.pipeline
 import signal

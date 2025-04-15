@@ -1,28 +1,33 @@
 #! /usr/bin/env python3
+################################################################################ 
+# Script Name: mpiprog.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#    This module handles execution of MPI programs, and execution of
+#    groups of non-MPI programs through an MPI interface (which requires
+#    all sorts of tricks).  This module is also the interface to the
+#    various produtil.mpi_impl.* modules that generate the shell command to
+#    run MPI programs.  This module is built on top of the produtil.prog
+#    module and uses it to run the MPI-launching program for your local
+#    cluster (mpiexec, mpirun, poe, etc.)
+#    In addition, this module contains code to simplify adding new MPI
+#    implementations to the produtil.mpi_impl subpackage.  High-level code,
+#    such as the HWRF scripts, use the produtil.run module to generate
+#    object trees of MPIRanksBase objects.  The produtil.mpi_impl
+#    subpackages then implement an mpirunner function that turns those into
+#    a produtil.prog.Runner to be directly executed.  The MPIRanksBase
+#    object, and its subclasses, implement a few utilites to automate that
+#    for you:
+#    Do not load this module directly.  It is meant to be loaded only by
+#    the produtil.run module.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON) 
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!Object structure for describing MPI programs.
-
-Do not load this module directly.  It is meant to be loaded only by
-the produtil.run module.
-
-This module handles execution of MPI programs, and execution of
-groups of non-MPI programs through an MPI interface (which requires
-all sorts of tricks).  This module is also the interface to the
-various produtil.mpi_impl.* modules that generate the shell command to
-run MPI programs.  This module is built on top of the produtil.prog
-module and uses it to run the MPI-launching program for your local
-cluster (mpiexec, mpirun, poe, etc.)
-
-In addition, this module contains code to simplify adding new MPI
-implementations to the produtil.mpi_impl subpackage.  High-level code,
-such as the HWRF scripts, use the produtil.run module to generate
-object trees of MPIRanksBase objects.  The produtil.mpi_impl
-subpackages then implement an mpirunner function that turns those into
-a produtil.prog.Runner to be directly executed.  The MPIRanksBase
-object, and its subclasses, implement a few utilites to automate that
-for you:
-
-* to_arglist --- converts the MPI ranks to an mpi launcher command
+"""  * to_arglist --- converts the MPI ranks to an mpi launcher command
                  as a produtil.prog.Runner, or to an array of strings
                  for a command file.
 

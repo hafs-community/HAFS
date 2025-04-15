@@ -1,17 +1,26 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: run.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module implements a shell-like syntax for launching MPI and
+#   non-MPI programs from Python.  It recognizes three types of
+#   executables: mpi, "small serial" (safe for running on a batch node)
+#   and "big serial" (which should be run via aprun if applicable).  There
+#   is no difference between "small serial" and "big serial" programs
+#   except on certain architectures (like Cray) where the job script runs
+#   on a heavily-loaded batch node and has compute nodes assigned for
+#   running other programs.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and                           
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!A shell-like syntax for running serial, MPI and OpenMP programs.
 
-This module implements a shell-like syntax for launching MPI and
-non-MPI programs from Python.  It recognizes three types of
-executables: mpi, "small serial" (safe for running on a batch node)
-and "big serial" (which should be run via aprun if applicable).  There
-is no difference between "small serial" and "big serial" programs
-except on certain architectures (like Cray) where the job script runs
-on a heavily-loaded batch node and has compute nodes assigned for
-running other programs.
-
-@section progtype Program Types
+""" @section progtype Program Types
 
 There are three types of programs: mpi, serial and "big non-MPI."  A
 "big" executable is one that is either OpenMP, or is a serial program

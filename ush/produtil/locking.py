@@ -1,14 +1,23 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: locking.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Handles file locking using Python "with" blocks.
+#   This module implements a Python with construct that can hold a lock
+#   and release it at the end of the "with" block.  It also implements a
+#   safety feature to allow the program to disable locking, ensuring a
+#   fatal exception (LockingDisabled) if anything tries to lock a file.
+#   That functionality is connected to the produtil.sigsafety module,
+#   which will disable locking if a fatal signal is received.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!Handles file locking using Python "with" blocks.
-
-This module implements a Python with construct that can hold a lock
-and release it at the end of the "with" block.  It also implements a
-safety feature to allow the program to disable locking, ensuring a
-fatal exception (LockingDisabled) if anything tries to lock a file.
-That functionality is connected to the produtil.sigsafety module,
-which will disable locking if a fatal signal is received.
-
+"""
 @code
 import produtil.locking
 with produtil.locking.LockFile("some.lockfile"):

@@ -1,9 +1,18 @@
 #! /usr/bin/env python3
-
-"""!This module allows querying resource usage and limits, as well as
-setting resource limits.  It is a wrapper around the Python resource
-module.
-
+################################################################################
+# Script Name: rusage.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract: 
+#   This module allows querying resource usage and limits, as well as
+#   setting resource limits. It is a wrapper around the Python resource
+#   module.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
+"""
 Setting resource limits:
 @code
   use logging, produtil.rusage
