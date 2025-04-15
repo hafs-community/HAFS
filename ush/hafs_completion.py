@@ -4,6 +4,8 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script logs the completion of an HAFS forecast cycle.
+# History:
+#   04/27/2019: This script was adopted/inerited from HWRF and updated for HAFS.
 ################################################################################
 ##@namespace ush.hafs_completion
 # A simple script that logs the completion of an HAFS forecast cycle.

@@ -5,6 +5,8 @@
 # Abstract:
 #   This script is a wrapper for the "ln -sf" command. It creates a symbolic
 #   link together with some additional broken link checking capabilities.
+# History:
+#   04/11/2024: Added the script in response to HAFSv2 EE2 Reviewer's comments
 ################################################################################
 
 if [ $# -ne 3 ]; then

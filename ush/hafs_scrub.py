@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: hafs_scrub.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This is a utility script that deletes directories, but adds safeguards and logging
+# History:
+#   04/21/2019: Originally adopted from HWRF/HMON and updated for HAFS.     
+################################################################################
 
 import logging, os, shutil, sys
 

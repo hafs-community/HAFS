@@ -5,7 +5,7 @@
 # Abstract:
 #   This script prepares HAFS MOM6 coupling needed open boundary conditions.
 # History:
-#
+#   05/13/2023: Added the script for MOM6 coulping in HAFS workflow# History:
 # Usage:
 #   ./hafs_mom6_obc_from_rtofs.py inputdir outputdir ssh_file_in ts_file_in \
 #     uv_file_in lon_name_in lat_name_in hgrid_out_file \
