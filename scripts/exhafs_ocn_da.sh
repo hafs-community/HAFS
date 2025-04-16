@@ -70,7 +70,7 @@ cp ./MOM.res.nc ${WORKhafs}/intercom/ocn_prep/mom6/.
 
 cp -p ./TS3D_SSH.nc ${COMhafs}/${out_prefix}.${RUN}.mom6.analysis.nc
 
-cd ${WORK3DVAR}/output
+cd ${WORK3DVAR}/data_output
 for obs_file in `ls *.3dvar.nc`; do
   cp -p ${obs_file} ${COMhafs}/${out_prefix}.${RUN}.mom6.${obs_file%%.*}.nc
 done

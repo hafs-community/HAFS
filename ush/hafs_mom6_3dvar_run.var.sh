@@ -38,7 +38,6 @@ mv 3dvar.yml.tmp 3dvar.yml
 
 # obs settings
 source ${HOMEhafs}/parm/mom6_3dvar/obspath.config
-export obs_files_dir=${obs_src_dir}/${YMDH:0:4}/${YMDH:0:8}
 ln -sf ${obs_files_dir}/sst_satellite_${YMDH:0:10}.nc ./obs/.
 ln -sf ${obs_files_dir}/adt_ssh_${YMDH:0:10}.nc ./obs/.
 ln -sf ${obs_files_dir}/sss_salinity_${YMDH:0:10}.nc ./obs/.
