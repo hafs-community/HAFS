@@ -18,7 +18,7 @@ bufr:
         timeOffset: "*/DHR"
         transforms:
           - scale: 3600
-        referenceTime: "2021-08-01T00:00:00Z"
+        referenceTime: #ANADATE#
     prepbufrDataLevelCategory:
       query: "*/CAT"
     obsTimeMinusCycleTime:

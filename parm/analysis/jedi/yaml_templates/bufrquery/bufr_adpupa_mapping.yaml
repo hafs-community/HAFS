@@ -15,7 +15,7 @@ bufr:
         timeOffset: "*/PRSLEVEL/DRFTINFO/HRDR"
         transforms:
           - scale: 3600
-        referenceTime: "2024-06-30T12:00:00Z"
+        referenceTime: #ANADATE#
     timeOffset:
       query: "*/DHR"
       transforms:

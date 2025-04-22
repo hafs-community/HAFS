@@ -32,10 +32,16 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-#  module use ${USHhafs}/modulefiles
-#  module load hafs_obs_prep_${machine}
+  if [[ ${machine}  = "wcoss2" ]] || [[ ${machine}  = "gaeac6" ]]; then
+    module reset
+  else
+    module purge
+  fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-  module load obsforge/${machine}.intel
+  module load GDAS/${machine}.intel
+#  module load obsforge/${machine}.intel
+  module use ${USHhafs}/modulefiles
+  module load hafs_obs_prep_${machine}
   if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
     export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
     export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10/site-packages
@@ -44,8 +50,6 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7/site-packages
   fi
   module list
-#  export LD_LIBRARY_PATH=${HOMEhafs}/sorc/hafs_jedi.fd/build/lib:$LD_LIBRARY_PATH
-#  export LD_LIBRARY_PATH=${USHhafs}/wxflow:$LD_LIBRARY_PATH
 else
   # Run by NCO on WCOSS2
   export OBS_DUMP=${OBS_DUMP:-YES}

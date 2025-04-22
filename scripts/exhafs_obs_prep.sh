@@ -385,7 +385,7 @@ cd jedi_ioda
 #XL sattypes="atms 1bamua mtiasi gsrcsr ssmisu"
 #XL obstypes="ADPUPA ${radtypes} ${convtypes}"
 #XL satbufrs="atms 1bamua mtiasi gsrcsr ssmisu"
-airctypes="aircft aircar"
+airctypes="aircar aircft"
 convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp"
 convbufrs="satwnd satwnd prepbufr prepbufr"
 sattypes="atms ssmis amsua iasi"
@@ -405,8 +405,6 @@ done
 #${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
 ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
 ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
-#${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias gdas.t${cyc}z.abias
-#${NCP} -p ${COMINobs}/gdas.$PDY/$cyc/${atmos}/gdas.t${cyc}z.abias_pc gdas.t${cyc}z.abias_pc
 ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
 ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
 sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
@@ -442,7 +440,7 @@ for file in ${airctypes}; do
  fi
 done
 ######## Temp convert prepbufr only #####
-#ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
 #sed -e "s|#HH#|t${cyc}z|g" \
 #    -e "s|#ANADATE#|${ANADATE}|g" \
 #    ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_prepbufr.yaml > bufr_ncep_prepbufr.yaml
@@ -472,14 +470,17 @@ for file in $convtypes; do
   bufr=$1
 #  ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc
   if [[ "${bufr}" = "prepbufr" ]]; then
-   python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE}
+sed -e "s|#ANADATE#|${ANADATE}|g" \
+    ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
+   python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
   else
    python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
   fi
   shift
 done
-${APRUNT1} -n 4 ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.prepbufr.bufr_d bufr_adpupa_mapping.yaml output/hafs.t${cyc}z.adpupa.nc # somehow too many cores will crash the code.
-
+sed -e "s|#ANADATE#|${ANADATE}|g" \
+    ${PARMjedi}/yaml_templates/bufrquery/bufr_adpupa_mapping.yaml > bufr_adpupa_mapping.yaml
+${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.prepbufr.bufr_d bufr_adpupa_mapping.yaml output/hafs.t${cyc}z.adpupa.nc # somehow too many cores will crash the code.
 
 ########## Converting ATMS NPP/N20 to ioda nc #################
 for file in ${sattypes}; do

@@ -59,7 +59,11 @@ if [ "${ANALYSIS_MODEL}" = "GSI" ]; then
 else
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  module purge
+  if [[ ${machine}  = "wcoss2" ]] || [[ ${machine}  = "gaeac6" ]]; then
+    module reset
+  else
+    module purge
+  fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
   module load GDAS/${machine}.intel
   export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
