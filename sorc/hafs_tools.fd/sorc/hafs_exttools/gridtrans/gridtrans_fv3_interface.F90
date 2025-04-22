@@ -6,6 +6,8 @@ module gridtrans_fv3_interface
   
   ! gridtrans :: gridtrans_fv3_interface
   ! Copyright (C) 2020 Henry R. Winterbottom
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
 
   ! Email: henry.winterbottom@noaa.gov
 

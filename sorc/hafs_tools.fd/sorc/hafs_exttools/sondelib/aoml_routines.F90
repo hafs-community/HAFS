@@ -6,6 +6,7 @@
 !     If TE is missing, mean West Indies hurricane season
 !     TE is used.  Pressure must be valid to compute fall.
 ! 
+!     Authors and history:
 !     4/18/01:  Changed mass from 390 to 430 g and changed
 
 !               fudge factor from 1.15 to 1.00.

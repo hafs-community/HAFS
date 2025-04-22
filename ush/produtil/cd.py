@@ -1,21 +1,27 @@
 #! /usr/bin/env python3
-
-"""!Change directory, handle temporary directories
-
-This module provides a means by which to change to a different
-directory in a Python "with" block and change back out afterwards,
-regardless of what happens inside the block.  It can, optionally,
-create a new directory, and optionally delete it at the end of the
-block.  There are two classes:
-
-*  TempDir - creates a temporary directory with a randomly-generated
-     name, chdirs to the directory, and chdirs back out afterwards.
-     It can be configured to delete the directory afterwards (the
-     default) or not.  
-
-*  NamedDir - a subclass of TempDir that uses a specific directory
-     rather than a randomly-generated one.  By default, the directory
-     is NOT deleted at the end of the block.  That can be configured."""
+################################################################################
+# Script Name: cd.py 
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Change directory, handle temporary directories
+#   This module provides a means by which to change to a different
+#   directory in a Python "with" block and change back out afterwards,
+#   regardless of what happens inside the block.  It can, optionally,
+#   create a new directory, and optionally delete it at the end of the
+#   block.  There are two classes:
+#   *  TempDir - creates a temporary directory with a randomly-generated
+#      name, chdirs to the directory, and chdirs back out afterwards.
+#      It can be configured to delete the directory afterwards (the
+#      default) or not.
+#   *  NamedDir - a subclass of TempDir that uses a specific directory
+#      rather than a randomly-generated one.  By default, the directory
+#      is NOT deleted at the end of the block.  That can be configured.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 import tempfile, os, re, logging, sys, shutil, errno, stat
 import produtil.listing
@@ -69,7 +75,7 @@ class TempDir(object):
             thereof.  If False, the directory is deleted under those
             circumstances.  Default: keep_on_error=True.
         @param cd If True (default), cd to the directory in the "with"
-            block and cd back out afterwards.  If False, then only 
+            block and cd back out afterwards.  If False, then only
             directory creation and deletion happens.  """
         self.dirname=None
         self.suffix=suffix
@@ -123,7 +129,7 @@ class TempDir(object):
                                       dir=self.dir)
         # Add requested permissions to the directory.  Remove world write.
         s=os.stat(self.dirname)
-        os.chmod(self.dirname, (s.st_mode | int(self._add_perms)) 
+        os.chmod(self.dirname, (s.st_mode | int(self._add_perms))
                  & ~self._remove_perms )
     def mkdir_cd(self):
         """!Creates the temporary directory and chdirs the current
@@ -259,7 +265,7 @@ class NamedDir(TempDir):
             add_perms=add_perms,remove_perms=remove_perms)
         self.dirname=dirname
         self._rm_first=bool(rm_first)
-    ##@var dirname 
+    ##@var dirname
     # The directory name specified in the constructor.
     def name_make_dir(self):
         """!Replacement for the TempDir.name_make_dir.  Uses the
@@ -278,5 +284,5 @@ class NamedDir(TempDir):
         # If requested, modify the directory permissions:
         if self._add_perms!=0 or self._remove_perms!=0:
             s=os.stat(self.dirname)
-            os.chmod(self.dirname, (s.st_mode | int(self._add_perms)) 
+            os.chmod(self.dirname, (s.st_mode | int(self._add_perms))
                      & ~self._remove_perms )

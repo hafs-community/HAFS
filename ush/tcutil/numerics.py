@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: numerics.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module implements various simple numerical algorithms, such as partial
+#   sorting, time manipulation or fraction-to-date conversions. It also
+#   contains two array-like classes that take datetime objects as indices.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+################################################################################
 
 """!Time manipulation and other numerical routines.
 

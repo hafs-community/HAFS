@@ -1,16 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: mpi_impl_base.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Utilities like CMDFGen to simplify adding new MPI implementations to the
+#   produtil.run suite of modules.
+#   This module contains classes and functions to assist developers in
+#   extending the functionality of the produtil.mpi_impl package.  The
+#   main highlight is the CMDFGen, which generates command files.  Some
+#   MPI implementations, and the mpiserial program, want to read a file
+#   with one line per MPI rank telling what program to run on each rank.
+#   For example, LSF+IBMPE and LoadLeveler+IBMPE work this way if one
+#   wants to run different programs on different ranks.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@namespace produtil.mpi_impl.mpi_impl_base
-# Utilities like CMDFGen to simplify adding new MPI implementations to the 
-# produtil.run suite of modules.
-#
-# This module contains classes and functions to assist developers in
-# extending the functionality of the produtil.mpi_impl package.  The
-# main highlight is the CMDFGen, which generates command files.  Some
-# MPI implementations, and the mpiserial program, want to read a file
-# with one line per MPI rank telling what program to run on each rank.
-# For example, LSF+IBMPE and LoadLeveler+IBMPE work this way if one
-# wants to run different programs on different ranks.
 
 import tempfile,stat,os, logging, io, re
 
@@ -62,11 +71,11 @@ class MPIMissingEnvironment(MPIError):
     """!Raised when the environment variables related to the MPI implementation are missing."""
 class MPIEnvironmentInvalid(MPIError):
     """!Raised when the environment variables related to the MPI implementation are contain invalid data."""
-class MPIConfigError(MPIError): 
+class MPIConfigError(MPIError):
     """!Base class of MPI configuration exceptions."""
 class MPITooManyRanks(MPIError):
     """!Raised when the program requests more ranks than are available."""
-class WrongMPI(MPIConfigError): 
+class WrongMPI(MPIConfigError):
     """!Unused: raised when the wrong MPI implementation is accessed.  """
 class MPISerialMissing(MPIConfigError):
     """!Raised when the mpiserial program is required, but is missing."""
@@ -83,7 +92,7 @@ class MPIDisabled(MPIConfigError):
     """!Thrown to MPI is not supported."""
 class OpenMPDisabled(MPIConfigError):
     """!Raised when OpenMP is not supported by the present implementation."""
-    
+
 class ImplementationBase(object):
     """!Abstract base class for all MPI implementations.  Default
     implementations for all functions represent a situation where no
@@ -148,7 +157,7 @@ class ImplementationBase(object):
         status=p.poll()
     def openmp(self,arg,threads):
         """!Does nothing.  This implementation does not support OpenMP.
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -168,14 +177,14 @@ class ImplementationBase(object):
     def can_run_mpi(self):
         """!Returns False to indicate MPI is not supported."""
         return False
-    def make_bigexe(self,exe,**kwargs): 
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
-    
+
+
 class CMDFGen(object):
     """!Generates files with one line per MPI rank, telling what
     program to run on each rank.
@@ -191,11 +200,11 @@ class CMDFGen(object):
                  silent=False,filename_option=None,
                  next_prerun=None,**kwargs):
         """!CMDFGen constructor
-        
+
         @param base type of command file being generated.  See below.
         @param lines the command file contents as a list of strings, one per line
         @param cmd_envar environment variable to set to the command file path
-        @param model_envar environment variable to set to "MPMD" 
+        @param model_envar environment variable to set to "MPMD"
         @param kwargs Sets the command file name.  See below.
         @param filename_arg If True, the name of the command file is appended to the program argument list.
         @param filename_option A string or None.  If filename_arg is true, this string is appended before the filename_arg
@@ -234,9 +243,9 @@ class CMDFGen(object):
     ##@var filename
     # command file's filename
 
-    ##@var tmpprefix 
+    ##@var tmpprefix
     # temporary file prefix
-    
+
     ##@var tmpsuffix
     # temporary file suffix
 

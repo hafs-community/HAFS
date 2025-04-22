@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -xue
+set -x
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -38,6 +38,9 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     if [ ${machine} = hera ]; then 
        module purge
     fi
+    if [ ${machine} = wcoss2 ]; then
+       module reset
+    fi
     module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles
     module load graphics.run.${machine}
   elif [ "${GRAPH}" = "HRD" ]; then
@@ -70,7 +73,7 @@ source ${HOLDVARS}
 
 export HOMEgraph=${HOMEgraph:-${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics}
 export USHgraph=${USHgraph:-${HOMEgraph}/ush}
-export WORKgraph=${WORKgraph:-${WORKhafs}/emc_graphics}
+export WORKgraph=${WORKgraph:-${WORKhafs}/emc_graphics${jobidstr}}
 export COMgraph=${COMgraph:-${COMhafs}/emc_graphics}
 
 export ADECKgraph=${ADECKhafs:?}
@@ -82,7 +85,7 @@ export GPLOThafs=${GPLOThafs:-${HOMEhafs}/sorc/hafs_graphics.fd/hrd_gplot}
 export GPLOT_DIR=${GPLOThafs}
 
 if [ "${GRAPH}" = "EMC" ]; then
-  export DATA=${WORKgraph}${jobidstr}
+  export DATA=${WORKgraph}
   exscript=exhafs_emcgraphics.sh
 elif [ "${GRAPH}" = "HRD" ]; then
   export DATA=${WORKhafs}/hrdgraphics${jobidstr}

@@ -424,19 +424,6 @@ except Exception as e:
     sys.exit(1)
 logger.info("I think I'm sane.")
 
-# Try to connect to the jlogfile:
-loghere=conf.getloc('jlogfile','')
-if not loghere:
-    try:
-        loghere=os.path.join(
-            conf.getloc('CDSCRUB'),conf.getstr('config','SUBEXPT'),
-            'log','jlogfile')
-    except KeyError as ke:
-        loghere=None
-if loghere:
-    print('Sending jlogfile messages to %s'%(loghere,))
-    produtil.log.set_jlogfile(loghere)
-
 ########################################################################
 # Parse the tcvitals
 

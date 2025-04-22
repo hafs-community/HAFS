@@ -1,4 +1,19 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract:
+#   This script serves as marker for "mpi_impl" package  and it implement the 
+#   execution of externals MPI programs
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and
+#   improved)
+#   03/28/2022: Add support for WCOSS2's PBS pro scheduler and HPE/Cray 
+#   Programming Environment combination
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@namespace produtil.mpi_impl
 # Converts a group of MPI ranks to a runnable command.
@@ -29,7 +44,7 @@
 # *   openmp(arg,threads) - given a Runner, set it up to use OpenMP
 #       If threads is provided, it is the number of threads to use.
 #       Otherwise, no thread count is specified and it is assumed
-#       that the underlying OpenMP implementation will use the 
+#       that the underlying OpenMP implementation will use the
 #       correct number.
 #
 # *   can_run_mpi() - does this computer support running MPI programs?
@@ -69,7 +84,7 @@
 #       MPI program be run on all available ranks.  If the MPI program
 #       also provides a rank specification (detected via arg.nranks()!=1)
 #       then the MPI_COMM_WORLD is overspecified and the mpirunner must
-#       raise MPIAllRanksError.  
+#       raise MPIAllRanksError.
 #
 # These are the detection routines imported from each submodule, except
 # for no_mpi.  The name of the routine is "detect()" in its module, and
@@ -136,7 +151,7 @@ __all__=[]
 
 ##@var detectors
 # Mapping from MPI implementation name to its detection function
-# 
+#
 # A mapping from MPI implementation name to a class static method that
 # detects that implementation.  When detection succeeds, the function
 # should return an instance of the class.  Otherwise, it should return
@@ -156,7 +171,7 @@ detectors=dict()
 synonyms=dict()
 
 ##@var detection_list
-# Order in which MPI implementations should be detected.  
+# Order in which MPI implementations should be detected.
 #
 # Used when automatically detecting the MPI implementation.  This is a
 # list of implementation names (keys in the detectors dict).  The first
@@ -243,7 +258,7 @@ def register_implementations(logger=None):
         # If we have srun, and we're in a pack group...
         import produtil.mpi_impl.srun_pack_groups
         add_implementation(produtil.mpi_impl.srun_pack_groups.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('srun: cannot import: %s'%(str(e),))
 
     try:
@@ -251,49 +266,49 @@ def register_implementations(logger=None):
         # If we have srun and SLURM resources...
         import produtil.mpi_impl.srun
         add_implementation(produtil.mpi_impl.srun.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('srun: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.inside_aprun
         add_implementation(produtil.mpi_impl.inside_aprun.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('inside_aprun: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.lsf_cray_intel
         add_implementation(produtil.mpi_impl.lsf_cray_intel.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('lsf_cray_intel: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.impi
         add_implementation(produtil.mpi_impl.impi.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('impi: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.mpirun_lsf
         add_implementation(produtil.mpi_impl.mpirun_lsf.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('mpirun_lsf: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.mpiexec_mpt
         add_implementation(produtil.mpi_impl.mpiexec_mpt.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('mpiexec_mpt: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.mpiexec
         add_implementation(produtil.mpi_impl.mpiexec.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('mpiexec: cannot import: %s'%(str(e),))
 
     try:
         import produtil.mpi_impl.srun_shell
         add_implementation(produtil.mpi_impl.srun_shell.Implementation)
-    except ImportError as e: 
+    except ImportError as e:
         logger.info('srun_shell: cannot import: %s'%(str(e),))
 
 def get_mpi(mpi_name=NO_NAME,force=False,logger=None,**kwargs):

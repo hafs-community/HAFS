@@ -11,7 +11,7 @@ C     PRODUCT.  IT IS COVERED UNDER NGA MILITARY SPECIFICATION:
 C     MIL-W-89500 (1993).
 C
 C***********************************************************************
-C     Contact Information
+C     Authors and history
 C
 C     Software and Model Support
 C     	National Geophysical Data Center

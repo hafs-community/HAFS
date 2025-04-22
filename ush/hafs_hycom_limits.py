@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: hafs_hycom_limits.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The script creates the limits file for HAFS HYCOM ocean model component.
+# History:
+#   05/22/2020: Originally adopted from HWRF/HMON and updated for HAFS.
+################################################################################
 
 import sys, getopt
 from datetime import datetime, date, time, timedelta

@@ -4,6 +4,11 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script prepares GHRSST mesh and input files for the DOCN component.
+# History:
+#   09/09/2021: Add data model support to HAFS workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -xe
 

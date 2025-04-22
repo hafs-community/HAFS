@@ -5,6 +5,13 @@
 # Abstract:
 #   This script generates the atmospheric lateral boundary condition (LBC) at a
 #   specific forecast lead time through the UFS_UTIL's chgres_cube tool.
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   10/06/2021: Add the capability for regional-nesting configurations
+#   05/12/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

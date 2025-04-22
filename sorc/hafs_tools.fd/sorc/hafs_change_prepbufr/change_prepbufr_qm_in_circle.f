@@ -4,6 +4,10 @@
 C-----------------------------------------------------------------------
 C  MAIN PROGRAM CHANGE_PREPBUFR_QM_IN_CIRCLE
 C
+C Authors and history
+C Oiginal author: D. A. KEYSER, 2005-07-01
+C Revised by: M. TONG, 2012-03-13
+C
 C   PRGMMR: M. TONG  DATE: 2012-03-13
 C   Modified subroutine EDTPRP for HWRF, but do not add BOGUS data
 C   Flag psob within max(ROCI,RBLDC), when categorary is greater than 0 

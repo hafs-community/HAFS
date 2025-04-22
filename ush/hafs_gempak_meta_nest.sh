@@ -398,39 +398,6 @@ YYMMDD=$(echo $PDY | cut -c3-)
 
 ${NLN} $PARMhafs/gempak/datatype.tbl datatype.tbl
 
-$GEMEXE/gdplot2_nc <<EOF
-GDFILE  = HAFS:${storm_id} | ${YYMMDD}/${cyc}00
-GDATTIM = F006-F126-06
-GLEVEL  = 0
-GVCORD  = none
-SKIP    = 0
-SCALE   = 0
-GDPFUN  = p06i
-TYPE    = f
-CONTUR  = 2
-CINT    = 
-LINE    = 
-FINT    = .01;.1;.25;.5;.75;1;1.25;1.5;1.75;2;2.5;3;4;5;6;7;8;9
-FLINE   = 0;21-30;14-20;5
-HILO    = 31;0/x#2/0.1-99/10/100;0/y
-HLSYM   = 1.5
-CLRBAR  = 1
-WIND    = 
-TITLE   = 5/-2/~ ? 6-HR TOTAL PRECIPITATION (IN) for ${storm_id}|~6-HR TOTAL PCPN
-IJSKIP  = 0
-CLEAR   = yes
-run
-
-GDFILE  = HAFS:${storm_id} | ${YYMMDD}/${cyc}00
-GDATTIM = F024-F126-06
-GDPFUN  = p24i
-TITLE   = 5/-2/~ ? 24-HR TOTAL PRECIPITATION (IN) for ${storm_id}|~24-HR TOTAL PCPN
-run
-
-exit
-EOF
-export err=$?; err_chk
-
 gpend
 export err=$?; err_chk
 

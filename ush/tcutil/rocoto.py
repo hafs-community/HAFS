@@ -1,4 +1,13 @@
 #! /usr/bin/env python3 
+################################################################################
+# Script Name: rocoto.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module utilities for plugging tcutil into the Rocoto workflow manager.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+#   04/06/2024: Improve logging and errror handling for HAFSv2 upgrade
+################################################################################
 
 """!This module contains utilities for plugging tcutil into the Rocoto
 workflow manager."""

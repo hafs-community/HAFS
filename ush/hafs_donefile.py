@@ -5,6 +5,8 @@
 # Abstract:
 #   This script makes a "donefile" that indicates the completion of the
 #   forecast and post-processing jobs, before the archive and scrub jobs.
+# History:
+#   04/27/2019: This script was adopted/inerited from HWRF and updated for HAFS.
 ################################################################################
 ##@namespace ush.hafs_donefile
 # A simple script that makes a "donefile" that indicates the

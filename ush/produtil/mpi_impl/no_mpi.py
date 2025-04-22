@@ -1,12 +1,21 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: no_mpi.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract:
+#   Stub funcitons to allow produtil.mpi_impl  to run when MPI is unavailable.
+#   This module is part of the produtil.mpi_impl package.  It underlies
+#   the produtil.run.openmp, produtil.run.mpirun , and
+#   produtil.run.mpiserial functions, providing the implementation
+#   needed to run when MPI is unavailable.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-##@namespace produtil.mpi_impl.no_mpi
-# Stub funcitons to allow produtil.mpi_impl  to run when MPI is unavailable.
-#
-# This module is part of the produtil.mpi_impl package.  It underlies
-# the produtil.run.openmp, produtil.run.mpirun , and
-# produtil.run.mpiserial functions, providing the implementation
-# needed to run when MPI is unavailable.
+##@namespace produtil.mpi_impl.no_mpi 
 
 import os, logging
 import produtil.prog,produtil.pipeline

@@ -1,13 +1,21 @@
 #! /usr/bin/env python3
-
-"""!Parses UNIX conf files and makes the result readily available
-
-The produtil.config module reads configuration information for a
-production system from one or more *.conf files, via the Python
-ConfigParser module.  This module also automatically fills in certain
-information, such as fields calculated from the tcvitals or date.  The
-result is accessible via the ProdConfig class, which provides many
-ways of automatically accessing configuration options."""
+################################################################################ 
+# Script Name: config.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract: 
+#   Parses UNIX conf files and makes the result readily available
+#   The produtil.config module reads configuration information for a
+#   production system from one or more *.conf files, via the Python
+#   ConfigParser module.  This module also automatically fills in certain
+#   information, such as fields calculated from the tcvitals or date.  The
+#   result is accessible via the ProdConfig class, which provides many
+#   ways of automatically accessing configuration options.
+# History:
+# 06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF and improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # decides what symbols are imported by "from produtil.config import *"
@@ -53,7 +61,7 @@ class Environment(object):
         contains "|-", in which case, the result is True."""
         return s.find('|-')>=0 or s in os.environ
     def __getitem__(self,s):
-        """!Same as os.environ[s] unless s contains "|-".  
+        """!Same as os.environ[s] unless s contains "|-".
            ENVIRONMENT["VARNAME|-substitute"]
         will return os.environ[VARNAME] if VARNAME is defined and
         non-empty in os.environ.  Otherwise, it will return
@@ -66,7 +74,7 @@ class Environment(object):
         val=os.environ.get(var,'')
         if val!='': return val
         return sub
-    
+
 ## @var ENVIRONMENT
 #  an Environment object.  You should never need to instantiate another one.
 ENVIRONMENT=Environment()
@@ -225,7 +233,7 @@ def qparse(format_string):
         elif m.group('literal_text'):
             literal_text+=m.group('literal_text')
         elif m.group('replacement_field'):
-            result.append( ( literal_text, 
+            result.append( ( literal_text,
                     m.group('field_name'),
                     m.group('format_spec'),
                     m.group('conversion') ) )
@@ -238,14 +246,14 @@ def qparse(format_string):
             else:
                 raise ValueError("Unexpected %s in format string"%(
                         repr(m.group('error')),))
-    if literal_text: 
+    if literal_text:
         result.append( ( literal_text, None, None, None ) )
     return result
 
 ########################################################################
 
 ##@var FCST_KEYS
-#  the list of forecast time keys recognized by ConfTimeFormatter 
+#  the list of forecast time keys recognized by ConfTimeFormatter
 FCST_KEYS={ 'fYMDHM':'%Y%m%d%H%M', 'fYMDH':'%Y%m%d%H', 'fYMD':'%Y%m%d',
             'fyear':'%Y', 'fYYYY':'%Y', 'fYY':'%y', 'fCC':'%C', 'fcen':'%C',
             'fmonth':'%m', 'fMM':'%m', 'fday':'%d', 'fDD':'%d', 'fhour':'%H',
@@ -257,7 +265,7 @@ is a dict mapping from the key name to the format sent to
 datetime.datetime.strftime to generate the string value."""
 
 ##@var ANL_KEYS
-#  the list of analysis time keys recognized by ConfTimeFormatter 
+#  the list of analysis time keys recognized by ConfTimeFormatter
 ANL_KEYS={ 'aYMDHM':'%Y%m%d%H%M', 'aYMDH':'%Y%m%d%H', 'aYMD':'%Y%m%d',
            'ayear':'%Y', 'aYYYY':'%Y', 'aYY':'%y', 'aCC':'%C', 'acen':'%C',
            'amonth':'%m', 'aMM':'%m', 'aday':'%d', 'aDD':'%d', 'ahour':'%H',
@@ -269,7 +277,7 @@ is a dict mapping from the key name to the format sent to
 datetime.datetime.strftime to generate the string value."""
 
 ##@var M6_KEYS
-#  the list of analysis time ( -6h ) keys recognized by ConfTimeFormatter 
+#  the list of analysis time ( -6h ) keys recognized by ConfTimeFormatter
 ANL_M6_KEYS={ 'am6YMDHM':'%Y%m%d%H%M', 'am6YMDH':'%Y%m%d%H', 'am6YMD':'%Y%m%d',
            'am6year':'%Y', 'am6YYYY':'%Y', 'am6YY':'%y', 'am6CC':'%C', 'am6cen':'%C',
            'am6month':'%m', 'am6MM':'%m', 'am6day':'%d', 'am6DD':'%d', 'am6hour':'%H',
@@ -281,7 +289,7 @@ is a dict mapping from the key name to the format sent to
 datetime.datetime.strftime to generate the string value."""
 
 ##@var P6_KEYS
-#  the list of analysis time ( +6h ) keys recognized by ConfTimeFormatter 
+#  the list of analysis time ( +6h ) keys recognized by ConfTimeFormatter
 ANL_P6_KEYS={ 'ap6YMDHM':'%Y%m%d%H%M', 'ap6YMDH':'%Y%m%d%H', 'ap6YMD':'%Y%m%d',
            'ap6year':'%Y', 'ap6YYYY':'%Y', 'ap6YY':'%y', 'ap6CC':'%C', 'ap6cen':'%C',
            'ap6month':'%m', 'ap6MM':'%m', 'ap6day':'%d', 'ap6DD':'%d', 'ap6hour':'%H',
@@ -314,7 +322,7 @@ class ConfTimeFormatter(ConfFormatter):
     in a way similar to string.format().  It works the same way as
     ConfFormatter, but accepts additional keys generated based on the
     forecast and analysis times:
-       
+
         fYMDHM - 201409171200 = forecast time September 17, 2014 at 12:00 UTC
         fYMDH  - 2014091712
         fYMD   - 20140917
@@ -414,11 +422,11 @@ class ConfTimeFormatter(ConfFormatter):
                             v=conf.get('config',key)
                         elif conf.has_option('dir',key):
                             v=conf.get('dir',key)
-                    if v is NOTFOUND:                           
+                    if v is NOTFOUND:
                         raise KeyError('Cannot find key %s in section %s'
                                        %(repr(key),repr(section)))
-        
-            if isinstance(v,str) and ( v.find('{')!=-1 or 
+
+            if isinstance(v,str) and ( v.find('{')!=-1 or
                                               v.find('%')!=-1 ):
                 try:
                     vnew=self.vformat(v,args,kwargs)
@@ -452,7 +460,7 @@ def confwalker(conf,start,selector,acceptor,recursevar):
     @param start the starting section
     @param selector a function selector(section,option) that decides
        if an option needs processing (True) or not (False)
-    @param acceptor a function acceptor(section,option,value) 
+    @param acceptor a function acceptor(section,option,value)
        run on all options for which the selector returns True
     @param recursevar an option in each section that lists more
        sections the confwalker should touch.  If the selector returns
@@ -523,22 +531,22 @@ class ProdConfig(object):
         @param conf the underlying configparser.ConfigParser object
         that stores the actual config data. This was a SafeConfigParser
         in Python 2 but in Python 3 the SafeConfigParser is now ConfigParser.
-        @param quoted_literals if True, then {'...'} and {"..."} will 
+        @param quoted_literals if True, then {'...'} and {"..."} will
           be interpreted as quoting the contained ... text.  Otherwise,
           those blocks will be considered errors.
-        @param strict set default to False so it will not raise 
+        @param strict set default to False so it will not raise
           DuplicateOptionError or DuplicateSectionError, This param was
-          added when ported to Python 3.6, to maintain the previous 
+          added when ported to Python 3.6, to maintain the previous
           python 2 behavior.
         @param inline_comment_prefixes, defaults set to ;. This param was
           added when ported to Python 3.6, to maintain the previous
           python 2 behavior.
-           
-        Note: In Python 2, conf was ConfigParser.SafeConfigParser. In 
-        Python 3.2, the old ConfigParser class was removed in favor of 
-        SafeConfigParser which has in turn been renamed to ConfigParser. 
-        Support for inline comments is now turned off by default and 
-        section or option duplicates are not allowed in a single 
+
+        Note: In Python 2, conf was ConfigParser.SafeConfigParser. In
+        Python 3.2, the old ConfigParser class was removed in favor of
+        SafeConfigParser which has in turn been renamed to ConfigParser.
+        Support for inline comments is now turned off by default and
+        section or option duplicates are not allowed in a single
         configuration source."""
         self._logger=logging.getLogger('prodconfig')
         logger=self._logger
@@ -547,7 +555,7 @@ class ProdConfig(object):
         self._time_formatter=ConfTimeFormatter(bool(quoted_literals))
         self._datastore=None
         self._tasknames=set()
-        # Added strict=False and inline_comment_prefixes for Python 3, 
+        # Added strict=False and inline_comment_prefixes for Python 3,
         # so everything works as it did before in Python 2.
         #self._conf=ConfigParser(strict=False, inline_comment_prefixes=(';',)) if (conf is None) else conf
         self._conf=ConfigParser(strict=strict, inline_comment_prefixes=inline_comment_prefixes) if (conf is None) else conf
@@ -572,7 +580,7 @@ class ProdConfig(object):
         called, even if one returns False; this is not a short-circuit
         operation.  This is done to allow all reporting methods report
         to their operator and decide whether the fallback is allowed.
-        
+
         Each function called is f(allow,name,details) where:
 
         - allow = True or False, whether the callbacks called thus far
@@ -598,10 +606,10 @@ class ProdConfig(object):
     def add_fallback_callback(self,function):
         """!Appends a function to the list of fallback callback functions
         called by fallback()
-        
+
         Appends the given function to the list that fallback()
         searches while determining if a workflow emergency fallback
-        option is allowed.  
+        option is allowed.
 
         @param function a function f(allow,name,details)
         @see fallbacks()"""
@@ -638,7 +646,7 @@ class ProdConfig(object):
 
         @param args Typically argv[1:] or some other list of
         arguments.
-        
+
         @param allow_files If True, filenames are allowed in args.
         Otherwise, they are ignored.
 
@@ -888,7 +896,7 @@ class ProdConfig(object):
          minute - 00
          min   - 00"""
         with self:
-            for var,fmt in [ ('YMDHM','%Y%m%d%H%M'), ('YMDH','%Y%m%d%H'), 
+            for var,fmt in [ ('YMDHM','%Y%m%d%H%M'), ('YMDH','%Y%m%d%H'),
                              ('YMD','%Y%m%d'), ('year','%Y'), ('YYYY','%Y'),
                              ('YY','%y'), ('CC','%C'), ('cen','%C'),
                              ('month','%m'), ('MM','%m'), ('day','%d'),
@@ -905,7 +913,7 @@ class ProdConfig(object):
         with self:
             self._conf.add_section(sec)
             return self
-    def has_section(self,sec): 
+    def has_section(self,sec):
         """!does this section exist?
 
         Determines if a config section exists (even if it is empty)
@@ -916,7 +924,7 @@ class ProdConfig(object):
             return self._conf.has_section(sec)
     def has_option(self,sec,opt):
         """! is this option set?
-        
+
         Determines if an option is set in the specified section
         @return True if this ProdConfig has the given option in the
         specified section, and False otherwise.
@@ -977,8 +985,8 @@ class ProdConfig(object):
         """!convenience function; replaces self.items and self.get
 
         This is a convenience function that provides access to the
-        self.items or self.get functions.  
-        
+        self.items or self.get functions.
+
         * conf["section"] -- returns a dict containing the results of
                               self.items(arg)
         * conf[a,b,c] -- returns self.get(a,b,c)
@@ -998,7 +1006,7 @@ class ProdConfig(object):
 
         This is a simple utility function that calls
         produtil.fileop.makedirs() on some of the directories in the
-        [dir] section.  
+        [dir] section.
         @param args the keys in the [dir] section for the directories
         to make."""
         with self:
@@ -1013,11 +1021,11 @@ class ProdConfig(object):
         @param sec the string name of the section"""
         with self:
             return [ opt for opt in self._conf.options(sec) ]
-        
+
     def sections(self):
         """!gets the list of all sections from a configuration object"""
         return self._conf.sections()
-    
+
     def items(self,sec,morevars=None,taskvars=None):
         """!get the list of (option,value) tuples for a section
 
@@ -1140,7 +1148,7 @@ class ProdConfig(object):
         @param opt the option name
         @param morevars a dict containing variables whose values will
         override anything in this ProdConfig when performing string
-        interpolation.  
+        interpolation.
         @param taskvars  serves the same purpose as morevars, but
         provides a second scope.
         @return the result of the string expansion"""
@@ -1206,7 +1214,7 @@ class ProdConfig(object):
           to the caller.
         @param morevars a dict containing variables whose values will
           override anything in this ProdConfig when performing string
-          interpolation.  
+          interpolation.
         @param taskvars  serves the same purpose as morevars, but
           provides a second scope.        """
         try:
@@ -1226,7 +1234,7 @@ class ProdConfig(object):
         """!get an integer value
 
         Gets option opt from section sec and expands it; see "get" for
-        details.  Attempts to convert it to an int.  
+        details.  Attempts to convert it to an int.
 
         @param sec,opt the section and option
         @param default if specified and not None, then the default is
@@ -1300,7 +1308,7 @@ class ProdConfig(object):
         @param sec the section"""
         with self:
             return self._conf.options(sec)
-    
+
     def getboolean(self,sec,opt,default=None,badtypeok=False,morevars=None,taskvars=None):
         """!alias for getbool: get a bool value
 
@@ -1336,8 +1344,8 @@ class ProdConfig(object):
             if default is not None:
                 return bool(default)
             raise
-        if re.match('(?i)\A(?:T|\.true\.|true|yes|on|1)\Z',s):   return True
-        if re.match('(?i)\A(?:F|\.false\.|false|no|off|0)\Z',s): return False
+        if re.match(r'(?i)\A(?:T|\.true\.|true|yes|on|1)\Z',s):   return True
+        if re.match(r'(?i)\A(?:F|\.false\.|false|no|off|0)\Z',s): return False
         try:
             return int(s)==0
         except ValueError as e: pass
@@ -1398,11 +1406,11 @@ class ProdTask(produtil.datastore.Task):
                                           logger=conf.log(taskname),**kwargs)
             mworkdir=self.meta('workdir','')
             moutdir=self.meta('outdir','')
-            if mworkdir: 
+            if mworkdir:
                 workdir=mworkdir
             else:
                 self['workdir']=workdir
-            if moutdir: 
+            if moutdir:
                 outdir=moutdir
             else:
                 self['outdir']=outdir
@@ -1598,7 +1606,7 @@ class ProdTask(produtil.datastore.Task):
         return self._conf.getraw(section,opt,default)
 
     def icstr(self,string,section=None,**kwargs):
-        """!Expands a string in the given conf section. 
+        """!Expands a string in the given conf section.
 
         Given a string, expand it as if it was a value in the
         specified conf section.  Makes this objects tcvitals, if any,
@@ -1608,7 +1616,7 @@ class ProdTask(produtil.datastore.Task):
           Default: self.section.
         @param kwargs: more arguments for string substitution"""
         if(section is None): section=self._section
-        if self.storminfo and 'vit' not in kwargs: 
+        if self.storminfo and 'vit' not in kwargs:
             kwargs['vit']=self.storminfo.__dict__
         return self._conf.strinterp(section,string,__taskvars=self.__taskvars,
                                     **kwargs)
@@ -1634,7 +1642,7 @@ class ProdTask(produtil.datastore.Task):
           Default: self.section.
         @param kwargs: more arguments for string substitution"""
         if(section is None): section=self._section
-        if self.storminfo and 'vit' not in kwargs: 
+        if self.storminfo and 'vit' not in kwargs:
             kwargs['vit']=self.storminfo.__dict__
         if 'taskvars' in kwargs:
             return self._conf.timestrinterp(section,string,ftime,atime,**kwargs)

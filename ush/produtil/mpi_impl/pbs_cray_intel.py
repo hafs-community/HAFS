@@ -1,12 +1,20 @@
-#! /usr/bin/env python3 
+#! /usr/bin/env python3
+################################################################################
+# Script Name: pbs_cray_intel.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds support for PBSPro+mpiexec with the Intel OpenMP to produtil.run
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details. Similar to lsf_cray_intel.py but for WCOSS2's PBSPro 
+#   and Cray combination
+# History:
+#   03/09/2022: Initial version for HAFS applicaton
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted 
+################################################################################
 
 ## @namespace produtil.mpi_impl.pbs_cray_intel
-# Adds support for PBSPro+mpiexec with the Intel OpenMP to produtil.run
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.
-# Similar to lsf_cray_intel.py but for WCOSS2's PBSPro and Cray combination 
-# Biju Thomas on 3/9/2022
-#
 
 import os, socket, logging, sys
 import produtil.fileop,produtil.prog,produtil.mpiprog, produtil.run
@@ -35,7 +43,7 @@ class Implementation(ImplementationBase):
         looking for the mpiexec program in $PATH
 
         @param mpiexec_path Optional.  The path to mpiexec.
-        
+
         @param total_tasks Optional: the number of slots available to
           run processes.  This is the maximum value for
           MPI_COMM_WORLD*OMP_NUM_THREADS.
@@ -72,9 +80,9 @@ class Implementation(ImplementationBase):
     # Path to the mpiexec program, or None if it isn't found.
 
     ##@var p_state_turbo
-    # Value to send to mpiexec --p-state option for Intel Turbo Mode.  
+    # Value to send to mpiexec --p-state option for Intel Turbo Mode.
     #
-    # This is the largest value printed out by 
+    # This is the largest value printed out by
     #
     #     cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
     #
@@ -96,7 +104,7 @@ class Implementation(ImplementationBase):
         if mpiexec_path is None:
             mpiexec_path=produtil.fileop.find_exe('mpiexec',raise_missing=True)
         self.mpiexec_path=mpiexec_path
-        
+
         if not hyperthreads:
             hyperthreads=os.environ.get('PRODUTIL_RUN_HYPERTHREADS','1')
             hyperthreads=int(hyperthreads)
@@ -139,12 +147,12 @@ class Implementation(ImplementationBase):
         raise produtil.fileop.WrongSymlink(msg,target)
 
     def get_p_state_turbo(self):
-        """!Value to send to mpiexec --p-state option for Intel Turbo Mode.  
-        
-        This is the largest value printed out by 
-        
+        """!Value to send to mpiexec --p-state option for Intel Turbo Mode.
+
+        This is the largest value printed out by
+
              cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-    
+
         Which is either the highest allowed sustained clock speed, or the magic
         number for Turbo Mode."""
         if self.p_state_turbo is not None:
@@ -172,22 +180,22 @@ class Implementation(ImplementationBase):
             self.logger.info('Turbo Mode --p-states option: %d'%self.p_state_turbo)
         assert(self.p_state_turbo>5e5)
         return self.p_state_turbo
-    
+
     def runsync(self,logger=None):
         """!Runs the "sync" command as an exe()."""
         if logger is None: logger=self.logger
         if not self.silent:
             logger.info('Not running sync.')
         return
-    
+
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
         integer"""
-        
+
         if threads is None:
             try:
                 ont=os.environ.get('OMP_NUM_THREADS','')
@@ -196,11 +204,11 @@ class Implementation(ImplementationBase):
                     threads=ont
             except (KeyError,TypeError,ValueError) as e:
                 pass
-    
+
         if threads is None:
             nodesize=self.nodesize
             threads=max(1,nodesize-1)
-            
+
         assert(threads>0)
         threads=int(threads)
         if hasattr(arg,'argins'):
@@ -210,17 +218,17 @@ class Implementation(ImplementationBase):
             for a in reversed(['--depth','%d'%int(threads),'--cpu-bind','core']):
                 arg=arg.argins(1,a)
             arg=arg.env(OMP_NUM_THREADS=threads)
-    
+
         if hasattr(arg,'threads'):
             arg.threads=threads
 
         return arg
-    
+
     def can_run_mpi(self,):
         """!Does this class represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @note This function does NOT search $PATH.  That ensures the $PATH
@@ -229,13 +237,13 @@ class Implementation(ImplementationBase):
           PATH before execution
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
-        exe=str(exe)    
+        exe=str(exe)
         inside_mpiexec=int(os.environ.get('INSIDE_APRUN','0'))
         inside_mpiexec+=1
         r=produtil.prog.Runner(['mpiexec','-n','1',exe])\
             .env(INSIDE_APRUN=str(inside_mpiexec))
         return produtil.prog.ImmutableRunner(r)
-    
+
     def mpirunner(self,arg,allranks=False,logger=None,**kwargs):
         if logger is None:
             logger=self.logger
@@ -262,7 +270,7 @@ class Implementation(ImplementationBase):
         if not seenCC:
             arglist.extend(['--depth','1','--cpu-bind','core'])
         return arglist
-    
+
     def mpirunner2(self,arg,allranks=False,logger=None,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -283,16 +291,16 @@ class Implementation(ImplementationBase):
         nodesize=self.nodesize
         hyperthreads=self.hyperthreads
         maxtasks=self.total_tasks
-    
+
         # The returned runner object.  We'll add to this below:
         runner=produtil.prog.Runner([self.mpiexec_path])
-   
+
         # Set up the INSIDE_APRUN variable so the executed MPI program
         # will be able to run serial programs.
         inside_mpiexec=int(os.environ.get('INSIDE_APRUN','0'))
         inside_mpiexec+=1
         runner=runner.env(INSIDE_APRUN=str(inside_mpiexec))
-    
+
         if arg.nranks()==1 and allranks:
             for rank,count in arg.expand_iter(expand=False):
                 pernode=min(maxtasks,nodesize//arg.nonzero_threads)
@@ -324,7 +332,7 @@ class Implementation(ImplementationBase):
 
             prior_arglist=[]
             total_count=0
-            
+
             for rank,count in arg.expand_iter(expand=False):
                 pernode=min(maxtasks,nodesize//rank.nonzero_threads)
                 rpn=rank.ranks_per_node
@@ -355,11 +363,11 @@ class Implementation(ImplementationBase):
             return runner
         else:
             first=True
-            
+
             maxtasks=1
             for rank,count in arg.expand_iter(expand=False):
                 maxtasks=max(count,maxtasks)
-                
+
             for rank,count in arg.expand_iter(expand=False):
                 threads=rank.nonzero_threads
                 pernode=min(count,maxtasks,nodesize//threads)

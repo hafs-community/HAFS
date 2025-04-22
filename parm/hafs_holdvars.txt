@@ -3,11 +3,53 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
-export TZ=UTC
+[[ -z "$cyc" ]] && export cyc={HH}
+[[ -z "$storm_num" ]] && export storm_num={storm_num}
+[[ -z "$stormlabel" ]] && export stormlabel={stormlabel}
+[[ -n "$envir" ]] && export envir={ENV[envir|-prod]}
+[[ -z "$NET" ]] && export NET={NET}
+[[ -z "$RUN" ]] && export RUN={RUN}
+[[ -z "$RUN_ENVIR" ]] && export RUN_ENVIR={RUN_ENVIR}
 
-export YMDH={YMDH} cyc={HH} CYCLE={YMDH}
-export storm_num={storm_num}
-export stormlabel={stormlabel}
+[[ -z "$HOMEhafs" ]] && export HOMEhafs={HOMEhafs}
+[[ -z "$EXEChafs" ]] && export EXEChafs={EXEChafs}
+[[ -z "$PARMhafs" ]] && export PARMhafs={PARMhafs}
+[[ -z "$EXhafs" ]] && export EXhafs={EXhafs}
+[[ -z "$JOBhafs" ]] && export JOBhafs={JOBhafs}
+[[ -z "$USHhafs" ]] && export USHhafs={USHhafs}
+[[ -z "$FIXhafs" ]] && export FIXhafs={FIXhafs}
+[[ -z "$FIXcrtm" ]] && export FIXcrtm={FIXcrtm}
+
+[[ -z "$WORKhafs" ]] && export WORKhafs={WORKhafs}
+[[ -z "$COMhafs" ]] && export COMhafs={COMhafs}
+[[ -z "$CONFhafs" ]] && export CONFhafs={CONFhafs}
+[[ -z "$HOLDVARS" ]] && export HOLDVARS={HOLDVARS}
+
+[[ -z "$COMOLD" ]] && export COMOLD={COMOLD}
+[[ -z "$COMIN" ]] && export COMIN={COMIN}
+[[ -z "$COMOUT" ]] && export COMOUT={COMOUT}
+
+[[ -z "$DCOMROOT" ]] && export DCOMROOT={DCOMROOT}
+[[ -z "$DCOM" ]] && export DCOM={DCOM}
+[[ -z "$COMINnhc" ]] && export COMINnhc={COMINnhc}
+[[ -z "$COMINjtwc" ]] && export COMINjtwc={COMINjtwc}
+[[ -z "$COMgfs" ]] && export COMgfs={COMgfs}
+[[ -z "$COMINobs" ]] && export COMINobs={COMINobs}
+[[ -z "$COMINgfs" ]] && export COMINgfs={COMINgfs}
+[[ -z "$COMINgdas" ]] && export COMINgdas={COMINgdas}
+[[ -z "$COMINarch" ]] && export COMINarch={COMINarch}
+[[ -z "$COMrtofs" ]] && export COMrtofs={COMrtofs}
+[[ -z "$COMINrtofs" ]] && export COMINrtofs={COMINrtofs}
+[[ -z "$COMINmsg" ]] && export COMINmsg={COMINmsg}
+[[ -z "$COMINhafs" ]] && export COMINhafs={COMINhafs}
+
+[[ -z "$SYNDAThafs" ]] && export SYNDAThafs={syndat}
+[[ -z "$ADECKhafs" ]] && export ADECKhafs={ADECKhafs}
+[[ -z "$BDECKhafs" ]] && export BDECKhafs={BDECKhafs}
+[[ -z "$cartopyDataDir" ]] && export cartopyDataDir={cartopyDataDir}
+
+export TZ=UTC
+export YMDH={YMDH} CYCLE={YMDH}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 export hafsbasin2={vit[tcutilbasin2]}
@@ -15,48 +57,6 @@ export pubbasin2={vit[pubbasin2]}
 export basinname="{vit[basinname]}"
 export CENLO={domlon}
 export CENLA={domlat}
-
-export envir={ENV[envir|-prod]}
-export NET={NET}
-export RUN={RUN}
-export RUN_ENVIR={RUN_ENVIR}
-
-export HOMEhafs={HOMEhafs}
-export EXEChafs={EXEChafs}
-export PARMhafs={PARMhafs}
-export EXhafs={EXhafs}
-export JOBhafs={JOBhafs}
-export USHhafs={USHhafs}
-export FIXhafs={FIXhafs}
-export FIXcrtm={FIXcrtm}
-
-export WORKhafs={WORKhafs}
-export COMhafs={COMhafs}
-export CONFhafs={CONFhafs}
-export HOLDVARS={HOLDVARS}
-
-export COMOLD={COMOLD}
-export COMIN={COMIN}
-export COMOUT={COMOUT}
-
-export DCOMROOT={DCOMROOT}
-export DCOM={DCOM}
-export COMINnhc={COMINnhc}
-export COMINjtwc={COMINjtwc}
-export COMgfs={COMgfs}
-export COMINobs={COMINobs}
-export COMINgfs={COMINgfs}
-export COMINgdas={COMINgdas}
-export COMINarch={COMINarch}
-export COMrtofs={COMrtofs}
-export COMINrtofs={COMINrtofs}
-export COMINmsg={COMINmsg}
-export COMINhafs={COMINhafs}
-
-export SYNDAThafs={syndat}
-export ADECKhafs={ADECKhafs}
-export BDECKhafs={BDECKhafs}
-export cartopyDataDir={cartopyDataDir}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}

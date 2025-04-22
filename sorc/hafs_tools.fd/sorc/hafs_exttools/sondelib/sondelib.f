@@ -8,7 +8,7 @@ C         1) Routines relating to Ooyama's spline filtering.
 C         2) Mathematical or meteorological routines
 C         3) Routines for message decoding
 C
-C     Recent revision history:
+C     Authors and history:
 C
 C     12/17/99:  Modified dropsonde TEMP DROP to HSA format
 C                conversion routine to allow for decoding of:

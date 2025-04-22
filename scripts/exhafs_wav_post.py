@@ -4,6 +4,12 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script runs the HAFS wave post-processing steps for WW3 coupling.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (improved from HWRF)
+#   03/27/2023: Cleanup and improved for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 import os, sys, logging
 

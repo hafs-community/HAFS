@@ -5,6 +5,18 @@
 # Abstract:
 #   This script conducts the HAFS atmospheric data assimilation through GSI,
 #   and generate analysis diagnoses (if desired).
+# History:
+#   09/24/2020: Initial version for HAFS application
+#   12/10/2020: Add the FGAT capabilities in HAFS workflow
+#   01/21/2021: Add dual-resolution capability in HAFS workflow
+#   01/12/2022: Enable cycling the storm region only or cycling the whole domain
+#               from the prior HAFS forecast cycle
+#   03/02/2022: Enable handling the regional moving nesting configuration
+#   06/07/2023: Improvements for HAFSv1 operational implementation
+#   02/04/2025: Turn on NOAA-21 obs assimilation in HAFS
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

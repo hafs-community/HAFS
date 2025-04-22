@@ -5,6 +5,12 @@
 # Abstract:
 #   This script runs the GSI forward operator to performs mapping from model
 #   space to observation space for the ensemble mean or ensemble members.
+# History:
+#   12/29/2020: Initial version for HAFS workflow with self-cycled ENSDA
+#   01/27/2021: Support dual-resolution capability for HAFS DA workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

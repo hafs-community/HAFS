@@ -4,6 +4,11 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates ESMF mesh file.
+# History:
+#   09/09/2021: Add data model support to HAFS workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 import os, sys, getopt
 import argparse

@@ -1,5 +1,6 @@
 !
-!(c) Matthew Kennel, Institute for Nonlinear Science (2004)
+! Authors and history
+!    Matthew Kennel, Institute for Nonlinear Science (2004)
 !
 ! Licensed under the Academic Free License version 1.1 found in file LICENSE
 ! with additional provisions found in that same file.

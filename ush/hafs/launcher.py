@@ -1,4 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: launcher.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module creates the initial HAFS directory structure, and loads
+#   information into each job. It is used to create the initial HAFS conf file
+#   in the first HAFS job via the hafs.launcher.launch(). The
+#   hafs.launcher.load() then reloads that configuration. The launch() function
+#   does more than just create the conf file though. It parses the tcvitals,
+#   creates several initial files and directories and runs a sanity check on
+#   the whole setup.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   05/26/2020: Enable supporting for HYCOM ocean coupling
+#      12/2020: Enable supporting various DA capabilities (FGAT, EnVar, ENSDA)
+#      03/2022: Enable regional/global moving nesting configurations
+#   05/20/2022: Support vortex initialiation capability
+#   03/27/2023: Finalize for HAFSv1 implementation
+#   04/19/2024: Improvements (error/exception handling) for HAFSv2 upgrade
+#   07/12/2024: Add 3DIAU related changes
+################################################################################
 
 """!Creates the initial HAFS directory structure, loads information into each job.
 
@@ -600,7 +621,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     for var in ( 'WORKhafs', 'HOMEhafs', 'com' ):
         expand=conf.getstr('dir',var)
         logger.info('Replace [dir] %s with %s'%(var,expand))
-        conf.set('dir',var,expand)
+    #   conf.set('dir',var,expand)
 
     if stid is not None:
         conf.decide_domain_center()
@@ -956,7 +977,7 @@ class HAFSLauncher(HAFSConfig):
         (self.syndat.old()).
 
         @param loud If loud=True (the default), then a message is sent
-        to the jlogfile via postmsg with the seed, and information
+        to the jloggerf via postmsg with the seed, and information
         about the calculation that went into it."""
         si=self.syndat.old() # storminfo before renumbering
         icycle=int(self.cycle.strftime('%Y%m%d%H'))
@@ -1422,10 +1443,12 @@ class HAFSLauncher(HAFSConfig):
         #    NWPROD='{HOMEhafs}/nwport'
 
         def dirset(evar,deff,parent='{HOMEhafs}'):
-            if evar in ENV:
-                self._conf.set('dir',evar,ENV[evar])
-            elif not self._conf.has_option('dir',evar):
+            if not self._conf.has_option('dir',evar):
                 self._conf.set('dir',evar,parent+'/'+deff.lower())
+        #   if evar in ENV:
+        #       self._conf.set('dir',evar,ENV[evar])
+        #   elif not self._conf.has_option('dir',evar):
+        #       self._conf.set('dir',evar,parent+'/'+deff.lower())
 
         dirset('FIXhafs','fix')
         dirset('USHhafs','ush')

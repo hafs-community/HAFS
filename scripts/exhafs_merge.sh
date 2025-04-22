@@ -6,6 +6,17 @@
 #   This script runs hafs_datool to merge atmospheric restart files. It
 #   supports the merge_type of analysis or init with the merge_method of
 #   domainmerge or vortexreplace.
+# History:
+#   01/12/2022: Enable cycling the storm region only or cycling the whole domain
+#               from the prior HAFS forecast cycle
+#   02/26/2022: Enable handling the regional moving nesting configuration
+#   03/09/2023: Improvements for HAFSv1 operational implementation
+#   04/20/2024: Improve error handling and stdout/stderr redirection for HAFSv2
+#   07/12/2024: Add 3DIAU related capabilities for HAFS regional configuration
+#   12/16/2024: Add Fourier wave-number filtering capabilities for DA increments
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

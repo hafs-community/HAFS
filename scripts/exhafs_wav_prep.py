@@ -6,6 +6,12 @@
 #   This script runs the HAFS wave preprocessing steps to generate WW3 coupling
 #   needed wave grid, initial condition (IC), boundary condition (BC) and other
 #   input forcing files.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (improved from HWRF)
+#   03/27/2023: Cleanup and improved for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 import os, sys, logging
 

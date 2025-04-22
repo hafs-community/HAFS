@@ -20,8 +20,9 @@
 ! FSON MODULE 
 !
 ! File:   fson.f95
-! Author: Joseph A. Levin
 !
+! Authors and history
+! Author: Joseph A. Levin
 ! Created on March 6, 2012, 7:48 PM
 !
 

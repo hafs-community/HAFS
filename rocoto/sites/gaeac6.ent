@@ -40,7 +40,7 @@
 
   <!ENTITY FORECAST_WALLTIME "<walltime>05:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>3</value></envar>">
-  <!ENTITY FORECAST_EXTRA "&FORECAST_OMP;&FORECAST_WALLTIME;">
+  <!ENTITY FORECAST_EXTRA "<envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
 
   <!ENTITY FORECAST_RESOURCES_360PE "<nodes>6:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_540PE "<nodes>9:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>540</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">

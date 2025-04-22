@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team 
+# Abstract: 
+#     This script serves as marker for "produtil" package
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@namespace produtil
 # Platform-independent weather and ocean forecasting utility package.
@@ -24,14 +34,14 @@
 # functionality.  If a function exists in produtil and the Python
 # standard library, it is best to use the produtil version to avoid
 # Python's bugs.
-# 
+#
 # * produtil.fileop --- Many simple routines to manipulate files and
 #   directories.  Works around many Python bugs and adds logging to
 #   file manipulation routines.
 # * produtil.acl --- A wrapper around libacl.  This is used by the
 #   produtil.fileop.deliver_file() to copy access control lists (ACLs)
 # * produtil.cd --- Two classes to implement safe cd-in-cd-out blocks
-#   using the Python "with" construct.  Also implements temporary 
+#   using the Python "with" construct.  Also implements temporary
 #   directories and deletion of pre-existing directories if requested.
 # * produtil.locking --- File locking that works around Lustre, GPFS
 #   and Panasas bugs.
@@ -53,7 +63,7 @@
 #
 # * produtil.run --- shell-like syntax for running programs, including
 #   a cross-platform way of requesting MPI and OpenMP program
-#   execution.  
+#   execution.
 # * produtil.prog, produtil.mpiprog --- Object tree that underlies the
 #   produtil.run implementation.
 # * produtil.mpi_impl --- Contains one module for each MPI implementation
@@ -68,18 +78,18 @@
 # of the program execution modules.
 #
 # @section other_utils Other Utilities
-# 
+#
 # * produtil.setup --- Contains the produtil.setup.setup() function, which
-#   initializes the entire produtil package.  
-# * produtil.log --- Initialization of the logging module.  Sets up 
+#   initializes the entire produtil package.
+# * produtil.log --- Initialization of the logging module.  Sets up
 #   logging to match what is required in the NCEP production environment.
 #   This is highly configurable (as is the Python logging module).
 # * produtil.sigsafety --- raises an exception on fatal signals,
 #   instead of causing an immediate uncontrolled exit.  This is connected
-#   to the produtil.locking module to work around bugs in Lustre, 
+#   to the produtil.locking module to work around bugs in Lustre,
 #   Panasas and GPFS file locking.
 # * produtil.rusage --- monitor and limit process resource usage
-# * produtil.batchsystem --- Query information about the batch system and 
+# * produtil.batchsystem --- Query information about the batch system and
 #   current batch job.
 # * produtil.cluster --- Query information about the cluster.
 

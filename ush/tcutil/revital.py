@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: revital.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module defines the Revital class which manipulates tcvitals files. It
+#   deals with rewriting TCVitals files to remove errors, change Invests to
+#   storms, and other such operations.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+#   04/03/2023: Finalize for HAFSv1 implementation
+#   04/06/2024: Improve logging and errror handling for HAFSv2 upgrade
+################################################################################
 
 """!Defines the Revital class which manipulates tcvitals files.
 

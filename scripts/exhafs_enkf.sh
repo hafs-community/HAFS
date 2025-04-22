@@ -10,6 +10,13 @@
 #                           ensemble members
 #     ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber
 #                           analysis around the deterministic EnVar analysis
+# History:
+#   12/29/2020: Initial version for HAFS workflow with self-cycled ENSDA
+#   01/27/2021: Support dual-resolution capability for HAFS DA workflow
+#   06/10/2021: Use ensemble mean from enkf_mean in the enkf_update step
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

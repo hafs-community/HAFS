@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: ww3.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module handles WW3 wave coupling related pre- and post-processing steps.
+# History:
+#   06/28/2021: Add the wav_prep and wav_post tasks in HAFS (adapted from HWRF)
+#   06/02/2023: Finalize for HAFSv1 implementation
+#   06/05/2024: Improvements (logging, error/exception handling) for HAFSv2
+################################################################################
 
 """This module handles WW3 related scripts for HAFS system."""
 

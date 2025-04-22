@@ -4,6 +4,13 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates HAFS GEMPAK products.
+# History:
+#   03/08/2023: Script added to support HAFSv1 (leveraged from HWRF/HMON)
+#   04/27/2023: Enable skipping previously completed forecast hours
+#   06/02/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 

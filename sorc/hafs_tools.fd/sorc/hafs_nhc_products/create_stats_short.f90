@@ -8,6 +8,9 @@ program hafs_nhc_products
 !!       OUT  - fort.41   stat.short
 !!              fort.51   afos
 !!              fort.61   tpc
+!
+! Authors and history
+! Oiginal author: EMC HAFS group
 !================================================================
   implicit none
 

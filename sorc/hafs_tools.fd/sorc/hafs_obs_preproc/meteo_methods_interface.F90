@@ -3,6 +3,9 @@ module meteo_methods_interface
   !=======================================================================
 
   !$$$ MODULE DOCUMENTATION BLOCK
+
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
   
   ! obs-preproc :: meteo_methods_interface
   ! Copyright (C) 2019 Henry R. Winterbottom

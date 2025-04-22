@@ -5,6 +5,8 @@
 # Abstract:
 #   This script sources hafs_pre_job.sh.inc and hafs_runcmd.sh.inc, and then
 #   execute the script specified through the input augument(s).
+# History:
+#   04/17/2019: This script was adopted/inerited from HWRF and updated for HAFS.
 ################################################################################
 set -x
 date

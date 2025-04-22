@@ -4,9 +4,14 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates EMC graphics through hafs_graphcs.
+# History:
+#   07/30/2020: Add EMC hafs_graphics in HAFS workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 #
-set -xe
+set -x -o pipefail
 
 date
 
@@ -637,5 +642,3 @@ fi # if [ ${run_wave} = yes ]; then
 date
 
 echo "graphics job done"
-
-exit

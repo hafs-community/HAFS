@@ -7,6 +7,9 @@ module gridtrans_interface
   ! gridtrans :: gridtrans_interface
   ! Copyright (C) 2020 Henry R. Winterbottom
 
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
+
   ! Email: henry.winterbottom@noaa.gov
 
   ! This program is free software: you can redistribute it and/or

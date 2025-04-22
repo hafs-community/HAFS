@@ -6,6 +6,13 @@
 #   This script generates the atmospheric initial condition (IC) and lateral
 #   boundary condition (LBC) at model intial time (if needed) through the
 #   UFS_UTIL's chgres_cube tool.
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   10/06/2021: Add the capability for regional-nesting configurations
+#   02/27/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
