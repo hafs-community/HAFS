@@ -61,6 +61,9 @@ elif [ ${RUN_MULTISTORM} = YES ]; then
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/post
 # GJA
+  # Lew.Gramer@noaa.gov 2025-04-20
+  RESTARTcom=${COMhafs}/${out_prefix}.RESTART
+  # LJG
 else
   INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
@@ -175,7 +178,6 @@ fi
 # Lew.Gramer@noaa.gov
 # If multistorm, limit ngrids=1 for the fake storm (00l)
 if [ ${RUN_MULTISTORM} == "YES" ] && [ ${STORMID,,} == "00l" ] && [ ${RUN_INIT:-NO} == "NO" ]; then
-  echo "DEBUG: exhafs_atm_post.sh: LINE 158: ngrids=${ngrids} - 1"
   ngrids=1
 fi
 # LJG
@@ -191,6 +193,13 @@ if [[ $ng -eq 1 ]]; then
   tilestr=".tile1"
   nesttilestr=""
   nestdotstr=""
+  # Lew.Gramer@noaa.gov 2025-04-20
+  nestcnt_restart="${nestcnt}"
+  neststr_restart="${neststr}"
+  tilestr_restart="${tilestr}"
+  nesttilestr_restart="${nesttilestr}"
+  nestdotstr_restart="${nestdotstr}"
+  #LJG
 elif [ ${RUN_INIT:-NO} == "YES" ]; then
   nestcnt=${ng}
   #nestcnt=${storm_num}
@@ -198,6 +207,13 @@ elif [ ${RUN_INIT:-NO} == "YES" ]; then
   tilestr=".tile$(printf '%d' ${nestcnt})"
   nesttilestr=".nest$(printf '%02d' ${nestcnt}).tile$(printf '%d' ${nestcnt})"
   nestdotstr=".nest$(printf '%02d' ${nestcnt})."
+  # Lew.Gramer@noaa.gov 2025-04-20
+  nestcnt_restart="${nestcnt}"
+  neststr_restart="${neststr}"
+  tilestr_restart="${tilestr}"
+  nesttilestr_restart="${nesttilestr}"
+  nestdotstr_restart="${nestdotstr}"
+  #LJG
 else
   nestcnt=${storm_num}
   # neststr=".nest$(printf '%02d' ${ng})"
@@ -208,6 +224,13 @@ else
   tilestr=".tile$(printf '%d' ${nestcnt})"
   nesttilestr=".nest$(printf '%02d' ${nestcnt}).tile$(printf '%d' ${nestcnt})"
   nestdotstr=".nest$(printf '%02d' ${nestcnt})."
+  # Lew.Gramer@noaa.gov 2025-04-20
+  nestcnt_restart=2
+  neststr_restart=".nest$(printf '%02d' ${nestcnt_restart})"
+  tilestr_restart=".tile$(printf '%d' ${nestcnt_restart})"
+  nesttilestr_restart=".nest$(printf '%02d' ${nestcnt_restart}).tile$(printf '%d' ${nestcnt_restart})"
+  nestdotstr_restart=".nest$(printf '%02d' ${nestcnt_restart})."
+  #LJG
 fi
 
 # gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
@@ -585,6 +608,12 @@ atmos_static=atmos_static${nesttilestr}.nc
 oro_data=oro_data${nesttilestr}.nc
 oro_data_ls=oro_data_ls${nesttilestr}.nc
 oro_data_ss=oro_data_ss${nesttilestr}.nc
+# Lew.Gramer@noaa.gov 2025-04-20
+grid_spec_restart=grid_spec${nesttilestr_restart}.nc
+atmos_static_restart=atmos_static${nesttilestr_restart}.nc
+oro_data_restart=oro_data${nesttilestr_restart}.nc
+oro_data_ls_restart=oro_data_ls${nesttilestr_restart}.nc
+oro_data_ss_restart=oro_data_ss${nesttilestr_restart}.nc
 
 # Pass over the grid_spec.nc, atmos_static.nc, oro_data.nc if not yet exist
 if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTART/${grid_spec} ]; then
@@ -593,6 +622,9 @@ fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
   ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
+  if [ "${grid_spec}" != "${grid_spec_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${grid_spec} ${RESTARTcom}/${grid_spec_restart}
+  fi
 fi
 if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
@@ -600,6 +632,9 @@ fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
   ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+  if [ "${grid_spec}" != "${grid_spec_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${atmos_static} ${RESTARTcom}/${atmos_static_restart}
+  fi
 fi
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
@@ -607,6 +642,9 @@ fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
   ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+  if [ "${grid_spec}" != "${grid_spec_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${oro_data} ${RESTARTcom}/${oro_data_restart}
+  fi
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
@@ -614,6 +652,9 @@ fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
   ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+  if [ "${grid_spec}" != "${grid_spec_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${oro_data_ls} ${RESTARTcom}/${oro_data_ls_restart}
+  fi
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
@@ -621,7 +662,11 @@ fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
   ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+  if [ "${grid_spec}" != "${grid_spec_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${oro_data_ss} ${RESTARTcom}/${oro_data_ss_restart}
+  fi
 fi
+#LJG
 
 # grid_mspec files at the current and prior forecast hours
 OLDDATE=$(${NDATE} -${NOUTHRS} $NEWDATE)
@@ -629,12 +674,15 @@ YYYYold=$(echo $OLDDATE | cut -c1-4)
 MMold=$(echo $OLDDATE | cut -c5-6)
 DDold=$(echo $OLDDATE | cut -c7-8)
 HHold=$(echo $OLDDATE | cut -c9-10)
+# Lew.Gramer@noaa.gov 2025-04-20
 if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}.nc
   grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}.nc
+  grid_mspec_old_restart="${grid_mspec_old}"
 else
   grid_mspec=grid_mspec${neststr}_${YYYY}_${MM}_${DD}_${HH}${tilestr}.nc
   grid_mspec_old=grid_mspec${neststr}_${YYYYold}_${MMold}_${DDold}_${HHold}${tilestr}.nc
+  grid_mspec_old_restart=grid_mspec${neststr_restart}_${YYYYold}_${MMold}_${DDold}_${HHold}${tilestr_restart}.nc
 fi
 # Deliver grid_mspec_old at forecast hours 3, 6, 9
 if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
@@ -646,6 +694,9 @@ if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
      [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
      [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
     ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+    if [ "${grid_mspec_old}" != "${grid_mspec_old_restart}" ]; then
+     ${NLN} ${RESTARTcom}/${grid_mspec_old} ${RESTARTcom}/${grid_mspec_old_restart}
+    fi
   fi
 fi
 # Deliver grid_mspec at NHRS if NHRS less than 12
@@ -658,8 +709,12 @@ if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
      [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
      [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
     ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+    if [ "${grid_mspec_old}" != "${grid_mspec_old_restart}" ]; then
+     ${NLN} ${RESTARTcom}/${grid_mspec_old} ${RESTARTcom}/${grid_mspec_old_restart}
+    fi
   fi
 fi
+#LJG
 
 # Deliver restart files for forecast hours 3, 6, 9
 fv_core=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr}.nc
@@ -669,6 +724,14 @@ fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.n
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
 coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
+# Lew.Gramer@noaa.gov 2025-04-20
+fv_core_restart=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr_restart}.nc
+fv_core_tile_restart=${YYYY}${MM}${DD}.${HH}0000.fv_core.res${neststr_restart}${tilestr_restart}.nc
+fv_tracer_tile_restart=${YYYY}${MM}${DD}.${HH}0000.fv_tracer.res${neststr_restart}${tilestr_restart}.nc
+fv_srf_wnd_tile_restart=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr_restart}${tilestr_restart}.nc
+sfc_data_restart=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr_restart}.nc
+phy_data_restart=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr_restart}.nc
+
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
   while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
   for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
@@ -676,7 +739,15 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${I
       ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
     fi
   done
+  if [ "${fv_core}" != "${fv_core_restart}" ]; then
+   ${NLN} ${RESTARTcom}/${fv_core} ${RESTARTcom}/${fv_core_restart}
+   ${NLN} ${RESTARTcom}/${fv_core_tile} ${RESTARTcom}/${fv_core_tile_restart}
+   ${NLN} ${RESTARTcom}/${fv_tracer_tile} ${RESTARTcom}/${fv_tracer_tile_restart}
+   ${NLN} ${RESTARTcom}/${sfc_data} ${RESTARTcom}/${sfc_data_restart}
+   ${NLN} ${RESTARTcom}/${phy_data} ${RESTARTcom}/${phy_data_restart}
+  fi
 fi
+#LJG
 
 # Deliver WW3 restart file if needed and exists
 if [ ${run_wave:-no} = yes ]; then

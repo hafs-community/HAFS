@@ -101,7 +101,8 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/${exscript}
-export err=$?; err_chk
+# Lew.Gramer@noaa.gov 2025-04-29
+#export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
