@@ -535,7 +535,7 @@ ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
 ${SOURCE_PREP_STEP}
 #ANALYSISEXEC=/scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas.x
-${APRUNC} --mem-per-cpu=MaxMemPerCPU ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
+${APRUNC} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out
 export err=$?; err_chk #XL Note: Need to add exit when error check failed, currently will continue
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
