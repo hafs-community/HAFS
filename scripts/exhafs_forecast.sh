@@ -1319,7 +1319,7 @@ for n in $(seq 2 ${nest_grids}); do
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
-  if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
+  if [ ${RUN_ANALYSIS:-NO} = "YES" ] && [ ${ANALYSIS_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
     iau_inc_files="analysis_inc_nest0${inest}.nc"
     # Linking increment file

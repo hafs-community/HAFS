@@ -64,8 +64,8 @@ export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
 export l4densvar=${l4densvar:-.false.}
 export nhr_obsbin=${nhr_obsbin:--1}
 
-export GSI_D01=${GSI_D01:-NO}
-export GSI_D02=${GSI_D02:-NO}
+export ANALYSIS_D01=${ANALYSIS_D01:-NO}
+export ANALYSIS_D02=${ANALYSIS_D02:-NO}
 export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
