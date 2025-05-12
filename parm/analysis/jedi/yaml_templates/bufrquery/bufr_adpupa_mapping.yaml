@@ -18,8 +18,6 @@ bufr:
         referenceTime: #ANADATE#
     timeOffset:
       query: "*/DHR"
-      transforms:
-        - scale: 3600
 
     prepbufrDataLevelCategory:
       query: "*/PRSLEVEL/CAT"
@@ -106,6 +104,11 @@ bufr:
         - scale: 100
 
     airTemperatureError:
+      query: "*/PRSLEVEL/T___INFO/T__BACKG/TOE"
+      transforms:
+        - offset: 273.15
+
+    virtualTemperatureError:
       query: "*/PRSLEVEL/T___INFO/T__BACKG/TOE"
       transforms:
         - offset: 273.15

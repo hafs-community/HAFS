@@ -393,8 +393,8 @@ cd jedi_ioda
 #XL obstypes="ADPUPA ${radtypes} ${convtypes}"
 #XL satbufrs="atms 1bamua mtiasi gsrcsr ssmisu"
 airctypes="aircar aircft"
-convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp"
-convbufrs="satwnd satwnd prepbufr prepbufr"
+convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp adpupa"
+convbufrs="satwnd satwnd prepbufr prepbufr prepbufr"
 sattypes="atms ssmis amsua iasi"
 satbufrs="atms ssmisu 1bamua mtiasi"
 radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c"
@@ -485,9 +485,6 @@ sed -e "s|#ANADATE#|${ANADATE}|g" \
   fi
   shift
 done
-sed -e "s|#ANADATE#|${ANADATE}|g" \
-    ${PARMjedi}/yaml_templates/bufrquery/bufr_adpupa_mapping.yaml > bufr_adpupa_mapping.yaml
-${APRUNS} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.prepbufr.bufr_d bufr_adpupa_mapping.yaml output/hafs.t${cyc}z.adpupa.nc # somehow too many cores will crash the code.
 
 ########## Converting ATMS NPP/N20 to ioda nc #################
 for file in ${sattypes}; do

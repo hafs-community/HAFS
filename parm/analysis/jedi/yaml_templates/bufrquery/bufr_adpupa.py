@@ -161,6 +161,9 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     container = bufr.Parser(input_path, mapping_path).parse(comm)
 
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
+    logging(comm, 'DEBUG', f'prepbufrDataLevelCategory')
+    cat = container.get('variables/prepbufrDataLevelCategory')
+
     logging(comm, 'DEBUG', f'Change longitude range from [0,360] to [-180,180]')
     lon = container.get('variables/longitude')
     lon_paths = container.get_paths('variables/longitude')
@@ -169,8 +172,8 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     logging(comm, 'DEBUG', f'longitude max and min are {lon.max()}, {lon.min()}')
 
     logging(comm, 'DEBUG', f'Do DateTime calculation')
-    otmct = container.get('variables/obsTimeMinusCycleTime')
-    otmct_paths = container.get_paths('variables/obsTimeMinusCycleTime')
+    otmct = container.get('variables/timeOffset')
+    otmct_paths = container.get_paths('variables/timeOffset')
     otmct2 = np.array(otmct)
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
     dateTime = _compute_datetime(cycleTimeSinceEpoch, otmct2)
@@ -180,13 +183,59 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     logging(comm, 'DEBUG', f'Make an array of 0s for MetaData/sequenceNumber')
     sequenceNum = np.zeros(lon.shape, dtype=np.int32)
     logging(comm, 'DEBUG', f' sequenceNummin/max =  {sequenceNum.min()} {sequenceNum.max()}')
+    logging(comm, 'DEBUG', f'Do ps calculation')
+    pob = container.get('variables/pressure')
+    ps = np.full(pob.shape[0], pob.fill_value)
+    ps = np.where(cat == 0, pob, ps)
+
+    logging(comm, 'DEBUG', f'Do tsen and tv calculation')
+    tpc = container.get('variables/temperatureEventProgramCode')
+    tob = container.get('variables/airTemperature')
+    tsen = np.full(tob.shape[0], tob.fill_value)
+    tsen = np.where(((tpc >=1) & (tpc < 8)), tob, tsen)
+    tvo = np.full(tob.shape[0], tob.fill_value)
+    tvo = np.where((tpc == 8), tob, tvo)
+
+    logging(comm, 'DEBUG', f'Do ps QM calculations')
+    pqm = container.get('variables/pressureQualityMarker')
+    psqm = np.full(pqm.shape[0], pqm.fill_value)
+    psqm = np.where(cat == 0, pqm, psqm)
+
+    logging(comm, 'DEBUG', f'Do tsen and tv QM calculations')
+    tobqm = container.get('variables/airTemperatureQualityMarker')
+    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
+    tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)
+    tvoqm = np.where((tpc == 8), tobqm, tvoqm)
+
+    logging(comm, 'DEBUG', f'Do ps ObsError calculations')
+    poe = container.get('variables/pressureError')
+    psoe = np.full(poe.shape[0], poe.fill_value)
+    psoe = np.where(cat == 0, poe, psoe)
+
+    logging(comm, 'DEBUG', f'Do tsen and tv ObsError calculations')
+    toboe = container.get('variables/airTemperatureError')
+    tsenoe = np.full(toboe.shape[0], toboe.fill_value)
+    tsenoe = np.where(((tpc >= 1) & (tpc < 8)), toboe, tsenoe)
+    tvooe = np.full(toboe.shape[0], toboe.fill_value)
+    tvooe = np.where((tpc == 8), toboe, tvooe)
 
     logging(comm, 'DEBUG', f'Update variables in container')
     container.replace('variables/longitude', lon)
     container.replace('variables/timestamp', dateTime)
+    container.replace('variables/airTemperature', tsen)
+    container.replace('variables/airTemperatureQualityMarker', tsenqm)
+    container.replace('variables/airTemperatureError', tsenoe)
+    container.replace('variables/virtualTemperature', tvo)
+    container.replace('variables/virtualTemperatureQualityMarker', tvoqm)
+    container.replace('variables/virtualTemperatureError', tvooe)
 
     logging(comm, 'DEBUG', f'Add variables to container')
     container.add('variables/sequenceNumber', sequenceNum, lon_paths)
+
+    container.add('variables/stationPressure', ps, lon_paths)
+    container.add('variables/stationPressureQualityMarker', psqm, lon_paths)
+    container.add('variables/stationPressureError', psoe, lon_paths)
 
     # Check
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')
