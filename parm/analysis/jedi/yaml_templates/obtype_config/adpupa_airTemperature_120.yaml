@@ -1,5 +1,5 @@
     - obs space:
-        name: apdupa
+        name: adpupa
         obsdatain:
           engine:
             type: H5File

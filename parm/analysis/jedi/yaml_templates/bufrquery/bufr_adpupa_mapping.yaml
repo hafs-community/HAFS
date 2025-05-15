@@ -202,7 +202,7 @@ encoder:
       source: variables/longitude
       longName: "Longitude"
       units: "degrees_east"
-      range: [0, 360]
+      range: [-180, 180]
 
     # MetaData: latitude    
     - name: "MetaData/latitude"

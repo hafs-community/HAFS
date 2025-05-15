@@ -53,6 +53,7 @@
       - filter: Bounds Check
         filter variables:
         - name: windEastward
+        - name: windNorthward
         test variables:
         - name: GeoVaLs/observable_domain_mask
           flag all filter variables if any test variable is out of bounds: true
