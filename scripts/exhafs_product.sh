@@ -334,7 +334,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL NHC_ATCF_${RUN^^} $job ${atcfncep}
   fi
-  if [ "${RUN_ENVIR^^}" = "NCO" ]; then
+  if [ -n "${ECF_NAME}" ]; then
     ecflow_client --event SentTrackToNHC
   fi
   # Cat atcf global file

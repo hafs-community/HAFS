@@ -12,7 +12,7 @@ export envir=${envir:-test}
 
 export EMAIL_SDM=${EMAIL_SDM:-NO}
 export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
-export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,nco.sos@noaa.gov"}
 
 export HOMEhafs=${HOMEhafs:-${OPSROOT:?}/hafs.${hafs_ver:?}}
 export USHhafs=$HOMEhafs/ush

@@ -223,7 +223,7 @@ else
 if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
-MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
@@ -243,7 +243,7 @@ done
 else
 
 # Wait for model output
-MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \

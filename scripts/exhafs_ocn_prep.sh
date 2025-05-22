@@ -403,7 +403,7 @@ ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 #==============================================================================
 
 # Set ecflow event if needed
-if [ "${RUN_ENVIR^^}" = "NCO" ]; then
+if [ -n "${ECF_NAME}" ]; then
   ecflow_client --event Ocean
 fi      
 

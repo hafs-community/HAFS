@@ -429,7 +429,7 @@ def to_timedelta(a,b=None,negok=True):
     if isinstance(a,str) and b is None:
         # 03:14 = three hours
         try:
-            m=re.search('''(?ix) \A \s* (?P<negative>-)? 0* (?P<hours>\d+)
+            m=re.search(r'''(?ix) \A \s* (?P<negative>-)? 0* (?P<hours>\d+)
                 :0*(?P<minutes>\d+)
                   (?: :0*(?P<seconds>\d+(?:\.\d*)?) )?
                 \s*''', a)

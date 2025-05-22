@@ -62,8 +62,14 @@ export pnetcdf_C_ver=1.12.2
 #export DCOMROOT=/lfs/h1/ops/prod/dcom
 #export COMPATH=/lfs/h1/ops/prod/com/gfs:/lfs/h1/ops/prod/com/rtofs:/lfs/h1/ops/prod/com/obsproc
 #export COMINarch=/lfs/h1/ops/prod/com/gfs/v16.3/syndat
-#export COMINmsg=/lfs/h1/ops/prod/com/hafs/v1.0/inphfsa
-#export MAILTO="floyd.fayton@noaa.gov"
-#export MAILFROM="floyd.fayton@noaa.gov"
-#export EMAIL_SDM=NO
+#export COMINmsg=/lfs/h1/ops/prod/com/hafs/v2.1/inphfsa
 
+# For canned cases use EMC staged input
+#export DCOMROOT=/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/dcom
+#export COMPATH=/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/gfs:/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/rtofs:/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/obsproc
+#export COMINmsg=/lfs/h1/ops/test/com/hafs/v2.1/inphfsa
+
+#export MAILTO="xiaoxue.wang@noaa.gov"
+#export MAILFROM="xiaoxue.wang@noaa.gov"
+#export EMAIL_SDM=NO
+#export DATAROOT=/lfs/f1/ops/para/tmp

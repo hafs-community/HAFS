@@ -25,8 +25,9 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5-A/${hdf5_ver}
-module load netcdf-A/${netcdf_ver}
+module load hdf5-C/${hdf5_ver}
+module load netcdf-C/${netcdf_ver}
+module load esmf-C/${esmf_ver}
 module load ncio-A/${ncio_ver}
 module load ncdiag-A/${ncdiag_ver}
 module load ve/hafs/${ve_hafs_ver}
