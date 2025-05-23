@@ -22,7 +22,7 @@ module list
 
 export EMAIL_SDM=YES
 export MAILFROM=${MAILFROM:-"nco.spa@noaa.gov"}
-export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,ncep.sos@noaa.gov"}
+export MAILTO=${MAILTO:-"sdm@noaa.gov,nco.spa@noaa.gov,nco.sos@noaa.gov"}
 
 ${HOMEhafs}/jobs/JHAFS_MSG_CHECK
 

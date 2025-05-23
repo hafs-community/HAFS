@@ -80,7 +80,7 @@ import produtil.setup, produtil.log, produtil.dbnalert
 import hafs.launcher
 from produtil.fileop import deliver_file
 from produtil.numerics import to_datetime
-from produtil.ecflow import set_ecflow_event
+from produtil.run import checkrun, exe, run, runstr
 
 ## The logging.Logger for log messages
 logger=None
@@ -266,17 +266,25 @@ def main():
                 alert()
 
     DA=conf.getbool('config','run_analysis')
-    if DA: set_ecflow_event('Analysis',logger)
+    if DA and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Analysis']
+        checkrun(cmd,logger=logger)
 
     Ana_model=conf.getstr('config','analysis_model')
-    if Ana_model == "GSI": set_ecflow_event('GSI',logger)
+    if Ana_model == "GSI"and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'GSI']
+        checkrun(cmd,logger=logger)
 
     Ocean=conf.getbool('config','run_ocean')
-    if Ocean: set_ecflow_event('Ocean',logger)
+    if Ocean and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Ocean']
+        checkrun(cmd,logger=logger)
 
     Wave=conf.getbool('config','run_wave') and \
          conf.getstr('config','wave_model').upper()=='WW3'
-    if Wave: set_ecflow_event('Wave',logger)
+    if Wave and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Wave']
+        checkrun(cmd,logger=logger)
 
 if __name__ == '__main__':
     try:

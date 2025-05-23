@@ -28,7 +28,7 @@ else:
 import produtil.setup, produtil.datastore, produtil.fileop
 from produtil.datastore import Datastore
 from produtil.fileop import deliver_file, remove_file
-from produtil.ecflow import set_ecflow_event
+from produtil.run import checkrun, exe, run, runstr
 import hafs.launcher, hafs.config, hafs.ww3
 
 produtil.setup.setup()
@@ -67,6 +67,8 @@ except:
     logger.critical("FATAL ERROR: ww3init failed")
     sys.exit(2)
 
-set_ecflow_event('Wave',logger=logger)
+if os.environ.get('ECF_NAME',''):
+    cmd=exe('ecflow_client')['--event', 'Wave']
+    checkrun(cmd,logger=logger)
 
 logger.info("ww3init done")

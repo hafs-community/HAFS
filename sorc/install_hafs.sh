@@ -11,6 +11,14 @@ cwd=$(pwd)
 
 cd ${cwd}
 
+# Clean up directories and files not needed by NCO (through either git sparse-checkout or removing the files/dirs directly)
+if [ "${RUN_ENVIR^^}" == "NCO" ]; then
+  echo "Use git sparse-checkout to clean up directories and files not needed by NCO"
+  ./sparse_checkout_nco.sh
+# echo "Delete directories and files not needed by NCO"
+# ./cleanup_nco.sh
+fi
+
 # Build subcomponets
 ./build_all.sh
 
