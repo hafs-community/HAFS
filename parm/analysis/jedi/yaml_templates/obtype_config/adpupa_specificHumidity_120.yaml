@@ -1,9 +1,13 @@
     - obs space:
-        name: adpupa
+        name: adpupa_specifichumidity_120
         obsdatain:
           engine:
             type: H5File
             obsfile: obs/hafs.#HH#.adpupa.nc
+          obsgrouping:
+            group variables: ["stationIdentification"]
+            sort variable: "pressure"
+            sort order: "descending"
         obsdataout:
           engine:
             type: H5File
@@ -13,7 +17,6 @@
           max pool size: 40
         observed variables: [specificHumidity]
         simulated variables: [specificHumidity]
-
       obs operator:
         name: Composite
         components:
@@ -28,9 +31,14 @@
       obs error:
         covariance model: diagonal
 
+      # Observation Pre fitler for domain resize
+      obs pre filters:
+      # --------------------------
+      # specificHumidity (120)
+      # --------------------------
       obs pre filters:
       - filter: Domain Check
-        apply at iterations: 0,1
+        apply at iterations: 0, 1
         where:
         - variable:
             name: MetaData/latitude
@@ -38,9 +46,8 @@
           maxvalue: #MAX_LAT#
         action:
           name: reduce obs space
-
-      - filter: Domain Check
-        apply at iterations: 0,1
+      - filter : Domain Check
+        apply at iterations: 0, 1
         where:
         - variable:
             name: MetaData/longitude
@@ -48,8 +55,30 @@
           maxvalue: #MAX_LON#
         action:
           name: reduce obs space
+      # Reject all obs with QualityMarker > 3
+      - filter: RejectList
+        apply at iterations: 0,1
+        filter variables:
+        - name: specificHumidity
+        where:
+        - variable: QualityMarker/specificHumidity
+          is_in: 4-15
+          value: is_not_valid
+        where operator: or
+      # Time window filter
+      - filter: Domain Check
+        apply at iterations: 0,1
+        where:
+          - variable:
+              name: MetaData/timeOffset # units: s
+            minvalue: -10800
+            maxvalue:  10800
+        action:
+          name: reduce obs space
 
-      obs post filters:
+      # Observation Prior Filters (QC)
+      obs prior filters:
+      # Regional Domain Check
       - filter: Bounds Check
         filter variables:
         - name: specificHumidity
@@ -59,24 +88,7 @@
           minvalue: 0.0
           maxvalue: 0.5
 
-      # Reject all obs with QualityMarker > 3
-      - filter: RejectList
-        apply at iterations: 0,1
-        where:
-        - variable: ObsType/specificHumidity
-          is_in: 120
-        - variable: QualityMarker/specificHumidity
-          is_in: 4-15
-
-      # Time window filter
-      - filter: Domain Check
-        apply at iterations: 0,1
-        where:
-          - variable:
-              name: MetaData/timeOffset # units: s
-            minvalue: -10800.
-            maxvalue:  10800.
-
+      # Initial errror assignment
       - filter: Perform Action
         filter variables:
         - name: specificHumidity
@@ -92,6 +104,52 @@
                 name: MetaData/pressure
               xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000, 65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000, 10000, 7500, 5000, 4000, 3000, 2000, 1000, 500, 400, 300, 200, 100, 0]
               errors: [0.060737, 0.066294, 0.074223, 0.083688, 0.094025, 0.10439,0.11591, 0.12715,0.13819, 0.1485, 0.15562, 0.15972, 0.16305, 0.16707, 0.17091, 0.17517, 0.18047,0.18621, 0.19134, 0.19517, 0.19762, 0.19897, 0.19961, 0.19988, 0.19997, 0.19999, 0.19999, 0.2, 0.19999, 0.19997, 0.19992, 0.19983, 0.19974]
+      # Create PreUseFlag Group Variable (usage in GSI read_prepbufr)
+      # Initialize
+      - filter: Variable Assignment
+        assignments:
+        - name: PreUseFlag/specificHumidity
+          type: int
+          source variable: QualityMarker/specificHumidity
+      # Assignment
+      - filter: Variable Assignment
+        where:
+        - variable:
+            name: PreUseFlag/specificHumidity
+          is_in: 1-15
+        assignments:
+        - name: PreUseFlag/specificHumidity
+          value: 0
+      - filter: Variable Assignment
+        where:
+        - variable:
+            name: QualityMarker/specificHumidity
+          is_in: 9, 12, 15
+        assignments:
+        - name: PreUseFlag/specificHumidity
+          value: 100
+
+      - filter: Variable Assignment
+        where:
+        - variable:
+            name: QualityMarker/specificHumidity
+          is_in: 4-15
+        assignments:
+        - name: PreUseFlag/specificHumidity
+          value: 101
+
+      ## error inflation if observation QM is 3 or 7 (read_prepbufr.f90)
+      - filter: Perform Action
+        filter variables:
+        - name: specificHumidity
+        where:
+         - variable:
+             name: QualityMarker/specificHumidity
+           is_in: 3,7
+        action:
+          name: inflate error
+          inflation factor: 1.2
+
       # Error inflation based on pressure check (setupq.f90)
       - filter: Perform Action
         filter variables:
@@ -129,6 +187,21 @@
         - name: specificHumidity
         minvalue: 0.0
         maxvalue: 1.0
+
+      # Observation Post Filters (QC)
+      # -------------------------------
+      obs post filters:
+      # Calculate obs error inflation factors for duplicated observations at the same location
+      - filter: Variable Assignment
+        assignments:
+        - name: ObsErrorFactorDuplicateCheck/specificHumidity
+          type: float
+          function:
+            name: ObsFunction/ObsErrorFactorDuplicateCheck
+            options:
+              use_air_pressure: yes
+              variable: specificHumidity
+
       # Create temporary ObsErrorData
       - filter: Variable Assignment
         apply at iterations: 0,1
@@ -140,7 +213,6 @@
             options:
               variables:
               - name: ObsErrorData/specificHumidity
-        defer to post: true
       # Set ObsError set "error parameter" if < "max value"
       - filter: Perform Action
         apply at iterations: 0,1
@@ -156,7 +228,6 @@
         - variable:
             name: ObsErrorData/specificHumidity
           value: is_valid
-        defer to post: true
       # Set ObsError set "error parameter" if > "min value"
       - filter: Perform Action
         apply at iterations: 0,1
@@ -172,7 +243,6 @@
         - variable:
             name: ObsErrorData/specificHumidity
           value: is_valid
-        defer to post: true
 
       # Gross Error Check
       - filter: Background Check
@@ -186,7 +256,6 @@
         - variable: ObsType/specificHumidity
         - variable: QualityMarker/specificHumidity
           is_not_in: 3
-        defer to post: true
       # Gross Error Check: cgross*0.7 if QualityMarker=3
       - filter: Background Check
         apply at iterations: 0,1
@@ -199,7 +268,6 @@
         - variable: ObsType/specificHumidity
         - variable: QualityMarker/specificHumidity
           is_in: 3
-        defer to post: true
 
       # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
       - filter: Perform Action
@@ -213,4 +281,14 @@
         - variable:
             name: TempObsErrorData/specificHumidity
           value: is_valid
-        defer to post: true
+
+      # Inflate obs error based on duplicate check
+      - filter: Perform Action
+        filter variables:
+        - name: specificHumidity
+        action:
+          name: inflate error
+          inflation variable:
+            name: ObsErrorFactorDuplicateCheck/specificHumidity
+
+      # End of filter
