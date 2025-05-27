@@ -23,6 +23,8 @@ elif [ ${target} == "jet" ]; then
   FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
   FIXROOT=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+elif [ ${target} == "ursa" ]; then
+  FIXROOT=/scratch3/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 else
   echo "FATAL ERROR: Unknown site " ${target}
   exit 1
