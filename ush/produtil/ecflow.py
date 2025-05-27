@@ -1,5 +1,17 @@
-#! /usr/bin/env python
-
+#! /usr/bin/env python3
+################################################################################
+# Script Name: ecflow.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This script decide if the job is inside ecflow or not, sets the specified 
+#   ecFlow event,  updates the specified ecFlow label, changes the level of the                                   
+#   specified ecflow meter.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF)
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted
+################################################################################
 
 import os, produtil.log
 

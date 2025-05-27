@@ -4,6 +4,11 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates HRD graphics through GPLOT.
+# History:
+#   07/16/2020: Include AOML/HRD GPLOT graphics in HAFS workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -xe
 

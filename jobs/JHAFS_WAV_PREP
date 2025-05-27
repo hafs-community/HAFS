@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -56,12 +55,12 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 source ${HOLDVARS}
 
 export ww3_force_cold_start=${ww3_force_cold_start:-${force_cold_start:-${COLDSTART:-NO}}}
-export DATA=${WORKhafs}/wav_prep
+export DATA=${WORKhafs}/wav_prep${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA
 fi
-mkdir -p $DATA ${WORKhafs}/intercom/ww3
+mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script

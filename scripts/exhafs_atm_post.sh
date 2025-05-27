@@ -7,9 +7,22 @@
 #   running UPP for regular and satellite post (if needed), subsetting the
 #   vortex tracker needed grib2 records, and NHC requested grib2 records (if
 #   chosen).
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   09/10/2021: Changes for HAFS satellite post
+#      02/2021: Introduce support for moving nesting configurations
+#      01/2023: Add swath products based on parent domain output
+#   05/02/2023: Finalize for HAFSv1 operational implementation
+#   06/25/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+#   03/26/2025: Generate NHC storm grib2 files on a subset of a fixed domain to
+#               better faciliate AWIPS display
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
+export USE_CFP=${USE_CFP:NO}
 export MP_LABELIO=yes
 
 CDATE=${CDATE:-${YMDH}}
@@ -210,7 +223,7 @@ else
 if [ ${write_dopost:-.false.} = .true. ]; then
 
 # Wait for model output
-MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
@@ -230,7 +243,7 @@ done
 else
 
 # Wait for model output
-MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
+MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
@@ -379,7 +392,13 @@ if [ ${satpost} = .true. ]; then
   echo ${WGRIB2} ${sat_grb2post}                                           ${opts} -new_grid ${postgridspecs} ${sat_grb2file} >> cmdfile
 fi
 chmod +x cmdfile
-${APRUNC} ${MPISERIAL} -m cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
 export err=$?; err_chk
 # Cat the temporary files together
 cat ${grb2post}.part?? > ${grb2file}
@@ -421,6 +440,22 @@ if [ ${nhcpost} = .true. ]; then
     ${WGRIB2} -append ${sat_grb2file} -match "${PARMlist}" -grib ${nhc_grb2file}
     export err=$?; err_chk
   fi
+  # Regridding hafs storm domain grib2 files for NHC on a subdomain of a fixed domain with a fixed resolution
+  if [ ${gridstr} = "storm" ]; then
+    grb2file_raw=${nhc_grb2file}_raw
+    mv ${nhc_grb2file} ${grb2file_raw}
+	nhc_nlon=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 1))
+	nhc_nlat=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 2))
+	nhc_lon0=$(printf "%.1f" $(bc <<< "scale=1; $(${WGRIB2} -ijlat 1 1 -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -d "," -f 3 | cut -d "=" -f 2)"))
+	nhc_lat0=$(printf "%.1f" $(bc <<< "scale=1; $(${WGRIB2} -ijlat 1 1 -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -d "," -f 4 | cut -d "=" -f 2)"))
+	nhc_dlon=$(printf "%.2f" $(bc <<< "scale=2; $(echo ${output_grid_dlon} | cut -d , -f ${ng})"))
+	nhc_dlat=$(printf "%.2f" $(bc <<< "scale=2; $(echo ${output_grid_dlat} | cut -d , -f ${ng})"))
+    nhc_gridspecs="latlon ${nhc_lon0}:${nhc_nlon}:${nhc_dlon} ${nhc_lat0}:${nhc_nlat}:${nhc_dlat}"
+    opts='-new_grid_winds earth -set_grib_type complex3'
+    echo "INFO: generating ${nhc_grb2file} ..."
+    ${WGRIB2} ${grb2file_raw} ${opts} -new_grid ${nhc_gridspecs} ${nhc_grb2file}
+    export err=$?; err_chk
+  fi
   ${WGRIB2} -s ${nhc_grb2file} > ${nhc_grb2indx}
   export err=$?; err_chk
 fi
@@ -454,7 +489,13 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp2}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p2             >> cmdfile_regrid
   echo ${WGRIB2} ${trkd02_grb2file} -match '"'${PARMlistp3}'"' ${opts} -new_grid ${trakgridspecs} ${trkd02_grb2file}.hires_p3             >> cmdfile_regrid
   chmod +x cmdfile_regrid
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile_regrid | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile_regrid
+else
   ${APRUNC} ${MPISERIAL} -m cmdfile_regrid
+fi
   export err=$?; err_chk
   rm -f cmdfile_merge
  #${WGRIB2} ${trkd02_grb2file}.hires -rpn sto_1 -import_grib ${trkd01_grb2file}.hires -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}
@@ -462,7 +503,13 @@ if [ ${trkd12_combined:-no} = "yes" ] && [ $ng -eq 2 ]; then
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p2 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p2 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p2 >> cmdfile_merge
   echo ${WGRIB2} ${trkd02_grb2file}.hires_p3 -rpn sto_1 -import_grib ${trkd01_grb2file}.hires_p3 -rpn "rcl_1:merge" -grib_out ${trkd12_grb2file}_p3 >> cmdfile_merge
   chmod +x cmdfile_merge
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile_merge | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile_merge
+else
   ${APRUNC} ${MPISERIAL} -m cmdfile_merge
+fi
   export err=$?; err_chk
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
   mv ${trkd12_grb2file} ${trkd02_grb2file}

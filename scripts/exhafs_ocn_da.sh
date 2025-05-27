@@ -20,6 +20,7 @@ TMP_DATE=${CDATE:0:8}Z${CDATE:8:2}
 export ANA_DATE=$(date -ud "$TMP_DATE")
 
 MOM_res_DIR=${WORKhafs}/atm_init/forecast/RESTART
+MOM_res_DIR=${WORKhafs}/intercom/RESTART_init
 if [[ -d "${MOM_res_DIR}" && $(ls ${MOM_res_DIR}/*MOM.res* -1q | wc -l) -gt 2 ]]; then
   echo " -> MOM6 restart files from atm_init are available"
   echo " -> Running OCN DA"

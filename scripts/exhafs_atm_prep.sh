@@ -5,6 +5,13 @@
 # Abstract:
 #   This script runs the HAFS atmopsheric preprocessing steps to generate the
 #   model grid and geographical files (topography, surface climatology, etc.)
+# History:
+#      06/2023: Initial version for HAFSv1 operational implementation
+#   07/04/2024: Substantialy speeded up atm_prep job through enabling OMP
+#               threading for the filter_topo and make_orog_gsl steps
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -30,7 +37,7 @@ if [ ${ENSDA:-NO} = YES ]; then
   export delx_nest=${delx_nest_ens:-0.03}
   export dely_nest=${dely_nest_ens:-0.03}
   export halop2=${halop2_ens:-5}
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid_ens/${CASE}}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_prep_ens/grid_ens/${CASE}}
 else
   export CASE=${CASE:-C768}
   export gtype=${gtype:-regional}
@@ -49,7 +56,7 @@ else
   export delx_nest=${delx_nest:-0.03}
   export dely_nest=${dely_nest:-0.03}
   export halop2=${halop2:-5}
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/grid/${CASE}}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_prep/grid/${CASE}}
 fi
 
 else # Moving nest is enabled
@@ -76,7 +83,7 @@ if [[ "${is_moving_nest}" = *".true."* ]]; then
   export delx_nest=${delx_nest_mvnest1res:-0.01}
   export dely_nest=${dely_nest_mvnest1res:-0.01}
   export halop2=${halop2_mvnest1res:-15}
-  export OUTDIR=${WORKhafs}/intercom/grid_mvnest1res/${CASE}
+  export OUTDIR=${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE}
 fi
 
 fi
@@ -115,7 +122,7 @@ export FILTERTOPOSSH=${USHhafs}/hafs_filter_topo.sh
 export gridfixdir=${gridfixdir:-'/let/hafs_grid/generate/grid'}
 export script_dir=${USHhafs}
 export exec_dir=${EXEChafs}
-export out_dir=${OUTDIR:-${WORKhafs}/intercom/grid}
+export out_dir=${OUTDIR:-${WORKhafs}/intercom/atm_prep/grid}
 export DATA=${DATA:-${WORKhafs}/atm_prep}
 mkdir -p ${out_dir}
 
@@ -199,7 +206,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -218,7 +225,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -253,7 +260,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -270,7 +277,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -317,7 +324,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -334,7 +341,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -412,7 +419,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -472,7 +479,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -686,4 +693,3 @@ fi
 # End of run for the global or regional nested tiles.
 #----------------------------------------------------------------
 
-exit

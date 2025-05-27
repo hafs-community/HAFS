@@ -1,16 +1,24 @@
-#! /usr/bin/env python3 
-
-"""!Manipulates Access Control Lists (ACL)
-
-This module is a wrapper around the C libacl library, which provides
-support for POSIX Access Control Lists, as defined by the abandoned
-draft standard "IEEE 1003.1e draft 17".  Only the widely-supported
-features are implemented.  It is intended to be used with the Linux
-libacl, but might be portable to other versions if the module-scope
-acl_library variable is changed to the name of your "dll" or "so" file
-for libacl and values of ACL_TYPE_ACCESS and ACL_TYPE_DEFAULT are
-changed.  In addition, one must change the means by which errno is
-accessed if switching from glibc to another C library."""
+#! /usr/bin/env python3
+################################################################################  
+# Script Name: acl.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Manipulates Access Control Lists (ACL)
+#   This module is a wrapper around the C libacl library, which provides
+#   support for POSIX Access Control Lists, as defined by the abandoned
+#   draft standard "IEEE 1003.1e draft 17".  Only the widely-supported
+#   features are implemented.  It is intended to be used with the Linux
+#   libacl, but might be portable to other versions if the module-scope
+#   acl_library variable is changed to the name of your "dll" or "so" file
+#   for libacl and values of ACL_TYPE_ACCESS and ACL_TYPE_DEFAULT are
+#   changed.  In addition, one must change the means by which errno is
+#   accessed if switching from glibc to another C library.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:                                                                                   
+#   == 0 : success                                                                                   
+#   != 0 : fatal error encounted                                                                     
+################################################################################
 
 import ctypes, os, stat
 
@@ -145,13 +153,13 @@ class ACL(object):
     around the libacl library, and implements only widely-supported
     ACL features.  Data is stored internally in C structures, which
     are allocated and freed automatically as needed."""
-    def __init__(self):    
+    def __init__(self):
         """!Create a blank, invalid, ACL.  You should use the various
         from_* routines to fill it with valid data."""
         if libacl is None: load_libacl()
         self.__libacl=libacl # to ensure libacl is not freed before the ACL
         self.__acl=None
-    def __del__(self): 
+    def __del__(self):
         """!Free the memory used by the ACL in libacl."""
         self.free()
     def free(self):
@@ -185,7 +193,7 @@ class ACL(object):
                                %(os.strerror(errno),repr(shortacl)),errno)
         return self
     def from_file(self,filename,which=ACL_TYPE_ACCESS):
-        """!Copies the files's ACL into this object.  
+        """!Copies the files's ACL into this object.
 
         Specify which type of access control list via the second
         argument: ACL_TYPE_ACCESS or ACL_TYPE_DEFAULT.  Any prior ACL

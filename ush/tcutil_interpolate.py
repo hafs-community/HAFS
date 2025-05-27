@@ -5,6 +5,8 @@
 # Abstract:
 #   This script can interplate or extrapolate to generate TCvitals at different
 #   time levels.
+# History:
+#   12/10/2020: Add the FGAT and HAFS ensemble capabilities in HAFS DA workflow.
 ################################################################################
 import logging, os, sys, re, functools
 import produtil.setup

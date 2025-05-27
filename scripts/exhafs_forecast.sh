@@ -5,6 +5,23 @@
 # Abstract:
 #   This script runs a HAFS forecast with various coldstart/warmstart and
 #   uncoupled/coupled configurations.
+# History:
+#   04/17/2019: Initial version introduced in HAFS application
+#   04/27/2019: Support both static and relocatable regional configurations
+#   05/02/2019: Add support of running global-nesting configuration
+#      05/2020: Enable HAFS HYCOM ocean coupling
+#   06/01/2020: Add multiple global static nesting capability
+#   08/18/2021: Add WW3 wave coupling support in the HAFS application/workflow
+#   12/17/2021: Introduce regional and global storm-following moving nesting
+#   05/02/2022: Support running HAFS ensembles with stocahstic physics
+#   02/27/2023: Introduce HAFS MOM6 ocean coupling
+#   04/09/2023: Improvements for HAFSv1 operational implementation
+#      04/2024: Enable the atmosphere-only forecast job restart capability
+#      05/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+#      07/2024: Add 3DIAU related capabilities for HAFS regional configuration
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -152,6 +169,7 @@ nstf_n3=${nstf_n3:-0}
 nstf_n4=${nstf_n4:-0}
 nstf_n5=${nstf_n5:-0}
 
+deflate_level=${deflate_level:-1}
 levp=${LEVS}
 
 # Set options for cold-start or warm-start
@@ -183,8 +201,8 @@ stop_n=${NHRS:-126}
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
 if [ "${ENSDA}" = YES ]; then
-  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
+  INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   intercompost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
@@ -192,8 +210,8 @@ if [ "${ENSDA}" = YES ]; then
   intercomgempak=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/gempak
   run_ocean=no
 elif [ ${FGAT_MODEL} = gdas ]; then
-  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}}
   RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   intercompost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
@@ -201,8 +219,8 @@ elif [ ${FGAT_MODEL} = gdas ]; then
   intercomgempak=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/gempak
   run_ocean=no
 else
-  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_init}
   RESTARTout=${WORKhafs}/intercom/RESTART_init
   intercompost=${WORKhafs}/intercom/atm_init/post
@@ -245,16 +263,16 @@ else
   mom_input_filename='n'
 fi
 if [ "${ENSDA}" = YES ]; then
-  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid_ens}
-  INPdir=${INPdir:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
+  INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_ens/mem${ENSID}}
   RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART_ens/mem${ENSID}}
   intercompost=${WORKhafs}/intercom/post_ens/mem${ENSID}
   intercomocnpost=${WORKhafs}/intercom/ocn_post_ens/mem${ENSID}
   intercomgempak=${WORKhafs}/intercom/gempak_ens/mem${ENSID}
 else
-  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/grid}
-  INPdir=${INPdir:-${WORKhafs}/intercom/chgres}
+  FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep/grid}
+  INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast}
   RESTARTout=${RESTARTout:-${WORKhafs}/intercom/RESTART}
   intercompost=${WORKhafs}/intercom/post
@@ -790,7 +808,7 @@ fi
 # Link all the gfs_bndy files here for full forecast ensemble members, but the
 # hour 000 and hour 006 lbc files will be replaced below.
 if [ ${ENSDA} = YES ] && [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
-  ${RLN} ${WORKhafs}/intercom/chgres/gfs_bndy.tile7.*.nc INPUT/
+  ${RLN} ${WORKhafs}/intercom/atm_inp/gfs_bndy.tile7.*.nc INPUT/
 fi
 
 ${RLN} ${INPdir}/*.nc INPUT/
@@ -891,14 +909,14 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile6.nc oro_data_ls.tile6.nc
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile6.nc oro_data_ss.tile6.nc
   fi
-  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
-  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
+  ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile6.nc grid.tile6.${rrtmp}x.nc
+  ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile6.nc oro_data.tile6.${rrtmp}x.nc
   if [ ${use_orog_gsl:-no} = yes ]; then
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile6.nc oro_data_ls.tile6.${rrtmp}x.nc
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile6.nc oro_data_ss.tile6.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile6.nc oro_data_ls.tile6.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile6.nc oro_data_ss.tile6.${rrtmp}x.nc
   fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
   done
   cd ..
 fi
@@ -1063,14 +1081,14 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
   fi
-  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
-  ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
+  ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_grid.tile7.halo0.nc grid.tile1.${rrtmp}x.nc
+  ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data.tile7.halo0.nc oro_data.tile1.${rrtmp}x.nc
   if [ ${use_orog_gsl:-no} = yes ]; then
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile7.nc oro_data_ls.tile1.${rrtmp}x.nc
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile7.nc oro_data_ss.tile1.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ls.tile7.nc oro_data_ls.tile1.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/${CASE_mvnest1res}_oro_data_ss.tile7.nc oro_data_ss.tile1.${rrtmp}x.nc
   fi
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
-    ${NLN} $FIXgrid/../grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
+    ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
   done
   cd ..
 fi
@@ -1306,7 +1324,8 @@ for n in $(seq 2 ${nest_grids}); do
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
-  if [ ${RUN_INIT:-NO} = NO ] && [ ${iau_regional:-.false.} = ".true." ] ; then
+  if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
+     [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
     iau_inc_files="analysis_inc_nest0${inest}.nc"
     # Linking increment file
     ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/
@@ -1369,9 +1388,9 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   atparse < ./stream.config.IN > ./stream.config
 
   # MOM_input
-  ${NCP} ${PARMmom6}/hafs_mom6.input.IN ./hafs_mom6.input.IN
-  NIGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
-  NJGLOBAL=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
+  ${NCP} ${PARMmom6}/hafs_mom6_${RUN}.input.IN ./hafs_mom6.input.IN
+  niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
+  njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
   DT_MOM6=${cpl_dt}
   DT_THERM_MOM6=${cpl_dt}
   atparse < ./hafs_mom6.input.IN > ./MOM_input
@@ -1420,13 +1439,13 @@ fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
 
 if [ ${run_wave} = yes ]; then
   # link ww3 related files
-  ${NLN} ${WORKhafs}/intercom/ww3/mod_def.ww3 mod_def.ww3
-  ${NLN} ${WORKhafs}/intercom/ww3/ww3_mesh.nc ww3_mesh.nc
-  ${NLN} ${WORKhafs}/intercom/ww3/wind.ww3 wind.ww3
-  ${NLN} ${WORKhafs}/intercom/ww3/current.ww3 current.ww3
-  ${NLN} ${WORKhafs}/intercom/ww3/restart_init.ww3 restart.ww3
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/mod_def.ww3 mod_def.ww3
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/ww3_mesh.nc ww3_mesh.nc
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/wind.ww3 wind.ww3
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/current.ww3 current.ww3
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/restart_init.ww3 restart.ww3
   # nest.ww3 is not mandatory, using WLN and treat it as data opportunity
-  ${WLN} ${WORKhafs}/intercom/ww3/nest.ww3 nest.ww3
+  ${WLN} ${WORKhafs}/intercom/wav_prep/ww3/nest.ww3 nest.ww3
   # copy parms
   ${NCP} ${PARMww3}/ww3_shel.inp_tmpl ./ww3_shel.inp_tmpl
   # generate ww3_shel.inp
@@ -1450,8 +1469,11 @@ if [ ${run_wave} = yes ]; then
   POFILETYPE=0
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
   atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
-  # 6-hr ww3 restart file needed for warm-start waves for the next forecast cycle  
+  # Create symbolic links for ww3 restart and history output files from OUTdir
+  ${RLN} ${OUTdir}/${CDATE:0:8}.${CDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./
+  ${RLN} ${OUTdir}/out_grd.ww3 ./
+  ${RLN} ${OUTdir}/out_pnt.ww3 ./
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${RUN_INIT:-NO} = NO ]; then
@@ -1782,6 +1804,27 @@ if [[ "${is_moving_nest_tmp}" = ".true." ]] || [[ "${is_moving_nest_tmp}" = ".T.
       cat ${OUTdir}/${fort_patcf} >> ${OUTdir}/${fort_patcf}_save
 	fi
     ${RLN} ${OUTdir}/${fort_patcf} ./
+  fi
+fi
+
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+  if [ $FHR -eq 0 ] ; then
+    ${RLN} ${OUTdir}/oic_${YYYY}_${MM}_${DD}_${HH}.nc ./
+  else
+    ${RLN} ${OUTdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ./
+  fi
+fi
+
+if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
+  # Use date2jday.sh from prod_util to get julian day
+  JDAY=$(date2jday.sh ${YYYY}${MM}${DD} | cut -c5-)
+  if [ $FHR -gt 0 ] ; then
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.a ./
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.b ./
+    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.txt ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.a ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.b ./
+    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.txt ./
   fi
 fi
 

@@ -5,6 +5,13 @@
 # Abstract:
 #   This script runs the HAFS specific observation preprocessing steps needed
 #   by data assimilation.
+# History:
+#   03/21/2023: Initial version for HAFSv1 operational implementation
+#   06/04/2024: Improvements for HAFSv2 upgrade
+#   11/09/2024: Properly handle tempdrop obs processing errors/warnings
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -340,7 +347,11 @@ sed -e "s/_analdate_/${analdate}/g" \
 OBSPREPROCEXEC=${OBSPREPROCEXEC:-${EXEChafs}/hafs_tools_obs_preproc.x}
 ${NCP} -p ${OBSPREPROCEXEC} ./hafs_tools_obs_preproc.x
 ${APRUNS} ./hafs_tools_obs_preproc.x 2>&1 | tee ./obs_preproc.out
-export err=$?; err_chk
+status=$?
+if [[ $status -ne 0 ]]; then
+  echo "WARNING: hafs_tools_obs_preproc.x encountered issue when processing tempdrop observations with exit code of $status. Continue ..."
+fi
+
 if [ -s ./tempdrop.prepbufr ]; then
   # Deliver to intercom
   ${NCP} -p ./tempdrop.prepbufr ${intercom}/${NFtempdrop}

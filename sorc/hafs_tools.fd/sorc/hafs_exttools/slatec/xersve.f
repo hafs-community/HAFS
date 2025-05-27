@@ -8,6 +8,7 @@ C***LIBRARY   SLATEC (XERROR)
 C***CATEGORY  R3
 C***TYPE      ALL (XERSVE-A)
 C***KEYWORDS  ERROR, XERROR
+C***Authors and history
 C***AUTHOR  Jones, R. E., (SNLA)
 C***DESCRIPTION
 C

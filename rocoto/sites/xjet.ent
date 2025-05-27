@@ -9,7 +9,10 @@
   <!ENTITY QUEUE_SHARED    "batch">
   <!ENTITY SHARED_EXTRA    "<native>--partition=xjet</native>">
   <!ENTITY QUEUE_SERVICE   "batch">
+  <!ENTITY SERVICE         "<native>--partition=service</native>">
   <!ENTITY SERVICE_EXTRA   "<native>--partition=service</native>">
+  <!ENTITY CLUSTER_COMPUTE "">
+  <!ENTITY CLUSTER_DT      "">
   <!ENTITY CORES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>24</nodesize>">
   <!ENTITY RESERVATION     "">

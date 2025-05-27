@@ -5,6 +5,14 @@
 # Abstract:
 #   This script runs the GFDL vortex tracker to generate the ATCF track files,
 #   and produces the stakeholder (NHC/JTWC) needed products (if desired).
+# History:
+#   04/20/2019: Initial version introduced in HAFS application
+#   10/24/2022: Add NHC products (afos,grib_stats.short,stats.tpc)
+#   04/01/2023: Improvements for HAFSv1 operational implementation
+#   03/31/2025: Improve and add trak done log file the product/tracker job
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -23,14 +31,17 @@ if [ ${RUN_INIT:-NO} = YES ]; then
 
 if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+  intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   NHRS_ENS=0
 elif [ ${FGAT_MODEL} = gdas ]; then
   INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
+  intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   NHRS=0
 else
   INPdir=${WORKhafs}/intercom/atm_init/post
+  intercom=${WORKhafs}/intercom/atm_init
   COMOUTproduct=${WORKhafs}/intercom/atm_init
   NHRS=0
 fi
@@ -39,9 +50,11 @@ else
 
 if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/intercom/post_ens/mem${ENSID}
+  intercom=${WORKhafs}/intercom/product_ens/mem${ENSID}
   COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
 else
   INPdir=${WORKhafs}/intercom/post
+  intercom=${WORKhafs}/intercom/product
   COMOUTproduct=${COMhafs}
 fi
 
@@ -75,6 +88,11 @@ out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 neststr=${neststr:-""} #".nest02"
 tilestr=${tilestr:-".tile1"} #".tile2"
 gridstr=${gridstr:?}
+if [[ "Q${neststr}" = "Q" ]]; then
+  nestdotstr=""
+else
+  nestdotstr="${neststr}." #".nest02."
+fi
 
 trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
 all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
@@ -92,12 +110,14 @@ NHCPRODUCTSEXEC=${NHCPRODUCTSEXEC:-${EXEChafs}/hafs_tools_nhc_products.x}
 
 INPdir=${INPdir:-${WORKhafs}/intercom/post}
 DATA=${DATA:-${WORKhafs}/product}
+intercom=${intercom:-${WORKhafs}/intercom/product}
 COMOUTproduct=${COMOUTproduct:-${COMhafs}}
 mkdir -p ${COMOUTproduct}
+mkdir -p ${intercom}
 mkdir -p ${DATA}
 
-tmp_vital=${WORKhafs}/tmpvit
-old_vital=${WORKhafs}/oldvit
+tmp_vital=${WORKhafs}/intercom/launch/tmpvit
+old_vital=${WORKhafs}/intercom/launch/oldvit
 
 #===============================================================================
 # Run GFDL vortextracker
@@ -132,6 +152,8 @@ while [ $FHR -le $NHRS ]; do
   IFHR=$(($IFHR + 1))
   LINE=$(printf "%4d %5d" "$IFHR" "$FMIN")
   echo "$LINE" >> input.fcst_minutes
+  trk_donefile=trak${nestdotstr}f${FHR3}
+  ${RLN} ${intercom}/${trk_donefile} ./${trk_donefile}
   FHR=$(($FHR + $NOUTHRS))
   FHR3=$(printf "%03d" "$FHR")
 done
@@ -191,6 +213,7 @@ if [[ \${1:-''} -le 12 ]]; then
   ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
   ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix}\$(printf "%03d" "\${1:-''}")
 fi
+echo 'done' > ./trak${nestdotstr}f\$(printf "%03d" "\${1:-''}")
 EOF
 
 else
@@ -202,6 +225,7 @@ ${FCP} output.atcfunix ${COMOUTproduct}/${all_atcfunix_grid}
 if [[ \${1:-''} -le 12 ]]; then
   ${FCP} output.atcfunix ${COMOUTproduct}/${fhr_atcfunix_grid}\$(printf "%03d" "\${1:-''}")
 fi
+echo 'done' > ./trak${nestdotstr}f\$(printf "%03d" "\${1:-''}")
 EOF
 
 fi
@@ -310,7 +334,7 @@ if [ ${COMOUTproduct} = ${COMhafs} ] && [ -s ${COMhafs}/${trk_atcfunix} ]; then
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL NHC_ATCF_${RUN^^} $job ${atcfncep}
   fi
-  if [ "${RUN_ENVIR^^}" = "NCO" ]; then
+  if [ -n "${ECF_NAME}" ]; then
     ecflow_client --event SentTrackToNHC
   fi
   # Cat atcf global file

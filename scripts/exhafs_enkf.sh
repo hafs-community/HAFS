@@ -10,9 +10,17 @@
 #                           ensemble members
 #     ldo_enscalc_option=2: enkf_recenter, recenter the ensemble memmber
 #                           analysis around the deterministic EnVar analysis
+# History:
+#   12/29/2020: Initial version for HAFS workflow with self-cycled ENSDA
+#   01/27/2021: Support dual-resolution capability for HAFS DA workflow
+#   06/10/2021: Use ensemble mean from enkf_mean in the enkf_update step
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
+export USE_CFP=${USE_CFP:NO}
 if [ ${ENSDA} = YES ]; then
   export NHRS=${NHRS_ENS:-126}
   export NBDYHRS=${NBDYHRS_ENS:-3}
@@ -99,7 +107,13 @@ EOFprep
     echo "./prep_dynvartracer_ens${memstr}.sh" >> cmdfile_prep_dynvartracer_ens
   done
   chmod +x cmdfile_prep_dynvartracer_ens
-  ${APRUNC} ${MPISERIAL} -m cmdfile_prep_dynvartracer_ens
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile_prep_dynvartracer_ens | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile_prep_dynvartracer_ens
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile_prep_dynvartracer_ens
+  fi
 else # enkf_recenter
   ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc fv3sar_tile1_grid_spec.nc
   ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc fv3sar_tile1_akbk.nc
@@ -136,7 +150,13 @@ else # enkf_recenter
     echo "${NCP} ${RESTARTens_anl}/${memchar}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc fv3sar_tile1_${meminchar}_tracer" >> cmdfile
   done
   chmod +x cmdfile
-  ${APRUNC} ${MPISERIAL} -m cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi 
 fi
 
 if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
@@ -155,14 +175,26 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
   done
 
   chmod +x cmdfile
-  ${APRUNC} ${MPISERIAL} -m cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
 
   rm -f cmdfile
   for gzfile in $(/bin/ls diag*ges*.gz); do
     echo "gzip -d $gzfile && rm -f $gzfile" >> cmdfile
   done
   chmod +x cmdfile
-  ${APRUNC} ${MPISERIAL} -m cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
 fi
 
 ${NLN} ${PARMgsi}/nam_glb_berror.f77.gcv ./berror_stats
@@ -249,7 +281,13 @@ if [ $ldo_enscalc_option -eq 0 ]; then # enkf_update
     echo "${NCP} fv3sar_tile1_${memstr}_tracer ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc" >> cmdfile
   done
   chmod +x cmdfile
-  ${APRUNC} ${MPISERIAL} -m cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
   export err=$?; err_chk
 elif  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean
   memstr="ensmean"
@@ -298,7 +336,13 @@ EOFpost
     echo "./post_dynvartracer_ens${memout}.sh" >> cmdfile_post_dynvartracer_ens
   done
   chmod +x cmdfile_post_dynvartracer_ens
-  ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile_post_dynvartracer_ens | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile_post_dynvartracer_ens
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile_post_dynvartracer_ens
+  fi
   export err=$?; err_chk
 else
   echo "FATAL ERROR: Wrong ldo_enscalc_option: $ldo_enscalc_option. Exiting..."

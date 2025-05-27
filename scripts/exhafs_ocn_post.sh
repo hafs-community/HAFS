@@ -4,17 +4,22 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script runs the HAFS oceanic post-processing steps for MOM6 coupling.
+# History:
+#   05/13/2023: Enabled MOM6 coupling in HAFS application/workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
 CDATE=${CDATE:-${YMDH}}
 ENSDA=${ENSDA:-NO}
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/forecast_ens/mem${ENSID}
+  INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
   COMOUTpost=${COMhafs}/ocn_post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/ocn_post_ens/mem${ENSID}
 else
-  INPdir=${WORKhafs}/forecast
+  INPdir=${WORKhafs}/intercom/forecast
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/ocn_post
 fi
@@ -108,7 +113,7 @@ done
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  ${FCP} ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
+  ncks --deflate=1 -O ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
 fi
 
 # Write out the ocnpostdone message file
@@ -136,7 +141,7 @@ oicout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
 oicpost=${out_prefix}.${RUN}.mom6.f000.nc
 
 if [ $SENDCOM = YES ]; then
-  ${FCP} ${INPdir}/${oicout} ${COMOUTpost}/${oicpost}
+  ncks --deflate=1 -O ${INPdir}/${oicout} ${COMOUTpost}/${oicpost}
 fi
 
 cd ${DATA}

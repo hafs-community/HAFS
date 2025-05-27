@@ -2,18 +2,16 @@
 
 !=========================================================================
 ! HAFS DA tool
-! authors and history: 
+! authors and history:
 !      -- 202102, created by Yonghui Weng
 !      -- 202112, added HAVSVI pre- and post-processing by Yonghui Weng
 !      -- 202206, added MPI and openMP by Yonghui Weng
-!      -- 202306, added vi_cloud by JungHoon Shin 
-!      -- 202407, added hafs_diff for IAU increment calculation by Xu Lu
-
+!      -- 202306, added vi_cloud by JungHoon Shin
+!      -- 202404, added ideal vortex by Weiguo Wang
+!      -- 202410, added fftw_increment by JungHoon Shin, Xu Lu and Yonghui Weng
+!      -- 202411, added u_update_ua and ideal_vortex by Yonghui Weng
 !------------------------------------------------------------------------------
-! June 2023: New input argument "vi_cloud" is introduced for vi_preproc & vi_postproc
-! vi_cloud=1 or 2 (cloud remapping for VI, 1:GFDL, 2:Thompson),vi_cloud=0 (no cloud changes in VI: i.e., HFSAv1)
-!------------------------------------------------------------------------------
-
+!
 ! command convention
 !  hafs_datool.x FUNCTION --in_file=input_files \
 !                         --in_grid=input_grids_file \
@@ -23,10 +21,14 @@
 ! Usage and Examples:
 !
 ! 1) FUNCTIONs:
-!    remap: remap one grid file to another grid file
+!    remap        : remap one grid file to another grid file
 !    vortexreplace: cut an area around vortex from in file to replace the area in the dst file.
-!    file_merge: merge nc files
-!    domain_merge: merge different domain/coverage/h-resolution files into one specificed grid
+!    vi_preproc   : read restart files and generate VI input
+!    vi_postproc  : put VI result to restart files
+!    fftw_iau     : calculate DA increments, and run FFTW filter
+!    u_update_ua  : update ua/va variables with u/v values
+!    ua_update_u  : update u/v variables with ua/va values
+!    ideal_vortex : update restart files to generate ideal vortex
 !
 !
 ! 2) Arguments
@@ -36,7 +38,7 @@
 !    --in_grid: input_grids_file, for FV3, it may be grid_spec.nc
 !                     if no this argument, then find grid information from in_file.
 !
-! 3) Examples
+! 3) Usage
 !    3.1) remap
 !       * hafs_datool.x remap --in_file=${in_dir}/20190829.060000.phy_data.nc \
 !                             --in_grid=${in_dir}/grid_spec.nc \
@@ -61,25 +63,60 @@
 !                             --out_grid=${out_dir}/grid_spec.nc \
 !                             --out_file=20190829.060000.phy_data.nc
 !
-!    3.3) vi_preproc: New input argument "vi_cloud" is introduced
+!    3.3) vi_preproc
 !       * hafs_datool.x hafsvi_preproc --in_dir=HAFS_restart_folder --infile_date=20200825.180000 \
 !                                 [--vortexposition=user_define_vortex_file --tcvital=tcvitalfile \
 !                                  --besttrack=bdeckfile ] [--vortexradius=deg ] \
 !                                 [--nestdoms=nestdoms ] \
 !                                 [--vi_cloud=vi_cloud ] \
-!                                 [ --tc_date=tcvital_date] [--res=deg ] \
+!                                 [--tc_date=tcvital_date] [--res=deg ] \
 !                                 [--out_file=output_bin_file or nc_file]
+!           : generate VI input file out_file from the restart files in HAFS_restart_folder.
 !
-!    3.4) vi_postproc: New input argument "vi_cloud" is introduced
+!    3.4) vi_postproc
 !       * hafs_datool.x hafsvi_postproc --in_file=[hafs_vi rot-ll bin file] \
 !                                       --out_dir=[hafs-restart subfolder]  \
 !                                       --vi_cloud=vi_cloud  \
 !                                       --infile_date=20200825.180000
-!    3.5) hafs_diff: Calculate Increment (difference) between the analysis and
-!       background ready for IAU.
-!       * hafs_datool.x hafs_diff  --in_dir=${analysis dir} --in_dir2=${background dir} \
-!                               --infile_date=20200825.180000 --out_file="diff06" \
-!                               --nestdoms=nestdoms --vi_cloud=vi_cloud
+!           : update restart files in out_dir with VI result.
+!
+!    3.5) fftw_iau
+!       * hafs_datool.x fftw_iau --an_file=analysis_file --bg_file=background_file \
+!                                [--infile_date=${ymd}.${hh}0000] \
+!                                --in_grid=${in_dir}/grid_spec.nc \
+!                                [--vortexposition=user_define_vortex_file --tcvital=tcvitalfile \
+!                                  --besttrack=bdeckfile ] \
+!                                [--out_file=out_increment_file] \
+!                                [--wave_num]
+!           : calculate increment ( an_file - bg_file ), and apply FFTW if abs(wave_num)<99, then
+!             output increment if out_file, otherwise update an_file
+!             so out_file or abs(wave_num)<99 is needed, otherwise do nothing.
+!           : examples
+!             -- hafs_datool.x fftw_iau --an_file --bg_file --in_grid --out_file=outfile
+!                             :just output increments to outfile
+!             -- hafs_datool.x fftw_iau --an_file --bg_file --in_grid --tcvital --wave_num=-5
+!                             :update an_file with the 5th wave_num increments around tcvital
+!             -- hafs_datool.x fftw_iau --an_file --bg_file --in_grid --tcvital --wave_num=5
+!                             :update an_file with the cut of sum of the 0-5 wave numbers increments around tcvital
+!             -- hafs_datool.x fftw_iau --an_file --bg_file --in_grid --tcvital --wave_num=5 --out_file=outfile
+!                             :output the increment to outfile with the cut of sum of the 0-5 wave numbers increments around tcvital
+!
+!    3.6) u_update_ua and ua_update_u
+!       * hafs_datool.x u_update_ua --in_grid=${in_dir}/grid_mspec.nest02_2024_06_30_18.tile2.nc \
+!                                   --in_file=${in_dir}/20240630.180000.fv_core.res.nest02.tile2.nc
+!       * hafs_datool.x ua_update_u --in_grid=${in_dir}/grid_mspec.nest02_2024_06_30_18.tile2.nc \
+!                                   --in_file=${in_dir}/20240630.180000.fv_core.res.nest02.tile2.nc
+!
+!    3.7) ideal_vortex
+!       * hafs_datool.x ideal_vortex --in_dir=HAFS_restart_folder --infile_date=20200825.180000 \
+!                                    --besttrack=bdeckfile ] [--vortexradius=deg ] \
+!                                   [--nestdoms=nestdoms ]
+!         ideal_vortex steps: 1) copy the restart files to a new folder
+!                             2) call above command to overwite these files
+!       * hafs_datool.x change_sfc_data --in_dir=HAFS_chgres_dir --in_file=sfc_data.tile7.nc
+!         change_sfc_data steps: 1) copy in_file to a backup
+!                                2) call above command to overwite
+!
 !=========================================================================
   use module_mpi
   use var_type
@@ -88,12 +125,12 @@
   implicit none
 
   !----parameter define
-  integer              :: i, j, k, n, iind, iargc, rcode, ks, ke, nestdoms
+  integer              :: i, j, k, n, iind, iargc, rcode, ks, ke, nestdoms, wave_num
   character (len=2500) :: actions, arg, arg1
   character (len=2500) :: in_dir='w', in_file='w', in_grid='w', &
                           vortex_position_file='w', tcvital_file='w', besttrackfile='w', &
                           out_dir='w', out_grid='w', out_data='w', out_file='w', infile_date='w', &
-                          in_dir2='w'
+                          in_dir2='w', an_file='w', bg_file='w', vars='all'
   character (len=50  ) :: vortexradius='w'  ! for vortexreplace, vortexradius=600:900 km
                                             ! for hafsvi_preproc, vortexradius=30 deg or 45 deg
   character (len=50  ) :: relaxzone=''      !
@@ -104,6 +141,11 @@
   character (len=50  ) :: nestdomsc=''      ! number for nest domains, 1-30, 1=nest02.tile2
                                             ! in vi_preproc, combine all domains and output to one rot-ll grid.
   character (len=50  ) :: vi_cloud='w'      ! Cloud remapping for VI, 1:GFDL, 2:Thompson & 0: No cloud remapping
+  character (len=5   ) :: wave_numc='w'     ! Fourier wave decomposition for DA increment of IAU
+                                            ! valid value -99:99, turn off abs(wave_numc)>99
+                                            ! positive value means accumulated, i.e.,
+                                            ! wave_numc=5: means accumulates 0-5 wave numbers, while
+                                            ! wave_numc=-5: only the 5th wave number.
 
   real, dimension(3)   :: center
 !----------------------------------------------------------------
@@ -141,10 +183,14 @@
                case ('--relaxzone');      relaxzone=arg(j+1:n)
                case ('--tc_date');        tc_date=arg(j+1:n)  !20210312.0930
                case ('--res');            res=arg(j+1:n)  !0.02
-               case ('--debug_level');    debug_levelc=arg(j+1:n)  !
+               case ('--debug_level');    debug_levelc=arg(j+1:n)
                case ('--interpolation_points'); interpolation_pointsc=arg(j+1:n)  !
-               case ('--nestdoms');       nestdomsc=arg(j+1:n)  !
-               case ('--vi_cloud');       vi_cloud=arg(j+1:n)      !
+               case ('--nestdoms');       nestdomsc=arg(j+1:n)
+               case ('--vi_cloud');       vi_cloud=arg(j+1:n)
+               case ('--an_file');        an_file=arg(j+1:n)
+               case ('--bg_file');        bg_file=arg(j+1:n)
+               case ('--wave_num');       wave_numc=arg(j+1:n)
+               case ('--vars');           vars=arg(j+1:n)
         end select
      enddo
   endif
@@ -164,6 +210,8 @@
 
   nestdoms=0; if (len_trim(nestdomsc) > 0 ) read(nestdomsc,*)nestdoms
   if ( nestdoms > 30 .or. nestdoms < 0 ) nestdoms=0
+
+  wave_num=-999; if (len_trim(wave_numc) > 0 .and. trim(wave_numc) .ne. "w") read(wave_numc,*)wave_num
 
 ! 2.2 --- tc info requirement
   if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
@@ -202,7 +250,7 @@
   else
      tc%vortexrep=0
   endif
-  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
+  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" .or. trim(actions) == "fftw_iau" ) then
      call get_tc_info(trim(vortex_position_file), trim(tcvital_file), trim(besttrackfile), trim(tc_date), &
                    trim(vortexradius))
   endif
@@ -233,11 +281,29 @@
   endif
 
 !----------------------------------------------------------------
-! 5.0 --- IAU_DIFF
-  if ( trim(actions) == "hafs_diff" ) then
-     write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
-     call hafs_diff(trim(in_dir),trim(in_dir2),trim(infile_date), &
-    trim(out_file),nestdoms,trim(vi_cloud))
+! 5.0 --- fftw_iau
+  if ( trim(actions) == "fftw_iau" ) then
+     write(*,'(a)')' --- call hafsfftw_iau/hafs_datool for '//trim(an_file)
+     call hafsfftw_iau(trim(an_file),trim(in_grid),trim(bg_file),trim(out_file),wave_num,trim(vars))
+  endif
+
+!----------------------------------------------------------------
+! 6.0 --- u_update_ua & ua_update_u
+  if ( trim(actions) == "u_update_ua" .or. trim(actions) == "ua_update_u" ) then
+     write(*,'(a)')' --- call u_ua_update//hafs_datool for '//trim(in_file)
+     if ( my_proc_id == 0 ) call hafs_u_ua(trim(actions),trim(in_grid),trim(in_file),trim(out_file))
+  endif
+
+!----------------------------------------------------------------
+! 7.0 --- HAFS ideal_vortex
+  if ( trim(actions) == "ideal_vortex" ) then
+     write(*,'(a)')' --- call ideal_vortex for '//trim(in_dir)
+     if ( my_proc_id == 0 ) call hafs_ideal_vortex(trim(in_dir), trim(infile_date), nestdoms)
+  endif
+  !  --- HAFS ideal_sfc_data
+  if ( trim(actions) == "change_sfc_data" ) then
+     write(*,'(a)')' --- call ideal_vortex for '//trim(in_file)
+     if ( my_proc_id == 0 ) call hafs_ideal_sfc_data(trim(in_file))
   endif
 
 !----------------------------------------------------------------

@@ -6,6 +6,13 @@
 #   This script generates the atmospheric initial condition (IC) and lateral
 #   boundary condition (LBC) at model intial time (if needed) through the
 #   UFS_UTIL's chgres_cube tool.
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   10/06/2021: Add the capability for regional-nesting configurations
+#   02/27/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -36,7 +43,7 @@ if [ ${ENSDA} != YES ]; then
   ictype=${ictype:-gfsnetcdf}
   bctype=${bctype:-gfsnetcdf}
   LEVS=${LEVS:-65}
-  GRID_intercom=${WORKhafs}/intercom/grid
+  GRID_intercom=${WORKhafs}/intercom/atm_prep/grid
 else
   NBDYHRS=${NBDYHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
@@ -45,7 +52,7 @@ else
   ictype=${ictype_ens:-gfsnetcdf}
   bctype=${bctype_ens:-gfsnetcdf}
   LEVS=${LEVS_ENS:-65}
-  GRID_intercom=${WORKhafs}/intercom/grid_ens
+  GRID_intercom=${WORKhafs}/intercom/atm_prep_ens/grid_ens
 fi
 
 # Generate the ICs and BC hour 0
@@ -63,13 +70,14 @@ vcoord_file_target_grid=${vcoord_file_target_grid:-${FIXhafs}/fix_am/global_hybl
 
 if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   export INIDIR=${COMINgdas}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
  elif [ ${FGAT_MODEL} = gdas ]; then
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_fgat${FGAT_HR}}
+  export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}${jobidstr}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}
   export INIDIR=${COMINgdas}/gdas.${PDY_prior}/${cyc_prior}/atmos
  else
-  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
   export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
  fi
 else

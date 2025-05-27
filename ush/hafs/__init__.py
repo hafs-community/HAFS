@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The script defines classes that know HAFS Python scripts.
+# History:
+#   04/10/2019: Initial version for HAFS application (adapted from HWRF)
+################################################################################
 
 ##@namespace hafs
 # Defines classes that know how to run all parts of the HAFS system.
@@ -14,14 +22,6 @@
 #   and storm information.
 # * hafs.input --- obtains input data from disk, FTP, SSH or tape to meet
 #   the input data requirements given by each tasks' inputiter() iterator.
-# * hafs.vortexinit --- relocates, resizes and modifies the intensity of
-#   the tropical cyclone vortex.
-# * hafs.bufrprep --- converts data dumps to bufr files for input to GSI
-# * hafs.gsi --- runs the GSI data assimilation system
-# * hafs.forecast --- runs forecast
-# * hafs.post -- runs the post to convert model output to GRIB files
-# * hafs.tracker --- runs the GFDL vortex tracker
-# * hafs.product --- product creation and delivery
 #
 # @section lowlevel Low-Level Logic Modules
 #

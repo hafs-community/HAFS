@@ -6,6 +6,14 @@
 #   This script runs the HAFS oceanic preprocessing steps to generate HYCOM
 #   coupling needed ocean initial condition (IC), open boundary condition (OBC)
 #   and atmospheric forcings.
+# History:
+#      01/2020: Initial version from HWRF/HMON for HAFS HYCOM ocean coupling
+#   04/17/2021: Generalize script name for HAFS application/workflow
+#   03/20/2023: Finalize for HAFSv1 operational implementation
+#   04/19/2024: Improve error handling for HAFSv2
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 import os, sys, logging
 

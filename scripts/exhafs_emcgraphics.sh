@@ -4,12 +4,18 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates EMC graphics through hafs_graphcs.
+# History:
+#   07/30/2020: Add EMC hafs_graphics in HAFS workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 #
-set -xe
+set -x -o pipefail
 
 date
 
+export USE_CFP=${USE_CFP:NO}
 YMDH=${YMDH:-2019082900}
 STORM=${STORM:-NATL}
 storm=${STORM,,}
@@ -94,6 +100,7 @@ archbase="${COMgraph}/figures"
 archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
 
 intercompost=${WORKhafs}/intercom/post
+intercomprod=${WORKhafs}/intercom/product
 intercomgraph=${WORKhafs}/intercom/emc_graphics
 mkdir -p ${WORKgraph} ${intercomgraph}
 cd ${WORKgraph}
@@ -127,26 +134,15 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 else
 
 atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-prodlog=${WORKhafs}/product/run_product.storm.log
-FHRN=$(($FHR + $NOUTHRS))
-STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
-STRDONE="top of output_all"
 
 # Wait for post and product output
 n=1
 while [ $n -le 600 ]; do
-  if [ -f ${intercompost}/postf${FHR3} ] && [ -f ${atcfFile} ]; then
-    echo "${intercompost}/postf${FHR3} and ${atcfFile} exist"
-    if grep -q "$STRDONE" ${prodlog} || grep -q "$STRFHRN" ${prodlog}; then
-      echo "GFDL tracker succeeded or has processed this time level, do graphics."
-      sleep 1s
-      break
-	else
-      echo "GFDL tracker has not processed this time level, sleep 60s"
-      sleep 60s
-    fi
+  if [ -f ${intercompost}/postf${FHR3} ] && [ -f ${intercomprod}/trak.nest02.f${FHR3} ] && [ -f ${atcfFile} ]; then
+    echo "${intercompost}/postf${FHR3}, ${intercomprod}/trak.nest02.f${FHR3}, and ${atcfFile} exist"
+    echo "Reay to do graphics."
   else
-    echo "${intercompost}/postf${FHR3} or ${atcfFile} not ready, sleep 60s"
+    echo "${intercompost}/postf${FHR3}, ${intercomprod}/trak.nest02.f${FHR3}, or ${atcfFile} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -328,7 +324,13 @@ done
 #==============================================================================
 
 chmod u+x ./$cmdfile
-${APRUNC} ${MPISERIAL} -m ./$cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
 export err=$?; err_chk
 
 date
@@ -457,7 +459,13 @@ done
 # End loop for forecast hours
 
 chmod u+x ./$cmdfile
-${APRUNC} ${MPISERIAL} -m ./$cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
 export err=$?; err_chk
 
 date
@@ -529,8 +537,13 @@ for((i=0;i<${nscripts};i++)); do
 done
 
 chmod u+x ./$cmdfile
-
-${APRUNC} ${MPISERIAL} -m ./$cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
 export err=$?; err_chk
 
 IFHR=$(($IFHR + 1))
@@ -611,7 +624,13 @@ done
 done
 
 chmod u+x ./$cmdfile
-${APRUNC} ${MPISERIAL} -m ./$cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./$cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./$cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m ./$cmdfile
+fi
 export err=$?; err_chk
 
 date
@@ -623,5 +642,3 @@ fi # if [ ${run_wave} = yes ]; then
 date
 
 echo "graphics job done"
-
-exit

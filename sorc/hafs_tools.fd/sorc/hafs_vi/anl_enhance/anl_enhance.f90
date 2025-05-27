@@ -11,7 +11,7 @@
 !                : Remove/Clean up "go to" statements and modernizing the code
 ! Revised by: JungHoon Shin Feb 2023 NCEP/EMC
 !                  This code reads cloud and vertical velocity fields, which is modified
-!                  by anl_combine.f90, and  re-interpolcates those variables into newly adjusted
+!                  by anl_combine.f90, and re-interpolcates those variables into newly adjusted
 !                  model pressure level (PMID1) in the TC core region
 ! Revised by: JungHoon Shin July 2023 NCEP/EMC
 !                  The code is updated further with one more input argument (ivi_cloud)
@@ -24,6 +24,8 @@
 !                  0: Use old HWRF SLP style, 1: Use advanced HAFS SLP style
 ! Usage:
 !  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} ${vi_slp_adjust} | ${APRUNO} ./hafs_vi_anl_enhance.x
+! Revised by: JungHoon Shin Sep 2024 NCEP/EMC
+!                  Made further upgrades regarding SLP improvement (especially for WPAC) and better short range forecast
 !
 !     DECLARE VARIABLES
 !
@@ -35,15 +37,15 @@
       integer ictr,jctr,imn1,imx1,jmn1,jmx1,imax1,jmax1,iter,IMV,JMV
       integer imax12,jmax12,i_psm,j_psm,k1,ics,icen,jcen,ithres
       real GAMMA,G,Rd,D608,Cp,GRD,COEF1,COEF2,COEF3,DST1,TENV1,press1
-      real pi,pi_deg,arad,rad,TV1,ZSF1,PSF1,A,SUM11,vobs,vobs_o,VRmax
+      real pi,pi_deg,arad,rad,TV1,ZSF1,PSF1,A,SUM11,vobs,vobs_o,VRmax,vobs_tc
       real SLP1_MEAN,SLP_AVE,SLP_SUM,SLP_MIN,DP_CT,psfc_obs,psfc_cls,PRMAX,vslp
       real Rctp,cost,TWMAX1,RWMAX1,fact_v,dp_obs,distm,distt,delt_z1,pt_c
       real sum1,dist1,psfc_env,psfc_obs1,vobs_kt,vmax1,vmax2,d_max,RMX_d
       real z0,vmax_s,vmax_s_b,vobs1,RMN,W,W1,crtn,beta,VMAX,UUT,VVT,FF,R_DIST
       real UU11,VV11,UUM1,VVM1,QQ1,uv22,QQ,beta1,vmax_1,ff0,ps_min,beta11
-      real DIF,U_2S3,WT1,WT2,strm11,strm22,force,force2,PS_C1,PS_C2
+      real DIF,U_2S3,WT1,WT2,strm11,strm22,force,force2,PS_C1,PS_C2,rsize
       real fact,pt_c1,ps_rat,TEK1,TEK2,ESRR,T_OLD,Q_OLD,ZSFC,TSFC,QENV1
-      real dx,dy,dis,thres,beta_fac
+      real dx,dy,dis,thres,beta_fac,rmw2,roc2_save,hafs_rmw,hafs_roc2
 
 !
       PARAMETER (NST=5,IR=200)
@@ -474,6 +476,7 @@
       CLAT_NHC=ICLAT*0.1
       CLON_NHC=ICLON*0.1
       vobs=ivobs*1.0       ! m/s
+      vobs_tc=ivobs*1.0    ! m/s
       vobs_o=vobs
       VRmax=Ir_vobs*1.      ! in km
 
@@ -504,6 +507,46 @@
         READ(69,*)K850
         READ(69,*)TWMAX1,RWMAX1,fact_v,psfc_obs
       CLOSE(69)
+
+      !shin -------------------------------------------------------
+      IF(ithres.ne.0)THEN
+      if(basin.eq.'AL' .or. basin.eq.'EP' .or.basin.eq.'CP')then
+       rsize=40.0
+       write(*,*) 'NHC basin storm ', basin,rsize
+      else
+       rsize=50.0
+       write(*,*) 'JTWC basin storm ', basin,rsize
+      endif
+
+      if( (Ir_vobs*1.).le.rsize .and. Ipsfc.le.970 )then
+       OPEN(70,file='parameter',form='formatted')
+        READ(70,*)rmw2,roc2_save
+       CLOSE(70)
+       hafs_rmw=rmw2*111.12*cost
+       hafs_roc2=roc2_save*111.12*cost
+
+       if( Ir_vobs*1. .lt. hafs_rmw )then
+
+         if( (hafs_rmw-Ir_vobs*1.) .lt. 30.0 )then
+          if(hafs_rmw.lt.19.0) hafs_rmw=19.0
+          vrmax=hafs_rmw
+          PRMAX=hafs_roc2
+         else
+          vrmax=Ir_vobs*1.0+30.0
+          PRMAX=PRMAX+30.0
+         endif
+         if(basin.eq.'AL' .or. basin.eq.'EP' .or.basin.eq.'CP')then
+          if( vrmax .gt. rsize )then
+           vrmax=rsize
+          endif
+         endif
+
+       else
+       endif
+
+      endif
+      ENDIF
+      !shin ------------------------------------------------------
 
       PRINT*,'IFLAG,K850=',IFLAG,K850
       PRINT*,'TWMAX1,RWMAX1=',TWMAX1,RWMAX1
@@ -728,11 +771,12 @@
       REWIND(85)
       READ(85)RMN
 
-      CALL axisym_xy_new(NX,NY,NZ,KMX,HLON,HLAT,VLON,VLAT,     &
-                 CLON_NHC,CLAT_NHC,SLP_1,T_1,Q_1,U_1,V_1,      &
-                 TH1,RADIUS2,SLPE,TENV,PCST,HP,HV,ZMAX,vobs1,  &
-                 dp_obs,psfc_obs,vslp,RWMAX1,PRMAX,RMN,        &
-		 U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN)
+      CALL axisym_xy_new(NX,NY,NZ,KMX,HLON,HLAT,VLON,VLAT,            &
+                 CLON_NHC,CLAT_NHC,SLP_1,T_1,Q_1,U_1,V_1,             &
+                 TH1,RADIUS2,SLPE,TENV,PCST,HP,HV,ZMAX,vobs1,vobs_tc, &
+                 dp_obs,psfc_obs,vslp,RWMAX1,PRMAX,RMN,               &
+		 U_2SB,T_2SB,SLP_2SB,R_2SB,temp_e,DEPTH,SN,           &
+                 Ir_vobs,basin,ithres)
 
       k850=1        ! use surface wind
 
@@ -904,7 +948,6 @@
 !       if(beta.gt.1.25) beta=max(1.25,sqrt(beta))
 
 !!!       beta=0.8
-
 
 !         if(vobs.lt.24.)then
 !            if(abs(CLAT_NHC).lt.15.)beta=max(beta,10./vmax_s)
@@ -1100,7 +1143,7 @@
         pt_c1=0.
 	DO J=1,NY
 	DO I=1,NX
-	  IF(pt_c1.LT.SLP_1(I,J))THEN
+	  IF(pt_c1.GT.SLP_1(I,J))THEN
 	    pt_c1=SLP_1(I,J)
 	  END IF
 	END DO
@@ -1153,7 +1196,7 @@
       DO J=1,NY
       DO I=1,NX
       !  SLP_1(I,J)=SLP_1(I,J)*ps_rat
-        SLP_1(I,J)=SLP_1(I,J)*beta_fac
+        SLP_1(I,J)=SLP_1(I,J)*beta_fac  ! shin
       END DO
       END DO
 
@@ -1164,7 +1207,7 @@
 !	    T_1(I,J,K)=(T_1(I,J,K)+T_X(I,J,K))*PW(k)
 !            Q_1(I,J,K)=(Q_1(I,J,K)+Q_X(I,J,K))*PW(k)
 !	    T_1(I,J,K)=T_X(I,J,K)*PW(k)*ps_rat
-            T_1(I,J,K)=T_X(I,J,K)*PW(k)*beta_fac
+            T_1(I,J,K)=T_X(I,J,K)*PW(k)*beta_fac  !shin
 !            Q_1(I,J,K)=Q_X(I,J,K)*PW(k)
 	    TEK2=TENV(I,J,K)+T_1(I,J,K)
 	    ESRR=exp(4302.645*(TEK2-TEK1)/((TEK2-29.66)*(TEK1-29.66)))
@@ -1178,7 +1221,6 @@
 
 
        print*,'complete CORT'
-
 
 
 !??????????????????
@@ -1479,7 +1521,10 @@
        END DO
        END DO
 
-       print*,'surface pressure=',press1
+       write(*,98) vobs_tc,vmax_1,psfc_obs,press1
+ 98    format('anl_enhance final: vmax_obs,vmax_mod,psfc_obs,psfc_mod=',4F16.6)
+       write(92,99) vobs_tc,vmax_1,psfc_obs,press1
+ 99    format(4F16.6)
 
        DO J=1,NY
        DO I=1,NX
@@ -1700,3 +1745,5 @@ integer            :: it
 !=============================================================================
 y=2*x-1; do it=1,nit; y=y*(3-y*y)/2; enddo; y=(y+1)/2
 end subroutine dbend
+
+!============================================================================

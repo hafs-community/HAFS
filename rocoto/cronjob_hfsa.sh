@@ -10,28 +10,28 @@ EXPT=$(basename ${HOMEhafs})
 #opts="-t -s sites/${WHERE_AM_I:-wcoss2}.ent -f"
 opts="-t -f"
 #===============================================================================
-
+## Technical testing for NHC basins
 ## HFSA with production computation resources on WCOSS2
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa ../parm/hfsa.conf"
-## Technical testing for Hurricane Ida
-#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
+## Technical testing for Helene
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and one-way wave coupling
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev_ww3 ../parm/hfsa_dev_ww3.conf"
-## Technical testing for Hurricane Ida
-#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
+## Technical testing for Helene
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and without wave coupling
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
-## Technical testing for Hurricane Ida
-#./run_hafs.py ${opts} 2021082712-2021082718 09L HISTORY ${confopts} \
+## Technical testing for Helene
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
+## Technical testing for JTWC basins
 ## HFSA with dev computation resources for JTWC storms (no DA and without wave coupling)
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_jtwc_dev ../parm/hfsa_dev.conf"
-## Technical testing for Noru
 #./run_hafs.py ${opts} 2022092400-2022092406 18W HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 ## Technical testing for Mandous
@@ -42,6 +42,27 @@ opts="-t -f"
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 #===============================================================================
+ # 2024 NATL Storms
+#./run_hafs.py ${opts} 2024061800-2024062012 01L HISTORY ${confopts} # Alberto
+#./run_hafs.py ${opts} 2024062818-2024070818 02L HISTORY ${confopts} # Beryl
+#./run_hafs.py ${opts} 2024063018-2024070100 03L HISTORY ${confopts} # Chris
+#./run_hafs.py ${opts} 2024080218-2024080812 04L HISTORY ${confopts} # Debby
+#./run_hafs.py ${opts} 2024081118-2024082006 05L HISTORY ${confopts} # Ernesto
+#./run_hafs.py ${opts} 2024090818-2024091200 06L HISTORY ${confopts} # Francine
+#./run_hafs.py ${opts} 2024091112-2024091806 07L HISTORY ${confopts} # Gordon
+#./run_hafs.py ${opts} 2024091518-2024091612 08L HISTORY ${confopts} # Eight
+#./run_hafs.py ${opts} 2024092312-2024092712 09L HISTORY ${confopts} # Helene
+#./run_hafs.py ${opts} 2024092600-2024093006 10L HISTORY ${confopts} # Isaac
+#./run_hafs.py ${opts} 2024092712-2024100100 11L HISTORY ${confopts} # Joyce
+#./run_hafs.py ${opts} 2024092918-2024100706 12L HISTORY ${confopts} # Kirk
+#./run_hafs.py ${opts} 2024100212-2024101212 13L HISTORY ${confopts} # Leslie
+#./run_hafs.py ${opts} 2024100512-2024101012 14L HISTORY ${confopts} # Milton
+#./run_hafs.py ${opts} 2024101818-2024102006 15L HISTORY ${confopts} # Nadine
+#./run_hafs.py ${opts} 2024101906-2024102212 16L HISTORY ${confopts} # Oscar
+#./run_hafs.py ${opts} 2024110118-2024110406 17L HISTORY ${confopts} # Patty
+#./run_hafs.py ${opts} 2024110400-2024111012 18L HISTORY ${confopts} # Rafael
+#./run_hafs.py ${opts} 2024111318-2024111800 19L HISTORY ${confopts} # Sara
+
  # 2023 NATL Storms
 #./run_hafs.py ${opts} 2023060218-2023060312 02L HISTORY ${confopts} # Arlene
 #./run_hafs.py ${opts} 2023061918-2023062412 03L HISTORY ${confopts} # Bret
@@ -89,65 +110,24 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022110106-2022110312 16L HISTORY ${confopts} # Martin
 #./run_hafs.py ${opts} 2022110706-2022111100 17L HISTORY ${confopts} # Nicole
 
- # 2021 NATL Storms
-#./run_hafs.py ${opts} 2021052206-2021052318 01L HISTORY ${confopts} # Ana
-#./run_hafs.py ${opts} 2021061506-2021061518 02L HISTORY ${confopts} # Bill
-#./run_hafs.py ${opts} 2021061906-2021062200 03L HISTORY ${confopts} # Claudette
-#./run_hafs.py ${opts} 2021062818-2021062900 04L HISTORY ${confopts} # Danny
-#./run_hafs.py ${opts} 2021070100-2021070918 05L HISTORY ${confopts} # Elsa
-#./run_hafs.py ${opts} 2021080918-2021081700 06L HISTORY ${confopts} # Fred
-#./run_hafs.py ${opts} 2021081312-2021082112 07L HISTORY ${confopts} # Grace
-#./run_hafs.py ${opts} 2021081600-2021082300 08L HISTORY ${confopts} # Henri
-#./run_hafs.py ${opts} 2021082612-2021083012 09L HISTORY ${confopts} # Ida
-#./run_hafs.py ${opts} 2021083012-2021090112 10L HISTORY ${confopts} # Kate
-#./run_hafs.py ${opts} 2021082912-2021083000 11L HISTORY ${confopts} # Julian
-#./run_hafs.py ${opts} 2021083118-2021091106 12L HISTORY ${confopts} # Larry
-#./run_hafs.py ${opts} 2021090900-2021091000 13L HISTORY ${confopts} # Mindy
-#./run_hafs.py ${opts} 2021091218-2021091500 14L HISTORY ${confopts} # Nicholas
-#./run_hafs.py ${opts} 2021091718-2021091818 15L HISTORY ${confopts} # Odette part 1
-#./run_hafs.py ${opts} 2021092112-2021092406 15L HISTORY ${confopts} # Odette part 2
-#./run_hafs.py ${opts} 2021091906-2021092100 16L HISTORY ${confopts} # Peter part 1
-#./run_hafs.py ${opts} 2021092112-2021092300 16L HISTORY ${confopts} # Peter part 2
-#./run_hafs.py ${opts} 2021092618-2021092818 16L HISTORY ${confopts} # Peter part 3
-#./run_hafs.py ${opts} 2021091918-2021092300 17L HISTORY ${confopts} # Rose
-#./run_hafs.py ${opts} 2021092300-2021100500 18L HISTORY ${confopts} # Sam
-#./run_hafs.py ${opts} 2021092418-2021092512 19L HISTORY ${confopts} # Teresa
-#./run_hafs.py ${opts} 2021092918-2021100412 20L HISTORY ${confopts} # Victor
-#./run_hafs.py ${opts} 2021103100-2021110706 21L HISTORY ${confopts} # Wanda
-
- # 2020 NATL storms
-#./run_hafs.py ${opts} 2020051606-2020051918 01L HISTORY ${confopts} # Arthur
-#./run_hafs.py ${opts} 2020052700-2020052718 02L HISTORY ${confopts} # Bertha
-#./run_hafs.py ${opts} 2020060112-2020060812 03L HISTORY ${confopts} # Cristobal hwrfdata_PROD2020HDOBS
-#./run_hafs.py ${opts} 2020062112-2020062406 04L HISTORY ${confopts} # Dolly
-#./run_hafs.py ${opts} 2020070400-2020070612 05L HISTORY ${confopts} # Edouard
-#./run_hafs.py ${opts} 2020070912-2020071100 06L HISTORY ${confopts} # Fay
-#./run_hafs.py ${opts} 2020072112-2020072518 07L HISTORY ${confopts} # Gonzalo
-#./run_hafs.py ${opts} 2020072212-2020072618 08L HISTORY ${confopts} # Hanna
-#./run_hafs.py ${opts} 2020072806-2020080500 09L HISTORY ${confopts} # Isaias
-#./run_hafs.py ${opts} 2020073018-2020080118 10L HISTORY ${confopts} # Ten
-#./run_hafs.py ${opts} 2020081100-2020081612 11L HISTORY ${confopts} # Josephine
-#./run_hafs.py ${opts} 2020081412-2020081600 12L HISTORY ${confopts} # Kyle
-#./run_hafs.py ${opts} 2020081918-2020082718 13L HISTORY ${confopts} # Laura
-#./run_hafs.py ${opts} 2020081818-2020082500 14L HISTORY ${confopts} # Marco
-#./run_hafs.py ${opts} 2020083112-2020090512 15L HISTORY ${confopts} # Omar
-#./run_hafs.py ${opts} 2020083112-2020090318 16L HISTORY ${confopts} # Nana
-#./run_hafs.py ${opts} 2020090612-2020091612 17L HISTORY ${confopts} # Paulette part1
-#./run_hafs.py ${opts} 2020091806-2020091818 17L HISTORY ${confopts} # Paulette part2
-#./run_hafs.py ${opts} 2020091906-2020092300 17L HISTORY ${confopts} # Paulette part3
-#./run_hafs.py ${opts} 2020090700-2020091412 18L HISTORY ${confopts} # Rene
-#./run_hafs.py ${opts} 2020091112-2020091618 19L HISTORY ${confopts} # Sally
-#./run_hafs.py ${opts} 2020091212-2020092306 20L HISTORY ${confopts} # Teddy
-#./run_hafs.py ${opts} 2020091318-2020091712 21L HISTORY ${confopts} # Vicky
-#./run_hafs.py ${opts} 2020091700-2020092218 22L HISTORY ${confopts} # Beta
-#./run_hafs.py ${opts} 2020091718-2020092100 23L HISTORY ${confopts} # Wilfred
-#./run_hafs.py ${opts} 2020091818-2020091900 24L HISTORY ${confopts} # Alpha # No need to run
-#./run_hafs.py ${opts} 2020100118-2020100600 25L HISTORY ${confopts} # Gamma
-#./run_hafs.py ${opts} 2020100312-2020101012 26L HISTORY ${confopts} # Delta
-#./run_hafs.py ${opts} 2020101618-2020102600 27L HISTORY ${confopts} # Epsilon
-#./run_hafs.py ${opts} 2020102412-2020102806 28L HISTORY ${confopts} # Zeta # GFS input data missing after 2020102806
-
 #===============================================================================
+ # 2024 EPAC storms
+#./run_hafs.py ${opts} 2024070412-2024070518 01E HISTORY ${confopts} # Aletta
+#./run_hafs.py ${opts} 2024072418-2024072618 02E HISTORY ${confopts} # Bud
+#./run_hafs.py ${opts} 2024073112-2024080600 03E HISTORY ${confopts} # Carlotta
+#./run_hafs.py ${opts} 2024080312-2024080518 04E HISTORY ${confopts} # Daniel
+#./run_hafs.py ${opts} 2024080412-2024080818 05E HISTORY ${confopts} # Emilia
+#./run_hafs.py ${opts} 2024080518-2024080712 06E HISTORY ${confopts} # Fabio
+#./run_hafs.py ${opts} 2024081812-2024083000 07E HISTORY ${confopts} # Gilma
+#./run_hafs.py ${opts} 2024082518-2024082906 08E HISTORY ${confopts} # Hector
+#./run_hafs.py ${opts} 2024091212-2024091506 09E HISTORY ${confopts} # Ileana
+#./run_hafs.py ${opts} 2024092218-2024092412 10E HISTORY ${confopts} # John part 1
+#./run_hafs.py ${opts} 2024092500-2024092718 10E HISTORY ${confopts} # John part 2
+#./run_hafs.py ${opts} 2024100118-2024100312 11E HISTORY ${confopts} # Eleven
+#./run_hafs.py ${opts} 2024102118-2024102706 12E HISTORY ${confopts} # Kristy
+#./run_hafs.py ${opts} 2024110118-2024110306 13E HISTORY ${confopts} # Lane
+#./run_hafs.py ${opts} 2024110612-2024110712 14E HISTORY ${confopts} # Fourteen
+
  # 2023 EPAC storms
 #./run_hafs.py ${opts} 2023062718-2023070212 01E HISTORY ${confopts} # Adrian
 #./run_hafs.py ${opts} 2023062900-2023070112 02E HISTORY ${confopts} # Beatriz
@@ -174,7 +154,7 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022052800-2022053106 01E HISTORY ${confopts} # Agatha
 #./run_hafs.py ${opts} 2022061412-2022062012 02E HISTORY ${confopts} # Blas
 #./run_hafs.py ${opts} 2022061618-2022062812 03E HISTORY ${confopts} # Celia
-#./run_hafs.py ${opts} 2022071212-2022071912 04E HISTORY ${confopts} # Bonnie
+#./run_hafs.py ${opts} 2022070212-2022070912 04E HISTORY ${confopts} # Bonnie
 #./run_hafs.py ${opts} 2022070918-2022071618 05E HISTORY ${confopts} # Darby
 #./run_hafs.py ${opts} 2022071512-2022072112 06E HISTORY ${confopts} # Estelle
 #./run_hafs.py ${opts} 2022072606-2022080212 07E HISTORY ${confopts} # Frank
@@ -194,52 +174,38 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022100918-2022101012 18E HISTORY ${confopts} # Julia
 #./run_hafs.py ${opts} 2022102000-2022102318 19E HISTORY ${confopts} # Roslyn
 
- # 2021 EPAC storms
-#./run_hafs.py ${opts} 2021050906-2021051106 01E HISTORY ${confopts} # Andres
-#./run_hafs.py ${opts} 2021053018-2021060406 02E HISTORY ${confopts} # Blanca
-#./run_hafs.py ${opts} 2021061218-2021061606 03E HISTORY ${confopts} # Carlos
-#./run_hafs.py ${opts} 2021061806-2021061918 04E HISTORY ${confopts} # Dolores
-#./run_hafs.py ${opts} 2021062606-2021063012 05E HISTORY ${confopts} # Enrique
-#./run_hafs.py ${opts} 2021071406-2021072100 06E HISTORY ${confopts} # Felicia
-#./run_hafs.py ${opts} 2021071712-2021072012 07E HISTORY ${confopts} # Guillermo
-#./run_hafs.py ${opts} 2021073018-2021080606 08E HISTORY ${confopts} # Hilda
-#./run_hafs.py ${opts} 2021073018-2021080618 09E HISTORY ${confopts} # Jimena
-#./run_hafs.py ${opts} 2021080118-2021080312 10E HISTORY ${confopts} # Ignacio
-#./run_hafs.py ${opts} 2021080712-2021081206 11E HISTORY ${confopts} # Kevin
-#./run_hafs.py ${opts} 2021081006-2021082012 12E HISTORY ${confopts} # Linda
-#./run_hafs.py ${opts} 2021082306-2021082418 13E HISTORY ${confopts} # Marty
-#./run_hafs.py ${opts} 2021082518-2021083000 14E HISTORY ${confopts} # Nora
-#./run_hafs.py ${opts} 2021090718-2021091100 15E HISTORY ${confopts} # Olaf
-#./run_hafs.py ${opts} 2021101006-2021101312 16E HISTORY ${confopts} # Pamela
-#./run_hafs.py ${opts} 2021102212-2021102512 17E HISTORY ${confopts} # Rick
-#./run_hafs.py ${opts} 2021110412-2021111018 18E HISTORY ${confopts} # Terry
-#./run_hafs.py ${opts} 2021110712-2021110912 19E HISTORY ${confopts} # Sandra
-
- # 2020 EPAC storms
-#./run_hafs.py ${opts} 2020042506-2020042612 01E HISTORY ${confopts} # One
-#./run_hafs.py ${opts} 2020053012-2020053112 02E HISTORY ${confopts} # Amanda
-#./run_hafs.py ${opts} 2020062418-2020062800 03E HISTORY ${confopts} # Boris
-#./run_hafs.py ${opts} 2020062912-2020063012 04E HISTORY ${confopts} # Four
-#./run_hafs.py ${opts} 2020070612-2020071300 05E HISTORY ${confopts} # Cristina
-#./run_hafs.py ${opts} 2020071306-2020071418 06E HISTORY ${confopts} # Six
-#./run_hafs.py ${opts} 2020072000-2020072106 07E HISTORY ${confopts} # Seven
-#./run_hafs.py ${opts} 2020072006-2020072912 08E HISTORY ${confopts} # Douglas
-#./run_hafs.py ${opts} 2020080812-2020081300 09E HISTORY ${confopts} # Elida
-#./run_hafs.py ${opts} 2020081300-2020081612 10E HISTORY ${confopts} # Ten
-#./run_hafs.py ${opts} 2020081518-2020081712 11E HISTORY ${confopts} # Fausto
-#./run_hafs.py ${opts} 2020081512-2020082112 12E HISTORY ${confopts} # Genevieve
-#./run_hafs.py ${opts} 2020082512-2020082812 13E HISTORY ${confopts} # Hernan
-#./run_hafs.py ${opts} 2020082600-2020083012 14E HISTORY ${confopts} # Iselle
-#./run_hafs.py ${opts} 2020090506-2020090700 15E HISTORY ${confopts} # Julio
-#./run_hafs.py ${opts} 2020091218-2020091618 16E HISTORY ${confopts} # Karina
-#./run_hafs.py ${opts} 2020092012-2020092512 17E HISTORY ${confopts} # Lowell
-#./run_hafs.py ${opts} 2020092900-2020100618 18E HISTORY ${confopts} # Marie
-#./run_hafs.py ${opts} 2020100400-2020101006 19E HISTORY ${confopts} # Norbert p1
-#./run_hafs.py ${opts} 2020101112-2020101500 19E HISTORY ${confopts} # Norbert p2
-#./run_hafs.py ${opts} 2020110306-2020110600 20E HISTORY ${confopts} # Odalys
-#./run_hafs.py ${opts} 2020111718-2020111912 21E HISTORY ${confopts} # Polo
-
 #===============================================================================
+ # 2024 WPAC Storms
+#./run_hafs.py ${opts} 2024052418-2024053100 01W HISTORY ${confopts} # Ewiniar
+#./run_hafs.py ${opts} 2024053100-2024060100 02W HISTORY ${confopts} # Maliksi
+#./run_hafs.py ${opts} 2024071500-2024071512 03W HISTORY ${confopts} # Three
+#./run_hafs.py ${opts} 2024071918-2024072306 04W HISTORY ${confopts} # Prapiroon
+#./run_hafs.py ${opts} 2024071918-2024072518 05W HISTORY ${confopts} # Gaemi
+#./run_hafs.py ${opts} 2024080700-2024081300 06W HISTORY ${confopts} # Maria
+#./run_hafs.py ${opts} 2024081206-2024081312 07W HISTORY ${confopts} # Son-Tinh
+#./run_hafs.py ${opts} 2024081212-2024081806 08W HISTORY ${confopts} # Ampil
+#./run_hafs.py ${opts} 2024081300-2024081500 09W HISTORY ${confopts} # Wukong
+#./run_hafs.py ${opts} 2024081900-2024082018 10W HISTORY ${confopts} # Jongdari
+#./run_hafs.py ${opts} 2024082112-2024090112 11W HISTORY ${confopts} # Shanshan
+#./run_hafs.py ${opts} 2024090112-2024090718 12W HISTORY ${confopts} # Yagi
+#./run_hafs.py ${opts} 2024090400-2024090700 13W HISTORY ${confopts} # Leepi
+#./run_hafs.py ${opts} 2024091000-2024091600 14W HISTORY ${confopts} # Bebinca
+#./run_hafs.py ${opts} 2024091618-2024092112 15W HISTORY ${confopts} # Pulasan
+#./run_hafs.py ${opts} 2024091806-2024091912 16W HISTORY ${confopts} # Soulik
+#./run_hafs.py ${opts} 2024092100-2024092206 17W HISTORY ${confopts} # Seventeen
+#./run_hafs.py ${opts} 2024092412-2024092712 18W HISTORY ${confopts} # Cimaron
+#./run_hafs.py ${opts} 2024092612-2024100206 19W HISTORY ${confopts} # Jebi
+#./run_hafs.py ${opts} 2024092706-2024100318 20W HISTORY ${confopts} # Krathon
+#./run_hafs.py ${opts} 2024100606-2024101012 21W HISTORY ${confopts} # Barijat
+#./run_hafs.py ${opts} 2024102012-2024102900 22W HISTORY ${confopts} # Trami
+#./run_hafs.py ${opts} 2024102500-2024110118 23W HISTORY ${confopts} # Kong-Rey
+#./run_hafs.py ${opts} 2024110306-2024111018 24W HISTORY ${confopts} # Yinxing
+#./run_hafs.py ${opts} 2024110900-2024111412 25W HISTORY ${confopts} # Man-Yi part 1
+#./run_hafs.py ${opts} 2024111500-2024111812 25W HISTORY ${confopts} # Man-Yi part 2
+#./run_hafs.py ${opts} 2024110906-2024111318 26W HISTORY ${confopts} # Toraji
+#./run_hafs.py ${opts} 2024111100-2024111612 27W HISTORY ${confopts} # Usagi
+#./run_hafs.py ${opts} 2024122218-2024122600 28W HISTORY ${confopts} # Pabuk
+
  # 2023 WPAC Storms
 #./run_hafs.py ${opts} 2023042012-2023042206 01W HISTORY ${confopts} # Sanvu
 #./run_hafs.py ${opts} 2023052012-2023060306 02W HISTORY ${confopts} # Mawar
@@ -291,38 +257,13 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022111212-2022111418 28W HISTORY ${confopts} # Yamaneko
 #./run_hafs.py ${opts} 2022121018-2022121218 29W HISTORY ${confopts} # Pakhar
 
- # 2021 WPAC Storms
-#./run_hafs.py ${opts} 2021021706-2021022200 01W HISTORY ${confopts} # Dujuan
-#./run_hafs.py ${opts} 2021041312-2021042506 02W HISTORY ${confopts} # Surigae
-#./run_hafs.py ${opts} 2021051218-2021051500 03W HISTORY ${confopts} # Three
-#./run_hafs.py ${opts} 2021052918-2021060518 04W HISTORY ${confopts} # Choi-wan
-#./run_hafs.py ${opts} 2021061200-2021061218 05W HISTORY ${confopts} # Koguma
-#./run_hafs.py ${opts} 2021062100-2021062718 06W HISTORY ${confopts} # Champi
-#./run_hafs.py ${opts} 2021070418-2021070606 07W HISTORY ${confopts} # Seven
-#./run_hafs.py ${opts} 2021070712-2021070712 08W HISTORY ${confopts} # Eight
-#./run_hafs.py ${opts} 2021071606-2021072918 09W HISTORY ${confopts} # In-fa
-#./run_hafs.py ${opts} 2021071818-2021072406 10W HISTORY ${confopts} # Cempaka
-#./run_hafs.py ${opts} 2021072318-2021072818 11W HISTORY ${confopts} # Nepartak
-#./run_hafs.py ${opts} 2021080206-2021080600 12W HISTORY ${confopts} # Twelve
-#./run_hafs.py ${opts} 2021080218-2021081000 13W HISTORY ${confopts} # Lupit
-#./run_hafs.py ${opts} 2021080406-2021080918 14W HISTORY ${confopts} # Mirinae
-#./run_hafs.py ${opts} 2021080412-2021080706 15W HISTORY ${confopts} # Nida
-#./run_hafs.py ${opts} 2021081012-2021082400 16W HISTORY ${confopts} # Omais
-#./run_hafs.py ${opts} 2021090200-2021090318 17W HISTORY ${confopts} # Seventeen
-#./run_hafs.py ${opts} 2021090600-2021091306 18W HISTORY ${confopts} # Conson
-#./run_hafs.py ${opts} 2021090606-2021091812 19W HISTORY ${confopts} # Chanthu
-#./run_hafs.py ${opts} 2021092212-2021100200 20W HISTORY ${confopts} # Mindulle
-#./run_hafs.py ${opts} 2021092212-2021092312 21W HISTORY ${confopts} # Twenty-on
-#./run_hafs.py ${opts} 2021100706-2021101012 22W HISTORY ${confopts} # Lionrock
-#./run_hafs.py ${opts} 2021101000-2021101718 23W HISTORY ${confopts} # Namtheun
-#./run_hafs.py ${opts} 2021101006-2021101412 24W HISTORY ${confopts} # Kompasu
-#./run_hafs.py ${opts} 2021102400-2021102912 25W HISTORY ${confopts} # Malou
-#./run_hafs.py ${opts} 2021102606-2021102700 26W HISTORY ${confopts} # Twenty-si
-#./run_hafs.py ${opts} 2021112918-2021120400 27W HISTORY ${confopts} # Nyatoh
-#./run_hafs.py ${opts} 2021121300-2021122112 28W HISTORY ${confopts} # Rai
-#./run_hafs.py ${opts} 2021121618-2021121706 29W HISTORY ${confopts} # Twenty-ni
-
 #===============================================================================
+ # 2024 NIO storms
+#./run_hafs.py ${opts} 2024052512-2024052700 01B HISTORY ${confopts} # Remal
+#./run_hafs.py ${opts} 2024083000-2024090200 02A HISTORY ${confopts} # Asna
+#./run_hafs.py ${opts} 2024102306-2024102518 03B HISTORY ${confopts} # Dana
+#./run_hafs.py ${opts} 2024112918-2024120312 04B HISTORY ${confopts} # Fengal
+
  # 2023 NIO storms
 #./run_hafs.py ${opts} 2023051018-2023051418 01B HISTORY ${confopts} # Mocha
 #./run_hafs.py ${opts} 2023060600-2023061612 02A HISTORY ${confopts} # Biparjoy
@@ -341,13 +282,6 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2022102312-2022102418 05B HISTORY ${confopts} # Sitrang
 #./run_hafs.py ${opts} 2022120800-2022121000 06B HISTORY ${confopts} # Mandous
 #./run_hafs.py ${opts} 2022121500-2022121718 07A HISTORY ${confopts} # Seven
-
- # 2021 NIO storms
-#./run_hafs.py ${opts} 2021030418-2021030612 01A HISTORY ${confopts} # Tauktae
-#./run_hafs.py ${opts} 2021050706-2021051112 02B HISTORY ${confopts} # Yaas
-#./run_hafs.py ${opts} 2021081206-2021081312 03B HISTORY ${confopts} # Gulab Shaheen
-#./run_hafs.py ${opts} 2021081818-2021082000 04B HISTORY ${confopts} # Four
-#./run_hafs.py ${opts} 2021102312-2021102418 05B HISTORY ${confopts} # Jawad
 
 #===============================================================================
 

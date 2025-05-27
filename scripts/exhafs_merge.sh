@@ -6,6 +6,17 @@
 #   This script runs hafs_datool to merge atmospheric restart files. It
 #   supports the merge_type of analysis or init with the merge_method of
 #   domainmerge or vortexreplace.
+# History:
+#   01/12/2022: Enable cycling the storm region only or cycling the whole domain
+#               from the prior HAFS forecast cycle
+#   02/26/2022: Enable handling the regional moving nesting configuration
+#   03/09/2023: Improvements for HAFSv1 operational implementation
+#   04/20/2024: Improve error handling and stdout/stderr redirection for HAFSv2
+#   07/12/2024: Add 3DIAU related capabilities for HAFS regional configuration
+#   12/16/2024: Add Fourier wave-number filtering capabilities for DA increments
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -85,13 +96,13 @@ ${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/
 if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then
 
 if [ ${FGAT_HR} = 03 ]; then
-  tcvital=${WORKhafs}/tm03vit
+  tcvital=${WORKhafs}/intercom/launch/tm03vit
 elif [ ${FGAT_HR} = 06 ]; then
-  tcvital=${WORKhafs}/tmpvit
+  tcvital=${WORKhafs}/intercom/launch/tmpvit
 elif [ ${FGAT_HR} = 09 ]; then
-  tcvital=${WORKhafs}/tp03vit
+  tcvital=${WORKhafs}/intercom/launch/tp03vit
 else
-  tcvital=${WORKhafs}/tmpvit
+  tcvital=${WORKhafs}/intercom/launch/tmpvit
 fi
 if [ ${merge_method} = vortexreplace ]; then
   MERGE_CMD="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
@@ -234,26 +245,58 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   export err=$?; err_chk
 done
 
+if [ ${RUN_GSI} = "YES" ] && [ ${GSI_D02} = "YES" ]; then
+
 # Step 4: Calculate d02 increments for IAU
-if [ ${iau_regional:-.false.} = ".true." ]; then
-  RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
-  ${APRUNC} ${DATOOL} hafs_diff \
-   --in_dir=${RESTARTmrg} --in_dir2=${RESTARTbkg} \
-   --infile_date=${ymd}.${hh}0000 --out_file="analysis_inc" \
-   --nestdoms=$((${nest_grids:-1}-1)) --vi_cloud=${vi_cloud} 2>&1 | tee ./analysis_diff.log
-  export err=$?; err_chk
-  ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
-  # Replace d02 restart files
-  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-    in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-    mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
-    ${NCP} -rp ${out_file} ${mrg_file}
-    ${NCP} -rp ${in_file} ${out_file}
-  done
+# Extract vmax from tcvitals (m/s)
+${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals
+vmax_vit=$(cat tcvitals | cut -c68-69 | bc -l)
+export err=$?; err_chk
+if [ ${vmax_vit} -gt ${fwd_vmax_threshold:-33} ]; then
+  wave_num=${fwd_wave_number:-2}
+else
+  wave_num=-999
 fi
 
-if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ] ; then
+if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
+  RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
+  in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+  iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
+  if [ -s ./tcvitals ]; then
+    iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
+  fi
+  if [ -s ${in_grid} ]; then
+    iau_fwd_command="${iau_fwd_command} --in_grid=${in_grid}"
+  fi
+  if [ ${iau_regional} = ".true." ]; then
+    iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_nest02.nc"
+  fi
+  if [ ${wave_num} -gt "-99" -a ${wave_num} -lt "99" ]; then
+    iau_fwd_command="${iau_fwd_command} --wave_num=${wave_num}"
+  fi
+# for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+  for var in fv_core.res fv_tracer.res; do
+    ${iau_fwd_command} \
+         --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
+         --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc 2>&1 | tee ./analysis_fftw_iau.${var}.log
+    export err=$?; err_chk
+  done
+  if [ ${iau_regional} = ".true." ]; then
+    ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+    # Replace d02 restart files
+    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+      in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+      mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+      ${NCP} -rp ${out_file} ${mrg_file}
+      ${NCP} -rp ${in_file} ${out_file}
+    done
+  fi
+fi
+
+fi
+
+if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   mkdir -p ${RESTARTcom}
   ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
 fi

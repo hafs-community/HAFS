@@ -1,5 +1,15 @@
 #! /usr/bin/env python3
-
+################################################################################
+# Script Name: impi.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module provides Intel MPI support to produtil.run
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################   
 ##@namespace produtil.mpi_impl.impi
 
 import os, sys, logging
@@ -96,10 +106,10 @@ class Implementation(ImplementationBase):
         """!Runs the "sync" command as an exe()."""
         if logger is None: logger=self.logger
         produtil.run.run(produtil.run.exe('/bin/sync'))
-    
+
     def openmp(self,arg,threads,logger=None):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -113,18 +123,18 @@ class Implementation(ImplementationBase):
         else:
             del arg.threads
         return arg
-       
+
     def can_run_mpi(self):
         """!Does this class represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
+
     def mpirunner(self,arg,allranks=False,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects

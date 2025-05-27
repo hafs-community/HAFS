@@ -1,6 +1,15 @@
 #! /usr/bin/env python3
-
-"""!Contains the Listing class, which emulates "ls -l"."""
+################################################################################
+# Script Name: listing.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Contains the Listing class, which emulates "ls -l".
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 ##@var __all__
 # Symbols exported by "from produtil.listing import *"
@@ -21,7 +30,7 @@ class Listing(object):
        print Listing("/usr/local",hidden=True)
     @endcode
 
-    To log messages related to failures of lstat and readlink, pass 
+    To log messages related to failures of lstat and readlink, pass
     a logging.Logger:
     @code
        print Listing("/usr/local",hidden=True,logger=logger)
@@ -59,7 +68,7 @@ class Listing(object):
         listing=os.listdir(path)
         contents=dict()
         for item in listing:
-            if item[0]=='.' and not hidden: 
+            if item[0]=='.' and not hidden:
                 # Skip "hidden" files.
                 continue
             loc=os.path.join(path,item)

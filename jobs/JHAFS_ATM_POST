@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -62,9 +61,9 @@ export POST_GROUPN=${POST_GROUPN:-1}
 export POST_GROUPI=$( printf "%d" "${POST_GROUPI:-1}" )
 
 if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/atm_post${POST_GROUPI}_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_post${POST_GROUPI}_ens/mem${ENSID}${jobidstr}
 else
-  export DATA=${WORKhafs}/atm_post${POST_GROUPI}
+  export DATA=${WORKhafs}/atm_post${POST_GROUPI}${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then

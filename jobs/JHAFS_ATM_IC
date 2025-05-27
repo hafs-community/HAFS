@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -61,11 +60,11 @@ export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
 if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/atm_ic_ens/mem${ENSID}
+  export DATA=${WORKhafs}/atm_ic_ens/mem${ENSID}${jobidstr}
 elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}
+  export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}${jobidstr}
 else
-  export DATA=${WORKhafs}/atm_ic
+  export DATA=${WORKhafs}/atm_ic${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then

@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: hycom.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The module handles HAFS HYCOM coupling related initialization and
+#   post-processing steps.
+# History:
+#   05/22/2020: Initial version to support HYCOM coupling in HAFS
+#   04/29/2022: Enable using HYCOM NHC domain for AL, EP, CP storms
+#   06/02/2023: Finalize for HAFSv1 implementation
+#   04/18/2024: Improve logging and error handling for HAFSv2 upgrade
+################################################################################
 
 """HYCOM related initialization and post-processing jobs."""
 
@@ -613,7 +625,7 @@ subregion %s
         blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
-                m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
+                m=re.match(r"^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
                 if m:
                     (val,kwd)=m.groups(0)
                     val=float(val)
@@ -1096,13 +1108,19 @@ export gridno={gridno}\n'''.format(**self.__dict__))
 
         tt=int(os.environ['TOTAL_TASKS'])
         logger.info ('CALLING gfs2ofsinputs %d ',tt)
-        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-            mpiserial_path=self.getexe('mpiserial','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-            mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
-        checkrun(cmd2)
+        try:
+            cfp_path=produtil.fileop.find_exe('cfp')
+            cmd2=mpirun(mpi(cfp_path)['./command.file.preview'],allranks=True)
+            checkrun(cmd2)
+        except Exception as e:
+            logger.info ('Could not find CFP, using mpiserial instead')
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+            if mpiserial_path=='*MISSING*':
+                 mpiserial_path=self.getexe('mpiserial','*MISSING*')
+            if mpiserial_path=='*MISSING*':
+                 mpiserial_path=produtil.fileop.find_exe('mpiserial')
+            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview'],allranks=True)
+            checkrun(cmd2)
 
         with open('listflx.dat','wt') as listflxf:
             listflxf.write(''.join(listflx))
@@ -1129,13 +1147,19 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
             commands.append('%s %d > %s 2>&1\n'%(cmd,i,gfs2ofs_out))
         with open('command.file.preview_gfs2ofs','wt') as fid:
             fid.write(''.join(commands))
-        mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=self.getexe('mpiserial','*MISSING*')
-        if mpiserial_path=='*MISSING*':
-             mpiserial_path=produtil.fileop.find_exe('mpiserial')
-        cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
-        checkrun(cmd2)
+        try:
+            cfp_path=produtil.fileop.find_exe('cfp')
+            cmd2=mpirun(mpi(cfp_path)['./command.file.preview_gfs2ofs'],allranks=True)
+            checkrun(cmd2)
+        except Exception as e:
+            logger.info ('Could not find CFP, using mpiserial instead')
+            mpiserial_path=os.environ.get('MPISERIAL','*MISSING*')
+            if mpiserial_path=='*MISSING*':
+                 mpiserial_path=self.getexe('mpiserial','*MISSING*')
+            if mpiserial_path=='*MISSING*':
+                 mpiserial_path=produtil.fileop.find_exe('mpiserial')
+            cmd2=mpirun(mpi(mpiserial_path)['-m','command.file.preview_gfs2ofs'],allranks=True)
+            checkrun(cmd2)
         self.ofs_timeinterp_forcing(logger)
 
     def ofs_forcing_info(self,filename):
@@ -1306,7 +1330,7 @@ wslocal = 0       ! if  wslocal = 1, then wind stress are computed from wind vel
         blkdat_input=self.timestr('{PARMhycom}/hafs_{RUNmodIDout}.{gridlabelout}.fcst.blkdat.input')
         with open(blkdat_input) as f:
             for line in f:
-                m=re.match("^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
+                m=re.match(r"^\s*(\S+)\s*'\s*(\S+)\s*' = ",line)
                 if m:
                     (val,kwd)=m.groups(0)
                     val=float(val)
@@ -1453,7 +1477,7 @@ NetCDF
                 timesslept=0
                 sleepmax=180
                 while timesslept<sleepmax:
-                    if os.path.exists("../../forecast/"+logfile):
+                    if os.path.exists("../../intercom/forecast/"+logfile):
                         break
                     else:
                         timesslept=timesslept+1
@@ -1464,8 +1488,8 @@ NetCDF
                     raise
                     sys.exit(2)
                 logger.info('Will create ocean products for %s '%( repr(notabin)))
-                afile=''.join(['../../forecast/'+notabin,'.a'])
-                bfile=''.join(['../../forecast/'+notabin,'.b'])
+                afile=''.join(['../../intercom/forecast/'+notabin,'.a'])
+                bfile=''.join(['../../intercom/forecast/'+notabin,'.b'])
                 archxa='archv.a'
                 archxb='archv.b'
                 produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)
@@ -1509,7 +1533,7 @@ NetCDF
             timesslept=0
             sleepmax=180
             while timesslept<sleepmax:
-               if os.path.exists("../../forecast/"+logfile):
+               if os.path.exists("../../intercom/forecast/"+logfile):
                   break
                else:
                   timesslept=timesslept+1
@@ -1520,8 +1544,8 @@ NetCDF
                raise
                sys.exit(2)
             logger.info('Will create ocean products for %s '%( repr(notabin)))
-            afile=''.join(['../../forecast/'+notabin,'.a'])
-            bfile=''.join(['../../forecast/'+notabin,'.b'])
+            afile=''.join(['../../intercom/forecast/'+notabin,'.a'])
+            bfile=''.join(['../../intercom/forecast/'+notabin,'.b'])
             archxa='archs.a'
             archxb='archs.b'
             produtil.fileop.make_symlink(afile,archxa,force=True,logger=logger)

@@ -3,6 +3,9 @@ program obs_preproc_main
   !=======================================================================
 
   !$$$ PROGRAM DOCUMENTATION BLOCK
+
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
   
   ! obs-preproc :: obs_preproc_main
   ! Copyright (C) 2019 Henry R. Winterbottom

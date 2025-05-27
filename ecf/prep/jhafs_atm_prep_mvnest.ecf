@@ -3,7 +3,7 @@
 #PBS -S /bin/bash
 #PBS -q %QUEUE%
 #PBS -A %PROJ%-%PROJENVIR%
-#PBS -l walltime=01:25:00
+#PBS -l walltime=00:25:00
 #PBS -l place=vscatter:excl,select=1:ncpus=120:mpiprocs=6:ompthreads=20
 #PBS -l debug=true
 
@@ -25,9 +25,9 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5-A/${hdf5_ver}
-module load netcdf-A/${netcdf_ver}
-module load python/${python_ver}
+module load hdf5-C/${hdf5_ver}
+module load netcdf-C/${netcdf_ver}
+module load ve/hafs/${ve_hafs_ver}
 module load crtm/${crtm_ver}
 module load udunits/${udunits_ver}
 module load gsl/${gsl_ver}

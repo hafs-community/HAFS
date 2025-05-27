@@ -2,6 +2,8 @@
 ! This package of subroutines are used for HAFS grid calculation.
 ! authors and history:
 !      -- 202102, created by Yonghui Weng
+!      -- 202411, Yonghui Weng modified subroutine write_nc_real to output float/double/int type data
+!
 !========================================================================================
   subroutine rd_grid_spec_data(ncfile, grid)
 
@@ -379,12 +381,13 @@
   character(len=*), intent(in)    :: long_name
 
   logical                         :: file_exists
-  integer                         :: ncid, varid, rcode, ixid, jxid, kxid, txid
+  integer                         :: ncid, varid, xtype, rcode, ixid, jxid, kxid, txid
   integer                         :: date_time(8)
   character*10                    :: date(3)
 
   real                            :: FillValue
 
+  xtype=-999  !hint: the default data type is nf90_float
   FillValue=9.999e+20
   !----1.0 process data _FillValue
   where( data > 9.0e+8 .or. data < -300000. ) data=FillValue
@@ -401,47 +404,76 @@
   !----3.0 check dimensions
   if ( len_trim(cx) > 0 .and. cx(1:1) /= '-' .and. cx(1:1) /= '=' .and. ix > 0 ) then  !ix<0 will not generate this dimension
      rcode=nf90_inq_dimid(ncid, trim(cx), ixid)
-     if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cx, ix, ixid), 'wrong in def_dim '//trim(cx), .true.)
+     if ( rcode /= nf90_noerr ) then
+        call nccheck(nf90_def_dim(ncid, cx, ix, ixid), 'wrong in def_dim '//trim(cx), .true.)
+     else
+        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
+           rcode=nf90_inq_varid(ncid, trim(cx), varid)
+           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        endif
+     endif
   endif
   if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(cy), jxid)
-     if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, cy, jx, jxid), 'wrong in def_dim '//trim(cy), .true.)
+     if ( rcode /= nf90_noerr )  then
+        call nccheck(nf90_def_dim(ncid, cy, jx, jxid), 'wrong in def_dim '//trim(cy), .true.)
+     else
+        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
+           rcode=nf90_inq_varid(ncid, trim(cy), varid)
+           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        endif
+     endif
   endif
   if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ck), kxid)
-     if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, ck, kx, kxid), 'wrong in def_dim '//trim(ck), .true.)
+     if ( rcode /= nf90_noerr ) then
+        call nccheck(nf90_def_dim(ncid, ck, kx, kxid), 'wrong in def_dim '//trim(ck), .true.)
+     else
+        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
+           rcode=nf90_inq_varid(ncid, trim(ck), varid)
+           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        endif
+     endif
   endif
   if ( len_trim(ct) > 0 .and. ct(1:1) /= '-' .and. ct(1:1) /= '=' .and. tx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ct), txid)
-     if ( rcode /= nf90_noerr ) call nccheck(nf90_def_dim(ncid, ct, tx, txid), 'wrong in def_dim '//trim(ct), .true.)
+     if ( rcode /= nf90_noerr ) then
+        call nccheck(nf90_def_dim(ncid, ct, tx, txid), 'wrong in def_dim '//trim(ct), .true.)
+     else
+        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
+           rcode=nf90_inq_varid(ncid, trim(ct), varid)
+           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        endif
+     endif
   endif
+  if ( xtype < 0 .or. xtype > 99 ) xtype=nf90_real
 
   !----4.0 check var
   rcode=nf90_inq_varid(ncid, varname, varid)
   if ( rcode /= nf90_noerr ) then  ! need to define the var
      if ( tx>0 ) then
         if ( kx >0 ) then
-           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,jxid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/jxid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,jxid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/jxid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
         else if ( kx <= 0 ) then
-           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,jxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/jxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,jxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/jxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/txid/), varid), 'wrong in def_var '//trim(varname), .true.)
         endif
      else if ( tx<=0 ) then
         if ( kx >0 ) then
-           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,jxid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/jxid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,jxid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/jxid,kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/kxid/), varid), 'wrong in def_var '//trim(varname), .true.)
         else if ( kx <= 0 ) then
-           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid,jxid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/ixid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,(/jxid/), varid), 'wrong in def_var '//trim(varname), .true.)
-           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), nf90_real,varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,jxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/jxid/), varid), 'wrong in def_var '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, varid), 'wrong in def_var '//trim(varname), .true.)
         endif
      endif
      !---
@@ -454,36 +486,90 @@
 
   !----5.0 write data
   !call nccheck(nf90_var_par_access(ncid, varid, nf90_collective), 'wrong in  nf90_var_par_access '//trim(varname), .false.)
-  if ( tx>0 ) then
-     if ( kx >0 ) then
-        if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,   kx,tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/      kx,tx/))), 'wrong in write '//trim(varname), .true.)
-     else if ( kx <= 0 ) then
-        if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,   tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,      tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,   tx/))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/         tx/))), 'wrong in write '//trim(varname), .true.)
+  if ( xtype == nf90_float .or. xtype == nf90_real .or. xtype == nf90_real4 ) then
+     if ( tx>0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,   kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/      kx,tx/))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,      tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/         tx/))), 'wrong in write '//trim(varname), .true.)
+        endif
+     else if ( tx<=0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,   kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/      kx   /))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix         /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, data), 'wrong in write '//trim(varname), .true.)
+        endif
      endif
-  else if ( tx<=0 ) then
-     if ( kx >0 ) then
-        if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx,kx   /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,   kx   /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx,kx   /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/      kx   /))), 'wrong in write '//trim(varname), .true.)
-     else if ( kx <= 0 ) then
-        if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix,jx      /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/ix         /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(data, (/   jx      /))), 'wrong in write '//trim(varname), .true.)
-        if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, data), 'wrong in write '//trim(varname), .true.)
+  else if ( xtype == nf90_double .or. xtype == nf90_real8 ) then
+     if ( tx>0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,   kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/   jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/      kx,tx/))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,      tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/   jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/         tx/))), 'wrong in write '//trim(varname), .true.)
+        endif
+     else if ( tx<=0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,   kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/   jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/      kx   /))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix,jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/ix         /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(dble(data), (/   jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, dble(data)), 'wrong in write '//trim(varname), .true.)
+        endif
+     endif
+  else if ( xtype == nf90_int ) then
+     if ( tx>0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,   kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/   jx,kx,tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/      kx,tx/))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,      tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/   jx,   tx/))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/         tx/))), 'wrong in write '//trim(varname), .true.)
+        endif
+     else if ( tx<=0 ) then
+        if ( kx >0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,   kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/   jx,kx   /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/      kx   /))), 'wrong in write '//trim(varname), .true.)
+        else if ( kx <= 0 ) then
+           if ( ix>0 .and. jx>0  ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix,jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix>0 .and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/ix         /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0 .and. jx>0 ) call nccheck(nf90_put_var(ncid, varid, reshape(int(data), (/   jx      /))), 'wrong in write '//trim(varname), .true.)
+           if ( ix<=0.and. jx<=0 ) call nccheck(nf90_put_var(ncid, varid, int(data)), 'wrong in write '//trim(varname), .true.)
+        endif
      endif
   endif
 
   !----6.0 put att
   if ( len_trim(units) > 0 .and. units(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "units", units), 'wrong in put units', .false.)
   if ( len_trim(long_name) > 0 .and. long_name(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "long_name",long_name), 'wrong in put long_name', .false.)
-  call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS VI pre-file on rot-ll grids derived from HAFS restart files"), 'wrong in put_att', .false.)
+  call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS_datool file"), 'wrong in put_att', .false.)
   call date_and_time(date(1), date(2), date(3), date_time)
   call nccheck(nf90_put_att(ncid, nf90_global, "Created_date",date(1)), 'wrong input Created_date', .false.)
 
@@ -611,7 +697,7 @@
   !----6.0 put att
   if ( len_trim(units) > 0 .and. units(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "units", units), 'wrong in put units', .false.)
   if ( len_trim(long_name) > 0 .and. long_name(1:1) /= '=') call nccheck(nf90_put_att(ncid, varid, "long_name",long_name), 'wrong in put long_name', .false.)
-  call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS VI pre-file on rot-ll grids derived from HAFS restart files"), 'wrong in put_att', .false.)
+  call nccheck(nf90_put_att(ncid, nf90_global, "File-type", "HAFS_datool file"), 'wrong in put_att', .false.)
   call date_and_time(date(1), date(2), date(3), date_time)
   call nccheck(nf90_put_att(ncid, nf90_global, "Created_date",date(1)), 'wrong input Created_date', .false.)
 

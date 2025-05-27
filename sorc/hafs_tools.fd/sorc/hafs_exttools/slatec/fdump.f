@@ -6,6 +6,7 @@ C***LIBRARY   SLATEC (XERROR)
 C***CATEGORY  R3
 C***TYPE      ALL (FDUMP-A)
 C***KEYWORDS  ERROR, XERMSG
+C*** Authors and history
 C***AUTHOR  Jones, R. E., (SNLA)
 C***DESCRIPTION
 C

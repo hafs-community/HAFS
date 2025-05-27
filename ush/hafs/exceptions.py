@@ -1,4 +1,13 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: exceptions.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains exceptions raised by the hafs Python scripts.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   03/20/2023: Finalize for HAFSv1 implementation
+################################################################################
 
 """!Exceptions raised by the hafs package
 

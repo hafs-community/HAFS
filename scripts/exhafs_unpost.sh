@@ -1,10 +1,16 @@
 #!/bin/sh
 ################################################################################
-# Script Name: exhafs_atm_unpost.sh
+# Script Name: exhafs_unpost.sh
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script cleans up the HAFS atmopheric, wave and oceanic post-processing
 #   products and files in com and intercom.
+# History:
+#   04/27/2023: Initial version for HAFSv1 operational implementation
+#   04/22/2024: Improvements for HAFSv2 upgrade and support MOM6 coupling
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -24,6 +30,7 @@ rm -f ${COMhafs}/${out_prefix}.${RUN}.*.sat.f???.grb2*
 rm -f ${COMhafs}/${out_prefix}.${RUN}.trak.patcf
 rm -f ${WORKhafs}/intercom/post/${out_prefix}.${RUN}.*.trk.f???.grb2*
 rm -f ${WORKhafs}/intercom/post/post*f???
+rm -f ${WORKhafs}/intercom/product/trak*f???
 
 # Remove ocn_post com output
 if [ ${run_ocean} = yes ]; then

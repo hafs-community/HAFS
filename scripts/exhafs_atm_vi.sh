@@ -5,6 +5,15 @@
 # Abstract:
 #   This script runs the HAFS atmopsheric vortex initialization steps to
 #   relocate and modify the storm vortex (if desired).
+# History:
+#   01/25/2022: Enable vortex initialization tasks in HAFS application workflow
+#   02/06/2022: Use hafs_datool to prepare VI input and interpolate VI analysis
+#               back to restart files
+#   03/02/2022: Enable handling the regional moving nesting configuration
+#   06/12/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 vi_force_cold_start=${vi_force_cold_start:-no}
@@ -57,16 +66,16 @@ mkdir -p ${DATA}
 cd $DATA
 # Prepare tcvitals file
 if [ ${FGAT_HR} = 03 ]; then
-  ${NCP} ${WORKhafs}/tm03vit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tm03vit tcvitals.vi
   gesfhr=3
 elif [ ${FGAT_HR} = 06 ]; then
-  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
-  ${NCP} ${WORKhafs}/tp03vit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tp03vit tcvitals.vi
   gesfhr=9
 else
-  ${NCP} ${WORKhafs}/tmpvit tcvitals.vi
+  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
 fi
 # Convert 1800W to 1800E for date line TCs
@@ -442,7 +451,11 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
   elif [[ ${vi_composite_vortex} = 2 ]]; then
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+    if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
+    else
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
+    fi
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
   else
@@ -498,6 +511,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   # output
   ${RLN} storm_env_new fort.36
   ${RLN} storm_anl_combine fort.56
+  ${RLN} storm_txt_combine fort.91
 
   gesfhr=${gesfhr:-6}
   gfs_flag=${gfs_flag:-6}
@@ -508,6 +522,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
+    ${NCP} -p storm_txt_combine storm_txt
   fi
 
   # If the combined storm is weaker than the tcvital intensity, add a small
@@ -532,7 +547,11 @@ else # warm-start from prior cycle or cold start from global/parent model
       ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
       ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
     elif [[ ${vi_composite_vortex} = 2 ]]; then
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep    fort.75
+      if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+        ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
+      else
+        ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
+      fi
       ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
       ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
     else
@@ -543,6 +562,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
     # output
     ${RLN} storm_anl_enhance                     fort.56
+    ${RLN} storm_txt_enhance                     fort.92
 
     iflag_cold=${iflag_cold:-0}
     ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_enhance.x ./
@@ -550,6 +570,7 @@ else # warm-start from prior cycle or cold start from global/parent model
     echo 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} ${vi_slp_adjust} | ${APRUNO} ./hafs_tools_vi_anl_enhance.x 2>&1 | tee ./vi_anl_enhance.log
     export err=$?; err_chk
     ${NCP} -p storm_anl_enhance storm_anl
+    ${NCP} -p storm_txt_enhance storm_txt
   fi
 
 fi
@@ -576,6 +597,9 @@ ${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+if [ -s ${DATA}/anl_storm/storm_txt ]; then
+ ${NCP} -rp ${DATA}/anl_storm/storm_txt ${RESTARTout}/
+fi
 
 for nd in $(seq 1 ${nest_grids}); do
   ${APRUNC} ${DATOOL} hafsvi_postproc \

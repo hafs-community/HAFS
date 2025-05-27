@@ -29,7 +29,7 @@
 
   type(grid2d_info)  :: grid_src, grid_dst
 
-  logical  :: outside, if_fv_core_file
+  logical  :: if_fv_core_file
   integer, allocatable, dimension(:,:) :: x_oini, y_oini
   real    :: dis, dis0, out_ave_dx, out_ave_dy
   integer :: ixi, jxi, kxi, txi, ixo, jxo, kxo, txo

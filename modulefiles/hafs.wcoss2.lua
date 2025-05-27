@@ -20,9 +20,6 @@ load(pathJoin("cray-pals", cray_pals_ver))
 cmake_ver=os.getenv("cmake_ver")
 load(pathJoin("cmake", cmake_ver))
 
-python_ver=os.getenv("python_ver")
-load(pathJoin("python", python_ver))
-
 jasper_ver=os.getenv("jasper_ver")
 load(pathJoin("jasper", jasper_ver))
 
@@ -122,14 +119,11 @@ load(pathJoin("pio-C", pio_ver))
 esmf_ver=os.getenv("esmf_ver")
 load(pathJoin("esmf-C", esmf_ver))
 
-gftl_shared_ver=os.getenv("gftl_shared_ver")
---load(pathJoin("gftl-shared", gftl_shared_ver))
-
-mapl_ver=os.getenv("mapl_ver")
---load(pathJoin("mapl-C", mapl_ver))
-
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
+
+ve_hafs_ver=os.getenv("ve_hafs_ver")
+load(pathJoin("ve/hafs", ve_hafs_ver))
 
 setenv("CC", "cc")
 setenv("CXX", "CC")

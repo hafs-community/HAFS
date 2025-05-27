@@ -1,7 +1,15 @@
 #! /usr/bin/env python3
-
-"""!Contains retry_io() which automates retrying operations."""
-
+################################################################################
+# Script Name: retry.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module contains retry_io() which automates retrying operations.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 ##@var __all__
 # Symbols exported by "from produtil.retry import *"
 __all__=['retry_io']
@@ -25,7 +33,7 @@ def retry_io(max_tries,sleep_time,operation,opargs=[],logger=None,
     @param opargs     A list containing arguments to the operation
     @param logger     A logging.Logger object to use for logging, or None
                       to disable logging.
-    @param fail       A string to print, or a function to call, when 
+    @param fail       A string to print, or a function to call, when
                       the operation fails but more retries are possible
     @param failargs   Optional: a list of arguments to fail, or None to disable
     @param giveup     A string to print, or a function to call when the
@@ -45,7 +53,7 @@ def retry_io(max_tries,sleep_time,operation,opargs=[],logger=None,
     arguments are the exception that was caught, the number of
     attempts so far, the max_tries, the sleep_time, and then a boolean
     that is true iff the operation is about to be retried."""
-        
+
     # Handle default arguments:
     if fail is not None:
         if failargs is None: failargs=opargs

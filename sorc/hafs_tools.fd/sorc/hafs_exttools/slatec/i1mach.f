@@ -6,6 +6,7 @@ C***LIBRARY   SLATEC
 C***CATEGORY  R1
 C***TYPE      INTEGER (I1MACH-I)
 C***KEYWORDS  MACHINE CONSTANTS
+C*** Authors and history
 C***AUTHOR  Fox, P. A., (Bell Labs)
 C           Hall, A. D., (Bell Labs)
 C           Schryer, N. L., (Bell Labs)

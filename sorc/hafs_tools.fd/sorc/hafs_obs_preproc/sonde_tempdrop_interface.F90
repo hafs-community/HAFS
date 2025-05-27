@@ -3,6 +3,9 @@ module sonde_tempdrop_interface
   !=======================================================================
 
   !$$$ PROGRAM DOCUMENTATION BLOCK
+
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
   
   ! obs-preproc :: sonde_tempdrop_interface
   ! Copyright (C) 2019 Henry R. Winterbottom
@@ -1548,7 +1551,8 @@ contains
           ! Check local variable and proceed accordingly
 
           if((hsa(i)%yymmdd(j) .ne. hsa_spval) .and. ((hsa(i)%tail(j) .eq. &
-               & 'SIGL') .or. (hsa(i)%tail(j) .eq. 'MANL'))) then
+               & 'SIGL') .or. (hsa(i)%tail(j) .eq. 'MANL')) .and.          &
+               & (hsa(i)%gmt(j) > -1 .and. hsa(i)%gmt(j) < 2360)) then
 
              ! Define local variables
 

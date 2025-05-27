@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -33,11 +32,11 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [ "${machine}" != "wcoss2" ] ; then
+  if [[ "${machine}" != "wcoss2" ]] && [[ "${ocean_model}" == mom6 ]]; then
       module use ${HOMEhafs}/modulefile
       module load hafs_mom6_obc.${machine}  
+      module list
   fi
-  module list
 else
   # Run by NCO on WCOSS2
   export machine=${WHERE_AM_I:-wcoss2}
@@ -61,7 +60,7 @@ source ${HOLDVARS}
 
 export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
 
-export DATA=${WORKhafs}/ocn_prep
+export DATA=${WORKhafs}/ocn_prep${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA

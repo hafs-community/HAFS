@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -76,11 +75,11 @@ export ENSDA=${ENSDA:-NO}
 export ldo_enscalc_option=${ldo_enscalc_option:?} # 0, enkf_update; 1, enkf_mean; 2, enkf_recenter
 
 if [ ${ldo_enscalc_option} -eq 0 ]; then
-  export DATA=${WORKhafs}/enkf_update
+  export DATA=${WORKhafs}/enkf_update${jobidstr}
 elif [ ${ldo_enscalc_option} -eq 1 ]; then
-  export DATA=${WORKhafs}/enkf_mean
+  export DATA=${WORKhafs}/enkf_mean${jobidstr}
 elif [ ${ldo_enscalc_option} -eq 2 ]; then
-  export DATA=${WORKhafs}/enkf_recenter
+  export DATA=${WORKhafs}/enkf_recenter${jobidstr}
 else
   echo "FATAL ERROR: wrong ldo_enscalc_option of ${ldo_enscalc_option}"
   exit 1

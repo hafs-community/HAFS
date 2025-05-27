@@ -6,6 +6,11 @@
 #   This script runs the HAFS oceanic preprocessing steps to generate MOM6
 #   coupling needed ocean initial condition (IC), open boundary condition (OBC)
 #   and atmospheric forcings.
+# History:
+#   05/13/2023: Enabled MOM6 coupling in HAFS application/workflow
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -258,8 +263,8 @@ done
 #==============================================================================
 
 # Prepare atmospheric forcings from GFS forcing
-mkdir -p ${WORKhafs}/ocn_prep/mom6_forcings
-cd ${WORKhafs}/ocn_prep/mom6_forcings
+mkdir -p ${DATA}/mom6_forcings
+cd ${DATA}/mom6_forcings
 
 PARMave=":USWRF:surface|:DSWRF:surface|:ULWRF:surface|:DLWRF:surface|:UFLX:surface|:VFLX:surface|:SHTFL:surface|:LHTFL:surface"
 PARMins=":UGRD:10 m above ground|:VGRD:10 m above ground|:PRES:surface|:PRATE:surface|:TMP:surface"
@@ -398,7 +403,7 @@ ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 #==============================================================================
 
 # Set ecflow event if needed
-if [ "${RUN_ENVIR^^}" = "NCO" ]; then
+if [ -n "${ECF_NAME}" ]; then
   ecflow_client --event Ocean
 fi      
 

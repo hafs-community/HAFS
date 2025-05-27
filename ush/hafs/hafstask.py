@@ -1,4 +1,17 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: hafstask.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains the HAFSTask class intended to be the base class of
+#   other HAFS tasks. It provides logging services, easy access to a config
+#   file, access to tcvitals, and extends the hafs.config.HAFSConfig string
+#   interpolation to include vitals information.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   05/26/2020: Enable running HAFS-HYCOM coupling in different modes
+#   03/20/2023: Improvements for HAFSv1 implementation
+################################################################################
 
 """!Base class of tasks run by HAFS.
 

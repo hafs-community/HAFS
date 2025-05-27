@@ -1,4 +1,25 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: launcher.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module creates the initial HAFS directory structure, and loads
+#   information into each job. It is used to create the initial HAFS conf file
+#   in the first HAFS job via the hafs.launcher.launch(). The
+#   hafs.launcher.load() then reloads that configuration. The launch() function
+#   does more than just create the conf file though. It parses the tcvitals,
+#   creates several initial files and directories and runs a sanity check on
+#   the whole setup.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   05/26/2020: Enable supporting for HYCOM ocean coupling
+#      12/2020: Enable supporting various DA capabilities (FGAT, EnVar, ENSDA)
+#      03/2022: Enable regional/global moving nesting configurations
+#   05/20/2022: Support vortex initialiation capability
+#   03/27/2023: Finalize for HAFSv1 implementation
+#   04/19/2024: Improvements (error/exception handling) for HAFSv2 upgrade
+#   07/12/2024: Add 3DIAU related changes
+################################################################################
 
 """!Creates the initial HAFS directory structure, loads information into each job.
 
@@ -20,8 +41,6 @@ tcvitals generation."""
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
 import os, re, sys, collections, random
-import numpy as np
-import xarray as xr
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
@@ -306,7 +325,7 @@ def parse_launch_args(args,logger,usage,PARMhafs=None):
     moreopt=collections.defaultdict(dict)
     for iarg in range(len(args)):
         logger.info(args[iarg])
-        m=re.match('''(?x)
+        m=re.match(r'''(?x)
           (?P<section>[a-zA-Z][a-zA-Z0-9_]*)
            \.(?P<option>[^=]+)
            =(?P<value>.*)$''',args[iarg])
@@ -376,7 +395,7 @@ def load(filename):
 
     WORKhafs=conf.getdir('WORKhafs')
 
-    tmpvit=os.path.join(WORKhafs,'tmpvit')
+    tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
     logger.info(tmpvit+': read vitals for current cycle')
     #syndat is a StormInfo object
     with open(tmpvit,'rt') as f:
@@ -384,7 +403,7 @@ def load(filename):
         syndat=syndat[0]
     logger.info('Current cycle vitals: '+syndat.as_tcvitals())
 
-    oldvit=os.path.join(WORKhafs,'oldvit')
+    oldvit=os.path.join(WORKhafs,'intercom','launch','oldvit')
     logger.info(oldvit+': read vitals for prior cycle')
     with open(oldvit,'rt') as f:
         oldsyndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
@@ -422,14 +441,14 @@ def _load_multistorm(fakestormid,conf,logger):
 
         #parse_tcvitals returns a 1 element list with element[0] being the StormInfo object.
         #That is we append [0] for each storm in a multistorm below.
-        tmpvit=os.path.join(WORKhafs4real,'tmpvit')
+        tmpvit=os.path.join(WORKhafs4real,'intercom','launch','tmpvit')
         logger.info(tmpvit+': Multistorm %s: read vitals for current cycle'%(stormid))
         with open(tmpvit,'rt') as f:
             syndat_multistorm.append(tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)[0])
         logger.info('Multistorm %s: Current cycle vitals: %s'%(
             stormid,str(syndat_multistorm[i].as_tcvitals())))
 
-        oldvit=os.path.join(WORKhafs4real,'oldvit')
+        oldvit=os.path.join(WORKhafs4real,'intercom','launch','oldvit')
         logger.info(oldvit+': Multistorm %s: read vitals for prior cycle'%(stormid))
         with open(oldvit,'rt') as f:
             oldsyndat_multistorm.append(tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)[0])
@@ -591,6 +610,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
 
     produtil.fileop.makedirs(conf.getdir('com'),logger=logger)
     produtil.fileop.makedirs(conf.getdir('WORKhafs'),logger=logger)
+    produtil.fileop.makedirs(os.path.join(conf.getdir('WORKhafs'),'intercom','launch'),logger=logger)
     #produtil.fileop.makedirs(conf.getdir('lockdir'),logger=logger)
     #griblockdir=conf.getstr('regribber','griblockdir','')
     #if griblockdir:
@@ -601,7 +621,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     for var in ( 'WORKhafs', 'HOMEhafs', 'com' ):
         expand=conf.getstr('dir',var)
         logger.info('Replace [dir] %s with %s'%(var,expand))
-        conf.set('dir',var,expand)
+    #   conf.set('dir',var,expand)
 
     if stid is not None:
         conf.decide_domain_center()
@@ -621,6 +641,9 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         conf.write(f)
 
     with open(os.path.join(conf.getdir('WORKhafs'),'PDY'),'wt') as f:
+        f.write(conf.strinterp(
+                'config','export cyc={HH}\nexport PDY={YMD}\nYMDH={YMDH}\n'))
+    with open(os.path.join(conf.getdir('WORKhafs'),'intercom','launch','PDY'),'wt') as f:
         f.write(conf.strinterp(
                 'config','export cyc={HH}\nexport PDY={YMD}\nYMDH={YMDH}\n'))
 
@@ -696,11 +719,11 @@ class HAFSLauncher(HAFSConfig):
         @returns the vitals path"""
         if storm_num is not None:
             storm_num=int(storm_num)
-            vitfile=os.path.join(self.getdir('WORKhafs'),
+            vitfile=os.path.join(self.getdir('WORKhafs'),'intercom','launch',
                 'storm%d.vitals'%(storm_num,))
         else:
             stormlabel=self.getstr('config','stormlabel','storm1')
-            vitfile=os.path.join(self.getdir('WORKhafs'),
+            vitfile=os.path.join(self.getdir('WORKhafs'),'intercom','launch',
                 '%s.vitals'%(stormlabel,))
         return vitfile
 
@@ -954,7 +977,7 @@ class HAFSLauncher(HAFSConfig):
         (self.syndat.old()).
 
         @param loud If loud=True (the default), then a message is sent
-        to the jlogfile via postmsg with the seed, and information
+        to the jloggerf via postmsg with the seed, and information
         about the calculation that went into it."""
         si=self.syndat.old() # storminfo before renumbering
         icycle=int(self.cycle.strftime('%Y%m%d%H'))
@@ -1127,7 +1150,7 @@ class HAFSLauncher(HAFSConfig):
             for vit in renumbered.each(stormid=STID):
                 print(vit.old().as_tcvitals(), file=vitalsout)
 
-        filename=os.path.join(self.getdir('WORKhafs'),'tmpvit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tmpvit')
         logger.info(filename+': write current cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.syndat.as_tcvitals(), file=tmpvit)
@@ -1136,7 +1159,7 @@ class HAFSLauncher(HAFSConfig):
         logger.info('deliver tmpvit '+filename+' to '+comfile)
         produtil.fileop.deliver_file(filename,comfile,keep=True,logger=logger)
 
-        filename=os.path.join(self.getdir('WORKhafs'),'oldvit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','oldvit')
         logger.info(filename+': write prior cycle vitals here')
         with open(filename,'wt') as tmpvit:
             print(self.oldsyndat.as_tcvitals(), file=tmpvit)
@@ -1147,7 +1170,7 @@ class HAFSLauncher(HAFSConfig):
         tm03syndat.wmax=max(min(tm03syndat.wmax, 99), 0)
         tm03syndat.pmin=int(round(oldsyndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
         tm03syndat.pmin=max(min(tm03syndat.pmin, 1100), 800)
-        filename=os.path.join(self.getdir('WORKhafs'),'tm03vit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tm03vit')
         logger.info(filename+': write tm03 vitals here')
         with open(filename,'wt') as tmpvit:
             print(tm03syndat.as_tcvitals(), file=tmpvit)
@@ -1158,7 +1181,7 @@ class HAFSLauncher(HAFSConfig):
        #tp03syndat.wmax=max(min(tp03syndat.wmax, 99), 0)
        #tp03syndat.pmin=int(round(syndat.pmin+0.5*(syndat.pmin-oldsyndat.pmin)))
        #tp03syndat.pmin=max(min(tp03syndat.pmin, 1100), 800)
-        filename=os.path.join(self.getdir('WORKhafs'),'tp03vit')
+        filename=os.path.join(self.getdir('WORKhafs'),'intercom','launch','tp03vit')
         logger.info(filename+': write tp03 vitals here')
         with open(filename,'wt') as tmpvit:
             print(tp03syndat.as_tcvitals(), file=tmpvit)
@@ -1380,7 +1403,6 @@ class HAFSLauncher(HAFSConfig):
             Default: set to value of EXPT       """
         ENV=os.environ
         logger=self.log()
-        PARAFLAG=( ENV.get('RUN_ENVIR','DEV').upper()!='NCO' )
 
         def set_default(section,option,default,env1=None,env2=None):
             if not self.has_option(section,option):
@@ -1421,10 +1443,12 @@ class HAFSLauncher(HAFSConfig):
         #    NWPROD='{HOMEhafs}/nwport'
 
         def dirset(evar,deff,parent='{HOMEhafs}'):
-            if evar in ENV:
-                self._conf.set('dir',evar,ENV[evar])
-            elif not self._conf.has_option('dir',evar):
+            if not self._conf.has_option('dir',evar):
                 self._conf.set('dir',evar,parent+'/'+deff.lower())
+        #   if evar in ENV:
+        #       self._conf.set('dir',evar,ENV[evar])
+        #   elif not self._conf.has_option('dir',evar):
+        #       self._conf.set('dir',evar,parent+'/'+deff.lower())
 
         dirset('FIXhafs','fix')
         dirset('USHhafs','ush')
@@ -1448,6 +1472,9 @@ class HAFSLauncher(HAFSConfig):
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
+        import numpy as np
+        import xarray as xr
+
         assert(isinstance(part1,str))
         out=list()
         logger=self.log()
@@ -1483,7 +1510,7 @@ class HAFSLauncher(HAFSConfig):
             EXEChafs=self.getstr('dir','EXEChafs','exec')
 
             # Run make_hgrid.x or regional_esg_grid.x to generate the parent tile grid file
-            with NamedDir(os.path.join(WORKhafs, 'launch/make_hgrid'),logger=logger,rm_first=True) as d:
+            with NamedDir(os.path.join(WORKhafs,'launch'+os.environ.get('jobidstr',''),'make_hgrid'),logger=logger,rm_first=True) as d:
                 if gtype=='nest':
                     executable=os.path.join(EXEChafs, 'hafs_utils_make_hgrid.x')
                     cmd=exe(executable)['--grid_type gnomonic_ed --nlon', 2*int(cres[1:]), '--grid_name', cres+'_grid',
@@ -1538,7 +1565,7 @@ class HAFSLauncher(HAFSConfig):
                     logger.warning('Unsupported gtype.')
 
                 # Get storm center lon/lat from tmpvit
-                tmpvit=os.path.join(WORKhafs,'tmpvit')
+                tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
                 #syndat is a StormInfo object
                 with open(tmpvit,'rt') as f:
                     syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)

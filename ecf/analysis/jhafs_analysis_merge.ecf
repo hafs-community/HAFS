@@ -25,9 +25,11 @@ module load craype/${craype_ver}
 module load intel/${intel_ver}
 module load cray-mpich/${cray_mpich_ver}
 module load cray-pals/${cray_pals_ver}
-module load hdf5-A/${hdf5_ver}
-module load netcdf-A/${netcdf_ver}
-module load python/${python_ver}
+module load hdf5-C/${hdf5_ver}
+module load netcdf-C/${netcdf_ver}
+module load ve/hafs/${ve_hafs_ver}
+module load cdo/${cdo_ver}
+module load cfp/${cfp_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_MERGE

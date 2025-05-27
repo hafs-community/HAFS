@@ -43,10 +43,11 @@ ALLCOMP_attributes::
   _OCN_model_attribute_
   _WAV_model_attribute_
   _MED_model_attribute_
-  ScalarFieldCount = 3
+  ScalarFieldCount = 4
   ScalarFieldIdxGridNX = 1
   ScalarFieldIdxGridNY = 2
-  ScalarFieldIdxNextSwCday = 3
+  ScalarFieldIdxGridNTile = 3
+  ScalarFieldIdxNextSwCday = 4
   ScalarFieldName = cpl_scalars
   start_type = startup
   case_name = ufs.hafs

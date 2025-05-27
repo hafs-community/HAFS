@@ -1,4 +1,16 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: revital.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module defines the Revital class which manipulates tcvitals files. It
+#   deals with rewriting TCVitals files to remove errors, change Invests to
+#   storms, and other such operations.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+#   04/03/2023: Finalize for HAFSv1 implementation
+#   04/06/2024: Improve logging and errror handling for HAFSv2 upgrade
+################################################################################
 
 """!Defines the Revital class which manipulates tcvitals files.
 
@@ -597,19 +609,19 @@ class Revital:
             def selected(vital): return True
         else:
             stormid=str(stormid).upper()
-            if   re.search('\A\d\d[a-zA-Z]\Z',stormid):
+            if   re.search(r'\A\d\d[a-zA-Z]\Z',stormid):
                 def selected(vital): return vital.stormid3==stormid
                 if old:
                     def old_selected(vital):
                         return 'old_stormid3' in vital.__dict__ and \
                             vital.old_stormid3==stormid
-            elif re.search('\A[a-zA-Z]{2}\d\d\Z',stormid):
+            elif re.search(r'\A[a-zA-Z]{2}\d\d\Z',stormid):
                 def selected(vital): return vital.stormid4==stormid
                 if old:
                     def old_selected(vital):
                         return 'old_stormid4' in vital.__dict__ and \
                             vital.old_stormid4==stormid
-            elif re.search('\A[a-zA-Z]{2}\d{6}\Z',stormid):
+            elif re.search(r'\A[a-zA-Z]{2}\d{6}\Z',stormid):
                 def selected(vital): return vital.longstormid==stormid
                 if old:
                     def old_selected(vital):

@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -59,9 +58,9 @@ export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
 
 if [ ${ENSDA} = YES ]; then
-  export DATA=${WORKhafs}/product_ens/mem${ENSID}
+  export DATA=${WORKhafs}/product_ens/mem${ENSID}${jobidstr}
 else
-  export DATA=${WORKhafs}/product
+  export DATA=${WORKhafs}/product${jobidstr}
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
@@ -92,7 +91,13 @@ for ng in $(seq 1 ${ngrids}); do
         > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done
 chmod +x cmdfile_product
-${APRUNC} ${MPISERIAL} -m cmdfile_product
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile_product | wc -l) 
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile_product
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile_product
+fi
 export err=$?; err_chk
 
 # Check if product/tracker run successfully

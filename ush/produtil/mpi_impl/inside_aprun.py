@@ -1,13 +1,21 @@
 #! /usr/bin/env python3
+################################################################################ 
+# Script Name: inside_aprun.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds support for running serial programs when one is inside an aprun
+#   execution.
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details.  This implements execution of serial programs when one
+#   is inside an aprun execution.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success 
+#   != 0 : fatal error encounted
+################################################################################
 
 ## @namespace produtil.mpi_impl.inside_aprun
-# Adds support for running serial programs when one is inside an aprun
-# execution.
-#
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.  This implements execution of serial programs when one
-# is inside an aprun execution.
-
 import os, socket, logging
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline
 
@@ -20,7 +28,7 @@ class Implementation(ImplementationBase):
     This module is part of the mpi_impl package -- see produtil.mpi_impl
     for details.  This implements execution of serial programs when one
     is inside an aprun execution."""
-    
+
     @staticmethod
     def name():
         return 'inside_aprun'
@@ -48,7 +56,7 @@ class Implementation(ImplementationBase):
     def openmp(self,arg,threads):
         """!When more than one thread is requested, this raises
         OpenMPDisabled to indicate OpenMP is not allowed.
-        
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -57,7 +65,7 @@ class Implementation(ImplementationBase):
             threads=int(threads)
             if threads!=1:
                 raise OpenMPDisabled("You cannot start a new OpenMP program from within an aprun invocation.")
-    
+
     def mpirunner(self,arg,**kwargs):
         """!Raises an exception to indicate MPI is not supported
         @param arg,kwargs Ignored."""
@@ -67,7 +75,7 @@ class Implementation(ImplementationBase):
         """!Returns False to indicate MPI is not supported."""
         return False
 
-    def make_bigexe(self,exe,**kwargs): 
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.

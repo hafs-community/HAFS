@@ -3,6 +3,8 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script detects HAFS running platform and prepares module environment.
+# History:
+#   04/04/2019: This script was adopted/inerited from HWRF and updated for HAFS.
 ################################################################################
 
 # Create a test function for sh vs. bash detection.  The name is
@@ -26,7 +28,7 @@ fi
 target=""
 USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
-if [[ -d /lfs4 ]] ; then
+if [[ -d /lfs5 ]] ; then
   # We are on NOAA Jet
   if ( ! eval module help > /dev/null 2>&1 ) ; then
     echo load the module command 1>&2
@@ -43,6 +45,13 @@ elif [[ -d /scratch1/NCEPDEV ]] ; then
     source /apps/lmod/lmod/init/$__ms_shell
   fi
   target=hera
+  module purge
+  module use /apps/modules/modulefiles
+  module use /apps/lmod/lmod/modulefiles/Core
+elif [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
+  # We are on NOAA Ursa
+  target=ursa
+  source $MODULESHOME/init/$__ms_shell
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
@@ -83,6 +92,18 @@ elif [[ -d /glade ]] ; then
   fi
   target=cheyenne
   module purge
+elif [[ -d /gpfs/f6 ]]; then
+  source $MODULESHOME/init/sh
+  export LMOD_IGNORE_CACHE=1
+  module reset
+  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]]; then
+    target=gaeac6
+    ulimit -s unlimited
+  elif [[ "$(hostname)" == "dtn"* ]]; then
+    target="gaeac6dtn"
+    module use /usw/hpss/modulefiles
+    module load hsi
+  fi
 elif [[ -d /lustre && -d /ncrc ]] ; then
   # We are on GAEA.
   if ( ! eval module help > /dev/null 2>&1 ) ; then
@@ -110,6 +131,7 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
+
 # The following section is only used for the Rocoto workflow
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
@@ -117,7 +139,14 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     module use /apps/ops/test/nco/modulefiles/core
     module load rocoto/${rocoto_ver:-"1.3.5"}
   fi
-  module use ${HOMEhafs}/modulefiles
-  module load hafs.${WHERE_AM_I}
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib:${HOMEhafs}/sorc/hafs_jedi.fd/build/fv3
+  if [[ "${WHERE_AM_I}" = "gaeac6" ]] ; then
+     module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
+     module load rocoto/1.3.7_fix
+  fi
+  if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]]; then
+    module use ${HOMEhafs}/modulefiles
+    module load hafs.${WHERE_AM_I}
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib:${HOMEhafs}/sorc/hafs_jedi.fd/build/fv3
+  fi
 fi
+

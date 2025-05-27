@@ -4,9 +4,17 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates HAFS GEMPAK products.
+# History:
+#   03/08/2023: Script added to support HAFSv1 (leveraged from HWRF/HMON)
+#   04/27/2023: Enable skipping previously completed forecast hours
+#   06/02/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
+export USE_CFP=${USE_CFP:NO}
 export storm_id=${STORMID,,}
 export fstart=0
 export finc=6
@@ -149,7 +157,13 @@ rm -f cmdfile.gempak
 echo "${USHhafs}/hafs_gempak_meta_grid.sh > $DATA/meta_grid.log 2>&1" >> cmdfile.gempak
 echo "${USHhafs}/hafs_gempak_meta_nest.sh > $DATA/meta_nest.log 2>&1" >> cmdfile.gempak
 chmod +x cmdfile.gempak
-${APRUNC} ${MPISERIAL} -m ./cmdfile.gempak
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile.gempak | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile.gempak
+else
+  ${APRUNC} ${MPISERIAL} -m ./cmdfile.gempak
+fi
 export err=$?; err_chk
 
 cat $DATA/meta_grid.log

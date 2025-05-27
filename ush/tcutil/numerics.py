@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: numerics.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module implements various simple numerical algorithms, such as partial
+#   sorting, time manipulation or fraction-to-date conversions. It also
+#   contains two array-like classes that take datetime objects as indices.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+################################################################################
 
 """!Time manipulation and other numerical routines.
 
@@ -224,7 +234,7 @@ def to_fraction(a,b=None,negok=False):
         result=fractions.Fraction(a.microseconds,1000000)+\
             a.seconds+24*3600*a.days
     elif isinstance(a,str): # Catch the 1+3/7 syntax:
-        m=re.match('\s*(?P<ipart>[+-]?\d+)\s*(?P<num>[+-]\d+)\s*/\s*(?P<den>\d+)',a)
+        m=re.match(r'\s*(?P<ipart>[+-]?\d+)\s*(?P<num>[+-]\d+)\s*/\s*(?P<den>\d+)',a)
         if(m):
             (i,n,d)=m.groups(['ipart','num','den'])
             result=fractions.Fraction(int(i)*int(d)+int(n),int(d))
@@ -256,7 +266,7 @@ def to_datetime_rel(d,rel):
     elif isinstance(d,datetime.timedelta):
         return rel+d
     elif isinstance(d,str):
-        if(re.match('\A(?:\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d|\d{10}|\d{12})\Z',d)):
+        if(re.match(r'\A(?:\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d|\d{10}|\d{12})\Z',d)):
             if   len(d)==10:
                 return datetime.datetime.strptime(d,'%Y%m%d%H')
             elif len(d)==12:
@@ -310,7 +320,7 @@ def to_timedelta(a,b=None,negok=True):
     if isinstance(a,str) and b is None:
         # 03:14 = three hours
         try:
-            m=re.search('''(?ix) \A \s* (?P<negative>-)? 0* (?P<hours>\d+)
+            m=re.search(r'''(?ix) \A \s* (?P<negative>-)? 0* (?P<hours>\d+)
                 :0*(?P<minutes>\d+)
                   (?: :0*(?P<seconds>\d+(?:\.\d*)?) )?
                 \s*''', a)

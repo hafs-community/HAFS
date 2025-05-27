@@ -5,6 +5,15 @@
 # Abstract:
 #   This script creates the initial HAFS directory structure and configurations
 #   for executing a specific forecast cycle.
+# History:
+#   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
+#   04/21/2023: Finalize for HAFSv1 implementation
+#   06/02/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
+# Usage:
+#   exhafs_launch.py YYYYMMDDHH STID CASE_ROOT /path/to/parm [options]
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 ##@namespace scripts.exhafs_launch
 # Creates the initial HAFS directory structure for executing a
@@ -71,7 +80,7 @@ import produtil.setup, produtil.log, produtil.dbnalert
 import hafs.launcher
 from produtil.fileop import deliver_file
 from produtil.numerics import to_datetime
-from produtil.ecflow import set_ecflow_event
+from produtil.run import checkrun, exe, run, runstr
 
 ## The logging.Logger for log messages
 logger=None
@@ -119,7 +128,6 @@ def main():
     hafs.launcher module to create the initial directory structure and
     conf file."""
     logger=logging.getLogger('exhafs_launch')
-    PARAFLAG = ( os.environ.get('RUN_ENVIR','DEV').upper() != 'NCO' )
     logger.info('Top of exhafs_launch.')
 
     short_opts = "m:M:n"
@@ -258,14 +266,20 @@ def main():
                 alert()
 
     Gsi=conf.getbool('config','run_gsi')
-    if Gsi: set_ecflow_event('Analysis',logger)
+    if Gsi and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Analysis']
+        checkrun(cmd,logger=logger)
 
     Ocean=conf.getbool('config','run_ocean')
-    if Ocean: set_ecflow_event('Ocean',logger)
+    if Ocean and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Ocean']
+        checkrun(cmd,logger=logger)
 
     Wave=conf.getbool('config','run_wave') and \
          conf.getstr('config','wave_model').upper()=='WW3'
-    if Wave: set_ecflow_event('Wave',logger)
+    if Wave and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'Wave']
+        checkrun(cmd,logger=logger)
 
 if __name__ == '__main__':
     try:

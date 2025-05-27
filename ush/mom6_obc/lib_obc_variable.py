@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: lib_obc_variable.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains a class for MOM6 Open Boundary Condtion variable on an
+#   obc_segment.
+# History:
+#   05/13/2023: Initial version for HAFSv1 operational implementation
+#   02/02/2024: Clean up for MOM6 OBC input files
+################################################################################
 
 import numpy as np
 try:

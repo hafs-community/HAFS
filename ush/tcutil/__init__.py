@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: __init__.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This script defines the namespace for the tcutil package.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+################################################################################
 
 ##@namespace tcutil
 # This is a tcutil package.

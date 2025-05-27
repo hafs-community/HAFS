@@ -1,19 +1,27 @@
-#! /usr/bin/env python3 
+#! /usr/bin/env python3
+################################################################################
+# Script Name: mpiexec.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Adds MPICH or MVAPICH2 support to produtil.run
+#   This module is part of the mpi_impl package -- see produtil.mpi_impl
+#   for details.  This implements the Hydra MPI wrapper and MPICH MPI
+#   implementation with Intel OpenMP, but may work for other MPI
+#   implementations that use the "mpiexec" command and OpenMP
+#   implementations that use the KMP_NUM_THREADS or OMP_NUM_THREADS
+#   environment variables.
+#   @warning This module assumes the TOTAL_TASKS environment variable is
+#   set to the maximum number of MPI ranks the program has available to
+#   it. That is used when the mpirunner is called with the
+#   allranks=True option.
+# History: 
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-##@namespace produtil.mpi_impl.mpiexec 
-# Adds MPICH or MVAPICH2 support to produtil.run
-#
-# This module is part of the mpi_impl package -- see produtil.mpi_impl
-# for details.  This implements the Hydra MPI wrapper and MPICH MPI
-# implementation with Intel OpenMP, but may work for other MPI
-# implementations that use the "mpiexec" command and OpenMP
-# implementations that use the KMP_NUM_THREADS or OMP_NUM_THREADS
-# environment variables.
-#
-# @warning This module assumes the TOTAL_TASKS environment variable is
-# set to the maximum number of MPI ranks the program has available to
-# it.  That is used when the mpirunner is called with the
-# allranks=True option.
+##@namespace produtil.mpi_impl.mpiexec  
 
 import os, logging
 import produtil.fileop,produtil.prog,produtil.mpiprog,produtil.pipeline
@@ -25,7 +33,7 @@ from produtil.mpiprog import MIXED_VALUES
 
 class Implementation(ImplementationBase):
     """!Adds MPICH or MVAPICH2 support to produtil.run
-    
+
     This module is part of the mpi_impl package -- see produtil.mpi_impl
     for details.  This implements the Hydra MPI wrapper and MPICH MPI
     implementation with Intel OpenMP, but may work for other MPI
@@ -99,7 +107,7 @@ class Implementation(ImplementationBase):
             nodesize=os.environ.get('PRODUTIL_RUN_NODESIZE','24')
             nodesize=int(nodesize)
         self.silent=silent
-    
+
     def runsync(self,logger=None):
         """!Runs the "sync" command as an exe()."""
         if logger is None: logger=self.logger
@@ -107,10 +115,10 @@ class Implementation(ImplementationBase):
         p=produtil.pipeline.Pipeline(sync,capture=True,logger=logger)
         version=p.to_string()
         status=p.poll()
-    
+
     def openmp(self,arg,threads):
         """!Adds OpenMP support to the provided object
-    
+
         @param arg An produtil.prog.Runner or
         produtil.mpiprog.MPIRanksBase object tree
         @param threads the number of threads, or threads per rank, an
@@ -123,38 +131,38 @@ class Implementation(ImplementationBase):
                     threads=ont
             except (KeyError,TypeError,ValueError) as e:
                 pass
-    
+
         if threads is None:
             nodesize=self.nodesize
             threads=max(1,nodesize-1)
-            
+
         assert(threads>0)
         threads=int(threads)
         if hasattr(arg,'env'):
             arg=arg.env(OMP_NUM_THREADS=threads,  # no, bad: KMP_AFFINITY='scatter',
                         KMP_NUM_THREADS=threads,MKL_NUM_THREADS=1)
-            
+
         arg.threads=threads
         return arg
-    
+
     def can_run_mpi(self):
         """!Does this module represent an MPI implementation? Returns True."""
         return True
-    
-    def make_bigexe(self,exe,**kwargs): 
+
+    def make_bigexe(self,exe,**kwargs):
         """!Returns an ImmutableRunner that will run the specified program.
         @returns an empty list
         @param exe The executable to run on compute nodes.
         @param kwargs Ignored."""
         return produtil.prog.ImmutableRunner([str(exe)],**kwargs)
-    
+
     def mpirunner(self,arg,allranks=False,logger=None,**kwargs):
         if logger is None:
             logger=self.logger
         m=self.mpirunner2(arg,allranks=allranks,logger=logger,**kwargs)
         logger.debug('mpirunner: %s => %s'%(repr(arg),repr(m)))
         return m
-    
+
     def mpirunner2(self,arg,allranks=False,**kwargs):
         """!Turns a produtil.mpiprog.MPIRanksBase tree into a produtil.prog.Runner
         @param arg a tree of produtil.mpiprog.MPIRanksBase objects
@@ -207,7 +215,7 @@ class Implementation(ImplementationBase):
                     before=['-np','%(n)d'], # pass env, number of procs is kw['n']
                     between=[':']) ] # separate commands with ':'
             runner=produtil.prog.Runner(arglist)
-        
+
         threads=arg.threads
         if threads is not None and threads>1:
             runner=runner.env(OMP_NUM_THREADS=threads, # no, bad: KMP_AFFINITY='scatter',

@@ -152,7 +152,6 @@
                           IDS,IDE,JDS,JDE,KDS,KDE, &
                           IMS,IME,JMS,JME,KMS,KME, &
                           ITS,ITE,JTS,JTE,KTS,KTE  )
-!============================================================================
 !
  IMPLICIT NONE
  INTEGER,    INTENT(IN   )                            :: IDS,IDE,JDS,JDE,KDS,KDE
@@ -260,5 +259,652 @@
       ENDDO
 
 END SUBROUTINE EARTH_LATLON
+
+!-----------------------------------------------------------------------+
+ subroutine general_create_llxy_transform(region_lat,region_lon,nlat,nlon,gt)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! abstract:  copy routines from gridmod.f90 to make a general purpose module which allows
+!     conversion of earth lat lons to grid coordinates for any non-staggered rectangular
+!     orthogonal grid with known earth lat and lon of each grid point.
+!     set up constants to allow conversion between earth lat lon and analysis grid units.
+!     There is no need to specify details of the analysis grid projection.  All that is required
+!     is the earth latitude and longitude in radians of each analysis grid point.
+!
+  use constants
+  use var_type
+
+  implicit none
+
+  integer,intent(in   ) :: nlat,nlon
+  real   ,intent(in   ) :: region_lat(nlat,nlon),region_lon(nlat,nlon)
+  type(llxy_cons),intent(inout) :: gt
+
+  real,parameter:: rbig =1.0e30
+  real    :: xbar_min,xbar_max,ybar_min,ybar_max
+  real    :: clon,slon,r_of_lat,xbar,ybar
+  integer :: i,j,istart0,iend,iinc,itemp,ilast,jlast
+  real    :: glats(nlon,nlat),glons(nlon,nlat)
+  real,allocatable:: clata(:,:),slata(:,:),clona(:,:),slona(:,:)
+  real    :: clat0,slat0,clon0,slon0
+  real    :: clat_m1,slat_m1,clon_m1,slon_m1
+  real    :: clat_p1,slat_p1,clon_p1,slon_p1
+  real    :: x,y,z,xt,yt,zt,xb,yb,zb
+  real    :: rlonb_m1,clonb_m1,slonb_m1
+  real    :: rlonb_p1,clonb_p1,slonb_p1
+  real    :: crot,srot
+
+  do j=1,nlon
+     do i=1,nlat
+        glats(j,i)=region_lat(i,j)
+        glons(j,i)=region_lon(i,j)
+     end do
+  end do
+  gt%pihalf=0.5*pi
+  gt%nlon=nlon
+  gt%nlat=nlat
+  gt%rlon_min_dd=1.0
+  gt%rlat_min_dd=1.0
+  gt%rlon_max_dd=nlon
+  gt%rlat_max_dd=nlat
+
+!  define xtilde, ytilde grid, transform
+
+!  glons,glats are lons, lats of input grid points of dimension nlon,nlat
+  call general_get_xytilde_domain(gt,gt%nlon,gt%nlat,glons,glats,gt%nxtilde,gt%nytilde, &
+                   xbar_min,xbar_max,ybar_min,ybar_max)
+  if(gt%lallocated) then
+     deallocate(gt%i0_tilde,gt%j0_tilde,gt%ip_tilde,gt%jp_tilde,gt%xtilde0,gt%ytilde0)
+     deallocate(gt%cos_beta_ref,gt%sin_beta_ref,gt%region_lat,gt%region_lon)
+     gt%lallocated=.false.
+  end if
+  allocate(gt%i0_tilde(gt%nxtilde,gt%nytilde),gt%j0_tilde(gt%nxtilde,gt%nytilde))
+  allocate(gt%ip_tilde(gt%nxtilde,gt%nytilde),gt%jp_tilde(gt%nxtilde,gt%nytilde))
+  allocate(gt%xtilde0(gt%nlon,gt%nlat),gt%ytilde0(gt%nlon,gt%nlat))
+  allocate(gt%cos_beta_ref(gt%nlon,gt%nlat),gt%sin_beta_ref(gt%nlon,gt%nlat))
+  allocate(gt%region_lat(gt%nlat,gt%nlon),gt%region_lon(gt%nlat,gt%nlon))
+
+  gt%lallocated=.true.
+
+  do j=1,nlon
+     do i=1,nlat
+        gt%region_lat(i,j)=region_lat(i,j)
+        gt%region_lon(i,j)=region_lon(i,j)
+     end do
+  end do
+
+! define atilde_x, btilde_x, atilde_y, btilde_y
+
+  gt%btilde_x   =(gt%nxtilde -1.0     )/(xbar_max-xbar_min)
+  gt%btilde_xinv=(xbar_max-xbar_min)/(gt%nxtilde -1.0     )
+  gt%atilde_x   =1.0-gt%btilde_x*xbar_min
+  gt%btilde_y   =(gt%nytilde -1.0     )/(ybar_max-ybar_min)
+  gt%btilde_yinv=(ybar_max-ybar_min)/(gt%nytilde -1.0     )
+  gt%atilde_y   =1.0-gt%btilde_y*ybar_min
+
+! define xtilde0,ytilde0
+  do j=1,gt%nlat
+     do i=1,gt%nlon
+        r_of_lat=gt%pihalf+gt%sign_pole*glats(i,j)
+        clon=cos(glons(i,j)+gt%rlambda0)
+        slon=sin(glons(i,j)+gt%rlambda0)
+        xbar=r_of_lat*clon
+        ybar=r_of_lat*slon
+        gt%xtilde0(i,j)=gt%atilde_x+gt%btilde_x*xbar
+        gt%ytilde0(i,j)=gt%atilde_y+gt%btilde_y*ybar
+     end do
+  end do
+
+!  now get i0_tilde, j0_tilde, ip_tilde,jp_tilde
+  ilast=1 ; jlast=1
+  istart0=gt%nxtilde
+  iend=1
+  iinc=-1
+  do j=1,gt%nytilde
+     itemp=istart0
+     istart0=iend
+     iend=itemp
+     iinc=-iinc
+     ybar=j
+     do i=istart0,iend,iinc
+        xbar=i
+        call general_nearest_3(ilast,jlast,gt%i0_tilde(i,j),gt%j0_tilde(i,j), &
+                       gt%ip_tilde(i,j),gt%jp_tilde(i,j),xbar,ybar,gt%nlon,gt%nlat,gt%xtilde0,gt%ytilde0)
+     end do
+  end do
+
+!   new, more accurate and robust computation of cos_beta_ref and sin_beta_ref which is independent
+!     of sign_pole and works for any orientation of grid on sphere (only restriction for now is that
+!     x-y coordinate of analysis grid is right handed).
+  allocate(clata(gt%nlon,gt%nlat),slata(gt%nlon,gt%nlat),clona(gt%nlon,gt%nlat),slona(gt%nlon,gt%nlat))
+  do j=1,gt%nlat
+     do i=1,gt%nlon
+        clata(i,j)=cos(glats(i,j))
+        slata(i,j)=sin(glats(i,j))
+        clona(i,j)=cos(glons(i,j))
+        slona(i,j)=sin(glons(i,j))
+     end do
+  end do
+  do j=1,gt%nlat
+     do i=2,gt%nlon-1
+
+!     do all interior lon points to 2nd order accuracy
+
+!   transform so pole is at rlat0,rlon0 and 0 meridian is tangent to earth latitude at rlat0,rlon0.
+
+        clat0=clata(i,j) ; slat0=slata(i,j) ; clon0=clona(i,j) ; slon0=slona(i,j)
+
+!    now obtain new coordinates for m1 and p1 points.
+
+        clat_m1=clata(i-1,j) ; slat_m1=slata(i-1,j) ; clon_m1=clona(i-1,j) ; slon_m1=slona(i-1,j)
+        clat_p1=clata(i+1,j) ; slat_p1=slata(i+1,j) ; clon_p1=clona(i+1,j) ; slon_p1=slona(i+1,j)
+
+        x=clat_m1*clon_m1 ; y=clat_m1*slon_m1 ; z=slat_m1
+        xt=x*clon0+y*slon0 ; yt=-x*slon0+y*clon0 ; zt=z
+        yb=zt*clat0-xt*slat0
+        xb=yt
+        zb=xt*clat0+zt*slat0
+
+        rlonb_m1=atan2(-yb,-xb)   !  the minus signs here are so line for m1 is directed same
+        clonb_m1=cos(rlonb_m1)
+        slonb_m1=sin(rlonb_m1)
+
+        x=clat_p1*clon_p1 ; y=clat_p1*slon_p1 ; z=slat_p1
+        xt=x*clon0+y*slon0 ; yt=-x*slon0+y*clon0 ; zt=z
+        yb=zt*clat0-xt*slat0
+        xb=yt
+        zb=xt*clat0+zt*slat0
+        rlonb_p1=atan2(yb,xb)
+        clonb_p1=cos(rlonb_p1)
+        slonb_p1=sin(rlonb_p1)
+        crot=0.5*(clonb_m1+clonb_p1)
+        srot=0.5*(slonb_m1+slonb_p1)
+        gt%cos_beta_ref(i,j)=crot*clon0-srot*slon0
+        gt%sin_beta_ref(i,j)=srot*clon0+crot*slon0
+     end do
+!               now do i=1 and i=gt%nlon at 1st order accuracy
+     i=1
+
+!   transform so pole is at rlat0,rlon0 and 0 meridian is tangent to earth latitude at rlat0,rlon0.
+
+        clat0=clata(i,j) ; slat0=slata(i,j) ; clon0=clona(i,j) ; slon0=slona(i,j)
+!    now obtain new coordinates for m1 and p1 points.
+
+        clat_p1=clata(i+1,j) ; slat_p1=slata(i+1,j) ; clon_p1=clona(i+1,j) ; slon_p1=slona(i+1,j)
+
+        x=clat_p1*clon_p1 ; y=clat_p1*slon_p1 ; z=slat_p1
+        xt=x*clon0+y*slon0 ; yt=-x*slon0+y*clon0 ; zt=z
+        yb=zt*clat0-xt*slat0
+        xb=yt
+        zb=xt*clat0+zt*slat0
+        rlonb_p1=atan2(yb,xb)
+        clonb_p1=cos(rlonb_p1)
+        slonb_p1=sin(rlonb_p1)
+        crot=clonb_p1
+        srot=slonb_p1
+        gt%cos_beta_ref(i,j)=crot*clon0-srot*slon0
+        gt%sin_beta_ref(i,j)=srot*clon0+crot*slon0
+
+     i=gt%nlon
+
+!   transform so pole is at rlat0,rlon0 and 0 meridian is tangent to earth latitude at rlat0,rlon0.
+
+        clat0=clata(i,j) ; slat0=slata(i,j) ; clon0=clona(i,j) ; slon0=slona(i,j)
+
+!    now obtain new coordinates for m1 and p1 points.
+
+        clat_m1=clata(i-1,j) ; slat_m1=slata(i-1,j) ; clon_m1=clona(i-1,j) ; slon_m1=slona(i-1,j)
+
+        x=clat_m1*clon_m1 ; y=clat_m1*slon_m1 ; z=slat_m1
+        xt=x*clon0+y*slon0 ; yt=-x*slon0+y*clon0 ; zt=z
+        yb=zt*clat0-xt*slat0
+        xb=yt
+        zb=xt*clat0+zt*slat0
+
+        rlonb_m1=atan2(-yb,-xb)   !  the minus signs here are so line for m1 is directed same
+        clonb_m1=cos(rlonb_m1)
+        slonb_m1=sin(rlonb_m1)
+
+        crot=clonb_m1
+        srot=slonb_m1
+        gt%cos_beta_ref(i,j)=crot*clon0-srot*slon0
+        gt%sin_beta_ref(i,j)=srot*clon0+crot*slon0
+  end do
+  deallocate(clata,slata,clona,slona)
+
+end subroutine general_create_llxy_transform
+
+!-----------------------------------------------------------------------+
+subroutine general_tll2xy(gt,rlon,rlat,x,y,outside)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! abstract:  copy routines from gridmod.f90 to make a general purpose module which allows
+!     conversion of earth lat lons to grid coordinates for any non-staggered rectangular
+!     orthogonal grid with known earth lat and lon of each grid point.
+!     general_tll2xy converts earth lon-lat to x-y grid units of a
+!           general regional rectangular domain.  Also, decides if
+!           point is inside this domain.  As a result, there is
+!           no restriction on type of horizontal coordinate for
+!           a regional run, other than that it not have periodicity
+!           or polar singularities.
+!           This is done by first converting rlon, rlat to an
+!           intermediate coordinate xtilde,ytilde, which has
+!           precomputed pointers and constants for final conversion
+!           to the desired x,y via 3 point inverse interpolation.
+!           All of the information needed is derived from arrays
+!           specifying earth latitude and longitude of every point
+!           on the input grid.  Currently, the input x-y grid that
+!           this is based on must be non-staggered.  This restriction
+!           will eventually be lifted so we can run directly from
+!           model grids that are staggered without first resorting
+!           to interpolation of the guess to a non-staggered grid.
+!
+  use var_type
+
+  implicit none
+
+    type(llxy_cons),intent(in) :: gt
+    real,intent(in   ) :: rlon
+    real,intent(in   ) :: rlat
+    real,intent(  out) :: x
+    real,intent(  out) :: y
+    logical,intent(out):: outside
+
+    real    :: clon,slon,r_of_lat,xtilde,ytilde
+    real    :: dtilde,etilde
+    real    :: d1tilde,d2tilde,e1tilde,e2tilde,detinv
+    integer :: itilde,jtilde
+    integer :: i0,j0,ip,jp
+
+!   first compute xtilde, ytilde
+
+    clon=cos(rlon+gt%rlambda0)
+    slon=sin(rlon+gt%rlambda0)
+    r_of_lat=gt%pihalf+gt%sign_pole*rlat
+
+    xtilde=gt%atilde_x+gt%btilde_x*r_of_lat*clon
+    ytilde=gt%atilde_y+gt%btilde_y*r_of_lat*slon
+
+!  next get interpolation information
+
+    itilde=max(1,min(nint(xtilde),gt%nxtilde))
+    jtilde=max(1,min(nint(ytilde),gt%nytilde))
+
+    i0     =   gt%i0_tilde(itilde,jtilde)
+    j0     =   gt%j0_tilde(itilde,jtilde)
+    ip     =i0+gt%ip_tilde(itilde,jtilde)
+    jp     =j0+gt%jp_tilde(itilde,jtilde)
+    dtilde =xtilde-gt%xtilde0(i0,j0)
+    etilde =ytilde-gt%ytilde0(i0,j0)
+    d1tilde=(gt%xtilde0(ip,j0)-gt%xtilde0(i0,j0))*(ip-i0)
+    d2tilde=(gt%xtilde0(i0,jp)-gt%xtilde0(i0,j0))*(jp-j0)
+    e1tilde=(gt%ytilde0(ip,j0)-gt%ytilde0(i0,j0))*(ip-i0)
+    e2tilde=(gt%ytilde0(i0,jp)-gt%ytilde0(i0,j0))*(jp-j0)
+    detinv =1.0/(d1tilde*e2tilde-d2tilde*e1tilde)
+    x = i0+detinv*(e2tilde*dtilde-d2tilde*etilde)
+    y = j0+detinv*(d1tilde*etilde-e1tilde*dtilde)
+
+    outside=x < gt%rlon_min_dd .or. x > gt%rlon_max_dd .or. &
+            y < gt%rlat_min_dd .or. y > gt%rlat_max_dd
+
+    return
+
+end subroutine general_tll2xy
+
+!-----------------------------------------------------------------------+
+subroutine general_txy2ll(gt,x,y,rlon,rlat)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! abstract: convert x-y grid units to earth lat-lon coordinates
+!
+  use var_type
+
+  implicit none
+
+    type(llxy_cons),intent(in) :: gt
+    real, intent(in   ) :: x
+    real, intent(in   ) :: y
+    real, intent(  out) :: rlon
+    real, intent(  out) :: rlat
+
+    real   :: r_of_lat,xtilde,ytilde
+    real   :: dtilde,etilde,xbar,ybar
+    real   :: d1tilde,d2tilde,e1tilde,e2tilde
+    integer:: i0,j0,ip,jp
+
+    i0=nint(x)
+    j0=nint(y)
+    i0=max(1,min(i0,gt%nlon))
+    j0=max(1,min(j0,gt%nlat))
+    ip=i0+nint(sign(1.0,x-i0))
+    jp=j0+nint(sign(1.0,y-j0))
+    if(ip<1) then
+       i0=2
+       ip=1
+    end if
+    if(jp<1) then
+       j0=2
+       jp=1
+    end if
+    if(ip>gt%nlon) then
+       i0=gt%nlon-1
+       ip=gt%nlon
+    end if
+    if(jp>gt%nlat) then
+       j0=gt%nlat-1
+       jp=gt%nlat
+    end if
+    d1tilde=(gt%xtilde0(ip,j0)-gt%xtilde0(i0,j0))*(ip-i0)
+    d2tilde=(gt%xtilde0(i0,jp)-gt%xtilde0(i0,j0))*(jp-j0)
+    e1tilde=(gt%ytilde0(ip,j0)-gt%ytilde0(i0,j0))*(ip-i0)
+    e2tilde=(gt%ytilde0(i0,jp)-gt%ytilde0(i0,j0))*(jp-j0)
+    dtilde =d1tilde*(x-i0) +d2tilde*(y-j0)
+    etilde =e1tilde*(x-i0) +e2tilde*(y-j0)
+    xtilde =dtilde         +gt%xtilde0(i0,j0)
+    ytilde =etilde         +gt%ytilde0(i0,j0)
+
+    xbar=(xtilde-gt%atilde_x)*gt%btilde_xinv
+    ybar=(ytilde-gt%atilde_y)*gt%btilde_yinv
+    r_of_lat=sqrt(xbar**2+ybar**2)
+    rlat=(r_of_lat-gt%pihalf)*gt%sign_pole
+    rlon=atan2(ybar,xbar)-gt%rlambda0
+
+end subroutine general_txy2ll
+
+!-----------------------------------------------------------------------+
+subroutine general_nearest_3(ilast,jlast,i0,j0,ip,jp,x,y,nx0,ny0,x0,y0)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! abstract: find closest 3 points to (x,y) on grid defined by x0,y0
+!
+
+  use var_type
+
+  implicit none
+
+  integer, intent(inout) :: ilast,jlast
+  integer, intent(  out) :: i0,j0
+  integer, intent(  out) :: ip,jp
+  integer, intent(in   ) :: nx0,ny0
+  real    ,intent(in   ) :: x,y
+  real    ,intent(in   ) :: x0(nx0,ny0),y0(nx0,ny0)
+
+  real    :: dista,distb,dist2,dist2min
+  integer :: i,inext,j,jnext
+
+  do
+     i0=ilast
+     j0=jlast
+     dist2min=huge(dist2min)
+     inext=0
+     jnext=0
+     do j=max(j0-1,1),min(j0+1,ny0)
+        do i=max(i0-1,1),min(i0+1,nx0)
+           dist2=(x-x0(i,j))**2+(y-y0(i,j))**2
+           if(dist2<dist2min) then
+              dist2min=dist2
+              inext=i
+              jnext=j
+           end if
+        end do
+     end do
+     if(inext==i0.and.jnext==j0) exit
+     ilast=inext
+     jlast=jnext
+  end do
+
+!  now find which way to go in x for second point
+
+  ip=0
+  if(i0==nx0)  ip=-1
+  if(i0==1) ip=1
+  if(ip==0) then
+     dista=(x-x0(i0-1,j0))**2+(y-y0(i0-1,j0))**2
+     distb=(x-x0(i0+1,j0))**2+(y-y0(i0+1,j0))**2
+     if(distb<dista) then
+        ip=1
+     else
+        ip=-1
+     end if
+  end if
+
+!  repeat for y for 3rd point
+
+  jp=0
+  if(j0==ny0  ) jp=-1
+  if(j0==1 ) jp=1
+  if(jp==0) then
+     dista=(x-x0(i0,j0-1))**2+(y-y0(i0,j0-1))**2
+     distb=(x-x0(i0,j0+1))**2+(y-y0(i0,j0+1))**2
+     if(distb<dista) then
+        jp=1
+     else
+        jp=-1
+     end if
+  end if
+
+  ilast=i0
+  jlast=j0
+
+end subroutine general_nearest_3
+
+!-----------------------------------------------------------------------+
+subroutine general_get_xytilde_domain(gt,nx0,ny0,rlons0,rlats0, &
+                                  nx,ny,xminout,xmaxout,yminout,ymaxout)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+
+  use constants
+  use var_type
+
+  implicit none
+
+  type(llxy_cons),intent(inout) :: gt
+  integer, intent(in   ) :: nx0,ny0
+  real, intent(in   )    :: rlons0(nx0,ny0),rlats0(nx0,ny0)
+
+  integer,intent(  out) :: nx,ny
+  real   ,intent(  out) :: xminout,xmaxout,yminout,ymaxout
+
+  real,parameter:: r37=37.0
+
+  real    :: area,areamax,areamin,extra,rlats0max,rlats0min,testlambda
+  real    :: xthis,ythis
+  integer :: i,ip1,j,jp1,m
+
+  real    :: coslon0(nx0,ny0),sinlon0(nx0,ny0)
+  real    :: coslat0(nx0,ny0),sinlat0(nx0,ny0)
+  real    :: count,delbar
+  real    :: dx,dy,disti,distj,distmin,distmax
+  real    :: xmin,xmax,ymin,ymax
+
+!  get range of lats for input grid
+
+  rlats0max=maxval(rlats0) ; rlats0min=minval(rlats0)
+
+!   assign hemisphere ( parameter sign_pole )
+
+  if(rlats0min>-r37*deg2rad) gt%sign_pole=-1.0   !  northern hemisphere xy domain
+  if(rlats0max< r37*deg2rad) gt%sign_pole= 1.0   !  southern hemisphere xy domain
+
+
+!   get optimum rotation angle rlambda0
+
+  areamin= huge(areamin)
+  areamax=-huge(areamax)
+  do m=0,359
+     testlambda=m*deg2rad
+     xmax=-huge(xmax)
+     xmin= huge(xmin)
+     ymax=-huge(ymax)
+     ymin= huge(ymin)
+     do j=1,ny0,ny0-1
+        do i=1,nx0
+           xthis=(gt%pihalf+gt%sign_pole*rlats0(i,j))*cos(rlons0(i,j)+testlambda)
+           ythis=(gt%pihalf+gt%sign_pole*rlats0(i,j))*sin(rlons0(i,j)+testlambda)
+           xmax=max(xmax,xthis)
+           ymax=max(ymax,ythis)
+           xmin=min(xmin,xthis)
+           ymin=min(ymin,ythis)
+        end do
+     end do
+     do j=1,ny0
+        do i=1,nx0,nx0-1
+           xthis=(gt%pihalf+gt%sign_pole*rlats0(i,j))*cos(rlons0(i,j)+testlambda)
+           ythis=(gt%pihalf+gt%sign_pole*rlats0(i,j))*sin(rlons0(i,j)+testlambda)
+           xmax=max(xmax,xthis)
+           ymax=max(ymax,ythis)
+           xmin=min(xmin,xthis)
+           ymin=min(ymin,ythis)
+        end do
+     end do
+     area=(xmax-xmin)*(ymax-ymin)
+     areamax=max(area,areamax)
+     if(area<areamin) then
+        areamin =area
+        gt%rlambda0=testlambda
+        xmaxout =xmax
+        xminout =xmin
+        ymaxout =ymax
+        yminout =ymin
+     end if
+  end do
+
+
+!   now determine resolution of input grid and choose nx,ny of xy grid accordingly
+!                 (currently hard-wired at 1/2 the average input grid increment)
+
+  do j=1,ny0
+     do i=1,nx0
+        coslon0(i,j)=cos(1.0*rlons0(i,j)) ; sinlon0(i,j)=sin(1.0*rlons0(i,j))
+        coslat0(i,j)=cos(1.0*rlats0(i,j)) ; sinlat0(i,j)=sin(1.0*rlats0(i,j))
+     end do
+  end do
+
+  delbar=0.0
+  count =0.0
+  do j=1,ny0-1
+     jp1=j+1
+     do i=1,nx0-1
+        ip1=i+1
+        disti=acos(sinlat0(i,j)*sinlat0(ip1,j)+coslat0(i,j)*coslat0(ip1,j)* &
+                  (sinlon0(i,j)*sinlon0(ip1,j)+coslon0(i,j)*coslon0(ip1,j)))
+        distj=acos(sinlat0(i,j)*sinlat0(i,jp1)+coslat0(i,j)*coslat0(i,jp1)* &
+                  (sinlon0(i,j)*sinlon0(i,jp1)+coslon0(i,j)*coslon0(i,jp1)))
+        distmax=max(disti,distj)
+        distmin=min(disti,distj)
+        delbar=delbar+distmax
+        count=count+1.0
+     end do
+  end do
+  delbar=delbar/count
+  dx=0.5*delbar
+  dy=dx
+
+!   add extra space to computational grid to push any boundary problems away from
+!     area of interest
+
+  extra=10.0*dx
+  xmaxout=xmaxout+extra
+  xminout=xminout-extra
+  ymaxout=ymaxout+extra
+  yminout=yminout-extra
+  nx=1+(xmaxout-xminout)/dx
+  ny=1+(ymaxout-yminout)/dy
+
+end subroutine general_get_xytilde_domain
+
+!-----------------------------------------------------------------------+
+subroutine general_rotate_wind_ll2xy(gt,u0,v0,u,v,rlon0,x,y)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! DESCRIPTION: to convert earth vector wind components to corresponding local x,y coordinate
+
+  use var_type
+
+  implicit none
+
+    type(llxy_cons),intent(in) :: gt
+    real, intent(in   ) :: u0,v0        ! earth wind component
+    real, intent(in   ) :: rlon0        ! earth   lon (radians)
+    real, intent(in   ) :: x,y          ! local x,y coordinate (grid units)
+    real, intent(  out) :: u,v          ! rotated coordinate of winds
+
+  real    :: beta,delx,delxp,dely,delyp
+  real    :: sin_beta,cos_beta
+  integer :: ix,iy
+
+!  interpolate departure from longitude part of angle between earth positive east and local positive x
+
+  ix=x
+  iy=y
+  ix=max(1,min(ix,gt%nlon-1))
+  iy=max(1,min(iy,gt%nlat-1))
+  delx=x-ix
+  dely=y-iy
+  delxp=1.0-delx
+  delyp=1.0-dely
+  cos_beta=gt%cos_beta_ref(ix  ,iy  )*delxp*delyp+gt%cos_beta_ref(ix+1,iy  )*delx *delyp+ &
+           gt%cos_beta_ref(ix  ,iy+1)*delxp*dely +gt%cos_beta_ref(ix+1,iy+1)*delx *dely
+  sin_beta=gt%sin_beta_ref(ix  ,iy  )*delxp*delyp+gt%sin_beta_ref(ix+1,iy  )*delx *delyp+ &
+           gt%sin_beta_ref(ix  ,iy+1)*delxp*dely +gt%sin_beta_ref(ix+1,iy+1)*delx *dely
+  beta=atan2(sin_beta,cos_beta)
+
+!  now rotate;
+
+  u= u0*cos(beta-rlon0)+v0*sin(beta-rlon0)
+  v=-u0*sin(beta-rlon0)+v0*cos(beta-rlon0)
+
+end subroutine general_rotate_wind_ll2xy
+
+!-----------------------------------------------------------------------+
+subroutine general_rotate_wind_xy2ll(gt,u,v,u0,v0,rlon0,x,y)
+!
+! adopted from hafs sorc/hafs_gsi.fd/src/gsi/general_tll2xy_mod.f90
+!
+! DESCRIPTION: rotate u,v in local x,y coordinate to u0,v0 in earth lat, lon coordinate
+
+  use var_type
+
+  implicit none
+
+    type(llxy_cons),intent(in) :: gt
+    real, intent(in   ) :: u,v         ! rotated coordinate winds
+    real, intent(in   ) :: rlon0       ! earth   lon     (radians)
+    real, intent(in   ) :: x,y         ! rotated lon/lat (radians)
+    real, intent(  out) :: u0,v0       ! earth winds
+
+  real    :: beta,delx,delxp,dely,delyp
+  real    :: sin_beta,cos_beta
+  integer :: ix,iy
+
+!  interpolate departure from longitude part of angle between earth
+!  positive east and local positive x
+
+  ix=x
+  iy=y
+  ix=max(1,min(ix,gt%nlon-1))
+  iy=max(1,min(iy,gt%nlat-1))
+  delx=x-ix
+  dely=y-iy
+  delxp=1.0-delx
+  delyp=1.0-dely
+  cos_beta=gt%cos_beta_ref(ix  ,iy  )*delxp*delyp+gt%cos_beta_ref(ix+1,iy  )*delx *delyp+ &
+           gt%cos_beta_ref(ix  ,iy+1)*delxp*dely +gt%cos_beta_ref(ix+1,iy+1)*delx *dely
+  sin_beta=gt%sin_beta_ref(ix  ,iy  )*delxp*delyp+gt%sin_beta_ref(ix+1,iy  )*delx *delyp+ &
+           gt%sin_beta_ref(ix  ,iy+1)*delxp*dely +gt%sin_beta_ref(ix+1,iy+1)*delx *dely
+  beta=atan2(sin_beta,cos_beta)
+
+!  now rotate;
+
+  u0= u*cos(beta-rlon0)-v*sin(beta-rlon0)
+  v0= u*sin(beta-rlon0)+v*cos(beta-rlon0)
+
+end subroutine general_rotate_wind_xy2ll
 
 !-----------------------------------------------------------------------+

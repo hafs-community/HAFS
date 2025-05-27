@@ -6,7 +6,11 @@
 ! authors and history:
 !      -- 202112, created by Yonghui Weng
 !      -- 202307, JungHoon Shin added vi_cloud
+!      -- 202411, Yonghui Weng added updating ua/va in hafsvi_postproc
 !
+!------------------------------------------------------------------------------
+! June 2023: New input argument "vi_cloud" is introduced for vi_preproc & vi_postproc
+! vi_cloud=1 or 2 (cloud remapping for VI, 1:GFDL, 2:Thompson),vi_cloud=0 (no cloud changes in VI: i.e., HFSAv1)
 ! Big Change/Update by JungHoon: Feb~July, 2023
 ! New input argument "vi_cloud" is introduced
 ! If input argument "vi_cloud" is 0, it will handle 17 variables
@@ -20,6 +24,7 @@
 !
 ! These new cloud variables are extracted from fv_tracer.res.tile1.nc
 !
+!------------------------------------------------------------------------------
 ! This subroutine read hafs restart files and output hafsvi needed input.
 ! Variables needed:
 !      WRITE(IUNIT) NX,NY,NZ
@@ -49,7 +54,7 @@
 ! 2 new addiontal variables added for Thompson microphysics: Jul, 2023 (below)
 !      WRITE(IUNIT) (((NCI(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
 !      WRITE(IUNIT) (((NCR(i,j,k),i=1,nx),j=1,ny),k=nz,1,-1)
-
+!
 !-----------------------------------------------------------------------------
 
   use constants
@@ -2048,6 +2053,7 @@
 
   integer  :: i, j, k, n, flid, ncid, ndims, nrecord, iunit
   real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, dat44, phis1, phis2, sfcp1, sfcp2, u1, v1, u, v
+  real, allocatable, dimension(:,:,:,:) :: tmp4d
   real, allocatable, dimension(:,:,:)   :: dat3, dat31
   real, allocatable, dimension(:,:)     :: dat2, dat21
   real, allocatable, dimension(:)       :: dat1
@@ -2444,6 +2450,27 @@
            call combine_grids_for_remap(nx,ny,ke-ks+1,1,dat43,ix+1,iy,ke-ks+1,1,dat41,gwt%gwt_v,v1)
            deallocate(dat42, dat43, dat4, dat41)
 
+           !---update ua/va
+           allocate(tmp4d(ix, iy, ke-ks+1, 1))
+           do k = 1, ke-ks+1
+           do j = 1, iy
+           do i = 1, ix
+              tmp4d(i,j,k,1) = 0.5*(u1(i,j,k,1)+u1(i,j+1,k,1))
+           enddo
+           enddo
+           enddo 
+         ! call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, 0.5*(u1(:,1:iy,1:ke-ks+1,1)+u1(:,2:iy+1,1:ke-ks+1,1)), 1, 1, ks, 1)
+           call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
+           do k = 1, ke-ks+1
+           do j = 1, iy
+           do i = 1, ix
+              tmp4d(i,j,k,1) = 0.5*(v1(i,j,k,1)+v1(i+1,j,k,1))
+           enddo
+           enddo
+           enddo 
+         ! call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, 0.5*(v1(1:ix,:,1:ke-ks+1,1)+v1(2:ix+1,:,1:ke-ks+1,1)), 1, 1, ks, 1)
+           call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
+           deallocate(tmp4d)
            !---convert earth wind to fv3grid wind
            allocate(u(ix, iy+1, ke-ks+1, 1), v(ix+1, iy, ke-ks+1, 1))
            u=-999999.; v=-99999999.;

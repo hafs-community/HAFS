@@ -1,4 +1,14 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: constants.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains various constants, including the Earth
+#   "radius" and unit conversions. Unit conversion constants are given as
+#   fractions.Fraction objects to allow the conversion to be exact.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+################################################################################
 
 """!Constants used throughout the tcutil package
 

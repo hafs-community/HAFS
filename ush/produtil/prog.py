@@ -1,9 +1,19 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: prog.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module implements the produtil.run: It provides the object tree for
+#   representing shell commands.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!Implements the produtil.run: provides the object tree for
-representing shell commands.
-
-Do not load this module directly except for type checking
+""" Do not load this module directly except for type checking
 (instanceof(o,produtil.prog.Runner)).  It is meant to be used only by
 the produtil.run module.  This module is part of the implementation of
 a shell-like syntax for running programs.  The rest of the
@@ -45,26 +55,26 @@ import io,select,io,re,time,fcntl,os,logging,signal
 import produtil.mpi_impl
 from produtil.pipeline import launch, manage, PIPE, ERR2OUT
 
-class ProgSyntaxError(Exception): 
+class ProgSyntaxError(Exception):
     """!Base class of exceptions raised when a Runner is given
     arguments that make no sense."""
-class OverspecifiedStream(ProgSyntaxError): 
+class OverspecifiedStream(ProgSyntaxError):
     """!Raised when one tries to specify the stdout, stderr or stdin to
     go to, or come from, more than one location"""
-class MultipleStdin(OverspecifiedStream): 
+class MultipleStdin(OverspecifiedStream):
     """!Raised when the caller specifies more than one source for the
     stdin of a Runner"""
-class MultipleStdout(OverspecifiedStream): 
+class MultipleStdout(OverspecifiedStream):
     """!Raised when the caller specifies more than one destination for
     a Runner's stdout"""
 class MultipleStderr(OverspecifiedStream):
     """!Raised when the caller specifies more than one destination for
     a Runner's stderr"""
-class InvalidPipeline(ProgSyntaxError): 
+class InvalidPipeline(ProgSyntaxError):
     """!Raised when the caller specifies an invalid input or output
     when piping a Runner into or out of another object."""
 
-class NotValidPosixSh(Exception): 
+class NotValidPosixSh(Exception):
     """!Base class of exceptions that are raised when converting a
     Runner or pipeline of Runners to a POSIX sh command, if the Runner
     cannot be expressed as POSIX sh."""
@@ -72,19 +82,19 @@ class PrerunNotValidPosixSh(NotValidPosixSh):
     """!Raised when trying to convert a pipeline of Runners to a POSIX
     sh string if the pipeline has a prerun object that lacks a to_shell
     function."""
-class NoSuchRedirection(NotValidPosixSh): 
+class NoSuchRedirection(NotValidPosixSh):
     """!Raised when trying to convert a pipeline of Runners to a POSIX
     sh string, if a redirection in the pipeline cannot be expressed in
     POSIX sh."""
-class NotValidPosixShString(Exception): 
+class NotValidPosixShString(Exception):
     """!Raised when converting a Runner or pipeline of Runners to a
     POSIX sh string.  If a string is sent to a program's stdin, this
     is raised when that string cannot be expressed in POSIX sh."""
-class EqualInExecutable(Exception): 
+class EqualInExecutable(Exception):
     """!Raised when converting a Runner or pipeline of Runners to a
     posix sh string if a Runner's executable contains an equal ("=")
     sign."""
-class EqualInEnv(Exception): 
+class EqualInEnv(Exception):
     """!Raised when converting a Runner or pipeline of Runners to a
     POSIX sh string if there is an equal ("=") sign in an environment
     variable name."""
@@ -97,7 +107,7 @@ class InvalidRunArgument(ProgSyntaxError):
 
 class ExitStatusException(Exception):
     """!Raised to indicate that a program generated an invalid return
-    code.  
+    code.
 
     Examine the "returncode" member variable for the returncode value.
     Negative values indicate the program was terminated by a signal
@@ -115,7 +125,7 @@ class ExitStatusException(Exception):
     # A string description for what went wrong
 
     ##@var returncode
-    # The return code, including signal information.  
+    # The return code, including signal information.
 
     def __init__(self,message,status):
         """!ExitStatusException constructor
@@ -174,7 +184,7 @@ class StreamGenerator(object):
     """!This is part of the internal implementation of Runner, and is
     used to convert it to a produtil.pipeline.Pipeline for execution.
     This is an abstract class whose subclasses create the Popen's
-    stdout, stdin and stderr."""  
+    stdout, stdin and stderr."""
     def for_input(self):
         """!Has no effect.  This exists only for debugging."""
         return '<unexpected:%s>'%(repr(self),)
@@ -201,7 +211,7 @@ class FileOpener(StreamGenerator):
         self.filename=filename
         self.mode=mode
         self.err=err
-    ##@var filename 
+    ##@var filename
     # the name of the file being opened
 
     ##@var mode
@@ -224,7 +234,7 @@ class FileOpener(StreamGenerator):
         elif self.mode=='rb': return 'cat %s | '%(shbackslash(self.filename),)
         raise NoSuchRedirection('Cannot convert file open mode %s to a '
                                 'POSIX sh redirection'%(self.mode,))
-    @property 
+    @property
     def intmode(self):
         """!Returns an integer version of mode suitable for os.open"""
         intmode=None
@@ -254,7 +264,7 @@ class FileOpener(StreamGenerator):
         the filename and ",string=False".  It also appends ",append=X"
         where X is the true/false flag for appending to the file."""
         return '%s,append=%s'%(repr(self.filename),repr(self.mode=='ab'))
-    def repr_for_err(self): 
+    def repr_for_err(self):
         """!Same as repr_for_out."""
         return self.repr_for_out()
 
@@ -279,7 +289,7 @@ class StringInput(StreamGenerator):
         """!Returns a string representation of this object as valid
         Python code."""
         return 'StringInput(%s)'%(repr(self.obj),)
-    def to_shell(self): 
+    def to_shell(self):
         """!Converts this object, if possible, to an echo command
         followed by a pipe ("|")."""
         return 'echo %s | '%(shbackslash(self.obj))
@@ -326,26 +336,26 @@ class StreamReuser(StreamGenerator):
 
 class OutIsError(StreamGenerator):
     """!Instructs a Runner to send stderr to stdout"""
-    def __init__(self):      
+    def __init__(self):
         """!OutIsError constructor."""
     def copy(self):
         """!Returns a new OutIsError object."""
         return OutIsError()
-    def to_shell(self):      
+    def to_shell(self):
         """!Returns "2>&1" """
         return '2>&1'
     def _gen_stream(self):
         """!Returns a tuple containing (None,None,pipeline.ERR2OUT,False)"""
         return (None,None,ERR2OUT,False)
-    def repr_for_in(self):   
+    def repr_for_in(self):
         """!This should never be called.  It returns ".err2out()"."""
         return '.err2out()'
-    def repr_for_out(self):  
+    def repr_for_out(self):
         """!Part of the representation of Runner.__repr__.  Returns
         ".err2out()" which instructs a Runner to send stderr to
         stdout."""
         return '.err2out()'
-    def __eq__(self,other):  
+    def __eq__(self,other):
         """!Is the other object an OutIsError?
         @param other the other object to analyze."""
         return isinstance(other,OutIsError)
@@ -365,7 +375,7 @@ class Runner(object):
     with a Pipeline, but trying to convert them to a POSIX sh command
     will throw NotValidPosixSh or a subclass thereof."""
     def __init__(self,args,**kwargs):
-        """!Creates a new Runner.  
+        """!Creates a new Runner.
 
         The only non-keyword argument can be one of three things:
 
@@ -447,7 +457,7 @@ class Runner(object):
         if 'err' in kwargs:          self.err(kwargs['err'],append=False)
         if 'erra' in kwargs:         self.err(kwargs['erra'],append=True)
         if 'cd' in kwargs:           self.cd(kwargs['cd'])
-        
+
         # Allow a list of "prerun" callables that will be called at
         # the beginning of self._gen:
         if 'prerun' in kwargs:       self.prerun(kwargs['prerun'])
@@ -463,7 +473,7 @@ class Runner(object):
         """!Removes the request for threads."""
         self._threads=None
 
-    threads=property(getthreads,setthreads,delthreads,"""The number of threads per rank.""") 
+    threads=property(getthreads,setthreads,delthreads,"""The number of threads per rank.""")
 
     @property
     def first(self):
@@ -494,7 +504,7 @@ class Runner(object):
 
     def prerun(self,arg):
         """!Adds a function or callable object to be called before
-        running the program.  
+        running the program.
 
         The callables should be very fast operations, and are executed
         by self._gen when creating the Pipeline.  They take, as an
@@ -544,7 +554,7 @@ class Runner(object):
         else:
             self._args.extend([self._stringify_arg(x) for x in args])
         return self
-    def __str__(self): 
+    def __str__(self):
         """!Alias for __repr__()"""
         return self.__repr__()
     def __repr__(self):
@@ -576,14 +586,14 @@ class Runner(object):
         if not self._copy_env:
             s+='.clearenv()'
         if self._env is not None:
-            s+='.env('+(', '.join(['%s=%s'%(k,v) 
+            s+='.env('+(', '.join(['%s=%s'%(k,v)
                                    for k,v in self._env.items()]))+')'
         if self._prerun is not None:
             s+=''.join(['.prerun(%s)'%(repr(x),) for x in self._prerun])
         if self._cd is not None:
             s+=".cd("+repr(self._cd)+")"
         return s
-    
+
     def __eq__(self,other):
         """!Returns True if the other object is a Runner that is equal
         to this one, and False otherwise.
@@ -619,35 +629,35 @@ class Runner(object):
         @param stdin the stdin object
         @returns self"""
         return self.inp(stdin,string=False)
-    def __gt__(self,stdout): 
+    def __gt__(self,stdout):
         """!Connects the given object to stdout, truncating it if it is
         a file.  Same as out(stdout,append=False).
         @param stdout the stdout object
         @returns self"""
         return self.out(stdout,append=False)
-    def __lshift__(self,stdin): 
+    def __lshift__(self,stdin):
         """!Sends the specified string into stdin.  Same as
         inp(stdin,string=True).
         @param stdin the stdin file
         @returns self"""
         return self.inp(stdin,string=True)
-    def __rshift__(self,stdout): 
+    def __rshift__(self,stdout):
         """!Appends stdout to the specified file.  Same as
         out(stdout,append=True).
         @param stdout the stdout file
         @returns self"""
         return self.out(stdout,append=True)
-    def __pos__(self): 
+    def __pos__(self):
         """!Sends stderr to stdout.  Same as err2out().
         @returns self"""
         return self.err2out()
-    def __ge__(self,outerr): 
+    def __ge__(self,outerr):
         """!Redirects stderr and stdout to the specified file,
         truncating it.  Same as err2out().out(filename,append=False)
         @param outerr the stdout and stderr file
         @returns self"""
         return self.err2out().out(outerr,append=False)
-    def __or__(self,other): 
+    def __or__(self,other):
         """!Pipes this Runner to the other Runner.  Same as pipeto(other).
         @returns other
         @param other the other runner to pipe into"""
@@ -678,7 +688,7 @@ class Runner(object):
             yield arg
 
     def copy(self,typeobj=None):
-        """!Returns a deep copy of this object, almost.  
+        """!Returns a deep copy of this object, almost.
 
         If stdin, stdout or stderr are connected to streams instead of
         files or strings, then the streams are not copied.  Instead,
@@ -1044,33 +1054,33 @@ class ImmutableRunner(Runner):
         that it uses the parent process environment.
         @returns the new Runner"""
         return self._init_runner().copyenv()
-    def clearenv(self): 
+    def clearenv(self):
         """!Creates a new Runner which is like self in all ways except
         that it uses an empty environment except for a few critical
         variables without which most programs cannot run.  (Retains
         PATH, USER, LOGNAME and HOME.)
         @returns a new Runner"""
         return self._init_runner().clearenv()
-    def cd(self,cd): 
+    def cd(self,cd):
         """!Returns a new Runner that is like self, except that it
         cd's to the target directory before running.  The directory
         must already exist before the program starts.
         @param cd the directory to cd into, which must already exist.
         @returns the new Runner"""
         return self._init_runner().cd(cd)
-    def env(self,**kwargs): 
+    def env(self,**kwargs):
         """!Returns a new Runner that is like self in all ways except
         that the specified environment variables are set.
         @param kwargs varname=value arguments of environment variables to set
         @returns the new Runner"""
         return self._init_runner().env(**kwargs)
-    def pipeto(self,other): 
+    def pipeto(self,other):
         """!Returns a new Runner that is like self in all ways, except
         that it has been piped into the other Runner.
         @returns the new Runner
         @param other the Runner to pipe into."""
         return self.runner().pipeto(other)
-    def inp(self,stdin,string=False): 
+    def inp(self,stdin,string=False):
         """!Returns a new Runner that is like self in all ways except
         that it has a different stdin
         @param stdin the stdin string or filename
@@ -1082,23 +1092,23 @@ class ImmutableRunner(Runner):
         @param stdout the stdout filename
         @param append if True, append to the file, otherwise truncate"""
         return self._init_runner().out(stdout,append)
-    def err(self,stderr,append=False): 
+    def err(self,stderr,append=False):
         """!Returns a new Runner that is like self in all ways except
         with a different stderr.
         @param stderr the stderr filename
         @param append if True, append to the file, otherwise truncate"""
         return self._init_runner().err(stderr,append)
-    def err2out(self): 
+    def err2out(self):
         """!Returns a new Runner that is like self in all ways except
         that stderr is piped into stdout."""
         return self._init_runner().err2out()
-    def prerun(self,arg): 
+    def prerun(self,arg):
         """!Returns a new Runner that is like self in all ways except
-        that a new prerun function has been added.  
+        that a new prerun function has been added.
         @param arg the new prerun function
         @sa Runner.prerun()"""
         return self._init_runner().prerun(arg)
-    def __getitem__(self,args): 
+    def __getitem__(self,args):
         """!Returns a new Runner that is like self in all ways except
         with new arguments.
         @param args the new argument or arguments

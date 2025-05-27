@@ -5,6 +5,8 @@
 # Abstract:
 #   This script provides a workaround for rsync while making special treatments
 #   for vanished files.
+# History:
+#   07/30/2020: Initial version constructed for HAFS.
 ################################################################################
 (rsync "$@"; if [ $? == 24 ]; then exit 0; else exit $?; fi) 2>&1 \
 	    | grep -v 'vanished'

@@ -334,7 +334,7 @@ class FormatSonde(object):
                     lnidx=i
                     break
             for (i,item) in enumerate(data[lnidx::]):
-                if 'OB' in item:
+                if ' OB' in item:
                     obsitem=item.split().index('OB')
                     obsdict[infostr]['obid']=item.split()[obsitem+1]
                     obsdict[infostr]['mission']=item.split()[1]

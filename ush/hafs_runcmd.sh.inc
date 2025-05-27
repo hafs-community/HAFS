@@ -5,7 +5,15 @@
 #   This script sets job node/core, mpi/omp environment, job run commands, as
 #   well as some commonly used commands and environment variables. The main
 #   purpose to help HAFS application to easily support multiple platforms.
+# History:
+#   10/14/2019: Initial version constructed for HAFS.
 ################################################################################
+
+# Set jobname, jobid, jobidstr
+export job=${job:-${PBS_JOBNAME:-${SLURM_JOB_NAME}}}
+export jobid=${jobid:-$job.${PBS_JOBID:-${SLURM_JOB_ID}}}
+export jobidstr=${jobidstr:-".${PBS_JOBID:-${SLURM_JOB_ID}}"}
+if [[ "${jobidstr}" = "." ]]; then export jobidstr=""; fi
 
 # Set job node/core, mpi/omp environment
 export TOTAL_TASKS=${TOTAL_TASKS:-1}
@@ -43,7 +51,9 @@ if [ "$machine" = wcoss2 ]; then
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export BACKGROUND=""
-elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ]; then
+  export USE_CFP="YES"
+  export USE_MPISERIAL="NO"
+elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
   export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"

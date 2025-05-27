@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -62,15 +61,15 @@ if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
 
 # Deterministic or ensemble
 if [ ${ENSDA:-NO} = YES ]; then
-  export DATA=${WORKhafs}/atm_prep_ens
+  export DATA=${WORKhafs}/atm_prep_ens${jobidstr}
 else
-  export DATA=${WORKhafs}/atm_prep
+  export DATA=${WORKhafs}/atm_prep${jobidstr}
 fi
 
 else # Moving nest is enabled
 
 if [[ "${is_moving_nest}" = *".true."* ]]; then
-  export DATA=${WORKhafs}/atm_prep_mvnest1res
+  export DATA=${WORKhafs}/atm_prep_mvnest${jobidstr}
 fi
 
 fi

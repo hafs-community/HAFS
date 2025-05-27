@@ -3,6 +3,9 @@
 C-----------------------------------------------------------------------
 C  MAIN PROGRAM CHANGE_PREPBUFR_QM_TYP
 C
+C Authors and history
+C Oiginal author: D. A. KEYSER, 2005-07-01
+C
 C  THIS CODE WILL READ THOUGH AN INPUT PREPBUFR FILE (SPECIFIED AS
 C   POSITIONAL PARAMETER 1) AND CHANGE ALL QUALITY MARKS OF 14 TO 2 FOR
 C   ALL REPORTS OF A PARTICULAR REPORT TYPE (OR TYPES) - NORMALLY, THE
@@ -15,17 +18,17 @@ C-----------------------------------------------------------------------
       CHARACTER*8  SUBSET,SUBSET_LAST,SID
       CHARACTER*11 CTEXT(IQMVAR)
      
-      REAL*8  RID_8(3),OBS_8(5,255),BMISS,GETBMISS
-c      REAL    RID(3),OBS(5,255)
+      REAL*8  RID_8(3),OBS_8(5,999),BMISS,GETBMISS
+c      REAL    RID(3),OBS(5,999)
       REAL*8 RID(3)
-      REAL OBS(5,255)
-      REAL*8  QM1(255),QM1x(255)
-      REAL*8  QM2(255),QM2x(255)
-      REAL*8  QM3(255),QM3x(255)
-      REAL*8  QM4(255),QM4x(255)
-      REAL*8  QM5(255),QM5x(255)
-      REAL*8  QM6(255),QM6x(255)
-      REAL*8  QM7(255),QM7x(255)
+      REAL OBS(5,999)
+      REAL*8  QM1(999),QM1x(999)
+      REAL*8  QM2(999),QM2x(999)
+      REAL*8  QM3(999),QM3x(999)
+      REAL*8  QM4(999),QM4x(999)
+      REAL*8  QM5(999),QM5x(999)
+      REAL*8  QM6(999),QM6x(999)
+      REAL*8  QM7(999),QM7x(999)
 
       EQUIVALENCE (RID_8(1),SID)
 

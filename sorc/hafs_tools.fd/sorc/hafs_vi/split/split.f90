@@ -14,6 +14,10 @@
 !                : Added arrays/veritcal level interpolation for cloud
 !                : variables for VI updates
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
+! Revised by: JungHoon Shin, NCEP/EMC, 2024
+!                : Changed the storm filter domain from polygonal shape to circular shape
+!                : by selecting the largest radius information (array R0 & RF) to remove
+!                ! strange stripe patterns in VI analysis and VI restart file
 !     DECLARE VARIABLES
 
       use nhc, only: KSTM,IC_N,JC_N,NST
@@ -3350,7 +3354,7 @@
       real RS, RF
       real TW
       DIMENSION RS(IT),TW(IT,IR),RF(IT),IST(IT)
-      real R01
+      real R01,max_R0,max_RF
       DIMENSION R01(IT)
 
       ICK = 1
@@ -3514,7 +3518,12 @@
       WRITE(85)RMN
 !      WRITE(85)RF
 
+      max_R0=maxval(R0(:))
+      max_RF=maxval(RF(:))
+      write(*,*) 'max_R0 and max_RF= ', max_R0, max_RF
       DO I=1,IT
+        R0(I)=max_R0
+        RF(I)=max_RF
         print *,'R0,Rf AT EACH DIRECTION ',I,R0(I),RF(I)
       ENDDO
 

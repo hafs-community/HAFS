@@ -37,7 +37,7 @@ sed -i "s;HH;${YMDH:8:2};g" 3dvar.yml.tmp
 mv 3dvar.yml.tmp 3dvar.yml
 
 # obs settings
-source ${HOMEhafs}/parm/mom6_3dvar/obspath.config
+obs_files_dir=$MOM3dvarobs
 ln -sf ${obs_files_dir}/sst_satellite_${YMDH:0:10}.nc ./obs/.
 ln -sf ${obs_files_dir}/adt_ssh_${YMDH:0:10}.nc ./obs/.
 ln -sf ${obs_files_dir}/sss_salinity_${YMDH:0:10}.nc ./obs/.

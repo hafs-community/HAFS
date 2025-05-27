@@ -5,6 +5,13 @@
 # Abstract:
 #   This script generates the atmospheric lateral boundary condition (LBC) at a
 #   specific forecast lead time through the UFS_UTIL's chgres_cube tool.
+# History:
+#   04/17/2021: Initial version for HAFS application/workflow
+#   10/06/2021: Add the capability for regional-nesting configurations
+#   05/12/2023: Improvements for HAFSv1 operational implementation
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -31,7 +38,7 @@ if [ ${ENSDA} != YES ]; then
   ictype=${ictype:-gfsnetcdf}
   bctype=${bctype:-gfsnetcdf}
   LEVS=${LEVS:-65}
-  GRID_intercom=${WORKhafs}/intercom/grid
+  GRID_intercom=${WORKhafs}/intercom/atm_prep/grid
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS} ))
   FHRI=$(( ${BC_GROUPN} * ${NBDYHRS} ))
   FHRE=${NHRS}
@@ -43,7 +50,7 @@ else
   ictype=${ictype_ens:-gfsnetcdf}
   bctype=${bctype_ens:-gfsnetcdf}
   LEVS=${LEVS_ENS:-65}
-  GRID_intercom=${WORKhafs}/intercom/grid_ens
+  GRID_intercom=${WORKhafs}/intercom/atm_prep_ens/grid_ens
   FHRB=$(( ${BC_GROUPI} * ${NBDYHRS_ENS} ))
   FHRI=$(( ${BC_GROUPN} * ${NBDYHRS_ENS} ))
   FHRE=${NHRS_ENS}
@@ -69,10 +76,10 @@ fi
 
 if [ $GFSVER = "PROD2021" ]; then
   if [ ${ENSDA} = YES ]; then
-    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres_ens/mem${ENSID}}
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
     export INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
   else
-    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
     export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
   fi
 else
@@ -80,7 +87,7 @@ else
   exit 9
 fi
 
-OUTDIR=${OUTDIR:-${WORKhafs}/intercom/chgres}
+OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
 DATA=${DATA:-${WORKhafs}/atm_lbc}
 mkdir -p ${OUTDIR} ${DATA}
 

@@ -32,7 +32,10 @@ set(fortran_srcs
   sub_wind_process.f90
   sub_hafs_remap.f90
   sub_hafsvi_proc.f90
-  sub_hafs_diff.f90
+  sub_decom.f90
+  sub_hafsfftw_iau.f90
+  sub_hafs_idealvortex.f90
+  sub_hafs_u_ua.f90
   hafs_datool.f90)
 
 set(exe_name hafs_datool.x)

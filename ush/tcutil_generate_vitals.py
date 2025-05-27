@@ -35,11 +35,10 @@
 # * -H --- enable HHS output format.  Do not use.
 #
 # Environment Variables
-# * $RUN_ENVIR --- set to NCO if you are NCEP Central Operations, or something else if you are not
 # * $CASE_ROOT=HISTORY --- retrospective runs
 # * $CASE_ROOT=FORECAST --- real-time runs
+# * $SYNDAThafs --- optional to specify the directory with tcvitals data
 # * $COMINarch --- if you are NCO, this is the path to the tcvitals
-# * $envir --- if you are NCO, this is the run environment (prod, para, test)
 # * $COMINmsg --- if you are NCO, this is where the message files reside
 
 import logging, sys, os, getopt, collections
@@ -76,22 +75,8 @@ tcvlocs=[]
 # Directory with message files
 messagedir=[]
 
-##@var PARAFLAG
-# True = we are not NCEP Central Operations ($RUN_ENVIR!=NCO in environment)
-PARAFLAG = ( 'NCO' != os.environ.get('RUN_ENVIR','DEV').upper() )
-
 ##@var basins_needed
 # In format=cycles_needed mode, the list of one-letter basins needed.
-
-########################################################################
-def set_para_paths():
-    """!Sets tcvitals and message file locations for non-NCO runs."""
-    global tcvlocs, messagedir, inputs
-    if 'SYNDAThafs' in os.environ:
-        tcvlocs=[os.environ['SYNDAThafs'],]
-    else:
-        logger.critical('FATAL ERROR: cannot find the needed environment variable of SYNDAThafs.')
-        sys.exit(2)
 
 ########################################################################
 
@@ -135,7 +120,7 @@ def usage(why=None):
 def main():
     """!Main program.  Parses arguments, reads inputs, writes outputs."""
     # PARSE ARGUMENTS
-    global logger, inputs, tcvlocs, messagedir, forecast, PARAFLAG
+    global logger, inputs, tcvlocs, messagedir, forecast
     global basins_needed
     renumber=True
     unrenumber=False
@@ -179,22 +164,15 @@ def main():
 
     ########################################################################
     # DECIDE VITALS LOCATIONS
-    # THIS PARA BLOCK PROTECTS AGAINST NCO REACHING HARD-CODED PATHS:
-    if PARAFLAG:
-        set_para_paths()
+    if 'SYNDAThafs' in os.environ:
+        tcvlocs=[os.environ['SYNDAThafs'],]
+    elif 'COMINarch' in os.environ and 'COMINmsg' in os.environ:
+        tcvlocs = [ os.environ['COMINarch'], ]
+        messagedir = [ os.environ['COMINmsg'], ]
     else:
-        # Find tcvitals:
-        if 'COMINarch' in os.environ:
-            tcvlocs = [ os.environ['COMINarch'], ]
-        else:
-            fail('ERROR: Both $COMINarch and $envir are unset in '
-                 '$RUN_ENVIR!=NCO mode.  Cannot find tcvitals.')
-        # Find message files
-        if 'COMINmsg' in os.environ:
-            messagedir = [ os.environ['COMINmsg'], ]
-        else:
-            fail('ERROR: Both $COMINmsg and $envir are unset in '
-                 '$RUN_ENVIR!=NCO mode.  Cannot find tcvitals.')
+        logger.critical('FATAL ERROR: cannot find tcvitals.')
+        logger.critical('FATAL ERROR: Need either set SYNDAThafs or set COMINarch and COMINmsg.')
+        sys.exit(2)
     ########################################################################
 
     if 'CASE_ROOT' in os.environ and os.environ['CASE_ROOT']=='FORECAST':

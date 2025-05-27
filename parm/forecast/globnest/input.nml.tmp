@@ -211,6 +211,7 @@
   elmx           = @[elmx_nml]
   sfc_rlm        = @[sfc_rlm_nml]
   tc_pbl         = @[tc_pbl_nml]
+  use_lpt        = @[use_lpt]
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.

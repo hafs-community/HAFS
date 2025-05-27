@@ -1,17 +1,26 @@
-#! /usr/bin/env python3 
+#! /usr/bin/env python3
+################################################################################
+# Script Name: run.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module implements a shell-like syntax for launching MPI and
+#   non-MPI programs from Python.  It recognizes three types of
+#   executables: mpi, "small serial" (safe for running on a batch node)
+#   and "big serial" (which should be run via aprun if applicable).  There
+#   is no difference between "small serial" and "big serial" programs
+#   except on certain architectures (like Cray) where the job script runs
+#   on a heavily-loaded batch node and has compute nodes assigned for
+#   running other programs.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (adapted from HWRF and                           
+#   improved)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
-"""!A shell-like syntax for running serial, MPI and OpenMP programs.
 
-This module implements a shell-like syntax for launching MPI and
-non-MPI programs from Python.  It recognizes three types of
-executables: mpi, "small serial" (safe for running on a batch node)
-and "big serial" (which should be run via aprun if applicable).  There
-is no difference between "small serial" and "big serial" programs
-except on certain architectures (like Cray) where the job script runs
-on a heavily-loaded batch node and has compute nodes assigned for
-running other programs.
-
-@section progtype Program Types
+""" @section progtype Program Types
 
 There are three types of programs: mpi, serial and "big non-MPI."  A
 "big" executable is one that is either OpenMP, or is a serial program
@@ -19,7 +28,7 @@ that cannot safely be run on heavily loaded batch nodes.  On Cray
 architecture machines, the job script runs on a heavily-populated
 "batch" node, with some compute nodes assigned for "large" programs.
 In such environments, the "big" executables are run on compute nodes
-and the small ones on the batch node.  
+and the small ones on the batch node.
 
 * mpi('exename') = an executable "exename" that calls MPI_Init and
     MPI_Finalize exactly once each, in that order.
@@ -72,7 +81,7 @@ beginning of the pipeline:
 * Python #2: exe('cat') | ( exe('wc')['-l'] < 'infile' )
 
 Note that the last second one, equivalent to `cat|wc -l<infile`, would
-NOT work in a shell since you would be giving wc -l two inputs.  
+NOT work in a shell since you would be giving wc -l two inputs.
 
 @section parexs Parallel Execution Syntax
 
@@ -184,7 +193,7 @@ _detected_mpi=None
 
 def make_mpi(mpi_name=produtil.mpi_impl.NO_NAME,**kwargs):
     """!Creates an MPI implementation object for the specified MPI
-    implementation. 
+    implementation.
 
     Creates an object suitable for passing to the mpiimpl argument of
     various functions in produtil.run.  The object will implement the
@@ -222,7 +231,7 @@ def make_mpi(mpi_name=produtil.mpi_impl.NO_NAME,**kwargs):
 
 def detect_mpi():
     """!Called by functions inside produtil.run to automatically
-    detect the available MPI implementation.  
+    detect the available MPI implementation.
 
     Detects the available MPI implementation - but that isn't as
     simple as it sounds.  The detection logic requires calling
@@ -233,7 +242,7 @@ def detect_mpi():
     serial (non-OpenMP, non-MPI) calls to succeed.
 
     2. Run the MPI implementation detection functions.  These will be
-    able to use produtil.run to execute serial programs to detect 
+    able to use produtil.run to execute serial programs to detect
     the MPI implementation.
 
     3. If an MPI implementation is detected, set the MPI
@@ -319,7 +328,7 @@ def mpirun(arg,mpiimpl=None,**kwargs):
 
     @param arg the mpiprog.MPIRanksBase describing the MPI program to
     run.  This is the output of the mpi() or mpiserial() function.
-    @param kwargs additional arguments to control output.  
+    @param kwargs additional arguments to control output.
     @returns a prog.Runner object for the specified
     mpiprog.MPIRanksBase object."""
     if mpiimpl is None:
@@ -457,7 +466,7 @@ def run(arg,logger=None,sleeptime=None,**kwargs):
 
 def checkrun(arg,logger=None,**kwargs):
     """!This is a simple wrapper round run that raises
-    ExitStatusException if the program exit status is non-zero.  
+    ExitStatusException if the program exit status is non-zero.
 
     @param arg the produtil.prog.Runner to execute (output of
       exe(), bigexe() or mpirun()
@@ -492,12 +501,12 @@ def openmp(arg,threads=None,mpiimpl=None):
     if mpiimpl is None:
         mpiimpl=detect_mpi()
     return mpiimpl.openmp(arg,threads)
-    
+
 def runstr(arg,logger=None,**kwargs):
     """!Executes the specified program or pipeline, capturing its
-    stdout and returning that as a string.  
+    stdout and returning that as a string.
 
-    If the exit status is non-zero, then NonZeroExit is thrown.  
+    If the exit status is non-zero, then NonZeroExit is thrown.
 
     Example:
     @code

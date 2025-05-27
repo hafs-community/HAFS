@@ -3,6 +3,9 @@ module namelist_interface
   !=======================================================================
 
   !$$$ PROGRAM DOCUMENTATION BLOCK
+
+  ! Authors and history
+  ! Oiginal author: Henry R. Winterbottom
   
   ! obs-preproc :: namelist_interface
   ! Copyright (C) 2019 Henry R. Winterbottom

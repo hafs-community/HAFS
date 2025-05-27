@@ -10,7 +10,6 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
-export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -83,7 +82,7 @@ else
   export MEMSTR="ensmean"
 fi
 
-export DATA=${WORKhafs}/enkf_hx/${MEMSTR}
+export DATA=${WORKhafs}/enkf_hx/${MEMSTR}${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA

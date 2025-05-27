@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: input.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   The module implements the input data staging functionality for HAFS.
+# History:
+#   04/10/2019: Initial version for HAFS application (adapted from HWRF)
+################################################################################
 
 """!Obtains input data needed by various subclasses of
 hafs.hafstask.HAFSTask.
@@ -467,7 +475,7 @@ class InputSource(object):
         The location parameter is a URL from file, sftp, ftp or htar.
         Examples:
 
-        * local files: file:///lfs4/HFIP/hwrf-data/hafs-input/
+        * local files: file:///lfs5/HFIP/hwrf-data/hafs-input/
         * scp:         sftp://Some.Username@dtn-zeus.rdhpcs.noaa.gov/
         * ftp:         ftp://anonymous@ftpprd.ncep.noaa.gov/
         * htar:        htar:///NCEPPROD/1year/hpssprod/runhistory/rh2012/201204/20120418/

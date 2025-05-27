@@ -1,7 +1,16 @@
 #! /usr/bin/env python3
-
-"""!This module runs the NCO dbn_alert program, or logs dbn_alert messages
-if run with dbn alerts disabled."""
+################################################################################ 
+# Script Name: dbnalert.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   This module runs the NCO dbn_alert program, or logs dbn_alert messages
+#   if run with dbn alerts disabled.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################
 
 ##@var __all__
 # Symbols exported by "from produtil.dbnalert import *"

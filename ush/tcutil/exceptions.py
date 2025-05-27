@@ -1,4 +1,12 @@
 #! /usr/bin/env python3
+################################################################################
+# Script Name: exceptions.py
+# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Abstract:
+#   This module contains exceptions raised by the tcutil package.
+# History:
+#   04/03/2019: Import the tcutil python package in HAFS (converted from HWRF)
+################################################################################
 
 """!Exceptions raised by the tcutil package
 

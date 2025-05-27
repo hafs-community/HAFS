@@ -1,10 +1,18 @@
 #! /usr/bin/env python3
-
-"""!Provides information about the batch system.
-
-This module is intended to be used to communicate with the batch
-system.  At present, it just knows how to guess the job name and id,
-as well as a "longname" that combines the two."""
+################################################################################
+# Script Name: batchsystem.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract: 
+#   Provides information about the batch system.
+#   This module is intended to be used to communicate with the batch
+#   system.  At present, it just knows how to guess the job name and id,
+#   as well as a "longname" that combines the two.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (Adapted from HWRF/HMON)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted
+################################################################################ 
 
 ##@var __all__
 # List of symbols exported by "from produtil.batchsystem import *"

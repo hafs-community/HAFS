@@ -5,7 +5,7 @@
 # Abstract:
 #   This script generates atmospheric forcing files needed by MOM6 coupling.
 # History:
-#
+#   05/13/2023: Added the script for MOM6 coulping in HAFS workflow
 # Usage:
 #   ./hafs_mom6_gfs_forcings.py ${YMDH} -l ${Length_hours}
 ################################################################################

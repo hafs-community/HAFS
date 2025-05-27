@@ -1,12 +1,20 @@
 #! /usr/bin/env python3
-
-"""!Stores products and tasks in an sqlite3 database file.
-
-This module maintains an sqlite3 database file that stores information
-about Products and Tasks.  A Product is a file or group of files
-created by some Task.  Both Product and Task classes derive from
-Datum, which is the base class of anything that can be stored in the
-Datastore."""
+################################################################################
+# Script Name:  datastore.py
+# Authors: NECP/EMC Hurricane Project Team
+# Abstract:
+#   Stores products and tasks in an sqlite3 database file.
+#   This module maintains an sqlite3 database file that stores information
+#   about Products and Tasks.  A Product is a file or group of files
+#   created by some Task.  Both Product and Task classes derive from
+#   Datum, which is the base class of anything that can be stored in the
+#   Datastore.
+# History:
+#   06/28/2021: Initial version for HAFS applicaton (improved from HWRF)
+# Condition codes:
+#   == 0 : success
+#   != 0 : fatal error encounted 
+################################################################################
 
 import sqlite3, threading, collections, re, contextlib, time, random,\
     traceback, datetime, logging, os, time
@@ -30,7 +38,7 @@ class DatumLockHeld(Exception):
     """!Raised when a LockDatum is held by another Worker."""
     def __init__(self,did,owner,owninfo,ownseen,ownlegacy,checktime):
         """!DatumLockHeld constructor.
-        
+
         @param did the database ID  of the datum whose lock is held
         @param owner the owner of the lock
         @param owninfo implementation-defined information about the owner
@@ -52,7 +60,7 @@ class DatumLockHeld(Exception):
     ##@var owninfo
     # implementation-defined information about the owner
 
-    ##@var ownseen 
+    ##@var ownseen
     # last time the owner checked in
 
     ##@var ownlegacy
@@ -86,11 +94,11 @@ class UnknownLocation(DatumException):
 
 ##@var _has_dcolon
 # Regular expression to detect a database ID with a double colon in it.
-_has_dcolon=re.compile('\A.*::.*\Z')
+_has_dcolon=re.compile(r'\A.*::.*\Z')
 
 ##@var _has_dstar
 # Regular expression to detect a database ID with a double asterisk in it.
-_has_dstar=re.compile('\A.*\*\*.*\Z')
+_has_dstar=re.compile(r'\A.*\*\*.*\Z')
 
 ##@var TASK_CATEGORY
 # Special product category used for Tasks.
@@ -134,7 +142,7 @@ COMPLETED=30
 completion successfully."""
 
 class Datastore(object):
-    """!Stores information about Datum objects in a database.  
+    """!Stores information about Datum objects in a database.
 
     Stores and retrieves Datum objects from an sqlite3 database.  Uses
     file locking workarounds for bugs in RedHat Enterprise Linux's
@@ -165,7 +173,7 @@ class Datastore(object):
           can lead to database corruption if two processes try to
           write at the same time.  This functionality is provided
           for the rare situation where you are unable to write to
-          a database, such as when reading other users' sqlite3 
+          a database, such as when reading other users' sqlite3
           database files."""
         self._logger=logger
         self.filename=filename
@@ -182,7 +190,7 @@ class Datastore(object):
         self._transtack=collections.defaultdict(list)
         with self.transaction() as tx:
             self._createdb(self._connection())
-    ##@var db 
+    ##@var db
     # The underlying sqlite3 database object
 
     ##@var filename
@@ -228,7 +236,7 @@ class Datastore(object):
         """!Starts a transaction on the database in the current thread."""
         return Transaction(self)
     def _createdb(self,con):
-        """!Creates the tables used by this Datastore.  
+        """!Creates the tables used by this Datastore.
 
         Runs "CREATE TABLE" commands in the sqlite3 database to create
         all tables needed by this class.  This code must be executed
@@ -350,7 +358,7 @@ class Transaction(object):
                                 (loc,d.did))
                     break
 
-        if meta and d._meta is not None and d._meta: 
+        if meta and d._meta is not None and d._meta:
             for k,v in d._meta.items():
                 if k!='location' and k!='available':
                     self.mutate('INSERT OR IGNORE INTO metadata VALUES (?,?,?)',(d.did,k,v))
@@ -374,7 +382,7 @@ class Transaction(object):
         current metadata, location and availability.  Will raise an
         exception if the product does not exist in the database.
         @param d The Datum.
-        @param or_add If True, then any metadata that does not exist in the 
+        @param or_add If True, then any metadata that does not exist in the
           database is created from values in d."""
         found=False
         meta=dict()
@@ -395,7 +403,7 @@ class Transaction(object):
             meta[k]=v
         d._meta=meta
     def set_meta(self,d,k,v):
-        """!Sets metadata key k to value v for the given Datum.  
+        """!Sets metadata key k to value v for the given Datum.
 
         Modifies the database entries for key k and datum d to have
         the value v.  If k is location or available, then the product
@@ -510,7 +518,7 @@ class Datum(object):
         """!Creates, but does not lock, a Transaction for this datum's datastore."""
         return self._dstore.transaction()
     def getprodtype(self):
-        """!Returns the product type of this Datum.  
+        """!Returns the product type of this Datum.
 
         Returns the product type of this Datum.  This is generally the
         name of the Python class that created the entry in the
@@ -519,14 +527,14 @@ class Datum(object):
     def getprodname(self):
         """!Returns the product name part of the database ID."""
         return self._prodname
-    def getcategory(self):  
+    def getcategory(self):
         """!Returns the product category part of the database ID."""
         return self._category
 
     def getlocation(self):
         """!Returns the "location" field of this Datum's database entry."""
         return self['location']
-    def setlocation(self,v): 
+    def setlocation(self,v):
         """!Sets the "location" field of this Datum's database entry.
         @param v the new location"""
         self['location']=v
@@ -565,13 +573,13 @@ class Datum(object):
     location=property(getlocation,setlocation,None,
                       """The location of this product (read/write)""")
 
-    def __hash__(self): 
+    def __hash__(self):
         """!Integer hash function."""
         return hash(self._prodname)^hash(self._category)
-    def __str__(self): 
+    def __str__(self):
         """!Human-readable description of this Datum."""
         return '%s with id %s'%(self.prodtype,self.did)
-    def __repr__(self): 
+    def __repr__(self):
         """!Python code-like description of this Datum."""
         return '%s(%s,%s,%s)' % \
             (self.prodtype,repr(self.dstore),repr(self._prodname),repr(self._category))
@@ -737,7 +745,7 @@ class CallbackExceptions(Exception):
 
     ##@var exlist
     # The list of exceptions raised.
-    
+
     ##@var messagebase
     # The original message sent to the constructor before
     # per-exception messages were appended.
@@ -754,7 +762,7 @@ class Product(Datum):
     a full path to a location on disk for file products.  As with all
     Datum objects, a Product also has arbitrary metadata."""
     def add_callback(self,callback,args=None,states=None):
-        """!Adds a delivery callback function.  
+        """!Adds a delivery callback function.
 
         Adds a delivery callback that is called when the product is
         delivered.  This is intended to do such tasks as running an
@@ -775,7 +783,7 @@ class Product(Datum):
           take any keyword or indexed arguments.
         @param args The indexed arguments to send.
         @param states Presently unused."""
-        if args is None: 
+        if args is None:
             largs=list()
         else:
             largs=list(args)
@@ -839,7 +847,7 @@ class Product(Datum):
         @post available=True and location is non-empty."""
         raise InvalidOperation('The Product base class does not implement deliver')
     def undeliver(self,**kwargs):
-        """!"Undelivers" a product.  
+        """!"Undelivers" a product.
 
         The meaning of this function is implementation-dependent: it
         could mean deleting an output file, or any number of other
@@ -1103,10 +1111,10 @@ class Task(Datum):
         Datum.__init__(self,dstore=dstore,prodname=taskname,category=TASK_CATEGORY,**kwargs)
 
     @property
-    def jlogfile(self):
-        """!returns the jlogfile logger.  
+    def jloggerf(self):
+        """!returns the jloggerf logger.
 
-        Returns a logging.Logger for the jlogfile.  The jlogfile is
+        Returns a logging.Logger for the jloggerf.  The jloggerf is
         intended to receive only major errors, and per-job start and
         completion information.  This is equivalent to simply
         accessing produtil.log.jlogger."""
@@ -1131,9 +1139,9 @@ class Task(Datum):
         UNSTARTED, RUNNING, PARTIAL or COMPLETED.
         @param val the new job state, an int"""
         self['available']=int(val)
-    def getstate(self): 
+    def getstate(self):
         """!Returns the job state.
-        
+
         Returns the "available" attribute as an integer.  This is used
         as the state of the Task.  Typically, the return value should
         be one of: FAILED, UNSTARTED, RUNNING, PARTIAL, or COMPLETED."""
@@ -1181,7 +1189,7 @@ class Task(Datum):
         """!Returns the logger object for this task."""
         return self._logger
     def clean(self):
-        """!Cleans up any unneeded data used by this task.  
+        """!Cleans up any unneeded data used by this task.
 
         Subclasses should override this function to clean up any
         unneeded temporary files or other unused resources consumed by
@@ -1201,7 +1209,7 @@ class Task(Datum):
         self.state=UNSTARTED
     def run(self):
         """!Performs the work this Task should do and generates all products.
-        
+
         Performs the work that this task is supposed to do.  All
         subclasses should re-implement this method, and should set the
         state to COMPLETED the end.  This implementation simply calls
