@@ -236,7 +236,7 @@ export err=$?; err_chk
 
 # Run Python script to generate OBC
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
+${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
     rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
     'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y' 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
