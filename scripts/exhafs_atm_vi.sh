@@ -8,6 +8,14 @@
 ################################################################################
 set -x -o pipefail
 vi_force_cold_start=${vi_force_cold_start:-no}
+#Lew.Gramer@noaa.gov 2025-05-20
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+  # WORKAROUND: Force cold start for storms too close to outer boundaries
+  if [[ ${target_lat%[.][0-9]*} -gt 33 ]] || [[ ${target_lon%[.][0-9]*} -lt -110 ]] || [[ ${target_lon%[.][0-9]*} -gt -40 ]]; then
+    vi_force_cold_start=yes
+  fi
+fi
+#LJG
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s

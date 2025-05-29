@@ -204,8 +204,10 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     #                          Temp fix so relocation does not fail
     if multistorm:
         ##rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
-        # LJG 2024-09-20
-        rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=43)
+        ## LJG 2024-09-20
+        #rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=43)
+        # LJG 2025-05-26: Filter out, e.g., Gaston 20220923 12: 405N 0292W
+        rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=40)
     rv.clean_up_vitals()
     #rv.sort_by_function(rv.hrd_multistorm_sorter)
     # Lew.Gramer@noaa.gov 2023-08-15
