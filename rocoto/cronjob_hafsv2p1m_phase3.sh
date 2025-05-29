@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/scratch2/AOML/aoml-hafs1/${USER}/hafsv2p1_phase3_multistorm.PRECOMMIT}
+HOMEhafs=${HOMEhafs:-/scratch2/AOML/aoml-hafs1/${USER}/hafsv2p1_phase3_multistorm}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -54,9 +54,18 @@ opts="-t -f"
 #    dir.COMrtofs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMRTOFSv2.5_new" # gaeaC6
 
 #  # Technical testing
- ./run_hafs.py ${opts} -M L,E 2024092506-2024092512 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_test # Helene
+# ./run_hafs.py ${opts} -M L,E 2024092506-2024092512 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_warmstart_test # Helene
+# ./run_hafs.py ${opts} -M L,E 2024092512 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_coldstart_test # Helene
 
-# ./run_hafs.py ${opts} -M L,E 2024100606-2024100612 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_test # Milton
+# ./run_hafs.py ${opts} -M L,E 2024100606-2024100612 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_warmstart_test # Milton
+# ./run_hafs.py ${opts} -M L,E 2024100600-2024100606 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_warmstart_test # Milton
+# ./run_hafs.py ${opts} -M L,E 2024100606 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_v2p1m_phase3_coldstart_test # Milton
+
+# One of 2022092312, 2022092318, 2023082912, 2023083006 (4 storms), 2023083012, or 2023091300...
+#./run_hafs.py ${opts} -M L,E 2022092312 00L HISTORY config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v2p1m_phase3_5storm \
+#   grid.nest_grids=5 config.run_hrdgraphics=yes ../parm/hafsv2p1m_phase3.conf #Fiona, Gaston, Nine, Ten, Newton, Invest90L, Invest99L
+#./run_hafs.py ${opts} -M L,E 2023083006 00L HISTORY config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v2p1m_phase3_5storm \
+#   grid.nest_grids=5 config.run_hrdgraphics=yes ../parm/hafsv2p1m_phase3.conf #Gert, Franklin, Idalia, Eleven, Invest94L
 
 # ./run_hafs.py ${opts} -M L,E 2024100706-2024100712 00L HISTORY \
 #               config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v2p1m_v2p0_mimic \
@@ -96,7 +105,7 @@ opts="-t -f"
 #===============================================================================
  # 2024 NATL/EPac Multistorm Blocks
 # AL: Beryl, Chris. EP: Aletta.
-#./run_hafs.py ${opts} -M L,E 2024062818-2024070818 00L HISTORY ${confopts_m}
+#### #./run_hafs.py ${opts} -M L,E 2024062818-2024070818 00L HISTORY ${confopts_m}
 
 # AL: Helene, Isaac, Joyce. EP: John. NOTE: Block ends before Isaac and Joyce full lifecycles
 #./run_hafs.py ${opts} -M L,E 2024092218-2024092906 00L HISTORY ${confopts_m}
@@ -110,11 +119,23 @@ opts="-t -f"
 # AL: Bret, Cindy.
 #./run_hafs.py ${opts} -M L,E 2023061918-2023062600 00L HISTORY ${confopts_m}
 
-# AL: Gert, Emily, Franklin, Harold, Idalia, Jose, Katia. EP: Hilary, Irwin.
-#./run_hafs.py ${opts} -M L,E 2023081918-2023090412 00L HISTORY ${confopts_m}
+# AL: Gert, Emily, Franklin, Harold, IDALIA, Jose, Katia. EP: HILARY, Irwin.
+#./run_hafs.py ${opts} -M L,E 2023081918-2023090418 00L HISTORY ${confopts_m}
 
-# AL: Lee, Margo, Nigel, Ophelia, Philippe, Rina. EP: Jova, Twelve, Kenneth, Fourteen, Lidia.
-#./run_hafs.py ${opts} -M L,E 2023090512-2023100612 00L HISTORY ${confopts_m}
+# AL: LEE, Margo, Nigel, Ophelia, PHILIPPE, Rina. EP: Jova, Twelve, Kenneth, Fourteen, Lidia.
+###./run_hafs.py ${opts} -M L,E 2023090506-2023100612 00L HISTORY ${confopts_m}
+
+
+#===============================================================================
+ # 2022 NATL/EPac Multistorm Blocks
+# AL: EARL, Danielle. EP: Javier, Kay.
+#./run_hafs.py ${opts} -M L,E 2022090112-2022091018 00L HISTORY ${confopts_m}
+
+# AL: FIONA, IAN, Gaston, Hermine, Eleven. EP: Lester, Madeline, Newton, Orlene.
+#./run_hafs.py ${opts} -M L,E 2022091412-2022100306 00L HISTORY ${confopts_m}
+
+# AL: Twelve, Julia, Karl. EP: Paine, Julia (reemergent).
+#./run_hafs.py ${opts} -M L,E 2022100318-2022101506 00L HISTORY ${confopts_m}
 
 
 #===============================================================================
