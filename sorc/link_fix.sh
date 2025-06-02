@@ -24,6 +24,7 @@ elif [ ${target} == "jet" ]; then
   FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
   FIXROOT=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  ln -sf /gpfs/f6/drsa-hurr1/world-shared/noscrub/fix_mom6_3dvar fix_mom6_3dvar
 elif [ ${target} == "ursa" ]; then
   FIXROOT=/scratch3/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
   ln -sf /scratch3/HFIP/hwrfv3/noscrub/fix_mom6_3dvar fix_mom6_3dvar
