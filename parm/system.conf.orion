@@ -25,6 +25,7 @@ COMOUT={COMhafs}
 COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
 COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
 COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
+MOM3dvarobs=/work/noaa/{disk_project}/noscrub/mom6_3dvar_obs
 COMINobs={COMgfs}
 COMINgfs={COMgfs}
 COMINgdas={COMgfs}

@@ -20,6 +20,7 @@ elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
   FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  ln -sf /work/noaa/hwrf/noscrub/fix_mom6_3dvar fix_mom6_3dvar
 elif [ ${target} == "jet" ]; then
   FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
