@@ -642,6 +642,7 @@
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
     &OCN_DA_RESOURCES;
     &ENV_VARS;
 
