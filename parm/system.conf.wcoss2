@@ -32,6 +32,7 @@ COMINgdas={COMgfs}
 COMINarch={COMgfs}/syndat
 COMrtofs=/lfs/h2/emc/hur/noscrub/hafs-input/COMRTOFSv2.5_new
 COMINrtofs={COMrtofs}
+MOM3dvarobs=/lfs/h2/emc/hur/noscrub/biju.thomas/save/mom6_3dvar_obs
 COMINmsg={ENV[COMINmsg|-/lfs/h1/ops/prod/com/hwrf/v13.2/inphwrf]}
 COMINhafs={COMINgfs}
 DATMdir=/lfs/h2/emc/{disk_project}/noscrub/{ENV[USER]}/DATM
