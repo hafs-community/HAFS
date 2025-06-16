@@ -11,3 +11,4 @@
 <!ENTITY % wcoss2           SYSTEM      "wcoss2.ent">
 <!ENTITY % hercules         SYSTEM      "hercules.ent">
 <!ENTITY % gaeac6           SYSTEM      "gaeac6.ent">
+<!ENTITY % ursa             SYSTEM      "ursa.ent">

@@ -1466,7 +1466,7 @@ if [ ${run_wave} = yes ]; then
   ${RLN} ${OUTdir}/${CDATE:0:8}.${CDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/out_grd.ww3 ./
-  ${RLN} ${OUTdir}/out_pnt.ww3 ./
+  ${RLN} ${OUTdir}/out_pnt.ww3.nc ./
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${RUN_INIT:-NO} = NO ]; then

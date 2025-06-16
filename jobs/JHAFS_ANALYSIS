@@ -75,7 +75,7 @@ else
     module load cfp/${cfp_ver}
     module load prod_util/${prod_util_ver}
   fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]]  || [[ ${machine}  = "ursa" ]]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
     module purge
   fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles

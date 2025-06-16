@@ -11,21 +11,6 @@
   prepend_date = .false.
 /
 
-&mpp_io_nml
-  header_buffer_val = 16384,
-  global_field_on_root_pe = .true.,
-  io_clocks_on = .false.,
-  shuffle = 0,
-  deflate_level = @[deflate_level],
-  cf_compliance = .false.
-/
-
-&fms_io_nml
-  checksum_required = .false.
-  max_files_r = 1000,
-  max_files_w = 1000,
-/
-
 &fms2_io_nml
   netcdf_default_format="netcdf4"
 /
@@ -185,7 +170,7 @@
   pdfcld         = .false.
   min_lakeice    = 0.15
   min_seaice     = 0.15
-  use_cice_alb   = .false
+  use_cice_alb   = .false.
   fhswr          = @[fhswr]
   fhlwr          = @[fhlwr]
   ialb           = @[ialb]

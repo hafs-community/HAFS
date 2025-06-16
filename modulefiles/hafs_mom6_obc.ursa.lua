@@ -2,7 +2,7 @@ help([[
 loads HAFS/MOM6 OBC modulefile on Ursa
 ]])
 unload("esmf")
-unload("py-numpy") 
+unload("py-numpy")
 unload("py-pandas")
 unload("py-scipy")
 unload("py-xarray")

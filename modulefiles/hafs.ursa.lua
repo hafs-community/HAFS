@@ -11,7 +11,7 @@ stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
 cmake_ver=os.getenv("cmake_ver") or "3.27.9"
-load(pathJoin("cmake", cmake_ver)) 
+load(pathJoin("cmake", cmake_ver))
 
 jasper_ver=os.getenv("jasper_ver") or "2.0.32"
 load(pathJoin("jasper", jasper_ver))
@@ -26,10 +26,10 @@ hdf5_ver=os.getenv("hdf5_ver") or "1.14.3"
 load(pathJoin("hdf5", hdf5_ver))
 
 netcdf_c_ver=os.getenv("netcdf_c_ver") or "4.9.2"
-load(pathJoin("netcdf-c", netcdf_c_ver)) 
+load(pathJoin("netcdf-c", netcdf_c_ver))
 
 netcdf_fortran_ver=os.getenv("netcdf_fortran_ver") or "4.6.1"
-load(pathJoin("netcdf-fortran", netcdf_fortran_ver)) 
+load(pathJoin("netcdf-fortran", netcdf_fortran_ver))
 
 parallelio_ver=os.getenv("parallelio_ver") or "2.6.2"
 load(pathJoin("parallelio", parallelio_ver))
