@@ -17,6 +17,9 @@ set -x -o pipefail
 
 DATAinit=${DATA}
 
+if [ ${ENSDA} = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
+fi
 #===============================================================================
 # forecast
 

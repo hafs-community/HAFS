@@ -58,6 +58,7 @@ FORECAST_RESTART_HC=${FORECAST_RESTART_HC:-""}
 # Reset options specific to the ensemble forecast if needed
 if [ "${ENSDA}" = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
     NHRS=${NHRS:-126}
   else
@@ -135,8 +136,11 @@ if [ "${ENSDA}" = YES ]; then
   do_shum=${do_shum_ens:-.false.}
   do_skeb=${do_skeb_ens:-.false.}
   npz=${npz_ens:-64}
-  output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
-  output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  output_grid=${output_grid_ens}
+  output_grid_cen_lon=${output_grid_cen_lon_ens}
+  output_grid_cen_lat=${output_grid_cen_lat_ens}
+  output_grid_lon_span=${output_grid_lon_span_ens}
+  output_grid_lat_span=${output_grid_lat_span_ens}
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
 fi
@@ -255,6 +259,8 @@ output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
 else # Otherwise this a regular forecast run
 
 if [ "${ENSDA}" = YES ]; then
+  run_ocean=no #Should we make it optional in case we have ocean DA? But we may not have ocean ensemble anyway #XL
+  run_wave=no
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_ens/mem${ENSID}}

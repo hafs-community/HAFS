@@ -73,6 +73,10 @@ export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
 export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
+RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem001
+if [ ! -s ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+ RUN_ENSDA=NO
+fi
 
 if [ $GFSVER = PROD2021 ]; then
   export atmos="atmos/"

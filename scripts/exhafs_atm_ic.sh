@@ -45,6 +45,7 @@ if [ ${ENSDA} != YES ]; then
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/atm_prep/grid
 else
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   NBDYHRS=${NBDYHRS_ENS:-3}
   nest_grids=${nest_grids_ens:-1}
   CASE=${CASE_ENS:-C768}

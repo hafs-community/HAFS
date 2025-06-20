@@ -30,6 +30,7 @@ pubbasin2=${pubbasin2:-AL}
 if [ ${RUN_INIT:-NO} = YES ]; then
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
@@ -53,6 +54,7 @@ fi
 else
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/product_ens/mem${ENSID}
   COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
@@ -135,9 +137,9 @@ cd ${DATA_tracker}
 gmodname=hafs
 rundescr=trak
 if [ ${nest_grids:-1} = 1 ]; then
-atcfdescr=parent
+ atcfdescr=parent
 else
-atcfdescr=storm
+ atcfdescr=storm
 fi
 
 # Link the track files and generate the input.fcst_minutes file

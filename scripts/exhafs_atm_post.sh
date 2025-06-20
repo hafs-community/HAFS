@@ -35,7 +35,7 @@ satpost=.false.
 nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
-  nest_grids=${nest_grids_ens:-1}
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
@@ -62,9 +62,10 @@ RESTARTcom=""
 else
 
 if [ "${ENSDA}" = YES ]; then
-  nest_grids=${nest_grids_ens:-1}
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
-  COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+# COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+  COMOUTpost=${WORKhafs}/intercom/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
   RESTARTcom=${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}
 else
@@ -86,10 +87,18 @@ if [ ${ENSDA} = YES ]; then
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   gtype=${gtype_ens:-regional}
+  restart_interval=${restart_interval_ens:-${restart_interval}}
   post_gridspecs=${post_gridspecs_ens:-""}
   trak_gridspecs=${trak_gridspecs_ens:-""}
   satpost=${satpost_ens:-".false."}
   nhcpost=${nhcpost_ens:-".false."}
+  output_grid=${output_grid_ens}
+  output_grid_cen_lon=${output_grid_cen_lon_ens}
+  output_grid_cen_lat=${output_grid_cen_lat_ens}
+  output_grid_lon_span=${output_grid_lon_span_ens}
+  output_grid_lat_span=${output_grid_lat_span_ens}
+  output_grid_dlon=${output_grid_dlon_ens}
+  output_grid_dlat=${output_grid_dlat_ens}
 else
   NHRS=${NHRS:-126}
   NBDYHRS=${NBDYHRS:-3}
@@ -576,35 +585,45 @@ if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTA
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
-  ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
+# ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
+  ncks --deflate=1 -O ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/${grid_spec}
+  export err=$?; err_chk
 fi
 if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
-  ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+# ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
+  ncks --deflate=1 -O ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/${atmos_static}
+  export err=$?; err_chk
 fi
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
-  ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+# ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
+  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/${oro_data}
+  export err=$?; err_chk
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
-  ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+# ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
+  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/${oro_data_ls}
+  export err=$?; err_chk
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
-  ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+# ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
+  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/${oro_data_ss}
+  export err=$?; err_chk
 fi
 
 # grid_mspec files at the current and prior forecast hours
@@ -629,7 +648,9 @@ if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
      [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
-    ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+  # ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
+    ncks --deflate=1 -O ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/${grid_mspec_old}
+    export err=$?; err_chk
   fi
 fi
 # Deliver grid_mspec at NHRS if NHRS less than 12
@@ -641,7 +662,9 @@ if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
      [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
-    ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+  # ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
+    ncks --deflate=1 -O ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/${grid_mspec}
+    export err=$?; err_chk
   fi
 fi
 
@@ -653,13 +676,42 @@ fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.n
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
 coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
-if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
-  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
-  for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
-    if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
-      ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
-    fi
-  done
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
+  RESTARTSENDCOM=NO
+  # Check if restart files for forecast hours 3, 6, 9 are actually turned on in model restart_interval
+  for RHR in ${restart_interval}; do if [[ $RHR = $FHR ]]; then RESTARTSENDCOM=YES; break; fi; done
+  if [ $RESTARTSENDCOM = YES ]; then
+    # Wait for restart file
+    MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+    n=0
+    while [ $n -le ${MAX_WAIT_TIME} ]; do
+      if [ ! -s ${INPdir}/RESTART/${coupler_res} ]; then
+        echo "${INPdir}/RESTART/${coupler_res} not ready, sleep 10s"
+        sleep 10s
+      else
+        echo "${INPdir}/RESTART/${coupler_res} ready, continue"
+        break
+      fi
+      n=$((n+10))
+      if [ $n -gt ${MAX_WAIT_TIME} ]; then
+        echo "FATAL ERROR: Waited ${INPdir}/RESTART/${coupler_res} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+        exit 1
+      fi
+    done
+    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
+#   for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
+    for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $coupler_res ; do
+      if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+      # ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+        if [[ "${file_res}" = *".nc" ]]; then
+          ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+          export err=$?; err_chk
+        else
+          ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+        fi
+      fi
+    done
+  fi
 fi
 
 # Deliver WW3 restart file if needed and exists

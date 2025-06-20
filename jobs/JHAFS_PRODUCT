@@ -59,6 +59,7 @@ export ENSID=${ENSID:-000}
 
 if [ ${ENSDA} = YES ]; then
   export DATA=${WORKhafs}/product_ens/mem${ENSID}${jobidstr}
+  export nest_grids=${nest_grids_ens:${nest_grids}}
 else
   export DATA=${WORKhafs}/product${jobidstr}
 fi

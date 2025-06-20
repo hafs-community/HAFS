@@ -33,6 +33,7 @@ if [ ${MERGE_TYPE} = analysis ]; then
 merge_method=${analysis_merge_method:-vortexreplace}
 # Deterministic or ensemble
 if [ "${ENSDA}" = YES ]; then
+  export nest_grids=${nest_grids_ens:-${nest_grids}}
   if [ -d ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID} ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
   elif [ -d ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID} ]; then

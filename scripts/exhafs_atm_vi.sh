@@ -35,6 +35,7 @@ FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
 if [ "${ENSDA}" = YES ]; then
+  export nest_grids=${nest_grids_ens:-${nest_grids}}
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
