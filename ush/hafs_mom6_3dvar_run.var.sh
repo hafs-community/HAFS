@@ -48,7 +48,7 @@ ln -sf ${FIXhafs}/fix_mom6_3dvar/* .
 
 mkdir -p data_output
 
-${APRUNC}  ${EXEChafs}/hafs_jedi.x  soca variational ./3dvar.yml 2>&1 | tee hafs_gdas.log
+${APRUND}  ${EXEChafs}/hafs_jedi.x  soca variational ./3dvar.yml 2>&1 | tee hafs_gdas.log
 
 export err=$?; err_chk
 

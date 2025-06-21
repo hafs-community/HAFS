@@ -48,6 +48,7 @@ if [ "$machine" = wcoss2 ]; then
   export APRUNS="time"
   export APRUNO="mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
+  export APRUND="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export BACKGROUND=""
@@ -58,6 +59,12 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
   export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+  if [ "$machine" = ursa ]; then
+    export APRUND="srun --cpu-bind=rank_ldom"
+  else
+    export APRUND="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+  fi
  #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
   export APRUNF="time"
   export APRUNCFP="time"
