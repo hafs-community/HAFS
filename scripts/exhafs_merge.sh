@@ -299,7 +299,30 @@ fi
 
 if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   mkdir -p ${RESTARTcom}
-  ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
+# ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
+  rm -f cmdfile
+  for file in $(/bin/ls -1 ${RESTARTmrg}/*) ; do
+    fname=$(basename ${file})
+    if [[ "${fname}" = *".fv_"*".tile"*".nc" ]] || [[ "${fname}" = *".sfc_data"*".nc" ]] || [[ "${fname}" = *"analysis_inc"*".nc" ]]; then
+    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+      echo ncks --deflate=1 -O ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    elif [[ "${fname}" = *".phy_data"*".nc" ]]; then
+    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+      echo "Currently skip deliverying ${RESTARTmrg}/${fname} to ${RESTARTcom}/${fname}"
+    else
+      echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    fi
+  done
+  chmod +x cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
+  export err=$?; err_chk
+# rm -f cmdfile
 fi
 
 else

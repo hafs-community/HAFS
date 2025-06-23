@@ -1,20 +1,20 @@
-  <!-- Ursa -->
+  <!-- ursa -->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
   <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs -->
-  <!ENTITY QUEUE_FORECAST  "batch"> <!-- queue for PE (parallel environment) jobs -->
+  <!ENTITY QUEUE_FORECAST  "&QUEUE_PE;"> <!-- queue for the forecast job -->
   <!ENTITY PE_EXTRA        "<native>--partition=u1-compute --exclusive</native>">
   <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=u1-compute</native>">
   <!ENTITY QUEUE_SHARED    "batch">
   <!ENTITY SHARED_EXTRA    "<native>--partition=u1-compute</native>">
   <!ENTITY QUEUE_SERVICE   "batch">
-  <!ENTITY CLUSTER_COMPUTE "">
-  <!ENTITY CLUSTER_DT      "">
   <!ENTITY SERVICE         "<native>--partition=u1-service</native>">
   <!ENTITY SERVICE_EXTRA   "<native>--partition=u1-service</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>192</nodesize>">
   <!ENTITY NODES_EXTRA     "<nodesize>192</nodesize>">
+  <!ENTITY CLUSTER_COMPUTE "">
+  <!ENTITY CLUSTER_DT      "">
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>4G</memory>">
 
@@ -34,15 +34,17 @@
   <!ENTITY ENKF_ENKF_RESOURCES "<nodes>21:ppn=1:tpp=60</nodes><envar><name>TOTAL_TASKS</name><value>21</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>60</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ENKF_GSI_RESOURCES "<nodes>1:ppn=60:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>60</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY MERGE_RESOURCES "<nodes>1:ppn=8:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>8</value></envar><envar><name>NCTSK</name><value>8</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime>">
-  <!ENTITY ATM_INIT_RESOURCES "<nodes>2:ppn=192:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>384</value></envar><envar><name>NCTSK</name><value>192</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
-  <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>2:ppn=192:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>384</value></envar><envar><name>NCTSK</name><value>192</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY ATM_INIT_RESOURCES "<nodes>2:ppn=180:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>180</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>2:ppn=180:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>180</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
 
   <!ENTITY FORECAST_WALLTIME "<walltime>05:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>3</value></envar>">
   <!ENTITY FORECAST_EXTRA "<envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
 
-  <!ENTITY FORECAST_RESOURCES_96PE "<nodes>1:ppn=96:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar><walltime>00:59:00</walltime>">
-
+  <!ENTITY FORECAST_RESOURCES_60PE "<nodes>1:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_120PE "<nodes>2:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_180PE "<nodes>3:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>180</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_240PE "<nodes>4:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_300PE "<nodes>5:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>300</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_360PE "<nodes>6:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_540PE "<nodes>9:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>540</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
@@ -63,18 +65,19 @@
   <!ENTITY FORECAST_RESOURCES_1320PE "<nodes>22:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1320</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1380PE "<nodes>23:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_1440PE "<nodes>24:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1440</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_2580PE "<nodes>43:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2580</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2700PE "<nodes>45:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2700</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
-  <!ENTITY FORECAST_RESOURCES_2760PE "<nodes>45:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2760</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_2760PE "<nodes>46:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2760</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2820PE "<nodes>47:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2820</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_2940PE "<nodes>49:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2940</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_3060PE "<nodes>51:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>3060</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
 
   <!ENTITY ATM_POST_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY OCN_POST_RESOURCES "<nodes>1:ppn=32:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>32</value></envar><envar><name>NCTSK</name><value>32</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY WAV_POST_RESOURCES "<nodes>1:ppn=32:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>32</value></envar><envar><name>NCTSK</name><value>32</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY OCN_POST_RESOURCES "<nodes>1:ppn=48:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>48</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY WAV_POST_RESOURCES "<nodes>1:ppn=48:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>48</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY PRODUCT_RESOURCES "<nodes>1:ppn=2:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
   <!ENTITY OUTPUT_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime>">
   <!ENTITY GEMPAK_RESOURCES "<nodes>1:ppn=2:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>2</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime><memory>200G</memory>">
 
-  <!ENTITY HRDGRAPHICS_RESOURCES "<nodes>1:ppn=48:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>48</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
-  <!ENTITY EMCGRAPHICS_RESOURCES "<nodes>1:ppn=48:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>48</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY HRDGRAPHICS_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">
+  <!ENTITY EMCGRAPHICS_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>48</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">

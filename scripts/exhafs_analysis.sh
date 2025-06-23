@@ -76,6 +76,7 @@ export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
 RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem001
 if [ ! -s ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
  RUN_ENSDA=NO
+ l_both_fv3sar_gfs_ens=.false.
 fi
 
 if [ $GFSVER = PROD2021 ]; then

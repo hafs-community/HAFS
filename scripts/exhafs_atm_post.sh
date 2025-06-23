@@ -585,45 +585,35 @@ if [ -s ${INPdir}/${grid_spec} ] && [ ${INPdir}/${grid_spec} -nt ${INPdir}/RESTA
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${grid_spec} ] && [ ${INPdir}/RESTART/${grid_spec} -nt ${RESTARTcom}/${grid_spec} ]; then
-# ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
-  ncks --deflate=1 -O ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/${grid_spec}
-  export err=$?; err_chk
+  ${FCP} ${INPdir}/RESTART/${grid_spec} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/${atmos_static} ] && [ ${INPdir}/${atmos_static} -nt ${INPdir}/RESTART/${atmos_static} ]; then
   ${NCP} -pL ${INPdir}/${atmos_static} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${atmos_static} ] && [ ${INPdir}/RESTART/${atmos_static} -nt ${RESTARTcom}/${atmos_static} ]; then
-# ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
-  ncks --deflate=1 -O ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/${atmos_static}
-  export err=$?; err_chk
+  ${FCP} ${INPdir}/RESTART/${atmos_static} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data} ] && [ ${INPdir}/INPUT/${oro_data} -nt ${INPdir}/RESTART/${oro_data} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data} ] && [ ${INPdir}/RESTART/${oro_data} -nt ${RESTARTcom}/${oro_data} ]; then
-# ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
-  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/${oro_data}
-  export err=$?; err_chk
+  ${FCP} ${INPdir}/RESTART/${oro_data} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ls} ] && [ ${INPdir}/INPUT/${oro_data_ls} -nt ${INPdir}/RESTART/${oro_data_ls} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ls} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ls} ] && [ ${INPdir}/RESTART/${oro_data_ls} -nt ${RESTARTcom}/${oro_data_ls} ]; then
-# ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
-  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/${oro_data_ls}
-  export err=$?; err_chk
+  ${FCP} ${INPdir}/RESTART/${oro_data_ls} ${RESTARTcom}/
 fi
 if [ -s ${INPdir}/INPUT/${oro_data_ss} ] && [ ${INPdir}/INPUT/${oro_data_ss} -nt ${INPdir}/RESTART/${oro_data_ss} ]; then
   ${NCP} -pL ${INPdir}/INPUT/${oro_data_ss} ${INPdir}/RESTART/
 fi
 if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
    [ -s ${INPdir}/RESTART/${oro_data_ss} ] && [ ${INPdir}/RESTART/${oro_data_ss} -nt ${RESTARTcom}/${oro_data_ss} ]; then
-# ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
-  ncks --deflate=1 -O ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/${oro_data_ss}
-  export err=$?; err_chk
+  ${FCP} ${INPdir}/RESTART/${oro_data_ss} ${RESTARTcom}/
 fi
 
 # grid_mspec files at the current and prior forecast hours
@@ -648,9 +638,7 @@ if [ $FHR -le 12 ] && [ -s ${INPdir}/${grid_mspec_old} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec_old} ] && \
      [ ${INPdir}/RESTART/${grid_mspec_old} -nt ${RESTARTcom}/${grid_mspec_old} ]; then
-  # ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
-    ncks --deflate=1 -O ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/${grid_mspec_old}
-    export err=$?; err_chk
+    ${FCP} ${INPdir}/RESTART/${grid_mspec_old} ${RESTARTcom}/
   fi
 fi
 # Deliver grid_mspec at NHRS if NHRS less than 12
@@ -662,9 +650,7 @@ if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
   if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && \
      [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
      [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
-  # ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
-    ncks --deflate=1 -O ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/${grid_mspec}
-    export err=$?; err_chk
+    ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
   fi
 fi
 
@@ -698,19 +684,29 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
         exit 1
       fi
     done
-    while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
-#   for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
-    for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $coupler_res ; do
+    rm -f cmdfile
+  # for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data ; do
+    for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
       if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
-      # ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
-        if [[ "${file_res}" = *".nc" ]]; then
-          ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
-          export err=$?; err_chk
-        else
-          ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
-        fi
+      # echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+        echo ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
       fi
     done
+    for file_res in $fv_core  $coupler_res ; do
+      if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+        echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+      fi
+    done
+    chmod +x cmdfile
+    if [ $USE_CFP = "YES" ] ; then
+      ncmd=$(cat ./cmdfile | wc -l)
+      ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+      $APRUNCFP -n $ncmd_max cfp ./cmdfile
+    else
+      ${APRUNC} ${MPISERIAL} -m cmdfile
+    fi
+    export err=$?; err_chk
+    rm -f cmdfile
   fi
 fi
 
