@@ -407,7 +407,9 @@ output_dir=${DATA}/jedi_ioda/output
 ${NCP} ${IODAEXEC} .
 ${NCP} ${IODABCEXEC} .
 for file in ${satbufrs}; do
-  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
+  fi
 done
 #${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
 ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
@@ -463,11 +465,13 @@ done
 set -- $satbufrs
 for file in $sattypes; do
   bufr=$1
-  if [[ "${file}" = "amsua" ]]; then
-   ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-#   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
-  else
-   python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+  if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
+    if [[ "${file}" = "amsua" ]]; then
+     ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+  #   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
+    else
+     python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+    fi
   fi
   shift
 done

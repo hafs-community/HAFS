@@ -350,18 +350,27 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 " #abi_g16"
 convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18" # adpupa_stationPressure_120"
 convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18"
-obstypes="${convtypes} ${radtypes}"
-bctypes="${radtypes}"
 mkdir ${DATA}/obs
 cd ${DATA}/obs
 for file in ${convfiles}; do
   ${NLN} ${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc .
 done
 
+# Update radtypes to only valid ones
+valid_radtypes=()
 for file in ${radtypes}; do
-  ${NLN} ${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc .
-  ${NLN} ${OBSIODA_DIR}/${file}.tlapse.txt .
+  ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+  if [[ -f "$ncfile" ]]; then
+    ${NLN} "$ncfile" .
+    ${NLN} "${OBSIODA_DIR}/${file}.tlapse.txt" .
+    valid_radtypes+=("$file")
+  else
+    echo "WARNING: Missing file $ncfile, skipping $file"
+  fi
 done
+radtypes="${valid_radtypes[@]}"
+obstypes="${convtypes} ${radtypes}"
+bctypes="${radtypes}"
 
 for file in ${bctypes}; do
   ${NLN} ${OBSIODA_DIR}/satbias_${file}_t${cyc}z.nc .
