@@ -527,6 +527,7 @@ sed -e "s|#HH#|t${cyc}z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
+    -e "s|#TOTAL_TASKS#|${TOTAL_TASKS}|g" \
     -e "s|#MIN_LAT#|${MIN_LAT}|g" \
     -e "s|#MAX_LAT#|${MAX_LAT}|g" \
     -e "s|#MIN_LON#|${MIN_LON}|g" \

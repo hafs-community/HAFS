@@ -7,16 +7,13 @@ _filenames: &fv3file_names
 
 geometry:
   namelist filename: _INPUT_HAFS_ENS_NML_
-  field metadata override: fieldmeta.yaml
   akbk: bkg/_FV3_AKBK_ENS_FILE_
-  vert coordinate: "sigma"
+  vert coordinate: logp
   io_layout: [1,1]
   ntiles: 1
   fms initialization:
     namelist filename: fmsmpp.nml
     field table filename: field_table
-  fieldsets:
-    fieldset: dynamics_hafs.yaml
 
 background:
   read_from_file: 1
@@ -24,7 +21,46 @@ background:
   filetype: fms restart
   datapath: bkg
   <<: *fv3file_names
-  state variables: &3dvars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,water_vapor_mixing_ratio_wrt_moist_air,ozone_mass_mixing_ratio]
+  state variables: &vars_state
+  - eastward_wind
+  - northward_wind
+  - upward_air_velocity
+  - air_temperature
+  - air_pressure_thickness
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - geopotential_height_times_gravity_at_surface
+  - slmsk
+  - sheleg
+  - skin_temperature_at_surface
+  - vtype
+  - stype
+  - vfrac
+  - stc
+  - soilMoistureVolumetric
+  - totalSnowDepth
+  - eastward_wind_at_surface
+  - northward_wind_at_surface
+  - f10m
+  field io names: &field_io_names
+    eastward_wind: ua
+    northward_wind: va
+    upward_air_velocity: W
+    air_temperature: T
+    air_pressure_thickness: delp
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    cloud_liquid_water: liq_wat
+    ozone_mass_mixing_ratio: o3mr
+    skin_temperature_at_surface: tsea
+    air_pressure_at_surface: ps
+    cloud_liquid_ice: ice_wat
+    geopotential_height_times_gravity_at_surface: phis
+    soilMoistureVolumetric: smc
+    totalSnowDepth: snwdph
+    eastward_wind_at_surface: u_srf
+    northward_wind_at_surface: v_srf
 
 background error:
   covariance model: SABER
@@ -47,10 +83,10 @@ background error:
         explicit length-scales: true
         max horizontal grid size: 120000
         horizontal length-scale:
-        - groups: *3dvars
+        - groups: *vars_state
           value: _LOC_H_000.0
         vertical length-scale:
-        - groups: *3dvars
+        - groups: *vars_state
           value: _LOC_V_
       grids:
       - model:

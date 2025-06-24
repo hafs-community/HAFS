@@ -9,7 +9,7 @@
             type: H5File
             obsfile: hofx/diag_amsua_metop-c_#HH#.nc
         io pool:
-          max pool size: 40
+          max pool size: #TOTAL_TASKS#
         simulated variables: [brightnessTemperature]
         channels: &amsua_metop-c_channels 1-15
       obs operator:

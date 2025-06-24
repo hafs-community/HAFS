@@ -14,7 +14,7 @@
             obsfile: hofx/diag_aircft_winds_235_#HH#.nc
             allow overwrite: true
         io pool:
-          max pool size: 40
+          max pool size: #TOTAL_TASKS#
         observed variables: [windEastward, windNorthward]
         simulated variables: [windEastward, windNorthward]
       obs operator:

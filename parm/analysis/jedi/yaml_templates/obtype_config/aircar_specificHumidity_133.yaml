@@ -14,7 +14,7 @@
              obsfile: AIRCAR_IODA_hofx_q_133.nc
              allow overwrite: true
          io pool:
-           max pool size: 40
+           max pool size: #TOTAL_TASKS#
          observed variables: [specificHumidity]
          simulated variables: [specificHumidity]
        obs operator:
