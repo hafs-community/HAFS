@@ -4,8 +4,6 @@ import sys
 import bufr
 import argparse
 import copy
-import numpy as np
-import numpy.ma as ma
 import math
 import calendar
 import time
@@ -13,6 +11,8 @@ from datetime import datetime
 from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder
 from bufr.encoders.netcdf import Encoder as netcdfEncoder
 from wxflow import Logger
+import numpy as np
+import numpy.ma as ma
 
 
 # Initialize Logger

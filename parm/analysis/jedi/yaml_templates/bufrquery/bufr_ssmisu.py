@@ -4,12 +4,12 @@ import os
 import argparse
 import time
 import datetime
-import numpy as np
 import bufr
 from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder 
 from bufr.encoders.netcdf import Encoder as netcdfEncoder 
 from wxflow import Logger
 import math
+import numpy as np
 
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set

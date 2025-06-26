@@ -79,7 +79,7 @@ else
     module purge
   fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-  module load GDAS/${machine}.intel
+  module load HDAS/${machine}.intel
   export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
   export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
   export SLURM_QOS=debug
@@ -132,6 +132,13 @@ else
 fi
 RESTARTinp=${RESTARTinp_fgat06}
 
+if [ "${ANALYSIS_MODEL}" = "JEDI" ] || [ "${ANALYSIS_MODEL}" = "jedi" ]; then
+ if [ ${RUN_ENSDA} = "YES" ] && [ ! -e "${COMOLD}" ] ; then
+   echo "RUN_ENSDA YES for JEDI will skip DA for the first cycle"
+   echo "Do nothing. Exiting"
+   exit
+ fi
+fi
 #===============================================================================
 # Run analysis for d01 if needed
 if [ ${ANALYSIS_D01} = YES ]; then

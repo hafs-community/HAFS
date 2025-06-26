@@ -732,8 +732,6 @@
         <taskdep task="atm_prep_ens"/>
 @**   if RUN_ATM_INIT_FGAT_ENS==YES
         <metataskdep metatask="atm_init_fgat_ens"/>
-@**   else
-        <metataskdep metatask="atm_init_ens"/>
 @**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
