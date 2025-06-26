@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import bufr
 import netCDF4 as nc
+import bufr
 import os
 import sys
 import time

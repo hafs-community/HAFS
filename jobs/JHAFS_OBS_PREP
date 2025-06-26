@@ -39,12 +39,16 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
   module load GDAS/${machine}.intel
-#  module load obsforge/${machine}.intel
-  module use ${USHhafs}/modulefiles
-  module load hafs_obs_prep_${machine}
+  if [[ ${machine}  != "wcoss2" ]] ; then
+    module use ${USHhafs}/modulefiles
+    module load hafs_obs_prep_${machine}
+  fi
   if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
     export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
     export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10/site-packages
+  elif [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
+    export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11:${PYTHONPATH}
+    export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11/site-packages
   else
     export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7:${PYTHONPATH}
     export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7/site-packages
