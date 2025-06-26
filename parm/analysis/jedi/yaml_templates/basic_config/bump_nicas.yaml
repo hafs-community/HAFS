@@ -27,6 +27,7 @@ background:
   - upward_air_velocity
   - air_temperature
   - air_pressure_thickness
+  - layer_thickness
   - water_vapor_mixing_ratio_wrt_moist_air
   - cloud_liquid_ice
   - cloud_liquid_water
@@ -50,6 +51,7 @@ background:
     upward_air_velocity: W
     air_temperature: T
     air_pressure_thickness: delp
+    layer_thickness: DZ
     water_vapor_mixing_ratio_wrt_moist_air: sphum
     cloud_liquid_water: liq_wat
     ozone_mass_mixing_ratio: o3mr

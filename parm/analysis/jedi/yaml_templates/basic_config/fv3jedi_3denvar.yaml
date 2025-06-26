@@ -63,6 +63,7 @@ cost function:
     - upward_air_velocity
     - air_temperature
     - air_pressure_thickness
+    - layer_thickness
     - water_vapor_mixing_ratio_wrt_moist_air
     - cloud_liquid_ice
     - cloud_liquid_water
@@ -86,6 +87,7 @@ cost function:
       upward_air_velocity: W
       air_temperature: T
       air_pressure_thickness: delp
+      layer_thickness: DZ
       water_vapor_mixing_ratio_wrt_moist_air: sphum
       cloud_liquid_water: liq_wat
       ozone_mass_mixing_ratio: o3mr
@@ -160,4 +162,21 @@ output:
   datapath: ./
   prefix: analysis
   frequency: PT3H
-
+  field io names:
+    eastward_wind: ua
+    northward_wind: va
+    upward_air_velocity: W
+    air_temperature: T
+    air_pressure_thickness: delp
+    layer_thickness: DZ
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    cloud_liquid_water: liq_wat
+    ozone_mass_mixing_ratio: o3mr
+    skin_temperature_at_surface: tsea
+    air_pressure_at_surface: ps
+    cloud_liquid_ice: ice_wat
+    geopotential_height_times_gravity_at_surface: phis
+    soilMoistureVolumetric: smc
+    totalSnowDepth: snwdph
+    eastward_wind_at_surface: u_srf
+    northward_wind_at_surface: v_srf

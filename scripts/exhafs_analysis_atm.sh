@@ -433,7 +433,11 @@ cd ${DATA}/crtm
 #${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
 ############ XL Need to update hafs_jedi crtm from 2.4.0.1 to 2.4.1
 ############ Use HDASApp build for temporary getaround
-CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
+if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
+ CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/3.0.0_skylab_6.0"
+else
+ CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
+fi
 #"/work/noaa/hwrf/save/xulu/hafsv2_featurejedi/sorc/hafs_jedi.fd/bundle//test-data-release/crtm/2.4.1_skylab_4.0"
 for file in $(awk '{if($1!~"!"){print $1}}' ${DATA}/satinfo | sort | uniq); do
   ${NLN} ${CRTM_TEMP}/SpcCoeff/Little_Endian/${file}.SpcCoeff.bin ./
