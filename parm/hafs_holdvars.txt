@@ -98,6 +98,7 @@ export vi_cloud={vi_cloud}
 export vi_slp_adjust={vi_slp_adjust}
 
 export atm_merge_method={atm_merge_method}
+export atm_merge_ens_method={atm_merge_ens_method}
 export analysis_merge_method={analysis_merge_method}
 export fwd_wave_number={fwd_wave_number}
 export fwd_vmax_threshold={fwd_vmax_threshold}

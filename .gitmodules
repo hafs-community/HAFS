@@ -25,4 +25,4 @@
 [submodule "sorc/hafs_jedi.fd"]
     path = sorc/hafs_jedi.fd
     url = https://github.com/hafs-community/HDASApp.git
-    branch = feature/hafs_jedi_workflow
+    branch = feature/hafs_jedi_HDASApp

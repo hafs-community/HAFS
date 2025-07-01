@@ -283,106 +283,11 @@ fi
 if [ ${RUN_ENSDA} = "YES" ]; then
   cd ${DATA}/ensemble_data
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
-    fhh="06"
-    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
-    ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-    ${NLN} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-      ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-      in_grid=${RESTARTens}/grid_spec.nc
-      out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
-      if [ "${var}" = "sfc_data" ]; then
-        in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.nc
-      else
-       in_file=${RESTARTens}/${PDY}.${cyc}0000.${var}.tile1.nc
-      fi
-      out_file=${DATA}/ensemble_data/mem${mem}/${PDY}.${cyc}0000.${var}${nesttilestr}.nc
-      if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-         [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-        echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-        exit 1
-      fi
-cat > interpolate_ens${mem}_${var}.sh << EOFcopy
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter_ens${mem}_${var}.log
-EOFcopy
-      chmod +x ./interpolate_ens${mem}_${var}.sh
-      echo "./interpolate_ens${mem}_${var}.sh &" >> cmdfile_interpolate_ens_${var}
+    mkdir ${DATA}/ensemble_data/mem${mem}
+    RESTARTens=${WORKhafs}/intercom/RESTART_init_merge_ens/mem${mem}/
+    for file in `ls ${RESTARTens}/*`; do
+      ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
     done
-    if [ ${l4denvar:-.false.} = ".true." ]; then
-      fhh="03"
-      ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-      ${NLN} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-      for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-        ${NCP} ${RESTARTinp_fgat03}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-        in_grid=${RESTARTens}/grid_spec.nc
-        out_grid=${RESTARTinp_fgat03}/grid_spec${nesttilestr}.nc
-        if [ "${var}" = "sfc_data" ]; then
-         in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.nc
-        else
-         in_file=${RESTARTens}/${ymdtm03}.${hhtm03}0000.${var}.tile1.nc
-        fi
-        out_file=${DATA}/ensemble_data/mem${mem}/${ymdtm03}.${hhtm03}0000.${var}${nesttilestr}.nc
-        if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-           [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-          echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-          exit 1
-        fi
-cat > interpolate03_ens${mem}_${var}.sh << EOFcopy
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter03_ens${mem}_${var}.log
-EOFcopy
-        chmod +x ./interpolate03_ens${mem}_${var}.sh
-        echo "./interpolate03_ens${mem}_${var}.sh &" >> cmdfile_interpolate03_ens_${var}
-      done
-      fhh="09"
-      ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.fv_core.res.nest02.nc ${DATA}/ensemble_data/mem${mem}/
-      ${NLN} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.coupler.res ${DATA}/ensemble_data/mem${mem}/
-      for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-        ${NCP} ${RESTARTinp_fgat09}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc ${DATA}/ensemble_data/mem${mem}/
-        in_grid=${RESTARTens}/grid_spec.nc
-        out_grid=${RESTARTinp_fgat09}/grid_spec${nesttilestr}.nc
-        if [ "${var}" = "sfc_data" ]; then
-         in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.nc
-        else
-         in_file=${RESTARTens}/${ymdtp03}.${hhtp03}0000.${var}.tile1.nc
-        fi
-        out_file=${DATA}/ensemble_data/mem${mem}/${ymdtp03}.${hhtp03}0000.${var}${nesttilestr}.nc
-        if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-           [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-          echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-          exit 1
-        fi
-cat > interpolate09_ens${mem}_${var}.sh << EOFcopy
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./inter09_ens${mem}_${var}.log
-EOFcopy
-        chmod +x ./interpolate09_ens${mem}_${var}.sh
-        echo "./interpolate09_ens${mem}_${var}.sh &" >> cmdfile_interpolate09_ens_${var}
-      done
-    fi
-    if [ ${n_ens_fv3sar} -le ${TOTAL_TASKS} ]; then
-      for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
-        echo "cmdfile_interpolate_ens_${var}"
-        chmod +x cmdfile_interpolate_ens_${var}
-        ./cmdfile_interpolate_ens_${var}
-        if [ ${l4denvar:-.false.} = ".true." ]; then
-          chmod +x cmdfile_interpolate03_ens_${var}
-          chmod +x cmdfile_interpolate09_ens_${var}
-          ./cmdfile_interpolate03_ens_${var}
-          ./cmdfile_interpolate09_ens_${var}
-        fi
-      done
-    fi
   done
 fi
 

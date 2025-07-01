@@ -730,6 +730,9 @@
 @** endif
 @** if ANALYSIS_MODEL==JEDI
         <taskdep task="atm_prep_ens"/>
+@**   if RUN_ATM_MERGE_ENS==YES
+        <metataskdep metatask="atm_merge_ens"/>
+@**   endif
 @**   if RUN_ATM_INIT_FGAT_ENS==YES
         <metataskdep metatask="atm_init_fgat_ens"/>
 @**   endif
@@ -1234,7 +1237,9 @@
 
       <dependency>
         <and>
-          <taskdep task="atm_init_ens#MEM#"/>
+		<!--
+			<taskdep task="atm_init_ens#MEM#"/>
+		-->
           <streq><left>&RUN_ATM_MERGE_ENS;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>

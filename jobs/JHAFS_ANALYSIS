@@ -59,7 +59,7 @@ if [ "${ANALYSIS_MODEL}" = "GSI" ]; then
 else
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ ${machine}  = "wcoss2" ]] || [[ ${machine}  = "gaeac6" ]]; then
+  if [[ ${machine}  = "wcoss2" ]]; then
     module reset
     module load PrgEnv-intel/${PrgEnv_intel_ver}
     module load craype/${craype_ver}
@@ -75,8 +75,11 @@ else
     module load cfp/${cfp_ver}
     module load prod_util/${prod_util_ver}
   fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] | [[ ${machine}  = "ursa" ]]; then
     module purge
+  fi
+  if [[ ${machine}  = "gaeac6" ]]; then
+    module reset
   fi
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
   module load HDAS/${machine}.intel

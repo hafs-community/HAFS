@@ -60,19 +60,31 @@ else
 fi
 
 elif [ ${MERGE_TYPE} = init ]; then
-
-merge_method=${atm_merge_method:-vortexreplace}
-if [ ${FGAT_MODEL} = gdas ]; then
-  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
-  RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
-  RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-  CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
-else
-  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
-  RESTARTdst=${WORKhafs}/intercom/RESTART_init
-  RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
-fi
-
+  if [ "${ENSDA}" = YES ]; then
+    merge_method=${atm_merge_ens_method:-domainmerge}
+    export nest_grids=${nest_grids_ens:-${nest_grids}}
+    if [ -d ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID} ]; then
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
+    else
+      echo "FATAL ERROR: RESTARTsrc does not exist"
+      exit 1
+    fi
+    RESTARTdst=${WORKhafs}/intercom/RESTART_init
+    RESTARTmrg=${WORKhafs}/intercom/RESTART_init_merge_ens/mem${ENSID}
+    RESTARTcom=${COMhafs}/${out_prefix}.RESTART_init_merge_ens/mem${ENSID}
+  else
+    merge_method=${atm_merge_method:-vortexreplace}
+    if [ ${FGAT_MODEL} = gdas ]; then
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
+      RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+      RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
+      CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+    else
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
+      RESTARTdst=${WORKhafs}/intercom/RESTART_init
+      RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
+    fi
+  fi
 else
 
   echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
@@ -86,6 +98,18 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo $CDATE | cut -c9-10)
+CDATEtm03=$(${NDATE} -3 $CDATE)
+ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+CDATEtp03=$(${NDATE} +3 $CDATE)
+ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
 DATA=${DATA:-${WORKhafs}/merge}
 
@@ -118,11 +142,27 @@ fi
 if [[ $nest_grids -eq 1 ]]; then
 
 #for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data phy_data; do
-for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; do
-  in_grid=${RESTARTsrc}/grid_spec.nc
-  out_grid=${RESTARTmrg}/grid_spec.nc
-  in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
-  out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+  if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
+    in_grid=${RESTARTsrc}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
+    else
+      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
+    fi
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+  else
+    in_grid=${RESTARTsrc}/grid_spec.nc
+    out_grid=${RESTARTmrg}/grid_spec.nc
+    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
+      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+    else
+      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
+      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+    fi
+  fi
   if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
@@ -135,6 +175,56 @@ for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; 
     --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
   export err=$?; err_chk
 done
+
+if [ ${l4denvar:-.false.} = ".true." ]; then
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+    FHR=03
+    in_grid=${RESTARTsrc}/grid_mspec_${yrtm03}_${mntm03}_${dytm03}_${hhtm03}.nc
+    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+      in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.nc
+    else
+      in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.tile1.nc
+    fi
+    out_file=${RESTARTmrg}/${ymdtm03}.${hhtm03}0000.${var}.nest02.tile2.nc
+    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
+    ${NCP} ${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.coupler.res ${RESTARTmrg}/
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    ${MERGE_CMD} \
+      --in_grid=${in_grid} \
+      --out_grid=${out_grid} \
+      --in_file=${in_file} \
+      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+    export err=$?; err_chk
+    FHR=09
+    in_grid=${RESTARTsrc}/grid_mspec_${yrtp03}_${mntp03}_${dytp03}_${hhtp03}.nc
+    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+      in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.nc
+    else
+      in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.tile1.nc
+    fi
+    out_file=${RESTARTmrg}/${ymdtp03}.${hhtp03}0000.${var}.nest02.tile2.nc
+    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
+    ${NCP} ${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.coupler.res ${RESTARTmrg}/
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    ${MERGE_CMD} \
+      --in_grid=${in_grid} \
+      --out_grid=${out_grid} \
+      --in_file=${in_file} \
+      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+    export err=$?; err_chk
+  done
+fi
+
 
 # Regional with one nest configuration
 # The following steps are needed
