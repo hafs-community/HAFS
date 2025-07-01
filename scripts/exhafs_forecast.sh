@@ -387,6 +387,8 @@ cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
 INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
 INPUT_CURFLD=${INPUT_CURFLD:-"F F"}
+use_waves=${use_waves:-False}
+use_la_li2016=${use_la_li2016:-False}
 cpl_dt=${cpl_dt:-360}
 ocean_start_dtg=${ocean_start_dtg:-43340.00000}
 base_dtg=${CDATE:-2019082900}
@@ -729,7 +731,6 @@ if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -737,7 +738,6 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplwav=.true.
   cplwav2atm=.false.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -745,7 +745,6 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -753,10 +752,30 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; t
   cplwav=.true.
   cplwav2atm=.false.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
+  exit 9
+fi
+
+if [ $cpl_wav_ocn = cmeps_2way ]; then
+  use_waves=True
+  use_la_li2016=True
+  INPUT_CURFLD="C F"
+elif [ $cpl_wav_ocn = cmeps_1way_1to2 ]; then
+  use_waves=True
+  use_la_li2016=True
+  INPUT_CURFLD="T F"
+elif [ $cpl_wav_ocn = cmeps_1way_2to1 ]; then
+  use_waves=False
+  use_la_li2016=False
+  INPUT_CURFLD="C F"
+elif [ $cpl_wav_ocn = cmeps_sidebyside ]; then
+  use_waves=False
+  use_la_li2016=False
+  INPUT_CURFLD="T F"
+else
+  echo "FATAL ERROR: Unsupported coupling options: cpl_wav_ocn=${cpl_wav_ocn}"
   exit 9
 fi
 

@@ -111,6 +111,8 @@
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
   pass_full_omega_to_physics_in_non_hydrostatic_mode = .false.
+
+  sa3dtke_dyco = @[sa3dtke_dyco]
 /
 
 &fv_nest_nml
@@ -186,6 +188,7 @@
   cal_pre        = .false.
   redrag         = .true.
   dspheat        = .true.
+  sa3dtke        = @[sa3dtke]
   hybedmf        = .false.
   hurr_pbl       = .true. ! HWRF moninedmf
   moninq_fac     = -1.0   ! HWRF_moninedmf
@@ -294,6 +297,23 @@
   do_gsl_drag_ls_bl    = .true.
   do_gsl_drag_ss       = .true.
   do_gsl_drag_tofd     = .true.
+/
+
+&gfdl_cloud_microphysics_v3_nml
+  tau_imlt     = 1200.
+  rthresh      = 20.0e-6
+  c_psaci      = 0.05
+  c_pgacs      = 0.01
+  vi_max       = 1.0
+  vs_max       = 2.0
+  vg_max       = 12.0
+  rewmax       = 15.0
+  rermin       = 16.0
+  regmin       = 150.0
+  z_slope_ice  = .true
+  do_sedi_w    = .true.
+  fix_negative = .true.
+  reiflag       = 5
 /
 
 &gfdl_cloud_microphysics_nml

@@ -298,10 +298,6 @@ REGRIDDING_COORDINATE_MODE = "Z*" !"HYCOM1" ! default = "LAYER"
                                 !  HYCOM1 - HyCOM-like hybrid coordinate
                                 !  SLIGHT - stretched coordinates above continuous isopycnal
                                 !  ADAPTIVE - optimize for smooth neutral density surfaces
-BOUNDARY_EXTRAPOLATION = True   !   [Boolean] default = False
-                                ! When defined, a proper high-order reconstruction scheme is used within
-                                ! boundary cells rather than PCM. E.g., if PPM is used for remapping, a PPM
-                                ! reconstruction will also be used within boundary cells.
 ALE_COORDINATE_CONFIG = "FILE:ocean_vgrid.nc,dz" !"HYBRID:hycom1_75_800m.nc,sigma2,FNC1:2,4000,4.5,.01" ! default = "UNIFORM"
                                 ! Determines how to specify the coordinate resolution. Valid options are:
                                 !  PARAM       - use the vector-parameter ALE_RESOLUTION
@@ -316,39 +312,6 @@ ALE_COORDINATE_CONFIG = "FILE:ocean_vgrid.nc,dz" !"HYBRID:hycom1_75_800m.nc,sigm
                                 !                the filename and two variable names, separated
                                 !                by a comma or space, for sigma-2 and dz. e.g.
                                 !                HYBRID:vgrid.nc,sigma2,dz
-!ALE_RESOLUTION = 7*2.0, 2*2.01, 2.02, 2.03, 2.05, 2.08, 2.11, 2.15, 2.21, 2.2800000000000002, 2.37, 2.48, 2.61, 2.77, 2.95, 3.17, 3.4299999999999997, 3.74, 4.09, 4.49, 4.95, 5.48, 6.07, 6.74, 7.5, 8.34, 9.280000000000001, 10.33, 11.49, 12.77, 14.19, 15.74, 17.450000000000003, 19.31, 21.35, 23.56, 25.97, 28.580000000000002, 31.41, 34.47, 37.77, 41.32, 45.14, 49.25, 53.65, 58.370000000000005, 63.42, 68.81, 74.56, 80.68, 87.21000000000001, 94.14, 101.51, 109.33, 117.62, 126.4, 135.68, 145.5, 155.87, 166.81, 178.35, 190.51, 203.31, 216.78, 230.93, 245.8, 261.42, 277.83 !   [m]
-                                ! The distribution of vertical resolution for the target
-                                ! grid used for Eulerian-like coordinates. For example,
-                                ! in z-coordinate mode, the parameter is a list of level
-                                ! thicknesses (in m). In sigma-coordinate mode, the list
-                                ! is of non-dimensional fractions of the water column.
-!TARGET_DENSITIES = 1010.0, 1014.3034, 1017.8088, 1020.843, 1023.5566, 1025.813, 1027.0275, 1027.9114, 1028.6422, 1029.2795, 1029.852, 1030.3762, 1030.8626, 1031.3183, 1031.7486, 1032.1572, 1032.5471, 1032.9207, 1033.2798, 1033.6261, 1033.9608, 1034.2519, 1034.4817, 1034.6774, 1034.8508, 1035.0082, 1035.1533, 1035.2886, 1035.4159, 1035.5364, 1035.6511, 1035.7608, 1035.8661, 1035.9675, 1036.0645, 1036.1554, 1036.2411, 1036.3223, 1036.3998, 1036.4739, 1036.5451, 1036.6137, 1036.68, 1036.7441, 1036.8062, 1036.8526, 1036.8874, 1036.9164, 1036.9418, 1036.9647, 1036.9857, 1037.0052, 1037.0236, 1037.0409, 1037.0574, 1037.0738, 1037.0902, 1037.1066, 1037.123, 1037.1394, 1037.1558, 1037.1722, 1037.1887, 1037.206, 1037.2241, 1037.2435, 1037.2642, 1037.2866, 1037.3112, 1037.3389, 1037.3713, 1037.4118, 1037.475, 1037.6332, 1037.8104, 1038.0 !   [m]
-                                ! HYBRID target densities for interfaces
-REGRID_COMPRESSIBILITY_FRACTION = 0.01 !   [nondim] default = 0.0
-                                ! When interpolating potential density profiles we can add some artificial
-                                ! compressibility solely to make homogeneous regions appear stratified.
-MAXIMUM_INT_DEPTH_CONFIG = "FNC1:5,8000.0,1.0,.01" ! default = "NONE"
-                                ! Determines how to specify the maximum interface depths.
-                                ! Valid options are:
-                                !  NONE        - there are no maximum interface depths
-                                !  PARAM       - use the vector-parameter MAXIMUM_INTERFACE_DEPTHS
-                                !  FILE:string - read from a file. The string specifies
-                                !                the filename and variable name, separated
-                                !                by a comma or space, e.g. FILE:lev.nc,Z
-                                !  FNC1:string - FNC1:dz_min,H_total,power,precision
-!MAXIMUM_INT_DEPTHS = 0.0, 5.0, 12.75, 23.25, 36.49, 52.480000000000004, 71.22, 92.71000000000001, 116.94000000000001, 143.92000000000002, 173.65, 206.13, 241.36, 279.33000000000004, 320.05000000000007, 363.5200000000001, 409.7400000000001, 458.7000000000001, 510.4100000000001, 564.8700000000001, 622.0800000000002, 682.0300000000002, 744.7300000000002, 810.1800000000003, 878.3800000000003, 949.3300000000004, 1023.0200000000004, 1099.4600000000005, 1178.6500000000005, 1260.5900000000006, 1345.2700000000007, 1432.7000000000007, 1522.8800000000008, 1615.8100000000009, 1711.490000000001, 1809.910000000001, 1911.080000000001, 2015.0000000000011, 2121.670000000001, 2231.080000000001, 2343.2400000000007, 2458.1500000000005, 2575.8100000000004, 2696.2200000000003, 2819.3700000000003, 2945.2700000000004, 3073.9200000000005, 3205.3200000000006, 3339.4600000000005, 3476.3500000000004, 3615.9900000000002, 3758.38, 3903.52, 4051.4, 4202.03, 4355.41, 4511.54, 4670.41, 4832.03, 4996.4, 5163.5199999999995, 5333.379999999999, 5505.989999999999, 5681.3499999999985, 5859.459999999998, 6040.319999999998, 6223.919999999998, 6410.269999999999, 6599.369999999999, 6791.219999999999, 6985.8099999999995, 7183.15, 7383.24, 7586.08, 7791.67, 8000.0
-                                ! The list of maximum depths for each interface.
-MAX_LAYER_THICKNESS_CONFIG = "FNC1:400,31000.0,0.1,.01" ! default = "NONE"
-                                ! Determines how to specify the maximum layer thicknesses.
-                                ! Valid options are:
-                                !  NONE        - there are no maximum layer thicknesses
-                                !  PARAM       - use the vector-parameter MAX_LAYER_THICKNESS
-                                !  FILE:string - read from a file. The string specifies
-                                !                the filename and variable name, separated
-                                !                by a comma or space, e.g. FILE:lev.nc,Z
-                                !  FNC1:string - FNC1:dz_min,H_total,power,precision
-!MAX_LAYER_THICKNESS = 400.0, 409.63, 410.32, 410.75, 411.07, 411.32, 411.52, 411.7, 411.86, 412.0, 412.13, 412.24, 412.35, 412.45, 412.54, 412.63, 412.71, 412.79, 412.86, 412.93, 413.0, 413.06, 413.12, 413.18, 413.24, 413.29, 413.34, 413.39, 413.44, 413.49, 413.54, 413.58, 413.62, 413.67, 413.71, 413.75, 413.78, 413.82, 413.86, 413.9, 413.93, 413.97, 414.0, 414.03, 414.06, 414.1, 414.13, 414.16, 414.19, 414.22, 414.24, 414.27, 414.3, 414.33, 414.35, 414.38, 414.41, 414.43, 414.46, 414.48, 414.51, 414.53, 414.55, 414.58, 414.6, 414.62, 414.65, 414.67, 414.69, 414.71, 414.73, 414.75, 414.77, 414.79, 414.83 !   [m]
-                                ! The list of maximum thickness for each layer.
 REMAPPING_SCHEME = "PPM_H4"     ! default = "PLM"
                                 ! This sets the reconstruction scheme used for vertical remapping for all
                                 ! variables. It can be one of the following schemes: PCM         (1st-order
@@ -363,29 +326,6 @@ REMAPPING_SCHEME = "PPM_H4"     ! default = "PLM"
 ! Parameters providing information about the lateral grid.
 
 ! === module MOM_state_initialization ===
-TS_CONFIG = "file"              !
-                                ! A string that determines how the initial tempertures and salinities are
-                                ! specified for a new run:
-                                !     file - read velocities from the file specified
-                                !       by (TS_FILE).
-                                !     fit - find the temperatures that are consistent with
-                                !       the layer densities and salinity S_REF.
-                                !     TS_profile - use temperature and salinity profiles
-                                !       (read from TS_FILE) to set layer densities.
-                                !     benchmark - use the benchmark test case T & S.
-                                !     linear - linear in logical layer space.
-                                !     DOME2D - 2D DOME initialization.
-                                !     ISOMIP - ISOMIP initialization.
-                                !     adjustment2d - 2d lock exchange T/S ICs.
-                                !     sloshing - sloshing mode T/S ICs.
-                                !     seamount - no motion test with seamount ICs.
-                                !     dumbbell - sloshing channel ICs.
-                                !     rossby_front - a mixed layer front in thermal wind balance.
-                                !     SCM_CVMix_tests - used in the SCM CVMix tests.
-                                !     USER - call a user modified routine.
-TS_FILE = "ocean_ts_ic.nc" !
-                                ! The initial condition file for temperature.
-
 INIT_LAYERS_FROM_Z_FILE = True  !   [Boolean] default = False
                                 ! If true, initialize the layer thicknesses, temperatures, and salinities from a
                                 ! Z-space file on a latitude-longitude grid.
@@ -464,23 +404,13 @@ DIAG_COORD_DEF_Z = "FILE:ocean_vgrid.nc,interfaces=zw" ! default = "WOA09"
                                 !                HYBRID:vgrid.nc,sigma2,dz
 
 ! === module MOM_MEKE ===
-USE_MEKE = True                 !   [Boolean] default = False
+USE_MEKE = False                 !   [Boolean] default = False
                                 ! If true, turns on the MEKE scheme which calculates a sub-grid mesoscale eddy
                                 ! kinetic energy budget.
-MEKE_GMCOEFF = 1.0              !   [nondim] default = -1.0
+MEKE_GMCOEFF = -1.0             !   [nondim] default = -1.0
                                 ! The efficiency of the conversion of potential energy into MEKE by the
                                 ! thickness mixing parameterization. If MEKE_GMCOEFF is negative, this
                                 ! conversion is not used or calculated.
-MEKE_BGSRC = 1.0E-13            !   [W kg-1] default = 0.0
-                                ! A background energy source for MEKE.
-MEKE_KHMEKE_FAC = 1.0           !   [nondim] default = 0.0
-                                ! A factor that maps MEKE%Kh to Kh for MEKE itself.
-MEKE_ALPHA_RHINES = 0.15        !   [nondim] default = 0.05
-                                ! If positive, is a coefficient weighting the Rhines scale in the expression for
-                                ! mixing length used in MEKE-derived diffusivity.
-MEKE_ALPHA_EADY = 0.15          !   [nondim] default = 0.05
-                                ! If positive, is a coefficient weighting the Eady length scale in the
-                                ! expression for mixing length used in MEKE-derived diffusivity.
 
 ! === module MOM_lateral_mixing_coeffs ===
 USE_VARIABLE_MIXING = True      !   [Boolean] default = False
@@ -561,11 +491,6 @@ ETA_TOLERANCE = 1.0E-06         !   [m] default = 3.75E-09
                                 ! total tolerance for SSH is 4 times this value.  The default is
                                 ! 0.5*NK*ANGSTROM, and this should not be set less than about
                                 ! 10^-15*MAXIMUM_DEPTH.
-ETA_TOLERANCE_AUX = 0.001       !   [m] default = 1.0E-06
-                                ! The tolerance for free-surface height discrepancies between the barotropic
-                                ! solution and the sum of the layer thicknesses when calculating the auxiliary
-                                ! corrected velocities. By default, this is the same as ETA_TOLERANCE, but can
-                                ! be made larger for efficiency.
 
 ! === module MOM_CoriolisAdv ===
 CORIOLIS_SCHEME = "SADOURNY75_ENSTRO" ! default = "SADOURNY75_ENERGY"
@@ -751,7 +676,7 @@ USE_LOTW_BBL_DIFFUSIVITY = True !   [Boolean] default = False
                                 ! If true, uses a simple, imprecise but non-coordinate dependent, model of BBL
                                 ! mixing diffusivity based on Law of the Wall. Otherwise, uses the original BBL
                                 ! scheme.
-SIMPLE_TKE_TO_KD = True         !   [Boolean] default = False
+SIMPLE_TKE_TO_KD = False        !   [Boolean] default = False
                                 ! If true, uses a simple estimate of Kd/TKE that will work for arbitrary
                                 ! vertical coordinates. If false, calculates Kd/TKE and bounds based on exact
                                 ! energetics for an isopycnal layer-formulation.
@@ -864,9 +789,33 @@ MIX_LEN_EXPONENT = 1.0          !   [nondim] default = 2.0
                                 ! The exponent applied to the ratio of the distance to the MLD and the MLD depth
                                 ! which determines the shape of the mixing length. This is only used if
                                 ! USE_MLD_ITERATION is True.
-USE_WAVES = False   !   [Boolean] default = False
+USE_LA_LI2016 = @[use_la_li2016]            !   [nondim] default = False
+                                ! A logical to use the Li et al. 2016 (submitted) formula to determine the
+                                ! Langmuir number.
+USE_WAVES = @[use_waves]                !   [Boolean] default = False
                                 ! If true, enables surface wave modules.
-EPBL_LANGMUIR_SCHEME = "NONE"   ! default = "NONE"
+WAVE_METHOD = "SURFACE_BANDS"   ! default = "EMPTY"
+                                ! Choice of wave method, valid options include:
+                                !  TEST_PROFILE  - Prescribed from surface Stokes drift
+                                !                  and a decay wavelength.
+                                !  SURFACE_BANDS - Computed from multiple surface values
+                                !                  and decay wavelengths.
+                                !  DHH85         - Uses Donelan et al. 1985 empirical
+                                !                  wave spectrum with prescribed values.
+                                !  LF17          - Infers Stokes drift profile from wind
+                                !                  speed following Li and Fox-Kemper 2017.
+SURFBAND_SOURCE = "COUPLER"     ! default = "EMPTY"
+                                ! Choice of SURFACE_BANDS data mode, valid options include:
+                                !  DATAOVERRIDE  - Read from NetCDF using FMS DataOverride.
+                                !  COUPLER       - Look for variables from coupler pass
+                                !  INPUT         - Testing with fixed values.
+STK_BAND_COUPLER = 3            ! default = 1
+                                ! STK_BAND_COUPLER is the number of Stokes drift bands in the coupler. This has
+                                ! to be consistent with the number of Stokes drift bands in WW3, or the model
+                                ! will fail.
+SURFBAND_WAVENUMBERS = 0.04, 0.11, 0.3305 !   [rad/m] default = 0.12566
+                                ! Central wavenumbers for surface Stokes drift bands.
+EPBL_LANGMUIR_SCHEME = "ADDITIVE" ! default = "NONE"
                                 ! EPBL_LANGMUIR_SCHEME selects the method for including Langmuir turbulence.
                                 ! Valid values are:
                                 !    NONE     - Do not do any extra mixing due to Langmuir turbulence
@@ -874,6 +823,20 @@ EPBL_LANGMUIR_SCHEME = "NONE"   ! default = "NONE"
                                 !      turbulence
                                 !    ADDITIVE - Add a Langmuir turblence contribution to mstar to other
                                 !      contributions
+LT_ENHANCE_COEF = 0.044         !   [nondim] default = 0.447
+                                ! Coefficient for Langmuir enhancement of mstar
+LT_ENHANCE_EXP = -1.5           !   [nondim] default = -1.33
+                                ! Exponent for Langmuir enhancementt of mstar
+LT_MOD_LAC1 = 0.0               !   [nondim] default = -0.87
+                                ! Coefficient for modification of Langmuir number due to MLD approaching Ekman
+                                ! depth.
+LT_MOD_LAC4 = 0.0               !   [nondim] default = 0.95
+                                ! Coefficient for modification of Langmuir number due to ratio of Ekman to
+                                ! stable Obukhov depth.
+LT_MOD_LAC5 = 0.22              !   [nondim] default = 0.95
+                                ! Coefficient for modification of Langmuir number due to ratio of Ekman to
+                                ! unstable Obukhov depth.
+
 ! === module MOM_regularize_layers ===
 
 ! === module MOM_opacity ===
@@ -911,13 +874,6 @@ ENERGYSAVEDAYS = 0.25           !   [days] default = 1.0
 ! === module ocean_model_init ===
 
 ! === module MOM_surface_forcing ===
-BUOY_CONFIG = "data_override"            ! default = "zero"
-                                ! The character string that indicates how buoyancy forcing is specified. Valid
-                                ! options include (file), (zero), (linear), (USER), (BFB) and (NONE).
-ARCHAIC_OMIP_FORCING_FILE = False !   [Boolean] default = True
-                                ! If true, use the forcing variable decomposition from the old German OMIP
-                                ! prescription that predated CORE. If false, use the variable groupings
-                                ! available from MOM output diagnostics of forcing variables.
 MAX_P_SURF = 0.0                !   [Pa] default = -1.0
                                 ! The maximum surface pressure that can be exerted by the atmosphere and
                                 ! floating sea-ice or ice shelves. This is needed because the FMS coupling
@@ -926,28 +882,15 @@ MAX_P_SURF = 0.0                !   [Pa] default = -1.0
                                 ! negative value is used.
 CD_TIDES = 0.0018               !   [nondim] default = 1.0E-04
                                 ! The drag coefficient that applies to the tides.
-WIND_CONFIG = "data_override"            ! default = "zero"
-                                ! The character string that indicates how wind forcing is specified. Valid
-                                ! options include (file), (2gyre), (1gyre), (gyres), (zero), and (USER).
-RESTOREBUOY = True              !   [Boolean] default = False
-                                ! If true, the buoyancy fluxes drive the model back toward some specified
-                                ! surface state with a rate given by FLUXCONST.
 LATENT_HEAT_FUSION = 3.34E+05   !   [J/kg] default = 3.34E+05
                                 ! The latent heat of fusion.
 LATENT_HEAT_VAPORIZATION = 2.5E+06 !   [J/kg] default = 2.5E+06
                                 ! The latent heat of fusion.
-!FLUXCONST = 0.5                 !   [m day-1] default = 0.0
-                                ! The constant that relates the restoring surface fluxes to the relative surface
-                                ! anomalies (akin to a piston velocity).  Note the non-MKS units.
-!FLUXCONST_T = 0.5               !   [m day-1] default = 0.5
-                                ! The constant that relates the restoring surface temperature flux to the
-                                ! relative surface anomaly (akin to a piston velocity).  Note the non-MKS units.
-!FLUXCONST_S = 0.5               !   [m day-1] default = 0.5
-                                ! The constant that relates the restoring surface salinity flux to the relative
-                                ! surface anomaly (akin to a piston velocity).  Note the non-MKS units.
 GUST_CONST = 0.0                !   [Pa] default = 0.0
                                 ! The background gustiness in the winds.
-USTAR_GUSTLESS_BUG = False      !   [Boolean] default = True
+FIX_USTAR_GUSTLESS_BUG = True   !   [Boolean] default = True
+                                ! If true correct a bug in the time-averaging of the gustless wind friction
+                                ! velocity
 
 ! These parameters are used in CORE mode but should not be used in
 ! the coupled model (CM4).
@@ -958,18 +901,6 @@ RESTORE_SALINITY = False        !   [Boolean] default = False
 ADJUST_NET_FRESH_WATER_TO_ZERO = True !   [Boolean] default = False
                                 ! If true, adjusts the net fresh-water forcing seen
                                 ! by the ocean (including restoring) to zero.
-FLUXCONST = 0.1667 !0.500 !0.1667       !   [m day-1]
-                                ! The constant that relates the restoring surface fluxes
-                                ! to the relative surface anomalies (akin to a piston
-                                ! velocity).  Note the non-MKS units.
-SALT_RESTORE_FILE = "ocean_salt_restore.nc" !"salt_restore_correct.nc" ! default = "salt_restore.nc"
-                                ! A file in which to find the surface salinity to use for restoring.
-SALT_RESTORE_VARIABLE = "SALT"
-SRESTORE_AS_SFLUX = True        !   [Boolean] default = False
-                                ! If true, the restoring of salinity is applied as a salt
-                                ! flux instead of as a freshwater flux.
-MAX_DELTA_SRESTORE = 5.0        !   [PSU or g kg-1] default = 999.0
-                                ! The maximum salinity difference used in restoring terms.
 USE_NET_FW_ADJUSTMENT_SIGN_BUG = False !   [Boolean] default = True
                                 ! If true, use the wrong sign for the adjustment to
                                 ! the net fresh-water.
@@ -977,6 +908,3 @@ USE_NET_FW_ADJUSTMENT_SIGN_BUG = False !   [Boolean] default = True
 ! === module MOM_restart ===
 
 ! === module MOM_file_parser ===
-
-USE_HUYNH_STENCIL_BUG = True
-
