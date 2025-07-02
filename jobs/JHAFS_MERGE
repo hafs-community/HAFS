@@ -68,14 +68,26 @@ if [ ${MERGE_TYPE} = analysis ]; then
     export DATA=${WORKhafs}/analysis_merge${jobidstr}
   fi
 elif [ ${MERGE_TYPE} = init ]; then
-  if [ ${FGAT_MODEL} = gdas ]; then
-    export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}${jobidstr}
+  if [ "${ENSDA}" = YES ]; then
+    export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}${jobidstr}
   else
-    export DATA=${WORKhafs}/atm_merge${jobidstr}
+    if [ ${FGAT_MODEL} = gdas ]; then
+      export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}${jobidstr}
+    else
+      export DATA=${WORKhafs}/atm_merge${jobidstr}
+    fi
   fi
 else
   echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
   exit 1
+fi
+
+if [ "${ANALYSIS_MODEL}" = "JEDI" ] || [ "${ANALYSIS_MODEL}" = "jedi" ]; then
+ if [ ${ENSDA} = "YES" ] && [ ! -e "${COMOLD}" ] && [ ${MERGE_TYPE} = init ] ; then
+   echo "RUN_ENSDA YES for JEDI will skip ens merge for the first cycle"
+   echo "Do nothing. Exiting"
+   exit
+ fi
 fi
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then

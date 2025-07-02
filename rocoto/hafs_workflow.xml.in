@@ -1240,6 +1240,13 @@
 		<!--
 			<taskdep task="atm_init_ens#MEM#"/>
 		-->
+          <taskdep task="launch"/>
+@** if RUN_ATM_INIT==YES
+          <taskdep task="atm_init"/>
+@** endif
+@** if RUN_ATM_VI==YES
+          <taskdep task="atm_vi"/>
+@** endif
           <streq><left>&RUN_ATM_MERGE_ENS;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
