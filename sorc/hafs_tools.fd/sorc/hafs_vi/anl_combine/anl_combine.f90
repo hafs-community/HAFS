@@ -33,6 +33,7 @@
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 ! Revised by: JungHoon Shin Sep 2024 NCEP/EMC: Generates information
 !             file for anl_enhance.f90
+! Revised by: JungHoon Shin Jul 2025 NCEP/EMC: Add a HMON type smoothing part for cloud/W
 !______________________________________________________________________________
 
 ! DECLARE VARIABLES
@@ -47,7 +48,7 @@
       integer nd,irange,nw,iwrange,nk,meltlev,nqc,nice,nqr,isnow,n100
       integer ictr,jctr,i_max,j_max,IMV,JMV,IR1,IR,K1,IR_1,id_storm
       integer IDAT,IHOUR,IFH,LAT,LON,IVFT,IPFT,IV34,IMAX1,JMAX1
-      integer iparam,icst,jcst,ID_INDX,JD_INDX,imn1,imx1,jmn1,jmx1
+      integer iparam,icst,jcst,ID_INDX,JD_INDX,imn1,imx1,jmn1,jmx1,N_smth
       real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,pi,pi_deg,pi180,DST1,press1
       real vobs,vobs_o,VRmax,psfc_cls,PRMAX,R34obs,R34obsm,pct_m,ps_rat2
       real acount,deltp,deltp1,rdgas1,arad,vs_t,vmax_s
@@ -228,6 +229,10 @@
       if(ivi_cloud.eq.1) write(*,*) 'Cloud change is ON (GFDL)!!'
       if(ivi_cloud.eq.2) write(*,*) 'Cloud change is ON (Thompson)!!'
 
+      OPEN(72,file='iteration',form='formatted')
+       READ(72,*) N_smth
+      CLOSE(72)
+
 ! Read TC vitals ...
 
       READ(11,11) id_storm,ICLAT,SN,ICLON,EW,Ipsfc,Ipcls,  &
@@ -255,6 +260,8 @@
       VRmax = Ir_vobs*1.    !* RMW  (km)
       vobs  = max(vobs,1.)
       vrmax = max(vrmax,19.)
+
+      if (ivobs.ge.20 .and. N_smth.ne.0) N_smth=1
 
       R34obs = 0.
       R34obsm= 0.
@@ -1936,17 +1943,17 @@
 ! Relocating cloud and vertical velocity of GFS
       IF(IGFS_FLAG.EQ.0)THEN
        itag_c=0
-       call relocation(qrp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation(qcp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation(qsp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation(qgp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation(qip,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+       call relocation(qrp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation(qcp,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation(qsp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation(qgp,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation(qip,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10,N_smth)
        if(ivi_cloud.eq.2)then
-        call relocation(NCRP,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-        call relocation(NCIP,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+        call relocation(NCRP,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+        call relocation(NCIP,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10,N_smth)
        endif
        itag_w=0
-       call relocation(dzdtp,nx,ny,kmx,nw,1,n100,iwrange,ictr,jctr,icst,jcst,itag_w,5)
+       call relocation(dzdtp,nx,ny,kmx,nw,1,n100,iwrange,ictr,jctr,icst,jcst,itag_w,5,N_smth)
        write(*,*) 'Complete the relocation of cloud & DZDT fields'
       ENDIF
 
@@ -2027,17 +2034,17 @@
 
 ! Merge cloud and vertical velocity of HAFS to GFS background
        itag_c=0
-       call relocation_hafs(qrp,qrp2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation_hafs(qcp,qcp2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation_hafs(qsp,qsp2,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation_hafs(qgp,qgp2,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5)
-       call relocation_hafs(qip,qip2,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+       call relocation_hafs(qrp,qrp2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation_hafs(qcp,qcp2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation_hafs(qsp,qsp2,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation_hafs(qgp,qgp2,nx,ny,kmx,nd,meltlev,isnow,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+       call relocation_hafs(qip,qip2,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10,N_smth)
        if(ivi_cloud.eq.2)then
-        call relocation_hafs(NCRP,NCRP2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5)
-        call relocation_hafs(NCIP,NCIP2,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10)
+        call relocation_hafs(NCRP,NCRP2,nx,ny,kmx,nd,nqr,nqc,irange,ictr,jctr,icst,jcst,itag_c,5,N_smth)
+        call relocation_hafs(NCIP,NCIP2,nx,ny,kmx,nd,nice,nk,irange,ictr,jctr,icst,jcst,itag_c,10,N_smth)
        endif
        itag_w=0
-       call relocation_hafs(dzdtp,dzdtp2,nx,ny,kmx,nw,1,n100,iwrange,ictr,jctr,icst,jcst,itag_w,5)
+       call relocation_hafs(dzdtp,dzdtp2,nx,ny,kmx,nw,1,n100,iwrange,ictr,jctr,icst,jcst,itag_w,5,N_smth)
        write(*,*) 'Complete the relocation/cycling of cloud&DZDT fields'
       ENDIF
 
@@ -2648,9 +2655,6 @@
          END IF
       END DO
       END DO
-
-!     if(pct_m.gt.psfc_obs1)beta=1.0
-      if(pct_m.gt.psfc_obs1 .and. vobs.lt.v64kt .and. vmax_s.lt.v64kt .and. abs(beta-1.0).lt.0.15) beta=1.0
 
       IF ( INITOPT > 0 )THEN
         beta=1.0
@@ -3487,19 +3491,20 @@
 !==============================================================================
 !=========================================================================
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      subroutine relocation(val,nx,ny,nz,nd,na,nb,irange,ictr,jctr,icst,jcst,itag,maxsmth)
+      subroutine relocation(val,nx,ny,nz,nd,na,nb,irange,ictr,jctr,icst,jcst,itag,maxsmth,N_smth)
       implicit none
-      integer i,j,k,n,nx,ny,nz,nd,ictr,jctr,icst,jcst,irange,na,nb,maxsmth
-      real val(nx,ny,nz),tcval(nd,nd,nz),val_2d(nx,ny),val_save(nx,ny)
+      integer i,j,k,n,nx,ny,nz,nd,ictr,jctr,icst,jcst,irange,na,nb,maxsmth,ik,N_smth
+      real val(nx,ny,nz),tcval(nd,nd,nz),val_2d(nx,ny),val_tmp(nd,nd)    !val_save(nx,ny)
       integer itag(nx,ny)
       real dx,dy,range,dis,dis1,dis2
       dx = 0.02
       dy = 0.02
       range = irange*dx
 
+      write(*,*) 'Relocation N_smth= ', N_smth
       do k=na,nb
 
-       val_save(:,:)=val(:,:,k)
+      !val_save(:,:)=val(:,:,k)
       ! Get the GFS field from the "irange" grid points from the model TC center
        do i=icst-irange,icst+irange
         do j=jcst-irange,jcst+irange
@@ -3547,6 +3552,24 @@
         enddo
        enddo
 
+!---------------------------------------------------------------------------------
+      IF(N_smth.gt.0)THEN
+      !val_tmp=tcval
+       do ik=1,N_smth
+       val_2d(:,:)=val(:,:,k)
+!$omp parallel do &
+!$omp& private(i,j)
+            DO J=jctr-irange,jctr+irange
+                DO I=ictr-irange,ictr+irange
+                  val(I,J,K)=(val_2d(I-1,J-1)+val_2d(I,J-1)+ val_2d(I+1,J-1)+    &
+                              val_2d(I-1,J)+val_2d(I,J)+val_2d(I+1,J)+           &
+                              val_2d(I-1,J+1)+val_2d(I,J+1)+val_2d(I+1,J+1))/9.
+                END DO
+            END DO
+       enddo
+      ENDIF
+!-----------------------------------------------------------------------------------
+
       enddo
 
       end
@@ -3554,10 +3577,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !=========================================================================
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      subroutine relocation_hafs(val,val2,nx,ny,nz,nd,na,nb,irange,ictr,jctr,icst,jcst,itag,maxsmth)
+      subroutine relocation_hafs(val,val2,nx,ny,nz,nd,na,nb,irange,ictr,jctr,icst,jcst,itag,maxsmth,N_smth)
       implicit none
-      integer i,j,k,n,nx,ny,nz,nd,ictr,jctr,icst,jcst,irange,na,nb,maxsmth
-      real val(nx,ny,nz),val2(nx,ny,nz),tcval2(nd,nd,nz),val_2d(nx,ny),val_save(nx,ny)
+      integer i,j,k,n,nx,ny,nz,nd,ictr,jctr,icst,jcst,irange,na,nb,maxsmth,ik,N_smth
+      real val(nx,ny,nz),val2(nx,ny,nz),tcval2(nd,nd,nz),val_2d(nx,ny),val_tmp(nd,nd)  !val_save(nx,ny)
       integer itag(nx,ny)
       real dx,dy,range,dis,dis2
       dx = 0.02
@@ -3566,9 +3589,11 @@
       !val: Fields from GFS backgroud
       !val2: Fields from HAFS 6-h forecast
 
+      write(*,*) 'Cycling N_smth= ', N_smth
+
       do k=na,nb
 
-       val_save(:,:)=val(:,:,k)
+      ! val_save(:,:)=val(:,:,k)
       ! Get the HAFS field from the "irange" grid points from the model TC cetner
        do i=icst-irange,icst+irange
         do j=jcst-irange,jcst+irange
@@ -3609,6 +3634,24 @@
          if( dis2.le.(range+0.5) ) itag(i,j) = 1
         enddo
        enddo
+
+!---------------------------------------------------------------------------------
+      IF(N_smth.gt.0)THEN
+      !val_tmp=tcval
+       do ik=1,N_smth
+       val_2d(:,:)=val(:,:,k)
+!$omp parallel do &
+!$omp& private(i,j)
+            DO J=jctr-irange,jctr+irange
+                DO I=ictr-irange,ictr+irange
+                  val(I,J,K)=(val_2d(I-1,J-1)+val_2d(I,J-1)+ val_2d(I+1,J-1)+    &
+                              val_2d(I-1,J)+val_2d(I,J)+val_2d(I+1,J)+           &
+                              val_2d(I-1,J+1)+val_2d(I,J+1)+val_2d(I+1,J+1))/9.
+                END DO
+            END DO
+       enddo     
+      ENDIF
+!-----------------------------------------------------------------------------------
 
       enddo
 

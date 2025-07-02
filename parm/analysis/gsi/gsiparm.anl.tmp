@@ -241,6 +241,7 @@ SUPEROB_RADAR::
   aniso_a_en=F,
   nlon_ens=387,
   nlat_ens=777,
+  write_obs_sprd=T,
   write_ens_sprd=F,
   l_both_fv3sar_gfs_ens=_L_BOTH_FV3SAR_GFS_ENS_,
   n_ens_gfs=_NENS_GFS_,

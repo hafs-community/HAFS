@@ -48,7 +48,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     module load cfp/${cfp_ver}
     module load prod_util/${prod_util_ver}
   fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]]  || [[ ${machine}  = "ursa" ]]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
     module purge
     module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
     module load gsi_${machine}.intel

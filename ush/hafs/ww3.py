@@ -484,8 +484,7 @@ ww3postprodnames={
     'ww3grb2':         ( './gribfile',       '{com}/{out_prefix}.{RUN}.ww3.grb2' ),
     'ww3grb2idx':      ( './gribfile.idx',   '{com}/{out_prefix}.{RUN}.ww3.grb2.idx' ),
     'ww3ounf':         ( './ww3.%Y.nc',      '{com}/{out_prefix}.{RUN}.ww3_ounf.nc' ),
-    'ww3outpnt':       ( './out_pnt.ww3',    '{com}/{out_prefix}.{RUN}.out_pnt.ww3' ),
-    'ww3ounpspec':     ( './ww3.%Y_spec.nc', '{com}/{out_prefix}.{RUN}.ww3_ounp_spec.nc' ),
+    'ww3outpnt':       ( './out_pnt.ww3.nc', '{com}/{out_prefix}.{RUN}.out_pnt.ww3.nc' ),
     'ww3outpbull':     ( './ww3_bull.tar',   '{com}/{out_prefix}.{RUN}.ww3_bull.tar' ),
     'ww3outpcbull':    ( './ww3_cbull.tar',  '{com}/{out_prefix}.{RUN}.ww3_cbull.tar' ),
     'ww3outpcsbull':   ( './ww3_csbull.tar', '{com}/{out_prefix}.{RUN}.ww3_csbull.tar' ),
@@ -564,10 +563,10 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     deliver_file(ww3out,'out_grd.ww3',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outgrd']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
-                # Prepare and deliver out_pnt.ww3
+                # Prepare and deliver out_pnt.ww3.nc
                 if self.pntstep>0:
-                    ww3pnt=self.icstr('{WORKhafs}/intercom/forecast/out_pnt.ww3')
-                    deliver_file(ww3pnt,'out_pnt.ww3',force=True,logger=logger)
+                    ww3pnt=self.icstr('{WORKhafs}/intercom/forecast/out_pnt.ww3.nc')
+                    deliver_file(ww3pnt,'out_pnt.ww3.nc',force=True,logger=logger)
                     (prod,localpath)=self._products['ww3outpnt']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=None)
                 # For field output in grib2 format
@@ -621,7 +620,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                             with NamedDir('ww3outpbull.%s'%(buoyid,),keep=True,logger=logger) as nameddir:
                                 self.make_outp_bull_inp(ipnt,logger)
                                 make_symlink('../mod_def.ww3','mod_def.ww3',force=True,logger=logger)
-                                make_symlink('../out_pnt.ww3','out_pnt.ww3',force=True,logger=logger)
+                                make_symlink('../out_pnt.ww3.nc','out_pnt.ww3.nc',force=True,logger=logger)
                                 make_symlink(self.getexe('ww3_outp'),'ww3_outp',force=True,logger=logger)
                                 buoybull=buoyid+'.bull'
                                 buoycbull=buoyid+'.cbull'
@@ -688,7 +687,7 @@ class WW3Post(hafs.hafstask.HAFSTask):
                             with NamedDir('ww3outpspec.%s'%(buoyid,),keep=True,logger=logger) as nameddir:
                                 self.make_outp_spec_inp(ipnt,logger)
                                 make_symlink('../mod_def.ww3','mod_def.ww3',force=True,logger=logger)
-                                make_symlink('../out_pnt.ww3','out_pnt.ww3',force=True,logger=logger)
+                                make_symlink('../out_pnt.ww3.nc','out_pnt.ww3.nc',force=True,logger=logger)
                                 make_symlink(self.getexe('ww3_outp'),'ww3_outp',force=True,logger=logger)
                                 buoyspc='ww3.'+ww3tstr+'.spc'
                                 buoyout=buoyid+'.spc'
@@ -737,18 +736,6 @@ class WW3Post(hafs.hafstask.HAFSTask):
                     checkrun(cmd,logger=logger)
                     (prod,localpath)=self._products['ww3ounf']
                     logger.info('Delivering ww3ounf from %s to %s'%(localpath,prod.location))
-                    prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=self.__copy_ncks)
-                # For point spec output in netcdf format
-                ww3_ounp_spec_post=self.confstr('ww3_ounp_spec_post','yes',section='ww3post')
-                if ww3_ounp_spec_post == 'yes' and self.pntstep>0:
-                    make_symlink(self.getexe('ww3_ounp'),'ww3_ounp',force=True,logger=logger)
-                    # Prepare the namelist
-                    self.make_ounp_spec_inp(logger)
-                    # Run ww3_ounp
-                    cmd=exe('./ww3_ounp')
-                    if redirect: cmd = cmd>='ww3_ounp.log'
-                    checkrun(cmd,logger=logger)
-                    (prod,localpath)=self._products['ww3ounpspec']
                     prod.deliver(frominfo=localpath,location=prod.location,logger=logger,copier=self.__copy_ncks)
             self.state=COMPLETED
         except Exception as e:

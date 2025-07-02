@@ -19,6 +19,7 @@ if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
 
 # Deterministic or ensemble
 if [ ${ENSDA:-NO} = YES ]; then
+  export nest_grids=${nest_grids_ens:-${nest_grids}}
   export CASE=${CASE_ENS:-C768}
   export gtype=${gtype_ens:-regional}
   export gridfixdir=${gridfixdir_ens:-'/let/hafs_grid/generate/grid_ens'}

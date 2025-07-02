@@ -35,6 +35,7 @@ satpost=.false.
 nhcpost=.false.
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/forecast_init_ens/mem${ENSID}
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
@@ -56,8 +57,10 @@ RESTARTcom=""
 else
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/forecast_ens/mem${ENSID}
-  COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+# COMOUTpost=${COMhafs}/post_ens/mem${ENSID}
+  COMOUTpost=${WORKhafs}/intercom/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/post_ens/mem${ENSID}
   RESTARTcom=${COMhafs}/${out_prefix}.RESTART_ens/mem${ENSID}
 else
@@ -79,10 +82,18 @@ if [ ${ENSDA} = YES ]; then
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   gtype=${gtype_ens:-regional}
+  restart_interval=${restart_interval_ens:-${restart_interval}}
   post_gridspecs=${post_gridspecs_ens:-""}
   trak_gridspecs=${trak_gridspecs_ens:-""}
   satpost=${satpost_ens:-".false."}
   nhcpost=${nhcpost_ens:-".false."}
+  output_grid=${output_grid_ens}
+  output_grid_cen_lon=${output_grid_cen_lon_ens}
+  output_grid_cen_lat=${output_grid_cen_lat_ens}
+  output_grid_lon_span=${output_grid_lon_span_ens}
+  output_grid_lat_span=${output_grid_lat_span_ens}
+  output_grid_dlon=${output_grid_dlon_ens}
+  output_grid_dlat=${output_grid_dlat_ens}
 else
   NHRS=${NHRS:-126}
   NBDYHRS=${NBDYHRS:-3}
@@ -646,13 +657,52 @@ fv_srf_wnd_tile=${YYYY}${MM}${DD}.${HH}0000.fv_srf_wnd.res${neststr}${tilestr}.n
 sfc_data=${YYYY}${MM}${DD}.${HH}0000.sfc_data${nesttilestr}.nc
 phy_data=${YYYY}${MM}${DD}.${HH}0000.phy_data${nesttilestr}.nc
 coupler_res=${YYYY}${MM}${DD}.${HH}0000.coupler.res
-if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ] && [ -s ${INPdir}/RESTART/${coupler_res} ]; then
-  while [ $(( $(date +%s) - $(stat -c %Y ${INPdir}/RESTART/${coupler_res}) )) -lt 30 ]; do sleep 10s; done
-  for file_res in $fv_core $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data $coupler_res ; do
-    if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
-      ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res}
+if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
+  RESTARTSENDCOM=NO
+  # Check if restart files for forecast hours 3, 6, 9 are actually turned on in model restart_interval
+  for RHR in ${restart_interval}; do if [[ $RHR = $FHR ]]; then RESTARTSENDCOM=YES; break; fi; done
+  if [ $RESTARTSENDCOM = YES ]; then
+    # Wait for restart file
+    MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
+    n=0
+    while [ $n -le ${MAX_WAIT_TIME} ]; do
+      if [ ! -s ${INPdir}/RESTART/${coupler_res} ]; then
+        echo "${INPdir}/RESTART/${coupler_res} not ready, sleep 10s"
+        sleep 10s
+      else
+        echo "${INPdir}/RESTART/${coupler_res} ready, continue"
+        break
+      fi
+      n=$((n+10))
+      if [ $n -gt ${MAX_WAIT_TIME} ]; then
+        echo "FATAL ERROR: Waited ${INPdir}/RESTART/${coupler_res} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+        exit 1
+      fi
+    done
+    rm -f cmdfile
+  # for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data ; do
+    for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
+      if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+      # echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+        echo ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+      fi
+    done
+    for file_res in $fv_core  $coupler_res ; do
+      if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
+        echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+      fi
+    done
+    chmod +x cmdfile
+    if [ $USE_CFP = "YES" ] ; then
+      ncmd=$(cat ./cmdfile | wc -l)
+      ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+      $APRUNCFP -n $ncmd_max cfp ./cmdfile
+    else
+      ${APRUNC} ${MPISERIAL} -m cmdfile
     fi
-  done
+    export err=$?; err_chk
+    rm -f cmdfile
+  fi
 fi
 
 # Deliver WW3 restart file if needed and exists

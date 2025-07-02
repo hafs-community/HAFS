@@ -1,15 +1,15 @@
 [submodule "ufs-weather-model"]
     path = sorc/hafs_forecast.fd
     url = https://github.com/hafs-community/ufs-weather-model.git
-    branch = support/HAFS
+    branch = feature/hafs.v2.1.1
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
     url = https://github.com/hafs-community/UFS_UTILS.git
-    branch = support/HAFS
+    branch = feature/hafs.v2.1.1
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
     url = https://github.com/hafs-community/gfdl-tracker.git
-    branch = support/HAFS
+    branch = feature/hafs.v2.1.1
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
     url = https://github.com/hafs-community/GSI.git
@@ -25,4 +25,4 @@
 [submodule "hafs_graphics"]
     path = sorc/hafs_graphics.fd/emc_graphics
     url = https://github.com/hafs-community/hafs_graphics.git
-    branch = support/HAFS
+    branch = feature/hafs.v2.1.1

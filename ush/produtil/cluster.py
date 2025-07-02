@@ -109,8 +109,8 @@ def where():
             here=NOAAHera()
             if os.path.exists('/scratch'):
                 here=NOAATheia()
-        elif os.path.exists('/tds_scratch2/SYSADMIN/pilot-users'):
-            here=NOAAUrsa()      
+        elif os.path.exists('/scratch3'):
+            here=NOAAUrsa()
         elif os.path.exists('/lfs/h2/emc'):
             here=WCOSS2()
         elif os.path.exists('/gpfs/f6'):

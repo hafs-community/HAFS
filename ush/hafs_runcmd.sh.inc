@@ -43,6 +43,7 @@ export SOURCE_PREP_STEP="source prep_step"
 # This can also be used to easily implement MPMD if needed/desired
 export APRUNCMD=${APRUNCMD:-""}
 
+export machine=${machine:-${WHERE_AM_I}}
 if [ "$machine" = wcoss2 ]; then
   export APRUN="time"
   export APRUNS="time"
@@ -69,6 +70,8 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUNF="time"
   export APRUNCFP="time"
   export BACKGROUND="&"
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
   export APRUN="time"
@@ -78,6 +81,8 @@ else
   export APRUNF="${MPISERIAL:-mpiserial}"
   export APRUNCFP="time"
   export BACKGROUND=""
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
 fi
 
 # Some commonly used commands

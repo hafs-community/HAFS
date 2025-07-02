@@ -30,7 +30,8 @@ pubbasin2=${pubbasin2:-AL}
 if [ ${RUN_INIT:-NO} = YES ]; then
 
 if [ "${ENSDA}" = YES ]; then
-  INPdir=${WORKhafs}/atm_init_ens/mem${ENSID}/post
+  nest_grids=${nest_grids_ens:-${nest_grids}}
+  INPdir=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   NHRS_ENS=0
@@ -49,6 +50,7 @@ fi
 else
 
 if [ "${ENSDA}" = YES ]; then
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   INPdir=${WORKhafs}/intercom/post_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/product_ens/mem${ENSID}
   COMOUTproduct=${COMhafs}/product_ens/mem${ENSID}
@@ -130,7 +132,11 @@ cd ${DATA_tracker}
 # Compute domain for tracker
 gmodname=hafs
 rundescr=trak
-atcfdescr=storm
+if [ ${nest_grids:-1} = 1 ]; then
+ atcfdescr=parent
+else
+ atcfdescr=storm
+fi
 
 # Link the track files and generate the input.fcst_minutes file
 if [ -s input.fcst_minutes ]; then
@@ -247,6 +253,7 @@ cat namelist.gettrk_tmp | sed s/_BCC_/${CC}/ | \
                           sed s/_BHH_/${HH}/ | \
                           sed s/_NESTTYP_/${NESTTYP:-fixed}/ | \
                           sed s/_RUN_/${RUN^^}/ | \
+                          sed s/_ATCFDESCR_/${atcfdescr}/ | \
                           sed s/_YMDH_/${CDATE}/ > namelist.gettrk
 # Run the vortex tracker gettrk.x
 ${NCP} -p ${GETTRKEXEC} ./hafs_tracker_gettrk.x
