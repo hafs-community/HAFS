@@ -18,6 +18,7 @@
 !                : Changed the storm filter domain from polygonal shape to circular shape
 !                : by selecting the largest radius information (array R0 & RF) to remove
 !                ! strange stripe patterns in VI analysis and VI restart file
+! Revised by: JungHoon Shin, NCEP/EMC, Jul 2025 Limit the storm size to prevent the runtime issue
 !     DECLARE VARIABLES
 
       use nhc, only: KSTM,IC_N,JC_N,NST
@@ -3520,6 +3521,8 @@
 
       max_R0=maxval(R0(:))
       max_RF=maxval(RF(:))
+      if(max_R0.gt.10.0) max_R0=10.0  !shin
+      if(max_RF.gt.10.0) max_RF=10.0  !shin
       write(*,*) 'max_R0 and max_RF= ', max_R0, max_RF
       DO I=1,IT
         R0(I)=max_R0

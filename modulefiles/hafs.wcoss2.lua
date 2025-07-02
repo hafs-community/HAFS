@@ -44,6 +44,12 @@ load(pathJoin("fms", fms_ver))
 bacio_ver=os.getenv("bacio_ver")
 load(pathJoin("bacio", bacio_ver))
 
+nemsio_ver=os.getenv("nemsio_ver")
+load(pathJoin("nemsio", nemsio_ver))
+
+ncio_ver=os.getenv("ncio_ver")
+load(pathJoin("ncio", ncio_ver)) 
+
 crtm_ver=os.getenv("crtm_ver")
 load(pathJoin("crtm", crtm_ver))
 

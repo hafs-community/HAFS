@@ -49,6 +49,12 @@ load(pathJoin("fms",fms_ver))
 bacio_ver=os.getenv("bacio_ver") or "2.4.1"
 load(pathJoin("bacio", bacio_ver))
 
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
+load(pathJoin("nemsio", nemsio_ver))
+
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio", ncio_ver)) 
+
 crtm_ver=os.getenv("crtm_ver") or "2.4.0.1"
 load(pathJoin("crtm", crtm_ver))
 
