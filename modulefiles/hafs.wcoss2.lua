@@ -48,7 +48,7 @@ nemsio_ver=os.getenv("nemsio_ver")
 load(pathJoin("nemsio", nemsio_ver))
 
 ncio_ver=os.getenv("ncio_ver")
-load(pathJoin("ncio", ncio_ver)) 
+load(pathJoin("ncio-A", ncio_ver)) 
 
 crtm_ver=os.getenv("crtm_ver")
 load(pathJoin("crtm", crtm_ver))
