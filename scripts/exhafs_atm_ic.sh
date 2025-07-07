@@ -199,23 +199,8 @@ else
    ${NLN} ${INIDIR}/${atm_files_input_grid} ./ges.06
    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"
-   cat>calc_analysis.nml<< EOF
-&setup
-  datapath="."
-  analysis_filename="anl"
-  firstguess_filename="ges"
-  increment_filename="inc"
-  fhr=6
-/
-EOF
-   ${NCP} -p ${EXEChafs}/hafs_tools_calc_analysis.x ./
-   ${SOURCE_PREP_STEP}
-   if [ "$machine" = wcoss2 ]; then
-    APRUN="mpiexec -n 127 --cpu-bind core --depth 1"
-   else
-    APRUN="srun --mem=0 --ntasks=127 --ntasks-per-node=${NCTSK} --cpus-per-task=1"
-   fi
-   ${APRUN} ./hafs_tools_calc_analysis.x 2>&1 | tee ./hafs_tools_calc_analysis.log
+   ${NCP} -p ${HOMEhafs}/ush/hafs_calc_enkfgdas_analysis.py ./
+   ${APRUNS} ./hafs_calc_enkfgdas_analysis.py 2>&1 | tee ./hafs_calc_enkfgdas_analysis.log
    export err=$?; err_chk
    ${NLN} ./anl.06 ./${atm_files_input_grid}
   elif [ ${FGAT_MODEL} = gdas ]; then
