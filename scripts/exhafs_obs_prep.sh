@@ -114,6 +114,23 @@ if [[ -s $TANK/$PDY/b006/xx070 || -s $TANK/$BPDY/b006/xx070 ]]; then
 else
   echo "INFO: TDR tank $TANK/$PDY/b006/xx070 or $TANK/$BPDY/b006/xx070 empty or not found. Continue ..."
 fi
+
+# TDR superobbing if desired
+if [[ -s ./tldplr.ibm && ${tdr_superob:-.false.} = .true. ]]; then
+  mv ./tldplr.ibm ./tldplr.raw
+  # Prepare the namelist
+  ${NCP} -p ${PARMhafs}/obs_prep/tdr_so.nml ./
+  # Run the executable
+  ${NCP} -p ${EXEChafs}/hafs_tools_tdr_superob.x ./hafs_tools_tdr_superob.x
+  ${SOURCE_PREP_STEP}
+  ${APRUNS} ./hafs_tools_tdr_superob.x ./tldplr.raw ./tldplr.ibm 2>&1 | tee ./hafs_tools_tdr_superob.out
+  export err=$?; err_chk
+# status=$?
+# if [[ $status -ne 0 ]]; then
+#   echo "WARNING: TDR superobbing with exit code of $status. Continue ..."
+# fi
+fi
+
 if [ -s ./tldplr.ibm ]; then
   # Deliver to intercom
   ${NCP} ./tldplr.ibm ${intercom}/${NFTLDPLR}

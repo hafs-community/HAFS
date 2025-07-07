@@ -1,0 +1,20 @@
+ &so_attribute
+    elevmax     = 70., ! Max elevation angle (deg)
+    minraddis   = 0.5, ! Min radial distance threshold (km)
+    maxraddis   = 75., ! Max radial distance theshold (km)
+    draddis     = 2.,  ! Radial distance bin span (km)
+    dazm        = 3.,  ! Azimuthal bin span (deg)
+    stdrv       = 2.0, ! Max allowed velocity std dev in superob bin (m/s) ! NOT IN USE
+    minazspan   = 3.0, ! Min azimuthal span (deg) for superob bins (span changes as a function of radial distance)
+    minrv       = 0.,  ! Abs(min radial velocity) (m/s)
+    maxrv       = 120.,! Abs(max radial velocity) (m/s)
+    minbinct    = 1,   ! Min required ob count in superob bin
+    nclose      = 25,  ! Max number of obs to average (prioritized by closeness to bin center)
+ /
+
+ &debug
+    ! 0 = quiet
+    ! 1 = ASCII files for each sweep, additional log statements
+    ! 2 = 1 + calc_superobs debug files for each sweep
+    debug_level = 0
+ /

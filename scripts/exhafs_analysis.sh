@@ -63,6 +63,11 @@ export n_ens_gfs=${n_ens_gfs:-80}
 export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
 export l4densvar=${l4densvar:-.false.}
 export nhr_obsbin=${nhr_obsbin:--1}
+if [ ${tdr_superob:-.false.} = .true. ]; then
+  export l_tdr_thin_alongbeam=.false.
+else
+  export l_tdr_thin_alongbeam=.true.
+fi
 
 export GSI_D01=${GSI_D01:-NO}
 export GSI_D02=${GSI_D02:-NO}
@@ -595,6 +600,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_L_TDR_THIN_ALONGBEAM_/${l_tdr_thin_alongbeam:-.true.}/g" \
     -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
     -e "s/_NAENSLOC_/${naensloc:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
