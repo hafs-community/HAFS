@@ -112,6 +112,9 @@ nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 --prepend_path("PATH", "/apps/nco/4.9.3/gnu/9.2.0/bin")
 
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
+load(pathJoin("nemsio", nemsio_ver))
+
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
 load(pathJoin("ncio", ncio_ver)) 
 

@@ -365,7 +365,7 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 # Link GFS/GDAS input and observation files
 #convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
 #convsubtypes="adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
-radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 " #abi_g16"
+radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
 convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18" # adpupa_stationPressure_120"
 convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18"
 mkdir ${DATA}/obs
@@ -436,7 +436,7 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
-${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log 
+${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log 
 rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
@@ -545,7 +545,7 @@ sed -e "s|#HH#|t${cyc}z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
-    -e "s|#TOTAL_TASKS#|${TOTAL_TASKS}|g" \
+    -e "s|#TOTAL_TASKS#|${TOTAL_TASKSD3}|g" \
     -e "s|#MIN_LAT#|${MIN_LAT}|g" \
     -e "s|#MAX_LAT#|${MAX_LAT}|g" \
     -e "s|#MIN_LON#|${MIN_LON}|g" \

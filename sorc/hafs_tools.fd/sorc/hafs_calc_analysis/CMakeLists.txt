@@ -23,10 +23,10 @@ find_package(NetCDF REQUIRED C Fortran)
 find_package(MPI REQUIRED)
 find_package(bacio REQUIRED)
 find_package(nemsio REQUIRED)
-find_package(ncio REQUIRED)
 find_package(w3emc REQUIRED)
 
 set(fortran_srcs
+  module_ncio.f90
   inc2anl.f90
   init_calc_analysis.f90
   init_io.f90
@@ -53,7 +53,6 @@ target_link_libraries(
   MPI::MPI_Fortran
   bacio::bacio_4
   nemsio::nemsio
-  ncio::ncio
   w3emc::w3emc_4)
 
 install(TARGETS ${exe_name} DESTINATION ${exec_dir})

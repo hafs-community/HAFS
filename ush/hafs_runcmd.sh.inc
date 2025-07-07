@@ -59,7 +59,9 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
+  export TOTAL_TASKSD3=`expr ${TOTAL_TASKS} \/ 3 `
   export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
+  export APRUNCD3="srun --mem=0 --ntasks=${TOTAL_TASKSD3} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
  #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
   export APRUNT1="srun --mem=0 --ntasks-per-node=1"
   export APRUNF="time"

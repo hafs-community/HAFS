@@ -395,9 +395,9 @@ cd jedi_ioda
 airctypes="aircar aircft"
 convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp adpupa"
 convbufrs="satwnd satwnd prepbufr prepbufr prepbufr"
-sattypes="atms ssmis amsua iasi"
-satbufrs="atms ssmisu 1bamua mtiasi"
-radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c"
+sattypes="atms ssmis amsua iasi gsrcsr"
+satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
+radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
 obstypes="${radtypes} ${convtypes}"
 IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
 IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
@@ -429,8 +429,8 @@ for file in ${sattypes}; do
  fi
 done
 ############### RUN bufr2ioda, either using exec or python #######################
-#bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir}
-#export err=$?; err_chk
+bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #For ABI for now
+export err=$?; err_chk
 #for file in ${sattypes}; do
 # if [ -s bufr_ncep_${file}.yaml ]; then
 #  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml # use executable to convert sat radiances
@@ -469,7 +469,7 @@ for file in $sattypes; do
     if [[ "${file}" = "amsua" ]]; then
      ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
   #   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
-    else
+    elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
      python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
     fi
   fi
