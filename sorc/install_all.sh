@@ -57,6 +57,7 @@ $Build_tracker && {
 # install tools
 #------------------------------------
 $Build_tools && {
+  ${CP} hafs_tools.fd/exec/hafs_tdr_superob.x                        ../exec/hafs_tools_tdr_superob.x
   ${CP} hafs_tools.fd/exec/hafs_nhc_products.x                       ../exec/hafs_tools_nhc_products.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x                        ../exec/hafs_tools_obs_preproc.x
   ${CP} hafs_tools.fd/exec/mpiserial.x                               ../exec/hafs_tools_mpiserial.x
