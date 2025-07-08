@@ -44,11 +44,13 @@ export SOURCE_PREP_STEP="source prep_step"
 export APRUNCMD=${APRUNCMD:-""}
 
 export machine=${machine:-${WHERE_AM_I}}
+export TOTAL_TASKSD3=`expr ${TOTAL_TASKS} \/ 3 `
 if [ "$machine" = wcoss2 ]; then
   export APRUN="time"
   export APRUNS="time"
   export APRUNO="mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
+  export APRUNCD3="mpiexec -n ${TOTAL_TASKSD3} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "
   export APRUNCFP="mpiexec"
   export APRUNT1="mpiexec --ppn 1"
@@ -59,7 +61,6 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
-  export TOTAL_TASKSD3=`expr ${TOTAL_TASKS} \/ 3 `
   export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
   export APRUNCD3="srun --mem=0 --ntasks=${TOTAL_TASKSD3} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS}"
  #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
