@@ -1,13 +1,15 @@
 help([[
 loads HAFS/MOM6 OBC modulefile on Hera
 ]])
+
 unload("esmf")
 unload("py-numpy")
-unload("py-xarray")
+unload("py-pandas")
 unload("py-scipy")
+unload("py-xarray")
 unload("py-netcdf4")
-prepend_path("PATH", "/scratch2/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/OBC_env/bin")
-prepend_path("PYTHONPATH", "/scratch2/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/OBC_env")
-setenv("ESMFMKFILE", "/scratch2/NCEPDEV/hwrf/save/Maria.Aristizabal/miniconda3/envs/OBC_env/lib/esmf.mk")
+prepend_path("PATH", "/scratch3/NCEPDEV/hwrf/noscrub/local/miniconda3/envs/OBCmini_env/bin")
+prepend_path("PYTHONPATH", "/scratch3/NCEPDEV/hwrf/noscrub/local/miniconda3/envs/OBCmini_env")
+setenv("ESMFMKFILE", "/scratch3/NCEPDEV/hwrf/noscrub/local/miniconda3/envs/OBCmini_env/lib/esmf.mk")
 
 whatis("Description: HAFS/MOM6 OBC  environment")
