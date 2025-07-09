@@ -294,6 +294,7 @@ fi
 # Stat files
 RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
 CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat}
+DIAGSTAT=${DIAGSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.diagstat}
 DASOUT=${DASOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dasout}
 # Obs diag
 RUN_SELECT=${RUN_SELECT:-"NO"}
@@ -570,11 +571,26 @@ rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
 for file in ${radtypes}; do
-  tar cvf ${RADSTAT} hofx/diag_${file}_t${cyc}z.nc
+  for file0 in hofx/diag_${file}_t${cyc}z_*nc; do
+   ncpdq -a Location,time ${file0} ${file0}_avail
+  done
+  ncrcat --thr_nbr=${OMP_NUM_THREADS} hofx/diag_${file}_t${cyc}z_*nc_avail hofx/diag_${file}_t${cyc}z.nc
+  if [ -e hofx/diag_${file}_t${cyc}z.nc ]; then
+    tar cvf ${RADSTAT} hofx/diag_${file}_t${cyc}z.nc
+  fi
 done
 for file in ${convtypes}; do
-  tar cvf ${CNVSTAT} hofx/diag_${file}_t${cyc}z.nc
+  for file0 in hofx/diag_${file}_t${cyc}z_*nc; do
+   ncpdq -a Location,time ${file0} ${file0}_avail
+  done
+  ncrcat --thr_nbr=${OMP_NUM_THREADS} hofx/diag_${file}_t${cyc}z_*nc_avail hofx/diag_${file}_t${cyc}z.nc
+  if [ -e hofx/diag_${file}_t${cyc}z.nc ]; then
+    tar cvf ${CNVSTAT} hofx/diag_${file}_t${cyc}z.nc
+  fi
 done
+#for file in hofx/diag_*nc; do
+#  tar cvf ${DIAGSTAT} ${file}
+#done
 
 #Store the output to intercom
 if [ ${l4denvar:-.false.} = ".true." ]; then
