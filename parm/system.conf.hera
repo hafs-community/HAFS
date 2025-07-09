@@ -11,36 +11,36 @@ archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.ta
 
 [dir]
 ## Save directory.  Make sure you edit this.
-CDSAVE=/scratch1/NCEPDEV/{disk_project}/save/{ENV[USER]}
+CDSAVE=/scratch3/NCEPDEV/{disk_project}/save/{ENV[USER]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
+CDNOSCRUB=/scratch3/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
-CDSCRUB=/scratch1/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
+CDSCRUB=/scratch3/NCEPDEV/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run
-syndat=/scratch1/NCEPDEV/hwrf/noscrub/input/SYNDAT-PLUS
+syndat=/scratch3/HFIP/hwrfv3/noscrub/input/SYNDAT-PLUS
 #oldcom={ENV[COMOLD]}
 COMOLD={oldcom}
 COMIN={COMhafs}
 COMOUT={COMhafs}
 COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
 COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
-COMgfs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMGFSv16
+COMgfs=/scratch3/HFIP/hwrfv3/noscrub/hafs-input/COMGFSv16
 COMINobs={COMgfs}
 COMINgfs={COMgfs}
 COMINgdas={COMgfs}
 COMINarch={COMgfs}/syndat
-COMrtofs=/scratch1/NCEPDEV/hwrf/noscrub/hafs-input/COMRTOFSv2.5_new
+COMrtofs=/scratch3/HFIP/hwrfv3/noscrub/hafs-input/COMRTOFSv2.5_new
 COMINrtofs={COMrtofs}
 COMINmsg={COMINgfs}
 COMINhafs={COMINgfs}
-DATMdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DATM
-DOCNdir=/scratch1/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DOCN
+DATMdir=/scratch3/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/scratch3/NCEPDEV/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## A-Deck directory for graphics
-ADECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/aid
+ADECKhafs=/scratch3/NCEPDEV/hwrf/noscrub/input/abdeck/aid
 ## B-Deck directory for graphics
-BDECKhafs=/scratch1/NCEPDEV/hwrf/noscrub/input/abdeck/btk
+BDECKhafs=/scratch3/NCEPDEV/hwrf/noscrub/input/abdeck/btk
 ## cartopyDataDir directory for graphics
-cartopyDataDir=/scratch1/NCEPDEV/hwrf/noscrub/local/share/cartopy
+cartopyDataDir=/scratch3/NCEPDEV/hwrf/noscrub/local/share/cartopy
 
 [forecast]
 quilting_restart=.false.
