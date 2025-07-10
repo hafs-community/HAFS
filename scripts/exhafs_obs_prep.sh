@@ -382,135 +382,117 @@ fi # end if [ -s ./tempdrop.filelist ]; then
 
 fi # end if [ ! -s ${intercom}/${NFtempdrop} ] && [ -s ${intercom}/${NFdropsonde} ]; then
 
-cd ${DATA}
-
-mkdir -p jedi_ioda
-cd jedi_ioda
+if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
+  cd ${DATA}
+  mkdir -p jedi_ioda
+  cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-#XL convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18"
-#XL radtypes="atms_npp atms_n20 amsua_n18 amsua_n19 iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18 ssmis_f17"
-#XL sattypes="atms 1bamua mtiasi gsrcsr ssmisu"
-#XL obstypes="ADPUPA ${radtypes} ${convtypes}"
-#XL satbufrs="atms 1bamua mtiasi gsrcsr ssmisu"
-airctypes="aircar aircft"
-convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp adpupa"
-convbufrs="satwnd satwnd prepbufr prepbufr prepbufr"
-sattypes="atms ssmis amsua iasi gsrcsr"
-satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
-radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
-obstypes="${radtypes} ${convtypes}"
-IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
-IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
-tilestr=` expr ${nest_grids} + 6 `
-GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
-output_dir=${DATA}/jedi_ioda/output
-${NCP} ${IODAEXEC} .
-${NCP} ${IODABCEXEC} .
-for file in ${satbufrs}; do
-  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
-    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
-  fi
-done
-#${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
-${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
-${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
-${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
-${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
-sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
-########## Prepare yaml or json files #######################
-${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
-mkdir output
-for file in ${sattypes}; do
- if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ]; then
-  sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
- fi
- if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
-  sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml > satbias_converter_${file}.yaml
- fi
-done
-############### RUN bufr2ioda, either using exec or python #######################
-bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #For ABI for now
-export err=$?; err_chk
-#for file in ${sattypes}; do
-# if [ -s bufr_ncep_${file}.yaml ]; then
-#  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml # use executable to convert sat radiances
-#  export err=$?; err_chk
-# fi
-#done
-ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
-for file in ${airctypes}; do
- export AVAIL=` binv gfs.t${cyc}z.prepbufr.bufr_d | grep "${file^^}" | wc -l `
- if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ "${AVAIL}" -gt 0 ] ; then
-  sed -e "s|#HH#|t${cyc}z|g" \
-      -e "s|#ANADATE#|${ANADATE}|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
-  ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml
- else
-  echo "Skipping ${file^^}: YAML missing or AVAIL=0"
- fi
-done
-######## Temp convert prepbufr only #####
-ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
-#sed -e "s|#HH#|t${cyc}z|g" \
-#    -e "s|#ANADATE#|${ANADATE}|g" \
-#    ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_prepbufr.yaml > bufr_ncep_prepbufr.yaml
-#${APRUNS} ${IODAEXEC} bufr_ncep_prepbufr.yaml # use executable to convert prepbufr, may need to merge with satwnd if both using the same exe
-#export err=$?; err_chk
-############### RUN bufrquery #######################
-${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
-${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
-for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
- ${NCP} -rp ${file} .
-done
-
-set -- $satbufrs
-for file in $sattypes; do
-  bufr=$1
-  if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
-    if [[ "${file}" = "amsua" ]]; then
-     ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-  #   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
-    elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-     python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+  airctypes="aircar aircft"
+  convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp adpupa"
+  convbufrs="satwnd satwnd prepbufr prepbufr prepbufr"
+  sattypes="atms ssmis amsua iasi gsrcsr"
+  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
+  obstypes="${radtypes} ${convtypes}"
+  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
+  IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
+  tilestr=` expr ${nest_grids} + 6 `
+  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
+  output_dir=${DATA}/jedi_ioda/output
+  ${NCP} ${IODAEXEC} .
+  ${NCP} ${IODABCEXEC} .
+  for file in ${satbufrs}; do
+    if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
+      ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
     fi
-  fi
-  shift
-done
+  done
+  #${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
+  ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
+  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
+  ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
+  ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
+  sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
+########## Prepare yaml or json files #######################
+  ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
+  mkdir output
+  for file in ${sattypes}; do
+   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ]; then
+    sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
+   fi
+   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
+    sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml > satbias_converter_${file}.yaml
+   fi
+  done
+############### RUN bufr2ioda, either using exec or python #######################
+  bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #use bufr2ioda for ABI; Needs to be merged into bufrquery #XL
+  export err=$?; err_chk
+  ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+  for file in ${airctypes}; do
+   export AVAIL=` binv gfs.t${cyc}z.prepbufr.bufr_d | grep "${file^^}" | wc -l `
+   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ "${AVAIL}" -gt 0 ] ; then
+    sed -e "s|#HH#|t${cyc}z|g" \
+        -e "s|#ANADATE#|${ANADATE}|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
+    ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml
+   else
+    echo "Skipping ${file^^}: YAML missing or AVAIL=0"
+   fi
+  done
+############### RUN bufrquery #######################
+  ${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
+  ${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
+  for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
+   ${NCP} -rp ${file} .
+  done
 
-set -- $convbufrs
-for file in $convtypes; do
-  bufr=$1
-#  ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc
-  if [[ "${bufr}" = "prepbufr" ]]; then
-sed -e "s|#ANADATE#|${ANADATE}|g" \
-    ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
-   python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
-  else
-   python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-  fi
-  shift
-done
+  set -- $satbufrs
+  for file in $sattypes; do
+    bufr=$1
+    if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
+      if [[ "${file}" = "amsua" ]]; then
+       ${APRUNC} ${EXEChafs}/hafs_bufr2netcdf.x gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+    #   python bufr_${file}.py gfs.t${cyc}z.1bamua.bufr_d gfs.t${cyc}z.esamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc #Merge appears not needed, as amsuabufrears not used in HAFS gsiparm.anl
+      elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
+       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+      fi
+    fi
+    shift
+  done
+
+  set -- $convbufrs
+  for file in $convtypes; do
+    bufr=$1
+    if [[ "${bufr}" = "prepbufr" ]]; then
+      sed -e "s|#ANADATE#|${ANADATE}|g" \
+        ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
+      python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
+    else
+      python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+    fi
+    shift
+  done
 
 ########## Converting ATMS NPP/N20 to ioda nc #################
-for file in ${sattypes}; do
- if [ -s satbias_converter_${file}.yaml ]; then
-  ${APRUNS} ${IODABCEXEC} satbias_converter_${file}.yaml #Bias File 2 IODA
-  export err=$?; err_chk
- fi
-done
+  for file in ${sattypes}; do
+   if [ -s satbias_converter_${file}.yaml ]; then
+    ${APRUNS} ${IODABCEXEC} satbias_converter_${file}.yaml #Bias File 2 IODA
+    export err=$?; err_chk
+   fi
+  done
 
-for file in ${radtypes}; do
- if [ -s ${output_dir}/satbias_${file}_t${cyc}z.nc ]; then
-  ${NCP} ${output_dir}/satbias_${file}_t${cyc}z.nc ${output_dir}/satbias_${file}_t${cyc}z_cov.nc
- fi
-done
+  for file in ${radtypes}; do
+   if [ -s ${output_dir}/satbias_${file}_t${cyc}z.nc ]; then
+    ${NCP} ${output_dir}/satbias_${file}_t${cyc}z.nc ${output_dir}/satbias_${file}_t${cyc}z_cov.nc
+   fi
+  done
 ########## Getting lapse rate for each satellite radiance from gdas ################
-for file in ${radtypes}; do
-  awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/${file}.tlapse.txt
-done
+  for file in ${radtypes}; do
+    awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/${file}.tlapse.txt
+  done
 
 ########## Converting ATMS NPP/N20 to ioda nc Done #################
-for file in ${output_dir}/*; do
-  ${NCP} ${file} ${intercom}/
-done
+  for file in ${output_dir}/*; do
+    ${NCP} ${file} ${intercom}/
+  done
+fi
 cd ${DATA}
 date

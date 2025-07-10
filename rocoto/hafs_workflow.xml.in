@@ -1038,8 +1038,8 @@
 @** endif
 
 <!-- @** if RUN_ANALYSIS==YES -->
-@** if ANALYSIS_MODEL==JEDI
-<!-- !!!!!!!!!!!!!!!!!!!!! XL Note, this should be ENSDA==YES || ANALYSIS_MODEL==JEDI !!!!!!!!!!!!!-->
+@** if RUN_ENSDA==YES
+<!-- !!!!!!!!!!!!!!!!!!!!! XL Note, this should be RUN_ENSDA==YES || ANALYSIS_MODEL==JEDI !!!!!!!!!!!!!-->
 
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_PREP</command>
@@ -1093,8 +1093,6 @@
             <taskdep task="input"/>
             <strneq><left>&FETCH_INPUT;</left><right>YES</right></strneq>
           </or>
-<!-- XL
--->
           <!-- Second dependency: the GFS output must be available -->
           <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
@@ -1612,6 +1610,7 @@
   </metatask>
 @** endif
 @** endif
+<!-- end for if ENSDA XL -->
 
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">
