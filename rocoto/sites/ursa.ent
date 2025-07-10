@@ -3,7 +3,7 @@
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
   <!ENTITY QUEUE_PE        "batch"> <!-- queue for PE (parallel environment) jobs -->
   <!ENTITY QUEUE_FORECAST  "&QUEUE_PE;"> <!-- queue for the forecast job -->
-  <!ENTITY PE_EXTRA        "<native>--partition=u1-compute --exclusive</native>">
+  <!ENTITY PE_EXTRA        "<native>--partition=u1-compute</native>">
   <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=u1-compute</native>">
   <!ENTITY QUEUE_SHARED    "batch">
@@ -18,7 +18,7 @@
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>4G</memory>">
 
-  <!ENTITY LAUNCH_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime>">
+  <!ENTITY LAUNCH_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime><memory>24G</memory>">
   <!ENTITY DOCN_PREP_RESOURCES "<nodes>1:ppn=1:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
   <!ENTITY DATM_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
   <!ENTITY ATM_PREP_RESOURCES "<nodes>1:ppn=6:tpp=16</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>16</value></envar><walltime>01:30:00</walltime>">
@@ -33,13 +33,13 @@
   <!ENTITY ANALYSIS_RESOURCES "<nodes>5:ppn=24:tpp=8</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>24</value></envar><envar><name>OMP_THREADS</name><value>8</value></envar><envar><name>FI_OFI_RXM_SAR_LIMIT</name><value>3145728</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ENKF_ENKF_RESOURCES "<nodes>21:ppn=1:tpp=60</nodes><envar><name>TOTAL_TASKS</name><value>21</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>60</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ENKF_GSI_RESOURCES "<nodes>1:ppn=60:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>60</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
-  <!ENTITY MERGE_RESOURCES "<nodes>1:ppn=8:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>8</value></envar><envar><name>NCTSK</name><value>8</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime>">
+  <!ENTITY MERGE_RESOURCES "<nodes>1:ppn=8:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>8</value></envar><envar><name>NCTSK</name><value>8</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime><memory>60G</memory>">
   <!ENTITY ATM_INIT_RESOURCES "<nodes>2:ppn=180:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>180</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>2:ppn=180:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>180</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
 
   <!ENTITY FORECAST_WALLTIME "<walltime>05:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>3</value></envar>">
-  <!ENTITY FORECAST_EXTRA "<envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
+  <!ENTITY FORECAST_EXTRA "<native>--exclusive</native><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
 
   <!ENTITY FORECAST_RESOURCES_60PE "<nodes>1:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_120PE "<nodes>2:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
