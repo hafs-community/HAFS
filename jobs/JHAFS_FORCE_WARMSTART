@@ -2,7 +2,7 @@
 
 date
 export PS4='+ $SECONDS + '
-set -x
+set -xue
 
 export cycle=${cycle:-t${cyc:?}z}
 export storm_num=${storm_num:-1}
@@ -10,6 +10,7 @@ export stormlabel=${stormlabel:-storm$storm_num}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
+export RUN_ENVIR=${RUN_ENVIR:?}
 
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -55,44 +56,36 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 source ${HOLDVARS}
 
 export ENSDA=${ENSDA:-NO}
-export ENSID=${ENSID:-000}
-export FGAT_MODEL=${FGAT_MODEL:-gfs}
-export FGAT_HR=${FGAT_HR:-00}
-export RUN_INIT=YES
+export ENSID=${ENSID:-001}
 
-export CDATE=${CDATE:-${YMDH}}
-if [ ${FGAT_MODEL} = gdas ]; then
-  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
-  export out_prefix="${STORMID,,}.${CDATE}"
-fi
-
-if [ "${ENSDA}" = YES ]; then
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
-else
-  export DATA=${WORKhafs}/atm_init${jobidstr}
-fi
-
-if [ "${SCRUBDATA:-YES}" = YES ]; then
-  rm -rf $DATA
-fi
-mkdir -p $DATA
-cd $DATA
-
-# Ghassan.Alaka@noaa.gov 2024-01-22
-# Add multistorm env vars
+# Ghassan.Alaka@noaa.gov, 2024-07-10
 export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
 # GJA
 
+# Create DATA dir
+# Deterministic or ensemble
+if [ "${ENSDA:-NO}" != "YES" ]; then
+  export DATA=${WORKhafs}/forecast
+else
+  export DATA=${WORKhafs}/forecast_ens/mem${ENSID:-001}
+fi
+
+# if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+#   rm -rf $DATA
+# fi
+# mkdir -p $DATA
+cd $DATA
+
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_init.sh
-export err=$?; err_chk
+#${HOMEhafs}/scripts/exhafs_forecast.sh
+#status=$?; [[ $status -ne 0 ]] && exit $status
+${HOMEhafs}/scripts/exhafs_force_warmstart.sh
+status=$?; [[ $status -ne 0 ]] && exit $status
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
-fi
+# if [ "${KEEPDATA:-YES}" != "YES" ]; then
+#   rm -rf $DATA
+# fi
 
 date

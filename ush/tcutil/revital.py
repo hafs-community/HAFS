@@ -717,7 +717,43 @@ class Revital:
         pass
 
     def hrd_multistorm_cmp(self,a,b):
-        return hrd_multistorm_cmp(a,b)
+        #return hrd_multistorm_cmp(a,b)
+        """!A compares two storminfo objects for use in sorting or comparison.
+        Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is made in this
+        order:
+    
+        1. User priority (a.userprio): lower (priority 1) is "more
+           important" than higher numbers (priority 9999 is fill value).
+    
+        2.  Invest vs. non-invest: invest is less important
+    
+        3.  Atlantic vs. East Pacific: Atlantic is more important
+    
+        4.  wind: stronger wind is more important than weaker wind
+    
+        5.  North Atlantic (L) storms: farther west is more important
+    
+        6.  North East Pacific (E) storms: farther East is more important
+    
+        If all of the above values are equal, 0 is returned.
+        @returns -1, 0 or 1
+        @param a,b the vitals to compare
+    
+        """
+        a_userprio=getattr(a,'userprio',9999)
+        b_userprio=getattr(b,'userprio',9999)
+        a_invest=1 if (a.stormname=='INVEST') else 0
+        b_invest=1 if (b.stormname=='INVEST') else 0
+        a_basin=1  if (a.basin1=='E') else 0
+        b_basin=1  if (b.basin1=='E') else 0
+    
+        c = oldcmp(a_userprio,b_userprio) or \
+            oldcmp(a_invest,b_invest) or\
+            oldcmp(a_basin,b_basin) or\
+            -oldcmp(a.wmax,b.wmax) or\
+            (a.basin1=='L' and b.basin1=='L' and oldcmp(a.lon,b.lon)) or \
+            (a.basin1=='E' and b.basin1=='E' and -oldcmp(a.lon,b.lon))
+        return c
 
     def hrd_multistorm_key(self,a):
         return functools.cmp_to_key(hrd_multistorm_cmp)
@@ -731,6 +767,10 @@ def oldcmp(a,b):
     if a>b: return 1
     return 0
 
+def hrd_multistorm_key(a):
+    return functools.cmp_to_key(hrd_multistorm_cmp)
+
+#### Lew.Gramer@noaa.gov 2023-11-03: is this still needed for anything??
 def hrd_multistorm_cmp(a,b):
     """!A compares two storminfo objects for use in sorting or comparison.
     Returns -1 if a<b, 1 if a>b or 0 if a=b.  Decision is made in this

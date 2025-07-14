@@ -1,7 +1,7 @@
 #!/bin/sh
 ################################################################################
 # Script Name: exhafs_hrdgraphics.sh
-# Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
+# Authors: Alaka, Gramer, NECP/EMC Hurricane Project Team and UFS HAT
 # Abstract:
 #   This script generates HRD graphics through GPLOT.
 # History:
@@ -10,6 +10,7 @@
 #   == 0 : success
 #   != 0 : fatal error encounted
 ################################################################################
+
 set -xe
 
 CDATE=${CDATE:-${YMDH}}
@@ -24,7 +25,13 @@ BASIN=${pubbasin2:-AL}
 GPLOT_PARSE="${GPLOThafs}/ush/parse_atcf.sh"
 GPLOT_WRAPPER="${GPLOThafs}/sorc/GPLOT/scripts/GPLOT_wrapper.sh"
 GPLOT_ARCHIVE="${GPLOThafs}/archive/GPLOT_tarballer.sh"
-ADECKhafs=${ADECKhafs:?}
+## GJA: 2024-07-04: force custom ADECKhafs directory here
+##ADECKhafs=${ADECKhafs:?}
+#ADECKhafs="/lfs5/HFIP/hur-aoml/Ghassan.Alaka/adeck/GPLOT"
+# LJG: 2024-11-01
+ADECKhafs="/scratch2/AOML/aoml-hafs1/Ghassan.Alaka/adeck/GPLOT_2024"
+# LJG: 2024-07-31: Fix bad ADECK link?
+#ADECKhafs="/lfs5/HFIP/hur-aoml/Ghassan.Alaka/adeck/GPLOT_2024"
 BDECKhafs=${BDECKhafs:?}
 SYNDAThafs=${SYNDAThafs:?}
 if [ "${machine}" == "orion" ]; then
@@ -50,15 +57,26 @@ if [ ! -f ${NML} ]; then
   fi
 fi
 sed -i 's/^EXPT =.*/EXPT = '"${SUBEXPT}"'/g' ${NML}
+# Lew.Gramer@noaa.gov 2024-04-27:
+sed -i 's/^DSOURCE =.*/DSOURCE = '"${RUN^^}"'/g' ${NML}
 sed -i 's/^IDATE =.*/IDATE = '"${CDATE}"'/g' ${NML}
 sed -i 's/^SID =.*/SID = '"${STORMID}"'/g' ${NML}
 sed -i 's/^INIT_HR =.*/INIT_HR = 0/g' ${NML}
 sed -i 's/^FNL_HR =.*/FNL_HR = '"${NHRS}"'/g' ${NML}
-sed -i 's@^OCEAN_DIR =.*@OCEAN_DIR = '"${COMhafs}"'@g' ${NML}
+#sed -i 's@^OCEAN_DIR =.*@OCEAN_DIR = '"${COMhafs}"'@g' ${NML}
+sed -i 's@^OCEAN_DIR =.*@OCEAN_DIR = '"${CDSCRUB}"'@g' ${NML} # Lew.Gramer@noaa.gov 2024-05-21
 sed -i 's@^IDIR =.*@IDIR = '"${COMhafs}"'@g' ${NML}
 sed -i 's@^ODIR =.*@ODIR = '"${WORKgplot}"'@g' ${NML}
+model=${RUN,,}
+MODEL=${RUN^^}
 sed -i 's@^ATCF1_DIR =.*@ATCF1_DIR = '"${COMgplot}"'@g' ${NML}
-sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${CDNOSCRUB}/${SUBEXPT}"'@g' ${NML}
+sed -i 's@^ATCF1_TAG =.*@ATCF1_TAG = '"trak.${model:0:4}.atcfunix"'@g' ${NML}
+#   Ghassan.Alaka@noaa.gov: Force GPLOT to only find the ATCF in COMgplot
+#sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${CDNOSCRUB}/${SUBEXPT}"'@g' ${NML}
+sed -i 's@^ATCF2_DIR =.*@ATCF2_DIR = '"${COMgplot}"'@g' ${NML}
+#   GJA
+sed -i 's@^ATCF2_TAG =.*@ATCF2_TAG = '"${RUN,,}.trak.atcfunix"'@g' ${NML}
+# LJG
 sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}"'@g' ${NML}
 sed -i 's@^BDECK_DIR =.*@BDECK_DIR = '"${BDECKhafs}"'@g' ${NML}
 sed -i 's/^SYS_ENV =.*/SYS_ENV = '"$( echo ${machine} | tr "[a-z]" "[A-Z]")"'/g' ${NML}
@@ -73,7 +91,27 @@ while [[ ${ALL_COMPLETE} -eq 0 ]]; do
 
   # Find and parse the ATCF file into an individual file for each storm
   # Do this even for HAFS regional to remove ".all" from file name.
-  ${GPLOT_PARSE} ${RUN^^} ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${DATE}.${RUN}.trak.atcfunix.all"
+  # Lew.Gramer@noaa.gov 2024-04-27:
+  # Ghassan.Alaka@noaa.gov 2024-07-07: Add logic to parse ATCFs for all storms if this is the Fake Storm (storm1)
+  #                                    Not doing this yet because it may produce storm-centric graphics similar to GFS (no nest)
+  # LJG 2024-09-01: Turn on "all" parsing to get labels in d01 titles, and (take steps to) fix ocean_domain plotting
+  # if [ "${STORMNUM}" == "00" ]; then
+  #  ${GPLOT_PARSE} ${MODEL:0:4} "all" "all" ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${CDATE}.${RUN}.trak.atcfunix.all"
+  # else
+  # ${GPLOT_PARSE} ${MODEL:0:4} ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${CDATE}.${RUN}.trak.atcfunix.all"
+  # fi
+  #if [ "${STORMNUM}" == "00" ]; then
+  #  ${GPLOT_PARSE} ${MODEL:0:4} "all" "all" ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${CDATE}.${RUN}.trak.atcfunix.all"
+  #else
+  ${GPLOT_PARSE} ${MODEL:0:4} ${STORMNUM} ${BASIN} ${COMgplot} ${COMhafs} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${CDATE}.${RUN}.trak.atcfunix.all"
+  #fi
+
+  # GJA
+  # LJG
+  # Ghassan.Alaka@noaa.gov 2024-07-06: Add additional parse for the "final" ATCF in CDNOSCRUB.
+  #                                    Now, GPLOT will always find a parsed ATCF with the storm name in it --> "beryl02l" instead of "02l"
+  ${GPLOT_PARSE} ${MODEL:0:4} ${STORMNUM} ${BASIN} ${COMgplot} ${CDNOSCRUB}/${SUBEXPT} ${BDECKhafs} ${SYNDAThafs} ${SIDhafs} 0 "*${CDATE}.${RUN}.trak.atcfunix"
+  # GJA
 
   # Check the status logs for all GPLOT components.
   # If every log doesn't say "complete", set ALL_COMPLETE=0

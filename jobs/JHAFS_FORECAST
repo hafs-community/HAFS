@@ -57,6 +57,10 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
 
+# Ghassan.Alaka@noaa.gov, 2024-07-10
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+# GJA
+
 # Set FORECAST_RESTART to YES if this is a restart run for the forecast job
 export FORECAST_RESTART=${FORECAST_RESTART:-${RESTART:-NO}}
 if [ "${FORECAST_RESTART}" = "YES" ]; then

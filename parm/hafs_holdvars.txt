@@ -55,10 +55,13 @@ export STORMID={vit[stormid3]}
 export hafsbasin2={vit[tcutilbasin2]}
 export pubbasin2={vit[pubbasin2]}
 export basinname="{vit[basinname]}"
+export fakestormid={fakestormid}
+export multistorm_sids={multistorm_sids}
 export CENLO={domlon}
 export CENLA={domlat}
 
 export RUN_HRDGRAPHICS={RUN_HRDGRAPHICS}
+export RUN_MULTISTORM={RUN_MULTISTORM}
 export RUN_ATM_MVNEST={RUN_ATM_MVNEST}
 export RUN_ATM_MVNEST_ENS={RUN_ATM_MVNEST_ENS}
 export RUN_ATM_INIT={RUN_ATM_INIT}
@@ -185,6 +188,7 @@ export halop2_mvnest1res={halop2_mvnest1res}
 
 export is_moving_nest={is_moving_nest}
 export vortex_tracker={vortex_tracker}
+export static_grid_ratio={static_grid_ratio}
 export ntrack={ntrack}
 export move_cd_x={move_cd_x}
 export move_cd_y={move_cd_y}

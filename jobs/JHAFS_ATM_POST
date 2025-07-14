@@ -5,8 +5,14 @@ export PS4='+ $SECONDS + '
 set -x
 
 export cycle=${cycle:-t${cyc:?}z}
-export storm_num=${storm_num:-1}
-export stormlabel=${stormlabel:-storm$storm_num}
+# export storm_num=${storm_num:-1}
+# export stormlabel=${stormlabel:-storm$storm_num}
+# Lew.Gramer@noaa.gov 2024-04-22:
+real_stormlabel=${stormlabel:-storm1}
+real_storm_num=${real_stormlabel: -1}
+stormlabel=${real_stormlabel}
+storm_num=${stormlabel: -1}
+# LJG
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
@@ -53,12 +59,28 @@ export CONFhafs=$COMhafs/$stormlabel.conf
 export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
+stormlabel=${real_stormlabel}
+storm_num=${stormlabel: -1}
 
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-000}
 export POST_CLEANUP=${POST_CLEANUP:-NO}
 export POST_GROUPN=${POST_GROUPN:-1}
 export POST_GROUPI=$( printf "%d" "${POST_GROUPI:-1}" )
+
+# Lew.Gramer@noaa.gov 2024-04-20: variables needed for HAFS-M
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export FAKESTORMID=${FAKESTORMID:-00L}
+# LJG
+
+# Ghassan.Alaka@noaa.gov 2024-01-09
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+# Lew.Gramer@noaa.gov 2024-02-23: tweaked search and replace
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/\/${STORMID}//${FAKESTORMID}}")}
+echo "DEBUG: JHAFS_ATM_POST: FAKEWORKhafs = ${FAKEWORKhafs}"
+# GJA
 
 if [ ${ENSDA} = YES ]; then
   export DATA=${WORKhafs}/atm_post${POST_GROUPI}_ens/mem${ENSID}${jobidstr}
