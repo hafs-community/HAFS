@@ -40,16 +40,12 @@ else
   cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f1)
   cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f1)
 fi
-MIN_LON=$(echo "$cenlon - 10" | bc)
+MIN_LON=$(echo "$cenlon - 10" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
 MAX_LON=$(echo "$cenlon + 10" | bc)
 MIN_LAT=$(echo "$cenlat -  8" | bc)
 MAX_LAT=$(echo "$cenlat +  8" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
-#### XL to be considered for triple nested domain configuration
-#### Currently only for dual res, double nest
-
-# Force JEDI layout here? Should move to parm
 
 export PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -328,22 +324,11 @@ lrun_subdirs=${lrun_subdirs:-".true."}
 mkdir ${DATA}/crtm
 cd ${DATA}/crtm
 
-############ XL Need to update hafs_jedi crtm from 2.4.0.1 to 2.4.1
-#for file in $(awk '{if($1!~"!"){print $1}}' ${PARMjedi}/satinfo | sort | uniq); do
-#  ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
-#  ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
-#done
-#${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
-#${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
-#${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
-############ XL Need to update hafs_jedi crtm from 2.4.0.1 to 2.4.1
-############ Use HDASApp build for temporary getaround
-if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
- CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/3.0.0_skylab_6.0"
-else
- CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
-fi
-#"/work/noaa/hwrf/save/xulu/hafsv2_featurejedi/sorc/hafs_jedi.fd/bundle//test-data-release/crtm/2.4.1_skylab_4.0"
+#if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
+# CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/3.0.0_skylab_6.0"
+#else
+CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
+#fi
 for file in $(awk '{if($1!~"!"){print $1}}' ${DATA}/satinfo | sort | uniq); do
   ${NLN} ${CRTM_TEMP}/SpcCoeff/Little_Endian/${file}.SpcCoeff.bin ./
   ${NLN} ${CRTM_TEMP}/TauCoeff/ODPS/Little_Endian/${file}.TauCoeff.bin ./
@@ -363,8 +348,6 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-#convtypes="satwnd_abi_goes-16 satwnd_abi_goes-18 ADPUPA"
-#convsubtypes="adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120" # adpupa_stationPressure_120"
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
 convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18" # adpupa_stationPressure_120"
 convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18"
@@ -436,14 +419,18 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
-${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log 
+if [ ${l4densvar:-.true.} = ".true." ]; then
+  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+else
+  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+fi
 rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
 #----------------------------------------------
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-if [ ${l4denvar:-.false.} = ".true." ]; then
+if [ ${l4denvar:-.true.} = ".true." ]; then
 sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
     -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
@@ -541,11 +528,16 @@ for obstype in ${obstypes}; do
  cat "${obs_yaml_dir}/${obstype}.yaml" >> temp.yaml.tmp
 done
 
+if [ ${l4densvar:-.true.} = ".true." ]; then
+  TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
+else
+  TOTAL_TASKS_tmp=${TOTAL_TASKS}
+fi
 sed -e "s|#HH#|t${cyc}z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
-    -e "s|#TOTAL_TASKS#|${TOTAL_TASKSD3}|g" \
+    -e "s|#TOTAL_TASKS#|${TOTAL_TASKS_tmp}|g" \
     -e "s|#MIN_LAT#|${MIN_LAT}|g" \
     -e "s|#MAX_LAT#|${MAX_LAT}|g" \
     -e "s|#MIN_LON#|${MIN_LON}|g" \
@@ -562,10 +554,8 @@ sed -i '/@OBSERVATIONS@/{
 ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
 ${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
 ${SOURCE_PREP_STEP}
-#ANALYSISEXEC=/scratch1/NCEPDEV/hwrf/save/Xu.Lu/JEDI/GDASApp_20250203/build/bin/gdas.x
-#${APRUNC} ${ANALYSISEXEC} fv3jedi variational jedi.yaml jedi.out #GDASApp running options
 ${APRUNC} ${ANALYSISEXEC} jedi.yaml jedi.out
-export err=$?; err_chk #XL Note: Need to add exit when error check failed, currently will continue
+export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
@@ -618,7 +608,6 @@ done
 
 #Store the output to intercom
 if [ ${l4denvar:-.false.} = ".true." ]; then
-# ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTanl}/${FV3_CORE_FILE}
  ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
  ${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
  ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
@@ -627,7 +616,6 @@ else
  ${NCP} ${DATA}/analysis.coupler.res        ${RESTARTanl}/${FV3_CPLR_FILE}
  ${NCP} ${DATA}/analysis.sfc_data.nc        ${RESTARTanl}/${FV3_SFCD_FILE}
  ${NCP} ${DATA}/analysis.fv_srf_wnd.res.nc  ${RESTARTanl}/${FV3_SFCW_FILE}
-# ${NCP} ${DATA}/analysis.fv_core.res.nc     ${RESTARTanl}/${FV3_CORE_FILE}
  ${NCP} ${DATA}/analysis.fv_tracer.res.nc   ${RESTARTanl}/${FV3_TRCR_FILE}
 fi
 ${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/
