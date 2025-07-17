@@ -349,8 +349,8 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
-convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18" # adpupa_stationPressure_120"
-convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18"
+convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16"
+convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16"
 mkdir ${DATA}/obs
 cd ${DATA}/obs
 for file in ${convfiles}; do

@@ -388,8 +388,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
   airctypes="aircar aircft"
-  convtypes="satwnd_abi satwnd_viirs adpsfc sfcshp adpupa"
-  convbufrs="satwnd satwnd prepbufr prepbufr prepbufr"
+  convtypes="satwnd_abi satwnd_viirs satwhr_abi adpsfc sfcshp adpupa"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr"
   sattypes="atms ssmis amsua iasi gsrcsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
