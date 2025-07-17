@@ -70,6 +70,7 @@
 /
 &OBS_INPUT
   dmesh(1)=90.0,dmesh(2)=45.0,dmesh(3)=45.0,dmesh(4)=45.0,dmesh(5)=90,time_window_max=3.0,l_foreaft_thin=.false.,
+  l_tdr_thin_alongbeam=_L_TDR_THIN_ALONGBEAM_,
 /
 OBS_INPUT::
 !  dfile          dtype       dplat       dsis                dval    dthin dsfcalc

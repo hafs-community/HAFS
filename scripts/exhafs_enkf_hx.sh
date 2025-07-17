@@ -45,6 +45,11 @@ export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
 # Currently hardwired to .false.
 export l_both_fv3sar_gfs_ens=.false.
+if [ ${tdr_superob:-.false.} = .true. ]; then
+  export l_tdr_thin_alongbeam=.false.
+else
+  export l_tdr_thin_alongbeam=.true.
+fi
 
 export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 export neststr=${neststr:-""} # ".nest02" for domain 02

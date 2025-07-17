@@ -58,6 +58,7 @@ $Build_tracker && {
 #------------------------------------
 $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_rtofs_obs_read.x                     ../exec/hafs_tools_rtofs_obs_read.x
+  ${CP} hafs_tools.fd/exec/hafs_tdr_superob.x                        ../exec/hafs_tools_tdr_superob.x
   ${CP} hafs_tools.fd/exec/hafs_nhc_products.x                       ../exec/hafs_tools_nhc_products.x
   ${CP} hafs_tools.fd/exec/hafs_obs_preproc.x                        ../exec/hafs_tools_obs_preproc.x
   ${CP} hafs_tools.fd/exec/mpiserial.x                               ../exec/hafs_tools_mpiserial.x
@@ -72,7 +73,6 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
-  ${CP} hafs_tools.fd/exec/hafs_calc_analysis.x                      ../exec/hafs_tools_calc_analysis.x
 }
 
 #------------------------------------

@@ -92,10 +92,10 @@ export vi_storm_env={vi_storm_env}
 export vi_storm_relocation={vi_storm_relocation}
 export vi_storm_modification={vi_storm_modification}
 export vi_adjust_intensity={vi_adjust_intensity}
-export vi_composite_vortex={vi_composite_vortex}
+export vi_adjust_size={vi_adjust_size}
 export vi_cloud={vi_cloud}
 export vi_slp_adjust={vi_slp_adjust}
-export vi_hmon={vi_hmon}
+export vi_pert_smth={vi_pert_smth}
 
 export atm_merge_method={atm_merge_method}
 export analysis_merge_method={analysis_merge_method}
@@ -203,6 +203,7 @@ export l4densvar={l4densvar}
 export nsclgrp={nsclgrp}
 export naensloc={naensloc}
 export nhr_obsbin={nhr_obsbin}
+export tdr_superob={tdr_superob}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 

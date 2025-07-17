@@ -127,15 +127,13 @@ _hafsutils_obs_preproc (){
     make install
 }
 
-#----
-
 # FUNCTION:
 
-# _hafsutils_calc_analysis.sh
+# _hafs_tdr_superob.sh
 
 # DESCRIPTION:
 
-# This function compiles and install the HAFS utility calc_analysis
+# This function compiles and install the HAFS utility obs-preproc
 # application.
 
 # NOTE:
@@ -143,7 +141,7 @@ _hafsutils_obs_preproc (){
 # This function should never be called directly by the user and is for
 # internal use only within this script.
 
-_hafsutils_calc_analysis (){
+_hafs_tdr_superob (){
 
     # Remove the build dir if it exists from previous build
     if [ -d "${HAFS_UTILS_SORC}/build" ]; then
@@ -156,9 +154,9 @@ _hafsutils_calc_analysis (){
     cd ${HAFS_UTILS_SORC}/build
 
     # Generate makefile using CMake for the application
-    cmake ../hafs_calc_analysis -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}  -DBUILD_TYPE=${BUILD_TYPE}
+    cmake ../hafs_tdr_superob -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
 
-    # Build the obs-preproc application.
+    # Build the hafs_tdr_superob application.
     make all VERBOSE=3
 
     # Move the analysis-update application executable to the HAFS
@@ -329,9 +327,8 @@ build_hafsutils (){
      # Build the vi application
     _hafsutils_vi
 
-     # Build the calc_analysis application
-    _hafsutils_calc_analysis
-
+     # Build the tdr_superob application
+    _hafs_tdr_superob
 }
 
 #----
