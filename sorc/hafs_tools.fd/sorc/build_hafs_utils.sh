@@ -168,6 +168,45 @@ _hafs_tdr_superob (){
 
 # FUNCTION:
 
+# _hafs_dropsonde_superob.sh
+
+# DESCRIPTION:
+
+# This function compiles and install the HAFS utility obs-preproc
+# application.
+
+# NOTE:
+
+# This function should never be called directly by the user and is for
+# internal use only within this script.
+
+_hafs_dropsonde_superob (){
+
+    # Remove the build dir if it exists from previous build
+    if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+       rm -rf ${HAFS_UTILS_SORC}/build
+    fi
+
+    # Create a build directory for a fresh build
+    mkdir ${HAFS_UTILS_SORC}/build
+
+    cd ${HAFS_UTILS_SORC}/build
+
+    # Generate makefile using CMake for the application
+    cmake ../hafs_dropsonde_superob -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DBUILD_TYPE=${BUILD_TYPE}
+
+    # Build the hafs_dropsonde_superob application.
+    make all VERBOSE=3
+
+    # Move the analysis-update application executable to the HAFS
+    # utility application executables path.
+    make install
+}
+
+#----
+
+# FUNCTION:
+
 # _hafsutils_change_prepbufr.sh
 
 # DESCRIPTION:
@@ -329,6 +368,9 @@ build_hafsutils (){
 
      # Build the tdr_superob application
     _hafs_tdr_superob
+
+     # Build the dropsonde_superob application
+    _hafs_dropsonde_superob
 }
 
 #----
