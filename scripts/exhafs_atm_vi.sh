@@ -602,7 +602,7 @@ if [ -s ${DATA}/anl_storm/storm_txt ]; then
 fi
 
 for nd in $(seq 1 ${nest_grids}); do
-  ${APRUNC} ${DATOOL} hafsvi_postproc \
+  ${APRUNS} ${DATOOL} hafsvi_postproc \
       --in_file=${DATA}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
       --relaxzone=30 \
