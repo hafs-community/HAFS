@@ -22,7 +22,7 @@
         simulated variables: [specificHumidity]
       obs operator:
         name: Composite
-        components: 
+        components:
         - name: VertInterp
           vertical coordinate: air_pressure
           observation vertical coordinate: pressure
@@ -62,7 +62,7 @@
       - filter: RejectList
         apply at iterations: 0,1
         filter variables:
-        - name: specificHumidity 
+        - name: specificHumidity
         where:
         - variable: QualityMarker/specificHumidity
           is_in: 4-15
@@ -192,7 +192,7 @@
         minvalue: 0.0
         maxvalue: 1.0
         action:
-          name: reject 
+          name: reject
 
       # Observation Post Filters (QC)
       # -------------------------------

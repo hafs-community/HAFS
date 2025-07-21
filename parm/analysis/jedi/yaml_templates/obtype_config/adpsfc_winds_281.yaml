@@ -21,7 +21,7 @@
       obs operator:
         name: VertInterp
         hofx_scaling: true
-        hofx scaling field: wind_reduction_factor_at_10m 
+        hofx scaling field: wind_reduction_factor_at_10m
         hofx scaling field group: GeoVaLs
         vertical coordinate: air_pressure
         observation vertical coordinate: pressure
@@ -198,7 +198,7 @@
       # Inflate obs error based on obs type
       - filter: Perform Action
         filter variables:
-        - name: windEastward 
+        - name: windEastward
         action:
           name: inflate error
           inflation factor: 1.2
@@ -258,7 +258,7 @@
           function:
             name: ObsFunction/ObsErrorFactorDuplicateCheck
             options:
-              use_air_pressure: yes 
+              use_air_pressure: yes
               variable: windEastward
       - filter: Variable Assignment
         assignments:
@@ -267,7 +267,7 @@
           function:
             name: ObsFunction/ObsErrorFactorDuplicateCheck
             options:
-              use_air_pressure: yes 
+              use_air_pressure: yes
               variable: windNorthward
 
       # Gross Error Check (windEastward)
@@ -348,7 +348,7 @@
       # Inflate obs error based on duplicate check
       - filter: Perform Action
         filter variables:
-        - name: windEastward 
+        - name: windEastward
         action:
           name: inflate error
           inflation variable:

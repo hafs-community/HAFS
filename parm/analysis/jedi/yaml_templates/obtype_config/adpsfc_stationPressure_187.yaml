@@ -55,7 +55,7 @@
         action:
           name: reduce obs space
 
-      # Observation Prior Filters (QC)   
+      # Observation Prior Filters (QC)
       obs prior filters:
       # ----------------------------------------------
       # stationPressure(187)
@@ -122,7 +122,7 @@
         where:
         - variable:
             name: ObsValue/stationPressure
-          is_defined: 
+          is_defined:
         - variable:
             name: ObsValue/stationPressure
           maxvalue: 50000.00
@@ -177,10 +177,10 @@
         assignments:
         - name: ObsErrorFactorDuplicateCheck/stationPressure
           type: float
-          function: 
+          function:
             name: ObsFunction/ObsErrorFactorDuplicateCheck
             options:
-              use_air_pressure: false 
+              use_air_pressure: false
               variable: stationPressure
       # Reduce effective observation error based on obs type and subtype
       # In this case: reduce effective obs error for buoy
@@ -209,7 +209,7 @@
               geovar_sfc_geomz: height_above_mean_sea_level_at_surface
               geovar_temp: air_temperature
               geovar_geomz: geopotential_height
-              station_altitude: height 
+              station_altitude: height
 
       # Inflate surface pressure observation based on discrepancies between model and observations due to terrian
       - filter: Perform Action
@@ -231,7 +231,7 @@
               - name: ObsValue/stationPressure
               - name: HofX/stationPressure
               coefs: [1, -1]
-              
+
       - filter: Variable Assignment
         assignments:
         - name: DerivedMetaData/ObsErrorBoundSfcPressure1
