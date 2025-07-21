@@ -409,6 +409,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   #${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d #XL amsua merge? Appears not needed, no amsuabufrears is assimilated in HAFS gsiparm.anl
   ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
+  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
   ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
   sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
@@ -461,12 +462,14 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   set -- $convbufrs
   for file in $convtypes; do
     bufr=$1
-    if [[ "${bufr}" = "prepbufr" ]]; then
-      sed -e "s|#ANADATE#|${ANADATE}|g" \
-        ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
-      python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
-    else
-      python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+    if [ -s gfs.t${cyc}z.${bufr}.bufr_d ]; then
+      if [[ "${bufr}" = "prepbufr" ]]; then
+        sed -e "s|#ANADATE#|${ANADATE}|g" \
+          ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
+      else
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+      fi
     fi
     shift
   done
