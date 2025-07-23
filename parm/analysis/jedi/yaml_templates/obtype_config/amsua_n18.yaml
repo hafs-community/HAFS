@@ -14,13 +14,18 @@
         channels: &amsua_n18_channels 1-15
       obs operator:
         name: CRTM
-        Absorbers: [H2O,O3]
-        Clouds: [Water, Ice]
+        Absorbers: [H2O, O3, CO2]
+        Clouds: [Water, Ice, Rain, Snow, Graupel]
         Cloud_Fraction: 1.0
+        method for cloud fraction within fov: none
+        method for hydrometeor effective radii within fov: none
+        Cloud_Seeding: true
         obs options:
           Sensor_ID: amsua_n18
           EndianType: little_endian
           CoefficientPath: crtm/
+        linear obs operator:
+          Absorbers: [H2O, O3]
 
       obs bias:
         input file: obs/satbias_amsua_n18_#HH#.nc
@@ -84,6 +89,23 @@
         - name: Thinning
           initial value: false
           force reinitialization: false
+
+      obs prior filters:
+      # Zero Atmospheric clouds in CRTM where water_area_fraction < 0.99
+      - filter: Variable Assignment
+        assignments:
+        - name: MetaData/zeroCloudInCRTM
+          type: int
+          function:
+            name: ObsFunction/Conditional
+            options:
+              defaultvalue: 0 # Will not zero clouds by default
+              cases:
+              - where:
+                - variable:
+                    name: GeoVaLs/water_area_fraction
+                  maxvalue: 0.99
+                value: 1 # Will zero clouds by default
 
       obs post filters:
       - filter: Bounds Check
@@ -340,6 +362,8 @@
                 x1: *amsua_n18_obsx1
                 err0: *amsua_n18_obserr0
                 err1: *amsua_n18_obserr1
+            threshold: 3
+            threshold_precip: 2.5
             obserr_bound_max: [4.5, 4.5, 4.5, 2.5, 2.0,
                                2.0, 2.0, 2.0, 2.0, 2.0,
                                2.5, 3.5, 4.5, 4.5, 4.5]
@@ -390,3 +414,111 @@
         action:
           name: reject
 
+      # Combined ColumnLiquidCloud + ColumnIceCloud
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/ColumnLiquidIceCloud
+          type: float
+          function:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
+              - name: GeoVaLs/mass_content_of_cloud_ice_in_atmosphere_column
+              coefs: [1, 1]
+
+      # replace zero by 9.99e-7 in DerivedMetaData/ColumnLiquidIceCloud
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/ColumnLiquidIceCloud
+          type: float
+          value: 9.99e-07
+        where:
+        - variable:
+            name: DerivedMetaData/ColumnLiquidIceCloud
+          maxvalue: 9.99e-07
+    
+      # ratio of liquid /(Liquid+Ice)
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/ColumnRatioLiquidCloud
+          type: float
+          function:
+            name: ObsFunction/ElementMultiply
+            options:
+              variables:
+              - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
+              - name: DerivedMetaData/ColumnLiquidIceCloud
+              exponents: [1,-1]
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/ColumnRatioLiquidCloud
+          type: float
+          value: 0.0
+        where:
+        - variable:
+            name: DerivedMetaData/ColumnLiquidIceCloud
+          maxvalue: 1.0e-06
+
+      # TotalColumnVaporGuess
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/TotalColumnVaporGuess
+          type: float
+          function:
+            name: ObsFunction/TotalColumnVaporGuess
+
+      # potentialTemperature at surface
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/PotentialTemperatureSurface
+          type: float
+          function:
+            name: PotentialTemperatureFromTemperature@ObsFunction
+            options:
+              use surface pressure: true
+
+      # potentialTemperature near 700 hPa
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/PotentialTemperatureAt700hPa
+          type: float
+          function:
+            name: PotentialTemperatureFromTemperature@ObsFunction
+            options:
+              use surface pressure: false
+              pressure to evaluate potential temperature: 70000.0
+
+      # stability = Difference between PotentialTemperatur values
+      - filter: Variable Assignment
+        assignments:
+        - name: DerivedMetaData/PotentialTemperatureDiff
+          type: float
+          function:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: DerivedMetaData/PotentialTemperatureAt700hPa
+              - name: DerivedMetaData/PotentialTemperatureSurface
+              coefs: [1, -1]
+
+      #  cold-air-outbreak (cao) check for all-sky DA with Rain, Snow, or Graupel
+      - filter: BlackList
+        filter variables:
+        - name: brightnessTemperature
+          channels: 1-6, 15
+        where:
+        - variable:
+            name: ObsFunction/TotalColumnVaporGuess
+          maxvalue: 8.0
+        - variable:
+            name: DerivedMetaData/ColumnRatioLiquidCloud
+          maxvalue: 0.5
+        - variable:
+            name: DerivedMetaData/PotentialTemperatureDiff
+          maxvalue: 12.0
+        - variable:
+            name: GeoVaLs/water_area_fraction
+          minvalue: 0.99
+        action:
+          name: reject
