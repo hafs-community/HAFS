@@ -16,7 +16,7 @@
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3,CO2]
-        Clouds: &atms_clouds [Water, Ice, Rain, Snow, Graupel]
+        Clouds: &atms_n21_clouds [Water, Ice, Rain, Snow, Graupel]
         Cloud_Fraction: 1.0
         method for cloud fraction within fov: none
         method for hydrometeor effective radii within fov: none
@@ -31,6 +31,8 @@
       obs bias:
         input file: obs/satbias_atms_n21_#HH#.nc
         output file: bc/out_satbias_atms_n21_#HH#.nc
+        variables without bc: [brightnessTemperature]
+        channels: 15
         variational bc:
           predictors:
           - name: constant
@@ -80,37 +82,7 @@
         action:
           name: reduce obs space
 
-      # Step 0-A: Create Diagnostic Flags
-      - filter: Create Diagnostic Flags
-        filter variables:
-        - name: brightnessTemperature
-          channels: *atms_n21_channels
-        flags:
-        - name: ScanEdgeRemoval
-          initial value: false
-          force reinitialization: false
-        - name: Thinning
-          initial value: false
-          force reinitialization: false
-        - name: CLWRetrievalCheck
-          initial value: false
-          force reinitialization: false
-        - name: WindowChannelExtremeResidual
-          initial value: false
-          force reinitialization: false
-        - name: HydrometeorCheck
-          initial value: false
-          force reinitialization: false
-        - name: GrossCheck
-          initial value: false
-          force reinitialization: false
-        - name: InterChannelConsistency
-          initial value: false
-          force reinitialization: false
-        - name: UseflagCheck
-          initial value: false
-          force reinitialization: false
-
+      # Remove Observations from the Edge of the Scan
       - filter: Domain Check
         filter variables:
         - name: brightnessTemperature
@@ -315,10 +287,8 @@
         test variables:
         - name: CLWRetFromObs@DerivedMetaData
         maxvalue: 999.0
-        actions:
-          - name: set
-            flag: CLWRetrievalCheck
-          - name: reject
+        action:
+          name: reject
 
       # Step 1B: CLW Retrieval Check (background_based)
       - filter: Bounds Check
@@ -328,10 +298,8 @@
         test variables:
         - name: CLWRetFromBkg@DerivedMetaData
         maxvalue: 999.0
-        actions:
-          - name: set
-            flag: CLWRetrievalCheck
-          - name: reject
+        action:
+          name: reject
 
       # Step 2: Window Channel Sanity Check
       - filter: Bounds Check
@@ -344,10 +312,8 @@
         maxvalue: 200.0
         minvalue: -200.0
         flag all filter variables if any test variable is out of bounds: true
-        actions:
-          - name: set
-            flag: WindowChannelExtremeResidual
-          - name: reject
+        action:
+          name: reject
 
       # Step 3: Hydrometeor Check (cloud/precipitation affected chanels)
       - filter: Variable Assignment
@@ -366,7 +332,7 @@
               obserr_function:
                 name: InitialObsError@DerivedMetaData
                 channels: *atms_n21_channels
-              Clouds: *atms_clouds
+              Clouds: *atms_n21_clouds
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -375,8 +341,8 @@
         - name: DerivedMetaData/HydrometeorCheckATMS
           channels: *atms_n21_channels
         maxvalue: 0.0
-        actions:
-          - name: reject
+        action:
+          name: reject
 
       # Step 4: Observation Error Inflation based on Topography Check
       - filter: Variable Assignment
@@ -519,7 +485,8 @@
               obserr_function:
                 name: InitialObsError@DerivedMetaData
                 channels: *atms_n21_channels
-                threhold: 3
+              threhold: 3
+              threshold_precip: 2.5
               obserr_bound_max: [4.5, 4.5, 3.0, 3.0, 1.0,
                                  1.0, 1.0, 1.0, 1.0, 1.0,
                                  1.0, 1.0, 1.0, 2.0, 4.5,
@@ -533,11 +500,8 @@
         function absolute threshold:
         - name: ObsErrorBound@DerivedMetaData
           channels: *atms_n21_channels
-        actions:
-          - name: set
-            flag: GrossCheck
-            ignore: rejected observations
-          - name: reject
+        action:
+          name: reject
 
       # Step 9: Inter-Channel Check
       - filter: Bounds Check
@@ -557,8 +521,8 @@
                         1, 1, 1, 1, 1,
                         1, 1]
         maxvalue: 1.0e-12
-        actions:
-          - name: reject
+        action:
+          name: reject
 
       # Step 10: Useflag Check
       - filter: Bounds Check
@@ -572,8 +536,8 @@
             channels: *atms_n21_channels
             use_flag: *atms_n21_useflag
         minvalue: 1.0e-12
-        actions:
-          - name: reject
+        action:
+          name: reject
 
       - filter: Variable Assignment
         assignments:

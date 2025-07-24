@@ -15,7 +15,7 @@
       obs operator:
         name: CRTM
         Absorbers: [H2O, O3, CO2]
-        Clouds: [Water, Ice, Rain, Snow, Graupel]
+        Clouds: &amsua_metop-c_clouds [Water, Ice, Rain, Snow, Graupel]
         Cloud_Fraction: 1.0
         method for cloud fraction within fov: none
         method for hydrometeor effective radii within fov: none
@@ -30,6 +30,8 @@
       obs bias:
         input file: obs/satbias_amsua_metop-c_#HH#.nc
         output file: bc/out_satbias_amsua_metop-c_#HH#.nc
+        variables without bc: [brightnessTemperature]
+        channels: 14
         variational bc:
           predictors:
           - name: constant
@@ -180,6 +182,7 @@
           channels: *amsua_metop-c_channels
           options:
             channels: *amsua_metop-c_channels
+            Clouds: *amsua_metop-c_clouds
             obserr_clearsky: *amsua_metop-c_obserr0
             clwret_function:
               name: ObsFunction/CLWRetMW
