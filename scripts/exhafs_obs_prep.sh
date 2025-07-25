@@ -388,8 +388,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
   airctypes="aircar aircft"
-  convtypes="satwnd_abi satwnd_viirs satwhr_abi adpsfc sfcshp adpupa"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr"
+  convtypes="satwnd_abi satwnd_viirs satwhr_abi adpsfc sfcshp adpupa tldplr"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr tldplr"
   sattypes="atms ssmis amsua iasi gsrcsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
@@ -406,6 +406,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
     fi
   done
+  if [ -s ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d ]; then
+    ${NCP} -p ${INTCOMobs}/${NET}.t${cyc}z.tldplr.tm00.bufr_d gfs.t${cyc}z.tldplr.bufr_d
+  fi
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
   ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
