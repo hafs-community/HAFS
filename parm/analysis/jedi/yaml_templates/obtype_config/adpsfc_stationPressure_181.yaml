@@ -3,7 +3,8 @@
         obsdatain:
           engine:
             type: H5File
-            obsfile:  obs/hafs.#HH#.adpsfc.nc
+            obsfile: obs/hafs.#HH#.adpsfc.nc
+            missing file action: "warn"
           obsgrouping:
             group variables: ["stationIdentification"]
             sort variable: "pressure"

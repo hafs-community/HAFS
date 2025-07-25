@@ -349,8 +349,8 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
-convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19"
-convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19"
+convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 aircft_airTemperature_130 aircft_airTemperature_131 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr_rw_993 aircar_airTemperature_133 aircar_specificHumidity_133 aircar_winds_233"
+convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr aircar"
 mkdir ${DATA}/obs
 cd ${DATA}/obs
 valid_convfiles=()
@@ -429,7 +429,8 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
 if [ ${l4densvar:-.true.} = ".true." ]; then
-  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+#  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
 else
   ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
 fi
@@ -538,7 +539,8 @@ for obstype in ${obstypes}; do
 done
 
 if [ ${l4densvar:-.true.} = ".true." ]; then
-  TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
+#  TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
+  TOTAL_TASKS_tmp=${TOTAL_TASKS}
 else
   TOTAL_TASKS_tmp=${TOTAL_TASKS}
 fi

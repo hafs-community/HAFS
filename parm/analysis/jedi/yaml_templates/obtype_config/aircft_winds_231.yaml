@@ -4,6 +4,7 @@
           engine:
             type: H5File
             obsfile: obs/hafs.#HH#.aircft.nc
+            missing file action: "warn"
           obsgrouping:
             group variables: ["stationIdentification"]
             sort variable: "pressure"

@@ -66,7 +66,7 @@ cost function:
     begin: _INITIALDATE_
     length: PT6H
   subwindow: PT3H
-  parallel subwindows: true
+  parallel subwindows: false
   tolerance AD resolution change: 1.0e-13
   geometry:
     <<: *geometry_configs
@@ -76,7 +76,7 @@ cost function:
   - eastward_wind
   - northward_wind
   - air_temperature
-  - air_pressure_thickness
+  - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
   - cloud_liquid_ice
   - cloud_liquid_water
@@ -93,6 +93,7 @@ cost function:
       - upward_air_velocity
       - air_temperature
       - air_pressure_thickness
+      - air_pressure_at_surface
       - layer_thickness
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice

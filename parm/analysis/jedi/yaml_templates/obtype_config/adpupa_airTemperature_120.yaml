@@ -4,6 +4,7 @@
           engine:
             type: H5File
             obsfile: obs/hafs.#HH#.adpupa.nc
+            missing file action: "warn"
           obsgrouping:
             group variables: ["stationIdentification"]
             sort variable: "pressure"
@@ -143,9 +144,9 @@
         filter variables:
         - name: airTemperature
         where:
-         - variable:
-             name: QualityMarker/airTemperature
-           is_in: 3        # qm=7 observation is aleady blocked
+        - variable:
+            name: QualityMarker/airTemperature
+          is_in: 3        # qm=7 observation is aleady blocked
         action:
           name: inflate error
           inflation factor: 1.2
@@ -155,8 +156,8 @@
         filter variables:
         - name: airTemperature
           where:
-           - variable: MetaData/pressure
-             maxvalue: 10000.
+          - variable: MetaData/pressure
+            maxvalue: 10000.
         action:
           name: inflate error
           inflation factor: 1.2

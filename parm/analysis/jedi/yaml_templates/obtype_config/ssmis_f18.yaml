@@ -4,6 +4,7 @@
           engine:
             type: H5File
             obsfile: obs/hafs.#HH#.ssmis_f18.nc
+            missing file action: "warn"
         obsdataout:
           engine:
             type: H5File

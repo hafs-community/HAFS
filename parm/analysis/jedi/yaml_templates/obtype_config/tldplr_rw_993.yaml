@@ -3,7 +3,7 @@
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.tldplr.tm00.nc
+            obsfile: obs/hafs.#HH#.tldplr.nc
             missing file action: "warn"
         obsdataout:
           engine:
@@ -11,7 +11,7 @@
             obsfile: hofx/diag_tldplr_rw_#HH#.nc
             allow overwrite: true
         io pool:
-          max pool size: 1
+          max pool size: #TOTAL_TASKS#
         observed variables: [radialVelocity]
         simulated variables: [radialVelocity]
 
@@ -21,8 +21,8 @@
       linear obs operator:
         name: RadarRadialVelocity
 
-     obs error:
-       covariance model: diagonal
+      obs error:
+        covariance model: diagonal
 
       obs pre filters:
       - filter: Domain Check

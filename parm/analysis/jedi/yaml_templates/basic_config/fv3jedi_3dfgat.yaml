@@ -46,7 +46,7 @@ cost function:
   - eastward_wind
   - northward_wind
   - air_temperature
-  - air_pressure_thickness
+  - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
   - cloud_liquid_ice
   - cloud_liquid_water
@@ -75,6 +75,7 @@ cost function:
     - upward_air_velocity
     - air_temperature
     - air_pressure_thickness
+    - air_pressure_at_surface
     - layer_thickness
     - water_vapor_mixing_ratio_wrt_moist_air
     - cloud_liquid_ice
