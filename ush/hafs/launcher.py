@@ -186,6 +186,25 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
                 idx_system_conf += 1
             else:
                 infiles.append(confy)
+        
+        # Lew.Gramer@noaa.gov 2025-06-15: Adjust layout based on
+        # number of storms: the *template* of this file name should
+        # eventually be specified as an optional command-line argument
+        # to run_hafs.py, e.g., by adding "_NSTORMS_#nstorms#.conf" to
+        # a filename on that command line.
+        layout_conf = f'HAFSV2.1M_2025_RT_LAYOUT_NSTORMS_{len(multistorms)-1}.conf';
+        logger.info('LAYOUT CONF FILE: '+layout_conf);
+        confy= os.path.join(parm, layout_conf)
+        if not os.path.exists(confy):
+            logger.warning('WARNING: '+confy+': conf file does not exist.')
+        elif not os.path.isfile(confy):
+            logger.warning('WARNING: '+confy+': conf file is not a regular file.')
+        else:
+            logger.info('INFO: IGNORING Conf input: '+repr(confy))
+            # logger.info('Conf input: '+repr(confy))
+            # infiles.append(confy)
+        # LJG
+        
         logger.info('MULTISTORM Conf input ORDER:')
         for conffile in infiles:
             logger.info('Conf input: '+repr(conffile))
