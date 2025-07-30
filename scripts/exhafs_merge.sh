@@ -21,8 +21,8 @@
 ################################################################################
 set -x -o pipefail
 
-# Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
-pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
+# # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
+# pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}

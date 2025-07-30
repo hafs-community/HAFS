@@ -15,6 +15,13 @@
 ################################################################################
 set -x -o pipefail
 
+# # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
+# pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
+
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+# GJA
+
 DATAinit=${DATA}
 
 #===============================================================================
@@ -68,7 +75,7 @@ for ng in $(seq 1 ${ngrids}); do
     tilestr=".tile$(printf '%d' ${ng})"
   fi
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
-  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
+  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr} lasttile=$(( ${ng} == ${ngrids} )); \
         ${HOMEhafs}/scripts/exhafs_product.sh \
         > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done

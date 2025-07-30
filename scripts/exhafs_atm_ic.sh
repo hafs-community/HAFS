@@ -16,6 +16,9 @@
 ################################################################################
 set -x -o pipefail
 
+# # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
+# pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
+
 nest_grids=${nest_grids:-1}
 
 cyc=${cyc:?}

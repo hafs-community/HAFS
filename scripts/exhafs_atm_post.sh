@@ -69,7 +69,7 @@ if [ "${ENSDA}" = YES ]; then
 # Add a new IF branch to check the fake storm directory for the
 # forecast outputs when running multistorm.
 elif [ ${RUN_MULTISTORM} = YES ]; then
-  INPdir=${INPdir:-${FAKEWORKhafs}/forecast}
+  INPdir=${INPdir:-${FAKEWORKhafs}/intercom/forecast}
   COMOUTpost=${COMhafs}
   intercom=${WORKhafs}/intercom/post
 # GJA
