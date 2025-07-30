@@ -20,6 +20,9 @@
 ################################################################################
 set -x -o pipefail
 
+# # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
+# pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
+
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
@@ -101,6 +104,21 @@ mkdir -p ${DIAGanl}
 
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
+
+# Lew.Gramer@noaa.gov 2025-06-25: WORKAROUND: If VI produced any NaNs, disregard it in the analysis
+if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+  echo "WARNING: VI FGAT09 DA/Analysis missing: FORCING COLD START"
+  export RUN_ATM_VI_FGAT="NO"
+ else
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  if [ "${NANcount}" != "0" ]; then
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT09 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc"
+   export RUN_ATM_VI_FGAT="NO"
+  fi
+ fi
+fi
+# Lew.Gramer@noaa.gov
 
 # Copy the first guess or fgat files
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
@@ -609,7 +627,8 @@ ${SOURCE_PREP_STEP}
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 #cat ${pgmout} > ${GSISOUT}
-${APRUNC} ./hafs_gsi.x 2>&1 | tee ./gsi.log
+# Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
+${APRUNC_BAL} ./hafs_gsi.x 2>&1 | tee ./gsi.log
 export err=$?; err_chk
 cat ./gsi.log > ${GSISOUT}
 
@@ -795,7 +814,8 @@ EOFdiag
     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
     $APRUNCFP -n $ncmd_max cfp ./mp_diag.sh
   else
-    ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
+    # Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
+    ${APRUNC_BAL} ${MPISERIAL} -m ./mp_diag.sh
   fi
   export err=$?; err_chk
 
