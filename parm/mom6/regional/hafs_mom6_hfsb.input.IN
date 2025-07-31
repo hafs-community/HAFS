@@ -232,6 +232,10 @@ OBC_TRACER_RESERVOIR_LENGTH_SCALE_IN = 3.0E+04 !0.0 !3.0E+04 !   [m] default = 0
 RAMP_OBCS = False               ! default = False
 OBC_RAMP_TIMESCALE = 2.0        !   [days] default = 1.0
 OBC_RADIATION_MAX = 1.0         !   [nondim] default = 1.0
+EXTERIOR_OBC_BUG = False        !   [Boolean] default = True
+                                ! If true, recover a bug in barotropic solver and other routines when boundary
+                                ! contitions interior to the domain are used.
+
 
 ! === module MOM_verticalGrid ===
 ! Parameters providing information about the vertical grid.
@@ -478,11 +482,19 @@ KHTH_MAX_CFL = 0.1              !   [nondimensional] default = 0.8
                                 ! thickness diffusivity. 1.0 is the marginally unstable value in a pure layered
                                 ! model, but much smaller numbers (e.g. 0.1) seem to work better for ALE-based
                                 ! models.
-USE_GM_WORK_BUG = True          !   [Boolean] default = True
-                                ! If true, compute the top-layer work tendency on the u-grid with the incorrect
-                                ! sign, for legacy reproducibility.
 
 ! === module MOM_continuity ===
+
+! === module MOM_dynamics_split_RK2 ===
+VISC_REM_BUG = False            !   [Boolean] default = True
+                                ! If true, visc_rem_[uv] in split mode is incorrectly calculated or accounted
+                                ! for in two places. This parameter controls the defaults of two individual
+                                ! flags, VISC_REM_TIMESTEP_BUG in MOM_dynamics_split_RK2(b) and
+                                ! VISC_REM_BT_WEIGHT_BUG in MOM_barotropic.
+VISC_REM_TIMESTEP_BUG = False   !   [Boolean] default = True
+                                ! If true, recover a bug that uses dt_pred rather than dt in vertvisc_remnant()
+                                ! at the end of predictor stage for the following continuity() and btstep()
+                                ! calls in the corrector step. Default of this flag is set by VISC_REM_BUG
 
 ! === module MOM_continuity_PPM ===
 ETA_TOLERANCE = 1.0E-06         !   [m] default = 3.75E-09
@@ -515,6 +527,13 @@ MASS_WEIGHT_IN_PRESSURE_GRADIENT = True !   [Boolean] default = False
                                 ! If true, use mass weighting when interpolating T/S for integrals near the
                                 ! bathymetry in AFV pressure gradient calculations.
 
+! === module MOM_PressureForce_FV ===
+RHO_PGF_REF_BUG = False         !   [Boolean] default = True
+                                ! If true, recover a bug that RHO_0 (the mean seawater density in Boussinesq
+                                ! mode) and RHO_PGF_REF (the subtracted reference density in finite volume
+                                ! pressure gradient forces) are incorrectly interchanged in several instances in
+                                ! Boussinesq mode.
+
 ! === module MOM_hor_visc ===
 LAPLACIAN = True                !   [Boolean] default = False
                                 ! If true, use a Laplacian horizontal viscosity.
@@ -531,6 +550,10 @@ USE_LAND_MASK_FOR_HVISC = False !   [Boolean] default = False
                                 ! locations. This eliminates the dependence on arbitrary values over land or
                                 ! outside of the domain. Default is False in order to maintain answers with
                                 ! legacy experiments but should be changed to True for new experiments.
+FRICTWORK_BUG = False           !   [Boolean] default = True
+                                ! If true, retain an answer-changing bug in calculating the FrictWork, which
+                                ! cancels the h in thickness flux and the h at velocity point. This isnot
+                                ! recommended.
 
 ! === module MOM_vert_friction ===
 HMIX_FIXED = 0.5                !   [m]
@@ -578,9 +601,10 @@ DTBT = -0.9                     !   [s or nondim] default = -0.98
                                 ! use 0, or a negative value gives the fraction of the stable value. Setting
                                 ! DTBT to 0 is the same as setting it to -0.98. The value of DTBT that will
                                 ! actually be used is an integer fraction of DT, rounding down.
-BT_USE_OLD_CORIOLIS_BRACKET_BUG = True !   [Boolean] default = False
-                                ! If True, use an order of operations that is not bitwise rotationally symmetric
-                                ! in the meridional Coriolis term of the barotropic solver.
+VISC_REM_BT_WEIGHT_BUG = False  !   [Boolean] default = True
+                                ! If true, recover a bug in barotropic solver that uses an unnormalized weight
+                                ! function for vertical averages of baroclinic velocity and forcing. Default of
+                                ! this flag is set by VISC_REM_BUG
 
 ! === module MOM_mixed_layer_restrat ===
 MIXEDLAYER_RESTRAT = True       !   [Boolean] default = False
@@ -703,14 +727,6 @@ USE_JACKSON_PARAM = True        !   [Boolean] default = False
 MAX_RINO_IT = 25                !   [nondim] default = 50
                                 ! The maximum number of iterations that may be used to estimate the Richardson
                                 ! number driven mixing.
-KAPPA_SHEAR_ITER_BUG = False    !   [Boolean] default = True
-                                ! If true, use an older, dimensionally inconsistent estimate of the derivative
-                                ! of diffusivity with energy in the Newton's method iteration.  The bug causes
-                                ! undercorrections when dz > 1 m.
-KAPPA_SHEAR_ALL_LAYER_TKE_BUG = True !   [Boolean] default = True
-                                ! If true, report back the latest estimate of TKE instead of the time average
-                                ! TKE when there is mass in all layers.  Otherwise always report the time
-                                ! averaged TKE, as is currently done when there are some massless layers.
 
 ! === module MOM_CVMix_shear ===
 ! Parameterization of shear-driven turbulence via CVMix (various options)
@@ -836,6 +852,9 @@ LT_MOD_LAC4 = 0.0               !   [nondim] default = 0.95
 LT_MOD_LAC5 = 0.22              !   [nondim] default = 0.95
                                 ! Coefficient for modification of Langmuir number due to ratio of Ekman to
                                 ! unstable Obukhov depth.
+EPBL_MLD_ITER_BUG = False       !   [Boolean] default = True
+                                ! If true, use buggy logic that gives the wrong bounds for the next iteration
+                                ! when successive guesses increase by exactly EPBL_MLD_TOLERANCE.
 
 ! === module MOM_regularize_layers ===
 
@@ -849,6 +868,10 @@ TRACER_ADVECTION_SCHEME = "PPM:H3" ! default = "PLM"
                                 !   PLM    - Piecewise Linear Method
                                 !   PPM:H3 - Piecewise Parabolic Method (Huyhn 3rd order)
                                 !   PPM    - Piecewise Parabolic Method (Colella-Woodward)
+USE_HUYNH_STENCIL_BUG = True    !   [Boolean] default = False
+                                ! If true, use a stencil width of 2 in PPM:H3 tracer advection. This is
+                                ! incorrect and will produce regressions in certain configurations, but may be
+                                ! required to reproduce results in legacy simulations.
 
 ! === module MOM_tracer_hor_diff ===
 CHECK_DIFFUSIVE_CFL = True      !   [Boolean] default = False
@@ -888,9 +911,6 @@ LATENT_HEAT_VAPORIZATION = 2.5E+06 !   [J/kg] default = 2.5E+06
                                 ! The latent heat of fusion.
 GUST_CONST = 0.0                !   [Pa] default = 0.0
                                 ! The background gustiness in the winds.
-FIX_USTAR_GUSTLESS_BUG = True   !   [Boolean] default = True
-                                ! If true correct a bug in the time-averaging of the gustless wind friction
-                                ! velocity
 
 ! These parameters are used in CORE mode but should not be used in
 ! the coupled model (CM4).
@@ -901,9 +921,6 @@ RESTORE_SALINITY = False        !   [Boolean] default = False
 ADJUST_NET_FRESH_WATER_TO_ZERO = True !   [Boolean] default = False
                                 ! If true, adjusts the net fresh-water forcing seen
                                 ! by the ocean (including restoring) to zero.
-USE_NET_FW_ADJUSTMENT_SIGN_BUG = False !   [Boolean] default = True
-                                ! If true, use the wrong sign for the adjustment to
-                                ! the net fresh-water.
 
 ! === module MOM_restart ===
 

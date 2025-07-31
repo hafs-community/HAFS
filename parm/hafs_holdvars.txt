@@ -204,6 +204,7 @@ export l4densvar={l4densvar}
 export nsclgrp={nsclgrp}
 export naensloc={naensloc}
 export nhr_obsbin={nhr_obsbin}
+export tdr_superob={tdr_superob}
 export corrlength={corrlength}
 export lnsigcutoff={lnsigcutoff}
 
@@ -277,6 +278,7 @@ export npz={npz}
 
 export sa3dtke_dyco={sa3dtke_dyco}
 export sa3dtke={sa3dtke}
+export tte_edmf={tte_edmf}
 
 export imp_physics={imp_physics}
 export iovr={iovr}
