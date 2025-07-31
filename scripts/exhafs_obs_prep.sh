@@ -431,7 +431,6 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [ -s ${intercom}/${NFTLDPLR} ]; then
     ${NCP} -p ${intercom}/${NFTLDPLR} gfs.t${cyc}z.tldplr.bufr_d
   fi
-  ${NCP} -p /scratch3/HFIP/hwrfv3/scrub/Jing.Cheng/jediwork/obs/testinput/2024063012/Beryl.2024063012.bfr gfs.t${cyc}z.tldplr.bufr_d #XL Temp test
   if [ -s ${intercom}/${NFHDOB} ]; then
     ${NCP} -p ${intercom}/${NFHDOB} gfs.t${cyc}z.hdobbufr.bufr_d
   fi
