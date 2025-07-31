@@ -1,0 +1,64 @@
+#!/bin/csh -f
+# Submit simple slurm tasks to keep a set of reservations alive
+# USAGE: hafs_keep_alive [RES-BASE-NAME, default "aoml_"] [RES-ACCT-NAME, default "rtaoml-hafs1"] [cleanup]
+# Third arg "cleanup" causes tasks that are still PENDING reservation to be cancelled after a brief pause
+# All arguments are POSITIONAL ("-" causes the default) and optional.
+#
+# Lew.Gramer@noaa.gov 2024-06-15, 2025-07-19
+
+setenv X_SALLOC /apps/slurm/default/bin/salloc
+
+set B="aoml_"
+set RESACCT="rtaoml-hafs1"
+set WHICHRES="all"
+
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set B="$1"
+ endif
+ shift
+endif
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set RESACCT="$1"
+ endif
+ shift
+endif
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set WHICHRES="$1"
+ endif
+ shift
+endif
+
+
+set hrp="`date +%H`"
+@ hrl = ${hrp} - 4
+if ( ${hrl} >= 0 && ${hrl} < 6 ) then
+ set hr=00
+else if ( ${hrl} >= 6 && ${hrl} < 12 ) then
+ set hr=06
+else if ( ${hrl} >= 12 && ${hrl} < 18 ) then
+ set hr=12
+else if ( ${hrl} >= 18 && ${hrl} < 24 ) then
+ set hr=18
+else if ( ${hrl} < 0 ) then
+ set hr=18
+endif
+
+#if ( "$WHICHRES" == "all" || "$WHICHRES" == "init" ) ${X_SALLOC} -q batch -p u1-compute -t 0:5:00 --nodes=1 -A ${RESACCT} -J hafs_keep_alive_00L-${B}init-${hr} --reserv=${B}init_${hr} /bin/echo "" &
+#if ( "$WHICHRES" == "all" || "$WHICHRES" == "merge" ) ${X_SALLOC} -q batch -p u1-compute -t 0:5:00 --nodes=1 -A ${RESACCT} -J hafs_keep_alive_00L-${B}merge-${hr} --reserv=${B}merge_${hr} /bin/echo "" &
+if ( "$WHICHRES" == "all" || "$WHICHRES" == "fcst" ) ${X_SALLOC} -q batch -p u1-compute -t 0:5:00 --nodes=1 -A ${RESACCT} -J hafs_keep_alive_00L-${B}fcst-${hr} --reserv=${B}fcst_${hr} /bin/echo "" &
+if ( "$WHICHRES" == "all" || "$WHICHRES" == "post" ) ${X_SALLOC} -q batch -p u1-compute -t 0:5:00 --nodes=1 -A ${RESACCT} -J hafs_keep_alive_00L-${B}post-${hr} --reserv=${B}post_${hr} /bin/echo "" &
+
+if ( "$1" == "cleanup" ) then
+ alias sqgrep 'squeue -u $USER -o "%.10i %.10P %.60j %.16u %.10T %.10M %.10L %.4D %R %q" | grep "\(\!*\)"'
+ alias sxg 'scancel `sqgrep \!* | cut -c 3-11 | grep -v JOBID`'
+ sleep 30s
+ echo "Sleeping 30s..."
+ sleep 30s
+ sxg "hafs_keep_alive.*-${B}"
+endif
+
+exit 0
+

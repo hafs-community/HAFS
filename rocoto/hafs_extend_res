@@ -1,0 +1,74 @@
+#!/bin/csh -f
+# Submit simple slurm tasks ever 4 min to keep a reservation alive
+# USAGE: hafs_extend_res [RES-NAME, default "aoml_post_HH"] [RES-ACCT-NAME, default "rtaoml-hafs1"] [SUBDELAY, default "4m"] [NTIMES, default 20]
+# All arguments are POSITIONAL ("-" causes the default) and optional.
+#
+# Lew.Gramer@noaa.gov 2024-06-15, 2025-07-19
+
+setenv X_SALLOC /apps/slurm/default/bin/salloc
+
+set B="aoml_post_" # Replace HH with current hour below...
+set RESACCT="rtaoml-hafs1"
+set SUBDELAY="4m"
+set NTIMES=20
+
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set B="$1"
+ endif
+ shift
+endif
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set RESACCT="$1"
+ endif
+ shift
+endif
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set SUBDELAY="$1"
+ endif
+ shift
+endif
+if ( "$1" != "" && "$1" != "cleanup" ) then
+ if ( "$1" != "-" ) then
+  set NTIMES="$1"
+ endif
+ shift
+endif
+
+
+set hrp="`date +%H`"
+@ hrl = ${hrp} - 4
+if ( ${hrl} >= 0 && ${hrl} < 6 ) then
+ set hr=00
+else if ( ${hrl} >= 6 && ${hrl} < 12 ) then
+ set hr=06
+else if ( ${hrl} >= 12 && ${hrl} < 18 ) then
+ set hr=12
+else if ( ${hrl} >= 18 && ${hrl} < 24 ) then
+ set hr=18
+else if ( ${hrl} < 0 ) then
+ set hr=18
+endif
+
+
+set N=0
+while ( ${N} < ${NTIMES} )
+ ${X_SALLOC} -q batch -p u1-compute -t 0:5:00 --nodes=1 -A ${RESACCT} -J hafs_extend_res_00L-${B}-${hr} --reserv=${B}${hr} /bin/echo "" &
+ sleep ${SUBDELAY}
+@ N++
+end
+
+
+if ( "$1" == "cleanup" ) then
+ alias sqgrep 'squeue -u $USER -o "%.10i %.10P %.60j %.16u %.10T %.10M %.10L %.4D %R %q" | grep "\(\!*\)"'
+ alias sxg 'scancel `sqgrep \!* | cut -c 3-11 | grep -v JOBID`'
+ sleep 30s
+ echo "Sleeping 30s..."
+ sleep 30s
+ sxg "hafs_extend_res.*-${B}"
+endif
+
+exit 0
+

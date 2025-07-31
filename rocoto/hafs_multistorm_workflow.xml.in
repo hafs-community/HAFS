@@ -12,7 +12,8 @@
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
+  <!-- Lew.Gramer@noaa.gov 2025-07-16: TEMPORARY until mysterious slowdowns get resolved! -->
+  <!ENTITY MAX_TRIES "3"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -159,7 +160,7 @@
     <jobname>hafs_launch_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_launch.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CLUSTER_COMPUTE;
@@ -224,7 +225,7 @@
     <jobname>hafs_atm_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_prep_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CLUSTER_COMPUTE;
@@ -250,7 +251,7 @@
     <jobname>hafs_atm_prep_mvnest_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_prep_mvnest.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CLUSTER_COMPUTE;
@@ -280,7 +281,7 @@
     <jobname>hafs_atm_ic_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_ic_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CLUSTER_COMPUTE;
@@ -332,7 +333,7 @@
     <jobname>hafs_atm_ic_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_ic_fgat#FGAT_HR#_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -374,12 +375,38 @@
 @** endif
 
 @** if RUN_ATM_INIT==YES
+  <task name="atm_init_storm1_0" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ATM_INIT</command>
+    <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_0</jobname>
+    <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_0.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERV_INIT;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
+    &ATM_INIT_0_RESOURCES;
+    &ENV_VARS;
+    <envar>
+      <name>HOLDVARS</name>
+      <value><cyclestr>&COMhafs;/storm1.holdvars.txt</cyclestr></value>
+    </envar>
+
+    <dependency>
+      <and>
+        <datadep><cyclestr>&COMhafs;/storm1.conf</cyclestr></datadep>
+        <not><datadep><cyclestr>&COMhafs;/storm2.conf</cyclestr></datadep></not>
+        <taskdep task="atm_ic_storm1"/>
+      </and>
+    </dependency>
+  </task>
+
   <task name="atm_init_storm1_1" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_INIT</command>
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_1</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_1.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -405,7 +432,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_2</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_2.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -431,7 +458,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_3</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_3.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -457,7 +484,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_4</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_4.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -483,7 +510,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_5</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_5.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -509,7 +536,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_storm1_6</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_storm1_6.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -535,7 +562,7 @@
     <jobname>hafs_atm_init_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -564,7 +591,7 @@
     <jobname>hafs_atm_init_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_init_fgat#FGAT_HR#_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CLUSTER_COMPUTE;
@@ -593,7 +620,7 @@
     <jobname>hafs_atm_merge_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_merge_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_MERG;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -625,7 +652,7 @@
     <jobname>hafs_atm_merge_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_merge_fgat#FGAT_HR#_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_MERG;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -659,7 +686,7 @@
     <jobname>hafs_atm_vi_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_vi_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -697,7 +724,7 @@
     <jobname>hafs_atm_vi_fgat#FGAT_HR#_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_atm_vi_fgat#FGAT_HR#_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -743,7 +770,7 @@
       <jobname>hafs_atm_lbc#group#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
       <join><cyclestr>&WORKhafs;/hafs_atm_lbc#group#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
-      &RESERV_FCST;
+      &RESERV_INIT;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
@@ -788,7 +815,7 @@
     <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -806,7 +833,7 @@
     <jobname>hafs_ocn_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_ocn_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -861,7 +888,7 @@
     <jobname>hafs_wav_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_wav_prep.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERVATION;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -909,7 +936,7 @@
     <jobname>hafs_obs_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_obs_prep_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -934,7 +961,7 @@
     <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#real_storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_analysis_#real_storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_INIT;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -984,7 +1011,7 @@
     <jobname>hafs_analysis_merge_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_analysis_merge.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_FCST;
+    &RESERV_MERG;
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -997,6 +1024,7 @@
 @** if RUN_ATM_INIT==YES
         <or>
           <taskdep task="atm_init"/>
+          <taskdep task="atm_init_storm1_0"/>
           <taskdep task="atm_init_storm1_1"/>
           <taskdep task="atm_init_storm1_2"/>
           <taskdep task="atm_init_storm1_3"/>
@@ -1008,10 +1036,12 @@
         <or>
           <taskdep task="atm_vi_storm2"/>
           <strneq><left>&RUN_ATM_VI;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm2.conf</cyclestr></datadep></not>
         </or>
         <or>
           <taskdep task="analysis_storm2"/>
           <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm2.conf</cyclestr></datadep></not>
         </or>
         <or>
           <taskdep task="atm_vi_storm3"/>
@@ -1073,7 +1103,61 @@
 <!-- if gtype==regional -->
 @** endif
 
-  <task name="forecast_1" maxtries="&MAX_TRIES;">
+  <task name="forecast_0" maxtries="&MAX_TRIES_BIG_JOBS;">
+    <command>&JOBhafs;/JHAFS_FORECAST</command>
+    <jobname>hafs_forecast_0_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_forecast_0.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERV_FCST;
+    <queue>&QUEUE_FORECAST;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
+<!--
+    &FORECAST_LARGE_1_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <not><datadep><cyclestr>&COMhafs;/storm2.conf</cyclestr></datadep></not>
+@** if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@** endif
+@** if RUN_DATM==YES
+        <taskdep task="atm_prep_storm1"/>
+@** endif
+@** if RUN_DOCN==YES
+        <taskdep task="ocn_prep"/>
+@** endif
+@** if RUN_WAVE==YES
+        <taskdep task="wav_prep"/>
+@** endif
+        <or>
+          <streq><left>&RUN_DATM;</left><right>YES</right></streq>
+          <and>
+            <taskdep task="atm_ic_storm1"/>
+@** if gtype==regional
+            <metataskdep metatask="atm_lbc"/>
+@**   if RUN_ATM_INIT==YES
+            <taskdep task="atm_init_storm1_0"/>
+@**   endif
+            <!-- Removed individual storm1 VI/DA task dependencies here: Lew.Gramer@noaa.gov, 20240208 -->
+@**   if RUN_ANALYSIS_MERGE==YES
+            <taskdep task="analysis_merge"/>
+@**   endif
+@** endif
+          </and>
+        </or>
+@** if RUN_OCEAN==YES
+        <taskdep task="ocn_prep"/>
+@** endif
+      </and>
+    </dependency>
+  </task>
+
+  <task name="forecast_1" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_1_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_1.log</cyclestr></join>
@@ -1083,7 +1167,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_1_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1132,7 +1219,7 @@
     </dependency>
   </task>
 
-  <task name="forecast_2" maxtries="&MAX_TRIES;">
+  <task name="forecast_2" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_2_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_2.log</cyclestr></join>
@@ -1142,7 +1229,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_2_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1191,7 +1281,7 @@
     </dependency>
   </task>
 
-  <task name="forecast_3" maxtries="&MAX_TRIES;">
+  <task name="forecast_3" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_3_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_3.log</cyclestr></join>
@@ -1201,7 +1291,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_3_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1250,7 +1343,7 @@
     </dependency>
   </task>
 
-  <task name="forecast_4" maxtries="&MAX_TRIES;">
+  <task name="forecast_4" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_4_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_4.log</cyclestr></join>
@@ -1260,7 +1353,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_4_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1309,7 +1405,7 @@
     </dependency>
   </task>
 
-  <task name="forecast_5" maxtries="&MAX_TRIES;">
+  <task name="forecast_5" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_5_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_5.log</cyclestr></join>
@@ -1319,7 +1415,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_5_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1368,7 +1467,7 @@
     </dependency>
   </task>
 
-  <task name="forecast_6" maxtries="&MAX_TRIES;">
+  <task name="forecast_6" maxtries="&MAX_TRIES_BIG_JOBS;">
     <command>&JOBhafs;/JHAFS_FORECAST</command>
     <jobname>hafs_forecast_6_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_forecast_6.log</cyclestr></join>
@@ -1378,7 +1477,10 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
+<!--
     &FORECAST_LARGE_6_RESOURCES;
+-->
+    &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
 
     <dependency>
@@ -1432,7 +1534,7 @@
     <jobname>hafs_force_warmstart_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_force_warmstart.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERVATION;
+    &RESERV_FCST;
     <queue>&QUEUE_FORECAST;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -1484,6 +1586,8 @@
         <or>
           <taskdep task="forecast" state="RUNNING"/>
           <taskdep task="forecast"/>
+          <taskdep task="forecast_0" state="RUNNING"/>
+          <taskdep task="forecast_0"/>
           <taskdep task="forecast_1" state="RUNNING"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2" state="RUNNING"/>
@@ -1532,6 +1636,8 @@
           <or>
             <taskdep task="forecast" state="RUNNING"/>
             <taskdep task="forecast"/>
+            <taskdep task="forecast_0" state="RUNNING"/>
+            <taskdep task="forecast_0"/>
             <taskdep task="forecast_1" state="RUNNING"/>
             <taskdep task="forecast_1"/>
             <taskdep task="forecast_2" state="RUNNING"/>
@@ -1633,6 +1739,8 @@
         <or>
           <taskdep task="forecast" state="RUNNING"/>
           <taskdep task="forecast"/>
+          <taskdep task="forecast_0" state="RUNNING"/>
+          <taskdep task="forecast_0"/>
           <taskdep task="forecast_1" state="RUNNING"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2" state="RUNNING"/>
@@ -1672,6 +1780,7 @@
              already completed. -->
         <or>
           <taskdep task="forecast"/>
+          <taskdep task="forecast_0"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2"/>
           <taskdep task="forecast_3"/>
@@ -2239,8 +2348,7 @@
     <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_emcgraphics.log</cyclestr></join>
     <account>&ACCOUNT;</account>
-    &RESERV_POST;
-    <!--&RESERV_FCST;-->
+    &RESERV_NONE;
     <queue>&QUEUE_PE;</queue>
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
@@ -2285,6 +2393,7 @@
       <and>
         <or>
           <taskdep task="forecast"/>
+          <taskdep task="forecast_0"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2"/>
           <taskdep task="forecast_3"/>
@@ -2343,6 +2452,7 @@
       <and>
         <or>
           <taskdep task="forecast"/>
+          <taskdep task="forecast_0"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2"/>
           <taskdep task="forecast_3"/>
@@ -2430,6 +2540,8 @@
           <not><cycleexistdep cycle_offset="6:00:00"/></not>
           <taskdep task="forecast" state="RUNNING" cycle_offset="6:00:00"/>
           <taskdep task="forecast" cycle_offset="6:00:00"/>
+          <taskdep task="forecast_0" state="RUNNING" cycle_offset="6:00:00"/>
+          <taskdep task="forecast_0" cycle_offset="6:00:00"/>
           <taskdep task="forecast_1" state="RUNNING" cycle_offset="6:00:00"/>
           <taskdep task="forecast_1" cycle_offset="6:00:00"/>
           <taskdep task="forecast_2" state="RUNNING" cycle_offset="6:00:00"/>
@@ -2510,6 +2622,7 @@
         <and>
           <or>
             <taskdep task="forecast"/>
+            <taskdep task="forecast_0"/>
             <taskdep task="forecast_1"/>
             <taskdep task="forecast_2"/>
             <taskdep task="forecast_3"/>
