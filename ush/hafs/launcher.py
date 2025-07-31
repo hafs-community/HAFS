@@ -200,9 +200,9 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
         elif not os.path.isfile(confy):
             logger.warning('WARNING: '+confy+': conf file is not a regular file.')
         else:
-            logger.info('INFO: IGNORING Conf input: '+repr(confy))
-            # logger.info('Conf input: '+repr(confy))
-            # infiles.append(confy)
+            # logger.info('INFO: IGNORING Conf input: '+repr(confy))
+            logger.info('Conf input: '+repr(confy))
+            infiles.append(confy)
         # LJG
         
         logger.info('MULTISTORM Conf input ORDER:')
