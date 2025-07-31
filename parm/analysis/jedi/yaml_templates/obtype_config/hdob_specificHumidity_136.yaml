@@ -111,7 +111,7 @@
           flag all filter variables if any test variable is out of bounds: true
           minvalue: 0.0
           maxvalue: 0.5
-        
+
       ## dynamic observation error (DOE)
       - filter: Variable Assignment
         assignments:
@@ -121,7 +121,7 @@
             name: ObsFunction/Arithmetic
             options:
               variables: [ObsValue/specificHumidity, HofX/specificHumidity]
-              coefs: [1.0, -1.0]                 
+              coefs: [1.0, -1.0]
 
       - filter: Perform Action
         filter variables:
@@ -152,6 +152,49 @@
               inflation factor: 8.0
               request_saturation_specific_humidity_geovals: true
 
+      # Create temporary ObsErrorData
+      - filter: Variable Assignment
+        apply at iterations: 0,1
+        assignments:
+        - name: TempObsErrorData/specificHumidity
+          type: float
+          function:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: ObsErrorData/specificHumidity
+      # Set ObsError set "error parameter" if < "max value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: specificHumidity
+        action:
+          name: assign error
+          error parameter: 5.0
+        where:
+        - variable:
+            name: ObsErrorData/specificHumidity
+          maxvalue: 5.0
+        - variable:
+            name: ObsErrorData/specificHumidity
+          value: is_valid
+
+      # Set ObsError set "error parameter" if > "min value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: specificHumidity
+        action:
+          name: assign error
+          error parameter: 50.0
+        where:
+        - variable:
+            name: ObsErrorData/specificHumidity
+          minvalue: 50.0
+        - variable:
+            name: ObsErrorData/specificHumidity
+          value: is_valid
+
       # Gross Error Check
       - filter: Background Check
         apply at iterations: 0,1
@@ -175,3 +218,16 @@
           is_in: 3
         action:
           name: reject
+
+      # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: specificHumidity
+        action:
+          name: assign error
+          error function: TempObsErrorData/specificHumidity
+        where:
+        - variable:
+            name: TempObsErrorData/specificHumidity
+          value: is_valid

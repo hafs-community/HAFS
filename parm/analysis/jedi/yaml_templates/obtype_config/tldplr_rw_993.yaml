@@ -257,6 +257,49 @@
             name: ObsErrorData/radialVelocity
           value: is_valid
 
+      # Create temporary ObsErrorData
+      - filter: Variable Assignment
+        apply at iterations: 0,1
+        assignments:
+        - name: TempObsErrorData/radialVelocity
+          type: float
+          function:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: ObsErrorData/radialVelocity
+      # Set ObsError set "error parameter" if < "max value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: radialVelocity
+        action:
+          name: assign error
+          error parameter: 2.0
+        where:
+        - variable:
+            name: ObsErrorData/radialVelocity
+          maxvalue: 2.0
+        - variable:
+            name: ObsErrorData/radialVelocity
+          value: is_valid
+
+      # Set ObsError set "error parameter" if > "min value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: radialVelocity
+        action:
+          name: assign error
+          error parameter: 10.
+        where:
+        - variable:
+            name: ObsErrorData/radialVelocity
+          minvalue: 10.
+        - variable:
+            name: ObsErrorData/radialVelocity
+          value: is_valid
+
       # Gross Error Check 
       - filter: Background Check
         apply at iterations: 0, 1
@@ -269,3 +312,15 @@
         - variable: ObsType/radialVelocity
           is_in: 993
 
+      # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: radialVelocity
+        action:
+          name: assign error
+          error function: TempObsErrorData/radialVelocity
+        where:
+        - variable:
+            name: TempObsErrorData/radialVelocity
+          value: is_valid

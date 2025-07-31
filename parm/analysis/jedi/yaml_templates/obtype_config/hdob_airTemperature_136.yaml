@@ -171,6 +171,49 @@
               variable: airTemperature
               inflation factor: 8.0
 
+      # Create temporary ObsErrorData
+      - filter: Variable Assignment
+        apply at iterations: 0,1
+        assignments:
+        - name: TempObsErrorData/airTemperature
+          type: float
+          function:
+            name: ObsFunction/Arithmetic
+            options:
+              variables:
+              - name: ObsErrorData/airTemperature
+      # Set ObsError set "error parameter" if < "max value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+         - name: airTemperature
+         action:
+           name: assign error
+           error parameter: 1.3
+         where:
+         - variable:
+             name: ObsErrorData/airTemperature
+           maxvalue: 1.3
+         - variable:
+             name: ObsErrorData/airTemperature
+           value: is_valid
+
+      # Set ObsError set "error parameter" if > "min value"
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: airTemperature
+        action:
+          name: assign error
+          error parameter: 5.6
+        where:
+        - variable:
+            name: ObsErrorData/airTemperature
+          minvalue: 5.6
+        - variable:
+            name: ObsErrorData/airTemperature
+          value: is_valid
+
       ## Gross Error Check
       - filter: Background Check
         apply at iterations: 0,1
@@ -194,3 +237,16 @@
         where:
         - variable: QualityMarker/airTemperature
           is_in: 3
+
+      # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
+      - filter: Perform Action
+        apply at iterations: 0,1
+        filter variables:
+        - name: airTemperature
+        action:
+          name: assign error
+          error function: TempObsErrorData/airTemperature
+        where:
+        - variable:
+            name: TempObsErrorData/airTemperature
+          value: is_valid
