@@ -1792,26 +1792,26 @@ is_moving_nest_tmp=$( echo ${is_moving_nest} | cut -d , -f ${ng} )
 #   fi
 # fi
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
-  if [ $FHR -eq 0 ] ; then
-    ${RLN} ${OUTdir}/oic_${YYYY}_${MM}_${DD}_${HH}.nc ./
-  else
-    ${RLN} ${OUTdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ./
-  fi
-fi
+# if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+#   if [ $FHR -eq 0 ] ; then
+#     ${RLN} ${OUTdir}/oic_${YYYY}_${MM}_${DD}_${HH}.nc ./
+#   else
+#     ${RLN} ${OUTdir}/ocn_${YYYY}_${MM}_${DD}_${HH}.nc ./
+#   fi
+# fi
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
-  # Use date2jday.sh from prod_util to get julian day
-  JDAY=$(date2jday.sh ${YYYY}${MM}${DD} | cut -c5-)
-  if [ $FHR -gt 0 ] ; then
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.txt ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.txt ./
-  fi
-fi
+# if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
+#   # Use date2jday.sh from prod_util to get julian day
+#   JDAY=$(date2jday.sh ${YYYY}${MM}${DD} | cut -c5-)
+#   if [ $FHR -gt 0 ] ; then
+#     ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.a ./
+#     ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.b ./
+#     ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.txt ./
+#     ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.a ./
+#     ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.b ./
+#     ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.txt ./
+#   fi
+# fi
 
 # Clean up previously generated post, ocnpost, and gempak related files when appropriate
 gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
