@@ -1,0 +1,183 @@
+bufr:        
+  subsets:
+    - NC004015
+
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+        second: "*/SECO"
+
+    receipttime:
+      datetime:
+        year: "*/RCYR"
+        month: "*/RCMO"
+        day: "*/RCDY"
+        hour: "*/RCHR"
+        minute: "*/RCMI"
+
+    latitude:
+      query: "*/CLAT"
+          
+    longitude:
+      query: "*/CLON"
+          
+    pressure:
+      query: "*/PRLC"
+      type: float
+      
+    aircraftAltitude:    
+      query: "*/GP10"
+      type: float
+      transforms:     # convert flight-level geopotential height [(m/s)**2] to height [m]
+        - scale: 0.1019
+
+    #QualityMarker
+    positionQM:
+      query: "*/QHDOP"
+    meteroQM:
+      query: "*/QHDOM"
+      type: int
+
+    windSpeed:
+      query: "*/WSPD"
+    windDirection:
+      query: "*/WDIR"
+
+   #ObsValue
+    totalRainRate:
+      query: "*/TRRT"
+    peakSurfaceWindSpeed:
+      query: "*/PKSWSP"
+    airTemperature:
+      query: "*/TMDB"
+    dewpointTemperature:
+      query: "*/TMDP"
+    relativeHumidity:
+      query: "*/REHU"
+      #type: float
+      #      transforms:
+      #  - scale: .01
+    windSpeed:
+      query: "*/WSPD"
+    windDirection:
+      query: "*/WDIR"
+      type: float
+    peakWindSpeed:
+      query: "*/PKWDSP"
+    stationID:
+      query: "*/BORG"
+
+encoder:    
+  type: netcdf
+
+  # dimensions:
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "HDOB"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "High density recconnaissance obs"
+
+    - name: "converter"
+      type: string
+      value: "BUFR"
+
+  variables:
+        
+    # MetaData
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/dataReceiptTime"
+      source: variables/receipttime
+      longName: "Data Receipt Time"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degree_north"
+      range: [-90, 90]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degree_east"
+      range: [-180, 180]
+
+    - name: "MetaData/height"
+      source: variables/aircraftAltitude
+      longName: "station elevation"
+      units: "m"
+
+    - name: "MetaData/stationElevation"
+      source: variables/aircraftAltitude
+      longName: "station elevation"
+      units: "m"
+
+    - name: "MetaData/pressure"
+      source: variables/pressure
+      longName: "Pressure"
+      units: "Pa"
+
+    # ObsValue
+    - name: "ObsValue/totalRainRate"
+      source: variables/totalRainRate
+      longName: "Total Rain Rate"
+      units: "mm h-1"
+
+          #- name: "ObsValue/PeakSurfaceWindSpeed"
+    - name: "ObsValue/windSpeedAt10M"
+      source: variables/peakSurfaceWindSpeed
+      longName: "Peak Surface Wind Speed"
+      units: "m s-1"
+
+    - name: "ObsValue/airTemperature"
+      source: variables/airTemperature
+      longName: "Air Temperature"
+      units: "K"
+
+    - name: "ObsValue/relativeHumidity"
+      source: variables/relativeHumidity
+      longName: "Relative Humidity"
+      units: "1"
+
+    - name: "ObsValue/dewpointTemperature"
+      source: variables/dewpointTemperature
+      longName: "Dewpoint Temperature"
+      units: "K"
+
+    - name: "ObsValue/windDirection"
+      source: variables/windDirection
+      longName: "Wind Direction"
+      units: "degree"
+
+    - name: "ObsValue/windSpeed"
+      source: variables/windSpeed
+      longName: "Wind Speed"
+      units: "m s-1"
+
+    - name: "ObsValue/peakWindSpeed"
+      source: variables/peakWindSpeed
+      longName: "Peak Wind Speed"
+      units: "m s-1"
+
+    # QualityMarker
+    - name: "QualityMarker/position"
+      source: variables/positionQM
+      longName: "Quality Indicator for HDOB POSITIONAL"
+
+    - name: "QualityMarker/meteoroStatus"
+      source: variables/meteroQM
+      longName: "Quality Indicator for HDOB METEROLOGICAL STATUS"
+

@@ -13,7 +13,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: AIRCAR_IODA_hofx_t_133.nc
+            obsfile: hofx/diag_aircar_airTemperature_133_#HH#.nc
             allow overwrite: true
         io pool:
           max pool size: #TOTAL_TASKS#

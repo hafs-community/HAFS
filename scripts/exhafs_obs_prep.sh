@@ -388,8 +388,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
   airctypes="aircar aircft"
-  convtypes="satwnd_abi satwnd_viirs satwhr_abi adpsfc sfcshp adpupa tldplr"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr tldplr"
+  convtypes="satwnd_abi satwnd_viirs satwhr_abi adpsfc sfcshp adpupa drpsnd tldplr hdob"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
   sattypes="atms ssmis amsua iasi gsrcsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
@@ -409,8 +409,13 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [ -s ${intercom}/${NFTLDPLR} ]; then
     ${NCP} -p ${intercom}/${NFTLDPLR} gfs.t${cyc}z.tldplr.bufr_d
   fi
+  ${NCP} -p /scratch3/HFIP/hwrfv3/scrub/Jing.Cheng/jediwork/obs/testinput/2024063012/Beryl.2024063012.bfr gfs.t${cyc}z.tldplr.bufr_d #XL Temp test
+  if [ -s ${intercom}/${NFHDOB} ]; then
+    ${NCP} -p ${intercom}/${NFHDOB} gfs.t${cyc}z.hdobbufr.bufr_d
+  fi
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
   ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
+  ${NLN} gfs.t${cyc}z.prepbufr.bufr_d gfs.t${cyc}z.drpsnd.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
@@ -465,9 +470,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   for file in $convtypes; do
     bufr=$1
     if [ -s gfs.t${cyc}z.${bufr}.bufr_d ]; then
+      sed -e "s|#ANADATE#|${ANADATE}|g" \
+        ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
-        sed -e "s|#ANADATE#|${ANADATE}|g" \
-          ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         if [[ ${yr} -lt 2025 ]];then
@@ -477,6 +482,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc
+      elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE}
       else
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
       fi

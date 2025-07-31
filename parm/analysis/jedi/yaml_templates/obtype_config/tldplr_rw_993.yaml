@@ -8,7 +8,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_tldplr_rw_#HH#.nc
+            obsfile: hofx/diag_tldplr_rw_993_#HH#.nc
             allow overwrite: true
         io pool:
           max pool size: #TOTAL_TASKS#
