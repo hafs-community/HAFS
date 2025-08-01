@@ -129,9 +129,8 @@
 
 
       # Observation Post Filters (QC)
-      # -------------------------------         
+      # -------------------------------
       obs post filters:
-
       ## dynamic observation error (DOE)
       # step1: save OmB
       - filter: Variable Assignment
@@ -144,7 +143,7 @@
               variables: [ObsValue/airTemperature, HofX/airTemperature]
               coefs: [1.0, -1.0]
 
-      # step2: assign dynamic obs error              
+      # step2: assign dynamic obs error
       - filter: Perform Action
         filter variables:
         - name: airTemperature
@@ -228,7 +227,7 @@
         where:
         - variable: QualityMarker/airTemperature
           is_not_in: 3
-         
+
       ## Gross Error Check: cgross*0.7 if QualityMarker=3
       - filter: Background Check
         apply at iterations: 0,1

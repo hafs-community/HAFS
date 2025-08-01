@@ -102,12 +102,12 @@
           is_in: 3,7        
         action:
           name: inflate error
-          inflation factor: 1.2             
+          inflation factor: 1.2
 
 
       # Observation Post Filters (QC)
       # -------------------------------
-      obs post filters:             
+      obs post filters:
       ## dynamic observation error (DOE)
       - filter: Variable Assignment
         assignments:
@@ -117,7 +117,7 @@
             name: ObsFunction/Arithmetic
             options:
               variables: [ObsValue/specificHumidity, HofX/specificHumidity]
-              coefs: [1.0, -1.0]                 
+              coefs: [1.0, -1.0]
 
       - filter: Perform Action
         filter variables:

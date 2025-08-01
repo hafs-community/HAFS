@@ -29,7 +29,7 @@
       obs error:
         covariance model: diagonal
 
-      obs pre filters:           
+      obs pre filters:
       - filter: Domain Check
         apply at iterations: 0,1
         where:
@@ -96,12 +96,12 @@
           is_in: 3        # qm=7 observation is aleady blocked
         action:
           name: inflate error
-          inflation factor: 1.2             
+          inflation factor: 1.2
 
 
       # Observation Post Filters (QC)
       # -------------------------------
-      obs post filters:             
+      obs post filters:
       # Regional Domain Check
       - filter: Bounds Check
         filter variables:
