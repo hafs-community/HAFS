@@ -105,7 +105,7 @@ bufr_dump_ver=os.getenv("bufr_dump_ver")
 load(pathJoin("bufr_dump", bufr_dump_ver))
 
 cdo_ver=os.getenv("cdo_ver")
-load(pathJoin("cdo", cdo_ver))
+--load(pathJoin("cdo", cdo_ver))
 
 ncdiag_ver=os.getenv("ncdiag_ver")
 load(pathJoin("ncdiag-A", ncdiag_ver))

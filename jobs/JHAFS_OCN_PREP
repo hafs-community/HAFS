@@ -43,6 +43,9 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
       module load hafs_mom6_obc.${machine}  
       module list
   fi
+  if [[ "${machine}" = "wcoss2" ]]; then
+      module load cdo/${cdo_ver}
+  fi
 else
   # Run by NCO on WCOSS2
   export machine=${WHERE_AM_I:-wcoss2}
