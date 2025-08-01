@@ -359,6 +359,17 @@ if [ -s ${intercom}/${NFTLDPLR} ] && [[ ${tdr_superob:-.false.} = .true. ]]; the
   ${NCP} -p ./tldplr.ibm ${intercom}/${NFTLDPLR}
 fi
 
+# If exist and non-empty, use all HDOB data including regular and S2 UAS
+HDOBnew=${COMINobs}/../obsprocv1_hafs/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.hdob.bufr_d
+if [ -s ${HDOBnew} ]; then
+  # Deliver to intercom
+  ${NCP} -L ${HDOBnew} ${intercom}/${NFHDOB}
+  # Deliver to com
+  if [ $SENDCOM = YES ]; then
+    ${FCP} ${intercom}/${NFHDOB} ${COMhafs}/${RFHDOB}
+  fi
+fi
+
 if [ ! -s ${intercom}/${NFtempdrop} ] && [ -s ${intercom}/${NFdropsonde} ]; then
 
 cd ${DATA}

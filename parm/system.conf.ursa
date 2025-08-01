@@ -8,12 +8,13 @@ tape_project=emc-hwrf
 cpu_account=hwrfv3
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archens=sync:/scratch3/HFIP/{disk_project}/scrub/{ENV[USER]}/hafsarch_ens/{SUBEXPT}/com/{YMDH}/{STID}
 
 [dir]
 ## Save directory.  Make sure you edit this.
 CDSAVE=/scratch3/HFIP/{disk_project}/save/{ENV[USER]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/scratch3/HFIP/{disk_project}/noscrub/{ENV[USER]}
+CDNOSCRUB=/scratch3/HFIP/{disk_project}/noscrub/{ENV[USER]}/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/scratch3/HFIP/{disk_project}/scrub/{ENV[USER]}
 ## Syndat directory for finding which cycles to run

@@ -52,6 +52,49 @@ from produtil.log import postmsg, jlogger
 from produtil.run import batchexe, checkrun, run
 from produtil.cd import NamedDir
 
+def ens_disk():
+    """!Program for hafs ensemble restart file disk archiving.
+
+    """
+    postmsg('hafs_archive ens_disk step starting')
+    environ_CONFhafs=os.environ.get('CONFhafs','NO_CONFhafs')
+    #conf=hafs.launcher.HAFSLauncher().read(environ_CONFhafs)
+    conf=hafs.launcher.load(environ_CONFhafs)
+    logger=conf.log('archive.ens_disk')
+    if conf.has_section('archive'):
+        makethedir=conf.getbool('archive','mkdir',False)
+    else:
+        makethedir=False
+    archive=conf.getloc('archens','NONE')
+    if archive=='NONE':
+        logger.info('No archive location specified.  Exiting.')
+        postmsg('hafs_archive ens_disk step has nothing to do when archiving is '
+                'disabled.')
+        return
+    with NamedDir(conf.getdir('com')):
+        flist=glob.glob('*RESTART_ens')
+        files=''.join(flist)
+        assert(len(files)>0)
+        if archive.lower()=='none':
+            postmsg('Archiving is disabled: archive=none')
+            return
+        elif archive[0:5]=='sync:':
+            path=archive[5:].rstrip()
+            if makethedir:
+                if not os.path.exists(path):
+                    produtil.fileop.makedirs(path,logger=logger)
+            flags='-avL'
+            cmd=batchexe('rsync')[flags,files,path]
+            donefile=os.path.join(path,'ens_disk.done')
+        else:
+            jlogger.error('Ignoring invalid archive method %s in %s'
+                          %(archive[0:4],archive))
+            return
+        checkrun(cmd,logger=logger)
+        with open(donefile,'wt') as f:
+            f.write('hafs_archive ens_disk step completed\n')
+    postmsg('hafs_archive ens_disk step completed')
+
 def main_disk():
     """!Main program for disk archiving.
 
@@ -188,6 +231,7 @@ if __name__=='__main__':
         produtil.setup.setup()
         if acase == 'DISK':
             main_disk()
+            ens_disk()
         elif acase == 'TAPE':
             main_tape()
         elif acase == 'BOTH':
