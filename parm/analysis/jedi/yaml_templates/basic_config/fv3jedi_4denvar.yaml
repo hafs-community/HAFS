@@ -99,11 +99,6 @@ cost function:
       - water_vapor_mixing_ratio_wrt_moist_air
       - cloud_liquid_ice
       - cloud_liquid_water
-      - rain_water
-      - snow_water
-      - graupel
-      - cloud_ice_number_concentration
-      - rain_number_concentration
       - ozone_mass_mixing_ratio
       - geopotential_height_times_gravity_at_surface
       - slmsk
@@ -128,11 +123,6 @@ cost function:
         water_vapor_mixing_ratio_wrt_moist_air: sphum
         cloud_liquid_water: liq_wat
         cloud_liquid_ice: ice_wat
-        snow_water: snowwat
-        rain_water: rainwat
-        graupel: graupel
-        cloud_ice_number_concentration: ice_nc
-        rain_number_concentration: rain_nc
         ozone_mass_mixing_ratio: o3mr
         skin_temperature_at_surface: tsea
         air_pressure_at_surface: ps
@@ -241,11 +231,6 @@ output:
     water_vapor_mixing_ratio_wrt_moist_air: sphum
     cloud_liquid_water: liq_wat
     cloud_liquid_ice: ice_wat
-    snow_water: snowwat
-    rain_water: rainwat
-    graupel: graupel
-    cloud_ice_number_concentration: ice_nc
-    rain_number_concentration: rain_nc
     ozone_mass_mixing_ratio: o3mr
     skin_temperature_at_surface: tsea
     air_pressure_at_surface: ps

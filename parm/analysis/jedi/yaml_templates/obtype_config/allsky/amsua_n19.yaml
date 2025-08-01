@@ -1,31 +1,31 @@
     - obs space:
-        name: AMSUA METOP-B
+        name: AMSUA N19
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.amsua_metop-b.nc
+            obsfile: obs/hafs.#HH#.amsua_n19.nc
             missing file action: "warn"
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_amsua_metop-b_#HH#.nc
+            obsfile: hofx/diag_amsua_n19_#HH#.nc
         io pool:
           max pool size: #TOTAL_TASKS#
         simulated variables: [brightnessTemperature]
-        channels: &amsua_metop-b_channels 1-15
+        channels: &amsua_n19_channels 1-15
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3]
         Clouds: [Water, Ice]
         Cloud_Fraction: 1.0
         obs options:
-          Sensor_ID: amsua_metop-b
+          Sensor_ID: amsua_n19
           EndianType: little_endian
           CoefficientPath: crtm/
 
       obs bias:
-        input file: obs/satbias_amsua_metop-b_#HH#.nc
-        output file: bc/out_satbias_amsua_metop-b_#HH#.nc
+        input file: obs/satbias_amsua_n19_#HH#.nc
+        output file: bc/out_satbias_amsua_n19_#HH#.nc
         variables without bc: [brightnessTemperature]
         channels: 14
         variational bc:
@@ -33,9 +33,9 @@
           - name: constant
           - name: lapseRate
             order: 2
-            tlapse: &amsua_metop-b_tlapse obs/amsua_metop-b.tlapse.txt
+            tlapse: &amsua_n19_tlapse obs/amsua_n19.tlapse.txt
           - name: lapseRate
-            tlapse: *amsua_metop-b_tlapse
+            tlapse: *amsua_n19_tlapse
           - name: emissivityJacobian
           - name: sensorScanAngle
             order: 4
@@ -50,11 +50,11 @@
           step size: 1.0e-4
           largest analysis variance: 10000.0
           prior:
-            input file: obs/satbias_amsua_metop-b_#HH#_cov.nc
+            input file: obs/satbias_amsua_n19_#HH#_cov.nc
             inflation:
               ratio: 1.1
               ratio for small dataset: 2.0
-          output file: bc/out_satbias_amsua_metop-b_#HH#_cov.nc
+          output file: bc/out_satbias_amsua_n19_#HH#_cov.nc
 
 ##############################################
       obs pre filters:
@@ -82,7 +82,7 @@
       - filter: Create Diagnostic Flags
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         flags:
         - name: Thinning
           initial value: false
@@ -92,7 +92,7 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         test variables:
         - name: GeoVaLs/observable_domain_mask
           flag all filter variables if any test variable is out of bounds: true
@@ -102,25 +102,24 @@
       - filter: BlackList
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         action:
           name: assign error
           error function:
             name: ObsFunction/ObsErrorModelRamp
-            channels: *amsua_metop-b_channels
+            channels: *amsua_n19_channels
             options:
-              channels: *amsua_metop-b_channels
+              channels: *amsua_n19_channels
               xvar:
                 name: ObsFunction/CLWRetSymmetricMW
                 options:
                   clwret_ch238: 1
                   clwret_ch314: 2
                   clwret_types: [ObsValue, HofX]
-              x0: &amsua_metop-b_obsx0 [0.05,0.03,0.03,0.02,0.0,0.1,0.,0.,0.,0.,0.,0.,0.,0.,0.03]
-              x1: &amsua_metop-b_obsx1 [0.60,0.45,0.40,0.45,1.0,1.5,0.,0.,0.,0.,0.,0.,0.,0.,0.2]
-              err0: &amsua_metop-b_obserr0 [2.500,2.200,2.000,0.550,0.300,0.230,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,3.500]
-              err1: &amsua_metop-b_obserr1 [9999.9,9999.9,9999.9,9999.9,9999.9,9999.9,9999.9,9999.9,9999.9,9999.9,
-9999.9,9999.9,9999.9,9999.9,9999.9]
+              x0: &amsua_n19_obsx0 [0.05,0.03,0.03,0.02,0.0,0.1,0.,0.,0.,0.,0.,0.,0.,0.,0.03]
+              x1: &amsua_n19_obsx1 [0.60,0.45,0.40,0.45,1.0,1.5,0.,0.,0.,0.,0.,0.,0.,0.,0.2]
+              err0: &amsua_n19_obserr0 [2.500,2.200,2.000,0.550,0.300,0.230,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,3.500]
+              err1: &amsua_n19_obserr1 [20.000,18.000,12.000,3.000,0.500,0.300,0.230,0.250,0.250,0.350,0.400,0.550,0.800,3.000,18.000]
 
       #  CLW Retrieval Check
       - filter: Bounds Check
@@ -156,13 +155,13 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         test variables:
         - name: ObsFunction/HydrometeorCheckAMSUA
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
           options:
-            channels: *amsua_metop-b_channels
-            obserr_clearsky: *amsua_metop-b_obserr0
+            channels: *amsua_n19_channels
+            obserr_clearsky: *amsua_n19_obserr0
             clwret_function:
               name: ObsFunction/CLWRetMW
               options:
@@ -171,19 +170,19 @@
                 clwret_types: [ObsValue]
             obserr_function:
               name: ObsFunction/ObsErrorModelRamp
-              channels: *amsua_metop-b_channels
+              channels: *amsua_n19_channels
               options:
-                channels: *amsua_metop-b_channels
+                channels: *amsua_n19_channels
                 xvar:
                   name: ObsFunction/CLWRetSymmetricMW
                   options:
                     clwret_ch238: 1
                     clwret_ch314: 2
                     clwret_types: [ObsValue, HofX]
-                x0: *amsua_metop-b_obsx0
-                x1: *amsua_metop-b_obsx1
-                err0: *amsua_metop-b_obserr0
-                err1: *amsua_metop-b_obserr1
+                x0: *amsua_n19_obsx0
+                x1: *amsua_n19_obsx1
+                err0: *amsua_n19_obserr0
+                err1: *amsua_n19_obserr1
         maxvalue: 0.0
         action:
           name: reject
@@ -192,43 +191,43 @@
       - filter: BlackList
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsFunction/ObsErrorFactorTopoRad
-            channels: *amsua_metop-b_channels
+            channels: *amsua_n19_channels
             options:
-              sensor: &amsua_metop-b_sensor amsua_metop-b
-              channels: *amsua_metop-b_channels
+              sensor: &amsua_n19_sensor amsua_n19
+              channels: *amsua_n19_channels
 
       #  Transmittnace Top Check
       - filter: BlackList
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsFunction/ObsErrorFactorTransmitTopRad
-            channels: *amsua_metop-b_channels
+            channels: *amsua_n19_channels
             options:
-              sensor: *amsua_metop-b_sensor
-              channels: *amsua_metop-b_channels
+              sensor: *amsua_n19_sensor
+              channels: *amsua_n19_channels
 
       #  Surface Jacobian check
       - filter: BlackList
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsFunction/ObsErrorFactorSurfJacobianRad
-            channels: *amsua_metop-b_channels
+            channels: *amsua_n19_channels
             options:
-              sensor: *amsua_metop-b_sensor
-              channels: *amsua_metop-b_channels
+              sensor: *amsua_n19_sensor
+              channels: *amsua_n19_channels
               obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
               obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 
@@ -236,15 +235,15 @@
       - filter: BlackList
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsFunction/ObsErrorFactorSituDependMW
-            channels: *amsua_metop-b_channels
+            channels: *amsua_n19_channels
             options:
-              sensor: *amsua_metop-b_sensor
-              channels: *amsua_metop-b_channels
+              sensor: *amsua_n19_sensor
+              channels: *amsua_n19_channels
               clwobs_function:
                 name: ObsFunction/CLWRetMW
                 options:
@@ -268,9 +267,9 @@
                   bias_application: HofX
               clwmatchidx_function:
                 name: ObsFunction/CLWMatchIndexMW
-                channels: *amsua_metop-b_channels
+                channels: *amsua_n19_channels
                 options:
-                  channels: *amsua_metop-b_channels
+                  channels: *amsua_n19_channels
                   clwobs_function:
                     name: ObsFunction/CLWRetMW
                     options:
@@ -284,55 +283,55 @@
                       clwret_ch314: 2
                       clwret_types: [HofX]
                       bias_application: HofX
-                  clwret_clearsky: *amsua_metop-b_obsx0
+                  clwret_clearsky: *amsua_n19_obsx0
               obserr_function:
                 name: ObsFunction/ObsErrorModelRamp
-                channels: *amsua_metop-b_channels
+                channels: *amsua_n19_channels
                 options:
-                  channels: *amsua_metop-b_channels
+                  channels: *amsua_n19_channels
                   xvar:
                     name: ObsFunction/CLWRetSymmetricMW
                     options:
                       clwret_ch238: 1
                       clwret_ch314: 2
                       clwret_types: [ObsValue, HofX]
-                  x0: *amsua_metop-b_obsx0
-                  x1: *amsua_metop-b_obsx1
-                  err0: *amsua_metop-b_obserr0
-                  err1: *amsua_metop-b_obserr1
-              obserr_clearsky: *amsua_metop-b_obserr0
+                  x0: *amsua_n19_obsx0
+                  x1: *amsua_n19_obsx1
+                  err0: *amsua_n19_obserr0
+                  err1: *amsua_n19_obserr1
+              obserr_clearsky: *amsua_n19_obserr0
 
       #  Gross check
       - filter: Background Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         function absolute threshold:
         - name: ObsFunction/ObsErrorBoundMW
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
           options:
-            sensor: *amsua_metop-b_sensor
-            channels: *amsua_metop-b_channels
+            sensor: *amsua_n19_sensor
+            channels: *amsua_n19_channels
             obserr_bound_latitude:
               name: ObsFunction/ObsErrorFactorLatRad
               options:
                 latitude_parameters: [25.0, 0.25, 0.04, 3.0]
             obserr_bound_transmittop:
               name: ObsFunction/ObsErrorFactorTransmitTopRad
-              channels: *amsua_metop-b_channels
+              channels: *amsua_n19_channels
               options:
-                channels: *amsua_metop-b_channels
+                channels: *amsua_n19_channels
             obserr_bound_topo:
               name: ObsFunction/ObsErrorFactorTopoRad
-              channels: *amsua_metop-b_channels
+              channels: *amsua_n19_channels
               options:
-                channels: *amsua_metop-b_channels
-                sensor: *amsua_metop-b_sensor
+                channels: *amsua_n19_channels
+                sensor: *amsua_n19_sensor
             obserr_function:
               name: ObsFunction/ObsErrorModelRamp
-              channels: *amsua_metop-b_channels
+              channels: *amsua_n19_channels
               options:
-                channels: *amsua_metop-b_channels
+                channels: *amsua_n19_channels
                 xvar:
                   name: ObsFunction/CLWRetSymmetricMW
                   options:
@@ -340,10 +339,10 @@
                     clwret_ch314: 2
                     clwret_types: [ObsValue, HofX]
                     bias_application: HofX
-                x0: *amsua_metop-b_obsx0
-                x1: *amsua_metop-b_obsx1
-                err0: *amsua_metop-b_obserr0
-                err1: *amsua_metop-b_obserr1
+                x0: *amsua_n19_obsx0
+                x1: *amsua_n19_obsx1
+                err0: *amsua_n19_obserr0
+                err1: *amsua_n19_obserr1
             obserr_bound_max: [4.5, 4.5, 4.5, 2.5, 2.0,
                                2.0, 2.0, 2.0, 2.0, 2.0,
                                2.5, 3.5, 4.5, 4.5, 4.5]
@@ -364,16 +363,16 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         test variables:
         - name: ObsFunction/InterChannelConsistencyCheck
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
           options:
-            channels: *amsua_metop-b_channels
-            sensor: *amsua_metop-b_sensor
-            use_flag: &amsua_metop-b_useflag [-1,-1,-1,-1,-1,
-                      -1,-1, 1, 1, 1,
-                       1, 1,-1,-1,-1]
+            channels: *amsua_n19_channels
+            sensor: *amsua_n19_sensor
+            use_flag: &amsua_n19_useflag [1, 1, 1, 1, 1,
+                       1,-1,-1, 1, 1,
+                       1,-1,-1,-1, 1]
         maxvalue: 1.0e-12
         action:
           name: reject
@@ -382,14 +381,14 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
         test variables:
         - name: ObsFunction/ChannelUseflagCheckRad
-          channels: *amsua_metop-b_channels
+          channels: *amsua_n19_channels
           options:
-            sensor: *amsua_metop-b_sensor
-            channels: *amsua_metop-b_channels
-            use_flag: *amsua_metop-b_useflag
+            sensor: *amsua_n19_sensor
+            channels: *amsua_n19_channels
+            use_flag: *amsua_n19_useflag
         minvalue: 1.0e-12
         action:
           name: reject

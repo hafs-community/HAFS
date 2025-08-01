@@ -65,6 +65,7 @@ export naensloc=${naensloc:-1}
 
 export ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 export RUN_FGAT=${RUN_FGAT:-NO}
+export RUN_ALLSKY=${RUN_ALLSKY:-NO}
 export FGAT=${FGAT:-NO}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
 export RUN_ENSDA=${RUN_ENSDA:-NO}
@@ -535,7 +536,11 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
 fi
 
 for obstype in ${obstypes}; do
- cat "${obs_yaml_dir}/${obstype}.yaml" >> temp.yaml.tmp
+ if [ ${RUN_ALLSKY:-.no.} = "YES" ]; then
+   cat "${obs_yaml_dir}/allsky/${obstype}.yaml" >> temp.yaml.tmp
+ else
+   cat "${obs_yaml_dir}/${obstype}.yaml" >> temp.yaml.tmp
+ fi
 done
 
 if [ ${l4densvar:-.true.} = ".true." ]; then

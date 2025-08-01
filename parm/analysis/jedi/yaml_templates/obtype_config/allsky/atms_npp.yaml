@@ -1,19 +1,19 @@
     - obs space:
-        name: ATMS N20
+        name: ATMS NPP
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.atms_n20.nc
+            obsfile: obs/hafs.#HH#.atms_npp.nc
             missing file action: "warn"
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_atms_n20_#HH#.nc
+            obsfile: hofx/diag_atms_npp_#HH#.nc
         io pool:
           max pool size: #TOTAL_TASKS#
         simulated variables: [brightnessTemperature]
         observed variables: [brightnessTemperature]
-        channels: &atms_n20_channels 1-22
+        channels: &atms_npp_channels 1-22
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3,CO2]
@@ -21,7 +21,7 @@
         Cloud_Fraction: 1.0
         Cloud_Seeding: true
         obs options:
-          Sensor_ID: atms_n20
+          Sensor_ID: atms_npp
           EndianType: little_endian
           CoefficientPath: crtm/
           IRVISlandCoeff: IGBP
@@ -29,8 +29,8 @@
           Absorbers: [H2O, O3]
 
       obs bias:
-        input file: obs/satbias_atms_n20_#HH#.nc
-        output file: bc/out_satbias_atms_n20_#HH#.nc
+        input file: obs/satbias_atms_npp_#HH#.nc
+        output file: bc/out_satbias_atms_npp_#HH#.nc
         variables without bc: [brightnessTemperature]
         channels: 15
         variational bc:
@@ -38,9 +38,9 @@
           - name: constant
           - name: lapseRate
             order: 2
-            tlapse: &atms_n20_tlapse obs/atms_n20.tlapse.txt
+            tlapse: &atms_npp_tlapse obs/atms_npp.tlapse.txt
           - name: lapseRate
-            tlapse: *atms_n20_tlapse
+            tlapse: *atms_npp_tlapse
           - name: emissivityJacobian
           - name: sensorScanAngle
             order: 4
@@ -55,11 +55,11 @@
           step size: 1.0e-4
           largest analysis variance: 10000.0
           prior:
-            input file: obs/satbias_atms_n20_#HH#_cov.nc
+            input file: obs/satbias_atms_npp_#HH#_cov.nc
             inflation:
               ratio: 1.1
               ratio for small dataset: 2.0
-          output file: bc/out_satbias_atms_n20_#HH#_cov.nc
+          output file: bc/out_satbias_atms_npp_#HH#_cov.nc
 
       obs pre filters:
       - filter: Domain Check
@@ -86,7 +86,7 @@
       - filter: Create Diagnostic Flags
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         flags:
         - name: ScanEdgeRemoval
           initial value: false
@@ -119,7 +119,7 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         test variables:
         - name: GeoVaLs/observable_domain_mask
           flag all filter variables if any test variable is out of bounds: true
@@ -196,18 +196,18 @@
       - filter: Variable Assignment
         assignments:
         - name: CLWMatchIndex@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: CLWMatchIndexMW@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              channels: *atms_n20_channels
+              channels: *atms_npp_channels
               clwobs_function:
                 name: CLWRetFromObs@DerivedMetaData
               clwbkg_function:
                 name: CLWRetFromBkg@DerivedMetaData
-              clwret_clearsky: &atms_n20_obsx0 [ 0.030,  0.030,  0.030,  0.020,  0.030,
+              clwret_clearsky: &atms_npp_obsx0 [ 0.030,  0.030,  0.030,  0.020,  0.030,
                                  0.080,  0.150,  0.000,  0.000,  0.000,
                                  0.000,  0.000,  0.000,  0.000,  0.000,
                                  0.020,  0.030,  0.030,  0.030,  0.030,
@@ -216,53 +216,53 @@
       - filter: Variable Assignment
         assignments:
         - name: InitialObsError@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorModelRamp@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              channels: *atms_n20_channels
+              channels: *atms_npp_channels
               xvar:
                 name: CLWRetSymmetric@DerivedMetaData
-              x0: *atms_n20_obsx0
-              x1: &atms_n20_obsx1 [ 0.350,  0.380,  0.400,  0.450,  0.500,
+              x0: *atms_npp_obsx0
+              x1: &atms_npp_obsx1 [ 0.350,  0.380,  0.400,  0.450,  0.500,
                        1.000,  1.000,  0.000,  0.000,  0.000,
                        0.000,  0.000,  0.000,  0.000,  0.000,
                        0.350,  0.500,  0.500,  0.500,  0.500,
                        0.500,  0.500]
-              err0: &atms_n20_obserr0 [ 4.500,  4.500,  4.500,  2.500,  0.550,
+              err0: &atms_npp_obserr0 [ 4.500,  4.500,  4.500,  2.500,  0.550,
                        0.300,  0.300,  0.400,  0.400,  0.400,
                        0.450,  0.450,  0.550,  0.800,  4.000,
-                       4.000,  4.000,  3.500,  3.000,  3.000,
+                       4.000,  4.000,  3.500,  3.000,  4.000,
                        3.000,  3.000]
-              err1: &atms_n20_obserr1 [9999.9,9999.9,9999.9,9999.9,9999.9,
-                      9999.9,9999.9,9999.9,9999.9,9999.9,
-                      9999.9,9999.9,9999.9,9999.9,9999.9,
-                      9999.9,9999.9,9999.9,9999.9,9999.9,
-                      9999.9,9999.9]
+              err1: &atms_npp_obserr1 [20.000, 25.000, 12.000,  7.000,  3.500,
+                       3.000,  0.800,  0.400,  0.400,  0.400,
+                       0.450,  0.450,  0.550,  0.800,  3.000,
+                      19.000, 30.000, 25.000, 16.500, 12.000,
+                       9.000,  6.500]
 
       # Calculate Innovation@DerivedMetaData
       - filter: Variable Assignment
         assignments:
         - name: Innovation@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsFunction/Arithmetic
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
               variables:
               - name: brightnessTemperature@ObsValue
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
               - name: brightnessTemperature@HofX
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
               coefs: [1, -1]
 
 #      - filter: Bounds Check
 #        filter variables:
 #        - name: HofX/brightnessTemperature
-#          channels: *atms_n20_channels
+#          channels: *atms_npp_channels
 #        minvalue: 50.00001
 #        maxvalue: 449.99999
 #        action:
@@ -272,18 +272,18 @@
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         action:
           name: assign error
           error function:
             name: InitialObsError@DerivedMetaData
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
 
       # Step 1: Remove Observations from the Edge of the Scan
       - filter: Domain Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         where:
         - variable:
             name: MetaData/sensorScanPosition
@@ -351,27 +351,27 @@
       - filter: Variable Assignment
         assignments:
         - name: DerivedMetaData/HydrometeorCheckATMS
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: HydrometeorCheckATMS@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              channels: *atms_n20_channels
-              obserr_clearsky: *atms_n20_obserr0
+              channels: *atms_npp_channels
+              obserr_clearsky: *atms_npp_obserr0
               clwret_function:
                 name: CLWRetFromObs@DerivedMetaData
               obserr_function:
                 name: InitialObsError@DerivedMetaData
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
 
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         test variables:
         - name: DerivedMetaData/HydrometeorCheckATMS
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         maxvalue: 0.0
         actions:
           - name: set
@@ -383,84 +383,84 @@
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorTopo@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorFactorTopoRad@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              sensor: atms_n20
-              channels: *atms_n20_channels
+              sensor: atms_npp
+              channels: *atms_npp_channels
 
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsErrorFactorTopo@DerivedMetaData
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
 
       # Step 7: Obs Error Inflation based on TOA Transmittancec Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorTransmitTop@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorFactorTransmitTopRad@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              channels: *atms_n20_channels
+              channels: *atms_npp_channels
 
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsErrorFactorTransmitTop@DerivedMetaData
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
 
       # Step 8: Observation Error Inflation based on Surface Jacobian Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorSurfJacobian@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorFactorSurfJacobianRad@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              sensor: atms_n20
-              channels: *atms_n20_channels
+              sensor: atms_npp
+              channels: *atms_npp_channels
               obserr_demisf: [0.010, 0.020, 0.015, 0.020, 0.200]
               obserr_dtempf: [0.500, 2.000, 1.000, 2.000, 4.500]
 
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsErrorFactorSurfJacobian@DerivedMetaData
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
 
       # Step 9: Situation Dependent Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorSituDepend@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorFactorSituDependMW@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              sensor: atms_n20
-              channels: *atms_n20_channels
+              sensor: atms_npp
+              channels: *atms_npp_channels
               clwbkg_function:
                 name: CLWRetFromBkg@DerivedMetaData
               clwobs_function:
@@ -469,21 +469,21 @@
                 name: SIRetFromObs@DerivedMetaData
               clwmatchidx_function:
                 name: CLWMatchIndex@DerivedMetaData
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
               obserr_function:
                 name: InitialObsError@DerivedMetaData
-                channels: *atms_n20_channels
-              obserr_clearsky: *atms_n20_obserr0
+                channels: *atms_npp_channels
+              obserr_clearsky: *atms_npp_obserr0
 
       - filter: Perform Action
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         action:
           name: inflate error
           inflation variable:
             name: ObsErrorFactorSituDepend@DerivedMetaData
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
 
       # Step 10: Gross check
       # Remove data if abs(Obs-HofX) > absolute threhold
@@ -499,27 +499,27 @@
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorBound@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           type: float
           function:
             name: ObsErrorBoundMW@ObsFunction
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             options:
-              sensor: atms_n20
-              channels: *atms_n20_channels
+              sensor: atms_npp
+              channels: *atms_npp_channels
               obserr_bound_latitude:
                 name: ObsErrorFactorLat@DerivedMetaData
               obserr_bound_transmittop:
                 name: ObsErrorFactorTransmitTop@DerivedMetaData
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
                 options:
-                  channels: *atms_n20_channels
+                  channels: *atms_npp_channels
               obserr_bound_topo:
                 name: ObsErrorFactorTopo@DerivedMetaData
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
               obserr_function:
                 name: InitialObsError@DerivedMetaData
-                channels: *atms_n20_channels
+                channels: *atms_npp_channels
                 threhold: 3
               obserr_bound_max: [4.5, 4.5, 3.0, 3.0, 1.0,
                                  1.0, 1.0, 1.0, 1.0, 1.0,
@@ -530,10 +530,10 @@
       - filter: Background Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         function absolute threshold:
         - name: ObsErrorBound@DerivedMetaData
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         actions:
           - name: set
             flag: GrossCheck
@@ -544,15 +544,15 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         test variables:
         - name: InterChannelConsistencyCheck@ObsFunction
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           options:
-            channels: *atms_n20_channels
+            channels: *atms_npp_channels
             use passive_bc: true
-            sensor: atms_n20
-            use_flag: &atms_n20_useflag [1, 1, 1, 1, 1,
+            sensor: atms_npp
+            use_flag: &atms_npp_useflag [1, 1, 1, 1, 1,
                         1, 1, 1, 1, 1,
                         1, 1,-1,-1,-1,
                         1, 1, 1, 1, 1,
@@ -568,13 +568,13 @@
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
         test variables:
         - name: ObsFunction/ChannelUseflagCheckRad
-          channels: *atms_n20_channels
+          channels: *atms_npp_channels
           options:
-            channels: *atms_n20_channels
-            use_flag: *atms_n20_useflag
+            channels: *atms_npp_channels
+            use_flag: *atms_npp_useflag
         minvalue: 1.0e-12
         actions:
           - name: set

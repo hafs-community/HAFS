@@ -17,15 +17,14 @@
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3,CO2]
-        Clouds: &atms_npp_clouds [Water, Ice, Rain, Snow, Graupel]
+        Clouds: [Water, Ice]
         Cloud_Fraction: 1.0
-        method for cloud fraction within fov: none
-        method for hydrometeor effective radii within fov: none
         Cloud_Seeding: true
         obs options:
           Sensor_ID: atms_npp
           EndianType: little_endian
           CoefficientPath: crtm/
+          IRVISlandCoeff: IGBP
         linear obs operator:
           Absorbers: [H2O, O3]
 
@@ -83,45 +82,36 @@
         action:
           name: reduce obs space
 
-      # Remove Observations from the Edge of the Scan
-      - filter: Domain Check
+      # Step 0-A: Create Diagnostic Flags
+      - filter: Create Diagnostic Flags
         filter variables:
         - name: brightnessTemperature
-          channels: 1-22
-        where:
-        - variable:
-            name: MetaData/sensorScanPosition
-          is_in: 7-90
-        action:
-          name: reduce obs space
-    
-      # Data Thinning
-      - filter: Gaussian Thinning
-        horizontal_mesh: 145
-        use_reduced_horizontal_grid: true
-        distance_norm: geodesic
-      #  round_horizontal_bin_count_to_nearest: true
-      #  partition_longitude_bins_using_mesh: true
-        action:
-          name: reduce obs space
-
-      # ------------------------
-      obs prior filters:
-      # Zero Atmospheric clouds in CRTM where water_area_fraction < 0.99
-      - filter: Variable Assignment
-        assignments:
-        - name: MetaData/zeroCloudInCRTM
-          type: int
-          function:
-            name: ObsFunction/Conditional
-            options:
-              defaultvalue: 0 # Will not zero clouds by default
-              cases:
-              - where:
-                - variable:
-                    name: GeoVaLs/water_area_fraction
-                  maxvalue: 0.99
-                value: 1 # Will zero clouds by default
+          channels: *atms_npp_channels
+        flags:
+        - name: ScanEdgeRemoval
+          initial value: false
+          force reinitialization: false
+        - name: Thinning
+          initial value: false
+          force reinitialization: false
+        - name: CLWRetrievalCheck
+          initial value: false
+          force reinitialization: false
+        - name: WindowChannelExtremeResidual
+          initial value: false
+          force reinitialization: false
+        - name: HydrometeorCheck
+          initial value: false
+          force reinitialization: false
+        - name: GrossCheck
+          initial value: false
+          force reinitialization: false
+        - name: InterChannelConsistency
+          initial value: false
+          force reinitialization: false
+        - name: UseflagCheck
+          initial value: false
+          force reinitialization: false
 
       # Observation Post Filters (QC)
       # -----------------------------
@@ -243,8 +233,8 @@
                        0.500,  0.500]
               err0: &atms_npp_obserr0 [ 4.500,  4.500,  4.500,  2.500,  0.550,
                        0.300,  0.300,  0.400,  0.400,  0.400,
-                       0.450,  0.450,  0.550,  0.800,  3.000,
-                       4.000,  4.000,  3.500,  3.000,  3.000,
+                       0.450,  0.450,  0.550,  0.800,  4.000,
+                       4.000,  4.000,  3.500,  3.000,  4.000,
                        3.000,  3.000]
               err1: &atms_npp_obserr1 [9999.9,9999.9,9999.9,9999.9,9999.9,
                       9999.9,9999.9,9999.9,9999.9,9999.9,
@@ -269,6 +259,15 @@
                 channels: *atms_npp_channels
               coefs: [1, -1]
 
+#      - filter: Bounds Check
+#        filter variables:
+#        - name: HofX/brightnessTemperature
+#          channels: *atms_npp_channels
+#        minvalue: 50.00001
+#        maxvalue: 449.99999
+#        action:
+#          name: reject
+
       # Step 0-C: Assign Initial All-Sky Observation Error
       - filter: Perform Action
         filter variables:
@@ -280,7 +279,33 @@
             name: InitialObsError@DerivedMetaData
             channels: *atms_npp_channels
 
-      # Step 1A: CLW Retrieval Check (observation_based)
+      # Step 1: Remove Observations from the Edge of the Scan
+      - filter: Domain Check
+        filter variables:
+        - name: brightnessTemperature
+          channels: *atms_npp_channels
+        where:
+        - variable:
+            name: MetaData/sensorScanPosition
+          is_in: 7-90
+        actions:
+          - name: set
+            flag: ScanEdgeRemoval
+          - name: reject
+
+      # Step 2: Data Thinning
+      - filter: Gaussian Thinning
+        horizontal_mesh: 45
+        use_reduced_horizontal_grid: true
+        distance_norm: geodesic
+      #  round_horizontal_bin_count_to_nearest: true
+      #  partition_longitude_bins_using_mesh: true
+        actions:
+          - name: set
+            flag: Thinning
+          - name: reject
+
+      # Step 3A: CLW Retrieval Check (observation_based)
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -288,10 +313,12 @@
         test variables:
         - name: CLWRetFromObs@DerivedMetaData
         maxvalue: 999.0
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: CLWRetrievalCheck
+          - name: reject
 
-      # Step 1B: CLW Retrieval Check (background_based)
+      # Step 3B: CLW Retrieval Check (background_based)
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -299,10 +326,12 @@
         test variables:
         - name: CLWRetFromBkg@DerivedMetaData
         maxvalue: 999.0
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: CLWRetrievalCheck
+          - name: reject
 
-      # Step 2: Window Channel Sanity Check
+      # Step 4: Window Channel Sanity Check
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -313,10 +342,12 @@
         maxvalue: 200.0
         minvalue: -200.0
         flag all filter variables if any test variable is out of bounds: true
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: WindowChannelExtremeResidual
+          - name: reject
 
-      # Step 3: Hydrometeor Check (cloud/precipitation affected chanels)
+      # Step 5: Hydrometeor Check (cloud/precipitation affected chanels)
       - filter: Variable Assignment
         assignments:
         - name: DerivedMetaData/HydrometeorCheckATMS
@@ -333,7 +364,7 @@
               obserr_function:
                 name: InitialObsError@DerivedMetaData
                 channels: *atms_npp_channels
-              Clouds: *atms_npp_clouds
+
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -342,10 +373,13 @@
         - name: DerivedMetaData/HydrometeorCheckATMS
           channels: *atms_npp_channels
         maxvalue: 0.0
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: HydrometeorCheck
+            ignore: rejected observations
+          - name: reject
 
-      # Step 4: Observation Error Inflation based on Topography Check
+      # Step 6: Observation Error Inflation based on Topography Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorTopo@DerivedMetaData
@@ -368,7 +402,7 @@
             name: ObsErrorFactorTopo@DerivedMetaData
             channels: *atms_npp_channels
 
-      # Step 5: Obs Error Inflation based on TOA Transmittancec Check
+      # Step 7: Obs Error Inflation based on TOA Transmittancec Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorTransmitTop@DerivedMetaData
@@ -390,7 +424,7 @@
             name: ObsErrorFactorTransmitTop@DerivedMetaData
             channels: *atms_npp_channels
 
-      # Step 6: Observation Error Inflation based on Surface Jacobian Check
+      # Step 8: Observation Error Inflation based on Surface Jacobian Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorSurfJacobian@DerivedMetaData
@@ -415,7 +449,7 @@
             name: ObsErrorFactorSurfJacobian@DerivedMetaData
             channels: *atms_npp_channels
 
-      # Step 7: Situation Dependent Check
+      # Step 9: Situation Dependent Check
       - filter: Variable Assignment
         assignments:
         - name: ObsErrorFactorSituDepend@DerivedMetaData
@@ -451,7 +485,7 @@
             name: ObsErrorFactorSituDepend@DerivedMetaData
             channels: *atms_npp_channels
 
-      # Step 8: Gross check
+      # Step 10: Gross check
       # Remove data if abs(Obs-HofX) > absolute threhold
       - filter: Variable Assignment
         assignments:
@@ -486,8 +520,7 @@
               obserr_function:
                 name: InitialObsError@DerivedMetaData
                 channels: *atms_npp_channels
-              threhold: 3
-              threshold_precip: 2.5
+                threhold: 3
               obserr_bound_max: [4.5, 4.5, 3.0, 3.0, 1.0,
                                  1.0, 1.0, 1.0, 1.0, 1.0,
                                  1.0, 1.0, 1.0, 2.0, 4.5,
@@ -501,10 +534,13 @@
         function absolute threshold:
         - name: ObsErrorBound@DerivedMetaData
           channels: *atms_npp_channels
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: GrossCheck
+            ignore: rejected observations
+          - name: reject
 
-      # Step 9: Inter-Channel Check
+      # Step 11: Inter-Channel Check
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -522,10 +558,13 @@
                         1, 1, 1, 1, 1,
                         1, 1]
         maxvalue: 1.0e-12
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: InterChannelConsistency
+            ignore: rejected observations
+          - name: reject
 
-      # Step 10: Useflag Check
+      # Step 12: Useflag Check
       - filter: Bounds Check
         filter variables:
         - name: brightnessTemperature
@@ -537,108 +576,8 @@
             channels: *atms_npp_channels
             use_flag: *atms_npp_useflag
         minvalue: 1.0e-12
-        action:
-          name: reject
-
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/ColumnLiquidIceCloud
-          type: float
-          function:
-            name: ObsFunction/Arithmetic
-            options:
-              variables:
-              - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
-              - name: GeoVaLs/mass_content_of_cloud_ice_in_atmosphere_column
-              coefs: [1, 1]
-
-      # replace zero by 9.99e-7 in DerivedMetaData/ColumnLiquidIceCloud
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/ColumnLiquidIceCloud
-          type: float
-          value: 9.99e-07
-        where:
-        - variable:
-            name: DerivedMetaData/ColumnLiquidIceCloud
-          maxvalue: 9.99e-07
-    
-      # ratio of liquid /(Liquid+Ice)
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/ColumnRatioLiquidCloud
-          type: float
-          function:
-            name: ObsFunction/ElementMultiply
-            options:
-              variables:
-              - name: GeoVaLs/mass_content_of_cloud_liquid_water_in_atmosphere_column
-              - name: DerivedMetaData/ColumnLiquidIceCloud
-              exponents: [1,-1]
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/ColumnRatioLiquidCloud
-          type: float
-          value: 0.0
-        where:
-        - variable:
-            name: DerivedMetaData/ColumnLiquidIceCloud
-          maxvalue: 1.0e-06
-      # TotalColumnVaporGuess
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/TotalColumnVaporGuess
-          type: float
-          function:
-            name: ObsFunction/TotalColumnVaporGuess
-      # potentialTemperature at surface
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/PotentialTemperatureSurface
-          type: float
-          function:
-            name: PotentialTemperatureFromTemperature@ObsFunction
-            options:
-              use surface pressure: true
-      # potentialTemperature near 700 hPa
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/PotentialTemperatureAt700hPa
-          type: float
-          function:
-            name: PotentialTemperatureFromTemperature@ObsFunction
-            options:
-              use surface pressure: false
-              pressure to evaluate potential temperature: 70000.0
-      # stability = Difference between PotentialTemperatur values
-      - filter: Variable Assignment
-        assignments:
-        - name: DerivedMetaData/PotentialTemperatureDiff
-          type: float
-          function:
-            name: ObsFunction/Arithmetic
-            options:
-              variables:
-              - name: DerivedMetaData/PotentialTemperatureAt700hPa
-              - name: DerivedMetaData/PotentialTemperatureSurface
-              coefs: [1, -1]
-      #  cold-air-outbreak (cao) check for all-sky DA with Rain, Snow, or Graupel
-      - filter: BlackList
-        filter variables:
-        - name: brightnessTemperature
-          channels: 1-7, 16-22
-        where:
-        - variable:
-            name: ObsFunction/TotalColumnVaporGuess
-          maxvalue: 8.0
-        - variable:
-            name: DerivedMetaData/ColumnRatioLiquidCloud
-          maxvalue: 0.5
-        - variable:
-            name: DerivedMetaData/PotentialTemperatureDiff
-          maxvalue: 12.0
-        - variable:
-            name: GeoVaLs/water_area_fraction
-          minvalue: 0.99
-        action:
-          name: reject
+        actions:
+          - name: set
+            flag: UseflagCheck
+            ignore: rejected observations
+          - name: reject

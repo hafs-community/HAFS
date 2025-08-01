@@ -142,7 +142,7 @@ fi
 if [[ $nest_grids -eq 1 ]]; then
 
 #for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data phy_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
     in_grid=${RESTARTsrc}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
     out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -177,7 +177,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
 done
 
 if [ ${l4denvar:-.false.} = ".true." ]; then
-  for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
     FHR=03
     in_grid=${RESTARTsrc}/grid_mspec_${yrtm03}_${mntm03}_${dytm03}_${hhtm03}.nc
     out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -240,8 +240,7 @@ if [ ${MERGE_TYPE} = analysis ]; then
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
-#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
@@ -267,8 +266,7 @@ elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
 ${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
-#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   if [[ $var = sfc_data ]]; then
@@ -296,8 +294,7 @@ else
 fi
 
 # Step 2: merge srcd01 into dstd01
-#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   if [[ $var = sfc_data ]]; then
@@ -321,8 +318,7 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
 done
 
 # Step 3: merge srcd02 into dstd02
-#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
