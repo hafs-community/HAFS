@@ -74,9 +74,8 @@ def ens_disk():
     with NamedDir(conf.getdir('com')):
         flist=glob.glob('*RESTART_ens')
         files=''.join(flist)
-        assert(len(files)>0)
-        if archive.lower()=='none':
-            postmsg('Archiving is disabled: archive=none')
+        if len(files)==0 or archive.lower()=='none':
+            postmsg('No file to archive or archiving is disabled.')
             return
         elif archive[0:5]=='sync:':
             path=archive[5:].rstrip()
