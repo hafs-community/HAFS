@@ -57,11 +57,13 @@
         - name: airTemperature
         where:
         - variable: ObsType/airTemperature
-          is_in: 137
+          is_not_in: 137
         - variable: QualityMarker/airTemperature
           is_in: 4-15
+          value: is_not_valid
+        where operator: or
         action:
-          name: reject
+          name: reduce obs space 
 
       # Time window filter
       - filter: Domain Check

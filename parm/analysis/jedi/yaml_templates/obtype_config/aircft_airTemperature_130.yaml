@@ -47,6 +47,8 @@
         filter variables:
         - name: airTemperature
         where:
+        - variable: ObsType/airTemperature
+          is_not_in: 130
         - variable: QualityMarker/airTemperature
           is_in: 4-15
           value: is_not_valid

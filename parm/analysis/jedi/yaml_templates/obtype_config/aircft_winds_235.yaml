@@ -62,6 +62,8 @@
         - name: windEastward
         - name: windNorthward
         where:
+        - variable: ObsType/windEastward
+          is_not_in: 235
         - variable: QualityMarker/windEastward
           is_in: 4-15
           value: is_not_valid

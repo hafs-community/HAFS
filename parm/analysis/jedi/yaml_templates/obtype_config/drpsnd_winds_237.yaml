@@ -57,12 +57,14 @@
         - name: windEastward
         - name: windNorthward
         where:
+        - variable: ObsType/windEastward
+          is_not_in: 237
         - variable: QualityMarker/windEastward
           is_in: 4-15
           value: is_not_valid
         where operator: or    
         action:
-          name: reject
+          name: reduce obs space
 
       # Time window filter
       - filter: Domain Check

@@ -49,16 +49,21 @@
           maxvalue: #MAX_LON#
         action:
           name: reduce obs space
+
       # Reject all obs with QualityMarker > 3
       - filter: RejectList
         apply at iterations: 0,1
         filter variables:
         - name: specificHumidity
         where:
+        - variable: ObsType/specificHumidity
+          is_not_in: 137
         - variable: QualityMarker/specificHumidity
           is_in: 4-15
           value: is_not_valid
         where operator: or
+        action: 
+          name: reduce obs space
 
       # Time window filter
       - filter: Domain Check

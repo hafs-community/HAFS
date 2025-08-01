@@ -55,6 +55,22 @@
         action:
            name: reduce obs space
 
+      # Reject all obs with QualityMarker > 3
+      - filter: RejectList
+        apply at iterations: 0,1
+        filter variables:
+        - name: windEastward
+        - name: windNorthward
+        where:
+        - variable: ObsType/windEastward
+          is_not_in: 233
+        - variable: QualityMarker/windEastward
+          is_in: 4-15
+          value: is_not_valid
+        where operator: or
+        action:
+          name: reduce obs space
+
       obs post filters:
       # Regional Domain Check
       - filter: Bounds Check
