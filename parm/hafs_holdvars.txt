@@ -20,10 +20,16 @@
 [[ -z "$FIXhafs" ]] && export FIXhafs={FIXhafs}
 [[ -z "$FIXcrtm" ]] && export FIXcrtm={FIXcrtm}
 
-[[ -z "$WORKhafs" ]] && export WORKhafs={WORKhafs}
-[[ -z "$COMhafs" ]] && export COMhafs={COMhafs}
-[[ -z "$CONFhafs" ]] && export CONFhafs={CONFhafs}
-[[ -z "$HOLDVARS" ]] && export HOLDVARS={HOLDVARS}
+# Lew.Gramer@noaa.gov 2025-07-05
+#[[ -z "$WORKhafs" ]] && export WORKhafs={WORKhafs}
+#[[ -z "$COMhafs" ]] && export COMhafs={COMhafs}
+#[[ -z "$CONFhafs" ]] && export CONFhafs={CONFhafs}
+#[[ -z "$HOLDVARS" ]] && export HOLDVARS={HOLDVARS}
+export WORKhafs={WORKhafs}
+export COMhafs={COMhafs}
+export CONFhafs={CONFhafs}
+export HOLDVARS={HOLDVARS}
+# LJG
 
 [[ -z "$COMOLD" ]] && export COMOLD={COMOLD}
 [[ -z "$COMIN" ]] && export COMIN={COMIN}
@@ -50,6 +56,8 @@
 
 export TZ=UTC
 export YMDH={YMDH} CYCLE={YMDH}
+export storm_num={storm_num}
+export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 export hafsbasin2={vit[tcutilbasin2]}
