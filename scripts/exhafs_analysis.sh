@@ -313,11 +313,18 @@ ${NLN} ${PARMgsi}/hafs_nam_errtable.r3dv ./errtable
 
 ${NLN} ${PARMgsi}/prepobs_prep.bufrtable ./prepobs_prep.bufrtable
 ${NLN} ${PARMgsi}/bufrtab.012 ./bftab_sstphr
+${NLN} ${PARMgsi}/tms_bufr.table ./tms_bufr.table
 
 # Link CRTM coefficient files based on entries in satinfo file
 for file in $(awk '{if($1!~"!"){print $1}}' ./satinfo | sort | uniq); do
-  ${NLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
-  ${NLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+  if [[ $file == tms* ]]; then
+    export FIXcrtm2=/scratch3/HFIP/hwrfv3/save/Xu.Lu/HAFS_TROPICS/fix/fix_crtm #XL Temp dir for the TROPICS Fix files
+    ${WLN} ${FIXcrtm2}/${file}.SpcCoeff.bin ./
+    ${WLN} ${FIXcrtm2}/${file}.TauCoeff.bin ./
+  else
+    ${WLN} ${FIXcrtm}/${file}.SpcCoeff.bin ./
+    ${WLN} ${FIXcrtm}/${file}.TauCoeff.bin ./
+  fi
 done
 ${NLN} ${FIXcrtm}/amsua_metop-a_v2.SpcCoeff.bin ./amsua_metop-a_v2.SpcCoeff.bin
 
@@ -423,6 +430,8 @@ TCVITL=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
+TMSBF=${TMSBF:-/scratch3/HFIP/hwrfv3/noscrub/hafs-input/obsprocv1_hafs/gfs.$PDY/$cyc/${atmos}/${OPREFIX}tropic.tm00.bufr_d${OSUFFIX}}
+#-${COMIN_OBS}/${OPREFIX}tropic.tm00.bufr_d${OSUFFIX}}
 
 # Observational data
 #${NLN} $PREPQC           prepbufr
@@ -483,6 +492,7 @@ ${WLN} $B1AVHPM          avhpmbufr
 ##${WLN} $AHIBF            ahibufr
 ##${WLN} $ABIBF            abibufr
 ##${WLN} $HDOB             hdobbufr
+${WLN} $TMSBF            tmsbufr
 
 ##[[ $DONST = "YES" ]] && ${WLN} $NSSTBF nsstbufr
 
@@ -548,6 +558,9 @@ else
   ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
   ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
 fi
+
+cat ${PARMgsi}/tmsbias_in >> satbias_in
+cat ${PARMgsi}/tmsbias_in >> satbias_pc
 
 # Diagnostic files
 # if requested, link GSI diagnostic file directories for use later
@@ -680,7 +693,7 @@ if [ $GENDIAG = "YES" ]; then
   diagtype[0]="conv conv_gps conv_ps conv_pw conv_q conv_sst conv_t conv_tcp conv_uv conv_spd conv_rw"
   diagtype[1]="pcp_ssmi_dmsp pcp_tmi_trmm"
   diagtype[2]="sbuv2_n16 sbuv2_n17 sbuv2_n18 sbuv2_n19 gome_metop-a gome_metop-b omi_aura mls30_aura ompsnp_npp ompstc8_npp gome_metop-c"
-  diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c cris-fsr_n21 atms_n21"
+  diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c cris-fsr_n21 atms_n21 tropics_sv1_srf_v4 tms_tropics-01 tms_tropics-03 tms_tropics-05 tms_tropics-06 tms_tropics-07"
 
   diaglist[0]=listcnv
   diaglist[1]=listpcp

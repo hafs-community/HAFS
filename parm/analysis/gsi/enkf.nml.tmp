@@ -98,6 +98,12 @@
    sattypes_rad(68)= 'ahi_himawari8', dsis(68)= 'ahi_himawari8',
    sattypes_rad(69)= 'abi_g16',       dsis(69)= 'abi_g16',
    sattypes_rad(70)= 'abi_g17',       dsis(70)= 'abi_g17',
+   sattypes_rad(71)= 'tms_tropics-01', dsis(71)= 'tms_tropics-01',
+   sattypes_rad(72)= 'tms_tropics-03', dsis(72)= 'tms_tropics-03',
+   sattypes_rad(73)= 'tms_tropics-05', dsis(73)= 'tms_tropics-05',
+   sattypes_rad(74)= 'tms_tropics-06', dsis(74)= 'tms_tropics-06',
+   sattypes_rad(75)= 'tms_tropics-07', dsis(75)= 'tms_tropics-07',
+   sattypes_rad(76)= 'tropics_sv1_srf_v4', dsis(76)= 'tropics_sv1_srf_v4',
 /
 
 &ozobs_enkf

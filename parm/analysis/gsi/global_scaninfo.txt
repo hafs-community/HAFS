@@ -58,4 +58,10 @@
  viirs-m_j1              -56.280      1.265        90     1    90
  viirs-m_j2              -56.280      1.265        90     1    90
  gmi_gpm                   0.000      1.000       221    15   207
+ tms_tropics-01          -50.000      1.250        81     1    81
+ tms_tropics-02          -50.000      1.250        81     1    81
+ tms_tropics-03          -50.000      1.250        81     1    81
+ tms_tropics-05          -50.000      1.250        81     1    81
+ tms_tropics-06          -50.000      1.250        81     1    81
+ tms_tropics-07          -50.000      1.250        81     1    81
 !sat_sis                  start       step      nstep  edge1  edge2

@@ -1,0 +1,89 @@
+.------------------------------------------------------------------------------.
+| ------------   USER DEFINITIONS FOR TABLE-A TABLE-B TABLE D   -------------- |
+|------------------------------------------------------------------------------|
+| MNEMONIC | NUMBER | DESCRIPTION                                              |
+|----------|--------|----------------------------------------------------------|
+|          |        |                                                          |
+| NC021203 | A10061 | MSG TYPE 021-203 NPP ATMS radiance data                  |
+|          |        |                                                          |
+| YYMMDD   | 301011 | Date -- year, month, day                                 |
+| HHMM     | 301012 | Time -- hour, minute                                     |
+| LTLONH   | 301021 | High accuracy latitude/longitude position                |
+| ATMSCH   | 350206 | NPP ATMS channel data                                    |
+|          |        |                                                          |
+| SAID     | 001007 | Satellite identifier                                     |
+| OGCE     | 001033 | Identification of originating/generating center          |
+| GSES     | 001034 | Identification of originating/generating sub-center      |
+| SIID     | 002019 | Satellite instruments                                    |
+| SCLF     | 002020 | Satellite classification                                 |
+| ANPO     | 002104 | Antenna polarization                                     |
+| SCCF     | 002153 | Satellite channel center frequency                       |
+| YEAR     | 004001 | Year                                                     |
+| MNTH     | 004002 | Month                                                    |
+| DAYS     | 004003 | Day                                                      |
+| HOUR     | 004004 | Hour                                                     |
+| MINU     | 004005 | Minute                                                   |
+| SECO     | 004006 | Second                                                   |
+| CLATH    | 005001 | Latitude (high accuracy)                                 |
+| BEARAZ   | 005021 | Bearing or azimuth                                       |
+| SOLAZI   | 005022 | Solar azimuth                                            |
+| SLNM     | 005041 | Scan line number                                         |
+| CHNM     | 005042 | Channel number                                           |
+| FOVN     | 005043 | Field of view number                                     |
+| CLONH    | 006001 | Longitude (high accuracy)                                |
+| HMSL     | 007002 | Height or altitude                                       |
+| SAZA     | 007024 | Satellite zenith angle                                   |
+| SASA     | 007027 | Satellite scan angle                                     |
+| SOZA     | 007025 | Solar zenith angle                                       |
+| NEDTCO   | 012158 | Noise-equivalent delta temperature viewing cold target   |
+| NEDTWA   | 012159 | Noise-equivalent delta temperature viewing warm target   |
+| TMBR     | 012163 | Brightness temperature                                   |
+| ATMSCHQ  | 033081 | ATMS channel data quality flags                          |
+|          |        |                                                          |
+|------------------------------------------------------------------------------|
+| MNEMONIC | SEQUENCE                                                          |
+|----------|-------------------------------------------------------------------|
+|          |                                                                   |
+| NC021203 | SAID     OGCE     GSES     SIID     SCLF     YYMMDD   HHMM        |
+| NC021203 | 207003   SECO     207000   SLNM     FOVN     LTLONH   201129      |
+| NC021203 | HMSL     201000   SAZA     BEARAZ   SOZA     SOLAZI   "ATMSCH"12  |
+|          |                                                                   |
+| YYMMDD   | YEAR     MNTH     DAYS                                            |
+| HHMM     | HOUR     MINU                                                     |
+| LTLONH   | CLATH    CLONH                                                    |
+| ATMSCH   | CHNM     SCCF     ANPO     TMBR     NEDTCO   NEDTWA   ATMSCHQ     |
+|          |                                                                   |
+|------------------------------------------------------------------------------|
+| MNEMONIC | SCAL | REFERENCE   | BIT | UNITS                    |-------------|
+|----------|------|-------------|-----|--------------------------|-------------|
+|          |      |             |     |                          |-------------|
+| SAID     |    0 |           0 |  10 | Code table               |-------------|
+| OGCE     |    0 |           0 |   8 | Code table               |-------------|
+| GSES     |    0 |           0 |   8 | Code table               |-------------|
+| SIID     |    0 |           0 |  11 | Code table               |-------------|
+| SCLF     |    0 |           0 |   9 | Code table               |-------------|
+| ANPO     |    0 |           0 |   4 | Code table               |-------------|
+| SCCF     |   -8 |           0 |  26 | Hz                       |-------------|
+| YEAR     |    0 |           0 |  12 | Year                     |-------------|
+| MNTH     |    0 |           0 |   4 | Month                    |-------------|
+| DAYS     |    0 |           0 |   6 | Day                      |-------------|
+| HOUR     |    0 |           0 |   5 | Hour                     |-------------|
+| MINU     |    0 |           0 |   6 | Minute                   |-------------|
+| SECO     |    0 |           0 |   6 | Second                   |-------------|
+| CLATH    |    5 |    -9000000 |  25 | Degree                   |-------------|
+| BEARAZ   |    2 |           0 |  16 | Degree true              |-------------|
+| SOLAZI   |    2 |           0 |  16 | Degree true              |-------------|
+| SLNM     |    0 |           0 |   8 | Numeric                  |-------------|
+| CHNM     |    0 |           0 |   6 | Numeric                  |-------------|
+| FOVN     |    0 |           0 |   8 | Numeric                  |-------------|
+| CLONH    |    5 |   -18000000 |  26 | Degree                   |-------------|
+| HMSL     |   -1 |         -40 |  16 | m                        |-------------|
+| SAZA     |    2 |       -9000 |  15 | Degree                   |-------------|
+| SASA     |    2 |       -9000 |  15 | Degree                   |-------------|
+| SOZA     |    2 |       -9000 |  15 | Degree                   |-------------|
+| NEDTCO   |    2 |           0 |  12 | K                        |-------------|
+| NEDTWA   |    2 |           0 |  12 | K                        |-------------|
+| TMBR     |    2 |           0 |  16 | K                        |-------------|
+| ATMSCHQ  |    0 |           0 |  12 | Flag table               |-------------|
+|          |      |             |     |                          |-------------|
+`------------------------------------------------------------------------------'
