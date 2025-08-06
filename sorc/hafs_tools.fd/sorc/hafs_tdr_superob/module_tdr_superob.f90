@@ -43,7 +43,7 @@ double precision, dimension(:,:), allocatable  :: swp_obs
 double precision                               :: azmdiff
 integer                                        :: levs, k, i
 integer                                        :: firstradial, dir_flag
-integer                                        :: n_radials_swp
+integer                                        :: n_radials_swp, max_radials_swp
 real, allocatable, dimension(:)                :: radius
 
 !------ End variable declarations ------
@@ -52,6 +52,9 @@ real, allocatable, dimension(:)                :: radius
 bfrascii_unit = 13
 swp_unit = 14
 writeout_fmt = '(A2,1X,F15.0,1X,2(F6.2,1X),F7.1,1X,2(F6.2,1X),100(F7.2,1X))'
+
+! Set maximum number of radials allowed per sweep
+max_radials_swp = 720
 
 write(6,*) ' '
 write(6,*) 'Processing decoded BUFR file ',trim(bfr_ascii_filename),' by sweep'
@@ -248,18 +251,100 @@ do
 
       else
 
-        n_radials_swp = n_radials_swp + 1
+        ! Check whether max number of radials per sweep has been reached in case there
+        ! are several sweeps in a row in the same direction than cannot be split using
+        ! the azimuth angle criteria.
+        if (n_radials_swp > max_radials_swp) then
 
-        swp_tailno(n_radials_swp)    = tailno
-        swp_date(n_radials_swp)      = radial_date
-        swp_stalat(n_radials_swp)    = radial_stalat
-        swp_stalon(n_radials_swp)    = radial_stalon
-        swp_stahgt(n_radials_swp)    = radial_stahgt
-        swp_azm(n_radials_swp)       = radial_azm
-        swp_tilt(n_radials_swp)      = radial_tilt
-        do k=1,levs
-          swp_obs(n_radials_swp,k)   = radial_obs(k)
-        enddo
+          write(datestring, '(F15.0)') swp_date(1)
+          write(swp_filename, '(A2,A,A14,A,I1,A4)') swp_tailno(1),'_',datestring,'_',dir_flag,'.swp'
+
+          ! (Debug) Dump old sweep to file
+          if (debug_level .ge. 1) then
+
+            write(6,*) ' '
+            write(6,*) '-- Writing out sweep file ',trim(swp_filename)
+
+            inquire(file=swp_filename,exist=fileexists)
+            if(fileexists) then
+              write(6,*) '-- Found existing file ',trim(swp_filename),'. Appending _2 to filename and proceeding.'
+              swp_filename = swp_filename(1:len_trim(swp_filename)-4)//'_2'//'.swp'
+            endif
+
+            open(unit=swp_unit, file=swp_filename, status='new', action='write', iostat=iost)
+            call check_iostat_open('split_bufr_sweeps',swp_filename,iost)
+
+            write(unit=swp_unit, fmt='(I4)', iostat=iost) levs
+            call check_iostat_write('split_bufr_sweeps',swp_filename,iost)
+
+            write(unit=swp_unit, fmt='(8(F10.2,1X))', iostat=iost) (radius(k),k=1,levs)
+            call check_iostat_write('split_bufr_sweeps',swp_filename,iost)
+
+            do i = 1,n_radials_swp
+              write(swp_unit, fmt=writeout_fmt, iostat=iost) swp_tailno(i),swp_date(i),swp_stalat(i),swp_stalon(i), &
+                swp_stahgt(i),swp_azm(i),swp_tilt(i),(swp_obs(i,k),k=1,levs)
+              call check_iostat_write('split_bufr_sweeps',swp_filename,iost)
+            enddo
+
+            close(swp_unit)
+
+          endif ! if (debug_level .ge. 1) Dump old sweep to file
+
+          ! Calculate superobs for old sweep
+          if (debug_level .ge. 1) write(6,*) '-- Calculating superobs'
+          call calc_superobs(swp_tailno(1), swp_date(1:n_radials_swp), swp_stalat(1:n_radials_swp), &
+            swp_stalon(1:n_radials_swp), swp_stahgt(1:n_radials_swp), swp_azm(1:n_radials_swp), &
+            swp_tilt(1:n_radials_swp), swp_obs(1:n_radials_swp,1:levs), radius, swp_filename, &
+            superob_filename, debug_level)
+
+          ! Switch direction for new sweep
+          if (dir_flag .eq. 0) then
+            dir_flag = 1
+          elseif (dir_flag .eq. 1) then
+            dir_flag = 0
+          else
+            write(6,*) '-- Unexpected dir_flag value (dir_flag = ',char(dir_flag),'). Stopping...'
+            stop
+          endif
+
+          ! Reset sweep arrays and store current record
+          swp_date   = 0.0
+          swp_stalat = 0.0
+          swp_stalon = 0.0
+          swp_stahgt = 0.0
+          swp_azm    = 0.0
+          swp_tilt   = 0.0
+          swp_obs    = 0.0
+
+          n_radials_swp = 1
+
+          swp_tailno(n_radials_swp)    = tailno
+          swp_date(n_radials_swp)      = radial_date
+          swp_stalat(n_radials_swp)    = radial_stalat
+          swp_stalon(n_radials_swp)    = radial_stalon
+          swp_stahgt(n_radials_swp)    = radial_stahgt
+          swp_azm(n_radials_swp)       = radial_azm
+          swp_tilt(n_radials_swp)      = radial_tilt
+          do k=1,levs
+            swp_obs(n_radials_swp,k)   = radial_obs(k)
+          enddo
+
+        else
+          ! Add radial to current sweep and keep reading
+          n_radials_swp = n_radials_swp + 1
+
+          swp_tailno(n_radials_swp)    = tailno
+          swp_date(n_radials_swp)      = radial_date
+          swp_stalat(n_radials_swp)    = radial_stalat
+          swp_stalon(n_radials_swp)    = radial_stalon
+          swp_stahgt(n_radials_swp)    = radial_stahgt
+          swp_azm(n_radials_swp)       = radial_azm
+          swp_tilt(n_radials_swp)      = radial_tilt
+          do k=1,levs
+            swp_obs(n_radials_swp,k)   = radial_obs(k)
+          enddo
+
+        endif ! max radials per sweep check
 
       endif ! azimuth angle check
 
