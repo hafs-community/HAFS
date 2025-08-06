@@ -179,11 +179,7 @@ def _get_obs_type(swcm, chanfreq):
 
     obstype = swcm.copy()
     # Use numpy vectorized operations
-    obstype = np.where(swcm == 3, 241, obstype)  # WVCT
-    obstype = np.where(swcm == 2, 241, obstype)  # VIS
-    obstype = np.where(swcm == 1, 241, obstype)  # IRLW
-
-    condition = np.logical_and(swcm == 1, chanfreq >= 5e13)  # IRSW
+    condition = np.logical_and(swcm >= 1, swcm < 7)
     obstype = np.where(condition, 241, obstype)
 
     if not np.any(np.isin(obstype, [241])):
