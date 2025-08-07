@@ -221,6 +221,7 @@
         DO J=1,NY
         DO I=1,NX
           IF(HLON(I,J).LT.0.)HLON(I,J)=HLON(I,J)+360.
+          IF(VLON(I,J).LT.0.)VLON(I,J)=VLON(I,J)+360.
         END DO
         END DO
       endif
