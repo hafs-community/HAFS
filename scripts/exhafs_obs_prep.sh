@@ -356,11 +356,13 @@ if [ -s ${intercom}/${NFTLDPLR} ] && [[ ${tdr_superob:-.false.} = .true. ]]; the
 #   echo "WARNING: TDR superobbing with exit code of $status. Continue ..."
 # fi
   # Deliver to intercom
-  ${NCP} -p ./tldplr.ibm ${intercom}/${NFTLDPLR}
+  if [ -s ./tldplr.ibm ]; then
+    ${NCP} -p ./tldplr.ibm ${intercom}/${NFTLDPLR}
+  fi
 fi
 
 # If exist and non-empty, use all HDOB data including regular and S2 UAS
-HDOBnew=${COMINobs}/../obsprocv1_hafs/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.hdob.bufr_d
+HDOBnew=${COMINobs}/../obsprocv1_hafs/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.hdob.tm00.bufr_d
 if [ -s ${HDOBnew} ]; then
   # Deliver to intercom
   ${NCP} -L ${HDOBnew} ${intercom}/${NFHDOB}
