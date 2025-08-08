@@ -277,7 +277,7 @@ if [ ${RUN_ENVAR} = "YES" ]; then
 fi
 # Interpolate the HAFS ensemble grid to control grid
 # Assume the ensemble grid is always different from control and therefore needs interpolation
-if [ ${RUN_ENSDA} = "YES" ]; then
+#XL if [ ${RUN_ENSDA} = "YES" ]; then
   cd ${DATA}/ensemble_data
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
     mkdir ${DATA}/ensemble_data/mem${mem}
@@ -286,7 +286,7 @@ if [ ${RUN_ENSDA} = "YES" ]; then
       ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
     done
   done
-fi
+#fi
 
 # Stat files
 RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
