@@ -27,6 +27,27 @@ MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 SENDCOM=${SENDCOM:-YES}
 
+CDATE=${CDATE:-$YMDH}
+ymd=$(echo $CDATE | cut -c1-8)
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+hh=$(echo $CDATE | cut -c9-10)
+CDATE_prior=$(${NDATE} -6 $CDATE)
+CDATEtm03=$(${NDATE} -3 $CDATE)
+ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+CDATEtp03=$(${NDATE} +3 $CDATE)
+ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
+
+COMENS=${COMENS:-/scratch3/NCEPDEV/hwrf/scrub/Xu.Lu/hafs_v2p1p1a_final_ens}
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
 
@@ -65,6 +86,8 @@ elif [ ${MERGE_TYPE} = init ]; then
     export nest_grids=${nest_grids_ens:-${nest_grids}}
     if [ -d ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID} ]; then
       RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
+    elif [ -d ${COMENS}/${CDATE_prior}/${STORMID}/${old_out_prefix}.RESTART_ens/mem${ENSID} ]; then
+      RESTARTsrc=${COMENS}/${CDATE_prior}/${STORMID}/${old_out_prefix}.RESTART_ens/mem${ENSID}
     else
       echo "FATAL ERROR: RESTARTsrc does not exist"
       exit 1
@@ -91,25 +114,6 @@ else
   exit 1
 
 fi # if [ ${MERGE_TYPE} = analysis ]; then
-
-CDATE=${CDATE:-$YMDH}
-ymd=$(echo $CDATE | cut -c1-8)
-yr=$(echo $CDATE | cut -c1-4)
-mn=$(echo $CDATE | cut -c5-6)
-dy=$(echo $CDATE | cut -c7-8)
-hh=$(echo $CDATE | cut -c9-10)
-CDATEtm03=$(${NDATE} -3 $CDATE)
-ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
-yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
-mntm03=$(echo ${CDATEtm03} | cut -c5-6)
-dytm03=$(echo ${CDATEtm03} | cut -c7-8)
-hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
-CDATEtp03=$(${NDATE} +3 $CDATE)
-ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
-yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
-mntp03=$(echo ${CDATEtp03} | cut -c5-6)
-dytp03=$(echo ${CDATEtp03} | cut -c7-8)
-hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
 DATA=${DATA:-${WORKhafs}/merge}
 
@@ -176,6 +180,25 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
   export err=$?; err_chk
 done
 
+if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
+  var="sfc_data"
+  in_grid=${RESTARTsrc}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+  out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+  in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
+  out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+    exit 1
+  fi
+  ${MERGE_CMD} \
+    --in_grid=${in_grid} \
+    --out_grid=${out_grid} \
+    --in_file=${in_file} \
+    --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+  export err=$?; err_chk
+fi
+
 if [ ${l4denvar:-.false.} = ".true." ]; then
   for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     FHR=03
@@ -223,6 +246,43 @@ if [ ${l4denvar:-.false.} = ".true." ]; then
       --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
     export err=$?; err_chk
   done
+  if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
+    var="sfc_data"
+    in_grid=${RESTARTsrc}/grid_mspec_${yrtm03}_${mntm03}_${dytm03}_${hhtm03}.nc
+    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.nc
+    out_file=${RESTARTmrg}/${ymdtm03}.${hhtm03}0000.${var}.nest02.tile2.nc
+    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
+    ${NCP} ${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.coupler.res ${RESTARTmrg}/
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    ${MERGE_CMD} \
+      --in_grid=${in_grid} \
+      --out_grid=${out_grid} \
+      --in_file=${in_file} \
+      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+    export err=$?; err_chk
+    in_grid=${RESTARTsrc}/grid_mspec_${yrtp03}_${mntp03}_${dytp03}_${hhtp03}.nc
+    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.nc
+    out_file=${RESTARTmrg}/${ymdtp03}.${hhtp03}0000.${var}.nest02.tile2.nc
+    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
+    ${NCP} ${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.coupler.res ${RESTARTmrg}/
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    ${MERGE_CMD} \
+      --in_grid=${in_grid} \
+      --out_grid=${out_grid} \
+      --in_file=${in_file} \
+      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
+    export err=$?; err_chk
+  fi
 fi
 
 

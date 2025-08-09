@@ -87,6 +87,8 @@ if [ "${ANALYSIS_MODEL}" = "JEDI" ] || [ "${ANALYSIS_MODEL}" = "jedi" ]; then
    echo "RUN_ENSDA YES for JEDI will skip ens merge for the first cycle"
    echo "Do nothing. Exiting"
    exit
+ else
+   export RUN_ENSDA="YES" #XL temp fix for realtime
  fi
 fi
 

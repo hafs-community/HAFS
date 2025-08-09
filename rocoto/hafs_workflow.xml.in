@@ -12,7 +12,7 @@
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
-  <!ENTITY MAX_TRIES "2"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "1"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -1090,6 +1090,7 @@
       <envar><name>MERGE_TYPE</name><value>init</value></envar>
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
+      <envar><name>COMENS</name><value>&COMENS;</value></envar>
 
       <dependency>
         <and>
