@@ -255,6 +255,7 @@ def bufr_to_ioda(config, logger):
             else:
                 # If the satellite ID is not in the dictionary
                 logger.debug(f"satellite ID is not in the dictionary {satellite_id}")
+                continue
 
             # Define a boolean mask to subset data from the original data object
             satelite_mask = satid == sat
