@@ -575,14 +575,26 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
+created=0
 for file in ${radtypes}; do
-  for file0 in hofx/diag_${file}_t${cyc}z*nc; do
-    tar cvf "${RADSTAT}" ${file0}
+  for file0 in hofx/diag_${file}_t${cyc}z*.nc; do
+    if [ ${created} -eq 0 ]; then
+      tar cvf "$RADSTAT" "$file0"   # create once
+      created=1
+    else
+      tar rvf "$RADSTAT" "$file0"   # append thereafter
+    fi
   done
 done
+created=0
 for file in ${convtypes}; do
-  for file0 in hofx/diag_${file}_t${cyc}z*nc; do
-    tar cvf "${CNVSTAT}" ${file0}
+  for file0 in hofx/diag_${file}_t${cyc}z*.nc; do
+    if [ ${created} -eq 0 ]; then
+      tar cvf "$CNVSTAT" "$file0"   # create once
+      created=1
+    else
+      tar rvf "$CNVSTAT" "$file0"   # append thereafter
+    fi
   done
 done
 #for file in ${radtypes}; do
