@@ -208,12 +208,13 @@ def _make_obs(comm, input_path, mapping_path):
             wob = container.get('variables/windSpeed', cat)
             container.add('variables/windEastward', wob, paths, cat)
             container.add('variables/windNorthward', wob, paths, cat)
+            # Create a placeholder swcm array to use with np.full_like
+            swcm_placeholder = np.array([], dtype=np.float32)
             # Fake Height variable
-            height = np.full_like(swcm, np.nan, dtype=np.float32)
+            height = np.full_like(swcm_placeholder, np.nan, dtype=np.float32)
             container.add('variables/height', height, paths, cat)
-            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            stheight = np.full_like(swcm_placeholder, np.nan, dtype=np.float32)
             container.add('variables/stationElevation', stheight, paths, cat)
-
         else:
             # Add new variables: ObsType/windEastward & ObsType/windNorthward
             swcm = container.get('variables/windComputationMethod', cat)
