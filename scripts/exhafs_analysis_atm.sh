@@ -597,6 +597,7 @@ for file in ${convtypes}; do
     fi
   done
 done
+
 #for file in ${radtypes}; do
 #  for file0 in hofx/diag_${file}_t${cyc}z_*nc; do
 #    dimsize=$(ncdump -h "$file0" | awk '/dimensions:/,/\}/' | awk '/Location *=/ {gsub(/[^0-9]/,""); print $0}')
