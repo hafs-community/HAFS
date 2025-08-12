@@ -218,10 +218,12 @@ def _make_obs(comm, input_path, mapping_path):
             dummy = container.get('variables/windSpeed', cat)
             container.add('variables/windGeneratingApplication', dummy, paths, cat)
             container.add('variables/qiWithoutForecast', dummy, paths, cat)
+            # Create a placeholder swcm array to use with np.full_like
+            swcm_placeholder = np.array([], dtype=np.float32)
             # Fake Height variable
-            height = np.full_like(swcm, None, dtype=object)
+            height = np.full_like(swcm_placeholder, np.nan, dtype=np.float32)
             container.add('variables/height', height, paths, cat)
-            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+            stheight = np.full_like(swcm_placeholder, np.nan, dtype=np.float32)
             container.add('variables/stationElevation', stheight, paths, cat)
 
         else:
