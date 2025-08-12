@@ -454,8 +454,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
   ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
-  ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
-  ${NCP} -p ${COMINobs}/gdas.$PDY/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
+  ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
+  ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
   sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
 ########## Prepare yaml or json files #######################
   ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
