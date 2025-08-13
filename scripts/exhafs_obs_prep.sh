@@ -511,8 +511,10 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       if [[ "${bufr}" = "prepbufr" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
-        if [[ ${yr} -lt 2025 ]];then
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_before25 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+        if [[ ${yr} -lt 2024 ]];then
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_before24 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+        elif [[ ${yr} -eq 2024 ]];then #XL temp solution for satwhr as g18 not there before 2024
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_2024 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
         else
           python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
         fi
