@@ -349,17 +349,28 @@ def create_obs_group(input_path, mapping_path, category, env):
 def create_obs_file(input_path, mapping_path, output_path):
 
     comm = bufr.mpi.Comm("world")
-    container = _make_obs(comm, input_path, mapping_path)
-    container.gather(comm)
+    
+    try:
+        container = _make_obs(comm, input_path, mapping_path)
+        container.gather(comm)
 
-    description = _make_description(mapping_path, update=True)
+        description = _make_description(mapping_path, update=True)
 
-    # Encode the data
-    if comm.rank() == 0:
-        netcdfEncoder(description).encode(container, output_path) 
+        # Encode the data
+        if comm.rank() == 0:
+            netcdfEncoder(description).encode(container, output_path) 
+        
+        logging(comm, 'INFO', f'Successfully processed BUFR file: {input_path}')
+
+    except RuntimeError as e:
+        # Catch the specific error and log a message
+        logging(comm, 'ERROR', f"Failed to process BUFR file: {input_path}. Error: {e}")
+        # Exit gracefully or continue with the rest of the script
+        # depending on the desired behavior.
+        # For this example, we will simply return.
+        return
 
     logging(comm, 'INFO', f'Return the encoded data')
-
 
 if __name__ == '__main__':
 
