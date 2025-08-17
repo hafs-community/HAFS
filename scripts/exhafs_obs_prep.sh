@@ -511,12 +511,24 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       if [[ "${bufr}" = "prepbufr" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
-        if [[ ${yr} -lt 2024 ]];then
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_before24 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-        elif [[ ${yr} -eq 2024 ]];then #XL temp solution for satwhr as g18 not there before 2024
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_2024 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
-        else
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+        # Extra Check on message type NC005099
+	SUBSET_TO_FIND="5099"
+	FILENAME_ABS=$(readlink -f "gfs.t${cyc}z.${bufr}.bufr_d")
+	TEMP_DIR=$(mktemp -d)
+	trap 'echo "Cleaning up temporary directory..."; rm -rf "${TEMP_DIR}"' EXIT
+	echo "Created temporary directory: ${TEMP_DIR}"
+	if (cd "${TEMP_DIR}" && split_by_subset "${FILENAME_ABS}") | grep -q "${SUBSET_TO_FIND}"; then
+	  echo "Success: Subset ${SUBSET_TO_FIND} found."
+	  echo "Proceeding with the Python script..."
+          if [[ ${yr} -lt 2024 ]];then
+            python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_before24 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+          elif [[ ${yr} -eq 2024 ]];then #XL temp solution for satwhr as g18 not there before 2024
+            python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml_2024 output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+          else
+            python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+          fi
+	else
+	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc
