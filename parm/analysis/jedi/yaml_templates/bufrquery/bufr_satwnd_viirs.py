@@ -190,7 +190,12 @@ def _make_obs(comm, input_path, mapping_path):
 
     # Get container from mapping file first
     logging(comm, 'INFO', 'Get container from bufr')
-    container = bufr.Parser(input_path, mapping_path).parse(comm)
+    try:
+        container = bufr.Parser(input_path, mapping_path).parse(comm)
+    except RuntimeError as e:
+        # Catch the error for empty or invalid BUFR data and return None
+        logging(comm, 'ERROR', f"Failed to process BUFR file: {input_path}. Reason: {e}")
+        return None
 
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
     logging(comm, 'DEBUG', f'all_sub_categories =  {container.all_sub_categories()}')
@@ -302,6 +307,8 @@ def create_obs_group(input_path, mapping_path, category, env):
         return data
 
     container = _make_obs(comm, input_path, mapping_path)
+    if container is None:
+        return None
 
     # Gather data from all tasks into all tasks. Each task will have the complete record
     logging(comm, 'INFO', f'Gather data from all tasks into all tasks')
@@ -327,6 +334,10 @@ def create_obs_file(input_path, mapping_path, output_path):
 
     comm = bufr.mpi.Comm("world")
     container = _make_obs(comm, input_path, mapping_path)
+
+    if container is None:
+        return None
+
     container.gather(comm)
 
     description = _make_description(mapping_path, update=True)
