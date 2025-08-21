@@ -70,6 +70,16 @@ export gridstr=${gridstr:-$(echo ${out_gridnames} | cut -d, -f 1)}
 export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
+RUN_ATM_VI_FGAT_ENS=NO
+if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -d ${WORKhafs}/intercom/RESTART_analysis_merge_fgat06_ens]; then
+  export neststr_ens=${neststr:-""} # ".nest02" for domain 02
+  export tilestr_ens=${tilestr:-".tile1"} # ".tile2" for domain 02
+  export nesttilestr_ens=${nesttilestr:-""} # ".nest02.tile2" for domain 02
+else
+  export neststr_ens=""
+  export tilestr_ens=".tile1"
+  export nesttilestr_ens=""
+fi
 
 export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
@@ -198,33 +208,43 @@ fi
 if [ ${RUN_ENSDA} = "YES" ]; then
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
   do
-    RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+    if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -d ${WORKhafs}/intercom/RESTART_analysis_merge_fgat06_ens/mem${mem} ]; then
+      RESTARTens=${WORKhafs}/intercom/RESTART_analysis_merge_fgat06_ens/mem${mem}
+    else
+      RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+    fi
     fhh="06"
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
-    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res${neststr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.sfc_data${nesttilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_srf_wnd.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+    ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_tracer.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     if [ ! -s ./fv3_ens_grid_spec ]; then
-      ${NLN} ${RESTARTens}/grid_spec.nc ./fv3_ens_grid_spec
+      ${NLN} ${RESTARTens}/grid_spec${nesttilestr_ens}.nc ./fv3_ens_grid_spec
     fi
     if [ ${l4densvar:-.false.} = ".true." ]; then
       export ENS_NSTARTHR=3
       fhh="03"
+      if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -d ${WORKhafs}/intercom/RESTART_analysis_merge_fgat03_ens/mem${mem} ]; then
+        RESTARTens=${WORKhafs}/intercom/RESTART_analysis_merge_fgat03_ens/mem${mem}
+      fi
       ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
-      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
-      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
-      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
-      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
-      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.sfc_data${nesttilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${ymdtm03}.${hhtm03}0000.fv_tracer.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+      if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -d ${WORKhafs}/intercom/RESTART_analysis_merge_fgat09_ens/mem${mem} ]; then
+        RESTARTens=${WORKhafs}/intercom/RESTART_analysis_merge_fgat09_ens/mem${mem}
+      fi
       fhh="09"
       ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
-      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
-      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.sfc_data.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
-      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
-      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
-      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_tracer.res.tile1.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.sfc_data${nesttilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_sfcdata
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_srfwnd
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_dynvars
+      ${NLN} ${RESTARTens}/${ymdtp03}.${hhtp03}0000.fv_tracer.res${neststr_ens}${tilestr_ens}.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_tracer
     fi
   done
 fi

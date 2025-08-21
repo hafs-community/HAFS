@@ -68,6 +68,9 @@ fi
 
 if [ "${ENSDA}" = YES ]; then
   export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}${jobidstr}
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
 else

@@ -34,6 +34,10 @@ if [ "${ENSDA}" = YES ]; then
   INPdir=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
+  if [ "${RUN_ATM_VI_FGAT_ENS:-NO}" = YES ]; then
+    INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+    COMOUTproduct=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}
+  fi
   NHRS_ENS=0
 elif [ ${FGAT_MODEL} = gdas ]; then
   INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post

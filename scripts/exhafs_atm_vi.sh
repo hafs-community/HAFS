@@ -37,25 +37,58 @@ FGAT_HR=${FGAT_HR:-00}
 if [ "${ENSDA}" = YES ]; then
   export nest_grids=${nest_grids_ens:-${nest_grids}}
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
-  export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
+  export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_ens/mem${ENSID}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
-  export CDATE=${CDATE:-${YMDH}}
+  export CDATE_INIT=${CDATE:-${YMDH}}
+  export CDATE_INP=${CDATE:-${YMDH}}
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    vi_storm_modification=${vi_storm_modification_ens:-no}
+    vi_warm_start_vmax_threshold=0 #Always warm start for ens
+    export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}_ens/mem${ENSID}
+    export INTCOMinit=${WORKhafs}/intercom/atm_init
+    export RESTARTinit=${WORKhafs}/intercom/RESTART_init
+    export CDATE_INP=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+    export CDATE=${CDATE:-${YMDH}}
+    mkdir -p ${RESTARTmrg}
+    for file in ${RESTARTinit}/${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000*; do
+      fname=$(basename "$file")
+      newname=$(echo "$fname" | sed "s/${CDATE_INIT:0:8}.${CDATE_INIT:8:2}/${CDATE_INP:0:8}.${CDATE_INP:8:2}/")
+      ${NCP} "$file" "${RESTARTmrg}/${newname}"
+    done
+    for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+      ${NCP} ${RESTARTinp}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.${var}.tile1.nc ${RESTARTmrg}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.${var}.nest02.tile2.nc
+    done
+    ${NCP} ${RESTARTinp}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.coupler.res ${RESTARTmrg}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.coupler.res
+    ${NCP} ${RESTARTinp}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.sfc_data.nc ${RESTARTmrg}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.sfc_data.nest02.tile2.nc
+    ${NCP} ${RESTARTinp}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.fv_core.res.nc ${RESTARTmrg}/${CDATE_INP:0:8}.${CDATE_INP:8:2}0000.fv_core.res.nest02.nc
+    for var in atmos_static grid_spec oro_data oro_data_ls oro_data_ss; do
+      ${NCP} ${RESTARTinit}/${var}.nc ${RESTARTmrg}/${var}.nc
+      ${NCP} ${RESTARTinp}/${var}.nc ${RESTARTmrg}/${var}.nest02.tile2.nc
+    done
+    export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}_ens/mem${ENSID}
+    export nest_grids=2
+    export CDATE_INIT=${CDATE_INP}
+    export RESTARTinp=${RESTARTmrg}
+    export RESTARTinit=${RESTARTmrg}
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
-  export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+  export CDATE_INIT=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+  export CDATE_INP=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
 else
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
   export INTCOMinit=${WORKhafs}/intercom/atm_init
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi
-  export CDATE=${CDATE:-${YMDH}}
+  export CDATE_INIT=${CDATE:-${YMDH}}
+  export CDATE_INP=${CDATE:-${YMDH}}
 fi
 
 CDATEprior=$(${NDATE} -6 $YMDH)
@@ -105,7 +138,7 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000* ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
@@ -149,7 +182,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     ${APRUNC} ${DATOOL} hafsvi_preproc \
         --in_dir=${RESTARTinp} \
         --debug_level=1 --interpolation_points=5 \
-        --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+        --infile_date=${CDATE_INP:0:8}.${CDATE_INP:8:2}0000 \
         --tcvital=${tcvital} \
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
@@ -180,7 +213,7 @@ for vortexradius in 30 45; do
   ${APRUNC} ${DATOOL} hafsvi_preproc \
       --in_dir=${RESTARTinit} \
       --debug_level=1 --interpolation_points=5 \
-      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+      --infile_date=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000 \
       --tcvital=${tcvital} \
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
@@ -210,6 +243,9 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   ${NLN} ${tcvital} fort.11
   if [ -e ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+    if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -e ${COMOLD}/product_ens/mem${ENSID}/${old_out_prefix}.${RUN}.trak.atcfunix.f006 ] && [ "${ENSDA}" = YES ]; then
+      ${NCP} ${COMOLD}/product_ens/mem${ENSID}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+    fi
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
@@ -333,8 +369,8 @@ if true; then
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
-    ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE_INIT}.${RUN}.trak.atcfunix.all ]; then
+    ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE_INIT}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
@@ -343,9 +379,19 @@ if true; then
       > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
+    if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
+      ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+      # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
+      sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
+      # Convert 1800W to 1800E for date line TCs
+      sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
+      grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
+        | sed "s/${CDATE}/${CDATE_INIT}/g" \
+        > trak.atcfunix.tmp
+    fi
   fi
   # get vmax in kt then convert into m/s
-  vmax_init=$(grep "^${pubbasin2^^}, ${STORMID:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | \
+  vmax_init=$(grep "^${pubbasin2^^}, ${STORMID:0:2}, ${CDATE_INIT}, .., ...., 000," trak.atcfunix.tmp | \
               grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_init=${vmax_init:-0}
   vmax_init=$(printf "%.0f" $(bc <<< "scale=6; ${vmax_init}*0.514444"))
@@ -503,7 +549,8 @@ else # warm-start from prior cycle or cold start from global/parent model
     gfs_flag=6
   fi
   if [ $ENSDA = YES ]; then
-    gfs_flag=1
+# Why gfs_flag=1 ? XL
+    gfs_flag=6
   fi
 
   rm -f flag_file
@@ -594,7 +641,7 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000* ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
 ${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
@@ -607,7 +654,7 @@ for nd in $(seq 1 ${nest_grids}); do
       --in_file=${DATA}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
       --relaxzone=30 \
-      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+      --infile_date=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000 \
       --nestdoms=$((${nd}-1)) \
       --vi_cloud=${vi_cloud} \
       --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
