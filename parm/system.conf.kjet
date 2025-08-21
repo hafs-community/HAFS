@@ -8,6 +8,7 @@ tape_project=emc-hwrf
 cpu_account=hwrfv3
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archens=sync:/lfs5/HFIP/{disk_project}/{ENV[USER]}/hafstmp/hafsarch_ens/{SUBEXPT}/com/{YMDH}/{STID}
 
 [dir]
 ## Save directory.  Make sure you edit this.

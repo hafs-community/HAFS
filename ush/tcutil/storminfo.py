@@ -1223,6 +1223,8 @@ class StormInfo(object):
             datestring='%y%m%d %H%M'
         else:
             datestring='%Y%m%d %H%M'
+        # Make sure lon is within [-180,  180)
+        self.lon=(self.lon + 180)%360-180
         result='%-4s %02d%s %-9s %s %03d%s %04d%s %03d %03d %04d ' \
         '%04d %04d %02d %03d %04d %04d %04d %04d' % (
             str(self.center)[0:4], int(abs(self.stnum)%100),

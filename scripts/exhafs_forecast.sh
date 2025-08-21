@@ -916,6 +916,7 @@ for itile in $(seq 7 ${ntiles}); do
   fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${itile}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
+
 done
 
 # moving nest
@@ -1086,17 +1087,29 @@ for itile in $(seq 8 ${ntiles}); do
   fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
+
+  # WDR Link static files for nest initialization 
+  if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+    for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+      ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.${var}.tile${itile}.nc ${var}.tile${itile}.nc
+    done
+  fi
+
 done
 
 fi #if [ $nest_grids -gt 1 ]; then
 
 # moving nest
 if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+
   mkdir -p moving_nest
   cd moving_nest
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  # WDR Added parent soil_type to properly handle lakes
+  ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.soil_type.tile7.halo0.nc soil_type.tile1.nc
+
   if [ ${use_orog_gsl:-no} = yes ]; then
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
@@ -1123,14 +1136,14 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
 # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
-# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
   # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
-  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   # fi

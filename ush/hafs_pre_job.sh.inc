@@ -38,23 +38,25 @@ if [[ -d /lfs5 ]] ; then
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
-elif [[ -d /scratch1/NCEPDEV ]] ; then
-  # We are on NOAA Hera
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    echo load the module command 1>&2
-    source /apps/lmod/lmod/init/$__ms_shell
-  fi
-  target=hera
-  module purge
-  module use /apps/modules/modulefiles
-  module use /apps/lmod/lmod/modulefiles/Core
 elif [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
-  # We are on NOAA Ursa
-  target=ursa
-  source $MODULESHOME/init/$__ms_shell
-  module purge
-  module use /apps/modules/modulefiles
-  module use /apps/lmod/lmod/modulefiles/Core
+  if [[ "$(hostname)" =~ "u" ]] ; then
+    # We are on NOAA Ursa
+    target=ursa
+    source $MODULESHOME/init/$__ms_shell
+    module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
+  elif [[ "$(hostname)" =~ "h" ]] ; then
+    # We are on NOAA Hera
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+      echo load the module command 1>&2
+      source /apps/lmod/lmod/init/$__ms_shell
+    fi
+    target=hera
+    module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
+  fi
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion/Hercules
   if [[ "$(hostname)" =~ "hercules" ]] ; then
