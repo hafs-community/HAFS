@@ -67,6 +67,8 @@
         - variable: QualityMarker/specificHumidity
           is_in: 4-15
           value: is_not_valid
+        - variable: MetaData/pressure
+          value: is_not_valid
         where operator: or
         action: 
           name: reduce obs space
