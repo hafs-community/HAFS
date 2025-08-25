@@ -8,9 +8,9 @@ load("hpss")
 
 prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
-load(pathJoin("stack-intel", stack_intel_ver)) 
+load(pathJoin("stack-intel", stack_intel_ver))
 
-stack_mpi_ver=os.getenv("stack_mpi_ver") or "2021.5.1" 
+stack_mpi_ver=os.getenv("stack_mpi_ver") or "2021.5.1"
 load(pathJoin("stack-intel-oneapi-mpi", stack_mpi_ver))
 
 cmake_ver=os.getenv("cmake_ver") or "3.23.1"
@@ -65,13 +65,13 @@ w3emc_ver=os.getenv("w3emc_ver") or "2.10.0"
 load(pathJoin("w3emc", w3emc_ver))
 
 w3nco_ver=os.getenv("w3nco_ver") or "2.4.1"
-load(pathJoin("w3nco", w3nco_ver)) 
+load(pathJoin("w3nco", w3nco_ver))
 
 gftl_shared_ver=os.getenv("gftl_shared_ver") or "1.6.1"
 load(pathJoin("gftl-shared", gftl_shared_ver))
 
 yafyaml_ver=os.getenv("yafyaml_ver") or "0.2.5"
-load(pathJoin("libyaml", yafyaml_ver)) 
+load(pathJoin("libyaml", yafyaml_ver))
 
 mapl_ver=os.getenv("mapl_ver") or "2.40.3-esmf-8.6.0"
 load(pathJoin("mapl", mapl_ver))
