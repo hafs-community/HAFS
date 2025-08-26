@@ -78,8 +78,8 @@ bufr:
       category:
         variable: satelliteId
         map:
-#          _270: goes-16 
-#          _271: goes-17 
+          _270: goes-16 
+          _271: goes-17 
           _272: goes-18 
           _273: goes-19
 
