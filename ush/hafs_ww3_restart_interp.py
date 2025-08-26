@@ -1,19 +1,24 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-@Author: Ali Salimi-Tarazouj
+#! /usr/bin/env python3
+################################################################################
+# Script Name: hafs_ww3_restart_interp.py
+# Author: Ali Salimi-Tarazouj, NCEP/EMC WAVE MODELING TEAM 
+# Abstract:
+#   This script interpolates a netcdf WW3 restart to another grid, using ESMPy
+# History:
+#   08/26/2025: Added the script for interpolating WW3 unstructured netcdf restart file
+# Usage:
+#       mpirun -n 1 python hafs_ww3_restart_interp.py \
+#        --restart_file <restart.nc> \
+#        --src_scrip <src_scrip.nc> \
+#        --dst_scrip <dst_scrip.nc> \
+#        --mask_file <ww3_grid_a.msk> \
+#        --output_file <output.nc>
+#
+#where restart_file is unstructured WW3 restart file, src_script is unstructured mesh
+#scrip file, dst_scrip is destination mesh scrip file (e.eg.,hafs mesh), mask_file is
+#destination mesh mask file, and output_file is the name of destination restart file
+################################################################################
 
-Regrid WW3 restart NetCDF file using ESMPy:
-https://earthsystemmodeling.org/esmpy/
-
-Usage:
-    mpirun -n 1 python hafs_ww3_restart_interp.py \
-        --restart_file <restart.nc> \
-        --src_scrip <src_scrip.nc> \
-        --dst_scrip <dst_scrip.nc> \
-        --mask_file <ww3_grid_a.msk> \
-        --output_file <output.nc>
-"""
 
 import esmpy
 import numpy as np
@@ -24,7 +29,7 @@ import time
 
 ##########################
 # === Parse arguments ===#
-#########################
+##########################
 parser = argparse.ArgumentParser()
 parser.add_argument("--restart_file", required=True)
 parser.add_argument("--src_scrip", required=True)
@@ -37,7 +42,7 @@ start_time = time.time()
 
 ###################################
 # === Load and flatten 2D mask ===#
-##################################
+###################################
 mask_2d = np.loadtxt(args.mask_file, dtype=int)
 nyy, nxx = mask_2d.shape
 mask_flat = mask_2d.flatten(order="C")
@@ -45,7 +50,7 @@ mask_zero_idx = np.where(mask_flat == 0)[0]
 
 ##################################################
 # === Inject mask into destination SCRIP file ===#
-#################################################
+##################################################
 with nc.Dataset(args.dst_scrip, "r+") as dst_nc:
   if "grid_imask" not in dst_nc.variables:
     dst_nc.createVariable("grid_imask", "i4", ("grid_size",))
@@ -64,7 +69,7 @@ nth = src_nc.variables["nth"][:].item()
 
 ##############################
 # === Variables to regrid ===#
-#############################
+##############################
 vars_to_regrid = [
   v for v in src_nc.variables
   if ("time" in src_nc.variables[v].dimensions and "nx" in src_nc.variables[v].dimensions)
@@ -74,7 +79,7 @@ vars_to_regrid = [
 
 nx_dst = mask_flat.size
 
-#########################################
+##########################################
 # === Initialize ESMF and build grids ===#
 ##########################################
 esmpy.Manager()
@@ -102,7 +107,7 @@ else:
     dst_mask_values=[0]
   )
 
-  ###################################################
+#####################################################
 # === Step 1: Regrid and write to temporary file ===#
 #####################################################
 tmp_file = "interpolated_tmp.nc"
@@ -133,7 +138,7 @@ src_nc.close()
 
 ############################
 # === Step 2: Apply mask ===
-###########################
+############################
 with nc.Dataset(tmp_file, "r") as src, nc.Dataset(args.output_file, "w") as dst:
   src.set_auto_mask(False)
   dst.set_auto_mask(False)
