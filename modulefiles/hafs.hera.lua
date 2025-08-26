@@ -3,7 +3,7 @@ loads HAFS application level modulefile on Hera
 ]])
 
 prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/Core")
-prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/202    1.13-sbi3u54/gcc/13.3.0")
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.9.2/envs/ue-oneapi-2024.2.1/install/modulefiles/intel-oneapi-mpi/2021.13-sbi3u54/gcc/13.3.0")
 
 stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
 load(pathJoin("stack-oneapi", stack_oneapi_ver))
@@ -24,6 +24,9 @@ load(pathJoin("py-scipy", scipy_ver))
 
 cdo_ver=os.getenv("cdo_ver") or "2.3.0"
 load(pathJoin("cdo", cdo_ver))
+
+mkl_ver=os.getenv("mkl_ver") or "2024.2.1"
+load(pathJoin("mkl", mkl_ver))
 
 tar_ver=os.getenv("tar_ver") or "1.26"
 --load(pathJoin("tar", tar_ver))
