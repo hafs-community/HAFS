@@ -7,6 +7,7 @@ import numpy as np
 import bufr
 from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder
 from bufr.encoders.netcdf import Encoder as netcdfEncoder
+from bufr.obs_builder import add_main_functions, map_path, add_dummy_variable
 from wxflow import Logger
 
 # Initialize Logger
@@ -178,7 +179,6 @@ def _get_obs_type(swcm, chanfreq):
     """
 
     obstype = swcm.copy()
-    # Use numpy vectorized operations
     condition = np.logical_and(swcm >= 1, swcm < 7)
     obstype = np.where(condition, 241, obstype)
 
@@ -192,7 +192,12 @@ def _make_obs(comm, input_path, mapping_path):
 
     # Get container from mapping file first
     logging(comm, 'INFO', 'Get container from bufr')
-    container = bufr.Parser(input_path, mapping_path).parse(comm)
+    try:
+        container = bufr.Parser(input_path, mapping_path).parse(comm)
+    except RuntimeError as e:
+        # Catch the error for empty or invalid BUFR data and return None
+        logging(comm, 'ERROR', f"Failed to process BUFR file: {input_path}. Reason: {e}")
+        return None
 
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
     logging(comm, 'DEBUG', f'all_sub_categories =  {container.all_sub_categories()}')
@@ -202,30 +207,24 @@ def _make_obs(comm, input_path, mapping_path):
     for cat in container.all_sub_categories():
 
         logging(comm, 'DEBUG', f'category = {cat}')
-
         satid = container.get('variables/satelliteId', cat)
-        if satid.size == 0:
+        if not satid.size:
             logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
-            paths = container.get_paths('variables/windComputationMethod', cat)
-            obstype = container.get('variables/windComputationMethod', cat)
-            container.add('variables/obstype_uwind', obstype, paths, cat)
-            container.add('variables/obstype_vwind', obstype, paths, cat)
-
-            paths = container.get_paths('variables/windSpeed', cat)
-            wob = container.get('variables/windSpeed', cat)
-            container.add('variables/windEastward', wob, paths, cat)
-            container.add('variables/windNorthward', wob, paths, cat)
-            # Fake Height variable
-            height = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/height', height, paths, cat)
-            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/stationElevation', stheight, paths, cat)
-            # Fake coefficientOfVariation and expectedError
-            ee = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/expectedError', ee, paths, cat)
-            pct1 = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/coefficientOfVariation', pct1, paths, cat)
-
+            dummy_mappings = [
+                ('windGeneratingApplication', 'windComputationMethod'),
+                ('qualityInformationWithoutForecast', 'windSpeed'),
+                ('windEastward', 'windSpeed'),
+                ('windNorthward', 'windSpeed'),
+                ('coefficientOfVariation','windComputationMethod'),
+                ('expectedError','windComputationMethod'),
+                ('height','windComputationMethod'),
+                ('stationElevation','windComputationMethod'),
+                ('obstype_uwind','windComputationMethod'),
+                ('obstype_vwind','windComputationMethod')
+            ]
+            for target_var, source_var in dummy_mappings:
+                add_dummy_variable(container, target_var, cat, source_var)
+            continue
         else:
             # Add new variables: ObsType/windEastward & ObsType/windNorthward
             swcm = container.get('variables/windComputationMethod', cat)
@@ -342,12 +341,9 @@ def create_obs_file(input_path, mapping_path, output_path):
 
     comm = bufr.mpi.Comm("world")
     container = _make_obs(comm, input_path, mapping_path)
-    logging(comm, 'INFO', f'JING: finished the container make obs')
 
     container.gather(comm)
-    logging(comm, 'INFO', f'JING: finished the container gathrering')
     description = _make_description(mapping_path, update=True)
-    logging(comm, 'INFO', f'JING: finished the make description')
     # Encode the data
     if comm.rank() == 0:
         netcdfEncoder(description).encode(container, output_path)
@@ -367,13 +363,11 @@ if __name__ == '__main__':
     parser.add_argument('input', type=str, help='Input BUFR file')
     parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
     parser.add_argument('output', type=str, help='Output NetCDF file')
-    #parser.add_argument('cycle_time', type=str, help='cycle time in YYYYMMDDHH format')
 
     args = parser.parse_args()
     infile = args.input
     mapping = args.mapping
     output = args.output
-    #cycle_time = args.cycle_time
 
     create_obs_file(infile, mapping, output)
 
