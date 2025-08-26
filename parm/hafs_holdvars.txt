@@ -48,6 +48,8 @@
 [[ -z "$BDECKhafs" ]] && export BDECKhafs={BDECKhafs}
 [[ -z "$cartopyDataDir" ]] && export cartopyDataDir={cartopyDataDir}
 
+export COMENS={COMENS}
+export ENSOUT={ENSOUT}
 export TZ=UTC
 export YMDH={YMDH} CYCLE={YMDH}
 export STORM={vit[stormname]}

@@ -49,8 +49,13 @@ if [ "${ENSDA}" = YES ]; then
     export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}_ens/mem${ENSID}
     export INTCOMinit=${WORKhafs}/intercom/atm_init
     export RESTARTinit=${WORKhafs}/intercom/RESTART_init
-    export CDATE_INP=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
     export CDATE=${CDATE:-${YMDH}}
+    export CDATE_INP=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+    export CDATE_prior=$(${NDATE} -6 $YMDH)
+    export COMENS=${COMENS:-/scratch3/NCEPDEV/hwrf/scrub/Xu.Lu/hafs_v2p1p1a_final_ens}
+    export ENSOUT=${ENSOUT:-/scratch3/NCEPDEV/hwrf/scrub/Xu.Lu/hafs_v2p1p1a_final_ensvr}
+    export COMOLD=${COMENS}/product_ens/${CDATE_prior}/${STORMID}
+    export RESTARTinp=${COMENS}/${CDATE_prior}/${STORMID}/${old_out_prefix}.RESTART_ens/mem${ENSID}
     mkdir -p ${RESTARTmrg}
     for file in ${RESTARTinit}/${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000*; do
       fname=$(basename "$file")
@@ -91,7 +96,6 @@ else
   export CDATE_INP=${CDATE:-${YMDH}}
 fi
 
-CDATEprior=$(${NDATE} -6 $YMDH)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
 DATA=${DATA:-${WORKhafs}/atm_vi}
@@ -661,6 +665,49 @@ for nd in $(seq 1 ${nest_grids}); do
   export err=$?; err_chk
 done
 
+
+if [ "${ENSDA}" = YES ] && [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+  mkdir -p ${ENSOUT}/${CDATE_prior}/${STORMID}/mem${ENSID}
+  fv_core=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.fv_core.res.nest02.nc
+  fv_core_tile=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.fv_core.res.nest02.tile2.nc
+  fv_tracer_tile=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.fv_tracer.res.nest02.tile2.nc
+  fv_srf_wnd_tile=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.fv_srf_wnd.res.nest02.tile2.nc
+  sfc_data=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.sfc_data.nest02.tile2.nc
+  phy_data=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.phy_data.nest02.tile2.nc
+  coupler_res=${CDATE_INIT:0:8}.${CDATE_INIT:8:2}0000.coupler.res
+  for filename in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
+    file=${RESTARTout}/${filename}
+    output_path="${ENSOUT}/${CDATE_prior}/${STORMID}/mem${ENSID}/${filename}"
+    if [ -s ${file} ] && [ ${file} -nt ${output_path} ]; then
+      echo "ncks --deflate=1 -O ${file} ${output_path}" >> cmdfile
+    fi
+  done
+  for filename in $fv_core  $coupler_res ; do
+    file=${RESTARTout}/${filename}
+    output_path="${ENSOUT}/${CDATE_prior}/${STORMID}/mem${ENSID}/${filename}"
+    if [ -s ${file} ] && [ ${file} -nt ${output_path} ]; then
+      echo "${FCP} ${file} ${output_path}" >> cmdfile
+    fi
+  done
+  if [ ${FGAT_HR} = "06" ]; then
+    filename=grid_spec.nest02.tile2.nc
+    file=${RESTARTout}/${filename}
+    output_path="${ENSOUT}/${CDATE_prior}/${STORMID}/mem${ENSID}/${filename}"
+    if [ -s ${file} ] && [ ${file} -nt ${output_path} ]; then
+      echo "${FCP} ${file} ${output_path}" >> cmdfile
+    fi
+  fi
+  chmod +x cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
+  export err=$?; err_chk
+  rm -f cmdfile
+fi
 #===============================================================================
 
 date

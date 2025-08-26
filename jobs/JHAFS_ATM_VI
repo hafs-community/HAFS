@@ -81,8 +81,6 @@ export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
-fi
+rm -rf $DATA
 
 date
