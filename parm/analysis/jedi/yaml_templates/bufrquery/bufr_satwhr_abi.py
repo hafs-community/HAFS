@@ -211,8 +211,6 @@ def _make_obs(comm, input_path, mapping_path):
         if not satid.size:
             logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
             dummy_mappings = [
-                ('windGeneratingApplication', 'windComputationMethod'),
-                ('qualityInformationWithoutForecast', 'windSpeed'),
                 ('windEastward', 'windSpeed'),
                 ('windNorthward', 'windSpeed'),
                 ('coefficientOfVariation','windComputationMethod'),
