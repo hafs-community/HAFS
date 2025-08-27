@@ -450,13 +450,25 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${intercom}/${NFtempdrop} ]]; then
     ${NCP} -p ${intercom}/${NFtempdrop} gfs.t${cyc}z.drpsnd.bufr_d
   fi
-  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
-  ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
-  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
-  ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
-  ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
-  ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
-  sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
+  fi
+  if [[ -s ${intercom}/${NET}.t${cyc}z.prepbufr ]]; then
+    ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias ]]; then
+    ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
+    sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
+  fi
+  if [[ -s ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc ]]; then
+    ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
+  fi
 ########## Prepare yaml or json files #######################
   ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
   mkdir output
