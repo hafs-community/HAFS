@@ -12,7 +12,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_adpupa_airtemperature_120_#HH#.nc
+            obsfile: hofx/diag_adpupa_airTemperature_120_#HH#.nc
             allow overwrite: true
         io pool:
           max pool size: #TOTAL_TASKS#
