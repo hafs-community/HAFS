@@ -29,6 +29,7 @@ local ufs_modules = {
     {["grib-util"]       = "1.4.0"},
     {["wgrib2"]          = "3.6.0"},
     {["nco"]             = "5.2.4"},
+    {["py-scipy"]        = "1.14.1"},
     {["py-xarray"]       = "2024.7.0"},
     {["py-netcdf4"]      = "1.7.1.post2"},
     {["libyaml"]         = "0.2.5"},

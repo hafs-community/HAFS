@@ -19,9 +19,6 @@ load("hafs_common")
 zlib_ver=os.getenv("zlib_ver") or "1.2.11"
 load(pathJoin("zlib", zlib_ver))
 
-scipy_ver=os.getenv("scipy_ver") or "1.14.1"
-load(pathJoin("py-scipy", scipy_ver))
-
 cdo_ver=os.getenv("cdo_ver") or "2.3.0"
 load(pathJoin("cdo", cdo_ver))
 
