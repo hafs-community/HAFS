@@ -15,9 +15,9 @@ import sys
 import argparse
 import time as Time
 import numpy as np
+from scipy import interpolate
 import xarray as xr
 import netCDF4 as nc
-from scipy import interpolate
 try:
     import esmpy as ESMF
 except ImportError or ModuleNotFoundError:
