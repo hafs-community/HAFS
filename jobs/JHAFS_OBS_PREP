@@ -41,7 +41,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   module load HDAS/${machine}.intel
   if [[ ${machine}  != "wcoss2" ]] ; then
     module use ${HOMEhafs}/modulefiles
-    module load hafs_obs_prep_${machine}
+    #module load hafs_obs_prep_${machine}
   fi
   if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
     export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}

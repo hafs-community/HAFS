@@ -10,6 +10,8 @@ cwd=$(pwd)
 
 cd hafs_jedi.fd
 
+source /apps/other/lmod/lmod/init/sh
+module purge
 
 export BUILD_TYPE=${BUILD_MODE}
 ./build.sh -f -t ${target} 
