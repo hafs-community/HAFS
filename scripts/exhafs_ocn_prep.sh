@@ -235,6 +235,12 @@ ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 
 export err=$?; err_chk
 
 # Run Python script to generate OBC
+##Temporary fix for the esmf version on wcoss2, for hafs/ve to have the right esmf binding
+if module is-loaded esmf-D/8.8.0; then
+   module unload esmf-D/8.8.0 
+   module load esmf-C/8.6.0
+fi
+##
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
 ${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
     rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
@@ -393,9 +399,10 @@ fileall="gfs_global_${CDATE}_NETLW.nc \
          gfs_global_${CDATE}_PRATE.nc \
          gfs_global_${CDATE}_TMP.nc"
 # Use cdo merge, which is faster
-cdo merge ${fileall} gfs_forcings.nc
+###cdo merge ${fileall} gfs_forcings.nc
 # Alternatively, can use ncks, but slower
-#for file in ${fileall}; do ncks -h -A ${file} gfs_forcings.nc; done
+# Using nco temporarily as cdo/1.9.8 on wcoss2 is built with old hdf5/netcdf
+for file in ${fileall}; do ncks -h -A ${file} gfs_forcings.nc; done
 
 # Deliver to intercom
 ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
