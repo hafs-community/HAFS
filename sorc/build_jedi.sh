@@ -10,7 +10,7 @@ cwd=$(pwd)
 
 cd hafs_jedi.fd
 
-source /apps/other/lmod/lmod/init/sh
+if [ $target = orion ]; then source /apps/other/lmod/lmod/init/sh; fi
 module purge
 
 export BUILD_TYPE=${BUILD_MODE}

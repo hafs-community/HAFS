@@ -75,26 +75,25 @@ else
     module load cfp/${cfp_ver}
     module load prod_util/${prod_util_ver}
   fi
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] | [[ ${machine}  = "ursa" ]]; then
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "ursa" ]]; then
     module purge
   fi
   if [[ ${machine}  = "gaeac6" ]]; then
     module reset
   fi
+  ulimit -s unlimited
+  ulimit -a
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
   module load HDAS/${machine}.intel
+  if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
+    module load intel-oneapi-mkl/2024.2.1
+  fi
   export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
   export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
-#  export SLURM_QOS=debug
-#  export MAIN_DEBUG=1
-#  export OOPS_DEBUG=1
-#  export OOPS_TRACE=1
   export IODA_PRINT_RUNSTATS=1
-  export CMAKE_OPTS="${CMAKE_OPTS:+${CMAKE_OPTS}:}: -DMPIEXEC_EXECUTABLE=$MPIEXEC_EXEC -DMPIEXEC_NUMPROC_FLAG=$MPIEXEC_NPROC"
-#  export I_MPI_DEBUG=10
-  ulimit -s unlimited
-  ulimit -v unlimited
-  ulimit -a
+  export OMP_NUM_THREADS=1
+  export OMP_PROC_BIND=true
+  export I_MPI_COLL_INTRANODE=pt2pt
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
