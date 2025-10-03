@@ -5,7 +5,7 @@
 # Abstract:
 #   This script generates atmospheric forcing files needed by MOM6 coupling.
 # History:
-#   05/13/2023: Added the script for MOM6 coulping in HAFS workflow
+#
 # Usage:
 #   ./hafs_mom6_gfs_forcings.py ${YMDH} -l ${Length_hours}
 ################################################################################
@@ -68,6 +68,7 @@ def get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t):
     return y, m, d, h, fcst_hr
 
 if __name__ == "__main__":
+ 
     # get command line args
     parser = argparse.ArgumentParser(
         description="Download the atmospheric surface fields needed to force the ocean model forecast. Files are converted from grib2 to netcdf.")
@@ -76,17 +77,26 @@ if __name__ == "__main__":
         help="length of required forcing in hours (date + length). Default %(default)s")
 
     args = parser.parse_args()
-    args.date = datetime.strptime(args.date,'%Y%m%d%H')
+    YMDH = args.date
+    date = datetime.strptime(args.date,'%Y%m%d%H')
 
     print(args)
-    date_s = args.date
+    date_s = date
     length_hours = args.length_hours
+
+    print("Preparing forcing file to cover forcast period of")
+    print(" Start: ", date_s)
+    print(" Length: ", length_hours)
+    print(' ')
+
+    date_ini = date_s
+    date_end = date_ini + timedelta(hours = length_hours)
+
     print("Preparing forcing file to cover forcast period of")
     print(" Start: ", date_s)
     print(" Length: ", length_hours)
     date_ini = date_s
     date_end = date_ini + timedelta(hours = length_hours)
-
     for type,vars in enumerate(gfs_vars):
         print(type)
         print(vars)
@@ -111,42 +121,52 @@ if __name__ == "__main__":
                     print('fdate=',fdate)
                     print('delta_t=',delta_t)
                     print('shifted_time=',shifted_time)
+
                     y, m, d, h, fcst_hr = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t)
+                    
                     if n < np.max(np.arange(nfcst_hr)):
+
                         if (int(fcst_hr)+int(h))%2 == 0:
                             y1, m1, d1, h1, fcst_hr1 = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t)
                             print(y1,m1,d1,h1,fcst_hr1)
                             y2, m2, d2, h2, fcst_hr2 = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t+3)
                             print(y2,m2,d2,h2,fcst_hr2)
+
                             file_gfs1 = 'gfs_global_' +y1+m1+d1+h1+ '_f' + fcst_hr1 + '.nc'
                             file_gfs2 = 'gfs_global_' +y2+m2+d2+h2+ '_f' + fcst_hr2 + '.nc'
                             tmp_gfs_nc1 = 'gfs_global_' +y1+m1+d1+h1+ '_f' + fcst_hr1 + '_' + hafs_fcst_hr + '_' + file_var_name + '.nc'
                             tmp_gfs_nc2 = 'gfs_global_' +y2+m2+d2+h2+ '_f' + fcst_hr2 + '_' + hafs_fcst_hr + '_' + file_var_name + '.nc'
+
                             # Extracting gfs_var_name from file_gfs
                             cmd = 'ncks -v ' + gfs_var_name + ' ' + file_gfs1 + ' ' + tmp_gfs_nc1
                             print(cmd)
                             os.system(cmd)
+
                             cmd = 'ncks -v ' + gfs_var_name + ' ' + file_gfs2 + ' ' + tmp_gfs_nc2
                             print(cmd)
                             os.system(cmd)
+
                             # Open ncfiles
                             ncfile1 = nc.Dataset(tmp_gfs_nc1,'a')
                             ncfile2 = nc.Dataset(tmp_gfs_nc2,'a')
                             flux1 = ncfile1[gfs_var_name][:]
                             flux2 = ncfile2[gfs_var_name][:]
                             # Weighted average
-                            flux = 1/3 * flux1 + 2/3 * flux2
+                            flux = 1/3 * flux1 + 2/3 * flux2 
                             # write corrected flux value
                             ncfile1[gfs_var_name][:] = flux
+    
                         else:
                             y1, m1, d1, h1, fcst_hr1 = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t+3)
                             print(y1,m1,d1,h1,fcst_hr1)
                             file_gfs1 = 'gfs_global_' +y1+m1+d1+h1+ '_f' + fcst_hr1 + '.nc'
                             tmp_gfs_nc1 = 'gfs_global_' +y1+m1+d1+h1+ '_f' + fcst_hr1 + '_' + hafs_fcst_hr + '_' + file_var_name + '.nc'
+
                             # Extracting gfs_var_name from file_gfs
                             cmd = 'ncks -v ' + gfs_var_name + ' ' + file_gfs1 + ' ' + tmp_gfs_nc1
                             print(cmd)
                             os.system(cmd)
+
                             # Open ncfile
                             ncfile1 = nc.Dataset(tmp_gfs_nc1,'a')
 
@@ -158,6 +178,7 @@ if __name__ == "__main__":
                         ncfile1.variables['time'].reference_time_description = " "
                         ncfile1.variables['time'].units = "seconds since 1970-01-01 00:00:00"
                         ncfile1.close()
+
                         tmp_gfs_nc_intp = 'gfs_global_f' + hafs_fcst_hr + '_' + file_var_name + '.nc'
                         cmd = 'cp ' + tmp_gfs_nc1 + ' ' + tmp_gfs_nc_intp
                         os.system(cmd)
@@ -182,7 +203,7 @@ if __name__ == "__main__":
                 print(cmd)
                 os.system(cmd)
                 os.system('rm ' + 'gfs_global_*f*' + file_var_name + '.nc')
-
+  
             if type == 1:
                 print('Instantaneous fields')
                 gfs_var_name = var
@@ -205,7 +226,7 @@ if __name__ == "__main__":
                     print(n)
                     print('fdate=',fdate)
                     print('delta_t=',delta_t)
-                    print('shifted_time=',shifted_time)
+                    print('shifted_time=',shifted_time)                    
                     y, m, d, h, fcst_hr = get_ymdh_fcst_hr_to_read_gfs_file(date_ini,date_iforc,fdate,delta_t)
                     #y = str(date_ini.year)
                     #m = [str(date_ini.month) if len(str(date_ini.month))>1 else '0'+str(date_ini.month)][0]
@@ -246,3 +267,93 @@ if __name__ == "__main__":
                 os.system(cmd)
                 os.system('rm ' + 'gfs_global_*f*' + file_var_name + '.nc')
 
+    # Obtain net longwave and shortwave radiation file
+    print("Obtaining NETLW")
+    os.system('ncks -A gfs_global_' + YMDH +'_ULWRF.nc -o gfs_global_' + YMDH + '_LWRF.nc')
+    os.system('ncks -A gfs_global_' + YMDH + '_DLWRF.nc -o gfs_global_' + YMDH + '_LWRF.nc')
+    os.system('ncap2 -v -O -s "NETLW_surface=DLWRF_surface-ULWRF_surface" gfs_global_' + YMDH + '_LWRF.nc gfs_global_' + YMDH + '_NETLW.nc')
+    os.system('ncatted -O -a long_name,NETLW_surface,o,c,"Net Long-Wave Radiation Flux" gfs_global_' + YMDH + '_NETLW.nc')
+    os.system('ncatted -O -a short_name,NETLW_surface,o,c,"NETLW_surface" gfs_global_' + YMDH + '_NETLW.nc')
+    
+    print("Obtaining NETSW")
+    os.system('ncks -A gfs_global_' + YMDH + '_USWRF.nc -o gfs_global_' + YMDH + '_SWRF.nc')
+    os.system('ncks -A gfs_global_' + YMDH + '_DSWRF.nc -o gfs_global_' + YMDH + '_SWRF.nc')
+    os.system('ncap2 -v -O -s "NETSW_surface=DSWRF_surface-USWRF_surface" gfs_global_' + YMDH + '_SWRF.nc gfs_global_' + YMDH + '_NETSW.nc')
+    os.system('ncatted -O -a long_name,NETSW_surface,o,c,"Net Short-Wave Radiation Flux" gfs_global_' + YMDH + '_NETSW.nc')
+    os.system('ncatted -O -a short_name,NETSW_surface,o,c,"NETSW_surface" gfs_global_' + YMDH + '_NETSW.nc')
+    
+    # Add four components to the NETSW and DSWRF radiation files
+    # SWVDF=Visible Diffuse Downward Solar Flux. SWVDF=0.285*DSWRF_surface
+    # SWVDR=Visible Beam Downward Solar Flux. SWVDR=0.285*DSWRF_surface
+    # SWNDF=Near IR Diffuse Downward Solar Flux. SWNDF=0.215*DSWRF_surface
+    # SWNDR=Near IR Beam Downward Solar Flux. SWNDR=0.215*DSWRF_surface
+    print("Adding four components to the NETSW radiation file")
+    print("Adding SWVDF")
+    os.system('ncap2 -v -O -s "SWVDF_surface=float(0.285*DSWRF_surface)" gfs_global_' + YMDH + '_DSWRF.nc gfs_global_' + YMDH + '_SWVDF.nc')
+    os.system('ncatted -O -a long_name,SWVDF_surface,o,c,"Visible Diffuse Downward Solar Flux" gfs_global_' + YMDH + '_SWVDF.nc')
+    os.system('ncatted -O -a short_name,SWVDF_surface,o,c,"SWVDF_surface" gfs_global_' + YMDH + '_SWVDF.nc')
+    
+    print("Adding SWVDR")
+    os.system('ncap2 -v -O -s "SWVDR_surface=float(0.285*DSWRF_surface)" gfs_global_' + YMDH + '_DSWRF.nc gfs_global_' + YMDH + '_SWVDR.nc')
+    os.system('ncatted -O -a long_name,SWVDR_surface,o,c,"Visible Beam Downward Solar Flux" gfs_global_' + YMDH + '_SWVDR.nc')
+    os.system('ncatted -O -a short_name,SWVDR_surface,o,c,"SWVDR_surface" gfs_global_' + YMDH + '_SWVDR.nc')
+    
+    print("Adding SWNDF")
+    os.system('ncap2 -v -O -s "SWNDF_surface=float(0.215*DSWRF_surface)" gfs_global_' + YMDH + '_DSWRF.nc gfs_global_' + YMDH + '_SWNDF.nc')
+    os.system('ncatted -O -a long_name,SWNDF_surface,o,c,"Near IR Diffuse Downward Solar Flux" gfs_global_' + YMDH + '_SWNDF.nc')
+    os.system('ncatted -O -a short_name,SWNDF_surface,o,c,"SWNDF_surface" gfs_global_' + YMDH + '_SWNDF.nc')
+    
+    print("Adding SWNDR")
+    os.system('ncap2 -v -O -s "SWNDR_surface=float(0.215*DSWRF_surface)" gfs_global_' + YMDH + '_DSWRF.nc gfs_global_' + YMDH + '_SWNDR.nc')
+    os.system('ncatted -O -a long_name,SWNDR_surface,o,c,"Near IR Beam Downward Solar Flux" gfs_global_' + YMDH + '_SWNDR.nc')
+    os.system('ncatted -O -a short_name,SWNDR_surface,o,c,"SWVDR_surface" gfs_global_' + YMDH + '_SWNDR.nc')
+    
+    print("Changing sign to SHTFL, LHTFL, UFLX, VFLX")
+    os.system('ncap2 -v -O -s "SHTFL_surface=float(SHTFL_surface*-1.0)" gfs_global_' + YMDH + '_SHTFL.nc gfs_global_' + YMDH + '_SHTFL.nc')
+    os.system('ncap2 -v -O -s "LHTFL_surface=float(LHTFL_surface*-1.0)" gfs_global_' + YMDH + '_LHTFL.nc gfs_global_' + YMDH + '_LHTFL.nc')
+    os.system('ncap2 -v -O -s "UFLX_surface=float(UFLX_surface*-1.0)" gfs_global_' + YMDH + '_UFLX.nc gfs_global_' + YMDH + '_UFLX.nc')
+    os.system('ncap2 -v -O -s "VFLX_surface=float(VFLX_surface*-1.0)" gfs_global_' + YMDH + '_VFLX.nc gfs_global_' + YMDH + '_VFLX.nc')
+    
+    print("Adding EVAP")
+    os.system('ncap2 -v -O -s "EVAP_surface=float(LHTFL_surface/(2.5*10^6))" gfs_global_' + YMDH + '_LHTFL.nc gfs_global_' + YMDH + '_EVAP.nc')
+    os.system('ncatted -O -a long_name,EVAP_surface,o,c,"Evaporation Rate" gfs_global_' + YMDH + '_EVAP.nc')
+    os.system('ncatted -O -a short_name,EVAP_surface,o,c,"EVAP_surface" gfs_global_' + YMDH + '_EVAP.nc')
+    os.system('ncatted -O -a units,EVAP_surface,o,c,"Kg m-2 s-1" gfs_global_' + YMDH + '_EVAP.nc')
+    
+    # Concatenate all files
+    fileall = ['gfs_global_' + YMDH + '_NETLW.nc',
+               'gfs_global_' + YMDH + '_DSWRF.nc',
+               'gfs_global_' + YMDH + '_NETSW.nc',
+               'gfs_global_' + YMDH + '_SWVDF.nc',
+               'gfs_global_' + YMDH + '_SWVDR.nc',
+               'gfs_global_' + YMDH + '_SWNDF.nc',
+               'gfs_global_' + YMDH + '_SWNDR.nc',
+               'gfs_global_' + YMDH + '_LHTFL.nc',
+               'gfs_global_' + YMDH + '_EVAP.nc',
+               'gfs_global_' + YMDH + '_SHTFL.nc',
+               'gfs_global_' + YMDH + '_UFLX.nc',
+               'gfs_global_' + YMDH + '_VFLX.nc',
+               'gfs_global_' + YMDH + '_UGRD.nc',
+               'gfs_global_' + YMDH + '_VGRD.nc',
+               'gfs_global_' + YMDH + '_PRES.nc',
+               'gfs_global_' + YMDH + '_PRATE.nc',
+               'gfs_global_' + YMDH + '_TMP.nc']
+    
+    ncfinal = nc.Dataset('gfs_forcings.nc','w')
+    
+    ncfile = nc.Dataset(fileall[0])
+    for name, dim in ncfile.dimensions.items():
+        ncfinal.createDimension(name, len(dim) if not dim.isunlimited() else None)
+    
+    for file in fileall:
+        print(file)
+        ncfile = nc.Dataset(file)
+        for name, var in ncfile.variables.items():
+            if name in ncfinal.variables:
+                continue
+            out_var = ncfinal.createVariable(name, var.datatype, var.dimensions)
+            out_var.setncatts({k: var.getncattr(k) for k in var.ncattrs()})
+            out_var[:] = var[:]
+    
+    ncfinal.close()
+    

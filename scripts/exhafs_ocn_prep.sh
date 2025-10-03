@@ -235,6 +235,12 @@ ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 
 export err=$?; err_chk
 
 # Run Python script to generate OBC
+##Temporary fix for the esmf version on wcoss2, for hafs/ve to have the right esmf binding
+if module is-loaded esmf-D/8.8.0; then
+   module unload esmf-D/8.8.0 
+   module load esmf-C/8.6.0
+fi
+##
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
 ${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
     rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
@@ -320,82 +326,6 @@ done
 
 ${USHhafs}/hafs_mom6_gfs_forcings.py ${CDATE} -l ${NHRS} 2>&1 | tee ./mom6_gfs_forcings.log
 export err=$?; err_chk
-
-# Obtain net longwave and shortwave radiation file
-echo 'Obtaining NETLW'
-ncks -A gfs_global_${CDATE}_ULWRF.nc -o gfs_global_${CDATE}_LWRF.nc
-ncks -A gfs_global_${CDATE}_DLWRF.nc -o gfs_global_${CDATE}_LWRF.nc
-ncap2 -v -O -s "NETLW_surface=DLWRF_surface-ULWRF_surface" gfs_global_${CDATE}_LWRF.nc gfs_global_${CDATE}_NETLW.nc
-ncatted -O -a long_name,NETLW_surface,o,c,"Net Long-Wave Radiation Flux" gfs_global_${CDATE}_NETLW.nc
-ncatted -O -a short_name,NETLW_surface,o,c,"NETLW_surface" gfs_global_${CDATE}_NETLW.nc
-
-echo 'Obtaining NETSW'
-ncks -A gfs_global_${CDATE}_USWRF.nc -o gfs_global_${CDATE}_SWRF.nc
-ncks -A gfs_global_${CDATE}_DSWRF.nc -o gfs_global_${CDATE}_SWRF.nc
-ncap2 -v -O -s "NETSW_surface=DSWRF_surface-USWRF_surface" gfs_global_${CDATE}_SWRF.nc gfs_global_${CDATE}_NETSW.nc
-ncatted -O -a long_name,NETSW_surface,o,c,"Net Short-Wave Radiation Flux" gfs_global_${CDATE}_NETSW.nc
-ncatted -O -a short_name,NETSW_surface,o,c,"NETSW_surface" gfs_global_${CDATE}_NETSW.nc
-
-# Add four components to the NETSW and DSWRF radiation files
-# SWVDF=Visible Diffuse Downward Solar Flux. SWVDF=0.285*DSWRF_surface
-# SWVDR=Visible Beam Downward Solar Flux. SWVDR=0.285*DSWRF_surface
-# SWNDF=Near IR Diffuse Downward Solar Flux. SWNDF=0.215*DSWRF_surface
-# SWNDR=Near IR Beam Downward Solar Flux. SWNDR=0.215*DSWRF_surface
-echo 'Adding four components to the NETSW radiation file'
-echo 'Adding SWVDF'
-ncap2 -v -O -s "SWVDF_surface=float(0.285*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWVDF.nc
-ncatted -O -a long_name,SWVDF_surface,o,c,"Visible Diffuse Downward Solar Flux" gfs_global_${CDATE}_SWVDF.nc
-ncatted -O -a short_name,SWVDF_surface,o,c,"SWVDF_surface" gfs_global_${CDATE}_SWVDF.nc
-
-echo 'Adding SWVDR'
-ncap2 -v -O -s "SWVDR_surface=float(0.285*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWVDR.nc
-ncatted -O -a long_name,SWVDR_surface,o,c,"Visible Beam Downward Solar Flux" gfs_global_${CDATE}_SWVDR.nc
-ncatted -O -a short_name,SWVDR_surface,o,c,"SWVDR_surface" gfs_global_${CDATE}_SWVDR.nc
-
-echo 'Adding SWNDF'
-ncap2 -v -O -s "SWNDF_surface=float(0.215*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWNDF.nc
-ncatted -O -a long_name,SWNDF_surface,o,c,"Near IR Diffuse Downward Solar Flux" gfs_global_${CDATE}_SWNDF.nc
-ncatted -O -a short_name,SWNDF_surface,o,c,"SWNDF_surface" gfs_global_${CDATE}_SWNDF.nc
-
-echo 'Adding SWNDR'
-ncap2 -v -O -s "SWNDR_surface=float(0.215*DSWRF_surface)" gfs_global_${CDATE}_DSWRF.nc gfs_global_${CDATE}_SWNDR.nc
-ncatted -O -a long_name,SWNDR_surface,o,c,"Near IR Beam Downward Solar Flux" gfs_global_${CDATE}_SWNDR.nc
-ncatted -O -a short_name,SWNDR_surface,o,c,"SWVDR_surface" gfs_global_${CDATE}_SWNDR.nc
-
-echo 'Changing sign to SHTFL, LHTFL, UFLX, VFLX'
-ncap2 -v -O -s "SHTFL_surface=float(SHTFL_surface*-1.0)" gfs_global_${CDATE}_SHTFL.nc gfs_global_${CDATE}_SHTFL.nc
-ncap2 -v -O -s "LHTFL_surface=float(LHTFL_surface*-1.0)" gfs_global_${CDATE}_LHTFL.nc gfs_global_${CDATE}_LHTFL.nc
-ncap2 -v -O -s "UFLX_surface=float(UFLX_surface*-1.0)" gfs_global_${CDATE}_UFLX.nc gfs_global_${CDATE}_UFLX.nc
-ncap2 -v -O -s "VFLX_surface=float(VFLX_surface*-1.0)" gfs_global_${CDATE}_VFLX.nc gfs_global_${CDATE}_VFLX.nc
-
-echo 'Adding EVAP'
-ncap2 -v -O -s "EVAP_surface=float(LHTFL_surface/(2.5*10^6))" gfs_global_${CDATE}_LHTFL.nc gfs_global_${CDATE}_EVAP.nc
-ncatted -O -a long_name,EVAP_surface,o,c,"Evaporation Rate" gfs_global_${CDATE}_EVAP.nc
-ncatted -O -a short_name,EVAP_surface,o,c,"EVAP_surface" gfs_global_${CDATE}_EVAP.nc
-ncatted -O -a units,EVAP_surface,o,c,"Kg m-2 s-1" gfs_global_${CDATE}_EVAP.nc
-
-# Concatenate all files
-fileall="gfs_global_${CDATE}_NETLW.nc \
-         gfs_global_${CDATE}_DSWRF.nc \
-         gfs_global_${CDATE}_NETSW.nc \
-         gfs_global_${CDATE}_SWVDF.nc \
-         gfs_global_${CDATE}_SWVDR.nc \
-         gfs_global_${CDATE}_SWNDF.nc \
-         gfs_global_${CDATE}_SWNDR.nc \
-         gfs_global_${CDATE}_LHTFL.nc \
-         gfs_global_${CDATE}_EVAP.nc  \
-         gfs_global_${CDATE}_SHTFL.nc \
-         gfs_global_${CDATE}_UFLX.nc  \
-         gfs_global_${CDATE}_VFLX.nc  \
-         gfs_global_${CDATE}_UGRD.nc  \
-         gfs_global_${CDATE}_VGRD.nc  \
-         gfs_global_${CDATE}_PRES.nc  \
-         gfs_global_${CDATE}_PRATE.nc \
-         gfs_global_${CDATE}_TMP.nc"
-# Use cdo merge, which is faster
-cdo merge ${fileall} gfs_forcings.nc
-# Alternatively, can use ncks, but slower
-#for file in ${fileall}; do ncks -h -A ${file} gfs_forcings.nc; done
 
 # Deliver to intercom
 ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/

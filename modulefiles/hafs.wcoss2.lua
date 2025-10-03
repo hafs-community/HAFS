@@ -33,13 +33,13 @@ libjpeg_ver=os.getenv("libjpeg_ver")
 load(pathJoin("libjpeg", libjpeg_ver))
 
 hdf5_ver=os.getenv("hdf5_ver")
-load(pathJoin("hdf5-C", hdf5_ver))
+load(pathJoin("hdf5-D", hdf5_ver))
 
 netcdf_ver=os.getenv("netcdf_ver")
-load(pathJoin("netcdf-C", netcdf_ver))
+load(pathJoin("netcdf-D", netcdf_ver))
 
 fms_ver=os.getenv("fms_ver")
-load(pathJoin("fms", fms_ver))
+load(pathJoin("fms-D", fms_ver))
 
 bacio_ver=os.getenv("bacio_ver")
 load(pathJoin("bacio", bacio_ver))
@@ -105,7 +105,7 @@ bufr_dump_ver=os.getenv("bufr_dump_ver")
 load(pathJoin("bufr_dump", bufr_dump_ver))
 
 cdo_ver=os.getenv("cdo_ver")
---load(pathJoin("cdo", cdo_ver))
+--load(pathJoin("cdo", cdo_ver)) --- built with hdf5/1.10.6 & netcdf/4.7.4 
 
 ncdiag_ver=os.getenv("ncdiag_ver")
 load(pathJoin("ncdiag-A", ncdiag_ver))
@@ -114,10 +114,13 @@ ncio_ver=os.getenv("ncio_ver")
 load(pathJoin("ncio-A", ncio_ver))
 
 pio_ver=os.getenv("pio_ver")
-load(pathJoin("pio-C", pio_ver))
+load(pathJoin("pio-D", pio_ver))
 
 esmf_ver=os.getenv("esmf_ver")
-load(pathJoin("esmf-C", esmf_ver))
+load(pathJoin("esmf-D", esmf_ver))
+
+pnetcdf_ver=os.getenv("pnetcdf_ver")
+load(pathJoin("pnetcdf-D", pnetcdf_ver)) 
 
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
