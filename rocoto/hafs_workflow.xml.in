@@ -1179,6 +1179,7 @@
       <dependency>
         <and>
           <taskdep task="atm_ic_ens#MEM#"/>
+          <taskdep task="atm_init"/>
           <streq><left>&RUN_ATM_INIT_ENS;</left><right>YES</right></streq>
         </and>
       </dependency>
