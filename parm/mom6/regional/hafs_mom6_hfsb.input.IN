@@ -344,9 +344,9 @@ TEMP_SALT_Z_INIT_FILE = "ocean_ts_ic.nc"      ! default = "temp_salt_z.nc"
                                 ! The name of the z-space input file used to initialize temperatures, only.
 !SALT_Z_INIT_FILE = "" ! default = ""
                                 ! The name of the z-space input file used to initialize temperatures, only.
-Z_INIT_FILE_PTEMP_VAR = "Temp" ! default = "ptemp"
+Z_INIT_FILE_PTEMP_VAR = "temp" ! default = "ptemp"
                                 ! The name of the potential temperature variable in TEMP_Z_INIT_FILE.
-Z_INIT_FILE_SALT_VAR = "Salt"   ! default = "salt"
+Z_INIT_FILE_SALT_VAR = "salt"   ! default = "salt"
                                 ! The name of the salinity variable in SALT_Z_INIT_FILE.
 Z_INIT_ALE_REMAPPING = True     !   [Boolean] default = False
                                 ! If True, then remap straight to model coordinate from file.
@@ -364,7 +364,7 @@ DEPRESS_INITIAL_SURFACE = True  !   [Boolean] default = False
                                 ! surface pressure is applied.
 SURFACE_HEIGHT_IC_FILE = "ocean_ssh_ic.nc" !
                                 ! The initial condition file for the surface height.
-SURFACE_HEIGHT_IC_VAR = "ave_ssh"   ! default = "SSH"
+SURFACE_HEIGHT_IC_VAR = "ssh"   ! default = "SSH"
                                 ! The initial condition variable for the surface height
 VELOCITY_CONFIG = "file"
 VELOCITY_FILE = "ocean_uv_ic.nc"

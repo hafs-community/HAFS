@@ -114,81 +114,16 @@ ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in 2
 export err=$?; err_chk
 
 # SSH file
-# Change into netcdf3 format
-ncks -O -3 rtofs_${outnc_2d} rtofs_${outnc_2d}
-# Rename variables so they match MOM6 variable name
-ncrename -d Latitude,lath -d Longitude,lonh -d MT,time \
-         -v Latitude,lath -v Longitude,lonh -v MT,time -v ssh,ave_ssh \
-         rtofs_${outnc_2d} ${outnc_2d}
-# Change into netcdf4 format
-ncks -O -4 ${outnc_2d} ${outnc_2d}
-# Convert variable to double precission
-ncap2 -O -s "ave_ssh=ave_ssh*1.0" ${outnc_2d} ${outnc_2d}
-# _Fillvalues set to zero
-ncatted -a _FillValue,ave_ssh,o,f,0.0 ${outnc_2d}
+${USHhafs}/hafs_mom6_ssh_ic.py rtofs_${outnc_2d} ${outnc_2d} | tee ./mom6_ssh_ic.log
+export err=$?; err_chk
 
 # TS file
-# Change into netcdf3 format
-ncks -O -3 rtofs_${outnc_ts} rtofs_${outnc_ts}
-# Rename variables so that they match MOM6 variable name
-ncrename -d Depth,depth -d Latitude,lath -d Longitude,lonh -d MT,time \
-         -v Depth,depth -v Latitude,lath -v Longitude,lonh -v MT,time \
-         -v pot_temp,Temp -v salinity,Salt \
-         rtofs_${outnc_ts} ${outnc_ts}
-# Change into netcdf4 format
-ncks -O -4 ${outnc_ts} ${outnc_ts}
+${USHhafs}/hafs_mom6_ts_ic.py rtofs_${outnc_ts} ${outnc_ts} | tee ./mom6_ts_ic.log
+export err=$?; err_chk
 
 # UV file
-ncrename -d Depth,Layer -d Latitude,lath -d Longitude,lonh -d MT,Time \
-         -v Depth,Layer -v Latitude,lath -v Longitude,lonh -v MT,Time \
-         rtofs_${outnc_uv} mom6_layer_${outnc_uv}
-
-${NCP} -p mom6_layer_${outnc_uv} hycom_3d.nc
-
-# This method requires to have a MOM.res.nc file for the specific domain as a
-# template. If we follow this procedure, probably we should have a MOM.res.nc
-# template in the fix MOM6 files
-${NCP} ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./
-${NCP} ${FIXhafs}/fix_mom6/${ocean_domain}/MOM.res.nc ./MOM.res_ic.nc
-nlonq=$(ncks --trd -m MOM.res.nc | grep -E -i ": lonq, size =" | cut -f 7 -d ' ' | uniq)
-nlatq=$(ncks --trd -m MOM.res.nc | grep -E -i ": latq, size =" | cut -f 7 -d ' ' | uniq)
-ncks -O -F -d latq,2,${nlatq} -d lonq,2,${nlonq} MOM.res_ic.nc MOM.res.nc
-ncks -O -F -v u -d lonq,1,1 MOM.res_ic.nc tmp1_u.nc
-ncks -O -F -v v -d latq,1,1 MOM.res_ic.nc tmp1_v.nc
-
-# Convert into double precision
-ncap2 -O -s "lonh=lonh*1.0" -s "lath=lath*1.0" -s "Layer=Layer*1.0" -s "u=u*1.0" -s "v=v*1.0" hycom_3d.nc hycom_3d.nc
-
-# Extract u and v
-ncks -O -v u hycom_3d.nc tmp2_u.nc
-ncks -O -v v hycom_3d.nc tmp2_v.nc
-
-ncrename -O -d lonh,lonq -v lonh,lonq tmp2_u.nc tmp2_u.nc
-ncrename -O -d lath,latq -v lath,latq tmp2_v.nc tmp2_v.nc
-
-ncks -A -C -v lonq MOM.res.nc tmp2_u.nc
-ncks -A -C -v latq MOM.res.nc tmp2_v.nc
-
-ncpdq -O -a lonq,lath,Layer,Time tmp1_u.nc tmp1_u.nc
-ncpdq -O -a lonq,lath,Layer,Time tmp2_u.nc tmp2_u.nc
-
-ncpdq -O -a latq,lonh,Layer,Time tmp1_v.nc tmp1_v.nc
-ncpdq -O -a latq,lonh,Layer,Time tmp2_v.nc tmp2_v.nc
-
-# Consider speeding up these two ncrcat steps in the future
-ncrcat -O tmp1_u.nc tmp2_u.nc tmp_u.nc
-ncrcat -O tmp1_v.nc tmp2_v.nc tmp_v.nc
-
-ncpdq -O -a Time,Layer,lath,lonq tmp_u.nc tmp_u.nc
-ncpdq -O -a Time,Layer,latq,lonh tmp_v.nc tmp_v.nc
-
-ncks -A -C -v Time,Layer,lath,lonq,u tmp_u.nc tmp_uv.nc
-ncks -A -C -v Time,Layer,latq,lonh,v tmp_v.nc tmp_uv.nc
-
-# Set values on the land grids to zero, and deal with first column/row
-ncap2 -s 'where(u>100.0) u=0.0' -s 'where(v>100.0) v=0.0' \
-      -s 'u=u;u(:,:,:,0)=u(:,:,:,1)' -s 'v=v;v(:,:,0,:)=v(:,:,1,:)' \
-      tmp_uv.nc ${outnc_uv}
+${USHhafs}/hafs_mom6_stagger_uv_ic.py rtofs_${outnc_uv} ${outnc_uv} | tee ./mom6_stagger_uv_ic.log
+export err=$?; err_chk
 
 # Deliver to intercom
 ${NCP} -p ${outnc_2d} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc
@@ -201,32 +136,16 @@ ${NCP} -p ${outnc_uv} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc
 mkdir -p ${DATA}/mom6_init
 cd ${DATA}/mom6_init
 
-IFHR=0
-FHR=0
-FHR2=$(printf "%02d" "$FHR")
-FHR3=$(printf "%03d" "$FHR")
-NOBCHRS=24
-
-# Loop for obc hours
-#while [ $FHR -le $NHRS ]; do
-
-#NEWDATE=$(${NDATE} +${FHR} $CDATE)
-#YYYY=$(echo $NEWDATE | cut -c1-4)
-#MM=$(echo $NEWDATE | cut -c5-6)
-#DD=$(echo $NEWDATE | cut -c7-8)
-#HH=$(echo $NEWDATE | cut -c9-10)
-
 # Define output file names
 outnc_2d=ocean_ssh_obc.nc
 outnc_ts=ocean_ts_obc.nc
 outnc_uv=ocean_uv_obc.nc
-export CDF038=rtofs.${type}${hour}_${outnc_2d}
-export CDF034=rtofs.${type}${hour}_${outnc_ts}
-export CDF033=rtofs.${type}${hour}_${outnc_uv}
+export CDF038=rtofs_${outnc_2d}
+export CDF034=rtofs_${outnc_ts}
+export CDF033=rtofs_${outnc_uv}
 
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_obc.in ./rtofs_ocean_ssh_obc.in
-
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in 2>&1 | tee ./archv2ncdf2d_ssh_obc.log
 export err=$?; err_chk
 
@@ -241,26 +160,15 @@ if module is-loaded esmf-D/8.8.0; then
    module load esmf-C/8.6.0
 fi
 ##
+
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py ./ ./ \
-    rtofs.${type}${hour}_${outnc_2d} rtofs.${type}${hour}_${outnc_ts} rtofs.${type}${hour}_${outnc_uv} \
-    'Longitude' 'Latitude' ./ocean_hgrid.nc 'x' 'y' 2>&1 | tee ./mom6_obc_from_rtofs.log
+${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
-# next obc hour
-#IFHR=$(($IFHR + 1))
-#FHR=$(($FHR + $NOBCHRS))
-#FHR3=$(printf "%03d" "$FHR")
-
-#done
-
-# Concatenate in time OBC files
+# Rename the OBC files
 for var in ssh ts uv; do
   for segm in north south east west; do
-    obc_file=rtofs.${type}${hour}_${var}_obc_${segm}.nc
-    ncks ${obc_file} ocean_${var}_obc_${segm}.nc
-  # ncap2 -O -s "time=time+$((${NHRS}/24 + 1))" ${obc_file} ${obc_file}
-  # ncrcat --record_append ${obc_file} ocean_${var}_obc_${segm}.nc
+    mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
     # Deliver to intercom
     ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
   done
