@@ -149,7 +149,7 @@
      deallocate(var_level_ord_tmp)
   else
      write(*,'(a)')' ===== wrong in getting '//trim(src_file)//' vars in subroutine hafs_remap'
-     stop 9001
+     stop
   endif
   call nccheck(nf90_close(src_ncid), 'wrong in close '//trim(src_file), .true.)
 
@@ -254,7 +254,7 @@
      rcode=nf90_inq_varid(dst_ncid, trim(varname), varid1)
      if ( rcode /= nf90_noerr ) then
         write(*,'(a,2i6)')'---inq '//trim(varname), rcode, nf90_noerr
-        stop ' !!! wrong in get '//trim(varname)//' from '//trim(dst_file)
+        stop
      endif
      if ( xtype == nf90_float .or. xtype == nf90_real .or. xtype == nf90_real4 ) then
         call nccheck(nf90_get_var(dst_ncid, varid1, fdat_dst, start=(/ixs,jxs,kxs,txs/), count=(/ixo,jxo,kxo,txo/)), &
