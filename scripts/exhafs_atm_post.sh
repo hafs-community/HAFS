@@ -22,6 +22,9 @@
 ################################################################################
 set -x -o pipefail
 
+# Lew.Gramer@noaa.gov 2025-10-09 (as per analysis 2025-09-24) ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 export USE_CFP=${USE_CFP:NO}
 export MP_LABELIO=yes
 

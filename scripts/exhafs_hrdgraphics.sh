@@ -13,6 +13,9 @@
 
 set -xe
 
+# Lew.Gramer@noaa.gov 2025-10-09 (as per analysis 2025-09-24) ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 CDATE=${CDATE:-${YMDH}}
 NHRS=${NHRS:-126}
 NHR3=$( printf "%03d" "$NHRS" )
@@ -25,13 +28,7 @@ BASIN=${pubbasin2:-AL}
 GPLOT_PARSE="${GPLOThafs}/ush/parse_atcf.sh"
 GPLOT_WRAPPER="${GPLOThafs}/sorc/GPLOT/scripts/GPLOT_wrapper.sh"
 GPLOT_ARCHIVE="${GPLOThafs}/archive/GPLOT_tarballer.sh"
-## GJA: 2024-07-04: force custom ADECKhafs directory here
-##ADECKhafs=${ADECKhafs:?}
-#ADECKhafs="/lfs5/HFIP/hur-aoml/Ghassan.Alaka/adeck/GPLOT"
-# LJG: 2024-11-01
-ADECKhafs="/scratch2/AOML/aoml-hafs1/Ghassan.Alaka/adeck/GPLOT_2024"
-# LJG: 2024-07-31: Fix bad ADECK link?
-#ADECKhafs="/lfs5/HFIP/hur-aoml/Ghassan.Alaka/adeck/GPLOT_2024"
+ADECKhafs=${ADECKhafs:?}
 BDECKhafs=${BDECKhafs:?}
 SYNDAThafs=${SYNDAThafs:?}
 if [ "${machine}" == "orion" ]; then
@@ -130,9 +127,12 @@ while [[ ${ALL_COMPLETE} -eq 0 ]]; do
   # Check that the final HAFS output has been post-processed by atm_post.
   # If not, set ALL_COMPLETE=0
   if [ ! -f ${WORKhafs}/intercom/post/postf${NHR3} ]; then
-    ALL_COMPLETE=0
-    echo "This file doesn't exist --> ${WORKhafs}/forecast/postf${NHR3}"
-    echo "That means the final HAFS output has not been post-processed by atm_post."
+    if [ ! -f ${WORKhafs}/intercom/post/post.nest0?.f${NHR3} ]; then
+      ALL_COMPLETE=0
+      echo "Neither of these files exist --> 1) ${WORKhafs}/intercom/post/postf${NHR3}"
+      echo "Neither of these files exist --> 2) ${WORKhafs}/intercom/post/post.nest0?.f${NHR3}"
+      echo "That means the final HAFS output has not been post-processed by atm_post for this storm."
+    fi
   fi
 
   # Deliver all new and modified graphics to COMhafs/graphics
@@ -162,4 +162,4 @@ if [ "${SENDCOM}" == "YES" ]; then
 fi
 
 echo "graphics job done"
-
+exit 0

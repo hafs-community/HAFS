@@ -60,6 +60,12 @@ export ENSID=${ENSID:-001}
 # Ghassan.Alaka@noaa.gov, 2024-07-10
 export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
 # GJA
+# Lew.Gramer@noaa.gov 2025-08-30
+if [ "${RUN_MULTISTORM}" == "YES" ] && [ "${multistorm_sids}" == "00L" ]; then
+  echo "INFO: Running 0-storm MULTISTORM case"
+  export nest_grids=1
+fi
+# LJG
 
 # Set FORECAST_RESTART to YES if this is a restart run for the forecast job
 export FORECAST_RESTART=${FORECAST_RESTART:-${RESTART:-NO}}

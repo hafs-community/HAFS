@@ -5,15 +5,18 @@
   <!-- Set some variables for use later: -->
 
   <!ENTITY COM_SCRUB_TIME "10800">
+<!--
   <!ENTITY WORK_SCRUB_TIME "3600">
-  <!ENTITY CYCLE_THROTTLE "5">
+-->
+  <!ENTITY WORK_SCRUB_TIME "43200">
+  <!ENTITY CYCLE_THROTTLE "12">
   <!ENTITY TASK_THROTTLE "120">
 
   <!-- Maximum number of times to try various jobs -->
   <!ENTITY MAX_TRIES_TRANSFER "6"> <!-- pulling data over network -->
   <!ENTITY MAX_TRIES_BIG_JOBS "1"> <!-- forecast or other huge jobs -->
   <!-- Lew.Gramer@noaa.gov 2025-07-16: TEMPORARY until mysterious slowdowns get resolved! -->
-  <!ENTITY MAX_TRIES "3"> <!-- everything else -->
+  <!ENTITY MAX_TRIES "2"> <!-- everything else -->
 
  <!-- Extra variables to send to the exhwrf_launch.py -->
   <!ENTITY MORE_LAUNCH_VARS "@[MORE_LAUNCH_VARS]">
@@ -1114,7 +1117,7 @@
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
 <!--
-    &FORECAST_LARGE_1_RESOURCES;
+    &FORECAST_LARGE_0_RESOURCES;
 -->
     &FORECAST_LARGE_RESOURCES_40node;
     &ENV_VARS;
@@ -1585,20 +1588,28 @@
              already completed. -->
         <or>
           <taskdep task="forecast" state="RUNNING"/>
+          <taskdep task="forecast" state="DEAD"/>
           <taskdep task="forecast"/>
           <taskdep task="forecast_0" state="RUNNING"/>
+          <taskdep task="forecast_0" state="DEAD"/>
           <taskdep task="forecast_0"/>
           <taskdep task="forecast_1" state="RUNNING"/>
+          <taskdep task="forecast_1" state="DEAD"/>
           <taskdep task="forecast_1"/>
           <taskdep task="forecast_2" state="RUNNING"/>
+          <taskdep task="forecast_2" state="DEAD"/>
           <taskdep task="forecast_2"/>
           <taskdep task="forecast_3" state="RUNNING"/>
+          <taskdep task="forecast_3" state="DEAD"/>
           <taskdep task="forecast_3"/>
           <taskdep task="forecast_4" state="RUNNING"/>
+          <taskdep task="forecast_4" state="DEAD"/>
           <taskdep task="forecast_4"/>
           <taskdep task="forecast_5" state="RUNNING"/>
+          <taskdep task="forecast_5" state="DEAD"/>
           <taskdep task="forecast_5"/>
           <taskdep task="forecast_6" state="RUNNING"/>
+          <taskdep task="forecast_6" state="DEAD"/>
           <taskdep task="forecast_6"/>
         </or>
       </and>
@@ -1635,20 +1646,28 @@
           <taskdep task="atm_prep_#storm#"/>
           <or>
             <taskdep task="forecast" state="RUNNING"/>
+            <taskdep task="forecast" state="DEAD"/>
             <taskdep task="forecast"/>
             <taskdep task="forecast_0" state="RUNNING"/>
+            <taskdep task="forecast_0" state="DEAD"/>
             <taskdep task="forecast_0"/>
             <taskdep task="forecast_1" state="RUNNING"/>
+            <taskdep task="forecast_1" state="DEAD"/>
             <taskdep task="forecast_1"/>
             <taskdep task="forecast_2" state="RUNNING"/>
+            <taskdep task="forecast_2" state="DEAD"/>
             <taskdep task="forecast_2"/>
             <taskdep task="forecast_3" state="RUNNING"/>
+            <taskdep task="forecast_3" state="DEAD"/>
             <taskdep task="forecast_3"/>
             <taskdep task="forecast_4" state="RUNNING"/>
+            <taskdep task="forecast_4" state="DEAD"/>
             <taskdep task="forecast_4"/>
             <taskdep task="forecast_5" state="RUNNING"/>
+            <taskdep task="forecast_5" state="DEAD"/>
             <taskdep task="forecast_5"/>
             <taskdep task="forecast_6" state="RUNNING"/>
+            <taskdep task="forecast_6" state="DEAD"/>
             <taskdep task="forecast_6"/>
           </or>
           <taskdep task="unpost_#storm#"/>
@@ -1695,7 +1714,10 @@
     <jobname>hafs_output_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_output_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERV_POST;
+-->
+    &RESERV_NONE;
     <queue>&QUEUE_PE;</queue>
     &PE_POST_EXTRA;
     &CORES_EXTRA;
@@ -2343,10 +2365,12 @@
 @** endif
 
 @** if RUN_EMCGRAPHICS==YES
-  <task name="emcgraphics" maxtries="&MAX_TRIES;">
+  <metatask name="emcgraphics">
+  <var name="storm">&STORMS;</var>
+  <task name="emcgraphics_#storm#" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_GRAPHICS</command>
-    <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_emcgraphics.log</cyclestr></join>
+    <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
+    <join><cyclestr>&WORKhafs;/hafs_emcgraphics_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERV_NONE;
     <queue>&QUEUE_PE;</queue>
@@ -2357,16 +2381,21 @@
     &ENV_VARS;
     <envar><name>GRAPH</name><value>EMC</value></envar>
     <envar><name>COMgraph</name><value>@[CDSCRUB]/comgraph_&SUBEXPT;</value></envar>
+    <envar>
+      <name>HOLDVARS</name>
+      <value><cyclestr>&COMhafs;/#storm#.holdvars.txt</cyclestr></value>
+    </envar>
 
     <dependency>
-      <!-- Start the product if the product is running or if it has
+      <!-- Start EMC Graphics if the product is running or if it has
            already completed. -->
       <or>
-        <taskdep task="product" state="RUNNING"/>
-        <taskdep task="product"/>
+        <taskdep task="product_#storm#" state="RUNNING"/>
+        <taskdep task="product_#storm#"/>
       </or>
     </dependency>
   </task>
+  </metatask>
 @** endif
 
   <metatask name="archive">
@@ -2421,7 +2450,7 @@
         <taskdep task="hrdgraphics_#storm#"/>
 @** endif
 @** if RUN_EMCGRAPHICS==YES
-        <taskdep task="emcgraphics"/>
+        <taskdep task="emcgraphics_#storm#"/>
 @** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>
@@ -2480,7 +2509,7 @@
         <taskdep task="hrdgraphics_#storm#"/>
 @** endif
 @** if RUN_EMCGRAPHICS==YES
-        <taskdep task="emcgraphics"/>
+        <taskdep task="emcgraphics_#storm#"/>
 @** endif
 @** if RUN_ENSDA==YES
         <metataskdep metatask="product_ens"/>

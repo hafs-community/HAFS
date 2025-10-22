@@ -23,6 +23,9 @@ set -x -o pipefail
 # # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
 # pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
 
+# Lew.Gramer@noaa.gov 2025-09-24 ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
@@ -627,8 +630,10 @@ ${SOURCE_PREP_STEP}
 #export err=$?; err_chk
 #if [ -e "${pgmout}" ]; then cat ${pgmout}; fi
 #cat ${pgmout} > ${GSISOUT}
-# Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
-${APRUNC_BAL} ./hafs_gsi.x 2>&1 | tee ./gsi.log
+# # Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
+# ${APRUNC_BAL} ./hafs_gsi.x 2>&1 | tee ./gsi.log
+# Lew.Gramer@noaa.gov 2025-09-24 TURN OFF NUMA-balancing on Analysis again (per RDHPCS recommendations)
+${APRUNC} ./hafs_gsi.x 2>&1 | tee ./gsi.log
 export err=$?; err_chk
 cat ./gsi.log > ${GSISOUT}
 
@@ -814,8 +819,10 @@ EOFdiag
     ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
     $APRUNCFP -n $ncmd_max cfp ./mp_diag.sh
   else
-    # Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
-    ${APRUNC_BAL} ${MPISERIAL} -m ./mp_diag.sh
+    # # Lew.Gramer@noaa.gov 2025-07-30 Do NUMA-balancing on Analysis (only) on Ursa (only)
+    # ${APRUNC_BAL} ${MPISERIAL} -m ./mp_diag.sh
+    # Lew.Gramer@noaa.gov 2025-09-24 TURN OFF NUMA-balancing on Analysis again (per RDHPCS recommendations)
+    ${APRUNC} ${MPISERIAL} -m ./mp_diag.sh
   fi
   export err=$?; err_chk
 

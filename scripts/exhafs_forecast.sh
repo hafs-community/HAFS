@@ -28,6 +28,9 @@ set -x -o pipefail
 # # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
 # pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
 
+# Lew.Gramer@noaa.gov 2025-10-09 (as per analysis 2025-09-24) ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 CDATE=${CDATE:-${YMDH}}
 YMD=$(echo ${CDATE} | cut -c1-8)
 yr=$(echo $CDATE | cut -c1-4)

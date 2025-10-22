@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/scratch4/AOML/aoml-hafs1/role.aoml-hafs1/HAFSV2.1M_2025_RT}
+HOMEhafs=${HOMEhafs:-/scratch4/AOML/aoml-hafs1/role.aoml-hafs1/HAFSV2.1M_2025_RT.HERA.NEW}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -15,14 +15,7 @@ opts_res="-t -s sites/${WHERE_AM_I:-wcoss2}_RESERVATION.ent -f"
  confopts_m="config.EXPT=${EXPT} config.SUBEXPT=${EXPT} config.NHRS=174 \
     grid.nest_grids=4 config.run_hrdgraphics=yes ../parm/HAFSV2.1M_2025_RT.conf"
 
-./run_hafs.py ${opts_res} -M L,E 2025102018-2025102712 00L HISTORY ${confopts_m} config.run_emcgraphics=no #RESERVATION: REAL TIME
-
-# Hera-vs.-Ursa test: 2023090406-2023090412
-#./run_hafs.py ${opts} -M L,E 2023090406-2023090412 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_Ursa config.scrub_work=no config.scrub_com=no #PLATFORM TEST: COMPLETED
-
-# COMPLETING: PAUSED TO CONSERVE COREHOURS 2025-09-04! PAUSED at 20230829/00, RESUMED there on 09/30/25: PAUSED again, then RESTARTED 10/8
-# AL: Gert, Emily, Franklin, Harold, IDALIA, Jose, Katia. EP: HILARY, Irwin. (One cycle of pre-Jova)
-./run_hafs.py ${opts} -M L,E 2023081918-2023090418 00L HISTORY ${confopts_m} #RETROSPECTIVE
+./run_hafs.py ${opts} -M L,E 2024092918-2024093000 00L HISTORY ${confopts_m} #TEST
 
 ## AL: KIRK, Leslie, MILTON. EP: Eleven.
 #./run_hafs.py ${opts} -M L,E 2024092918-2024101212 00L HISTORY ${confopts_m} #RETROSPECTIVE: COMPLETED
@@ -30,27 +23,22 @@ opts_res="-t -s sites/${WHERE_AM_I:-wcoss2}_RESERVATION.ent -f"
 ## AL: LEE, Margo, Nigel, Ophelia, PHILIPPE, Rina. EP: Jova, Twelve, Kenneth, Fourteen, Lidia.
 #./run_hafs.py ${opts} -M L,E 2023090506-2023100612 00L HISTORY ${confopts_m} #RETROSPECTIVE: NOT YET STARTED
 
+# PAUSING TO CONSERVE CORE HOURS 2025-09-04!
+# # AL: Gert, Emily, Franklin, Harold, IDALIA, Jose, Katia. EP: HILARY, Irwin.
+# ./run_hafs.py ${opts} -M L,E 2023081918-2023090418 00L HISTORY ${confopts_m} #RETROSPECTIVE: PAUSED at 20230829/00
 # # IDALIA RTOFS OSE
-# # v2 Control: COMPLETED
+# # v2 Control
 # ./run_hafs.py ${opts} -M L,E 2023081918-2023083118 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_RTOFSv2_OSE_ctrl \
 #   dir.COMrtofs=/scratch3/AOML/aoml-hafs1/role.aoml-hafs1/staging/hafs-input/COMRTOFSv2
-
 # # # v2 Perturbed - moved to a different BUILD (".OSE")
-# MOVED # ./run_hafs.py ${opts} -M L,E 2023081918-2023083118 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_RTOFSv2_OSE_pert \
-# MOVED #   dir.COMrtofs=/scratch3/AOML/aoml-phod/Matthieu.LeHenaff/tmp_rtofs_modif
+# # ./run_hafs.py ${opts} -M L,E 2023081918-2023083118 00L HISTORY ${confopts_m} config.SUBEXPT=${EXPT}_RTOFSv2_OSE_pert \
+# #   dir.COMrtofs=/scratch3/AOML/aoml-phod/Matthieu.LeHenaff/tmp_rtofs_modif
 
 
 #===============================================================================
 # RETROSPECTIVES
 #===============================================================================
 
-#===============================================================================
- # 2025 NATL/EPac Multistorm Blocks
-# AL: ERIN. EP: Ivo.
-#./run_hafs.py ${opts} -M L,E 2025081112-2025082300 00L HISTORY ${confopts_m}
-
-# AL: GABRIELLE, HUMBERTO, IMELDA. EP: Narda.
-#./run_hafs.py ${opts} -M L,E 2025091718-2025100212 00L HISTORY ${confopts_m}
 
 #===============================================================================
  # 2024 NATL/EPac Multistorm Blocks
@@ -77,7 +65,6 @@ opts_res="-t -s sites/${WHERE_AM_I:-wcoss2}_RESERVATION.ent -f"
 
 # AL: LEE, Margo, Nigel, Ophelia, PHILIPPE, Rina. EP: Jova, Twelve, Kenneth, Fourteen, Lidia.
 #./run_hafs.py ${opts} -M L,E 2023090506-2023100612 00L HISTORY ${confopts_m}
-#./run_hafs.py ${opts} -M L,E 2023090418-2023100612 00L HISTORY ${confopts_m}
 
 
 #===============================================================================

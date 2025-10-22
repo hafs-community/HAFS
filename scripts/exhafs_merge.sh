@@ -24,6 +24,9 @@ set -x -o pipefail
 # # Suggested by Raghu Reddy (RDHPCS) to diagnose potential slow nodes... (Lew.Gramer@noaa.gov 2025-06-25)
 # pdsh -w "$SLURM_JOB_NODELIST" /home/role.regress/S2/Testsuite/STREAM/check-node.sh
 
+# Lew.Gramer@noaa.gov 2025-10-09 (as per analysis 2025-09-24) ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
@@ -193,7 +196,13 @@ if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then
 		    # Update the MERGE Command by pointing to the appropriate TCVitals file
 		    # Merge the src0[2-N] nest analyses directly into dst01 (RESTARTmrg) 
 		    WORKhafs_nest=${WORKhafs/00L/${sid}/}
-		    tcvital_nest=${WORKhafs_nest}/tmpvit
+ 
+                    # Ghassan.Alaka@noaa.gov 2025-09-19
+                    # Update the location of tmpvit
+		    #tcvital_nest=${WORKhafs_nest}/tmpvit
+                    tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+                    echo "DEBUG: ls -l tcvital_nest:"
+                    ls -l ${tcvital_nest}
 		    if [ ${merge_method} = vortexreplace ]; then
 			MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
 		    else
@@ -358,7 +367,13 @@ if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then
                 # Lew.Gramer@noaa.gov 2025-06-30
 		# Ghassan.Alaka@noaa.gov 2024-07-05
 		WORKhafs_nest=${WORKhafs/00L/${sid}/}
-		tcvital_nest=${WORKhafs_nest}/tmpvit
+
+                # Ghassan.Alaka@noaa.gov 2025-09-19
+                # Update the location of tmpvit
+                #tcvital_nest=${WORKhafs_nest}/tmpvit
+                tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+                echo "DEBUG: ls -l tcvital_nest:"
+                ls -l ${tcvital_nest}
 		if [ ${merge_method} = vortexreplace ]; then
 		    MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
 		else

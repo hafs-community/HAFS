@@ -247,8 +247,14 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
         ##rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
         ## LJG 2024-09-20
         #rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=43)
-        # LJG 2025-05-26: Filter out, e.g., Gaston 20220923 12: 405N 0292W
-        rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=40)
+        #### LJG 2025-05-26: Filter out, e.g., Gaston 20220923 12: 405N 0292W
+        ###rv.discard_except(lambda v: -120<=v.lon and v.lon<=-23 and v.lat<=40)
+        ### LJG 2025-08-11: Filter out, e.g., Ivo 20250811 12 at 119.1W
+        ##rv.discard_except(lambda v: -119<=v.lon and v.lon<=-23 and v.lat<=40)
+        ## LJG 2025-08-26: Filter out, e.g., Juliette 20250827 00 west of 117W
+        #rv.discard_except(lambda v: -117<=v.lon and v.lon<=-23 and v.lat<=40)
+        # LJG 2025-09-26: Filter out, e.g., Gabrielle 20250926 12 north of 39N
+        rv.discard_except(lambda v: -117<=v.lon and v.lon<=-23 and v.lat<=39)
     rv.clean_up_vitals()
     #rv.sort_by_function(rv.hrd_multistorm_sorter)
     # Lew.Gramer@noaa.gov 2023-08-15

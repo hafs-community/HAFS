@@ -120,6 +120,17 @@
   <!ENTITY FORECAST_LARGE_5_RESOURCES "<nodes>175:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3500</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_LARGE_6_RESOURCES "<nodes>195:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3900</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;">
   
+  <!-- Uniform RESOURCEs for dynamically-chosen layout cases -->
+<!-- FUNCTIONAL
+  <!ENTITY FORECAST_LARGE_RESOURCES_40node "<nodes>96:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;"> 
+-->
+<!-- SIMPLE TUNING
+  <!ENTITY FORECAST_LARGE_RESOURCES_40node "<nodes>120:ppn=16:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>16</value></envar>&FORECAST_EXTRA;"> 
+-->
+<!-- William.Ramstrom@noaa.gov TUNING
+-->
+  <!ENTITY FORECAST_LARGE_RESOURCES_40node "<nodes>160:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>3200</value></envar><envar><name>NCTSK</name><value>20</value></envar>&FORECAST_EXTRA;"> 
+
   <!ENTITY FORCE_WARMSTART_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
 
   <!ENTITY ATM_POST_RESOURCES "<nodes>3:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>07:59:00</walltime>">

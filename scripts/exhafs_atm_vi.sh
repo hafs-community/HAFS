@@ -16,11 +16,17 @@
 #   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
+
+# Lew.Gramer@noaa.gov 2025-10-09 (as per analysis 2025-09-24) ENABLE for performance (per RDHPCS recommendations: HFIP RT Google Space)
+export I_MPI_ADJUST_GATHER=1
+
 vi_force_cold_start=${vi_force_cold_start:-no}
 #Lew.Gramer@noaa.gov 2025-05-20
 if [[ ${vi_force_cold_start,,} != "yes" ]]; then
-  # WORKAROUND: Force cold start for storms too close to outer boundaries
-  if [[ ${target_lat%[.][0-9]*} -gt 33 ]] || [[ ${target_lon%[.][0-9]*} -lt -110 ]] || [[ ${target_lon%[.][0-9]*} -gt -40 ]]; then
+  # # WORKAROUND: Force cold start for storms too close to outer boundaries
+  # if [[ ${target_lat%[.][0-9]*} -gt 33 ]] || [[ ${target_lon%[.][0-9]*} -lt -110 ]] || [[ ${target_lon%[.][0-9]*} -gt -40 ]]; then
+  # 2025-08-31: Exclude, e.g., Kirk for 20241006/06
+  if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then
     vi_force_cold_start=yes
   fi
 fi
