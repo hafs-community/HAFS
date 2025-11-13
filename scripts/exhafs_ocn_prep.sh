@@ -162,7 +162,7 @@ fi
 ##
 
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
+${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
 # Rename the OBC files
