@@ -88,6 +88,7 @@ else
   if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
     module load intel-oneapi-mkl/2024.2.1
   fi
+  export PYTHONPATH="${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/sorc/jcb/src/:$HOMEhafs/sorc/hafs_jedi.fd/sorc/hafs_jedi.fd/build/lib/python3.*"
   export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
   export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
   export IODA_PRINT_RUNSTATS=1

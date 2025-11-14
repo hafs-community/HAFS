@@ -20,11 +20,10 @@
         simulated variables: [stationPressure]
 
       obs operator:
-        name: SfcPCorrected
+        name: SfcCorrected
         variables:
         - name: stationPressure
-        da_psfc_scheme: GSI
-        station_altitude: height
+        da_psfc_scheme: GSL
         geovar_sfc_geomz: height_above_mean_sea_level_at_surface
         geovar_geomz: geopotential_height
 
@@ -72,12 +71,40 @@
         where operator: or
         action:
           name: reduce obs space
+      # Bounds Check (ObsValue)
+      - filter: Bounds Check
+        filter variables:
+        - name: stationPressure
+        test variables:
+        - name: ObsErrorData/stationPressure
+        minvalue: 0.0
+        maxvalue: 1000
+        action:
+             name: reduce obs space
+      # Bounds Check (ObsValue)
+      - filter: Bounds Check
+        filter variables:
+        - name: stationPressure
+        minvalue: 20000.0
+        maxvalue: 120000.0
+        action:
+          name: reduce obs space
 
       # Observation Prior Filters (QC)
       obs prior filters:
       # ----------------------------------------------
       # stationPressure(181)
       # ----------------------------------------------
+      # Regional Domain Check
+      - filter: Bounds Check
+        filter variables:
+        - name: stationPressure
+        test variables:
+        - name: GeoVaLs/observable_domain_mask
+          flag all filter variables if any test variable is out of bounds: true
+          minvalue: 0.0
+          maxvalue: 0.5
+
       # Initial Error Assignments for SFC Observations
       # 181
       - filter: Perform Action
@@ -101,14 +128,6 @@
         - name: InputObsError/stationPressure
           type: float
           source variable: ObsError/stationPressure
-
-      # Set observation quality-related variables
-      # Create PreQC group variable (pqm in GSI read_prepbufr)
-      #- filter: Variable Assignment
-      #  assignments:
-      #  - name: PreQC/stationPressure
-      #    type: int
-      #    source variable: QualityMarker/stationPressure
 
       # Create PreUseFlag Group variable (usage in GSI read_prepbufr)
       # Initialize
@@ -178,15 +197,6 @@
         - variable: QualityMarker/stationPressure
           is_in: 3, 7
 
-      # Online domain check
-      - filter: Bounds Check
-        filter variables:
-        - name: stationPressure
-        test variables:
-        - name:  GeoVaLs/observable_domain_mask
-          minvalue: 0.0
-          maxvalue: 0.5
-
       # Observation Post Filters (QC)
       # -------------------------------
       obs post filters:
@@ -200,21 +210,6 @@
             options:
               use_air_pressure: false
               variable: stationPressure
-      # Reduce effective observation error based on obs type and subtype
-      # In this case: reduce effective obs error for buoy
-      - filter: Perform Action
-        filter variables:
-        - name: stationPressure
-        where:
-        - variable:
-            name: ObsType/stationPressure
-          is_in: 180
-        #- variable:
-          #  name: ObsSubType/stationPressure
-          #is_in: 0
-        action:
-          name: inflate error
-          inflation factor: 0.7
 
       # Calculate obs error inflation factors for large discrepencies between model and observations
       - filter: Variable Assignment
@@ -227,7 +222,6 @@
               geovar_sfc_geomz: height_above_mean_sea_level_at_surface
               geovar_temp: air_temperature
               geovar_geomz: geopotential_height
-              station_altitude: height
 
       # Inflate surface pressure observation based on discrepancies between model and observations due to terrian
       - filter: Perform Action

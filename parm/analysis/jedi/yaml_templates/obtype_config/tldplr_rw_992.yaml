@@ -128,7 +128,7 @@
         - name: radialVelocity
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         action:
           name: assign error
           error parameter: 5.  
@@ -140,7 +140,7 @@
         vertical_coordinate: height
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         - variable: MetaData/height
           maxvalue: 2000.
       # lower-middle level troposphere lvl 2
@@ -150,7 +150,7 @@
         vertical_coordinate: height
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         - variable: MetaData/height
           maxvalue: 4000.
           minvalue: 2000.
@@ -161,7 +161,7 @@
         vertical_coordinate: height
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         - variable: MetaData/height
           maxvalue: 6999.9
           minvalue: 4000.
@@ -172,7 +172,7 @@
         vertical_coordinate: height
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         - variable: MetaData/height
           maxvalue: 10000.
           minvalue: 7001
@@ -183,7 +183,7 @@
         vertical_coordinate: height
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
         - variable: MetaData/height
           minvalue: 10000.
 
@@ -310,7 +310,7 @@
           name: reject
         where:
         - variable: ObsType/radialVelocity
-          is_in: 993
+          is_in: 992
 
       # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
       - filter: Perform Action

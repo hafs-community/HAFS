@@ -14,11 +14,10 @@ from wxflow import Logger
 import numpy as np
 import numpy.ma as ma
 
-
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set
 log_level = os.getenv('LOG_LEVEL', 'INFO')
-logger = Logger('bufr_sfcshp_prepbufr.py', level=log_level, colored_log=False)
+logger = Logger('bufr_sfcshp.py', level=log_level, colored_log=False)
 
 
 def logging(comm, level, message):
@@ -81,59 +80,6 @@ def logging(comm, level, message):
         log_method(message)
 
 
-def _make_description(mapping_path, cycle_time, update=False):
-    description = bufr.encoders.Description(mapping_path)
-
-    ReferenceTime = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
-
-    if update:
-        # Define the variables to be added in a list of dictionaries
-        variables = [
-            {
-                'name': 'MetaData/sequenceNumber',
-                'source': 'variables/sequenceNumber',
-                'units': '1',
-                'longName': 'Sequence Number (Obs Subtype)',
-            },
-        ]
-
-        # Loop through each variable and add it to the description
-        for var in variables:
-            description.add_variable(
-                name=var['name'],
-                source=var['source'],
-                units=var['units'],
-                longName=var['longName']
-            )
-
-        # description.add_global(name='Reference_time', value=str(ReferenceTime))
-
-    return description
-
-
-def _compute_sequence_number(typ, t29):
-    """
-    Compute sequenceNumber
-
-    Parameters:
-        typ: observation Type (obsType)
-        t29: data dump report type
-
-    Returns:
-        Masked array of sequenceNumber values
-    """
-
-    sequenceNumber = np.zeros(typ.shape, dtype=np.int32)
-    for i in range(len(typ)):
-        if (typ[i] == 180 or typ[i] == 280):
-            if (t29[i] > 555 and t29[i] < 565):
-                sequenceNumber[i] = 0
-            else:
-                sequenceNumber[i] = 1
-
-    return sequenceNumber
-
-
 def _compute_datetime(cycleTimeSinceEpoch, dhr):
     """
     Compute dateTime using the cycleTimeSinceEpoch and Cycle Time
@@ -162,9 +108,75 @@ def _compute_datetime(cycleTimeSinceEpoch, dhr):
     return dateTime
 
 
+def _make_description(mapping_path, cycle_time, update=False):
+    description = bufr.encoders.Description(mapping_path)
+
+    ReferenceTime = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
+
+    if update:
+        # Define the variables to be added in a list of dictionaries
+        variables = [
+            {
+                'name': 'MetaData/sequenceNumber',
+                'source': 'variables/sequenceNumber',
+                'units': '1',
+                'longName': 'Sequence Number (Obs Subtype)',
+            },
+            {
+                'name': 'ObsSubType/stationPressure',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/airTemperature',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/virtualTemperature',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/specificHumidity',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/windEastward',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/windNorthward',
+                'source': 'obsSubType',
+                'units': '1',
+                'longName': 'Observation SubType',
+            }
+        ]
+
+        # Loop through each variable and add it to the description
+        for var in variables:
+            description.add_variable(
+                name=var['name'],
+                source=var['source'],
+                units=var['units'],
+                longName=var['longName']
+            )
+
+        # description.add_global(name='datetimeReference', value=str(ReferenceTime))
+
+    return description
+
+
 def _make_obs(comm, input_path, mapping_path, cycle_time):
     """
-    Create the ioda sfcshp prepbufr observations:
+    Create the ioda adpupa prepbufr observations:
     - reads values
     - adds sequenceNum
 
@@ -185,65 +197,68 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     container = bufr.Parser(input_path, mapping_path).parse(comm)
 
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
+    logging(comm, 'DEBUG', f'prepbufrDataLevelCategory')
+    cat = container.get('variables/prepbufrDataLevelCategory')
+
     logging(comm, 'DEBUG', f'Change longitude range from [0,360] to [-180,180]')
     lon = container.get('variables/longitude')
     lon_paths = container.get_paths('variables/longitude')
-    lon[lon > 180] -= 360
-    lon = ma.round(lon, decimals=2)
-    logging(comm, 'DEBUG', f'longitude new max/min: ${lon.max()}, ${lon.min()}')
+    #lon[lon > 180] -= 360
+    #lon = ma.round(lon, decimals=2)
+    logging(comm, 'DEBUG', f'longitude max and min are {lon.max()}, {lon.min()}')
 
     logging(comm, 'DEBUG', f'Do DateTime calculation')
-    otmct = container.get('variables/obsTimeMinusCycleTime')
-    otmct_paths = container.get_paths('variables/obsTimeMinusCycleTime')
+    otmct = container.get('variables/timeOffset')
+    otmct_paths = container.get_paths('variables/timeOffset')
     otmct2 = np.array(otmct)
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
     dateTime = _compute_datetime(cycleTimeSinceEpoch, otmct2)
-    min_dateTime_ge_zero = min(x for x in dateTime if x >= 0)
+    min_dateTime_ge_zero = min(x for x in dateTime if x > -1)
     logging(comm, 'DEBUG', f'dateTime min/max = {min_dateTime_ge_zero} {dateTime.max()}')
 
-    logging(comm, 'DEBUG', f'Do sequenceNumber (Obs SubType) calculation')
-    typ = container.get('variables/observationType')
-    typ_paths = container.get_paths('variables/observationType')
-    t29 = container.get('variables/obssubtype')
-    t29_paths = container.get_paths('variables/obssubtype')
-    seqNum = _compute_sequence_number(typ, t29)
-    logging(comm, 'DEBUG', f' sequenceNum min/max =  {seqNum.min()} {seqNum.max()}')
+    logging(comm, 'DEBUG', f'Do ObsSubType and sequenceNumber (Obs SubType) calculation')
+    typ = container.get('observationType')
+    typ_paths = container.get_paths('observationType')
+    t29 = container.get('observationSubTypeNum')
+    t29_paths = container.get_paths('observationSubTypeNum')
+    obsSubType = _compute_obssubtype(typ, t29)
+    logging(comm, 'DEBUG',f' obsSubType min/max =  {obsSubType.min()} {obsSubType.max()}')
 
     logging(comm, 'DEBUG', f'Do tsen and tv calculation')
-    tpc = container.get('variables/temperatureEventCode')
-    tob = container.get('variables/airTemperatureObsValue')
-    tob_paths = container.get_paths('variables/airTemperatureObsValue')
+    tpc = container.get('temperatureEventCode')
+    tob = container.get('airTemperature')
     tsen = np.full(tob.shape[0], tob.fill_value)
-    tsen = np.where(((tpc >= 1) & (tpc < 8)), tob, tsen)
+    tsen = np.where(((tpc >=1) & (tpc < 8)), tob, tsen)
     tvo = np.full(tob.shape[0], tob.fill_value)
     tvo = np.where((tpc == 8), tob, tvo)
 
     logging(comm, 'DEBUG', f'Do tsen and tv QM calculations')
-    tobqm = container.get('variables/airTemperatureQualityMarker')
+    tobqm = container.get('airTemperatureQualityMarker')
     tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)
     tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
     tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)
     tvoqm = np.where((tpc == 8), tobqm, tvoqm)
 
     logging(comm, 'DEBUG', f'Do tsen and tv ObsError calculations')
-    toboe = container.get('variables/airTemperatureObsError')
+    toboe = container.get('airTemperatureError')
     tsenoe = np.full(toboe.shape[0], toboe.fill_value)
     tsenoe = np.where(((tpc >= 1) & (tpc < 8)), toboe, tsenoe)
     tvooe = np.full(toboe.shape[0], toboe.fill_value)
     tvooe = np.where((tpc == 8), toboe, tvooe)
 
     logging(comm, 'DEBUG', f'Update variables in container')
-    container.replace('variables/longitude', lon)
-    container.replace('variables/timestamp', dateTime)
-    container.replace('variables/airTemperatureObsValue', tsen)
-    container.replace('variables/airTemperatureQualityMarker', tsenqm)
-    container.replace('variables/airTemperatureObsError', tsenoe)
-    container.replace('variables/virtualTemperatureObsValue', tvo)
-    container.replace('variables/virtualTemperatureQualityMarker', tvoqm)
-    container.replace('variables/virtualTemperatureObsError', tvooe)
+    container.replace('longitude', lon)
+    container.replace('timestamp', dateTime)
+    container.replace('airTemperature', tsen)
+    container.replace('airTemperatureQualityMarker', tsenqm)
+    container.replace('airTemperatureError', tsenoe)
+    container.replace('virtualTemperature', tvo)
+    container.replace('virtualTemperatureQualityMarker', tvoqm)
+    container.replace('virtualTemperatureError', tvooe)
 
     logging(comm, 'DEBUG', f'Add variables to container')
-    container.add('variables/sequenceNumber', seqNum, typ_paths)
+    container.add('sequenceNumber', obsSubType, typ_paths)
+    container.add('obsSubType', obsSubType, typ_paths)
 
     # Check
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')
@@ -256,8 +271,9 @@ def create_obs_group(input_path, mapping_path, cycle_time, env):
     comm = bufr.mpi.Comm(env["comm_name"])
 
     logging(comm, 'INFO', f'Make description and make obs')
-    description = _make_description(mapping_path, cycle_time, update=True)
+
     container = _make_obs(comm, input_path, mapping_path, cycle_time)
+    description = _make_description(mapping_path, cycle_time, update=True)
 
     # Gather data from all tasks into all tasks. Each task will have the complete record
     logging(comm, 'INFO', f'Gather data from all tasks into all tasks')
@@ -267,6 +283,7 @@ def create_obs_group(input_path, mapping_path, cycle_time, env):
     data = next(iter(iodaEncoder(description).encode(container).values()))
 
     logging(comm, 'INFO', f'Return the encoded data.')
+
     return data
 
 
@@ -284,6 +301,23 @@ def create_obs_file(input_path, mapping_path, output_path, cycle_time):
 
     logging(comm, 'INFO', f'Return the encoded data')
 
+def _compute_obssubtype(typ, t29):
+    """
+    Compute obsSubType group
+
+    Parameters:
+        typ: observation Type (obsType)
+        t29: data dump report type
+
+    Returns:
+        Masked array of obsSubType values
+    """
+
+    mask_typ = np.isin(typ, [180, 280])
+    mask_t29 = (t29 > 555) & (t29 < 565)
+    obsSubType = np.where(mask_typ & ~mask_t29, 1, 0).astype(np.int32)
+
+    return obsSubType
 
 if __name__ == '__main__':
     start_time = time.time()

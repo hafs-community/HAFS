@@ -5,6 +5,7 @@ import argparse
 import time
 import numpy as np
 import numpy.ma as ma
+from datetime import datetime
 import bufr
 from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder 
 from bufr.encoders.netcdf import Encoder as netcdfEncoder 
@@ -74,6 +75,32 @@ def logging(comm, level, message):
         # Call the logging method
         log_method(message)
 
+def _compute_timeoffset(obstime, cycletime):
+    """
+    Compute timeoffset using the datetime and Cycle Time
+
+    Parameters:
+        datetime: Observation Time of observation in Epoch Time
+        cycletime: Cycle Time
+
+    Returns:
+        Masked array of timeoffset values
+    """
+
+    otmct2 = np.array(obstime)
+    otmct3 = [datetime.fromtimestamp(ts) for ts in otmct2]
+    cycleTimeSinceEpoch = datetime.strptime(str(int(cycletime)), '%Y%m%d%H')
+    # calculate time offset
+    timediff_objects = [item-cycleTimeSinceEpoch if item is not None else None for item in otmct3]
+    timediff_seconds = [td.total_seconds() if td is not None else np.nan for td in timediff_objects]
+    # DEBUG Purpose, remove in operation
+    mindatetime = datetime.fromtimestamp(obstime.min()).strftime("%Y%m%H")
+    maxdatetime = datetime.fromtimestamp(obstime.max()).strftime("%Y%m%H")
+    timediff = np.array(timediff_seconds, dtype=np.float32)
+
+    logging(comm,'DEBUG',f'datetime min/max = {mindatetime, maxdatetime}')
+    return timediff
+
 def _make_description(mapping_path, update=False):
 
     description = bufr.encoders.Description(mapping_path)
@@ -82,19 +109,19 @@ def _make_description(mapping_path, update=False):
         # Define the variables to be added in a list of dictionaries
         variables = [
             {
-                'name':'MetaData/cosazm_costilt',
+                'name':'MetaData/cosAzimuthCosTilt',
                 'source': 'variables/cosazm_costilt',
                 'units':'',
                 'longName': 'cos tilt x cos azimuth',
             },
             {
-                'name':'MetaData/sinazm_costilt',
+                'name':'MetaData/sinAzimuthCosTilt',
                 'source': 'variables/sinazm_costilt',
                 'units':'',
                 'longName': 'sin tilt x cos azimuth',
             },
             {
-                'name':'MetaData/sintilt',
+                'name':'MetaData/sinTilt',
                 'source': 'variables/sintilt',
                 'units':'',
                 'longName': 'sin tilt',
@@ -237,7 +264,7 @@ def compute_radar_related(tilt, azm):
 
     return cosazm_costilt.astype(np.float32), sinazm_costilt.astype(np.float32), sintilt.astype(np.float32)
 
-def _make_obs(comm, input_path, mapping_path):
+def _make_obs(comm, input_path, mapping_path, cycle_time):
 
     # Get container from mapping file first
     logging(comm, 'INFO', 'Get container from bufr')
@@ -252,9 +279,17 @@ def _make_obs(comm, input_path, mapping_path):
 
         logging(comm, 'DEBUG', f'category = {cat}')
 
-        #satid = container.get('variables/satelliteId', cat)
-        #if satid.size == 0:
-        #    logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
+        # add timeOffset
+        logging(comm, 'DEBUG', f'Do DateTime calculation')
+        otmct = container.get('variables/timestamp', cat)
+        timediff = _compute_timeoffset(otmct, cycle_time)
+        #logging(comm,'DEBUG',f'datetime min/max = {mindatetime, maxdatetime}')
+        logging(comm,'DEBUG',f'cycle time is {cycle_time}')
+        logging(comm, 'DEBUG', f'timeOffset min/max = {np.nanmin(timediff)} {np.nanmax(timediff)}')
+        # Replace the timeOffset variable
+        logging(comm, 'DEBUG', f'Update timeoffset in container')
+        container.replace('variables/timeOffset',timediff,cat)
+
         stationid = container.get('variables/stationIdentification')
         paths = container.get_paths('variables/stationIdentification',cat)
         obtype = 990+stationid.astype(int)
@@ -346,31 +381,20 @@ def create_obs_group(input_path, mapping_path, category, env):
     logging(comm, 'INFO', f'Return the encoded data for {category}')
     return data
 
-def create_obs_file(input_path, mapping_path, output_path):
+def create_obs_file(input_path, mapping_path, output_path, cycle_time):
 
     comm = bufr.mpi.Comm("world")
-    
-    try:
-        container = _make_obs(comm, input_path, mapping_path)
-        container.gather(comm)
+    container = _make_obs(comm, input_path, mapping_path, cycle_time)
+    container.gather(comm)
 
-        description = _make_description(mapping_path, update=True)
+    description = _make_description(mapping_path, update=True)
 
-        # Encode the data
-        if comm.rank() == 0:
-            netcdfEncoder(description).encode(container, output_path) 
-        
-        logging(comm, 'INFO', f'Successfully processed BUFR file: {input_path}')
-
-    except RuntimeError as e:
-        # Catch the specific error and log a message
-        logging(comm, 'ERROR', f"Failed to process BUFR file: {input_path}. Error: {e}")
-        # Exit gracefully or continue with the rest of the script
-        # depending on the desired behavior.
-        # For this example, we will simply return.
-        return
+    # Encode the data
+    if comm.rank() == 0:
+        netcdfEncoder(description).encode(container, output_path) 
 
     logging(comm, 'INFO', f'Return the encoded data')
+
 
 if __name__ == '__main__':
 
@@ -384,13 +408,15 @@ if __name__ == '__main__':
     parser.add_argument('input', type=str, help='Input BUFR file')
     parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
     parser.add_argument('output', type=str, help='Output NetCDF file')
+    parser.add_argument('cycle_time', type=str, help='cycle time in YYYYMMDDHH format')
 
     args = parser.parse_args()
     mapping = args.mapping
     infile = args.input
     output = args.output
+    cycle_time = args.cycle_time
 
-    create_obs_file(infile, mapping, output)
+    create_obs_file(infile, mapping, output,cycle_time)
 
     end_time = time.time()
     running_time = end_time - start_time

@@ -11,6 +11,9 @@ bufr:
         hour: "*/HOUR"
         minute: "*/MINU"
         second: "*/SECO"
+    # Fake time offset variable
+    timeOffset:
+      query: "*/FLVLST"
 
     stationIdentification:
       query: "*/PTID"
@@ -52,6 +55,12 @@ encoder:
       source: variables/timestamp
       longName: "Datetime"
       units: "seconds since 1970-01-01T00:00:00Z"
+
+    # create a fake timeoffset
+    - name: "MetaData/timeOffset"
+      source: variables/timeOffset
+      longName: "Observation Time Minus Reference Time"
+      units: "s"
 
     - name: "MetaData/latitude"
       source: variables/latitude

@@ -352,35 +352,52 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
 convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 aircft_airTemperature_130 aircft_airTemperature_131 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr_rw_993 aircar_airTemperature_133 aircar_specificHumidity_133 aircar_winds_233 hdob_airTemperature_136 hdob_specificHumidity_136 hdob_winds_236 drpsnd_airTemperature_137 drpsnd_specificHumidity_137 drpsnd_winds_237"
 convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr aircar hdob drpsnd"
+IFS=' ' read -ra convtypes_array <<< "$convtypes"
 mkdir ${DATA}/obs
 cd ${DATA}/obs
 valid_convfiles=()
-for file in ${convfiles[@]}; do
+valid_convtypes=()
+for file in ${convfiles}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     ${NLN} "$ncfile" .
     valid_convfiles+=("$file")
+
+    # Keep all convtypes entries that contain this $file
+    for type in "${convtypes_array[@]}"; do
+      if [[ "$type" == *"$file"* ]]; then
+        valid_convtypes+=("$type")
+      fi
+    done
   else
     echo "WARNING: Missing file $ncfile, skipping $file"
-    convtypes=${convtypes[@]/$file}
   fi
 done
-convfiles="${valid_convfiles[@]}"
 
-# Update radtypes to only valid ones
+# Update convtypes to only valid ones
+convtypes="${valid_convtypes[*]}"
+convfiles="${valid_convfiles[*]}"
+
+# === Now handle radtypes ===
+IFS=' ' read -ra radtypes_array <<< "$radtypes"
+
 valid_radtypes=()
-for file in ${radtypes[@]}; do
+for file in ${radtypes_array[@]}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     ${NLN} "$ncfile" .
-    ${NLN} "${OBSIODA_DIR}/${file}.tlapse.txt" .
+    tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
+    [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
     valid_radtypes+=("$file")
   else
     echo "WARNING: Missing file $ncfile, skipping $file"
   fi
 done
-radtypes="${valid_radtypes[@]}"
-obstypes="${convtypes} ${radtypes}"
+
+radtypes="${valid_radtypes[*]}"
+
+# Final combined types
+obstypes="$convtypes $radtypes"
 bctypes="${radtypes}"
 
 for file in ${bctypes}; do
@@ -410,6 +427,7 @@ fi
 cd ${DATA}
 export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
 export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
+export jcb_yaml_dir=${PARMjedi}/yaml_templates/jcb-hdas/test/client_integration
 mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_nest.nml
@@ -435,6 +453,7 @@ if [ ${l4densvar:-.true.} = ".true." ]; then
 else
   ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
 fi
+mv hdas-atmosphere-templates.yaml hdas-atmosphere-templates_bump.yaml
 rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
@@ -442,52 +461,42 @@ rm nicas.log.*
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
 if [ ${l4denvar:-.true.} = ".true." ]; then
-sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_FV3_CORE_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_FV3_CORE_ENS_FILE3_|${FV3_CORE_FILE3}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE3_|${FV3_TRCR_FILE3}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE3_|${FV3_SFCD_FILE3}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE3_|${FV3_SFCW_FILE3}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE3_|${FV3_CPLR_FILE3}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE3_|${FV3_AKBK_FILE3}|g" \
-    -e "s|_FV3_CORE_ENS_FILE9_|${FV3_CORE_FILE9}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE9_|${FV3_TRCR_FILE9}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE9_|${FV3_SFCD_FILE9}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE9_|${FV3_SFCW_FILE9}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE9_|${FV3_CPLR_FILE9}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE9_|${FV3_AKBK_FILE9}|g" \
-    -e "s|_FV3_CORE_FILE3_|${FV3_CORE_FILE3}|g" \
-    -e "s|_FV3_TRCR_FILE3_|${FV3_TRCR_FILE3}|g" \
-    -e "s|_FV3_SFCD_FILE3_|${FV3_SFCD_FILE3}|g" \
-    -e "s|_FV3_SFCW_FILE3_|${FV3_SFCW_FILE3}|g" \
-    -e "s|_FV3_CPLR_FILE3_|${FV3_CPLR_FILE3}|g" \
-    -e "s|_FV3_AKBK_FILE3_|${FV3_AKBK_FILE3}|g" \
-    -e "s|_FV3_CORE_FILE9_|${FV3_CORE_FILE9}|g" \
-    -e "s|_FV3_TRCR_FILE9_|${FV3_TRCR_FILE9}|g" \
-    -e "s|_FV3_SFCD_FILE9_|${FV3_SFCD_FILE9}|g" \
-    -e "s|_FV3_SFCW_FILE9_|${FV3_SFCW_FILE9}|g" \
-    -e "s|_FV3_CPLR_FILE9_|${FV3_CPLR_FILE9}|g" \
-    -e "s|_FV3_AKBK_FILE9_|${FV3_AKBK_FILE9}|g" \
+#TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
+TOTAL_TASKS_tmp=${TOTAL_TASKS}
+sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
+sed -e "s|_ALGORITHM_|fv3jedi_4denvar|g" \
     -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
-    -e "s|#HH#|t${cyc}z|g" \
+    -e "s|_HH_|${cyc}|g" \
     -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
     -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
     -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    ${basic_yaml_dir}/fv3jedi_4denvar.yaml > ./jedi.yaml
+    -e "s|_LOC_H_|${loc_h}|g" \
+    -e "s|_LOC_V_|${loc_v}|g" \
+    -e "s|_TOTAL_TASKS_|${TOTAL_TASKS_tmp}|g" \
+    -e "s|_MIN_LAT_|${MIN_LAT}|g" \
+    -e "s|_MAX_LAT_|${MAX_LAT}|g" \
+    -e "s|_MIN_LON_|${MIN_LON}|g" \
+    -e "s|_MAX_LON_|${MAX_LON}|g" \
+    -e "s|_NPX_|${npx_ens}|g" \
+    -e "s|_NPY_|${npy_ens}|g" \
+    -e "s|_NPZ_|${npz_ens}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_YYMODD6_|${yr}${mn}${dy}|g" \
+    -e "s|_HH6_|${hh}|g" \
+    -e "s|_YYMODD3_|${yrtm03}${mntm03}${dytm03}|g" \
+    -e "s|_HH3_|${hhtm03}|g" \
+    -e "s|_YYMODD9_|${yrtp03}${mntp03}${dytp03}|g" \
+    -e "s|_HH9_|${hhtp03}|g" \
+    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml
+for obstype in ${obstypes}; do
+  echo "- ${obstype}" >> hdas-atmosphere-templates.yaml
+done
+for obstype in ${obstypes}; do
+  echo "iuse_${obstype}: accept" >> hdas-atmosphere-templates.yaml
+done
+python run_jedi.py
 elif [ ${RUN_FGAT} = NO ]; then
 sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
@@ -535,35 +544,6 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
     ${basic_yaml_dir}/fv3jedi_3dfgat.yaml > ./jedi.yaml
 fi
 
-for obstype in ${obstypes}; do
- if [ ${RUN_ALLSKY:-.no.} = "YES" ]; then
-   cat "${obs_yaml_dir}/allsky/${obstype}.yaml" >> temp.yaml.tmp
- else
-   cat "${obs_yaml_dir}/${obstype}.yaml" >> temp.yaml.tmp
- fi
-done
-
-if [ ${l4densvar:-.true.} = ".true." ]; then
-#  TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
-  TOTAL_TASKS_tmp=${TOTAL_TASKS}
-else
-  TOTAL_TASKS_tmp=${TOTAL_TASKS}
-fi
-sed -e "s|#HH#|t${cyc}z|g" \
-    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
-    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
-    -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
-    -e "s|#TOTAL_TASKS#|${TOTAL_TASKS_tmp}|g" \
-    -e "s|#MIN_LAT#|${MIN_LAT}|g" \
-    -e "s|#MAX_LAT#|${MAX_LAT}|g" \
-    -e "s|#MIN_LON#|${MIN_LON}|g" \
-    -e "s|#MAX_LON#|${MAX_LON}|g" \
-     temp.yaml.tmp > temp.yaml
-
-sed -i '/@OBSERVATIONS@/{
-        r '"temp.yaml"'
-        d
-}' ./jedi.yaml
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
 #-------------------------------------------------------------------
@@ -597,53 +577,6 @@ for file in ${convtypes}; do
     fi
   done
 done
-
-#for file in ${radtypes}; do
-#  for file0 in hofx/diag_${file}_t${cyc}z_*nc; do
-#    dimsize=$(ncdump -h "$file0" | awk '/dimensions:/,/\}/' | awk '/Location *=/ {gsub(/[^0-9]/,""); print $0}')
-#    if [ -z "$dimsize" ] || [ "$dimsize" -eq 0 ]; then
-#      echo "Skipping $file0 due to zero-length Location"
-#      continue
-#    else
-#      echo "${file0} is processed with ${dimsize} locations" 
-#    fi
-#    ncpdq -a Location,time ${file0} ${file0}_out
-#  done
-#  shopt -s nullglob
-#  outfiles=(hofx/diag_${file}_t${cyc}z_*nc_out)
-#  if [ ${#outfiles[@]} -gt 0 ]; then
-#    ncrcat --thr_nbr="${OMP_NUM_THREADS}" "${outfiles[@]}" hofx/diag_${file}_t${cyc}z.nc
-#    if [ -e hofx/diag_${file}_t${cyc}z.nc ]; then
-#      tar cvf "${RADSTAT}" hofx/diag_${file}_t${cyc}z.nc
-#    fi
-#  else
-#    echo "No valid *_out files for ${file}, skipping ncrcat/tar."
-#  fi
-#  shopt -u nullglob
-#done
-#for file in ${convtypes}; do
-#  for file0 in hofx/diag_${file}_t${cyc}z_*nc; do
-#    dimsize=$(ncdump -h "$file0" | awk '/dimensions:/,/\}/' | awk '/Location *=/ {gsub(/[^0-9]/,""); print $0}')
-#    if [ -z "$dimsize" ] || [ "$dimsize" -eq 0 ]; then
-#      echo "Skipping $file0 due to zero-length Location"
-#      continue
-#    else
-#      echo "${file0} is processed with ${dimsize} locations" 
-#    fi
-#    ncpdq -a Location,time ${file0} ${file0}_out
-#  done
-#  shopt -s nullglob
-#  outfiles=(hofx/diag_${file}_t${cyc}z_*nc_out)
-#  if [ ${#outfiles[@]} -gt 0 ]; then
-#    ncrcat --thr_nbr="${OMP_NUM_THREADS}" "${outfiles[@]}" hofx/diag_${file}_t${cyc}z.nc
-#    if [ -e hofx/diag_${file}_t${cyc}z.nc ]; then
-#      tar cvf "${CNVSTAT}" hofx/diag_${file}_t${cyc}z.nc
-#    fi
-#  else
-#    echo "No valid *_out files for ${file}, skipping ncrcat/tar."
-#  fi
-#  shopt -u nullglob
-#done
 
 #Store the output to intercom
 if [ ${l4denvar:-.false.} = ".true." ]; then

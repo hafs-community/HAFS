@@ -1,12 +1,12 @@
     - obs space:
-        name: adpsfc_specificHumidity_181
+        name: sfcshp_specificHumidity_180
         distribution:
           name: "RoundRobin"
           halo size: 300e3
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.adpsfc.nc
+            obsfile: obs/hafs.#HH#.sfcshp.nc
             missing file action: "warn"
           obsgrouping:
             group variables: ["stationIdentification"]
@@ -15,7 +15,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_adpsfc_specificHumidity_181_#HH#.nc
+            obsfile: hofx/diag_sfcshp_specificHumidity_180_#HH#.nc
             allow overwrite: true
         io pool:
           max pool size: #TOTAL_TASKS#
@@ -66,7 +66,7 @@
         - name: specificHumidity
         where:
         - variable: ObsType/specificHumidity
-          is_not_in: 181
+          is_not_in: 180
         - variable: QualityMarker/specificHumidity
           is_in: 4-15
           value: is_not_valid
@@ -90,7 +90,7 @@
       # Observation Prior Filters (QC)
       obs prior filters:
       # --------------------------
-      # specificHumidity (181)
+      # specificHumidity (180)
       # --------------------------
       # Regional Domain Check
       - filter: Bounds Check
@@ -108,7 +108,7 @@
         - name: specificHumidity
         where:
         - variable: ObsType/specificHumidity
-          is_in: 181
+          is_in: 180
         action:
           name: assign error
           error function:
@@ -117,8 +117,7 @@
               xvar:
                 name: MetaData/pressure
               xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000, 65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000, 10000, 7500, 5000, 4000, 3000, 2000, 1000, 500, 400, 300, 200, 100, 0]
-              errors: [0.039136, 0.039125, 0.039121, 0.039122, 0.039123, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039124, 0.039123, 0.039122, 0.039121, 0.039125, 0.039136]
-
+              errors: [0.034103, 0.034093, 0.034089, 0.034089999999999995, 0.034090999999999996, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034092, 0.034090999999999996, 0.034089999999999995, 0.034089, 0.034093, 0.034103]
       # Create PreUseFlag Group Variable (usage in GSI read_prepbufr)
       # Initialize
       - filter: Variable Assignment
@@ -167,7 +166,7 @@
         - name: specificHumidity
         where:
         - variable: ObsType/specificHumidity
-          is_in: 181
+          is_in: 180
         action:
           name: inflate error
           inflation variable:
@@ -183,7 +182,7 @@
         - name: specificHumidity
         where:
          - variable: QualityMarker/specificHumidity
-           is_in: 3        # qm=7 observation is aleady blocked
+           is_in: 3,7        
         action:
           name: inflate error
           inflation factor: 1.2
@@ -198,7 +197,14 @@
         action:
           name: inflate error
           inflation factor: 1.2
-
+      # Bounds Check (ObsError)
+      - filter: Bounds Check
+        filter variables:
+        - name: specificHumidity
+        test variables:
+        - name:  ObsErrorData/specificHumidity
+        minvalue: 0.0
+        maxvalue: 1000
 
       # Bounds Check (ObsValue)
       - filter: Bounds Check
@@ -250,7 +256,6 @@
         - variable:
             name: ObsErrorData/specificHumidity
           value: is_valid
-        defer to post: true
       # Set ObsError set "error parameter" if > "min value"
       - filter: Perform Action
         apply at iterations: 0,1
@@ -313,7 +318,6 @@
           name: inflate error
           inflation variable:
             name: ObsErrorFactorDuplicateCheck/specificHumidity
-
       ## Reject data based on PreUseFlag (usage in GSI)
       - filter: Perform Action
         filter variables:
@@ -323,5 +327,4 @@
           is_not_in: 0, 1
         action:
           name: reject
-
       # End of filter

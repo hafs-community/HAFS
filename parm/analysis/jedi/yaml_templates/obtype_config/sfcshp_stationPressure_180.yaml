@@ -1,9 +1,9 @@
     - obs space:
-        name: surface_ps_187
+        name: surface_ps_180
         obsdatain:
           engine:
             type: H5File
-            obsfile: obs/hafs.#HH#.adpsfc.nc
+            obsfile: obs/hafs.#HH#.sfcshp.nc
             missing file action: "warn"
           obsgrouping:
             group variables: ["stationIdentification"]
@@ -12,7 +12,7 @@
         obsdataout:
           engine:
             type: H5File
-            obsfile: hofx/diag_adpsfc_stationPressure_187_#HH#.nc
+            obsfile: hofx/diag_sfcshp_stationPressure_180_#HH#.nc
             allow overwrite: true
         io pool:
           max pool size: #TOTAL_TASKS#
@@ -24,6 +24,7 @@
         variables:
         - name: stationPressure
         da_psfc_scheme: GSL
+        station_altitude: height
         geovar_sfc_geomz: height_above_mean_sea_level_at_surface
         geovar_geomz: geopotential_height
 
@@ -62,7 +63,7 @@
         - name: stationPressure
         where:
         - variable: ObsType/stationPressure
-          is_not_in: 187
+          is_not_in: 180
         - variable: QualityMarker/stationPressure
           is_in: 4-15
           value: is_not_valid
@@ -89,10 +90,21 @@
         maxvalue: 120000.0
         action:
           name: reduce obs space
+      # Time window filter
+#      - filter: Domain Check
+#        apply at iterations: 0,1
+#        where:
+#          - variable:
+#              name: MetaData/timeOffset # units: s
+#            minvalue: -10800
+#            maxvalue:  10800
+#        action:
+#          name: reduce obs space
+
       # Observation Prior Filters (QC)
       obs prior filters:
       # ----------------------------------------------
-      # stationPressure(187)
+      # stationPressure(180)
       # ----------------------------------------------
       # Regional Domain Check
       - filter: Bounds Check
@@ -105,12 +117,13 @@
           maxvalue: 0.5
 
       # Initial Error Assignments for SFC Observations
+      # 180
       - filter: Perform Action
         filter variables:
         - name: stationPressure
         where:
         - variable: ObsType/stationPressure
-          is_in: 187
+          is_in: 180
         action:
           name: assign error
           error function:
@@ -119,7 +132,17 @@
               xvar:
                 name: ObsValue/stationPressure
               xvals: [45000, 40000]
-              errors: [54.259, 1.0e+11]
+              errors: [53.636, 1.0e+11]
+      # Error inflation when QualityMarker == 3 (read_prepbufr.f90)
+      - filter: Perform Action
+        filter variables:
+        - name: stationPressure
+        action:
+          name: inflate error
+          inflation factor: 1.2
+        where:
+        - variable: QualityMarker/stationPressure
+          is_in: 3,7
 
       # Create PreQC group variable (pqm in GSI read_prepbufr)
       - filter: Variable Assignment
@@ -185,17 +208,6 @@
         - name: PreUseFlag/stationPressure
           value: 101
 
-      # Inflate obs error based on obs type
-      - filter: Perform Action
-        filter variables:
-        - name: stationPressure
-        action:
-          name: inflate error
-          inflation factor: 1.2
-        where:
-        - variable: QualityMarker/stationPressure
-          is_in: 3, 7
-
       # Observation Post Filters (QC)
       # -------------------------------
       obs post filters:
@@ -209,6 +221,20 @@
             options:
               use_air_pressure: false
               variable: stationPressure
+      # Reduce effective observation error based on obs type and subtype
+      # In this case: reduce effective obs error for buoy
+      - filter: Perform Action
+        filter variables:
+        - name: stationPressure
+        where:
+        - variable:
+            name: ObsType/stationPressure
+          is_in: 180
+        - variable: ObsSubType/stationPressure
+          is_in: 0
+        action:
+          name: inflate error
+          inflation factor: 0.7
 
       # Calculate obs error inflation factors for large discrepencies between model and observations
       - filter: Variable Assignment
@@ -219,8 +245,8 @@
             name: ObsFunction/ObsErrorFactorSfcPressure
             options:
               geovar_sfc_geomz: height_above_mean_sea_level_at_surface
-              geovar_temp: air_temperature
               geovar_geomz: geopotential_height
+              station_altitude: height
 
       # Inflate surface pressure observation based on discrepancies between model and observations due to terrian
       - filter: Perform Action
