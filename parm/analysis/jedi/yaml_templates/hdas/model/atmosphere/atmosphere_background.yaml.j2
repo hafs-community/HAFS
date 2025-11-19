@@ -1,0 +1,24 @@
+datetime: "{{ atmosphere_background_time_iso }}"
+filetype: fms restart
+datapath: {{ atmosphere_background_path }}
+filename_core: {{atmosphere_background_time_prefix}}fv_core.res.tile1.nc
+filename_trcr: {{atmosphere_background_time_prefix}}fv_tracer.res.tile1.nc
+filename_sfcd: {{atmosphere_background_time_prefix}}sfc_data.nc
+filename_sfcw: {{atmosphere_background_time_prefix}}fv_srf_wnd.res.tile1.nc
+filename_cplr: {{atmosphere_background_time_prefix}}coupler.res
+state variables: {{state_variables}}
+field io names:
+  eastward_wind: {{eastward_wind}}
+  northward_wind: {{northward_wind}}
+  air_temperature: {{air_temperature}}
+  air_pressure_thickness: {{air_pressure_thickness}}
+  water_vapor_mixing_ratio_wrt_moist_air: {{water_vapor_mixing_ratio_wrt_moist_air}}
+  cloud_liquid_ice: {{cloud_liquid_ice}}
+  cloud_liquid_water: {{cloud_liquid_water}}
+  ozone_mass_mixing_ratio: {{ozone_mass_mixing_ratio}}
+  geopotential_height_times_gravity_at_surface: {{geopotential_height_times_gravity_at_surface}}
+  skin_temperature_at_surface: {{skin_temperature_at_surface}}
+  soilt: {{soilt}}
+  soilm: {{soilm}}
+  eastward_wind_at_surface: {{eastward_wind_at_surface}}
+  northward_wind_at_surface: {{northward_wind_at_surface}}

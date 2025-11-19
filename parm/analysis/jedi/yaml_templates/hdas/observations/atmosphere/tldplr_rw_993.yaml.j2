@@ -1,0 +1,326 @@
+     - obs space:
+         name: tldplr_rw
+         obsdatain:
+           engine:
+             type: H5File
+             obsfile: obs/hafs.t{{HH}}z.tldplr.nc
+             missing file action: "warn"
+         obsdataout:
+           engine:
+             type: H5File
+             obsfile: hofx/diag_tldplr_rw_t{{HH}}z.nc
+             allow overwrite: true
+         io pool:
+           max pool size: {{TOTAL_TASKS}}
+         observed variables: [radialVelocity]
+         simulated variables: [radialVelocity]
+ 
+       obs operator:
+         name: RadarRadialVelocity
+ 
+       linear obs operator:
+         name: RadarRadialVelocity
+ 
+       obs error:
+         covariance model: diagonal
+ 
+       obs pre filters:
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/latitude
+           minvalue: {{MIN_LAT}}
+           maxvalue: {{MAX_LAT}}
+         action:
+           name: reduce obs space
+ 
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/longitude
+           minvalue: {{MIN_LON}}
+           maxvalue: {{MAX_LON}}
+         action:
+           name: reduce obs space
+ 
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity 
+         test variables:
+         - name: MetaData/radar_tilt
+         maxvalue: 75.
+         action:
+           name: reduce obs space 
+ 
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity
+         test variables:
+         - name: MetaData/radar_azimuth
+         maxvalue: 400.
+         action:
+           name: reduce obs space
+ 
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity
+         test variables:
+         - name: MetaData/height
+         minvalue: -1000.
+         maxvalue: 50000.
+         action:
+           name: reduce obs space
+ 
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity
+         test variables:
+         - name: MetaData/gateRange
+         maxvalue: 92600.   # In GSI, r92=92.6e03
+         action:
+           name: reduce obs space
+ 
+       # Observation Prior Filters (QC)
+       # -----------------------------------
+       obs prior filters:
+       # Online domain check
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity
+         test variables:
+         - name:  GeoVaLs/observable_domain_mask
+           minvalue: 0.0
+           maxvalue: 0.5
+         action:
+           name: reject
+ 
+       # Observation Post Filters (QC)
+       #  -----------------------------
+       obs post filters:
+       # filter out abs(rw)>71. or abs(rw)<2.
+       - filter: Variable Assignment
+         assignments:
+         - name: ObsDiag/absRadialVelocity
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables:
+               - name: ObsValue/radialVelocity
+               absolute value: [true]
+ 
+       - filter: Bounds Check
+         filter variables:
+         - name: radialVelocity
+         test variables:
+         - name: ObsDiag/absRadialVelocity
+         maxvalue: 71.
+         minvalue: 2.0
+         action:
+           name: reject
+ 
+       # Initial error assignment
+       # in GSI, assign initial error 5.0 to TDR obs
+       - filter: Perform Action
+         filter variables: 
+         - name: radialVelocity
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         action:
+           name: assign error
+           error parameter: 5.  
+       # Apply Gaussian thinning
+       # lower troposphere lvl 1
+       - filter: Gaussian Thinning
+         horizontal_mesh: 12
+         vertical_mesh: 100.0 # meters
+         vertical_coordinate: height
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         - variable: MetaData/height
+           maxvalue: 2000.
+       # lower-middle level troposphere lvl 2
+       - filter: Gaussian Thinning
+         horizontal_mesh: 12
+         vertical_mesh: 200.0 # meters
+         vertical_coordinate: height
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         - variable: MetaData/height
+           maxvalue: 4000.
+           minvalue: 2000.
+       # upper-middle level troposphere lvl 3
+       - filter: Gaussian Thinning
+         horizontal_mesh: 12
+         vertical_mesh: 300.0 # meters
+         vertical_coordinate: height
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         - variable: MetaData/height
+           maxvalue: 6999.9
+           minvalue: 4000.
+       # upper-upper-middle level troposphere lvl 4
+       - filter: Gaussian Thinning
+         horizontal_mesh: 12
+         vertical_mesh: 400.0 # meters
+         vertical_coordinate: height
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         - variable: MetaData/height
+           maxvalue: 10000.
+           minvalue: 7001
+       # upper troposphere lvl 5
+       - filter: Gaussian Thinning
+         horizontal_mesh: 12
+         vertical_mesh: 500.0 # meters
+         vertical_coordinate: height
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+         - variable: MetaData/height
+           minvalue: 10000.
+ 
+       # Adaptive error inflation: adjust observation error based OMB
+       # step 1: calculate OMB
+       - filter: Variable Assignment
+         assignments:
+         - name: OmB/radialVelocity
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables:
+               - name: ObsValue/radialVelocity
+               - name: HofX/radialVelocity
+               coefs: [1, -1]
+       # step 2: abs(OMB)-10
+       - filter: Variable Assignment
+         assignments:
+         - name: absdiff/radialVelocity
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables:
+               - name: OmB/radialVelocity
+               absolute value: [true]
+               intercept: -10.
+       # step 3: (abs(OMB)-10)/10
+       - filter: Variable Assignment
+         assignments:
+         - name: inflation_factor/radialVelocity
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables: [absdiff/radialVelocity]
+               coefs: [0.1]
+       # step 4: Apply the adaptive error
+       - filter: Perform Action
+         filter variables:
+         - name: radialVelocity
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables: [inflation_factor/radialVelocity]
+               total coefficient: 5.
+               intercept: 5.
+         where:
+         - variable:
+             name: absdiff/radialVelocity
+           minvalue: 0.0001
+         - variable:
+             name: ObsErrorData/radialVelocity
+           value: is_valid
+ 
+       # step 5: if obs error larger than 10, then assign as 10
+       - filter: Perform Action
+         filter variables:
+         - name: radialVelocity
+         action:
+           name: assign error
+           error parameter: 10.
+         where:
+         - variable:
+             name: ObsErrorData/radialVelocity
+           minvalue: 10.
+         - variable:
+             name: ObsErrorData/radialVelocity
+           value: is_valid
+ 
+       # Create temporary ObsErrorData
+       - filter: Variable Assignment
+         apply at iterations: 0,1
+         assignments:
+         - name: TempObsErrorData/radialVelocity
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables:
+               - name: ObsErrorData/radialVelocity
+       # Set ObsError set "error parameter" if < "max value"
+       - filter: Perform Action
+         apply at iterations: 0,1
+         filter variables:
+         - name: radialVelocity
+         action:
+           name: assign error
+           error parameter: 2.0
+         where:
+         - variable:
+             name: ObsErrorData/radialVelocity
+           maxvalue: 2.0
+         - variable:
+             name: ObsErrorData/radialVelocity
+           value: is_valid
+ 
+       # Set ObsError set "error parameter" if > "min value"
+       - filter: Perform Action
+         apply at iterations: 0,1
+         filter variables:
+         - name: radialVelocity
+         action:
+           name: assign error
+           error parameter: 10.
+         where:
+         - variable:
+             name: ObsErrorData/radialVelocity
+           minvalue: 10.
+         - variable:
+             name: ObsErrorData/radialVelocity
+           value: is_valid
+ 
+       # Gross Error Check 
+       - filter: Background Check
+         apply at iterations: 0, 1
+         filter variables:
+         - name: radialVelocity
+         threshold: 2.0
+         action: 
+           name: reject
+         where:
+         - variable: ObsType/radialVelocity
+           is_in: 993
+ 
+       # Re-assign err ObsErrorData <--- TempObsErrorData after gross error check.
+       - filter: Perform Action
+         apply at iterations: 0,1
+         filter variables:
+         - name: radialVelocity
+         action:
+           name: assign error
+           error function: TempObsErrorData/radialVelocity
+         where:
+         - variable:
+             name: TempObsErrorData/radialVelocity
+           value: is_valid

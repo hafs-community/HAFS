@@ -1,0 +1,49 @@
+covariance model: SABER
+  saber central block:
+    saber block name: BUMP_NICAS
+    calibration:
+      general:
+        universe length-scale: {{LOC_H}}
+      io:
+        files prefix: bump/fv3jedi_bumpparameters_nicas_hafs_atm
+        alias:
+        - in code: air_temperature
+          in file: common_250km
+      drivers:
+        multivariate strategy: univariate
+        compute nicas: true
+        write local nicas: true
+      nicas:
+        resolution: 8
+        explicit length-scales: true
+        max horizontal grid size: 120000
+        horizontal length-scale:
+        - groups: *vars_state
+          value: {{LOC_H}}
+        vertical length-scale:
+        - groups: *vars_state
+          value: {{LOC_V}}
+      grids:
+      - model:
+          variables:
+          - air_temperature
+      output model files:
+      - parameter: cor_rh
+        file:
+          filetype: fms restart
+          datapath: bump/
+          filename_core: bumpparameters_nicas_hafs_atm.cor_rh.fv_core.res.nc
+          filename_trcr: bumpparameters_nicas_hafs_atm.cor_rh.fv_tracer.res.nc
+          filename_sfcd: bumpparameters_nicas_hafs_atm.cor_rh.sfc_data.nc
+          filename_sfcw: bumpparameters_nicas_hafs_atm.cor_rh.fv_srf_wnd.res.nc
+          filename_cplr: bumpparameters_nicas_hafs_atm.cor_rh.coupler.res
+      - parameter: cor_rv
+        file:
+          filetype: fms restart
+          datapath: bump/
+          filename_core: bumpparameters_nicas_hafs_atm.cor_rv.fv_core.res.nc
+          filename_trcr: bumpparameters_nicas_hafs_atm.cor_rv.fv_tracer.res.nc
+          filename_sfcd: bumpparameters_nicas_hafs_atm.cor_rv.sfc_data.nc
+          filename_sfcw: bumpparameters_nicas_hafs_atm.cor_rv.fv_srf_wnd.res.nc
+          filename_cplr: bumpparameters_nicas_hafs_atm.cor_rv.coupler.res
+

@@ -1,0 +1,53 @@
+states:
+- datetime: "{{ atmosphere_background_time_iso }}"
+  filetype: fms restart
+  datapath: {{ atmosphere_background_path }}
+  filename_core: {{atmosphere_background_time_prefix}}fv_core.res.nest02.tile2.nc
+  filename_trcr: {{atmosphere_background_time_prefix}}fv_tracer.res.nest02.tile2.nc
+  filename_sfcd: {{atmosphere_background_time_prefix}}sfc_data.nest02.tile2.nc
+  filename_sfcw: {{atmosphere_background_time_prefix}}fv_srf_wnd.res.nest02.tile2.nc
+  filename_cplr: {{atmosphere_background_time_prefix}}coupler.res
+  state variables: {{state_variables}}
+  field io names: &field_io_names
+   eastward_wind: {{eastward_wind}}
+   northward_wind: {{northward_wind}}
+   upward_air_velocity: {{upward_air_velocity}}
+   air_temperature: {{air_temperature}}
+   air_pressure_thickness: {{air_pressure_thickness}}
+   layer_thickness: {{layer_thickness}}
+   water_vapor_mixing_ratio_wrt_moist_air: {{water_vapor_mixing_ratio_wrt_moist_air}}
+   cloud_liquid_water: {{cloud_liquid_water}}
+   cloud_liquid_ice: {{cloud_liquid_ice}}
+   snow_water: {{snow_water}}
+   rain_water: {{rain_water}}
+   graupel: {{graupel}}
+   cloud_ice_number_concentration: {{cloud_ice_number_concentration}}
+   rain_number_concentration: {{rain_number_concentration}}
+   ozone_mass_mixing_ratio: {{ozone_mass_mixing_ratio}}
+   skin_temperature_at_surface: {{skin_temperature_at_surface}}
+   air_pressure_at_surface: {{air_pressure_at_surface}}
+   geopotential_height_times_gravity_at_surface: {{geopotential_height_times_gravity_at_surface}}
+   soilMoistureVolumetric: {{soilMoistureVolumetric}}
+   totalSnowDepth: {{totalSnowDepth}}
+   eastward_wind_at_surface: {{eastward_wind_at_surface}}
+   northward_wind_at_surface: {{northward_wind_at_surface}}
+- datetime: "{{ atmosphere_background_time_iso6 }}"
+  filetype: fms restart
+  datapath: {{ atmosphere_background_path }}
+  filename_core: {{atmosphere_background_time_prefix6}}fv_core.res.nest02.tile2.nc
+  filename_trcr: {{atmosphere_background_time_prefix6}}fv_tracer.res.nest02.tile2.nc
+  filename_sfcd: {{atmosphere_background_time_prefix6}}sfc_data.nest02.tile2.nc
+  filename_sfcw: {{atmosphere_background_time_prefix6}}fv_srf_wnd.res.nest02.tile2.nc
+  filename_cplr: {{atmosphere_background_time_prefix6}}coupler.res
+  state variables: {{state_variables}}
+  field io names: *field_io_names
+- datetime: "{{ atmosphere_background_time_iso9 }}"
+  filetype: fms restart
+  datapath: {{ atmosphere_background_path }}
+  filename_core: {{atmosphere_background_time_prefix9}}fv_core.res.nest02.tile2.nc
+  filename_trcr: {{atmosphere_background_time_prefix9}}fv_tracer.res.nest02.tile2.nc
+  filename_sfcd: {{atmosphere_background_time_prefix9}}sfc_data.nest02.tile2.nc
+  filename_sfcw: {{atmosphere_background_time_prefix9}}fv_srf_wnd.res.nest02.tile2.nc
+  filename_cplr: {{atmosphere_background_time_prefix9}}coupler.res
+  state variables: {{state_variables}}
+  field io names: *field_io_names

@@ -1,0 +1,135 @@
+# This part is for testing only. Normally this would just show algorithm: <algorithm>
+# -----------------------------------------------------------------------------------
+supported_algorithms:
+- fv3jedi_4denvar
+- fv3jedi_3denvar
+#- hofx4d
+#- local_ensemble_da
+# Local algorithms
+#- fv3jedi_fv3inc_lgetkf
+#- fv3jedi_fv3inc_variational
+
+# This is overwritten in the testing but allows command line test of jcb
+#algorithm: fv3jedi_fv3inc_variational
+#algorithm: 3dvar
+algorithm: _ALGORITHM_
+
+# Search path for model and obs for JCB (relative for the submodule, or can be absolute)
+# --------------------------------------------------------------------------------------
+app_path_algorithm: hdas/algorithm/atmosphere
+app_path_model: hdas/model/atmosphere
+app_path_observations: hdas/observations/atmosphere
+app_path_observation_chronicle: hdas/observation_chronicle/atmosphere
+
+
+# Places where we deviate from the generic file name of a yaml
+# ------------------------------------------------------------
+#final_increment_file: atmosphere_final_increment_gaussian
+output_file: atmosphere_output
+output_ensemble_increments_file: atmosphere_output_ensemble_increments_gaussian
+model_file: atmosphere_model_pseudo
+initial_condition_file: atmosphere_background
+background_error_file: atmosphere_background_error_4denvar
+
+
+# Global analysis things
+# ----------------------
+window_begin: '_INITIALDATE_'
+window_length: PT6H
+window_subwindow: PT3H
+bound_to_include: begin
+parallel_subw: false
+minimizer: DRPCG
+final_diagnostics_departures: oman
+analysis_variables: [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+number_of_outer_loops: 2
+distribution: RoundRobin
+
+# Testing
+# -------
+
+do_testing: false
+
+# Model things
+# ------------
+HH: '_HH_'
+TOTAL_TASKS: '_TOTAL_TASKS_'
+MIN_LAT: _MIN_LAT_
+MAX_LAT: _MAX_LAT_
+MIN_LON: _MIN_LON_
+MAX_LON: _MAX_LON_
+LOC_H: _LOC_H_
+LOC_V: _LOC_V_
+atmosphere_layout_x: _LAYOUTX_
+atmosphere_layout_y: _LAYOUTY_
+atmosphere_npx_ges: _NPX_ #not sure if correct
+atmosphere_npy_ges: _NPY_ #not sure if correct
+atmosphere_npz_ges: _NPZ_
+atmosphere_npx_anl: _NPX_ #not sure if correct
+atmosphere_npy_anl: _NPY_ #not sure if correct
+atmosphere_npz_anl: _NPZ_
+atmosphere_fv3jedi_files_path: ./
+atmosphere_ntiles: 1
+atmosphere_io_layout_x: 1
+atmosphere_io_layout_y: 1
+atmosphere_akbk_file: _FV3_AKBK_FILE_
+gradient_norm_reduction: 1e-3
+ninner: 50
+
+# Background
+atmosphere_background_path: bkg/
+atmosphere_background_ensemble_path: "ensemble_data/mem%mem%"
+
+atmosphere_variational_history_prefix: "bkg_"
+atmosphere_ensemble_history_prefix: "ens_"
+
+atmosphere_background_time_iso: '_INITIALDATE_'
+atmosphere_background_time_iso6: '_ANALYSISDATE_'
+atmosphere_background_time_iso9: '_ENDDATE_'
+atmosphere_background_time_prefix: '_YYMODD3_._HH3_0000.'
+atmosphere_background_time_prefix6: '_YYMODD6_._HH6_0000.'
+atmosphere_background_time_prefix9: '_YYMODD9_._HH9_0000.'
+state_variables: [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_thickness,air_pressure_at_surface,layer_thickness,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,rain_water,snow_water,graupel,cloud_ice_number_concentration,rain_number_concentration,ozone_mass_mixing_ratio,geopotential_height_times_gravity_at_surface,slmsk,sheleg,skin_temperature_at_surface,vtype,stype,vfrac,stc,soilMoistureVolumetric,totalSnowDepth,eastward_wind_at_surface,northward_wind_at_surface,f10m]
+eastward_wind: ua
+northward_wind: va
+upward_air_velocity: W
+air_temperature: T
+air_pressure_thickness: delp
+layer_thickness: DZ
+water_vapor_mixing_ratio_wrt_moist_air: sphum
+cloud_liquid_water: liq_wat
+cloud_liquid_ice: ice_wat
+snow_water: snowwat
+rain_water: rainwat
+graupel: graupel
+cloud_ice_number_concentration: ice_nc
+rain_number_concentration: rain_nc
+ozone_mass_mixing_ratio: o3mr
+skin_temperature_at_surface: tsea
+air_pressure_at_surface: ps
+geopotential_height_times_gravity_at_surface: phis
+soilMoistureVolumetric: smc
+totalSnowDepth: snwdph
+eastward_wind_at_surface: u_srf
+northward_wind_at_surface: v_srf
+
+# Background error
+atmosphere_bump_data_directory: berror
+atmosphere_gsibec_path: berror
+atmosphere_number_ensemble_members: _ENS_SIZE_
+atmosphere_layout_gsib_x: 16
+atmosphere_layout_gsib_y: 10
+
+# Forecasting
+atmosphere_forecast_length: PT6H
+atmosphere_forecast_timestep: PT3H
+
+# Write final increment on Gaussian grid in variational
+atmosphere_final_increment_prefix: "./anl/atminc."
+
+
+# Observation things
+# ------------------
+crtm_coefficient_path: "./crtm"
+
+observations:

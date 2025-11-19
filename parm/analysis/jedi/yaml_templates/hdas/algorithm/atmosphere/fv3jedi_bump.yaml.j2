@@ -1,0 +1,20 @@
+# Set the model component to be used in later configuration
+{% set model_component = model_component|default('model_component') %}
+
+  geometry:
+{% filter indent(width=4) %}
+{% set geometry_background_file = geometry_background_file|default(model_component ~ 'geometry_background', true) ~ '.yaml.j2' %}
+{% include geometry_background_file %}
+{% endfilter %}
+
+  background:
+{% filter indent(width=4) %}
+{% set background_file = background_file | default(model_component ~ 'background_3denvar', true) ~ '.yaml.j2' %}
+{% include background_file %}
+{% endfilter %}
+
+  background error:
+{% filter indent(width=4) %}
+{% set background_error_file = model_component ~ 'background_error_bump.yaml.j2' %}
+{% include background_error_file %}
+{% endfilter %}

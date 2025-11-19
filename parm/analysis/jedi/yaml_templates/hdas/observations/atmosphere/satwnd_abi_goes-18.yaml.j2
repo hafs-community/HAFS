@@ -1,0 +1,551 @@
+     - obs space:
+         name: satwind_goes-18
+         obsdatain:
+           engine:
+             type: H5File
+             obsfile: obs/hafs.t{{HH}}z.satwnd_abi_goes-18.nc
+             missing file action: "warn"
+         obsdataout:
+           engine:
+             type: H5File
+             obsfile: hofx/diag_satwnd_abi_goes-18_t{{HH}}z.nc
+         io pool:
+           max pool size: {{TOTAL_TASKS}}
+         simulated variables: [windEastward, windNorthward]
+ 
+       # Observation Operator
+       # --------------------
+       obs operator:
+         name: VertInterp
+         hofx scaling field: SurfaceWindScalingPressure
+         hofx scaling field group: DerivedVariables
+ 
+       # Linear Observation Operator
+       # ---------------------------
+       linear obs operator:
+         name: VertInterp
+ 
+       # Observation Pre Filters for reduce obs space
+       # ------------------------------
+       obs pre filters:
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/latitude
+           minvalue: {{MIN_LAT}}
+           maxvalue: {{MAX_LAT}}
+         action:
+           name: reduce obs space
+ 
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/longitude
+           minvalue: {{MIN_LON}}
+           maxvalue: {{MAX_LON}}
+         action:
+           name: reduce obs space
+ 
+       # Observation Prior Filters (QC)
+       # ------------------------------
+       obs prior filters:
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         test variables:
+         - name: GeoVaLs/observable_domain_mask
+           flag all filter variables if any test variable is out of bounds: true
+           minvalue: 0.0
+           maxvalue: 0.5
+ 
+       - filter: Variable Transforms
+         Transform: SurfaceWindScalingPressure
+         SkipWhenNoObs: false
+ 
+       # Observation Post Filters (QC)
+       # -----------------------------
+       obs post filters:
+       # Assign the initial observation error, based on height/pressure
+       # Hard-wiring to prepobs_errtable.global by Type
+       # ObsError is currently not updating in diag file, but passes directly to EffectiveError when no inflation is specified in YAML
+       # Type 240 (GOES SWIR): Assigned all dummy values in prepobs_errtable.global
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 240
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/ObsErrorModelStepwiseLinear
+             options:
+               xvar:
+                 name: MetaData/pressure
+               xvals: [110000., 0.]  #Pressure (Pa)
+               errors: [1000000000., 1000000000.]
+       # Type 245 (GOES LWIR): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 245
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/ObsErrorModelStepwiseLinear
+             options:
+               xvar:
+                 name: MetaData/pressure
+               xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+                 70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+                 25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+                 500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
+               errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+                 10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+                 14., 14., 14., 14., 14., 14.]
+       # Type 246 (GOES cloud-top WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 246
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/ObsErrorModelStepwiseLinear
+             options:
+               xvar:
+                 name: MetaData/pressure
+               xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+                 70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+                 25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+                 500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
+               errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+                 10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+                 14., 14., 14., 14., 14., 14.]
+       # Type 247 (GOES clear-sky WV): I am assuming these are halved relative to prepobs_errtable.global, based on read_satwnd.f90: L1410–1416
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 247
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/ObsErrorModelStepwiseLinear
+             options:
+               xvar:
+                 name: MetaData/pressure
+               xvals: [110000., 105000., 100000., 95000., 90000., 85000., 80000., 75000.,
+                 70000., 65000., 60000., 55000., 50000., 45000., 40000., 35000., 30000.,
+                 25000., 20000., 15000., 10000., 7500., 5000., 4000., 3000., 2000., 1000.,
+                 500., 400., 300., 200., 100., 0.]                                                                                                                                                                                              #Pressure (Pa)
+               errors: [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.8, 7.8, 8., 8., 8.2,
+                 10., 12., 12.6, 13.2, 14., 14., 14., 14., 14., 14., 14., 14., 14., 14.,
+                 14., 14., 14., 14., 14., 14.]
+       # Type 251 (GOES VIS): Assigned all dummy values
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 251
+         action:
+           name: assign error
+           error function:
+             name: ObsFunction/ObsErrorModelStepwiseLinear
+             options:
+               xvar:
+                 name: MetaData/pressure
+               xvals: [110000., 0.]  #Pressure (Pa)
+               errors: [1000000000., 1000000000.]
+       # sanity-check criteria
+       # Observation Range Sanity Check
+       # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         minvalue: -130.
+         maxvalue: 130.
+         action:
+           name: reject
+ 
+       # Velocity Sanity Check
+       # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         test variables:
+         - name: ObsFunction/Velocity
+         maxvalue: 130.
+         action:
+           name: reject
+ 
+       # GSI read routine QC (part-1)
+       # Exclude Type 251 (VIS) --- obs tossed without passing to setup routine
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 251
+         action:
+           name: reject
+ 
+       # Exclude data with satellite zenith angle > 68 for all types --- obs tossed without passing to setup routine
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         test variables:
+         - name: MetaData/satelliteZenithAngle
+         maxvalue: 68.
+         action:
+           name: reject
+ 
+       # Reject obs with pressure < 12500 pa --- obs tosed without passing to setup routine
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         test variables:
+         - name: MetaData/pressure
+         minvalue: 12500.
+         action:
+           name: reject
+ 
+       # Exclude data over non-water surface type where latitude > 20N for Type 240 (IRSW) and Type 245 (IRLW)  --- obs tossed and not passed to setup routine
+       # Notes: This check was missing, so added (eliu)
+       #        Replace land_type_index_NPOSS with water_area_fraction (eliu)
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 240, 245
+         - variable: MetaData/latitude
+           minvalue: 20.
+         test variables:
+         - name: GeoVaLs/water_area_fraction
+         minvalue: 0.99
+         action:
+           name: reject
+ 
+       # GSI read routine QC (part-2)
+       # Reject obs with qiWithoutForecast < 90. OR > 100.
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         test variables:
+         - name: MetaData/qiWithoutForecast
+         minvalue: 90.
+         maxvalue: 100.
+         action:
+           name: reject
+ 
+       # Reject obs with pressure < 15000 pa.
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         test variables:
+         - name: MetaData/pressure
+         minvalue: 15000.
+         action:
+           name: reject
+ 
+       # Reject obs with pressure < 70000 pa. when Type=251
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         - variable: ObsType/windEastward
+           is_in: 251
+         test variables:
+         - name: MetaData/pressure
+         minvalue: 70000.
+         action:
+           name: reject
+ 
+       # Reject obs with pressure > 30000. when Type=246
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         - variable: ObsType/windEastward
+           is_in: 246
+         test variables:
+         - name: MetaData/pressure
+         maxvalue: 30000.
+         action:
+           name: reject
+ 
+       # Reject obs with pressure > 85000. when isli=1 (land surface)
+       # Notes:  Replace land_type_index_NPOESS with land_area_fraction (eliu)
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         - variable: GeoVaLs/land_area_fraction
+           minvalue: 0.99
+         test variables:
+         - name: MetaData/pressure
+         maxvalue: 85000.
+         action:
+           name: reject
+ 
+       # Reject obs with pct1 (Coeff. of Var.) outside of 0.04–0.5, Type [240,245,246,251] ONLY
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         - variable: ObsType/windEastward
+           is_in: 240, 245, 246, 251
+         test variables:
+         - name: MetaData/coefficientOfVariation
+         minvalue: 0.04
+         maxvalue: 0.5
+         action:
+           name: reject
+ 
+       # NESDIS obs are also subject to the experr_norm test defined as:
+       #
+       # if (10. - 0.1*(expectedError))/(ob_speed)>0.9, or ob_speed<0.1, reject, applies to NESDIS winds
+       #
+       # CLEARED: With caveat that float precision/handling differences can generate different acceptance criteria
+       # between UFO and GSI for observations with an experr_norm value right around the maxvalue.
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/satelliteIdentifier
+           is_in: 250-299
+         test variables:
+         - name: ObsFunction/SatWindsErrnormCheck
+         maxvalue: 0.9
+         action:
+           name: reject
+ 
+       # Reject all Type=240 (GOES SWIR) AMVs: These are not currently assimilated in GSI and they have missing-values
+       # assigned to ob-errors
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 240
+         action:
+           name: reject
+ 
+       # GSI setupw routine QC
+       # Reject any ob Type [240–260] when pressure greater than 950 mb.
+       # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 240-260
+         test variables:
+         - name: MetaData/pressure
+         maxvalue: 95001.
+         action:
+           name: reject
+ 
+       # GOES IR (245) reject when pressure between 399 and 801 mb.
+       #   # CLEARED: minvalue/maxvalue are >=/<=, not >/<, so editing range by 1 Pa
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: MetaData/pressure
+           minvalue: 39901.
+           maxvalue: 80099.
+         - variable: ObsType/windEastward
+           is_in: 245
+         action:
+           name: reject
+ 
+       # GOES WV (246, 250, 254), reject when pressure greater than 399 mb.
+       # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 246, 250, 254
+         test variables:
+         - name: MetaData/pressure
+         maxvalue: 39900.
+         action:
+           name: reject
+ 
+       # Multiple satellite platforms, reject when pressure is more than 50 mb above tropopause.
+       # CLEARED: minvalue is rejecting <, not <= as per a Perform Action, so threshold is unchanged
+       # Notes (eliu): This tropopause check reject too many obs; probably due to tropopause pressure estimation
+       #               Turn this check off for now.
+       #               Need to check if troposphere pressure was implemented correctly in fv3-jed
+       - filter: Difference Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         reference: GeoVaLs/tropopause_pressure
+         value: MetaData/pressure
+         minvalue: -5000.                   # 50 hPa above tropopause level, negative p-diff
+         action:
+           name: reject
+ 
+       # GOES (247) reject any observation with a /=0 surface type (non-water
+       # surface) within 110 hPa of the surface pressure (as part of the LNVD # check).
+       # NOT EXPLICITLY CLEARED: No obs in this range in file, so 0 Bounds Check rejects (which is correct) but essentially untested
+       # Notes (eliu): Replace land_type_index_NPOESS with land_area_fraction.
+       - filter: Difference Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable:
+             name: GeoVaLs/water_area_fraction
+           maxvalue: 0.99
+         - variable:
+             name: ObsType/windEastward
+           is_in: 247
+         reference: GeoVaLs/air_pressure_at_surface
+         value: MetaData/pressure
+         maxvalue: -11000.                   # within 110 hPa above surface pressure, negative p-diff
+         action:
+           name: reject
+ 
+       # Reject GOES (247) when difference of wind direction is more than 50 degrees.
+       # CLEARED: maxvalue is rejecting >, not >= as per a Perform Action, so threshold is unchanged
+       - filter: Bounds Check
+         filter variables:
+         - name: windEastward
+         - name: windNorthward
+         where:
+         - variable: ObsType/windEastward
+           is_in: 247
+         test variables:
+         - name: ObsFunction/WindDirAngleDiff
+         maxvalue: 50.
+         action:
+           name: reject
+       # All satwinds must adjust errors based on ObsErrorFactorPressureCheck
+       # prior to the SPDB check (i.e. the gross-error check). The gross-error
+       # check uses the adjusted errors for error-bound tightening and rejection,
+       # so this check has to come first. This check will inflate errors for obs
+       # that are too close to either the model top or bottom.
+       # Notes (eliu): GMAO added a required parameter: adjusted_error_name.
+       - filter: Perform Action
+         filter variables:
+         - name: windEastward
+         where:
+         - variable:
+             name: ObsType/windEastward
+           is_in: 240-260
+         action:
+           name: inflate error
+           inflation variable:
+             name: ObsFunction/ObsErrorFactorPressureCheck
+             options:
+               surface_obs: false
+               variable: windEastward
+               inflation factor: 4.0
+ 
+       - filter: Perform Action
+         filter variables:
+         - name: windNorthward
+         where:
+         - variable:
+             name: ObsType/windNorthward
+           is_in: 240-260
+         action:
+           name: inflate error
+           inflation variable:
+             name: ObsFunction/ObsErrorFactorPressureCheck
+             options:
+               variable: windNorthward
+               inflation factor: 4.0
+ 
+       # All satwinds subject to a gross-error check that contains significant
+       # modifiers for satwinds with a negative speed-bias. ALL wind gross-error
+       # checks are currently being done by the SatWindsSPDBCheck.
+       # CLEARED
+       - filter: Background Check
+         filter variables:
+         - name: windEastward
+         function absolute threshold:
+         - name: ObsFunction/WindsSPDBCheck
+           options:
+             wndtype: [240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252,
+               253, 254, 255, 256, 257, 258, 259, 260]
+             cgross: [2.5, 2.5, 2.5, 1.5, 2.5, 1.3, 1.3, 2.5, 2.5, 2.5, 2.5, 1.3, 2.5,
+               1.5, 1.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]
+             error_min: [1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4,
+               1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4]
+             error_max: [6.1, 6.1, 15.0, 15.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0,
+               20.0, 20.0, 20.0, 20.0, 20.1, 20.1, 20.1, 20.1, 20.1, 20.1]
+             variable: windEastward
+         action:
+           name: reject
+ 
+       - filter: Background Check
+         filter variables:
+         - name: windNorthward
+         function absolute threshold:
+         - name: ObsFunction/WindsSPDBCheck
+           options:
+             wndtype: [240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252,
+               253, 254, 255, 256, 257, 258, 259, 260]
+             cgross: [2.5, 2.5, 2.5, 1.5, 2.5, 1.3, 1.3, 2.5, 2.5, 2.5, 2.5, 1.3, 2.5,
+               1.5, 1.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5]
+             error_min: [1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4,
+               1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4, 1.4]
+             error_max: [6.1, 6.1, 15.0, 15.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0,
+               20.0, 20.0, 20.0, 20.0, 20.1, 20.1, 20.1, 20.1, 20.1, 20.1]
+             variable: windNorthward
+         action:
+           name: reject
