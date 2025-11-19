@@ -8,7 +8,7 @@ BUILD_MODE=${BUILD_MODE:-Release}
 
 cwd=$(pwd)
 
-#cp hafs_forecast.fd/FV3/ccpp/suites_not_used/suite_FV3_HAFS_v1* hafs_forecast.fd/FV3/ccpp/suites/
+#cp hafs_forecast.fd/UFSATM/ccpp/suites_not_used/suite_FV3_HAFS_v1* hafs_forecast.fd/FV3/ccpp/suites/
 cd hafs_forecast.fd/tests
 
 if [ "${BUILD_MODE}" = Release ]; then

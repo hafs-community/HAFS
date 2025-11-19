@@ -458,7 +458,7 @@ export cpl_atm_ocn={cpl_atm_ocn}
 export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
-export icplocn2atm={icplocn2atm}
+export use_oceanuv={use_oceanuv}
 
 export run_wave={run_wave}
 export wave_model={wave_model}

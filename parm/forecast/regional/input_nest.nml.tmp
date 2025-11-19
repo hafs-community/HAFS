@@ -226,7 +226,7 @@
   cplflx         = @[cplflx]
   cplice         = .false.
   cplocn2atm     = @[cplocn2atm]
-  icplocn2atm    = @[icplocn2atm]
+  use_oceanuv    = @[use_oceanuv]
   cplwav         = @[cplwav]
   cplwav2atm     = @[cplwav2atm]
   cpl_imp_mrg    = @[merge_import]
