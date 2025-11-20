@@ -1,0 +1,30 @@
+covariance model: ensemble
+members from template:
+  template:
+  - datetime: "{{ atmosphere_background_time_iso6 }}"
+    filetype: fms restart
+    state variables: {{analysis_variables}}
+    field io names: *field_io_names
+    datapath: {{ atmosphere_background_ensemble_path }}
+    filename_core: {{atmosphere_background_time_prefix6}}fv_core.res.nest02.tile2.nc
+    filename_trcr: {{atmosphere_background_time_prefix6}}fv_tracer.res.nest02.tile2.nc
+    filename_sfcd: {{atmosphere_background_time_prefix6}}sfc_data.nest02.tile2.nc
+    filename_sfcw: {{atmosphere_background_time_prefix6}}fv_srf_wnd.res.nest02.tile2.nc
+    filename_cplr: {{atmosphere_background_time_prefix6}}coupler.res
+  pattern: "%mem%"
+  nmembers: {{atmosphere_number_ensemble_members}}
+  zero padding: 3
+localization:
+  localization method: SABER
+  saber central block:
+    saber block name: BUMP_NICAS
+    active variables: {{analysis_variables}}
+    read:
+      io:
+        files prefix: bump/fv3jedi_bumpparameters_nicas_hafs_atm
+        alias:
+        - in code: common
+          in file: common_250km
+      drivers:
+        multivariate strategy: duplicated
+        read local nicas: true

@@ -350,7 +350,7 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="atms_npp amsua_n19 atms_n20 iasi_metop-b ssmis_f17 abi_g16 abi_g18 amsua_metop-b amsua_n18"
-convtypes="adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 aircft_airTemperature_130 aircft_airTemperature_131 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr_rw_993 aircar_airTemperature_133 aircar_specificHumidity_133 aircar_winds_233 hdob_airTemperature_136 hdob_specificHumidity_136 hdob_winds_236 drpsnd_airTemperature_137 drpsnd_specificHumidity_137 drpsnd_winds_237"
+convtypes="sfcshp_airTemperature_180 sfcshp_specificHumidity_180 sfcshp_winds_280 adpsfc_specificHumidity_181 adpsfc_stationPressure_181 adpsfc_stationPressure_187 adpsfc_winds_281 adpsfc_winds_287 adpupa_airTemperature_120 adpupa_winds_220 adpupa_specificHumidity_120 aircft_winds_230 aircft_winds_231 aircft_winds_234 aircft_winds_235 aircft_airTemperature_130 aircft_airTemperature_131 satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr_rw_993 tldplr_rw_992 aircar_airTemperature_133 aircar_specificHumidity_133 aircar_winds_233 hdob_airTemperature_136 hdob_specificHumidity_136 hdob_winds_236 drpsnd_airTemperature_137 drpsnd_specificHumidity_137 drpsnd_winds_237"
 convfiles="adpsfc adpupa aircft satwnd_abi_goes-16 satwnd_abi_goes-18 satwhr_abi_goes-16 satwhr_abi_goes-18 satwhr_abi_goes-19 tldplr aircar hdob drpsnd"
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
 mkdir ${DATA}/obs
@@ -427,7 +427,7 @@ fi
 cd ${DATA}
 export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
 export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
-export jcb_yaml_dir=${PARMjedi}/yaml_templates/jcb-hdas/test/client_integration
+export jcb_yaml_dir=${PARMjedi}/yaml_templates/hdas/test/client_integration
 mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_nest.nml
