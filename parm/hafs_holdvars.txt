@@ -290,6 +290,7 @@ export iems={iems}
 export use_lpt={use_lpt}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
+export do_rrtmgp={do_rrtmgp}
 export iaer={iaer}
 export lseaspray={lseaspray}
 export imfshalcnv={imfshalcnv}

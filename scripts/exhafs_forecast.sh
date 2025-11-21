@@ -858,6 +858,15 @@ ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
 
+if [ ${do_rrtmgp:-.false.} = .true. ]; then
+# ${NLN} $FIXam/rrtmgp-data-lw-g128-210809.nc .
+# ${NLN} $FIXam/rrtmgp-data-sw-g112-210809.nc .
+  ${NLN} $FIXam/rrtmgp-gas-lw-g078.nc .
+  ${NLN} $FIXam/rrtmgp-gas-sw-g075.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-lw.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-sw.nc .
+fi
+
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
 done
