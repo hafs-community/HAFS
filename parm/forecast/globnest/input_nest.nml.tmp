@@ -251,7 +251,6 @@
   rrtmgp_nGptsLW = 78
   rrtmgp_nBandsLW = 16
   rrtmgp_nBandsSW = 14
-  doGP_cldoptics_LUT = .true.
   doGP_lwscat    = .true.
   do_sppt        = @[do_sppt]
   do_shum        = @[do_shum]
