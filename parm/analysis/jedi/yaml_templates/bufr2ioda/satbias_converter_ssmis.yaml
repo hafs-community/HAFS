@@ -16,13 +16,13 @@ default predictors: &default_preds
 
 output:
 - sensor: ssmis_f17
-  output file: output/satbias_ssmis_f17_#HH#.nc
+  output file: output/satbias_radiance_ssmis_f17_#HH#.nc
   predictors: *default_preds
 
 - sensor: ssmis_f18
-  output file: output/satbias_ssmis_f18_#HH#.nc
+  output file: output/satbias_radiance_ssmis_f18_#HH#.nc
   predictors: *default_preds
 
 - sensor: ssmis_f19
-  output file: output/satbias_ssmis_f19_#HH#.nc
+  output file: output/satbias_radiance_ssmis_f19_#HH#.nc
   predictors: *default_preds

@@ -427,7 +427,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
   sattypes="atms ssmis amsua iasi gsrcsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g17 abi_g18"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_goes-16 abi_goes-17 abi_goes-18"
   obstypes="${radtypes} ${convtypes}"
   IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
@@ -506,9 +506,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
     bufr=$1
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
-       python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+       python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
       fi
     fi
     shift
@@ -521,7 +521,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       sed -e "s|#ANADATE#|${ANADATE}|g" \
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE} >& log_${file}
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         # Extra Check on message type NC005099
      	SUBSET_TO_FIND="5099"
@@ -532,16 +532,16 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
      	if (cd "${TEMP_DIR}" && split_by_subset "${FILENAME_ABS}") | grep -q "${SUBSET_TO_FIND}"; then
      	  echo "Success: Subset ${SUBSET_TO_FIND} found."
      	  echo "Proceeding with the Python script..."
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_hi${file}_{splits/satId}.nc
      	else
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}.nc ${CDATE}
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE}
       else
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.${file}_{splits/satId}.nc
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc
       fi
     fi
     shift
@@ -556,13 +556,13 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   done
 
   for file in ${radtypes}; do
-   if [ -s ${output_dir}/satbias_${file}_t${cyc}z.nc ]; then
-    ${NCP} ${output_dir}/satbias_${file}_t${cyc}z.nc ${output_dir}/satbias_${file}_t${cyc}z_cov.nc
+   if [ -s ${output_dir}/satbias_radiance_${file}_t${cyc}z.nc ]; then
+    ${NCP} ${output_dir}/satbias_radiance_${file}_t${cyc}z.nc ${output_dir}/satbias_radiance_${file}_t${cyc}z_cov.nc
    fi
   done
 ########## Getting lapse rate for each satellite radiance from gdas ################
   for file in ${radtypes}; do
-    awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/${file}.tlapse.txt
+    awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/radiance_${file}.tlapse.txt
   done
 
 ########## Converting ATMS NPP/N20 to ioda nc Done #################

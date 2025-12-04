@@ -85,7 +85,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "./output/hafs.#HH#.amsua_{splits/satId}.nc"
+      obsdataout: "./output/hafs.#HH#.radiance_amsua_{splits/satId}.nc"
 
       dimensions:
         - name: Channel

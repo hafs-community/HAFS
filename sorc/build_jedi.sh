@@ -23,5 +23,6 @@ module use $build_dir/hafs_jedi.fd/modulefiles
 module load HDAS/$target.intel
 python jcb_client_init.py
 cd ${build_dir}/hafs_jedi.fd/sorc/jcb/src/jcb/configuration/apps
+rm hdas
 ln -sf ${build_dir}/../parm/analysis/jedi/yaml_templates/hdas .
 cd ${build_dir}

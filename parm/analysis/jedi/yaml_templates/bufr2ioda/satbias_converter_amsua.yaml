@@ -16,17 +16,17 @@ default predictors: &default_preds
 
 output:
 - sensor: amsua_metop-a
-  output file: output/satbias_amsua_metop-a_#HH#.nc
+  output file: output/satbias_radiance_amsua_metop-a_#HH#.nc
   predictors: *default_preds
 
 - sensor: amsua_metop-b
-  output file: output/satbias_amsua_metop-b_#HH#.nc
+  output file: output/satbias_radiance_amsua_metop-b_#HH#.nc
   predictors: *default_preds
 
 - sensor: amsua_n18
-  output file: output/satbias_amsua_n18_#HH#.nc
+  output file: output/satbias_radiance_amsua_n18_#HH#.nc
   predictors: *default_preds
 
 - sensor: amsua_n19
-  output file: output/satbias_amsua_n19_#HH#.nc
+  output file: output/satbias_radiance_amsua_n19_#HH#.nc
   predictors: *default_preds

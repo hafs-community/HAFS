@@ -1,0 +1,491 @@
+     - obs space:
+         name: radiance_abi_g18
+         obsdatain:
+           engine:
+             type: H5File
+             obsfile: obs/hafs.t{{HH}}z.radiance_abi_g18.nc
+             missing file action: "warn"
+         obsdataout:
+           engine:
+             type: H5File
+             obsfile: hofx/diag_radiance_abi_g18_t{{HH}}z.nc
+         io pool:
+           max pool size: {{TOTAL_TASKS}}
+         simulated variables: [brightnessTemperature]
+         channels: &radiance_abi_g18_channels [7-16]
+ 
+       # Observation Operator
+       # --------------------
+       obs operator:
+         name: CRTM
+         Absorbers: [H2O, O3, CO2]
+         Clouds: [Water, Ice]
+         Cloud_Fraction: 1.0
+         obs options:
+           Sensor_ID: abi_g18
+           EndianType: little_endian
+           CoefficientPath: crtm/
+         linear obs operator:
+           Absorbers: [H2O, O3]
+ 
+       # Observation Bias Correction (VarBC)
+       # -----------------------------------
+       obs bias:
+         input file: obs/satbias_radiance_abi_g18_t{{HH}}z.nc
+         output file: bc/out_satbias_radiance_abi_g18_t{{HH}}z.nc
+         variational bc:
+           predictors:
+           - name: constant
+           - name: lapseRate
+             order: 2
+             tlapse: obs/radiance_abi_g18.tlapse.txt
+           - name: lapseRate
+             tlapse: obs/radiance_abi_g18.tlapse.txt
+           - name: emissivityJacobian
+           - name: sensorScanAngle
+             var_name: sensorScanPosition
+             order: 4
+           - name: sensorScanAngle
+             var_name: sensorScanPosition
+             order: 3
+           - name: sensorScanAngle
+             var_name: sensorScanPosition
+             order: 2
+           - name: sensorScanAngle
+             var_name: sensorScanPosition
+         covariance:
+           minimal required obs number: 20
+           variance range: [1.0e-6, 10.0]
+           step size: 1.0e-4
+           largest analysis variance: 10000.0
+           prior:
+             input file: obs/satbias_radiance_abi_g18_t{{HH}}z_cov.nc
+             inflation:
+               ratio: 1.1
+               ratio for small dataset: 2.0
+           output file: bc/out_satbias_radiance_abi_g18_t{{HH}}z_cov.nc
+ 
+       # Observation Filters (QC)
+       # ------------------------
+       obs pre filters:
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/latitude
+           minvalue: {{MIN_LAT}}
+           maxvalue: {{MAX_LAT}}
+         action:
+           name: reduce obs space
+ 
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/longitude
+           minvalue: {{MIN_LON}}
+           maxvalue: {{MAX_LON}}
+         action:
+           name: reduce obs space
+ 
+       obs prior filters:
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         action:
+           name: assign error
+           error parameter vector: &radiance_abi_g18_obserr [1.4,3.0,2.5,2.2,2.0,2.0,2.0,2.0,2.0,2.0]
+ 
+       - filter: Variable Assignment
+         assignments:
+         - name: DerivedMetaData/surfaceFlag
+           type: int
+           function:
+             name: IntObsFunction/Conditional
+             options:
+               defaultvalue: 4
+               firstmatchingcase: true
+               cases:
+               - where:
+                 - variable:
+                     name: GeoVaLs/water_area_fraction
+                   minvalue: 0.99
+                 value: 0
+               - where:
+                 - variable:
+                     name: GeoVaLs/land_area_fraction
+                   minvalue: 0.99
+                 value: 1
+               - where:
+                 - variable:
+                     name: GeoVaLs/ice_area_fraction
+                   minvalue: 0.99
+                 value: 2
+               - where:
+                 - variable:
+                     name: GeoVaLs/surface_snow_area_fraction
+                   minvalue: 0.99
+                 value: 3
+       - filter: Variable Assignment
+         assignments:
+         - name: DerivedMetaData/surfaceParam
+           type: int
+           function:
+             name: IntObsFunction/Conditional
+             options:
+               defaultvalue: 0
+               firstmatchingcase: true
+               cases:
+               - where:
+                 - variable:
+                     name: GeoVaLs/water_area_fraction
+                   minvalue: 0.99
+                 value: 30
+               - where:
+                 - variable:
+                     name: GeoVaLs/land_area_fraction
+                   minvalue: 0.99
+                 value: 15
+               - where:
+                 - variable:
+                     name: GeoVaLs/ice_area_fraction
+                   minvalue: 0.99
+                 value: 20
+               - where:
+                 - variable:
+                     name: GeoVaLs/surface_snow_area_fraction
+                   minvalue: 0.99
+                 value: 15
+ 
+       - filter: Variable Assignment
+         assignments:
+         - name: DerivedMetaData/thinningCriteria
+           type: int
+           function:
+             name: IntObsFunction/Arithmetic
+             options:
+               variables:
+               - name: DerivedMetaData/surfaceParam
+               coefs: [1]
+ 
+       obs post filters:
+       - filter: Bounds Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         test variables:
+         - name: GeoVaLs/observable_domain_mask
+           flag all filter variables if any test variable is out of bounds: true
+           minvalue: 0.0
+           maxvalue: 0.5
+ 
+       # Satellite Zenith Angle Check
+       - filter: Bounds Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         test variables:
+         - name: MetaData/sensorZenithAngle
+         maxvalue: 65.
+         action:
+           name: reject
+ 
+      #from read_abi: Reject when cloud fraction is more than 30
+       - filter: Domain Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7-16
+         where:
+         - variable:
+             name: MetaData/cloudAmount
+             channels: 8
+           maxvalue: 30.
+ 
+      #from read_abi: WV Channels 8-10 scene consistency check SDTB>1.3
+       - filter: Domain Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7-16
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature
+             channels: 8-10
+           maxvalue: 1.3
+           max_exclusive: true
+ 
+      # Thinning
+       - filter: Gaussian Thinning
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         horizontal_mesh: 45
+         use_reduced_horizontal_grid: true
+         distance_norm: maximum
+         time_mesh: 'PT06H'
+         time_min: "{{atmosphere_background_time_iso}}"
+         time_max: "{{atmosphere_background_time_iso9}}"
+         priority_variable: DerivedMetaData/thinningCriteria
+         action:
+           name: reject
+ 
+      #Surface type check
+       - filter: RejectList
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7, 11-16
+         where:
+         - variable:
+             name: GeoVaLs/land_area_fraction
+           minvalue: 0.99
+ 
+       - filter: RejectList
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         where:
+         - variable:
+             name: GeoVaLs/surface_snow_area_fraction
+           minvalue: 0.99
+ 
+       - filter: RejectList
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         where:
+         - variable:
+             name: GeoVaLs/ice_area_fraction
+           minvalue: 0.99
+ 
+       - filter: RejectList
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         where:
+         - variable:
+             name: GeoVaLs/land_area_fraction
+           maxvalue: 0.99
+           max_exclusive: true
+         - variable:
+             name: GeoVaLs/water_area_fraction
+           maxvalue: 0.99
+           max_exclusive: true
+         - variable:
+             name: GeoVaLs/ice_area_fraction
+           maxvalue: 0.99
+           max_exclusive: true
+         - variable:
+             name: GeoVaLs/surface_snow_area_fraction
+           maxvalue: 0.99
+           max_exclusive: true
+ 
+      #BT range check
+       - filter: Bounds Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         minvalue: 0.0
+         maxvalue: 1000.0
+         action:
+           name: reject
+ 
+      #Model top transmittance check
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         action:
+           name: inflate error
+           inflation variable:
+             name: ObsFunction/ObsErrorFactorTransmitTopRad
+             channels: *radiance_abi_g18_channels
+             options:
+               channels: *radiance_abi_g18_channels
+ 
+      #Cloud detection
+       - filter: Bounds Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         test variables:
+         - name: ObsFunction/CloudDetectMinResidualIR
+           channels: *radiance_abi_g18_channels
+           options:
+             channels: *radiance_abi_g18_channels
+             use_flag: &radiance_abi_g18_useflag [-1,1,1,1,-1,-1,-1,-1,-1,-1]
+             use_flag_clddet: [-2, -2, -2, -2, -2, -2, -2, -2, -2, -2]
+             obserr_dtempf: [0.5, 2.0, 4.0, 2.0, 4.0]
+             error parameter vector: *radiance_abi_g18_obserr
+         maxvalue: 1.0e-12
+         action:
+           name: reject
+ 
+      #Scene Consistency Check based on ch13 (10.8 micron)
+       - filter: Domain Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7, 10-16
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature
+             channels: 13
+           maxvalue: 0.5
+           max_exclusive: true
+ 
+      #Scene Consistency Channels 8-10 Based on ch 8 SDTB
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: 8-10
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature_8
+           maxvalue: 0.5
+           minvalue: 0.4
+           min_exclusive: true
+         action:
+           name: inflate error
+           inflation factor: 1.1489
+ 
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: 8-10
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature_8
+           maxvalue: 0.6
+      #     max_exclusive: true
+           minvalue: 0.5
+           min_exclusive: true
+         action:
+           name: inflate error
+           inflation factor: 1.2923
+ 
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: 8-10
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature_8
+           maxvalue: 0.7
+      #     max_exclusive: true
+           minvalue: 0.6
+           min_exclusive: true
+         action:
+           name: inflate error
+           inflation factor: 1.4967
+ 
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: 8-10
+         where:
+         - variable:
+             name: ClearSkyStdDev/brightnessTemperature_8
+           minvalue: 0.7
+           min_exclusive: true
+         action:
+           name: inflate error
+           inflation factor: 1.5199
+ 
+      #Near SST Check
+       - filter: Bounds Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         test variables:
+         - name: ObsFunction/NearSSTRetCheckIR
+           channels: *radiance_abi_g18_channels
+           options:
+             channels: *radiance_abi_g18_channels
+             use_flag: *radiance_abi_g18_useflag
+         maxvalue: 1.0e-12
+         action:
+           name: reject
+ 
+      #Surface Jacobian
+       - filter: Perform Action
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         action:
+           name: inflate error
+           inflation variable:
+             name: ObsFunction/ObsErrorFactorSurfJacobianRad
+             channels: *radiance_abi_g18_channels
+             options:
+               channels: *radiance_abi_g18_channels
+               sensor: abi_g18
+               obserr_demisf: [0.01, 0.02, 0.03, 0.02, 0.03]
+               obserr_dtempf: [0.5, 2.0, 4.0, 2.0, 4.0]
+ 
+      #Channels 7, 10-16 Cloud fraction >2
+       - filter: Domain Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7, 10-16
+         where:
+         - variable:
+             name: MetaData/cloudAmount
+           maxvalue: 2
+ 
+      #Variable assignment, OmF non bias corrected
+       - filter: Variable Assignment
+         assignments:
+         - name: OmFNBC@DerivedMetaData
+           type: float
+           function:
+             name: ObsFunction/Arithmetic
+             options:
+               variables:
+               - name: brightnessTemperature@ObsValue
+                 channels: 13
+               - name: brightnessTemperature@HofX
+                 channels: 13
+               - name: brightnessTemperature@ObsBiasData
+                 channels: 13
+               - name: brightnessTemperature@ObsValue
+                 channels: 14
+               - name: brightnessTemperature@HofX
+                 channels: 14
+               - name: brightnessTemperature@ObsBiasData
+                 channels: 14
+               coefs: [1, -1, 1, -1, 1, -1]
+ 
+      #Channels 7, 10-16, OmFNBC < -0.75
+       - filter: Domain Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: 7, 10-16
+         where:
+         - variable:
+             name: OmFNBC@DerivedMetaData
+           minvalue: -0.75
+           max_exclusive: true
+ 
+      #Final gross check
+       - filter: Background Check
+         filter variables:
+         - name: brightnessTemperature
+           channels: *radiance_abi_g18_channels
+         function absolute threshold:
+         - name: ObsFunction/ObsErrorBoundIR
+           channels: *radiance_abi_g18_channels
+           options:
+             sensor: abi_g18
+             channels: *radiance_abi_g18_channels
+             obserr_bound_latitude:
+               name: ObsFunction/ObsErrorFactorLatRad
+               options:
+                 latitude_parameters: [0.0, 0.0, 0.0, 0.0]
+             obserr_bound_transmittop:
+               name: ObsFunction/ObsErrorFactorTransmitTopRad
+               channels: *radiance_abi_g18_channels
+               options:
+                 channels: *radiance_abi_g18_channels
+             obserr_bound_max: &radiance_abi_g18_obserrmax [2.5,4.0,4.0,3.5,2.5,2.5,2.5,2.5,2.5,2.5]
+             error parameter vector: *radiance_abi_g18_obserr
+         action:
+           name: reject

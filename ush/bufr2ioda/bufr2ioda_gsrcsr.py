@@ -297,7 +297,7 @@ def bufr_to_ioda(config, logger):
             }
 
             # Create IODA ObsSpace
-            iodafile = f"hafs.t{hh}z.{satinst}.nc"
+            iodafile = f"hafs.t{hh}z.radiance_{satinst}.nc"
             OUTPUT_PATH = os.path.join(ioda_dir, iodafile)
             logger.info(f"Create output file : {OUTPUT_PATH}")
             obsspace = ioda_ospace.ObsSpace(OUTPUT_PATH, mode="w", dim_dict=dims)

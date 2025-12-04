@@ -16,9 +16,13 @@ default predictors: &default_preds
 
 output:
 - sensor: atms_npp
-  output file: output/satbias_atms_npp_#HH#.nc
+  output file: output/satbias_radiance_atms_npp_#HH#.nc
   predictors: *default_preds
 
 - sensor: atms_n20
-  output file: output/satbias_atms_n20_#HH#.nc
+  output file: output/satbias_radiance_atms_n20_#HH#.nc
+  predictors: *default_preds
+
+- sensor: atms_n21
+  output file: output/satbias_radiance_atms_n21_#HH#.nc
   predictors: *default_preds

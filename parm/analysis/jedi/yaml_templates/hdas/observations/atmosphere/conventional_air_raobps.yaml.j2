@@ -1,0 +1,176 @@
+     - obs space:
+         name: apdupa
+         obsdatain:
+           engine:
+             type: H5File
+             obsfile: obs/hafs.t{{HH}}z.conventional_air_raob.nc
+             missing file action: "warn"
+         obsdataout:
+           engine:
+             type: H5File
+             obsfile: hofx/diag_conventional_air_raobps_t{{HH}}z.nc
+             allow overwrite: true
+         io pool:
+           max pool size: {{TOTAL_TASKS}}
+         observed variables: [stationPressure]
+         simulated variables: [stationPressure]
+ 
+       obs operator:
+         name: SfcPCorrected
+         da_psfc_scheme: GSI
+         geovar_sfc_geomz: surface_geopotential_height
+         geovar_geomz: geopotential_height
+       linear obs operator:
+         name: Identity
+ 
+       obs error:
+         covariance model: diagonal
+ 
+       obs pre filters:
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/latitude
+           minvalue: {{MIN_LAT}}
+           maxvalue: {{MAX_LAT}}
+         action:
+           name: reduce obs space
+ 
+       - filter: Domain Check
+         apply at iterations: 0,1
+         where:
+         - variable:
+             name: MetaData/longitude
+           minvalue: {{MIN_LON}}
+           maxvalue: {{MAX_LON}}
+         action:
+           name: reduce obs space
+ 
+       # Reject all obs with QualityMarker > 3
+       - filter: RejectList
+         apply at iterations: 0,1
+         filter variables:
+         - name: stationPressure
+         where:
+         - variable: ObsType/stationPressure
+           is_not_in: 120
+         - variable: QualityMarker/stationPressure
+           is_in: 4-15
+           value: is_not_valid
+         - variable: MetaData/pressure
+           value: is_not_valid
+         where operator: or
+         action:
+           name: reduce obs space
+ 
+       obs post filters:
+       - filter: Bounds Check
+         filter variables:
+         - name: stationPressure
+         test variables:
+         - name: GeoVaLs/observable_domain_mask
+           flag all filter variables if any test variable is out of bounds: true
+           minvalue: 0.0
+           maxvalue: 0.5
+       # ------------------
+       # stationPressure
+       # ------------------
+       # Initial error assignment
+       # 120
+       - filter: Perform Action
+         filter variables:
+         - name: stationPressure
+         where:
+         - variable: ObsType/stationPressure
+           is_in: 120
+         action:
+           name: assign error
+           error parameter: 68.115 #Pa
+           #error function:
+           #  name: ObsFunction/ObsErrorModelStepwiseLinear
+           #  options:
+           #    xvar:
+           #      name: MetaData/pressure
+           #    xvals: [110000, 105000, 100000, 95000, 90000, 85000, 80000, 75000, 70000, 65000, 60000, 55000, 50000, 45000, 40000, 35000, 30000, 25000, 20000, 15000, 10000, 7500, 5000, 4000, 3000, 2000, 1000, 500, 400, 300, 200, 100, 0]
+           #    errors: [68.115, 68.115, 68.115, 71.307, 74.576, 77.845, 79.791, 81.737, 83.684, 92.441, 101.2, 108.99, 117.75, 128.44, 144.99, 158.58, 182.93, 247.16, 269.54, 315.28, 383.38, 489.46, 577.03, 577.03, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0, 100000000000.0]
+         defer to post: true
+ 
+       ## Ajusted error after initial assignment (qcmod.f90)
+       #- filter: Perform Action
+       #  filter variables:
+       #  - name: stationPressure
+       #  where:
+       #  - variable: ObsType/stationPressure
+       #    is_in: 120
+       #  action:
+       #    name: inflate error
+       #    inflation variable:
+       #      name: ObsFunction/ObsErrorFactorConventional
+       #      options:
+       #        test QCflag: PreQC
+       #        test QCthreshold: 3
+       #        inflate variables: [stationPressure]
+       #        pressure: MetaData/pressure
+       #        distance threshold: -1.
+       #  defer to post: true
+ 
+       # error inflation based on setupps.f90
+       - filter: Perform Action
+         filter variables:
+         - name: stationPressure
+         where:
+         - variable: ObsType/stationPressure
+           is_in: 120
+         action:
+           name: inflate error
+           #inflation factor: 1.7143
+           inflation variable:
+             name: ObsFunction/ObsErrorFactorSfcPressure
+         defer to post: true
+ 
+       - filter: Bounds Check
+         apply at iterations: 0,1
+         filter variables:
+         - name: stationPressure
+         minvalue: 0.0
+         maxvalue: 120000.0
+ 
+       - filter: Background Check
+         apply at iterations: 0,1
+         filter variables:
+         - name: stationPressure
+         #absolute threshold: 5.0
+         threshold: 5.0
+         where:
+         - variable: ObsType/stationPressure
+           is_in: 120
+         action:
+           name: reject
+ 
+       ##- filter: Domain Check
+       #  apply at iterations: 0,1
+       #  where:
+       #    - variable:
+       #        name: MetaData/timeOffset
+       #      minvalue: -1.50
+       #      maxvalue: 1.50
+ 
+       - filter: Temporal Thinning
+         apply at iterations: 0,1
+         min_spacing: PT00M
+         seed_time: "{{atmosphere_background_time_iso6}}"
+         category_variable:
+           name: MetaData/stationIdentification
+ 
+       ## Print filter data
+       #- filter: Print Filter Data
+       #  message: Printing filter data
+       #  summary: true
+       #  variables:
+       #  - variable: MetaData/latitude
+       #  - variable: MetaData/longitude
+       #  - variable: MetaData/pressure
+       #  - variable: ObsType/stationPressure
+       #  - variable: ObsValue/stationPressure
+       #  - variable: QCflagsData/stationPressure

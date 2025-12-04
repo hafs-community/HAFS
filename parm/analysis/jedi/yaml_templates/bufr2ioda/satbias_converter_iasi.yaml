@@ -16,9 +16,9 @@ default predictors: &default_preds
 
 output:
 - sensor: iasi_metop-b
-  output file: output/satbias_iasi_metop-b_#HH#.nc
+  output file: output/satbias_radiance_iasi_metop-b_#HH#.nc
   predictors: *default_preds
 
 - sensor: iasi_metop-c
-  output file: output/satbias_iasi_metop-c_#HH#.nc
+  output file: output/satbias_radiance_iasi_metop-c_#HH#.nc
   predictors: *default_preds
