@@ -112,7 +112,7 @@ observations:
 
     ioda:
       backend: netcdf
-      obsdataout: "./output/hafs.#HH#.conventional_air_fl.nc"
+      obsdataout: "./output/hafs.#HH#.conventional_air_amdar.nc"
 
       dimensions:
         - name: Level
