@@ -199,7 +199,7 @@ fi
 
 # Set default options for IAU
 iau_inc_files=","
-iau_delthrs=6
+iau_delthrs=2
 iaufhrs=0
 
 # Sepcial settings if this is an atm_init forecast run
