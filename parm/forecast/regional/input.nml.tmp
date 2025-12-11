@@ -205,6 +205,8 @@
   sfc_rlm        = @[sfc_rlm_nml]
   tc_pbl         = @[tc_pbl_nml]
   use_lpt        = @[use_lpt]
+  tc_rain        = @[tc_rain]
+  tc_snow        = @[tc_snow]
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
