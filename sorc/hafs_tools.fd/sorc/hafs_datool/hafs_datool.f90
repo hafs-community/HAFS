@@ -157,7 +157,7 @@
 ! 1 --- argc and usage
 ! 1.1 --- get argc
   if (iargc() .lt. 2) then
-     write(*,*)' usage: hafs_datool.x function --in_file=inputfile'
+     if ( my_proc_id == 0 )write(*,*)' usage: hafs_datool.x function --in_file=inputfile'
      stop
   else
      call getarg(1, actions)
@@ -202,6 +202,7 @@
 ! 2.1 --- relaxzone, debug_level, interpolation_points
   gwt%relaxzone=-99; if (len_trim(relaxzone) > 0 ) read(relaxzone,*)gwt%relaxzone
 
+  debug_level = 1
   if (len_trim(debug_levelc) > 1 .and. trim(debug_levelc) .ne. "w") read(debug_levelc,*)debug_level
   if ( debug_level < 0 .or. debug_level > 999999 ) debug_level = 1
 
@@ -216,27 +217,27 @@
 ! 2.2 --- tc info requirement
   if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
      if ( trim(vortex_position_file) == "w" .and. trim(tcvital_file) == "w" .and. trim(besttrackfile) == "w" ) then
-        write(*,'(a)')' vortexreplace and hafsvi_preproc functions require at least one vortex information, '
-        write(*,'(a)')' please add one of the following arg:'
-        write(*,'(a)')'  --vortexposition=user_define_vortex_position_file.txt or '
-        write(*,'(a)')'  --tcvital=TCvital_file or '
-        write(*,'(a)')'  --besttrack=best-track-file'
+        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace and hafsvi_preproc functions require at least one vortex information, '
+        if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
+        if ( my_proc_id == 0 )write(*,'(a)')'  --vortexposition=user_define_vortex_position_file.txt or '
+        if ( my_proc_id == 0 )write(*,'(a)')'  --tcvital=TCvital_file or '
+        if ( my_proc_id == 0 )write(*,'(a)')'  --besttrack=best-track-file'
         stop
      endif
      if ( len_trim(infile_date) < 2 .and. len_trim(tc_date) < 2 .and. trim(vortex_position_file) == "w" ) then
-        write(*,'(a)')' vortexreplace and hafsvi_preproc functions require date information when read tcvital or besttrack , '
-        write(*,'(a)')' please add one of the following arg:'
-        write(*,'(a)')'  --infile_date=input_file_date or/and'
-        write(*,'(a)')'  --tc_date=tc_date'
+        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace and hafsvi_preproc functions require date information when read tcvital or besttrack , '
+        if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
+        if ( my_proc_id == 0 )write(*,'(a)')'  --infile_date=input_file_date or/and'
+        if ( my_proc_id == 0 )write(*,'(a)')'  --tc_date=tc_date'
         stop
      endif
   endif
 
   if ( trim(actions) == "hafsvi_preproc" ) then
      if ( trim(infile_date) == "w" ) then
-        write(*,'(a)')' hafsvi_preproc function requires input file date for filename'
-        write(*,'(a)')' please add one of the following arg:'
-        write(*,'(a)')'  --infile_date=input_file_date'
+        if ( my_proc_id == 0 )write(*,'(a)')' hafsvi_preproc function requires input file date for filename'
+        if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
+        if ( my_proc_id == 0 )write(*,'(a)')'  --infile_date=input_file_date'
         stop
      endif
   endif
@@ -258,14 +259,14 @@
 !----------------------------------------------------------------
 ! 3.0 --- remap
   if ( trim(actions) == "remap" .or. trim(actions) == "vortexreplace" ) then
-     write(*,'(a)')' --- call hafs_remap for '//trim(in_grid)//' and '//trim(out_grid)
-     call hafs_remap(trim(in_dir), trim(in_grid), trim(in_file), trim(out_dir), trim(out_grid), trim(out_data), trim(out_file))
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call hafs_remap for '//trim(in_grid)//' and '//trim(out_grid)
+     call hafs_remap(trim(in_grid), trim(in_file), trim(out_grid), trim(out_file))
   endif
 
 !----------------------------------------------------------------
 ! 4.0 --- HAFS VI
   if ( trim(actions) == "hafsvi_preproc" ) then
-     write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
      if ( index(trim(out_file),'.nc') > 1 ) then
         call hafsvi_preproc_nc(trim(in_dir), trim(infile_date), nestdoms, trim(vortexradius), trim(res), trim(out_file), &
         trim(vi_cloud))
@@ -276,43 +277,43 @@
   endif
 
   if ( trim(actions) == "hafsvi_postproc" ) then
-     write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call hafsvi_postproc/hafs_datool for '//trim(in_file)
      call hafsvi_postproc(trim(in_file), trim(infile_date), trim(out_dir), nestdoms, trim(vi_cloud))
   endif
 
 !----------------------------------------------------------------
 ! 5.0 --- fftw_iau
   if ( trim(actions) == "fftw_iau" ) then
-     write(*,'(a)')' --- call hafsfftw_iau/hafs_datool for '//trim(an_file)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call hafsfftw_iau/hafs_datool for '//trim(an_file)
      call hafsfftw_iau(trim(an_file),trim(in_grid),trim(bg_file),trim(out_file),wave_num,trim(vars))
   endif
 
 !----------------------------------------------------------------
 ! 6.0 --- u_update_ua & ua_update_u
   if ( trim(actions) == "u_update_ua" .or. trim(actions) == "ua_update_u" ) then
-     write(*,'(a)')' --- call u_ua_update//hafs_datool for '//trim(in_file)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call u_ua_update//hafs_datool for '//trim(in_file)
      if ( my_proc_id == 0 ) call hafs_u_ua(trim(actions),trim(in_grid),trim(in_file),trim(out_file))
   endif
 
 !----------------------------------------------------------------
 ! 7.0 --- HAFS ideal_vortex
   if ( trim(actions) == "ideal_vortex" ) then
-     write(*,'(a)')' --- call ideal_vortex for '//trim(in_dir)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call ideal_vortex for '//trim(in_dir)
      if ( my_proc_id == 0 ) call hafs_ideal_vortex(trim(in_dir), trim(infile_date), nestdoms)
   endif
   !  --- HAFS ideal_sfc_data
   if ( trim(actions) == "change_sfc_data" ) then
-     write(*,'(a)')' --- call ideal_vortex for '//trim(in_file)
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call ideal_vortex for '//trim(in_file)
      if ( my_proc_id == 0 ) call hafs_ideal_sfc_data(trim(in_file))
   endif
 
 !----------------------------------------------------------------
-  call parallel_finish()
+  !call parallel_finish()
 
   if ( trim(actions) == "hafsvi_postproc" ) then
-     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_dir)//' for nestdoms '//trim(nestdomsc)//' ==='
+     if ( my_proc_id == 0 ) write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_dir)//' for nestdoms '//trim(nestdomsc)//' ==='
   else
-     write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_file)//' ==='
+     if ( my_proc_id == 0 ) write(*,'(a)')' === finished '//trim(actions)//' '//trim(out_file)//' ==='
   endif
 
   end program

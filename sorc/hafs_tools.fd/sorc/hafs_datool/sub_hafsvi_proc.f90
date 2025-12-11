@@ -2458,7 +2458,7 @@
               tmp4d(i,j,k,1) = 0.5*(u1(i,j,k,1)+u1(i,j+1,k,1))
            enddo
            enddo
-           enddo 
+           enddo
          ! call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, 0.5*(u1(:,1:iy,1:ke-ks+1,1)+u1(:,2:iy+1,1:ke-ks+1,1)), 1, 1, ks, 1)
            call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
            do k = 1, ke-ks+1
@@ -2467,7 +2467,7 @@
               tmp4d(i,j,k,1) = 0.5*(v1(i,j,k,1)+v1(i+1,j,k,1))
            enddo
            enddo
-           enddo 
+           enddo
          ! call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, 0.5*(v1(1:ix,:,1:ke-ks+1,1)+v1(2:ix+1,:,1:ke-ks+1,1)), 1, 1, ks, 1)
            call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
            deallocate(tmp4d)

@@ -635,8 +635,9 @@ fi
 
 cat>./fort.41<<EOF
 &config
+!input_leaf_area_index_file="${input_sfc_climo_dir}/leaf_area_index.0.05.nc"
 input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
-input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.2.6x1.5.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.gfs.0.5.nc"
 input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
@@ -650,6 +651,7 @@ halo=${HALO}
 maximum_snow_albedo_method="bilinear"
 snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
+!leaf_area_index_method="bilinear"
 /
 EOF
 
@@ -711,8 +713,9 @@ the_orog_files='"'${CASE}'_oro_data.tile'${itile}'.nc"'
 
 cat>./fort.41<<EOF
 &config
+!input_leaf_area_index_file="${input_sfc_climo_dir}/leaf_area_index.0.05.nc"
 input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
-input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.1.0.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.gfs.0.5.nc"
 input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
@@ -726,6 +729,7 @@ halo=${HALO}
 maximum_snow_albedo_method="bilinear"
 snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
+!leaf_area_index_method="bilinear"
 /
 EOF
 

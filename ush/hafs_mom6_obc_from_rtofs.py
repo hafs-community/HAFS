@@ -7,10 +7,9 @@
 # History:
 #   05/13/2023: Added the script for MOM6 coulping in HAFS workflow
 # Usage:
-#   ./hafs_mom6_obc_from_rtofs.py inputdir outputdir ssh_file_in ts_file_in \
-#     uv_file_in lon_name_in lat_name_in hgrid_out_file \
-#     lon_name_hgrid_out lat_name_hgrid_out
+#    ./hafs_mom6_obc_from_rtofs.py ssh_file_in ts_file_in uv_file_in hgrid_out_file
 ################################################################################
+
 import sys
 import argparse
 import time as Time
@@ -32,31 +31,18 @@ if __name__ == "__main__":
     # get command line args
     parser = argparse.ArgumentParser(
         description="Generates the open boundary conditions for MOM6 from the RTOFS netcdf files")
-    parser.add_argument('inputdir', type=str, help="Location of rtofs output converted to netcdf files")
-    parser.add_argument('outputdir', type=str, help="Location where the generated obc files will reside")
     parser.add_argument('ssh_file_in', type=str, help="Name of the file that contains the RTOFS sea surface height")
     parser.add_argument('ts_file_in', type=str, help="Name of the file that contains the RTOFS temperature and salinity field")
     parser.add_argument('uv_file_in', type=str, help="Name of the file that contains the RTOFS u and v velocity fields")
-    parser.add_argument('lon_name_in', type=str, help="Name of the longitude variable in the RTOFS netcdf files")
-    parser.add_argument('lat_name_in', type=str, help="Name of the latitude variable in the RTOFS netcdf files")
     parser.add_argument('hgrid_out_file', type=str, help="Name of the MOM6 super grid file, e,g. ocean_hgrid.nc")
-    parser.add_argument('lon_name_hgrid_out', type=str, help="Name of the longitude variable in the MOM6 super grid file")
-    parser.add_argument('lat_name_hgrid_out', type=str, help="Name of the latitude variable in the MOM6 super grid file")
 
     args = parser.parse_args()
-
-    inputdir = args.inputdir
-    outputdir = args.outputdir
 
     ssh_file_in = args.ssh_file_in
     ts_file_in = args.ts_file_in
     uv_file_in = args.uv_file_in
-    lon_name_in = args.lon_name_in
-    lat_name_in = args.lat_name_in
 
     hgrid_out_file = args.hgrid_out_file
-    lon_name_hgrid_out = args.lon_name_hgrid_out
-    lat_name_hgrid_out = args.lat_name_hgrid_out
 
     print(args)
 

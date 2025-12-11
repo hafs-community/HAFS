@@ -5,7 +5,7 @@
 #=======================================================================
 
 cmake_minimum_required(VERSION 3.15)
-project( 
+project(
   DATOOL
   LANGUAGES C Fortran)
 
@@ -43,11 +43,11 @@ set(exec_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../exec)
 
 add_executable(${exe_name} ${fortran_srcs})
 
-target_compile_options(${exe_name} PRIVATE 
+target_compile_options(${exe_name} PRIVATE
     $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
     -traceback -fp-model precise -assume byterecl -convert big_endian)
 
-target_link_options(${exe_name} PRIVATE 
+target_link_options(${exe_name} PRIVATE
     $<$<STREQUAL:${BUILD_TYPE},DEBUG>:-O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O3>
     -traceback -fp-model precise -assume byterecl -convert big_endian)
 

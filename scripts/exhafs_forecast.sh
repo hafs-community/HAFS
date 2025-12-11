@@ -382,7 +382,7 @@ med_tasks=${med_tasks:-${ocn_tasks}}
 dat_tasks=${dat_tasks:-${ocn_tasks}}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
-icplocn2atm=${icplocn2atm:-0}
+use_oceanuv=${use_oceanuv:-.false.}
 cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
 INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
@@ -870,6 +870,15 @@ ${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
 ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+
+if [ ${do_rrtmgp:-.false.} = .true. ]; then
+# ${NLN} $FIXam/rrtmgp-data-lw-g128-210809.nc .
+# ${NLN} $FIXam/rrtmgp-data-sw-g112-210809.nc .
+  ${NLN} $FIXam/rrtmgp-gas-lw-g078.nc .
+  ${NLN} $FIXam/rrtmgp-gas-sw-g075.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-lw.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-sw.nc .
+fi
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
@@ -1427,8 +1436,10 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
 
   # MOM_input
   ${NCP} ${PARMmom6}/hafs_mom6_${RUN}.input.IN ./hafs_mom6.input.IN
-  niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
-  njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
+  niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": longitude, size =" | cut -f 7 -d ' ' | uniq)
+  njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": latitude, size =" | cut -f 7 -d ' ' | uniq)
+  #niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
+  #njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
   atparse < ./hafs_mom6.input.IN > ./MOM_input
 
 fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
