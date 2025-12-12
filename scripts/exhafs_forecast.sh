@@ -199,6 +199,7 @@ fi
 
 # Set default options for IAU
 iau_inc_files=","
+iau_filter_increments=.false.
 iau_delthrs=2
 iaufhrs=0
 
@@ -1360,6 +1361,7 @@ for n in $(seq 2 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
+    iau_filter_increments=.true.
     iau_inc_files="analysis_inc_nest0${inest}.nc"
     # Linking increment file
     ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/
