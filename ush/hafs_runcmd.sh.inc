@@ -43,6 +43,7 @@ export SOURCE_PREP_STEP="source prep_step"
 # This can also be used to easily implement MPMD if needed/desired
 export APRUNCMD=${APRUNCMD:-""}
 
+export machine=${machine:-${WHERE_AM_I}}
 if [ "$machine" = wcoss2 ]; then
   export APRUN="time"
   export APRUNS="time"
@@ -62,6 +63,19 @@ elif [ "$machine" = jet ] || [ "$machine" = hera ] || [ "$machine" = orion ] || 
   export APRUNF="time"
   export APRUNCFP="time"
   export BACKGROUND="&"
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
+elif [ "$machine" = ursa ]; then
+  export APRUN="time"
+  export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 numactl --interleave=all"
+  export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS} numactl --interleave=all"
+  export APRUNC="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} numactl --interleave=all"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog"
+  export APRUNF="time"
+  export APRUNCFP="time"
+  export BACKGROUND="&"
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
   export APRUN="time"
@@ -71,6 +85,8 @@ else
   export APRUNF="${MPISERIAL:-mpiserial}"
   export APRUNCFP="time"
   export BACKGROUND=""
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
 fi
 
 # Some commonly used commands

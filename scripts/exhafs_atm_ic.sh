@@ -45,6 +45,7 @@ if [ ${ENSDA} != YES ]; then
   LEVS=${LEVS:-65}
   GRID_intercom=${WORKhafs}/intercom/atm_prep/grid
 else
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   NBDYHRS=${NBDYHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
   CRES=$(echo $CASE | cut -c 2-)
@@ -72,6 +73,7 @@ if [ $GFSVER = "PROD2021" ]; then
  if [ ${ENSDA} = YES ]; then
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   export INIDIR=${COMINgdas}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
+  export INCDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
  elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}${jobidstr}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}
@@ -105,6 +107,7 @@ if [ $ictype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nc
+    inc_files_input_grid=gdas.t${cyc}z.ratminc.nc
   elif [ ${FGAT_MODEL} = gdas ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf0${FGAT_HR}.nc
@@ -187,9 +190,15 @@ if [ $input_type = "grib2" ]; then
   INPDIR="./"
 else
   if [ ${ENSDA} = YES ]; then
-   ${NLN} ${INIDIR}/${atm_files_input_grid} ./
+   ${NCP} ${INIDIR}/${atm_files_input_grid} ./anl.06
+   ${NLN} ${INCDIR}/${inc_files_input_grid} ./inc.06
+   ${NLN} ${INIDIR}/${atm_files_input_grid} ./ges.06
    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"
+   ${NCP} -p ${HOMEhafs}/ush/hafs_calc_enkfgdas_analysis.py ./
+   ${APRUNS} ./hafs_calc_enkfgdas_analysis.py 2>&1 | tee ./hafs_calc_enkfgdas_analysis.log
+   export err=$?; err_chk
+   ${NLN} ./anl.06 ./${atm_files_input_grid}
   elif [ ${FGAT_MODEL} = gdas ]; then
    ${NLN} ${INIDIR}/${atm_files_input_grid} ./
    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./

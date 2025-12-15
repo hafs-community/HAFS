@@ -36,6 +36,9 @@ module load libjpeg/${libjpeg_ver}
 module load crtm/${crtm_ver}
 module load g2/${g2_ver}
 module load g2tmpl/${g2tmpl_ver}
+module load udunits/${udunits_ver}
+module load gsl/${gsl_ver}
+module load nco/${nco_ver}
 module list
 
 ${HOMEhafs}/jobs/JHAFS_FORECAST

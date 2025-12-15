@@ -16,13 +16,15 @@ mkdir -p fix_fv3
 if [ ${target} == "wcoss2" ]; then
   FIXROOT=/lfs/h2/emc/hur/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "hera" ]; then
-  FIXROOT=/scratch1/NCEPDEV/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+  FIXROOT=/scratch3/HFIP/hwrfv3/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
   FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "jet" ]; then
   FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
   FIXROOT=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
+elif [ ${target} == "ursa" ]; then
+  FIXROOT=/scratch3/HFIP/hwrfv3/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 else
   echo "FATAL ERROR: Unknown site " ${target}
   exit 1

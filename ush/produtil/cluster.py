@@ -19,7 +19,7 @@
 #List of symbols exported by "from produtil.cluster import *"
 __all__=['Cluster','where','longname','name','group_quotas','acl_support',
          'no_access_control','use_acl_for_rstdata','ncepprod',
-         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAWCOSS','NOAAGaeaC6']
+         'MSUOrion','NOAAJet','NOAAGAEA','NOAAHera','NOAAWCOSS','NOAAGaeaC6', 'NOAAUrsa']
 
 import time, socket, os, re
 
@@ -109,6 +109,8 @@ def where():
             here=NOAAHera()
             if os.path.exists('/scratch'):
                 here=NOAATheia()
+        elif os.path.exists('/scratch3'):
+            here=NOAAUrsa()
         elif os.path.exists('/lfs/h2/emc'):
             here=WCOSS2()
         elif os.path.exists('/gpfs/f6'):
@@ -207,7 +209,12 @@ class NOAAHera(Cluster):
     def __init__(self):
         super(NOAAHera,self).__init__(False,False,False,'hera',
                                       'hera.rdhpcs.noaa.gov')
-
+class NOAAUrsa(Cluster):
+    """!Represents the NOAA Ursa cluster.  Does not allow ACLs,
+    assumes no group quotas (fileset quotas instead)."""
+    def __init__(self):
+        super(NOAAUrsa,self).__init__(False,False,False,'ursa',
+                                      'ursa.rdhpcs.noaa.gov')
 class UCARYellowstone(Cluster):
     """!Represents the Yellowstone cluster.  Does not allow ACLs,
     assumes group quotas."""

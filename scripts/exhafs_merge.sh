@@ -33,6 +33,7 @@ if [ ${MERGE_TYPE} = analysis ]; then
 merge_method=${analysis_merge_method:-vortexreplace}
 # Deterministic or ensemble
 if [ "${ENSDA}" = YES ]; then
+  export nest_grids=${nest_grids_ens:-${nest_grids}}
   if [ -d ${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID} ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis_ens/mem${ENSID}
   elif [ -d ${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID} ]; then
@@ -117,7 +118,8 @@ fi
 if [[ $nest_grids -eq 1 ]]; then
 
 #for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data phy_data; do
-for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; do
+#for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; do
+for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1; do
   in_grid=${RESTARTsrc}/grid_spec.nc
   out_grid=${RESTARTmrg}/grid_spec.nc
   in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
@@ -149,7 +151,8 @@ if [ ${MERGE_TYPE} = analysis ]; then
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
@@ -175,7 +178,8 @@ elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
 ${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   if [[ $var = sfc_data ]]; then
@@ -203,7 +207,8 @@ else
 fi
 
 # Step 2: merge srcd01 into dstd01
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   if [[ $var = sfc_data ]]; then
@@ -227,7 +232,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 done
 
 # Step 3: merge srcd02 into dstd02
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
@@ -284,7 +290,8 @@ if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
   if [ ${iau_regional} = ".true." ]; then
     ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
     # Replace d02 restart files
-    for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+#   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+    for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
       in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
       out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
       mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
@@ -298,7 +305,30 @@ fi
 
 if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   mkdir -p ${RESTARTcom}
-  ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
+# ${NCP} -rp ${RESTARTmrg}/* ${RESTARTcom}/
+  rm -f cmdfile
+  for file in $(/bin/ls -1 ${RESTARTmrg}/*) ; do
+    fname=$(basename ${file})
+    if [[ "${fname}" = *".fv_"*".tile"*".nc" ]] || [[ "${fname}" = *".sfc_data"*".nc" ]] || [[ "${fname}" = *"analysis_inc"*".nc" ]]; then
+    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+      echo ncks --deflate=1 -O ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    elif [[ "${fname}" = *".phy_data"*".nc" ]]; then
+    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+      echo "Currently skip deliverying ${RESTARTmrg}/${fname} to ${RESTARTcom}/${fname}"
+    else
+      echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    fi
+  done
+  chmod +x cmdfile
+  if [ $USE_CFP = "YES" ] ; then
+    ncmd=$(cat ./cmdfile | wc -l)
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    $APRUNCFP -n $ncmd_max cfp ./cmdfile
+  else
+    ${APRUNC} ${MPISERIAL} -m cmdfile
+  fi
+  export err=$?; err_chk
+# rm -f cmdfile
 fi
 
 else

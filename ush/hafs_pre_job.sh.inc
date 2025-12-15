@@ -38,16 +38,25 @@ if [[ -d /lfs5 ]] ; then
   module purge
   module use /apps/modules/modulefiles
   module use /apps/lmod/lmod/modulefiles/Core
-elif [[ -d /scratch1/NCEPDEV ]] ; then
-  # We are on NOAA Hera
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    echo load the module command 1>&2
-    source /apps/lmod/lmod/init/$__ms_shell
+elif [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
+  if [[ "$(hostname)" =~ "u" ]] ; then
+    # We are on NOAA Ursa
+    target=ursa
+    source $MODULESHOME/init/$__ms_shell
+    module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
+  elif [[ "$(hostname)" =~ "h" ]] ; then
+    # We are on NOAA Hera
+    if ( ! eval module help > /dev/null 2>&1 ) ; then
+      echo load the module command 1>&2
+      source /apps/lmod/lmod/init/$__ms_shell
+    fi
+    target=hera
+    module purge
+    module use /apps/modules/modulefiles
+    module use /apps/lmod/lmod/modulefiles/Core
   fi
-  target=hera
-  module purge
-  module use /apps/modules/modulefiles
-  module use /apps/lmod/lmod/modulefiles/Core
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion/Hercules
   if [[ "$(hostname)" =~ "hercules" ]] ; then
@@ -89,10 +98,10 @@ elif [[ -d /gpfs/f6 ]]; then
   source $MODULESHOME/init/sh
   export LMOD_IGNORE_CACHE=1
   module reset
-  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]] ; then
+  if [[ "$(hostname)" == "gaea6"* ]] || [[ "$(hostname)" == "c6"* ]]; then
     target=gaeac6
     ulimit -s unlimited
-  elif [[ "$(hostname)" == "dtn"* ]] ; then
+  elif [[ "$(hostname)" == "dtn"* ]]; then
     target="gaeac6dtn"
     module use /usw/hpss/modulefiles
     module load hsi
@@ -124,6 +133,7 @@ unset __ms_function_name
 
 export WHERE_AM_I=${target}
 
+
 # The following section is only used for the Rocoto workflow
 if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
   if [[ "${WHERE_AM_I}" = "wcoss2" ]] ; then
@@ -135,8 +145,9 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
      module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
      module load rocoto/1.3.7_fix
   fi
-  if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]] ; then
+  if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]]; then
     module use ${HOMEhafs}/modulefiles
     module load hafs.${WHERE_AM_I}
   fi
 fi
+

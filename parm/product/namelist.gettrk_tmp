@@ -64,7 +64,7 @@
 &fnameinfo
   gmodname = "hafs",
   rundescr = "trak",
-  atcfdescr = "storm",
+  atcfdescr = _ATCFDESCR_,
 /
 
 &cintinfo

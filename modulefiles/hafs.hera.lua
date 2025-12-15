@@ -6,7 +6,7 @@ prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
 load("sutils")
 load("hpss")
 
-prepend_path("MODULEPATH", "/scratch1/NCEPDEV/nems/role.epic/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/unified-env-rocky8/install/modulefiles/Core")
 
 stack_intel_ver=os.getenv("stack_intel_ver") or "2021.5.0"
 load(pathJoin("stack-intel", stack_intel_ver)) 
@@ -112,6 +112,9 @@ nco_ver=os.getenv("nco_ver") or "5.0.6"
 load(pathJoin("nco", nco_ver))
 --prepend_path("PATH", "/apps/nco/4.9.3/gnu/9.2.0/bin")
 
+nemsio_ver=os.getenv("nemsio_ver") or "2.5.4"
+load(pathJoin("nemsio", nemsio_ver))
+
 ncio_ver=os.getenv("ncio_ver") or "1.1.2"
 load(pathJoin("ncio", ncio_ver)) 
 
@@ -126,6 +129,12 @@ load(pathJoin("py-xarray", xarray_ver))
 
 scipy_ver=os.getenv("scipy_ver") or "1.11.3"
 load(pathJoin("py-scipy", scipy_ver))
+
+pynetcdf4_ver=os.getenv("pynetcdf4_ver") or "1.5.8"
+load(pathJoin("py-netcdf4", pynetcdf4_ver))
+
+pyyaml_ver=os.getenv("pyyaml_ver") or "6.0"
+load(pathJoin("py-pyyaml", pyyaml_ver))
 
 setenv("CMAKE_C_COMPILER", "mpiicc")
 setenv("CMAKE_CXX_COMPILER", "mpiicpc")

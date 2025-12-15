@@ -7,7 +7,9 @@
 <!ENTITY % xjet             SYSTEM      "xjet.ent">
 <!ENTITY % kjet             SYSTEM      "kjet.ent">
 <!ENTITY % hera             SYSTEM      "hera.ent">
+<!ENTITY % ursa             SYSTEM      "ursa.ent">
 <!ENTITY % orion            SYSTEM      "orion.ent">
 <!ENTITY % wcoss2           SYSTEM      "wcoss2.ent">
 <!ENTITY % hercules         SYSTEM      "hercules.ent">
 <!ENTITY % gaeac6           SYSTEM      "gaeac6.ent">
+<!ENTITY % ursa             SYSTEM      "ursa.ent">

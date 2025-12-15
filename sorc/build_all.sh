@@ -41,7 +41,7 @@ echo " .... Library build not currently supported .... "
 #------------------------------------
 $Build_forecast && {
 echo " .... Building forecast .... "
-./build_forecast.sh > $logs_dir/build_forecast.log 2>&1
+./build_forecast.sh > $logs_dir/build_forecast.log 2>&1 &
 }
 
 #------------------------------------
@@ -49,7 +49,7 @@ echo " .... Building forecast .... "
 #------------------------------------
 $Build_post && {
 echo " .... Building post .... "
-./build_post.sh > $logs_dir/build_post.log 2>&1
+./build_post.sh > $logs_dir/build_post.log 2>&1 &
 }
 
 #------------------------------------
@@ -57,7 +57,7 @@ echo " .... Building post .... "
 #------------------------------------
 $Build_tracker && {
 echo " .... Building tracker .... "
-./build_tracker.sh > $logs_dir/build_tracker.log 2>&1
+./build_tracker.sh > $logs_dir/build_tracker.log 2>&1 &
 }
 
 #------------------------------------
@@ -65,7 +65,7 @@ echo " .... Building tracker .... "
 #------------------------------------
 $Build_utils && {
 echo " .... Building utils .... "
-./build_utils.sh > $logs_dir/build_utils.log 2>&1
+./build_utils.sh > $logs_dir/build_utils.log 2>&1 &
 }
 
 #------------------------------------
@@ -73,7 +73,7 @@ echo " .... Building utils .... "
 #------------------------------------
 $Build_tools && {
 echo " .... Building tools .... "
-./build_tools.sh > $logs_dir/build_tools.log 2>&1
+./build_tools.sh > $logs_dir/build_tools.log 2>&1 &
 }
 
 #------------------------------------
@@ -81,7 +81,7 @@ echo " .... Building tools .... "
 #------------------------------------
 $Build_gsi && {
 echo " .... Building gsi .... "
-./build_gsi.sh > $logs_dir/build_gsi.log 2>&1
+./build_gsi.sh > $logs_dir/build_gsi.log 2>&1 &
 }
 
 #------------------------------------
@@ -89,7 +89,7 @@ echo " .... Building gsi .... "
 #------------------------------------
 $Build_hycom_utils && {
 echo " .... Building hycom_utils .... "
-./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1
+./build_hycom_utils.sh > $logs_dir/build_hycom_utils.log 2>&1 &
 }
 
 #------------------------------------
@@ -97,8 +97,10 @@ echo " .... Building hycom_utils .... "
 #------------------------------------
 $Build_ww3_utils && {
 echo " .... Building ww3_utils .... "
-./build_ww3_utils.sh > $logs_dir/build_ww3_utils.log 2>&1
+./build_ww3_utils.sh > $logs_dir/build_ww3_utils.log 2>&1 &
 }
+
+wait
 
 echo;echo " .... Build system finished .... "
 

@@ -25,8 +25,8 @@ vi_storm_relocation=${vi_storm_relocation:-yes}
 vi_storm_modification=${vi_storm_modification:-yes}
 vi_adjust_intensity=${vi_adjust_intensity:-yes}
 vi_adjust_size=${vi_adjust_size:-yes}
-vi_composite_vortex=${vi_composite_vortex:-2}
 vi_cloud=${vi_cloud:-0}
+vi_pert_smth=${vi_pert_smth:-0}
 vi_slp_adjust=${vi_slp_adjust:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
@@ -35,6 +35,7 @@ FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
 if [ "${ENSDA}" = YES ]; then
+  export nest_grids=${nest_grids_ens:-${nest_grids}}
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_ens/mem${ENSID}
   export INTCOMinit=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
@@ -83,6 +84,10 @@ sed -i 's/1800W/1800E/g' ./tcvitals.vi
 tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
+
+int_mode=0
+#----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 cd $DATA
 
@@ -258,6 +263,19 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   export err=$?; err_chk
 
   # anl_pert
+#----------------------------------------------------------------------
+  if [ -e ${WORKhafs}/intercom/launch/oldvit ]; then
+  ${NCP} ${WORKhafs}/intercom/launch/oldvit ${DATA}/oldtcvitals.vi
+  oldtcvital=${DATA}/oldtcvitals.vi
+  vmax_vit_old=$(cat ${oldtcvital} | cut -c68-69 | bc -l)
+  vdif_tcvital=$(( ${vmax_vit}-${vmax_vit_old} ))
+#  vdif_tcvital="${vdif_tcvital#-}"
+   if [[ ${vdif_tcvital} -ge 5 ]]; then
+    int_mode=1
+   fi
+  fi
+#-----------------------------------------------------------------------
+
   work_dir=${DATA}/anl_pert_guess
   mkdir -p ${work_dir}
   cd ${work_dir}
@@ -296,7 +314,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   fi
   initopt_guess=${initopt}
   ${SOURCE_PREP_STEP}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  echo 6 ${pubbasin2} ${initopt} ${vi_pert_smth} ${int_mode} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
 fi
 
@@ -413,7 +431,7 @@ if true; then
   fi
   initopt_init=${initopt}
   ${SOURCE_PREP_STEP}
-  echo 6 ${pubbasin2} ${initopt} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
+  echo 6 ${pubbasin2} ${initopt} ${vi_pert_smth} ${int_mode} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
 
 fi
@@ -446,22 +464,13 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-  if [[ ${vi_composite_vortex} = 1 ]]; then
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
-  elif [[ ${vi_composite_vortex} = 2 ]]; then
-    if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
-    else
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
-    fi
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
-    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+  if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
   else
-    echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
-    exit 1
+   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
   fi
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+  ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
   # output
@@ -507,6 +516,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   ${NLN} ../anl_pert_${pert}/storm_pert_new fort.71
   ${NLN} ../split_${senv}/storm_env fort.26
   ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
+  ${NLN} ../anl_pert_${pert}/iteration ./
 
   # output
   ${RLN} storm_env_new fort.36
@@ -542,22 +552,13 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.72
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
-    if [[ ${vi_composite_vortex} = 1 ]]; then
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.75
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.76
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_30      fort.77
-    elif [[ ${vi_composite_vortex} = 2 ]]; then
-      if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
-        ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
-      else
-        ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
-      fi
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
-      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
+    if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
+     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
     else
-      echo "FATAL ERROR: unknown vi_composite_vortex option: ${vi_composite_vortex}"
-      exit 1
+     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
     fi
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.78
 
     # output

@@ -58,6 +58,7 @@ FORECAST_RESTART_HC=${FORECAST_RESTART_HC:-""}
 # Reset options specific to the ensemble forecast if needed
 if [ "${ENSDA}" = YES ]; then
 # Ensemble member with ENSID <= ${ENS_FCST_SIZE} will run the full-length NHRS forecast
+  nest_grids=${nest_grids_ens:-${nest_grids}}
   if [ $((10#${ENSID})) -le ${ENS_FCST_SIZE:-10} ]; then
     NHRS=${NHRS:-126}
   else
@@ -75,6 +76,11 @@ if [ "${ENSDA}" = YES ]; then
   ccpp_suite_regional=${ccpp_suite_regional_ens:-FV3_HAFS_v1}
   ccpp_suite_glob=${ccpp_suite_glob_ens:-FV3_HAFS_v1}
   ccpp_suite_nest=${ccpp_suite_nest_ens:-FV3_HAFS_v1}
+  nstf_n1=${nstf_n1_ens:-$nstf_n1}
+  nstf_n2=${nstf_n2_ens:-$nstf_n2}
+  nstf_n3=${nstf_n3_ens:-$nstf_n3}
+  nstf_n4=${nstf_n4_ens:-$nstf_n4}
+  nstf_n5=${nstf_n5_ens:-$nstf_n5}
   dt_atmos=${dt_atmos_ens:-90}
   restart_interval=${restart_interval_ens:-6}
   quilting=${quilting_ens:-.true.}
@@ -134,8 +140,11 @@ if [ "${ENSDA}" = YES ]; then
   do_shum=${do_shum_ens:-.false.}
   do_skeb=${do_skeb_ens:-.false.}
   npz=${npz_ens:-64}
-  output_grid_dlon_ens=${output_grid_dlon_ens:-$(awk "BEGIN {print ${output_grid_dlon:-0.025}*${GRID_RATIO_ENS:-1}}")}
-  output_grid_dlat_ens=${output_grid_dlat_ens:-$(awk "BEGIN {print ${output_grid_dlat:-0.025}*${GRID_RATIO_ENS:-1}}")}
+  output_grid=${output_grid_ens}
+  output_grid_cen_lon=${output_grid_cen_lon_ens}
+  output_grid_cen_lat=${output_grid_cen_lat_ens}
+  output_grid_lon_span=${output_grid_lon_span_ens}
+  output_grid_lat_span=${output_grid_lat_span_ens}
   output_grid_dlon=${output_grid_dlon_ens}
   output_grid_dlat=${output_grid_dlat_ens}
 fi
@@ -246,6 +255,8 @@ output_grid=$(echo ${output_grid} | sed -e 's/_moving//g')
 else # Otherwise this a regular forecast run
 
 if [ "${ENSDA}" = YES ]; then
+  run_ocean=no #Should we make it optional in case we have ocean DA? But we may not have ocean ensemble anyway #XL
+  run_wave=no
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   OUTdir=${OUTdir:-${WORKhafs}/intercom/forecast_ens/mem${ENSID}}
@@ -362,6 +373,8 @@ cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
 INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
 INPUT_CURFLD=${INPUT_CURFLD:-"F F"}
+use_waves=${use_waves:-False}
+use_la_li2016=${use_la_li2016:-False}
 cpl_dt=${cpl_dt:-360}
 ocean_start_dtg=${ocean_start_dtg:-43340.00000}
 base_dtg=${CDATE:-2019082900}
@@ -704,7 +717,6 @@ if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -712,7 +724,6 @@ elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplwav=.true.
   cplwav2atm=.false.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -720,7 +731,6 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplwav=.true.
   cplwav2atm=.true.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
@@ -728,10 +738,30 @@ elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; t
   cplwav=.true.
   cplwav2atm=.false.
   INPUT_WNDFLD="C F"
-  INPUT_CURFLD="C F"
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
+  exit 9
+fi
+
+if [ $cpl_wav_ocn = cmeps_2way ]; then
+  use_waves=True
+  use_la_li2016=True
+  INPUT_CURFLD="C F"
+elif [ $cpl_wav_ocn = cmeps_1way_1to2 ]; then
+  use_waves=True
+  use_la_li2016=True
+  INPUT_CURFLD="T F"
+elif [ $cpl_wav_ocn = cmeps_1way_2to1 ]; then
+  use_waves=False
+  use_la_li2016=False
+  INPUT_CURFLD="C F"
+elif [ $cpl_wav_ocn = cmeps_sidebyside ]; then
+  use_waves=False
+  use_la_li2016=False
+  INPUT_CURFLD="T F"
+else
+  echo "FATAL ERROR: Unsupported coupling options: cpl_wav_ocn=${cpl_wav_ocn}"
   exit 9
 fi
 
@@ -879,6 +909,7 @@ for itile in $(seq 7 ${ntiles}); do
   fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${itile}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${itile}.nc
+
 done
 
 # moving nest
@@ -1049,17 +1080,29 @@ for itile in $(seq 8 ${ntiles}); do
   fi
   ${NLN} gfs_data.tile${itile}.nc gfs_data.nest0${inest}.tile${inest}.nc
   ${NLN} sfc_data.tile${itile}.nc sfc_data.nest0${inest}.tile${inest}.nc
+
+  # WDR Link static files for nest initialization 
+  if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+    for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
+      ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.${var}.tile${itile}.nc ${var}.tile${itile}.nc
+    done
+  fi
+
 done
 
 fi #if [ $nest_grids -gt 1 ]; then
 
 # moving nest
 if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]; then
+
   mkdir -p moving_nest
   cd moving_nest
   rrtmp=$(echo ${refine_ratio} | rev | cut -d, -f1 | rev)
   ${NLN} $FIXgrid/${CASE}/${CASE}_grid.tile7.halo0.nc grid.tile1.nc
   ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data.tile7.halo0.nc oro_data.tile1.nc
+  # WDR Added parent soil_type to properly handle lakes
+  ${NLN} $FIXgrid/${CASE}/fix_sfc/${CASE}.soil_type.tile7.halo0.nc soil_type.tile1.nc
+
   if [ ${use_orog_gsl:-no} = yes ]; then
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ls.tile7.nc oro_data_ls.tile1.nc
     ${NLN} $FIXgrid/${CASE}/${CASE}_oro_data_ss.tile7.nc oro_data_ss.tile1.nc
@@ -1086,14 +1129,14 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.tile1.nc ./fv_core.res.tile1.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
 # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
-# ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_core.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
   # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
-  # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
   # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   # fi
@@ -1453,7 +1496,7 @@ if [ ${run_wave} = yes ]; then
   ${RLN} ${OUTdir}/${CDATE:0:8}.${CDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/out_grd.ww3 ./
-  ${RLN} ${OUTdir}/out_pnt.ww3 ./
+  ${RLN} ${OUTdir}/out_pnt.ww3.nc ./
 fi #if [ ${run_wave} = yes ]; then
 
 if [ ${RUN_INIT:-NO} = NO ]; then

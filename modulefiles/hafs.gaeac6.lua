@@ -125,6 +125,8 @@ load(pathJoin("rocoto", rocoto_ver))
 prepend_path("MODULEPATH", "/usw/hpss/modulefiles")
 load("hsi")
 
+unload("cray-libsci")
+
 setenv("CC", "cc")
 setenv("CXX", "CC")
 setenv("FC", "ftn")

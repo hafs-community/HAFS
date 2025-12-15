@@ -12,6 +12,7 @@
 !                : Remove/Clean up "go to" statements and modernizing
 !                : the code
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
+! Revised by: JungHoon Shin Jul 2025 NCEP/EMC: Add a HMON type smoothing option
 !
 !     DECLARE VARIABLES
 !
@@ -22,7 +23,7 @@
       integer NCHT,KSTM,k850,KST,IWMIN1,IWMAX1,JWMIN1,JWMAX1
       integer ictr,jctr,ismth_01,N_smth,I_max1,J_max1,i_max,j_max,IMV,JMV
       integer ICTRM1,ICTRP1,JCTRM1,JCTRP1,IR1,IR,IT1,IR0,IT2,I2,J2,KM1,M1
-      integer IRAD_1,N_ITER,MAX_ITER,N,K1,IT_FLAG,IR_1
+      integer IRAD_1,N_ITER,MAX_ITER,N,K1,IT_FLAG,IR_1,ITER,min_iter,int_mode
       real GAMMA,G,Rd,D608,Cp,COEF1,COEF2,COEF3,GRD,pi,pi_deg,pi180,DST1
       real vobs,vobs_o,VRmax,VRmax_deg,psfc_cls,PRMAX,R34obs,R34obsm
       real acount,cmax,deltp,deltp1
@@ -201,7 +202,7 @@
 
       DST1=6.371E3*pi180 !* deg -> km
 
-      READ(5,*)ITIM,basin1,INITOPT
+      READ(5,*)ITIM,basin1,INITOPT,ismth_01,int_mode
 
 
 ! READ 4x area env. data HWRF
@@ -553,7 +554,17 @@
       END DO
       END DO
 
-      ismth_01=0
+
+      if(vobs.lt.28.0) MAX_ITER=10
+      if(vobs.ge.28.0)then
+       if(int_mode.eq.1)then
+        MAX_ITER=10
+        write(*,*) 'RI mode!'
+       else 
+        MAX_ITER=5
+        write(*,*) 'Normal mode!'
+       endif 
+      endif
 
 !     IF(IFLAG_Z.LT.10)THEN            !  smooth
 !     IF(vobs.lt.24..and.DEPTH.ne.'S')THEN
@@ -577,45 +588,10 @@
             T_4=0.
             Q_4=0.           ! borrow array
 
-!$omp parallel do &
-!$omp& private(i,j,k)
-            DO J=JWMIN1,JWMAX1
-              IF(mod(J,2) .ne. 0)THEN
-                DO I=IWMIN1,IWMAX1
-                DO K=1,KMX
-!            T_4(I,J,K)=0.2*(U_1(I,J-1,K)+U_1(I+1,J-1,K)+        &
-!                       U_1(I,J,K)+U_1(I,J+1,K)+U_1(I+1,J+1,K))
-!            Q_4(I,J,K)=0.2*(V_1(I,J-1,K)+V_1(I+1,J-1,K)+        &
-!                       V_1(I,J,K)+V_1(I,J+1,K)+V_1(I+1,J+1,K))
-                  T_4(I,J,K)=(U_1(I,J-1,K)+U_1(I+1,J-1,K)+             &
-                              U_1(I,J,K)+U_1(I,J+1,K)+U_1(I+1,J+1,K)+  &
-                              U_1(I,J-2,K)+U_1(I,J+2,K)+U_1(I-1,J,K)+  &
-                              U_1(I+1,J,K))/9.
-                  Q_4(I,J,K)=(V_1(I,J-1,K)+V_1(I+1,J-1,K)+             &
-                              V_1(I,J,K)+V_1(I,J+1,K)+V_1(I+1,J+1,K)+  &
-                              V_1(I,J-2,K)+V_1(I,J+2,K)+V_1(I-1,J,K)+  &
-                              V_1(I+1,J,K))/9.
-                END DO
-                END DO
-              ELSE
-                DO I=IWMIN1,IWMAX1
-                DO K=1,KMX
-!            T_4(I,J,K)=0.2*(U_1(I-1,J-1,K)+U_1(I,J-1,K)+        &
-!                       U_1(I,J,K)+U_1(I-1,J+1,K)+U_1(I,J+1,K))
-!            Q_4(I,J,K)=0.2*(V_1(I-1,J-1,K)+V_1(I,J-1,K)+        &
-!                       V_1(I,J,K)+V_1(I-1,J+1,K)+V_1(I,J+1,K))
-                  T_4(I,J,K)=(U_1(I-1,J-1,K)+U_1(I,J-1,K)+             &
-                              U_1(I,J,K)+U_1(I-1,J+1,K)+U_1(I,J+1,K)+  &
-                              U_1(I,J-2,K)+U_1(I,J+2,K)+U_1(I-1,J,K)+  &
-                              U_1(I+1,J,K))/9.
-                  Q_4(I,J,K)=(V_1(I-1,J-1,K)+V_1(I,J-1,K)+             &
-                              V_1(I,J,K)+V_1(I-1,J+1,K)+V_1(I,J+1,K)+  &
-                              V_1(I,J-2,K)+V_1(I,J+2,K)+V_1(I-1,J,K)+  &
-                              V_1(I+1,J,K))/9.
-                END DO
-                END DO
-              END IF
-            END DO
+            CALL SMTH_BGRID9(NX,NY,KMX,IWMIN1,IWMAX1,JWMIN1,JWMAX1, &
+                    T_4,U_1)
+            CALL SMTH_BGRID9(NX,NY,KMX,IWMIN1,IWMAX1,JWMIN1,JWMAX1, &
+                    Q_4,V_1)
 
             U_1=T_4
             V_1=Q_4
@@ -625,45 +601,10 @@
             T_4=0.
             Q_4=0.           ! borrow array
 
-!$omp parallel do &
-!$omp& private(i,j,k)
-            DO J=JWMIN1,JWMAX1
-              IF(mod(J,2) .ne. 0)THEN
-                DO I=IWMIN1,IWMAX1
-                DO K=1,KMX
-!            T_4(I,J,K)=0.2*(T_1(I-1,J-1,K)+T_1(I,J-1,K)+        &
-!                       T_1(I,J,K)+T_1(I-1,J+1,K)+T_1(I,J+1,K))
-!            Q_4(I,J,K)=0.2*(Q_1(I-1,J-1,K)+Q_1(I,J-1,K)+        &
-!                       Q_1(I,J,K)+Q_1(I-1,J+1,K)+Q_1(I,J+1,K))
-                  T_4(I,J,K)=(T_1(I-1,J-1,K)+T_1(I,J-1,K)+             &
-                              T_1(I,J,K)+T_1(I-1,J+1,K)+T_1(I,J+1,K)+  &
-                              T_1(I,J-2,K)+T_1(I,J+2,K)+T_1(I-1,J,K)+  &
-                              T_1(I+1,J,K))/9.
-                  Q_4(I,J,K)=(Q_1(I-1,J-1,K)+Q_1(I,J-1,K)+             &
-                              Q_1(I,J,K)+Q_1(I-1,J+1,K)+Q_1(I,J+1,K)+  &
-                              Q_1(I,J-2,K)+Q_1(I,J+2,K)+Q_1(I-1,J,K)+  &
-                              Q_1(I+1,J,K))/9.
-                END DO
-                END DO
-              ELSE
-                DO I=IWMIN1,IWMAX1
-                DO K=1,KMX
-!            T_4(I,J,K)=0.2*(T_1(I,J-1,K)+T_1(I+1,J-1,K)+        &
-!                       T_1(I,J,K)+T_1(I,J+1,K)+T_1(I+1,J+1,K))
-!            Q_4(I,J,K)=0.2*(Q_1(I,J-1,K)+Q_1(I+1,J-1,K)+        &
-!                       Q_1(I,J,K)+Q_1(I,J+1,K)+Q_1(I+1,J+1,K))
-                  T_4(I,J,K)=(T_1(I,J-1,K)+T_1(I+1,J-1,K)+             &
-                              T_1(I,J,K)+T_1(I,J+1,K)+T_1(I+1,J+1,K)+  &
-                              T_1(I,J-2,K)+T_1(I,J+2,K)+T_1(I-1,J,K)+  &
-                              T_1(I+1,J,K))/9.
-                  Q_4(I,J,K)=(Q_1(I,J-1,K)+Q_1(I+1,J-1,K)+             &
-                              Q_1(I,J,K)+Q_1(I,J+1,K)+Q_1(I+1,J+1,K)+  &
-                              Q_1(I,J-2,K)+Q_1(I,J+2,K)+Q_1(I-1,J,K)+  &
-                              Q_1(I+1,J,K))/9.
-                END DO
-                END DO
-              END IF
-            END DO
+            CALL SMTH_BGRID9(NX,NY,KMX,IWMIN1,IWMAX1,JWMIN1,JWMAX1, &
+                    T_4,T_1)
+            CALL SMTH_BGRID9(NX,NY,KMX,IWMIN1,IWMAX1,JWMIN1,JWMAX1, &
+                    Q_4,Q_1)
 
             T_1=T_4
             Q_1=Q_4
@@ -672,29 +613,8 @@
 
             T_4=0.
 
-!$omp parallel do &
-!$omp& private(i,j)
-            DO J=JWMIN1,JWMAX1
-              IF(mod(J,2) .ne. 0)THEN
-                DO I=IWMIN1,IWMAX1
-!            T_4(I,J,1)=0.2*(SLP_1(I-1,J-1)+SLP_1(I,J-1)+        &
-!                       SLP_1(I,J)+SLP_1(I-1,J+1)+SLP_1(I,J+1))
-                  T_4(I,J,1)=(SLP_1(I-1,J-1)+SLP_1(I,J-1)+             &
-                              SLP_1(I,J)+SLP_1(I-1,J+1)+SLP_1(I,J+1)+  &
-                              SLP_1(I,J-2)+SLP_1(I,J+2)+SLP_1(I-1,J)+  &
-                              SLP_1(I+1,J))/9.
-                END DO
-              ELSE
-                DO I=IWMIN1,IWMAX1
-!            T_4(I,J,1)=0.2*(SLP_1(I,J-1)+SLP_1(I+1,J-1)+        &
-!                       SLP_1(I,J)+SLP_1(I,J+1)+SLP_1(I+1,J+1))
-                  T_4(I,J,1)=(SLP_1(I,J-1)+SLP_1(I+1,J-1)+             &
-                              SLP_1(I,J)+SLP_1(I,J+1)+SLP_1(I+1,J+1)+  &
-                              SLP_1(I,J-2)+SLP_1(I,J+2)+SLP_1(I-1,J)+  &
-                              SLP_1(I+1,J))/9.
-                END DO
-              END IF
-            END DO
+            CALL SMTH_BGRID9(NX,NY,1,IWMIN1,IWMAX1,JWMIN1,JWMAX1, &
+                    T_4,SLP_1)
 
             DO J=JWMIN1,JWMAX1
             DO I=IWMIN1,IWMAX1
@@ -726,9 +646,9 @@
             print*,'N_smth=',N_smth
 !            IF(N_smth.lt.2)go to 667
             if(N_smth.ge.2)then   ! shin
-            IF((N_smth.lt.15.and.VRmax_deg.lt.1.5)                     &
+            IF((N_smth.lt.MAX_ITER.and.VRmax_deg.lt.1.5)                     &
                .and.RIJ2(I_max1,J_max1).lt.VRmax_deg)THEN
-               print*,'N_smth,RIJ2,VRmax_deg=',N_smth,RIJ2(I_max1,J_max1),VRmax_deg
+                print*,'N_smth,RIJ2,VRmax_deg=',N_smth,RIJ2(I_max1,J_max1),VRmax_deg
             ELSE   ! shin:If above statement is not satistifed, escapce
                 print*,'Exit the loop after N_smth=', N_smth
                exit ! shin
@@ -742,6 +662,10 @@
          END IF
 
       enddo    !shin ===========================================================
+
+      OPEN(70,file='iteration',form='formatted')
+       write(70,*) N_smth
+      CLOSE(70)
       DEALLOCATE ( T_4,Q_4 )
 
 ! 665  continue We don't need this  shin
@@ -1891,3 +1815,19 @@
       END
 
 !==============================================================================
+   SUBROUTINE SMTH_BGRID9(IMX,JMX,KMX,IN1,IX1,JN1,JX1,A1,B1)
+     IMPLICIT NONE
+     INTEGER IMX,JMX,KMX,IN1,IX1,JN1,JX1,I,J,K
+     REAL(4) A1(IMX,JMX,KMX),B1(IMX,JMX,KMX)
+!$omp parallel do &
+!$omp& private(i,j,k)
+      DO J=JN1,JX1
+      DO I=IN1,IX1
+      DO K=1,KMX
+         A1(I,J,K)=(B1(I-1,J-1,K)+B1(I,J-1,K)+B1(I+1,J-1,K)+  &
+                    B1(I-1,J,K)+B1(I,J,K)+B1(I+1,J,K)+        &
+                    B1(I-1,J+1,K)+B1(I,J+1,K)+B1(I+1,J+1,K))/9.
+      END DO
+      END DO
+      END DO
+   END SUBROUTINE SMTH_BGRID9

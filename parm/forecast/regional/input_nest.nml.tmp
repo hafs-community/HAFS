@@ -11,21 +11,6 @@
   prepend_date = .false.
 /
 
-&mpp_io_nml
-  header_buffer_val = 16384,
-  global_field_on_root_pe = .true.,
-  io_clocks_on = .false.,
-  shuffle = 0,
-  deflate_level = @[deflate_level],
-  cf_compliance = .false.
-/
-
-&fms_io_nml
-  checksum_required = .false.
-  max_files_r = 1000,
-  max_files_w = 1000,
-/
-
 &fms2_io_nml
   netcdf_default_format="netcdf4"
 /
@@ -125,6 +110,8 @@
   n_zs_filter = @[n_zs_filter_nml]
   nord_zs_filter = 4
   pass_full_omega_to_physics_in_non_hydrostatic_mode = .false.
+
+  sa3dtke_dyco = @[sa3dtke_dyco]
 /
 
 &surf_map_nml
@@ -165,7 +152,7 @@
   pdfcld         = .false.
   min_lakeice    = 0.15
   min_seaice     = 0.15
-  use_cice_alb   = .false
+  use_cice_alb   = .false.
   fhswr          = @[fhswr]
   fhlwr          = @[fhlwr]
   ialb           = @[ialb]
@@ -181,6 +168,8 @@
   cal_pre        = .false.
   redrag         = .true.
   dspheat        = .true.
+  sa3dtke        = @[sa3dtke]
+  tte_edmf       = @[tte_edmf]
   hybedmf        = .false.
   hurr_pbl       = .true. ! HWRF moninedmf
   moninq_fac     = -1.0   ! HWRF_moninedmf
@@ -215,7 +204,7 @@
   isot           = 1
   lsoil          = 4
   lsm            = @[lsm]
-  iopt_dveg      = 4
+  iopt_dveg      = 1
   iopt_crs       = 2
   iopt_btr       = 1
   iopt_run       = 1
@@ -289,6 +278,65 @@
   do_gsl_drag_ls_bl    = .true.
   do_gsl_drag_ss       = .true.
   do_gsl_drag_tofd     = .true.
+/
+
+&gfdl_cloud_microphysics_v3_nml
+  do_sedi_heat = .true.
+  vi_max = 1.
+  vs_max = 6.
+  vg_max = 12.
+  vr_max = 12.
+  vi_fac = 1.
+  vs_fac = 1.
+  vg_fac = 1.
+  vr_fac = 1.
+  radr_flag = 1
+  rads_flag = 1
+  radg_flag = 1
+  qi_lim = 2.
+  prog_ccn = .true.
+  tau_l2v = 225.
+  tau_v2l = 120.
+  dw_land = 0.16
+  dw_ocean = 0.10
+  ql_mlt = 1.0e-3
+  qi0_crt = 7.5e-5
+  qs0_crt = 1.0e-3
+  rh_inc = 0.30
+  rh_inr = 0.30
+  c_paut = 0.5
+  rthresh = 10.0e-6
+  c_pracw = 0.75
+  c_pgacw = 1.e-2
+  c_psaci = 0.05
+  c_pgaci = 0.03
+  c_pgacs = 0.05
+  do_hail = .true.
+  do_cond_timescale = .true.
+  delay_cond_evap = .true.
+  do_cld_adj = .true.
+  use_rhc_revap = .true.
+  f_dq_p = 3.0
+  rewmax = 10.0
+  rermin = 10.0
+  vdiffflag = 2
+  do_new_acc_water = .true.
+  do_psd_water_fall = .true.
+  n0w_sig = 1.2
+  n0w_exp = 66
+  muw = 11.0
+  alinw = 3.e7
+  blinw = 2.0
+  rewflag = 4
+  do_new_acc_ice = .true.
+  do_psd_ice_fall = .true.
+  n0i_sig = 1.0
+  n0i_exp = 10
+  mui = 1.0
+  alini = 11.72
+  blini = 0.41
+  reiflag = 7
+  mp_time = @[dt_inner]
 /
 
 &gfdl_cloud_microphysics_nml

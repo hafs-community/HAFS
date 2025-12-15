@@ -48,6 +48,8 @@ mkdir -p ${DATA}
 
 cd ${DATA}
 
+rm -f cmdfile
+
 #FHR=${FHRB:-0}
 FHR=${FHRB:-${NOUTHRS}}
 FHR2=$(printf "%02d" "$FHR")
@@ -113,7 +115,7 @@ done
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  ncks --deflate=1 -O ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost}
+  echo ncks --deflate=1 -O ${INPdir}/${ocnout} ${COMOUTpost}/${ocnpost} >> cmdfile
 fi
 
 # Write out the ocnpostdone message file
@@ -141,7 +143,17 @@ oicout=oic_${YYYY}_${MM}_${DD}_${HH}.nc
 oicpost=${out_prefix}.${RUN}.mom6.f000.nc
 
 if [ $SENDCOM = YES ]; then
-  ncks --deflate=1 -O ${INPdir}/${oicout} ${COMOUTpost}/${oicpost}
+  echo ncks --deflate=1 -O ${INPdir}/${oicout} ${COMOUTpost}/${oicpost} >> cmdfile
 fi
+
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
 
 cd ${DATA}

@@ -39,7 +39,7 @@ netcdf_ver=os.getenv("netcdf_ver")
 load(pathJoin("netcdf-C", netcdf_ver))
 
 fms_ver=os.getenv("fms_ver")
-load(pathJoin("fms-C", fms_ver))
+load(pathJoin("fms", fms_ver))
 
 bacio_ver=os.getenv("bacio_ver")
 load(pathJoin("bacio", bacio_ver))

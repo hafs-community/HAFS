@@ -8,6 +8,7 @@ tape_project=emc-hwrf
 cpu_account=hurricane
 ## Archive path
 archive=disk:/work/noaa/{disk_project}/noscrub/{ENV[USER]}/hafsarch/{SUBEXPT}/{out_prefix}.tar
+#archens=sync:/work/noaa/{disk_project}/scrub/{ENV[USER]}/hafstmp/hafsarch_ens/{SUBEXPT}/com/{YMDH}/{STID}
 
 [dir]
 ## Save directory.  Make sure you edit this.

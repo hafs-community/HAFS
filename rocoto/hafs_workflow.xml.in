@@ -98,7 +98,7 @@
 
   <!ENTITY gtype "@[gtype:-regional]">
   <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
-  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
+  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_RESOURCES_300PE];">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -910,7 +910,6 @@
         <!-- Start the ocn_post if the forecast is running or if it has
              already completed. -->
         <or>
-          <taskdep task="forecast" state="RUNNING"/>
           <taskdep task="forecast"/>
         </or>
         <taskdep task="unpost"/>
@@ -1041,10 +1040,12 @@
       <and>
         <taskdep task="launch"/>
         <!-- Wait until the deterministic forecast job is running or completed. -->
+<!-- XL run ens at the same time
         <or>
           <taskdep task="forecast" state="RUNNING"/>
           <taskdep task="forecast"/>
         </or>
+-->
       </and>
     </dependency>
   </task>
@@ -1104,7 +1105,7 @@
       &PE_EXTRA;
       &CORES_EXTRA;
       &CLUSTER_COMPUTE;
-      &ATM_INIT_RESOURCES;
+      &ATM_INIT_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
@@ -1416,6 +1417,9 @@
       <dependency>
         <and>
           <metataskdep metatask="atm_ic_ens"/>
+@** if RUN_ATM_INIT_ENS==YES
+          <metataskdep metatask="atm_init_ens"/>
+@** endif
 @** if gtype==regional
           <metataskdep metatask="atm_lbc_ens"/>
 @** if RUN_OCEAN==YES
