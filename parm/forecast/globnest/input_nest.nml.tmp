@@ -99,6 +99,7 @@
   z_tracer = .true.
   agrid_vel_rst = .true.
   read_increment = .false.
+  increment_file_on_native_grid = .true.
   res_latlon_dynamics = "fv3_increment.nc"
   write_3d_diags = .true.
 
@@ -235,6 +236,7 @@
   psautco        = 0.0008, 0.0005
   prautco        = 0.00015, 0.00015
   iau_delthrs    = @[iau_delthrs]
+  iau_filter_increments = @[iau_filter_increments]
   iaufhrs        = @[iaufhrs]
   iau_inc_files  = @[iau_inc_files]
   iau_regional   = @[iau_regional]
