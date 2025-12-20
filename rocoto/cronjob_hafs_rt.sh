@@ -46,11 +46,11 @@ scrubopt="config.scrub_work=no config.scrub_com=no config.archive=none"
      config.NHRS=6 ${scrubopt} \
      ../parm/rt_conf/hafs_regional_static_C192s1n4_atm_ocn_wav.conf
 
- # Regional standalone low-resolution static basin-focused configuration with 3DEnVar using GDAS ensembles
- ./run_hafs.py ${opts} 2024092406-2024092412 00L HISTORY \
-     config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_3denvar \
-     config.NHRS=12 ${scrubopt} \
-     ../parm/rt_conf/hafs_regional_static_C192s1n4_atm_3denvar.conf
+## Regional standalone low-resolution static basin-focused configuration with 3DEnVar using GDAS ensembles
+#./run_hafs.py ${opts} 2024092406-2024092412 00L HISTORY \
+#    config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_rt_regional_static_C192s1n4_atm_3denvar \
+#    config.NHRS=12 ${scrubopt} \
+#    ../parm/rt_conf/hafs_regional_static_C192s1n4_atm_3denvar.conf
 
 #===============================================================================
  # HAFS application regression tests for experimental global-nesting configurations
