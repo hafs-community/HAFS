@@ -99,7 +99,7 @@
   z_tracer = .true.
   agrid_vel_rst = .true.
   read_increment = .false.
-  increment_file_on_native_grid = .true.
+  increment_file_on_native_grid = .false.
   res_latlon_dynamics = "fv3_increment.nc"
   write_3d_diags = .true.
 
