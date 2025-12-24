@@ -452,6 +452,9 @@ export nhcpost_ens={nhcpost_ens}
 #IAU related options
 export iau_regional={iau_regional}
 export iau_inc_scale={iau_inc_scale}
+export iau_filter_increments={iau_filter_increments}
+export iau_delthrs={iau_delthrs}
+export iaufhrs={iaufhrs}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
