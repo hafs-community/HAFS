@@ -239,8 +239,8 @@
   iau_filter_increments = @[iau_filter_increments]
   iaufhrs        = @[iaufhrs]
   iau_inc_files  = @[iau_inc_files]
-  iau_regional   = @[iau_regional]
-  iau_inc_scale  = @[iau_inc_scale]
+  iau_regional   = @[iau_regional_nml]
+  iau_inc_scale  = @[iau_inc_scale_nml]
   iau_drymassfixer = .false.
   lgfdlmprad     = @[lgfdlmprad]
   effr_in        = .true.
