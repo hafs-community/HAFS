@@ -57,6 +57,12 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export ENSID=${ENSID:-001}
 
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+if [ "${RUN_MULTISTORM}" == "YES" ] && [ "${multistorm_sids}" == "00L" ]; then
+  echo "INFO: Running 0-storm MULTISTORM case"
+  export nest_grids=1
+fi
+
 # Set FORECAST_RESTART to YES if this is a restart run for the forecast job
 export FORECAST_RESTART=${FORECAST_RESTART:-${RESTART:-NO}}
 if [ "${FORECAST_RESTART}" = "YES" ]; then

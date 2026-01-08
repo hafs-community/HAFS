@@ -14,6 +14,7 @@
 #   04/20/2024: Improve error handling and stdout/stderr redirection for HAFSv2
 #   07/12/2024: Add 3DIAU related capabilities for HAFS regional configuration
 #   12/16/2024: Add Fourier wave-number filtering capabilities for DA increments
+#   06/30/2024: Merge with HFSM (Multistorm) workflow changes
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -50,6 +51,8 @@ else
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
   elif [ -e ${WORKhafs}/intercom/RESTART_vi ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_vi
+  elif [ -e ${WORKhafs}/intercom/RESTART_init ]; then
+    RESTARTsrc=${WORKhafs}/intercom/RESTART_init
   else
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
@@ -66,7 +69,8 @@ if [ ${FGAT_MODEL} = gdas ]; then
   RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
   RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-  CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+  #CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+  CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${CDATE:-${YMDH}})
 else
   RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
   RESTARTdst=${WORKhafs}/intercom/RESTART_init
@@ -86,6 +90,10 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo $CDATE | cut -c9-10)
+
+if [ ${RUN_MULTISTORM} == "YES" ]; then
+    multistorm_sids=`echo ${multistorm_sids} | tr ',' ' '`
+fi
 
 DATA=${DATA:-${WORKhafs}/merge}
 
@@ -137,17 +145,93 @@ for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1; do
   export err=$?; err_chk
 done
 
-# Regional with one nest configuration
+# Regional with one or more nests configuration
 # The following steps are needed
-#   Step 1: merge srcd01 into dstd02 (for atm_merge) or merge srcd02 into srcd01 (for analysis_merge)
+#   Step 1: merge srcd01 into dstd02 (for atm_merge) or merge srcd0[2...N] into srcd01 (for analysis_merge)
 #   Step 2: merge srcd01 into dstd01
-#   Step 3: merge srcd02 into dstd02
-elif [[ $nest_grids -eq 2 ]]; then
+#   Step 3: merge srcd02 into dstd02, srcd03 into dstd03, etc.
+elif [[ $nest_grids -ge 2 ]]; then
 
 RESTARTtmp=${DATA}/RESTARTtmp
 mkdir -p ${RESTARTtmp}
 
 if [ ${MERGE_TYPE} = analysis ]; then
+
+if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
+    # Step 1: merge each src0[2-N] nest analysis into src01 parent domain (for analysis_merge)
+    ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
+    tileno=2
+    for sid in ${multistorm_sids} ; do
+        RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+        mkdir -p ${RESTARTNESTtmp}
+        echo "DEBUG:: RESTARTNESTtmp=${RESTARTNESTtmp}"
+        
+        # Update the MERGE Command by pointing to the appropriate TCVitals file
+        # Merge the src0[2-N] nest analyses directly into dst01 (RESTARTmrg) 
+        WORKhafs_nest=${WORKhafs/00L/${sid}/}
+
+        # Update the location of tmpvit
+        #tcvital_nest=${WORKhafs_nest}/tmpvit
+        tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+        echo "DEBUG: ls -l tcvital_nest:"
+        ls -l ${tcvital_nest}
+        if [ ${merge_method} = vortexreplace ]; then
+    	MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+        else
+    	MERGE_CMD_NEST="${MERGE_CMD}"
+        fi
+        if [ -e ${WORKhafs_nest}/intercom/RESTART_analysis ]; then
+    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_analysis
+        elif [ -e ${WORKhafs_nest}/intercom/RESTART_vi ]; then
+    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_vi
+        elif [ -e ${WORKhafs_nest}/intercom/RESTART_init ]; then
+    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_init
+        else
+    	echo "FATAL ERROR: RESTARTNESTsrc does not exist"
+    	exit 1
+        fi
+        #RESTARTNESTdst=${RESTARTdst/00L/${sid}/}
+        
+        #${NCP} -rp ${RESTARTNESTsrc}/* ${RESTARTNESTtmp}/
+        for srcf in ${RESTARTNESTsrc}/*; do
+    	dstf=$(basename ${srcf} | sed -s s/nest02/nest0${tileno}/ | sed -s s/tile2/tile${tileno}/)
+    	echo "DEBUG:: ${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}"
+    	${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}
+        done
+
+        find ${RESTARTdst} \( ! -name "*nest0[0-9]*" \) -exec ${NCP} -rp {} ${RESTARTNESTtmp}/ \;
+        in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+        #out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+        out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+        
+        for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do #sfc_data; do
+    	in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.nc
+    	if [[ $var = sfc_data ]]; then
+    	    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
+    	    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+    	else
+    	    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
+    	    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+    	fi
+    	if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+    	       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+    	    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+    	    exit 1
+    	fi
+    	#${MERGE_CMD}
+    	${MERGE_CMD_NEST} \
+    	    --in_grid=${in_grid} \
+    	    --out_grid=${out_grid} \
+    	    --in_file=${in_file} \
+    	    --out_file=${out_file}
+    	status=$?; [[ $status -ne 0 ]] && exit $status
+        done
+        #GJA
+        tileno=$((tileno+1))
+        #for sid in ${multistorm_sids} ; do
+    done
+    
+else
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
@@ -172,7 +256,10 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_analysis_step1_${var}.log
   export err=$?; err_chk
+
 done
+
+fi #if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then ... else
 
 elif [ ${MERGE_TYPE} = init ]; then
 
@@ -207,6 +294,9 @@ else
 fi
 
 # Step 2: merge srcd01 into dstd01
+# Only do this step for real storms
+# For multistorm, don't merge srcd01 (from storm-centric pre-processing) into dstd01 (domain-centric forecast domain)
+if [ "${STORMID}" != "00L" ]; then
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
@@ -231,7 +321,51 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   export err=$?; err_chk
 done
 
+fi
+
 # Step 3: merge srcd02 into dstd02
+if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
+    tileno=2
+    for sid in ${multistorm_sids} ; do
+	RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+	WORKhafs_nest=${WORKhafs/00L/${sid}/}
+
+        # Update the location of tmpvit
+        #tcvital_nest=${WORKhafs_nest}/tmpvit
+        tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+        echo "DEBUG: ls -l tcvital_nest:"
+        ls -l ${tcvital_nest}
+	if [ ${merge_method} = vortexreplace ]; then
+	    MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+	else
+	    MERGE_CMD_NEST="${MERGE_CMD}"
+	fi
+	for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+	    # in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+	    # out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+	    # in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+	    # out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+	    in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+	    out_grid=${RESTARTmrg}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+	    in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+	    out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+	    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+		   [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+		echo "FATAL ERROR: Missing in/out_grid or in/out_file. Exiting..."
+		exit 1
+	    fi
+	    #${MERGE_CMD}
+	    ${MERGE_CMD_NEST} \
+		--in_grid=${in_grid} \
+		--out_grid=${out_grid} \
+		--in_file=${in_file} \
+		--out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
+	    export err=$?; err_chk
+	done #for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+	tileno=$((tileno+1))
+    done #for sid in ${multistorm_sids} ; do
+else
+
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
@@ -251,6 +385,8 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   export err=$?; err_chk
 done
 
+fi
+
 if [ ${RUN_GSI} = "YES" ] && [ ${GSI_D02} = "YES" ]; then
 
 # Step 4: Calculate d02 increments for IAU
@@ -265,39 +401,86 @@ else
 fi
 
 if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
-  RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
-  in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-  iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
-  if [ -s ./tcvitals ]; then
-    iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
-  fi
-  if [ -s ${in_grid} ]; then
-    iau_fwd_command="${iau_fwd_command} --in_grid=${in_grid}"
-  fi
-  if [ ${iau_regional} = ".true." ]; then
-    iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_nest02.nc"
-  fi
-  if [ ${wave_num} -gt "-99" -a ${wave_num} -lt "99" ]; then
-    iau_fwd_command="${iau_fwd_command} --wave_num=${wave_num}"
-  fi
-# for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-  for var in fv_core.res fv_tracer.res; do
-    ${iau_fwd_command} \
-         --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
-         --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc 2>&1 | tee ./analysis_fftw_iau.${var}.log
-    export err=$?; err_chk
-  done
-  if [ ${iau_regional} = ".true." ]; then
-    ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
-    # Replace d02 restart files
-#   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-    for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
-      in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-      mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
-      ${NCP} -rp ${out_file} ${mrg_file}
-      ${NCP} -rp ${in_file} ${out_file}
+
+  if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
+    tileno=2
+    for sid in ${multistorm_sids} ; do
+      WORKhafs_nest=${WORKhafs/00L/${sid}/}
+      RESTARTbkg=${WORKhafs_nest}/intercom/RESTART_vi
+      RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+      
+      in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+      iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
+      if [ -s ./tcvitals ]; then
+        iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
+      fi
+      if [ -s ${in_grid} ]; then
+        iau_fwd_command="${iau_fwd_command} --in_grid=${in_grid}"
+      fi
+      if [ ${iau_regional} = ".true." ]; then
+        iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_nest02.nc"
+      fi
+      if [ ${wave_num} -gt "-99" -a ${wave_num} -lt "99" ]; then
+        iau_fwd_command="${iau_fwd_command} --wave_num=${wave_num}"
+      fi
+      #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+      for var in fv_core.res fv_tracer.res; do
+        ${iau_fwd_command} \
+             --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
+             --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc 2>&1 | tee ./analysis_fftw_iau.${var}.log
+        export err=$?; err_chk
+      done
+      if [ ${iau_regional} = ".true." ]; then
+        ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+        # Replace d02 restart files
+        #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+        for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+          in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+          out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+          mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+          ${NCP} -rp ${out_file} ${mrg_file}
+          ${NCP} -rp ${in_file} ${out_file}
+        done
+      fi
+
+      tileno=$((tileno+1))
     done
+
+  else
+    RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
+    in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+    iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
+    if [ -s ./tcvitals ]; then
+      iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
+    fi
+    if [ -s ${in_grid} ]; then
+      iau_fwd_command="${iau_fwd_command} --in_grid=${in_grid}"
+    fi
+    if [ ${iau_regional} = ".true." ]; then
+      iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_nest02.nc"
+    fi
+    if [ ${wave_num} -gt "-99" -a ${wave_num} -lt "99" ]; then
+      iau_fwd_command="${iau_fwd_command} --wave_num=${wave_num}"
+    fi
+    #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+    for var in fv_core.res fv_tracer.res; do
+      ${iau_fwd_command} \
+           --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
+           --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc 2>&1 | tee ./analysis_fftw_iau.${var}.log
+      export err=$?; err_chk
+    done
+    if [ ${iau_regional} = ".true." ]; then
+      ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+      # Replace d02 restart files
+      #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+      for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+        in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+        out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+        mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+        ${NCP} -rp ${out_file} ${mrg_file}
+        ${NCP} -rp ${in_file} ${out_file}
+      done
+    fi
   fi
 fi
 

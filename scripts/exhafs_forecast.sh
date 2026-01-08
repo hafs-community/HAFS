@@ -199,9 +199,9 @@ fi
 
 # Set default options for IAU
 iau_inc_files=","
-iau_filter_increments=.false.
-iau_delthrs=2
-iaufhrs=0
+iau_filter_increments=${iau_filter_increments:-.true.}
+iau_delthrs=${iau_delthrs:-2}
+iaufhrs=${iaufhrs:-0}
 
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
@@ -1331,7 +1331,11 @@ nrows_blend=${halo_blend}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
 atparse < input.nml.tmp > input.nml
 
+#IFS=',' read -r -a sids <<< "$multistorm_sids" #Multistorm IAU
 for n in $(seq 2 ${nest_grids}); do
+  # idx=$((n - 2)) #Multistorm IAU
+  # sid="${sids[$idx]}" #Multistorm IAU
+  # sid_lower=${sid,,} #Multistorm IAU
   inest=$(( ${n} ))
   ccpp_suite_nml=${ccpp_suite_nest}
   layoutx_nml=$( echo ${layoutx} | cut -d , -f ${n} )
@@ -1361,7 +1365,6 @@ for n in $(seq 2 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
-    iau_filter_increments=.true.
     iau_inc_files="analysis_inc_nest0${inest}.nc"
     # Linking increment file
     ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/

@@ -112,6 +112,20 @@ mkdir -p ${DIAGanl}
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
 
+#If VI produced any NaNs, disregard it in the analysis
+if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+  echo "WARNING: VI FGAT09 DA/Analysis missing: FORCING COLD START"
+  export RUN_ATM_VI_FGAT="NO"
+ else
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  if [ "${NANcount}" != "0" ]; then
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT09 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc"
+   export RUN_ATM_VI_FGAT="NO"
+  fi
+ fi
+fi
+
 # Copy the first guess or fgat files
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03

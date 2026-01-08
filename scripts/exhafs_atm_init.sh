@@ -15,11 +15,15 @@
 ################################################################################
 set -x -o pipefail
 
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+
 DATAinit=${DATA}
 
 if [ ${ENSDA} = YES ]; then
   nest_grids=${nest_grids_ens:-${nest_grids}}
 fi
+
 #===============================================================================
 # forecast
 
@@ -71,7 +75,7 @@ for ng in $(seq 1 ${ngrids}); do
     tilestr=".tile$(printf '%d' ${ng})"
   fi
   gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
-  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr}; \
+  echo "export neststr=$neststr tilestr=${tilestr} gridstr=${gridstr} lasttile=$(( ${ng} == ${ngrids} )); \
         ${HOMEhafs}/scripts/exhafs_product.sh \
         > ${DATA}/run_product.${gridstr}.log 2>&1" >> cmdfile_product
 done

@@ -80,6 +80,9 @@ fi
 mkdir -p $DATA
 cd $DATA
 
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+
 # Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_init.sh
 export err=$?; err_chk

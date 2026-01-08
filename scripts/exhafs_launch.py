@@ -183,11 +183,15 @@ def main():
             renumber=True
         logger.info('Looks like this is rocoto, running a multistorm with basins: %s'%(basins))
         # call storm priority
-        bstorms = hafs.launcher.multistorm_priority(args, basins, logger, usage,renumber=renumber)
+        #bstorms = hafs.launcher.multistorm_priority(args, basins, logger, usage,renumber=renumber)
+        # And return max_storms
+        bstorms,max_storms = hafs.launcher.multistorm_priority(args, basins, logger, usage,renumber=renumber)
         logger.info('Priority found the following storms: ' +repr(bstorms))
         for s in bstorms:
             if s not in multi_sids:
                 multi_sids.append(s)
+            # Limit the number of storms, if necessary
+            if len(multi_sids) == max_storms:  break
 
     logger.info('MS LIST: ' +repr(multi_sids))
 
@@ -241,6 +245,16 @@ def main():
         logger.info(holdvars+': write holdvars here')
         with open(holdvars,'wt') as f:
             f.write(conf.make_holdvars())
+
+        # Create holdvars in real storm (i.e., not fake storm - 00L) COM dirs.
+        # Move this after conf.sanity_check().
+        if stid != fake_stid and go_since_multistorm_sids:
+            holdvars=fakestorm_conf.strinterp('dir','{com}/storm{global_storm_num}.holdvars.txt')
+            holdvars=os.path.join(fakestorm_conf.strinterp('dir','{com}'),
+                                  'storm%d.holdvars.txt' %global_storm_num)
+            logger.info(holdvars+': write REALSTORM holdvars here')
+            with open(holdvars,'wt') as f:
+                f.write(conf.make_holdvars())
 
         holdvars2=conf.strinterp('dir','{com}/{out_prefix}.{RUN}.holdvars.txt')
         logger.info(holdvars2+': copy holdvars here as well')

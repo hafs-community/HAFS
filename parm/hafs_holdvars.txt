@@ -3,6 +3,8 @@
 # can also be used for debugging: simply source the
 # storm*.holdvars.txt in a ksh/sh/bash shell.
 
+export RUN_MULTISTORM={RUN_MULTISTORM}
+
 [[ -z "$cyc" ]] && export cyc={HH}
 [[ -z "$storm_num" ]] && export storm_num={storm_num}
 [[ -z "$stormlabel" ]] && export stormlabel={stormlabel}
@@ -20,10 +22,11 @@
 [[ -z "$FIXhafs" ]] && export FIXhafs={FIXhafs}
 [[ -z "$FIXcrtm" ]] && export FIXcrtm={FIXcrtm}
 
-[[ -z "$WORKhafs" ]] && export WORKhafs={WORKhafs}
-[[ -z "$COMhafs" ]] && export COMhafs={COMhafs}
-[[ -z "$CONFhafs" ]] && export CONFhafs={CONFhafs}
-[[ -z "$HOLDVARS" ]] && export HOLDVARS={HOLDVARS}
+# Lew.Gramer@noaa.gov 2025-12-01
+[[ "$RUN_MULTISTORM" == "YES" || -z "$WORKhafs" ]] && export WORKhafs={WORKhafs}
+[[ "$RUN_MULTISTORM" == "YES" || -z "$COMhafs" ]] && export COMhafs={COMhafs}
+[[ "$RUN_MULTISTORM" == "YES" || -z "$CONFhafs" ]] && export CONFhafs={CONFhafs}
+[[ "$RUN_MULTISTORM" == "YES" || -z "$HOLDVARS" ]] && export HOLDVARS={HOLDVARS}
 
 [[ -z "$COMOLD" ]] && export COMOLD={COMOLD}
 [[ -z "$COMIN" ]] && export COMIN={COMIN}
@@ -50,11 +53,15 @@
 
 export TZ=UTC
 export YMDH={YMDH} CYCLE={YMDH}
+export storm_num={storm_num}
+export stormlabel={stormlabel}
 export STORM={vit[stormname]}
 export STORMID={vit[stormid3]}
 export hafsbasin2={vit[tcutilbasin2]}
 export pubbasin2={vit[pubbasin2]}
 export basinname="{vit[basinname]}"
+export fakestormid={fakestormid}
+export multistorm_sids={multistorm_sids}
 export CENLO={domlon}
 export CENLA={domlat}
 
@@ -186,6 +193,7 @@ export halop2_mvnest1res={halop2_mvnest1res}
 
 export is_moving_nest={is_moving_nest}
 export vortex_tracker={vortex_tracker}
+export static_grid_ratio={static_grid_ratio}
 export ntrack={ntrack}
 export move_cd_x={move_cd_x}
 export move_cd_y={move_cd_y}
@@ -304,6 +312,8 @@ export progsigma={progsigma}
 export betascu={betascu}
 export betamcu={betamcu}
 export betadcu={betadcu}
+export cat_adj_deep={cat_adj_deep}
+export cat_adj_shal={cat_adj_shal}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
@@ -452,6 +462,9 @@ export nhcpost_ens={nhcpost_ens}
 #IAU related options
 export iau_regional={iau_regional}
 export iau_inc_scale={iau_inc_scale}
+export iau_filter_increments={iau_filter_increments}
+export iau_delthrs={iau_delthrs}
+export iaufhrs={iaufhrs}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}

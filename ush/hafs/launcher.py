@@ -19,6 +19,7 @@
 #   03/27/2023: Finalize for HAFSv1 implementation
 #   04/19/2024: Improvements (error/exception handling) for HAFSv2 upgrade
 #   07/12/2024: Add 3DIAU related changes
+#   12/04/2025: Merge with HFSM (Multistorm) workflow changes
 ################################################################################
 
 """!Creates the initial HAFS directory structure, loads information into each job.
@@ -41,6 +42,8 @@ tcvitals generation."""
 __all__=['load','launch','HAFSLauncher','parse_launch_args','multistorm_parse_args']
 
 import os, re, sys, collections, random
+import numpy as np
+import xarray as xr
 import produtil.fileop, produtil.run, produtil.log
 import tcutil.revital, tcutil.storminfo, tcutil.numerics
 import hafs.config
@@ -183,6 +186,25 @@ def multistorm_parse_args(msids, args, logger, usage, PARMhafs=None, wrapper=Fal
                 idx_system_conf += 1
             else:
                 infiles.append(confy)
+
+        # Lew.Gramer@noaa.gov 2025-06-15: Adjust layout based on
+        # number of storms: the *template* of this file name should
+        # eventually be specified as an optional command-line argument
+        # to run_hafs.py, e.g., by adding "_NSTORMS_#nstorms#.conf" to
+        # a filename on that command line.
+        layout_conf = f'hafs_multistorm_layout_nstorms_{len(multistorms)-1}.conf';
+        logger.info('LAYOUT CONF FILE: '+layout_conf);
+        confy= os.path.join(parm, layout_conf)
+        if not os.path.exists(confy):
+            logger.warning('WARNING: '+confy+': conf file does not exist.')
+        elif not os.path.isfile(confy):
+            logger.warning('WARNING: '+confy+': conf file is not a regular file.')
+        else:
+            # logger.info('INFO: IGNORING Conf input: '+repr(confy))
+            logger.info('Conf input: '+repr(confy))
+            infiles.append(confy)
+        # LJG
+
         logger.info('MULTISTORM Conf input ORDER:')
         for conffile in infiles:
             logger.info('Conf input: '+repr(conffile))
@@ -204,6 +226,11 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     vitpattern=conf.getstr('config','vitpattern','syndat_tcvitals.%Y')
     vitfile=os.path.join(syndatdir,cyc.strftime(vitpattern))
     multistorm=conf.getbool('config','run_multistorm',False)     #ADDED BY THIAGO TO DETERMINE IF "run_multistorm=true".
+    # Ghassan.Alaka@noaa.gov 2024-01-08
+    # Read 'nest_grids' parameter as the maximum number of storms. Default=5
+    max_storms=conf.getint('grid','nest_grids',5)
+    # GJA
+    
     rv=tcutil.revital.Revital(logger=logger)
     rv.readfiles(vitfile, raise_all=False)
     if renumber:
@@ -217,9 +244,14 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     #                          and Eastern threshold for LANT storms is -25
     #                          Temp fix so relocation does not fail
     if multistorm:
-        rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
+        #rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
+        ## LJG 2025-09-26: Filter out, e.g., Juliette 20250827 00 west of 117W, and Gabrielle 20250926 12 north of 39N
+        # NOTE FOR v2.2 MERGE: This will obviously break for multistorm in other basins...
+        rv.discard_except(lambda v: -117<=v.lon and v.lon<=-23 and v.lat<=39)
     rv.clean_up_vitals()
-    rv.sort_by_function(rv.hrd_multistorm_sorter)
+    #rv.sort_by_function(rv.hrd_multistorm_sorter)
+    # Lew.Gramer@noaa.gov 2023-08-15
+    rv.sort_by_function(rv.hrd_multistorm_cmp)
     for v in rv:
         sid = v.as_tcvitals().split()[1]
         storms.append(sid)
@@ -227,7 +259,9 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
 #        logger.info('No storms for cycle: '+cyc.strftime('%Y%m%d%H'))
 #        produtil.fileop.touch(os.path.join(conf.getdir('com'),
 #            'no_storms.txt'))
-    return(storms)
+    # Return the maximum number of storms to run as well
+    return(storms,max_storms)
+    #return(storms)
 
 def parse_launch_args(args,logger,usage,PARMhafs=None):
     """!Parsed arguments to scripts that launch the HAFS system.
@@ -460,6 +494,14 @@ def _load_multistorm(fakestormid,conf,logger):
         # There is no guarantee that oldsyndat and syndat are in sync 1:1 in the lists.
         # consider that rational throughout.
 
+    # Write out the multistorm syndat to a file for later use.
+    # There may be a better way to pass this information through.
+    filename=os.path.join(WORKhafs4fake,'intercom','launch','tmpvit.multistorm')
+    logger.info(filename+': write current cycle multistorm vitals here')
+    with open(filename,'wt') as tmpvit:
+        for i,stormid in enumerate(multistorm_sids):
+            print(syndat_multistorm[i].as_tcvitals(), file=tmpvit)
+
     conf.set_storm_multistorm(multistorm_sids,syndat_multistorm,oldsyndat_multistorm)
 
 def make_vit_for_prelaunch(stid):
@@ -536,6 +578,9 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
                             'must be a list of strings.')
     conf=HAFSLauncher()
     logger=conf.log()
+
+    if stid=='00L':
+        fakestorm=True
 
     logger.debug('FAKESTORM: ' +repr(fakestorm))
     logger.debug('FAKESTORM CONF: ' +repr(fakestorm_conf))
@@ -624,7 +669,8 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     #   conf.set('dir',var,expand)
 
     if stid is not None:
-        conf.decide_domain_center()
+        #conf.decide_domain_center()
+        conf.decide_domain_center(storm_num=storm_num)
         loc=conf.getdir('domlocfile')
         logger.info('%s: Writing domain center.'%(loc,))
         with open(loc,'wt') as f:
@@ -683,7 +729,7 @@ class HAFSLauncher(HAFSConfig):
         @bug The hafs.launcher.HAFSLauncher.storm_for_stormnum() is
         not implemented and should probably be removed."""
         pass;
-    def decide_domain_center(self,logger=None):
+    def decide_domain_center(self,storm_num=1,logger=None):
         """!Decide the outermost domain's center.
 
         If the domain center is not already set in the [config]
@@ -692,7 +738,8 @@ class HAFSLauncher(HAFSConfig):
         @param logger the logging.Logger for log messages."""
         if logger is None: logger=self.log()
         if self.has_option('config','domlat') and \
-                self.has_option('config','domlon'):
+                self.has_option('config','domlon') and \
+                storm_num == 1:
             cenla=self.getfloat('config','domlat')
             cenlo=self.getfloat('config','domlon')
             logger.info('Domain center is already set to lat=%g lon=%g'
@@ -1472,8 +1519,6 @@ class HAFSLauncher(HAFSConfig):
         *  cap_run_hrdgraphics -- capitalized version of [config] entry run_hrdgraphics
         @param part1 The first input file to read
         @param part2 The second input file to read or None to disable"""
-        import numpy as np
-        import xarray as xr
 
         assert(isinstance(part1,str))
         out=list()
@@ -1493,7 +1538,23 @@ class HAFSLauncher(HAFSConfig):
             stretch_fac=self.getstr('grid','stretch_fac','1.0001')
             target_lon=self.getstr('grid','target_lon')
             target_lat=self.getstr('grid','target_lat')
-            nest_grids=self.getint('grid','nest_grids',1)
+            # Consider multistorm to set 'nest_grids'.
+            # If global_storm_num>=2, this is a multistorm case.
+            # Limit nest_grids=2 for all real storms (storm-centric sub-workflow for pre-proc).
+            # If multistorm, set 'nest_grids' based on the # of storms.
+            # This logic may need to be reconsidered for global-nest
+            #nest_grids=self.getint('grid','nest_grids',1)
+            if self.getint('config','global_storm_num',1) >= 2:
+                logger.info(f'nest_grids branch 1')
+                nest_grids=2
+                self.set('holdvars','nest_grids',nest_grids)
+            elif self.getbool('config','run_multistorm',False):
+                logger.info(f'nest_grids branch 2')
+                nest_grids=len(self.getstr('config','multistorm_sids').split(' '))+1
+                self.set('holdvars','nest_grids',nest_grids)
+            else:
+                logger.info(f'nest_grids branch 3')
+                nest_grids=self.getint('grid','nest_grids',1)                
             parent_tile=self.getstr('grid','parent_tile').split(',')
             refine_ratio=self.getstr('grid','refine_ratio','3').split(',')
             npx=self.getstr('forecast','npx').split(',')
@@ -1564,25 +1625,51 @@ class HAFSLauncher(HAFSConfig):
                 else:
                     logger.warning('Unsupported gtype.')
 
+                # Read storm center for each real storm.
+                # Convert syndat, icenter, jcenter to lists.
                 # Get storm center lon/lat from tmpvit
-                tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
-                #syndat is a StormInfo object
-                with open(tmpvit,'rt') as f:
-                    syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
-                    syndat=syndat[0]
-                # Search the nearest index location to the storm center on the compute grid (not on the super grid)
-                grid=xr.open_dataset('./parent_grid.tile.halo0.nc')
-                dist=np.sqrt(np.mod((grid.x[::2,::2]-syndat.lon),360.)**2 + (grid.y[::2,::2]-syndat.lat)**2)
-                # Note: xloc is dim2, yloc is dim1 in the grid xarray
-                yloc,xloc=np.where(dist==dist.min())
-                logger.info(f'Storm center at compute grid: xloc={xloc}, yloc={yloc}')
-                icenter=2*xloc[0]
-                jcenter=2*yloc[0]
-                logger.info(f'Storm center at super grid: icenter={icenter}, jcenter={jcenter}')
+                if self.getstr('config','STID','nosid') == '00L':
+                    # Get storm center lon/lat from tmpvit
+                    tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit.multistorm')
+                    #syndat is a StormInfo object
+                    with open(tmpvit,'rt') as f:
+                        syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
+                    grid=xr.open_dataset('./parent_grid.tile.halo0.nc')
+                    icenter, jcenter = [], []
+                    for sd in syndat:
+                        dist=np.sqrt(np.mod((grid.x[::2,::2]-sd.lon),360.)**2 + (grid.y[::2,::2]-sd.lat)**2)
+                        # Note: xloc is dim2, yloc is dim1 in the grid xarray
+                        yloc,xloc=np.where(dist==dist.min())
+                        logger.info(f'Storm center in degrees: lon={sd.lon}, lat={sd.lat}')
+                        logger.info(f'Storm center at compute grid: xloc={xloc}, yloc={yloc}')
+                        icenter.append(2*xloc[0])
+                        jcenter.append(2*yloc[0])
+                        logger.info(f'Storm center at super grid: icenter={icenter[-1]}, jcenter={jcenter[-1]}')
+                else:
+                    # Get storm center lon/lat from tmpvit
+                    tmpvit=os.path.join(WORKhafs,'intercom','launch','tmpvit')
+                    #syndat is a StormInfo object
+                    with open(tmpvit,'rt') as f:
+                        syndat=tcutil.storminfo.parse_tcvitals(f,logger,raise_all=True)
+                        #syndat=syndat[0]
+                    # Search the nearest index location to the storm center on the compute grid (not on the super grid)
+                    grid=xr.open_dataset('./parent_grid.tile.halo0.nc')
+                    dist=np.sqrt(np.mod((grid.x[::2,::2]-syndat[0].lon),360.)**2 + (grid.y[::2,::2]-syndat[0].lat)**2)
+                    # Note: xloc is dim2, yloc is dim1 in the grid xarray
+                    yloc,xloc=np.where(dist==dist.min())
+                    logger.info(f'Storm center at compute grid: xloc={xloc}, yloc={yloc}')
+                    icenter=[2*xloc[0]]
+                    jcenter=[2*yloc[0]]
+                    logger.info(f'Storm center at super grid: icenter={icenter}, jcenter={jcenter}')
+
                 if gtype=='nest':
-                    istart=int(min(max(4, icenter-(int(npx[0])-1)/int(refine_ratio[0])+1),
+                    # istart=int(min(max(4, icenter-(int(npx[0])-1)/int(refine_ratio[0])+1),
+                    #                2*int(cres[1:])-4-2*(int(npx[0])-1)/int(refine_ratio[0])))
+                    # jstart=int(min(max(4, jcenter-(int(npy[0])-1)/int(refine_ratio[0])+1),
+                    #                2*int(cres[1:])-4-2*(int(npy[0])-1)/int(refine_ratio[0])))
+                    istart=int(min(max(4, icenter[0]-(int(npx[0])-1)/int(refine_ratio[0])+1),
                                    2*int(cres[1:])-4-2*(int(npx[0])-1)/int(refine_ratio[0])))
-                    jstart=int(min(max(4, jcenter-(int(npy[0])-1)/int(refine_ratio[0])+1),
+                    jstart=int(min(max(4, jcenter[0]-(int(npy[0])-1)/int(refine_ratio[0])+1),
                                    2*int(cres[1:])-4-2*(int(npy[0])-1)/int(refine_ratio[0])))
                     iend=int(istart-1+2*(int(npx[0])-1)/int(refine_ratio[0]))
                     jend=int(jstart-1+2*(int(npy[0])-1)/int(refine_ratio[0]))
@@ -1591,16 +1678,29 @@ class HAFSLauncher(HAFSConfig):
                     iend_nest[0]=str(iend)
                     jend_nest[0]=str(jend)
                 elif gtype=='regional':
-                    istart=int(min(max(4, icenter-(int(npx[1])-1)/int(refine_ratio[1])+1),
-                                   2*(int(npx[0])-1)-4-2*(int(npx[1])-1)/int(refine_ratio[1])))
-                    jstart=int(min(max(4, jcenter-(int(npy[1])-1)/int(refine_ratio[1])+1),
-                                   2*(int(npy[0])-1)-4-2*(int(npy[1])-1)/int(refine_ratio[1])))
-                    iend=int(istart-1+2*(int(npx[1])-1)/int(refine_ratio[1]))
-                    jend=int(jstart-1+2*(int(npy[1])-1)/int(refine_ratio[1]))
-                    istart_nest[1]=str(istart)
-                    jstart_nest[1]=str(jstart)
-                    iend_nest[1]=str(iend)
-                    jend_nest[1]=str(jend)
+                    # istart=int(min(max(4, icenter-(int(npx[1])-1)/int(refine_ratio[1])+1),
+                    #                2*(int(npx[0])-1)-4-2*(int(npx[1])-1)/int(refine_ratio[1])))
+                    # jstart=int(min(max(4, jcenter-(int(npy[1])-1)/int(refine_ratio[1])+1),
+                    #                2*(int(npy[0])-1)-4-2*(int(npy[1])-1)/int(refine_ratio[1])))
+                    # iend=int(istart-1+2*(int(npx[1])-1)/int(refine_ratio[1]))
+                    # jend=int(jstart-1+2*(int(npy[1])-1)/int(refine_ratio[1]))
+                    # istart_nest[1]=str(istart)
+                    # jstart_nest[1]=str(jstart)
+                    # iend_nest[1]=str(iend)
+                    # jend_nest[1]=str(jend)
+
+                    # Add extra logic branch for multistorm (nest_grids > 2)
+                    for i in range(1,nest_grids):
+                        istart=int(min(max(4, icenter[i-1]-(int(npx[i])-1)/int(refine_ratio[i])+1),
+                                       2*(int(npx[0])-1)-4-2*(int(npx[i])-1)/int(refine_ratio[i])))
+                        jstart=int(min(max(4, jcenter[i-1]-(int(npy[i])-1)/int(refine_ratio[i])+1),
+                                       2*(int(npy[0])-1)-4-2*(int(npy[i])-1)/int(refine_ratio[i])))
+                        iend=int(istart-1+2*(int(npx[i])-1)/int(refine_ratio[i]))
+                        jend=int(jstart-1+2*(int(npy[i])-1)/int(refine_ratio[i]))
+                        istart_nest[i]=str(istart)
+                        jstart_nest[i]=str(jstart)
+                        iend_nest[i]=str(iend)
+                        jend_nest[i]=str(jend)
                 else:
                     logger.warning('Unsupported gtype.')
 
@@ -1615,8 +1715,12 @@ class HAFSLauncher(HAFSConfig):
                 # Update output_grid_cen_lon/lat
                 output_grid_cen_lon=self.getstr('forecast','output_grid_cen_lon').split(',')
                 output_grid_cen_lat=self.getstr('forecast','output_grid_cen_lat').split(',')
-                output_grid_cen_lon[1]=str(syndat.lon)
-                output_grid_cen_lat[1]=str(syndat.lat)
+                # output_grid_cen_lon[1]=str(syndat.lon)
+                # output_grid_cen_lat[1]=str(syndat.lat)
+                # Set the correct lat/lon locations for each real storm
+                for i in range(1,nest_grids):
+                    output_grid_cen_lon[i]=str(syndat[i-1].lon)
+                    output_grid_cen_lat[i]=str(syndat[i-1].lat)
                 self.set('holdvars','output_grid_cen_lon',','.join(output_grid_cen_lon))
                 self.set('holdvars','output_grid_cen_lat',','.join(output_grid_cen_lat))
                 logger.info(f'Updated output_grid_cen_lon={output_grid_cen_lon}')
@@ -1624,15 +1728,26 @@ class HAFSLauncher(HAFSConfig):
 
                 # For IAU, configure the weight scale based on the storm strength
                 iau_inc_scale=self.getstr('forecast','iau_inc_scale','auto').split(',')
+                # if "-999" in iau_inc_scale:
+                #     logger.info(f'Original iau_inc_scale={iau_inc_scale}')
+                #     logger.info(f'Current wmax={syndat.wmax}')
+                #     iau_inc_scale=self.getstr('forecast','iau_inc_scale').split(',')
+                #     if syndat.wmax > 33:
+                #         iau_inc_scale=str(1.)
+                #     else:
+                #         iau_inc_scale=str(2.)
+                #     self.set('holdvars','iau_inc_scale',''.join(iau_inc_scale))
+                #     logger.info(f'Updated iau_inc_scale={iau_inc_scale}')
                 if "-999" in iau_inc_scale:
                     logger.info(f'Original iau_inc_scale={iau_inc_scale}')
-                    logger.info(f'Current wmax={syndat.wmax}')
                     iau_inc_scale=self.getstr('forecast','iau_inc_scale').split(',')
-                    if syndat.wmax > 33:
-                        iau_inc_scale=str(1.)
-                    else:
-                        iau_inc_scale=str(2.)
-                    self.set('holdvars','iau_inc_scale',''.join(iau_inc_scale))
+                    for i in range(0,nest_grids-1):
+                        logger.info(f'Current wmax={syndat[i].wmax}')
+                        if syndat[i-1].wmax > 33:
+                            iau_inc_scale[i]=str(1.)
+                        else:
+                            iau_inc_scale[i]=str(2.)
+                    self.set('holdvars','iau_inc_scale',','.join(iau_inc_scale))
                     logger.info(f'Updated iau_inc_scale={iau_inc_scale}')
 
         run_ocean=self.getbool('config','run_ocean')
@@ -1710,6 +1825,19 @@ class HAFSLauncher(HAFSConfig):
         gplot_flag=self.getbool('config','run_hrdgraphics')
         self.set('holdvars','cap_run_hrdgraphics',
                  ('YES' if gplot_flag else 'NO'))
+
+        # Add multistorm YES/NO flag to holdvars
+        multistorm_flag=self.getbool('config','run_multistorm',False)
+        self.set('holdvars','cap_run_multistorm',('YES' if multistorm_flag else 'NO'))
+
+        # Add fakestormid to holdvars no matter what
+        fakestormid=self.getstr('config','fakestormid','nofakeid')
+        self.set('holdvars','fakestormid',fakestormid)
+
+        # Add multistorm SID list if this is available.
+        # Otherwise, add STID as the only multistorm SID.
+        multistorm_sids=self.getstr('config','multistorm_sids',self.getstr('config','STID','nosid')).split(' ')
+        self.set('holdvars','multistorm_sids',','.join(multistorm_sids))
 
         with open(self.strinterp('dir',part1),'rt') as f:
             for line in f:

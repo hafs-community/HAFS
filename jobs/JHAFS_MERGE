@@ -60,6 +60,10 @@ export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
+# Add multistorm env vars
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/${STORMID}/${FAKESTORMID}}")}
+
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
   if [ "${ENSDA}" = YES ]; then

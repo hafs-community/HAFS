@@ -15,6 +15,21 @@
   netcdf_default_format="netcdf4"
 /
 
+&mpp_io_nml
+  header_buffer_val = 16384,
+  global_field_on_root_pe = .true.,
+  io_clocks_on = .false.,
+  shuffle = 0,
+  deflate_level = @[deflate_level],
+  cf_compliance = .false.
+/
+
+&fms_io_nml
+  checksum_required = .false.
+  max_files_r = 1000,
+  max_files_w = 1000,
+/
+
 &fms_nml
   clock_grain = 'ROUTINE',
   domains_stack_size = 30000000,
@@ -133,6 +148,7 @@
   surface_dir = "INPUT/moving_nest"
   is_moving_nest = @[is_moving_nest]
   vortex_tracker = @[vortex_tracker]
+  !static_grid_ratio = @[static_grid_ratio]
   ntrack = @[ntrack]
   move_cd_x = @[move_cd_x]
   move_cd_y = @[move_cd_y]
