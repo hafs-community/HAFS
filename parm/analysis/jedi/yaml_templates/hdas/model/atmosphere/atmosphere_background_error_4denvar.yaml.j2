@@ -4,7 +4,7 @@ members from template:
     states:
     - datetime: "{{ atmosphere_background_time_iso }}"
       filetype: fms restart
-      state variables: {{analysis_variables}}
+      state variables: {{state_variables}}
       field io names: *field_io_names
       datapath: {{ atmosphere_background_ensemble_path }}
       filename_core: {{atmosphere_background_time_prefix}}fv_core.res.nest02.tile2.nc
@@ -14,7 +14,7 @@ members from template:
       filename_cplr: {{atmosphere_background_time_prefix}}coupler.res
     - datetime: "{{ atmosphere_background_time_iso6 }}"
       filetype: fms restart
-      state variables: {{analysis_variables}}
+      state variables: {{state_variables}}
       field io names: *field_io_names
       datapath: {{ atmosphere_background_ensemble_path }}
       filename_core: {{atmosphere_background_time_prefix6}}fv_core.res.nest02.tile2.nc
@@ -24,7 +24,7 @@ members from template:
       filename_cplr: {{atmosphere_background_time_prefix6}}coupler.res
     - datetime: "{{ atmosphere_background_time_iso9 }}"
       filetype: fms restart
-      state variables: {{analysis_variables}}
+      state variables: {{state_variables}}
       field io names: *field_io_names
       datapath: {{ atmosphere_background_ensemble_path }}
       filename_core: {{atmosphere_background_time_prefix9}}fv_core.res.nest02.tile2.nc
@@ -39,7 +39,7 @@ localization:
   localization method: SABER
   saber central block:
     saber block name: BUMP_NICAS
-    active variables: {{analysis_variables}}
+    active variables: {{active_variables}}
     read:
       io:
         files prefix: bump/fv3jedi_bumpparameters_nicas_hafs_atm
