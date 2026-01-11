@@ -1528,31 +1528,6 @@
     </dependency>
   </task>
   
-  <task name="force_warmstart" maxtries="&MAX_TRIES;">
-    <command>&JOBhafs;/JHAFS_FORCE_WARMSTART</command>
-    <jobname>hafs_force_warmstart_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-    <join><cyclestr>&WORKhafs;/hafs_force_warmstart.log</cyclestr></join>
-    <account>&ACCOUNT;</account>
-    &RESERVATION;
-    <queue>&QUEUE_FORECAST;</queue>
-    &PE_EXTRA;
-    &CORES_EXTRA;
-    &FORCE_WARMSTART_RESOURCES;
-    &ENV_VARS;
-
-    <dependency>
-        <or>
-          <taskdep task="forecast" state="DEAD"/>
-          <taskdep task="forecast_1" state="DEAD"/>
-          <taskdep task="forecast_2" state="DEAD"/>
-          <taskdep task="forecast_3" state="DEAD"/>
-          <taskdep task="forecast_4" state="DEAD"/>
-          <taskdep task="forecast_5" state="DEAD"/>
-          <taskdep task="forecast_6" state="DEAD"/>
-        </or>
-    </dependency>
-  </task>
-
 
   <metatask name="atm_post_meta">
   <var name="storm">&STORMS;</var>

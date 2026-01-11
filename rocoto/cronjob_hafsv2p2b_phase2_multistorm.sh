@@ -24,6 +24,10 @@ opts="-t -f"
 ./run_hafs.py ${opts} 2025102106-2025102112 13L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no #Melissa
 
+# Technical testing for Helene 09L2024 - FROM SCRATCH
+./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm_REDO \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+
 # Incremental testing for Helene 09L2024 - MULTISTORM
 ./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
    grid.nest_grids=3 ../parm/hafs_multistorm.conf \
