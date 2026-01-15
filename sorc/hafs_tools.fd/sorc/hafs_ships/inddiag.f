@@ -160,8 +160,8 @@ c
       ! lonminp, lonmaxp, lonintp, and npointsp from temp_gridp.txt
       read(lupg,*) nxp
       read(lupg,*) nyp
-      read(lupg,*) latmaxp
       read(lupg,*) latminp
+      read(lupg,*) latmaxp
       read(lupg,*) latintp
       read(lupg,*) lonminp
       read(lupg,*) lonmaxp
