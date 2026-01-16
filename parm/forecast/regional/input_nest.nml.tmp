@@ -202,6 +202,7 @@
   betadcu        = @[betadcu]
   cat_adj_deep   = @[cat_adj_deep]
   cat_adj_shal   = @[cat_adj_shal]
+  scale_fac_opt  = @[scale_fac_opt]
   cdmbgwd        = 1.0,1.0,1.0,1.0
   sfc_z0_type    = 6
   prslrd0        = 0.
