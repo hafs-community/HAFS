@@ -12,7 +12,7 @@ supported_algorithms:
 # This is overwritten in the testing but allows command line test of jcb
 #algorithm: fv3jedi_fv3inc_variational
 #algorithm: 3dvar
-algorithm: _ALGORITHM_
+algorithm: fv3jedi__ALGORITHM_
 
 # Search path for model and obs for JCB (relative for the submodule, or can be absolute)
 # --------------------------------------------------------------------------------------
@@ -24,12 +24,11 @@ app_path_observation_chronicle: hdas/observation_chronicle/atmosphere
 
 # Places where we deviate from the generic file name of a yaml
 # ------------------------------------------------------------
-#final_increment_file: atmosphere_final_increment_gaussian
-output_file: atmosphere_output
-output_ensemble_increments_file: atmosphere_output_ensemble_increments_gaussian
+final_increment_file: atmosphere_final_increment__ALGORITHM_
+output_file: atmosphere_output__ALGORITHM_
 model_file: atmosphere_model_pseudo
 initial_condition_file: atmosphere_background
-background_error_file: atmosphere_background_error_4denvar
+background_error_file: atmosphere_background_error__ALGORITHM_
 
 
 # Global analysis things
@@ -41,7 +40,7 @@ bound_to_include: begin
 parallel_subw: false
 minimizer: DRPCG
 final_diagnostics_departures: oman
-analysis_variables: [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio,air_pressure_thickness]
+analysis_variables: [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 active_variables: [eastward_wind,northward_wind,upward_air_velocity,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
 number_of_outer_loops: 2
 distribution: RoundRobin

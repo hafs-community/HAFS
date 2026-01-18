@@ -1,0 +1,11 @@
+name: PSEUDO
+tstep: PT3H
+filetype: fms restart
+filename is datetime templated: true
+datapath: {{ atmosphere_background_path }}
+filename_core: '%yyyy%mm%dd.%hh%MM%ss.fv_core.res.nest02.tile2.nc'
+filename_trcr: '%yyyy%mm%dd.%hh%MM%ss.fv_tracer.res.nest02.tile2.nc'
+filename_sfcd: '%yyyy%mm%dd.%hh%MM%ss.sfc_data.nest02.tile2.nc'
+filename_sfcw: '%yyyy%mm%dd.%hh%MM%ss.fv_srf_wnd.res.nest02.tile2.nc'
+filename_cplr: '%yyyy%mm%dd.%hh%MM%ss.coupler.res'
+field io names: *field_io_names

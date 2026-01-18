@@ -260,7 +260,8 @@ if [ ${RUN_ENVAR} = "YES" ]; then
       RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${mem}
      fi
     fi
-    if [ ${RUN_ENSDA} != "YES" ]; then #Leave ATM_INIT options for GDAS Ensemble, need to lock with atm_init_fgat_ens
+    if [ ${RUN_ENSDA} != "YES" ]; then 
+#Leave ATM_INIT options for GDAS Ensemble, need to lock with atm_init_fgat_ens
       for file in `ls ${RESTARTens}/*`; do
         ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
       done
@@ -272,6 +273,15 @@ if [ ${RUN_ENVAR} = "YES" ]; then
           ${WLN} ${file} ${DATA}/ensemble_data/mem${mem}/
         done
       fi
+############# For potential GDAS ensemble 
+#      if [ ${l4densvar:-.false.} = ".true." ]; then
+#        fhrs="03 06 09"
+#      else
+#        fhrs="06"
+#      fi
+#      for fhh in $fhrs; do
+#        ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
+#      done
     fi
   done
 fi
@@ -460,12 +470,19 @@ rm nicas.log.*
 #----------------------------------------------
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-if [ ${l4denvar:-.true.} = ".true." ]; then
-#TOTAL_TASKS_tmp=${TOTAL_TASKSD3}
 TOTAL_TASKS_tmp=${TOTAL_TASKS}
 sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
-sed -e "s|_ALGORITHM_|fv3jedi_4denvar|g" \
-    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
+if [ ${l4denvar:-.true.} = ".true." ]; then
+sed -e "s|_ALGORITHM_|4denvar|g" \
+    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+elif [ ${RUN_FGAT} = NO ]; then
+sed -e "s|_ALGORITHM_|3denvar|g" \
+    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+else
+sed -e "s|_ALGORITHM_|3dfgat|g" \
+    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+fi
+sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_HH_|${cyc}|g" \
@@ -489,7 +506,7 @@ sed -e "s|_ALGORITHM_|fv3jedi_4denvar|g" \
     -e "s|_HH3_|${hhtm03}|g" \
     -e "s|_YYMODD9_|${yrtp03}${mntp03}${dytp03}|g" \
     -e "s|_HH9_|${hhtp03}|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml
+    ./hdas-atmosphere-templates.yaml.tmp > hdas-atmosphere-templates.yaml
 for obstype in ${obstypes}; do
   echo "- ${obstype}" >> hdas-atmosphere-templates.yaml
 done
@@ -497,52 +514,6 @@ for obstype in ${obstypes}; do
   echo "iuse_${obstype}: accept" >> hdas-atmosphere-templates.yaml
 done
 python run_jedi.py
-elif [ ${RUN_FGAT} = NO ]; then
-sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_FV3_CORE_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
-    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
-    -e "s|#HH#|t${cyc}z|g" \
-    -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    ${basic_yaml_dir}/fv3jedi_3denvar.yaml > ./jedi.yaml
-else
-sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_FV3_CORE_FILE3_|${FV3_CORE_FILE3}|g" \
-    -e "s|_FV3_TRCR_FILE3_|${FV3_TRCR_FILE3}|g" \
-    -e "s|_FV3_SFCD_FILE3_|${FV3_SFCD_FILE3}|g" \
-    -e "s|_FV3_SFCW_FILE3_|${FV3_SFCW_FILE3}|g" \
-    -e "s|_FV3_CPLR_FILE3_|${FV3_CPLR_FILE3}|g" \
-    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
-    -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
-    -e "s|#HH#|t${cyc}z|g" \
-    -e "s|_NEST_TILE_STR_|${neststr}${tilestr}|g" \
-    -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    ${basic_yaml_dir}/fv3jedi_3dfgat.yaml > ./jedi.yaml
-fi
 
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
@@ -579,17 +550,10 @@ for file in ${convtypes}; do
 done
 
 #Store the output to intercom
-if [ ${l4denvar:-.false.} = ".true." ]; then
- ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
- ${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
- ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
- ${NCP} ${DATA}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${FV3_CPLR_FILE}
-else
- ${NCP} ${DATA}/analysis.coupler.res        ${RESTARTanl}/${FV3_CPLR_FILE}
- ${NCP} ${DATA}/analysis.sfc_data.nc        ${RESTARTanl}/${FV3_SFCD_FILE}
- ${NCP} ${DATA}/analysis.fv_srf_wnd.res.nc  ${RESTARTanl}/${FV3_SFCW_FILE}
- ${NCP} ${DATA}/analysis.fv_tracer.res.nc   ${RESTARTanl}/${FV3_TRCR_FILE}
-fi
+${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
+${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
+${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
+${NCP} ${DATA}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${FV3_CPLR_FILE}
 ${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
@@ -606,11 +570,7 @@ if [[ ! -z "$neststr" ]] ; then
 fi
 
 ## Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
-if [ ${l4denvar:-.false.} = ".true." ]; then
- IN_FILE=${DATA}/${PDY}.${cyc}0000.fv_core.res.nc
-else
- IN_FILE=${DATA}/analysis.fv_core.res.nc
-fi
+IN_FILE=${DATA}/${PDY}.${cyc}0000.fv_core.res.nc
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 ${APRUNS} ${DATOOL} ua_update_u \
    --in_grid=${RESTARTanl}/grid_spec${nesttilestr}.nc \

@@ -26,22 +26,16 @@ cost function:
 
   analysis variables: {{analysis_variables}}
 
-  model:
-    name: PSEUDO
-    tstep: PT3H
-    filetype: fms restart
-    filename is datetime templated: true
-    datapath: bkg/
-    filename_core: {{atmosphere_background_time_prefix}}fv_core.res.nest02.tile2.nc
-    filename_trcr: {{atmosphere_background_time_prefix}}fv_tracer.res.nest02.tile2.nc
-    filename_sfcd: {{atmosphere_background_time_prefix}}sfc_data.nest02.tile2.nc
-    filename_sfcw: {{atmosphere_background_time_prefix}}fv_srf_wnd.res.nest02.tile2.nc
-    filename_cplr: {{atmosphere_background_time_prefix}}coupler.res
-
   background:
 {% filter indent(width=4) %}
 {% set background_file = background_file|default(model_component ~ 'background_3dfgat', true) ~ '.yaml.j2' %}
 {% include background_file %}
+{% endfilter %}
+
+  model:
+{% filter indent(width=4) %}
+{% set model_pseudo_file = model_pseudo_file|default(model_component ~ 'model_pseudo', true) ~ '.yaml.j2' %}
+{% include model_pseudo_file %}
 {% endfilter %}
 
   background error:

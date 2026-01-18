@@ -1,0 +1,17 @@
+output:
+  state component:
+    filetype: fms restart
+    prefix: Inc6
+    datapath: ./
+    frequency: PT3H
+    state variables: {{analysis_variables}}
+    field io names: *field_io_names
+
+geometry:
+  fms initialization:
+    namelist filename: {{atmosphere_fv3jedi_files_path}}/fmsmpp.nml
+    field table filename: {{atmosphere_fv3jedi_files_path}}/field_table
+  namelist filename: {{atmosphere_fv3jedi_files_path}}/input_hafs_nest.nml
+  akbk: {{atmosphere_background_path}}/{{atmosphere_akbk_file}}
+  io_layout: [{{atmosphere_io_layout_x}}, {{atmosphere_io_layout_y}}]
+  ntiles: {{atmosphere_ntiles}}

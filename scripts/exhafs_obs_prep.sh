@@ -532,7 +532,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
      	if (cd "${TEMP_DIR}" && split_by_subset "${FILENAME_ABS}") | grep -q "${SUBSET_TO_FIND}"; then
      	  echo "Success: Subset ${SUBSET_TO_FIND} found."
      	  echo "Proceeding with the Python script..."
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_hi${file}_{splits/satId}.nc
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc
      	else
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
