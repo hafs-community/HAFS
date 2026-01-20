@@ -942,6 +942,9 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile6.nc ${var}.tile6.${rrtmp}x.nc
   done
+
+  ${NLN} ../sfc_data.nc sfc_data.tile1.nc
+
   cd ..
 fi
 
@@ -1126,6 +1129,9 @@ if [[ "${is_moving_nest}" = *".true."* ]] || [[ "${is_moving_nest}" = *".T."* ]]
   for var in facsf maximum_snow_albedo slope_type snowfree_albedo soil_type substrate_temperature vegetation_greenness vegetation_type; do
     ${NLN} ${WORKhafs}/intercom/atm_prep_mvnest/grid_mvnest1res/${CASE_mvnest1res}/fix_sfc/${CASE_mvnest1res}.${var}.tile7.halo0.nc ${var}.tile1.${rrtmp}x.nc
   done
+
+  ${NLN} ../sfc_data.nc sfc_data.tile1.nc
+
   cd ..
 fi
 

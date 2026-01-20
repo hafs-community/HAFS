@@ -46,6 +46,8 @@ NML=${WORKgplot}/namelist.master.${SUBEXPT}
 if [ ! -f ${NML} ]; then
   if [ -f ${GPLOThafs}/parm/namelist.master.${SUBEXPT} ]; then
     cp -p ${GPLOThafs}/parm/namelist.master.${SUBEXPT} ${NML}
+  elif [ -f ${GPLOThafs}/parm/namelist.master.${GPLOTEXPT} ]; then
+    cp -p ${GPLOThafs}/parm/namelist.master.${GPLOTEXPT} ${NML}
   else
     cp -p ${GPLOThafs}/parm/namelist.master.HAFS_Default ${NML}
   fi

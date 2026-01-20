@@ -37,6 +37,35 @@ opts="-t -f"
    grid.nest_grids=3 ../parm/hafs_multistorm.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 
+# Incremental testing for Helene 09L2024 - MULTISTORM
+./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_OLD_CODE \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Incremental testing for Melissa 13L2025 - MULTISTORM
+./run_hafs.py ${opts} -M L,E 2025102106-2025102112 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_OLD_CODE \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+
+# POST RAMSTROM CODE MERGE TESTS
+
+# Technical testing for Helene 09L2024
+./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm_NEW_CODE \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Technical testing for Melissa 13L2025
+./run_hafs.py ${opts} 2025102106-2025102112 13L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm_NEW_CODE \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no #Melissa
+
+# Incremental testing for Helene 09L2024 - MULTISTORM
+./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_NEW_CODE \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Incremental testing for Melissa 13L2025 - MULTISTORM
+./run_hafs.py ${opts} -M L,E 2025102106-2025102112 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_NEW_CODE \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+
 #===============================================================================
  # 2025 NATL Storms
 #./run_hafs.py ${opts} 2025062306-2025062418 01L HISTORY ${confopts} # Andrea

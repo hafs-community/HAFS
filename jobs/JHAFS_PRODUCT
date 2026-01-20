@@ -103,6 +103,12 @@ for ng in $(seq 1 ${ngrids}); do
     neststr=".nest$(printf '%02d' ${ng})"
     tilestr=".tile$(printf '%d' ${ng})"
     gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  elif [ ${RUN_MULTISTORM} == "YES" ] ]; then
+    # Lew.Gramer 2026-01-12
+    nestcnt=$(( ${storm_num} ))
+    neststr=".nest$(printf '%02d' ${nestcnt})"
+    tilestr=".tile$(printf '%d' ${nestcnt})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${nestcnt})
   else
     nestcnt=$(( ${storm_num} + 1 ))
     neststr=".nest$(printf '%02d' ${nestcnt})"
@@ -132,6 +138,11 @@ for ng in $(seq 1 ${ngrids}); do
   elif [ ${RUN_INIT:-NO} == "YES" ]; then
     neststr=".nest$(printf '%02d' ${ng})"
     gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
+  elif [ ${RUN_MULTISTORM} == "YES" ] ]; then
+    # Lew.Gramer@noaa.gov 2026-01-15
+    nestcnt=$(( ${storm_num} ))
+    neststr=".nest$(printf '%02d' ${nestcnt})"
+    gridstr=$(echo ${out_gridnames} | cut -d, -f ${nestcnt})
   else
     nestcnt=$(( ${storm_num} + 1 ))
     neststr=".nest$(printf '%02d' ${nestcnt})"

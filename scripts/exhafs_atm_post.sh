@@ -220,6 +220,18 @@ elif [ ${RUN_INIT:-NO} == "YES" ]; then
   tilestr_restart="${tilestr}"
   nesttilestr_restart="${nesttilestr}"
   nestdotstr_restart="${nestdotstr}"
+elif [ ${RUN_MULTISTORM} == "YES" ]; then
+  # Lew.Gramer@noaa.gov 2026-01-09
+  nestcnt=${storm_num}
+  neststr=".nest$(printf '%02d' ${nestcnt})"
+  tilestr=".tile$(printf '%d' ${nestcnt})"
+  nesttilestr=".nest$(printf '%02d' ${nestcnt}).tile$(printf '%d' ${nestcnt})"
+  nestdotstr=".nest$(printf '%02d' ${nestcnt})."
+  nestcnt_restart=2
+  neststr_restart=".nest$(printf '%02d' ${nestcnt_restart})"
+  tilestr_restart=".tile$(printf '%d' ${nestcnt_restart})"
+  nesttilestr_restart=".nest$(printf '%02d' ${nestcnt_restart}).tile$(printf '%d' ${nestcnt_restart})"
+  nestdotstr_restart=".nest$(printf '%02d' ${nestcnt_restart})."
 else
   nestcnt=$(( ${storm_num} + 1 ))
   neststr=".nest$(printf '%02d' ${nestcnt})"
@@ -276,7 +288,7 @@ MAX_WAIT_TIME=${MAX_WAIT_TIME:-1200}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || [ ! -s ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ]; then
-    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
+    echo "${INPdir}/log.atm.f${FHR3} or ${INPdir}/HURPRS${neststr}.GrbF${FHR2} not ready, sleep 10s"
     sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/HURPRS${neststr}.GrbF${FHR2} ready, continue"
@@ -298,7 +310,7 @@ while [ $n -le ${MAX_WAIT_TIME} ]; do
   if [ ! -s ${INPdir}/log.atm.f${FHR3} ] || \
      [ ! -s ${INPdir}/atm${nestdotstr}f${FHR3}.nc ] || \
      [ ! -s ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ]; then
-    echo "${INPdir}/log.atm.f${FHR3} not ready, sleep 10s"
+    echo "${INPdir}/log.atm.f${FHR3} or ${INPdir}/atm${nestdotstr}f${FHR3}.nc or ${INPdir}/sfc${nestdotstr}f${FHR3}.nc not ready, sleep 10s"
     sleep 10s
   else
     echo "${INPdir}/log.atm.f${FHR3}, ${INPdir}/atm${nestdotstr}f${FHR3}.nc ${INPdir}/sfc${nestdotstr}f${FHR3}.nc ready, do post"
