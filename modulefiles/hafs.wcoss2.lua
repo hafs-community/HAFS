@@ -101,6 +101,7 @@ load(pathJoin("gsl", gsl_ver))
 nco_ver=os.getenv("nco_ver")
 load(pathJoin("nco", nco_ver))
 
+prepend_path("MODULEPATH", "/apps/ops/para/nco/modulefiles/compiler/intel/19.1.3.304")
 bufr_dump_ver=os.getenv("bufr_dump_ver")
 load(pathJoin("bufr_dump", bufr_dump_ver))
 
