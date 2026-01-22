@@ -549,6 +549,9 @@ for file in ${convtypes}; do
   done
 done
 
+${NLN} ${USHhafs}/offline_update_delp.py .
+python offline_update_delp.py --sfc_inc Inc6.sfc_data.nc --core_inc Inc6.fv_core.res.nc --akbk bkg/${FV3_AKBK_FILE} --rst_file ${PDY}.${cyc}0000.fv_core.res.nc
+
 #Store the output to intercom
 ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
 ${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
