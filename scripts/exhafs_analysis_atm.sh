@@ -437,7 +437,7 @@ fi
 cd ${DATA}
 export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
 export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
-export jcb_yaml_dir=${PARMjedi}/yaml_templates/hdas/test/client_integration
+export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_nest.nml
