@@ -25,4 +25,4 @@
 [submodule "sorc/hafs_jedi.fd"]
     path = sorc/hafs_jedi.fd
     url = https://github.com/NOAA-EMC/HDASApp.git
-    branch = develop
+    branch = fix/remove-ghost-iodaconv
