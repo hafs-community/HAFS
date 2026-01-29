@@ -4,7 +4,7 @@ import os
 import argparse
 import time
 import bufr
-from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder
+from bufr.bufr_python.encoders import *
 from bufr.encoders.netcdf import Encoder as netcdfEncoder
 from wxflow import Logger
 import numpy as np

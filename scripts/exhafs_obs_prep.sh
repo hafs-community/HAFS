@@ -422,19 +422,19 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  airctypes="aircar aircft"
+#  airctypes="aircar aircft"
   convtypes="amv_abi amv_viirs hiamv_abi adpsfc sfcshp adpupa drpsnd tldplr hdob"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
   sattypes="atms ssmis amsua iasi gsrcsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_goes-16 abi_goes-17 abi_goes-18"
   obstypes="${radtypes} ${convtypes}"
-  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
+#  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
   GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
   output_dir=${DATA}/jedi_ioda/output
-  ${NCP} ${IODAEXEC} .
+#  ${NCP} ${IODAEXEC} .
   ${NCP} ${IODABCEXEC} .
   for file in ${satbufrs}; do
     if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
@@ -481,7 +481,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
    fi
   done
 ############### RUN bufr2ioda, either using exec or python #######################
-  bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #use bufr2ioda for ABI; Needs to be merged into bufrquery #XL
+#  bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #use bufr2ioda for ABI; Needs to be merged into bufrquery #XL
   export err=$?; err_chk
   ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
   for file in ${airctypes}; do

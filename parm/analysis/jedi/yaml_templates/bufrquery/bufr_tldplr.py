@@ -7,7 +7,7 @@ import numpy as np
 import numpy.ma as ma
 from datetime import datetime
 import bufr
-from pyioda.ioda.Engines.Bufr import Encoder as iodaEncoder 
+from bufr.bufr_python.encoders import *
 from bufr.encoders.netcdf import Encoder as netcdfEncoder 
 from wxflow import Logger
 

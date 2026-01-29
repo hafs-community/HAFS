@@ -5,7 +5,7 @@ import netCDF4 as nc
 import os
 import sys
 import time
-from pyioda.ioda.Engines.Bufr import Encoder
+from bufr.bufr_python.encoders import *
 from bufr.encoders.netcdf import Encoder as netcdfEncoder
 from wxflow import Logger
 

@@ -6,6 +6,7 @@ import numpy as np
 import calendar
 import time
 import argparse
+from bufr.bufr_python.encoders import *
 from bufr.encoders import netcdf
 import numpy.ma as ma
 from wxflow import Logger
