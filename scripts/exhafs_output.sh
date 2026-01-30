@@ -39,7 +39,70 @@ if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
   export err=$?; err_chk
 fi
 
-# Deliver track file to NOSCRUB if not run by NCO
+# Generate SHIPS diagnotic file if desired
+if [ ${ships_diag:-.false.} = .true. ] && [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.atcfunix ]; then
+
+DATA_SHIPS=${DATA}/ships
+rm -rf ${DATA_SHIPS}
+mkdir -p ${DATA_SHIPS}
+cd ${DATA_SHIPS}
+
+ships_diag_txt=${out_prefix}.${RUN}.ships.diag.txt
+yyyy=`echo ${CDATE} | cut -c1-4`
+StormNum=`echo ${STORMID} | cut -c1-2`
+
+# Link grib files
+for hh in $(seq -f "%02g" 0 6 126); do
+  grib2file_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f${hh}
+  grib2nest_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_n.grb2f${hh}
+  hhh3=`printf %03i $(( 10#${hh} ))`
+  grib2file=${STORMID,,}.${CDATE}.${RUN}.parent.atm.f${hhh3}.grb2
+  grib2nest=${STORMID,,}.${CDATE}.${RUN}.storm.atm.f${hhh3}.grb2
+  echo 'grib2file = ' ${grib2file}
+  if [ -s ${COMhafs}/${grib2file} ]; then
+    ${NLN} ${COMhafs}/${grib2file} ./${grib2file_old}
+    ${NLN} ${COMhafs}/${grib2nest} ./${grib2nest_old}
+  else
+    echo "FATAL ERROR: FILE ${COMhafs}/${grib2file} NOT PRESENT"
+    echo 'FATAL ERROR: SCRIPT WILL EXIT'
+    exit 1
+  fi
+done
+
+# Copy atcfunix file
+${NCP} -p ${COMhafs}/${out_prefix}.${RUN}.trak.atcfunix ./
+
+# Copy or link necessary files
+${NLN} ${HOMEhafs}/parm/ships/include                   ./
+${NCP} -p ${HOMEhafs}/parm/ships/input.params.in        ./
+${NCP} -p ${HOMEhafs}/parm/ships/input.plvls.in         ./input.plvls
+${NCP} -p ${HOMEhafs}/ush/hafs_ships_diags.sh           ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_getcenter.x       ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_gridparse.x       ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_inddiag.x         ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_inddiagnull.x     ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_nameparse.x       ./
+${NCP} -p ${HOMEhafs}/exec/hafs_ships_totaldiag.x       ./
+
+# Modify or generate the input files
+sed -e "s/MODL2/${RUN}/g" input.params.in > input.params
+echo "${DATA_SHIPS}/${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f00" > ./input.list
+
+# Run hafs_ships_diags.sh
+./hafs_ships_diags.sh
+export err=$?; err_chk
+
+# Rename the txt file
+mv s${hafsbasin2,,}${StormNum}${yyyy}_${RUN}_d${RUN}_${CDATE}_diag.dat ${ships_diag_txt}
+
+# Deliver to COM
+if [ $SENDCOM = YES ]; then
+  ${NCP} -p ${DATA}/ships/${ships_diag_txt} ${COMhafs}/.
+fi
+
+fi
+
+# Deliver track file and ships diag file to NOSCRUB if not run by NCO
 if [ ${RUN_ENVIR^^} != "NCO" ]; then
   trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
   all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
@@ -52,6 +115,9 @@ if [ ${RUN_ENVIR^^} != "NCO" ]; then
   fi
   if [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ]; then
     ${NCP} -p ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
+  if [ -s ${COMhafs}/${ships_diag_txt} ]; then
+    ${NCP} -p ${COMhafs}/${ships_diag_txt} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
 fi
 
