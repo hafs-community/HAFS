@@ -236,12 +236,12 @@
               dimname(3)='Time'
               dimname(4)='-'
               write(*,'(a)')' --- writing '//trim(varname)//'('//trim(dimname(1))//','//trim(dimname(2))//','//trim(dimname(3))//')'
-              call write_nc_real(trim(nc_file), trim(varname), vdim(1),vdim(2),vdim(3), -1, trim(dimname(1)), trim(dimname(2)), trim(dimname(3)), trim(dimname(4)), dat41, '-', '-')
+              call write_nc_data(trim(nc_file), trim(varname), -999, vdim(1),vdim(2),vdim(3), -1, trim(dimname(1)), trim(dimname(2)), trim(dimname(3)), trim(dimname(4)), dat41, '-', '-')
            else if ( ndims == 4 ) then   !
               dimname(3)='zaxis_1'
               dimname(4)='Time'
               write(*,'(a)')' --- writing '//trim(varname)//'('//trim(dimname(1))//','//trim(dimname(2))//','//trim(dimname(3))//','//trim(dimname(4))//')'
-              call write_nc_real(trim(nc_file), trim(varname), vdim(1),vdim(2),vdim(3),vdim(4),trim(dimname(1)), trim(dimname(2)), trim(dimname(3)), trim(dimname(4)), dat41, '-', '-')
+              call write_nc_data(trim(nc_file), trim(varname), -999, vdim(1),vdim(2),vdim(3),vdim(4),trim(dimname(1)), trim(dimname(2)), trim(dimname(3)), trim(dimname(4)), dat41, '-', '-')
            endif
            deallocate(dat41)
 

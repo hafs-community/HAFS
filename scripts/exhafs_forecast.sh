@@ -1361,9 +1361,9 @@ for n in $(seq 2 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
-    iau_inc_files="analysis_inc_nest0${inest}.nc"
+    iau_inc_files="analysis_inc_nest0${inest}.tile${inest}.nc"
     # Linking increment file
-    ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/
+    ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/${iau_inc_files}
   fi
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
