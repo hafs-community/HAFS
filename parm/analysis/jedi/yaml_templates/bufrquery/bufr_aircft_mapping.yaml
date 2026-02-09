@@ -1,0 +1,270 @@
+# (C) Copyright 2023 NOAA/NWS/NCEP/EMC
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+
+bufr:
+  subsets:
+    - AIRCFT
+    - AIRCAR
+
+  group_by_variable: prepbufrDataLevelCategory
+  variables:
+    # ObsType
+    airTemperatureObservationType:
+      query: "*/TYP"
+    specificHumidityObservationType:
+      query: "*/TYP"
+    windObservationType:
+      query: "*/TYP"
+
+    # MetaData
+    timestamp:
+      timeoffset:
+        timeOffset: "*/DHR"
+        transforms:
+          - scale: 3600
+        referenceTime: #ANADATE#
+    prepbufrDataLevelCategory:
+      query: "*/PRSLEVLA/CAT"
+    stationIdentification:
+      query: "*/SID"
+    observationSubTypeNum:
+      query: "*/T29"
+    aircraftFlightNumber:
+      query: "[*/ACID, */ACID_SEQ/ACID]"
+    longitude:
+      #query: "*/PRSLEVLA/DRFTINFO/XDR"
+      query: "*/XOB"
+      transforms:
+        - wrap: [ -180.0, 180.0 ]
+    latitude:
+      #query: "*/PRSLEVLA/DRFTINFO/YDR"
+      query: "*/YOB"
+    obsTimeMinusCycleTime:
+      #query: "*/PRSLEVLA/DRFTINFO/HRDR"
+      query: "*/DHR"
+      transforms:
+        - scale: 3600
+    heightOfStationMetaData: #Formerly aircraftFlightLevel
+      query: "*/PRSLEVLA/Z___INFO/Z__EVENT{1}/ZOB"
+    stationElevationMetaData:
+      query: "*/ELV"
+      type: float
+    pressureMetaData:
+      query: "*/PRSLEVLA/P___INFO/P__EVENT{1}/POB"
+      transforms:
+        - scale: 100
+    temperatureEventCode:
+      query: "*/PRSLEVLA/T___INFO/T__EVENT{1}/TPC"
+    instantaneousAltitudeRate:
+      query: "*/PRSLEVLA/IALR"
+    aircraftFlightPhase:
+      query: "*/PRSLEVLA/ACFT_SEQ{1}/POAF"
+
+    #ObsValue
+    airTemperatureObsValue:
+      query: "*/PRSLEVLA/T___INFO/T__EVENT{1}/TOB"
+      transforms:
+        - offset: 273.15
+    specificHumidityObsValue:
+      query: "*/PRSLEVLA/Q___INFO/Q__EVENT{1}/QOB"
+      type: float
+      transforms:
+        - scale: 0.000001
+    windEastwardObsValue:
+      query: "*/PRSLEVLA/W___INFO/W__EVENT{1}/UOB"
+    windNorthwardObsValue:
+      query: "*/PRSLEVLA/W___INFO/W__EVENT{1}/VOB"
+
+    #QualityMarker
+    pressureQualityMarker:
+      query: "*/PRSLEVLA/P___INFO/P__EVENT{1}/PQM"
+    airTemperatureQualityMarker:
+      query: "*/PRSLEVLA/T___INFO/T__EVENT{1}/TQM"
+    specificHumidityQualityMarker:
+      query: "*/PRSLEVLA/Q___INFO/Q__EVENT{1}/QQM"
+    windEastwardQualityMarker:
+      query: "*/PRSLEVLA/W___INFO/W__EVENT{1}/WQM"
+    windNorthwardQualityMarker:
+      query: "*/PRSLEVLA/W___INFO/W__EVENT{1}/WQM"
+
+    #ObsError
+    airTemperatureObsError:
+      query: "*/PRSLEVLA/T___INFO/T__BACKG/TOE"
+    specificHumidityObsError:
+      query: "*/PRSLEVLA/Q___INFO/Q__BACKG/QOE"
+      type: float
+      transforms:
+        - scale: 0.1
+    windObsError:
+      query: "*/PRSLEVLA/W___INFO/W__BACKG/WOE"
+
+
+encoder:
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "AIRCFT AIRCAR"
+
+    - name: "description"
+      type: string
+      value: "Aircraft and AIRCAR (SAIREP/PIREP, AMDAR(ASDAR/ACARS), E-ADAS(AMDAR BUFR), MDCRS, ACARS) Reports" 
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Aircraft and AIRCAR (SAIREP/PIREP, AMDAR(ASDAR/ACARS), E-ADAS(AMDAR BUFR), MDCRS, ACARS) Reports in prepBUFR format"
+
+    - name: "sensor"
+      type: string
+      value: "ACFT_PROFILES data"
+
+    - name: "source"
+      type: string
+      value: "U.S. National Weather Service, National Centers for Environmental Prediction (NCEP))"
+
+    - name: "sourceFiles"
+      type: string
+      value: "NCEP prepBUFR - ACFT_PROFILES"
+
+    - name: "converter"
+      type: string
+      value: "bufr-query"
+
+  variables:
+    - name: "ObsType/airTemperature"
+      source: variables/airTemperatureObservationType
+      longName: "Observation Type"
+
+    - name: "ObsType/specificHumidity"
+      source: variables/specificHumidityObservationType
+      longName: "Observation Type"
+
+    - name: "ObsType/windNorthward"
+      source: variables/windObservationType
+      longName: "Observation Type"
+
+    - name: "ObsType/windEastward"
+      source: variables/windObservationType
+      longName: "Observation Type"
+
+    # MetaData
+    - name: "MetaData/prepbufrDataLevelCategory"
+      source: variables/prepbufrDataLevelCategory
+      longName: "Prepbufr Data Level Category"
+
+    - name: "MetaData/observationSubTypeNum"
+      source: variables/observationSubTypeNum
+      longName: "Observation SubType Number"
+
+    - name: "MetaData/stationIdentification"
+      source: variables/stationIdentification
+      longName: "Station ID"
+
+    - name: "MetaData/aircraftFlightNumber"
+      source: variables/aircraftFlightNumber
+      longName: "Aircraft Flight Number"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degree_north"
+      range: [-90, 90]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degree_east"
+      range: [-180, 180]
+
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      units: 'seconds since 1970-01-01T00:00:00Z'
+      longName: "dateTime"
+
+    - name: "MetaData/pressure"
+      source: variables/pressureMetaData
+      longName: "Pressure"
+      units: "Pa"
+
+    - name: "MetaData/height"
+      source: variables/heightOfStationMetaData
+      longName: "Height Of Station"
+      units: "m"
+
+    - name: "MetaData/stationElevation"
+      source: variables/stationElevationMetaData
+      longName: "Station Elevation"
+      units: "m"
+
+    - name: "MetaData/aircraftFlightPhase"
+      source: variables/aircraftFlightPhase
+      longName: "Aircraft Flight Phase"
+
+    - name: "MetaData/instantaneousAltitudeRate"
+      source: variables/instantaneousAltitudeRate
+      longName: "Instantaneous Rate Altitue"
+      units: "m s-1"
+
+    - name: "MetaData/timeOffset"
+      source : variables/obsTimeMinusCycleTime
+      longName: "Observation Time Minus Reference Time"
+      units: "s"
+    #ObsValue
+    - name: "ObsValue/airTemperature"
+      source: variables/airTemperatureObsValue
+      longName: "Temperature"
+      units: "K"
+
+    - name: "ObsValue/specificHumidity"
+      source: variables/specificHumidityObsValue
+      longName: "Specific Humidity"
+      units: "kg kg-1"
+
+    - name: "ObsValue/windEastward"
+      source: variables/windEastwardObsValue
+      longName: "U component of Wind"
+      units: "m s-1"
+
+    - name: "ObsValue/windNorthward"
+      source: variables/windNorthwardObsValue
+      longName: "V component of Wind"
+      units: "m s-1"
+
+    #QualityMarker
+    - name: "QualityMarker/airTemperature"
+      source: variables/airTemperatureQualityMarker
+      longName: "Air Temperature Quality Marker"
+
+    - name: "QualityMarker/specificHumidity"
+      source: variables/specificHumidityQualityMarker
+      longName: "specific Humidity Quality Marker"
+
+    - name: "QualityMarker/windEastward"
+      source: variables/windEastwardQualityMarker
+      longName: "U Component of Wind Quality Marker"
+
+    - name: "QualityMarker/windNorthward"
+      source: variables/windNorthwardQualityMarker
+      longName: "V Component of Wind Quality Marker"
+
+    #ObsError
+    - name: "ObsError/airTemperature"
+      source: variables/airTemperatureObsError
+      longName: "Air Temperature Error"
+      units: "K"
+
+    - name: "ObsError/specificHumidity"
+      source: variables/specificHumidityObsError
+      longName: "Specific Humidity Error"
+      units: "1"
+
+    - name: "ObsError/windEastward"
+      source: variables/windObsError
+      longName: "U component of wind error"
+      units: "m s-1"
+
+    - name: "ObsError/windNorthward"
+      source: variables/windObsError
+      longName: "V component of wind error"
+      units: "m s-1"
