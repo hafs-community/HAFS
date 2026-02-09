@@ -72,6 +72,14 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
+  if [ -d "hafs_tools.fd/sorc/hafs_ships" ]; then
+    ${CP} hafs_tools.fd/exec/hafs_ships_nameparse.x                  ../exec/hafs_ships_nameparse.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_gridparse.x                  ../exec/hafs_ships_gridparse.x 
+    ${CP} hafs_tools.fd/exec/hafs_ships_totaldiag.x                  ../exec/hafs_ships_totaldiag.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_inddiag.x                    ../exec/hafs_ships_inddiag.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_inddiagnull.x                ../exec/hafs_ships_inddiagnull.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_getcenter.x                  ../exec/hafs_ships_getcenter.x
+  fi 
 }
 
 #------------------------------------
