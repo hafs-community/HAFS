@@ -106,12 +106,20 @@ fi
 if [ ${RUN_ENVIR^^} != "NCO" ]; then
   trk_atcfunix=${out_prefix}.${RUN}.trak.atcfunix
   all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
+  trk_atcfunix_p=${out_prefix}.${RUN}.parent.trak.atcfunix
+  all_atcfunix_p=${out_prefix}.${RUN}.parent.trak.atcfunix.all
   mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
   if [ -s ${COMhafs}/${trk_atcfunix} ] && [ "${STORMID:0:2}" != "00" ]; then
     ${NCP} -p ${COMhafs}/${trk_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
+  if [ -s ${COMhafs}/${all_atcfunix_p} ]; then
+    ${NCP} -p ${COMhafs}/${all_atcfunix_p} ${CDNOSCRUB}/${SUBEXPT}/.
+  fi
+  if [ -s ${COMhafs}/${trk_atcfunix_p} ] && [ "${STORMID:0:2}" != "00" ]; then
+    ${NCP} -p ${COMhafs}/${trk_atcfunix_p} ${CDNOSCRUB}/${SUBEXPT}/.
   fi
   if [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ]; then
     ${NCP} -p ${COMhafs}/${out_prefix}.${RUN}.trak.patcf ${CDNOSCRUB}/${SUBEXPT}/.
