@@ -108,6 +108,7 @@ if [ ${RUN_ENVIR^^} != "NCO" ]; then
   all_atcfunix=${out_prefix}.${RUN}.trak.atcfunix.all
   trk_atcfunix_p=${out_prefix}.${RUN}.parent.trak.atcfunix
   all_atcfunix_p=${out_prefix}.${RUN}.parent.trak.atcfunix.all
+  ships_diag_txt=${out_prefix}.${RUN}.ships.diag.txt
   mkdir -p ${CDNOSCRUB:?}/${SUBEXPT:?}
   if [ -s ${COMhafs}/${all_atcfunix} ]; then
     ${NCP} -p ${COMhafs}/${all_atcfunix} ${CDNOSCRUB}/${SUBEXPT}/.
