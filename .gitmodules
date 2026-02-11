@@ -5,11 +5,11 @@
 [submodule "UFS_UTILS"]
     path = sorc/hafs_utils.fd
     url = https://github.com/hafs-community/UFS_UTILS.git
-    branch = feature/hafsv2p2_baseline
+    branch = feature/hafsv2p2_final
 [submodule "gfdl-tracker"]
     path = sorc/hafs_tracker.fd
     url = https://github.com/hafs-community/gfdl-tracker.git
-    branch = feature/hafsv2p2_baseline
+    branch = feature/hafsv2p2_final
 [submodule "sorc/hafs_gsi.fd"]
     path = sorc/hafs_gsi.fd
     url = https://github.com/hafs-community/GSI.git
@@ -21,4 +21,4 @@
 [submodule "hafs_graphics"]
     path = sorc/hafs_graphics.fd/emc_graphics
     url = https://github.com/hafs-community/hafs_graphics.git
-    branch = feature/hafsv2p2_baseline
+    branch = feature/hafsv2p2_final
