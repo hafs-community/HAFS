@@ -422,12 +422,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-#  airctypes="aircar aircft"
-  convtypes="amv_abi amv_viirs hiamv_abi adpsfc sfcshp adpupa drpsnd tldplr hdob"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
-  sattypes="atms ssmis amsua iasi gsrcsr"
-  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_goes-16 abi_goes-17 abi_goes-18"
+  convtypes="amv_abi amv_viirs hiamv_abi aircft adpsfc sfcshp adpupa drpsnd tldplr hdob"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
+  sattypes="atms ssmis amsua iasi gsrcsr cris-fsr"
+  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_goes-16 abi_goes-17 abi_goes-18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
   obstypes="${radtypes} ${convtypes}"
 #  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
@@ -473,25 +472,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
   mkdir output
   for file in ${sattypes}; do
-   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ]; then
-    sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
-   fi
    if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
     sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml > satbias_converter_${file}.yaml
-   fi
-  done
-############### RUN bufr2ioda, either using exec or python #######################
-#  bufr2ioda/run_bufr2ioda.py ${PDY}${cyc} gfs ${COMINobs} ${PARMjedi}/json ${output_dir} #use bufr2ioda for ABI; Needs to be merged into bufrquery #XL
-  export err=$?; err_chk
-  ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
-  for file in ${airctypes}; do
-   export AVAIL=` binv gfs.t${cyc}z.prepbufr.bufr_d | grep "${file^^}" | wc -l `
-   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml ] && [ "${AVAIL}" -gt 0 ] ; then
-    sed -e "s|#HH#|t${cyc}z|g" \
-        -e "s|#ANADATE#|${ANADATE}|g" ${PARMjedi}/yaml_templates/bufr2ioda/bufr_ncep_${file}.yaml > bufr_ncep_${file}.yaml
-    ${APRUNS} ${IODAEXEC} bufr_ncep_${file}.yaml
-   else
-    echo "Skipping ${file^^}: YAML missing or AVAIL=0"
    fi
   done
 ############### RUN bufrquery #######################
@@ -507,6 +489,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
        python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
+      elif [[ "${file}" = "cris-fsr" ]]; then
+       python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
        python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
       fi
@@ -514,6 +498,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
     shift
   done
 
+  ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
   set -- $convbufrs
   for file in $convtypes; do
     bufr=$1
