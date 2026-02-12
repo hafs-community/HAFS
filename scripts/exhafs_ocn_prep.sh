@@ -153,14 +153,6 @@ ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee ./archv2ncdf3z_3d_obc.log
 export err=$?; err_chk
 
-# Run Python script to generate OBC
-##Temporary fix for the esmf version on wcoss2, for hafs/ve to have the right esmf binding
-if module is-loaded esmf-D/8.8.0; then
-   module unload esmf-D/8.8.0 
-   module load esmf-C/8.6.0
-fi
-##
-
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
 ${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
