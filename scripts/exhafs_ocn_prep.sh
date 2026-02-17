@@ -113,6 +113,14 @@ ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_ic.in ./rtofs_ocean_
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in 2>&1 | tee archv2ncdf3z_3d_ic.log
 export err=$?; err_chk
 
+# Convert float to double precision
+ncap2 -O -s 'ssh=double(ssh); Latitude=double(Latitude); Longitude=double(Longitude)' rtofs_${outnc_2d} rtofs_${outnc_2d}
+export err=$?; err_chk
+ncap2 -O -s 'pot_temp=double(pot_temp); salinity=double(salinity); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_ts} rtofs_${outnc_ts}
+export err=$?; err_chk
+ncap2 -O -s 'u=double(u); v=double(v); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_uv} rtofs_${outnc_uv}
+export err=$?; err_chk
+
 # SSH file
 ${USHhafs}/hafs_mom6_ssh_ic.py rtofs_${outnc_2d} ${outnc_2d} | tee ./mom6_ssh_ic.log
 export err=$?; err_chk
@@ -123,6 +131,14 @@ export err=$?; err_chk
 
 # UV file
 ${USHhafs}/hafs_mom6_stagger_uv_ic.py rtofs_${outnc_uv} ${outnc_uv} | tee ./mom6_stagger_uv_ic.log
+export err=$?; err_chk
+
+# Convert float to double precision
+ncap2 -O -s 'ssh=double(ssh); latitude=double(latitude); longitude=double(longitude)' ${outnc_2d} ${outnc_2d}
+export err=$?; err_chk
+ncap2 -O -s 'temp=double(temp); salt=double(salt); latitude=double(latitude); longitude=double(longitude); depth=double(depth)' ${outnc_ts} ${outnc_ts}
+export err=$?; err_chk
+ncap2 -O -s 'u=double(u); v=double(v); lath=double(lath); lonh=double(lonh); depth=double(depth)' ${outnc_uv} ${outnc_uv}
 export err=$?; err_chk
 
 # Deliver to intercom
@@ -153,8 +169,16 @@ ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee ./archv2ncdf3z_3d_obc.log
 export err=$?; err_chk
 
+# Convert float to double precision
+ncap2 -O -s 'ssh=double(ssh); Latitude=double(Latitude); Longitude=double(Longitude)' rtofs_${outnc_2d} rtofs_${outnc_2d}
+export err=$?; err_chk
+ncap2 -O -s 'pot_temp=double(pot_temp); salinity=double(salinity); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_ts} rtofs_${outnc_ts}
+export err=$?; err_chk
+ncap2 -O -s 'u=double(u); v=double(v); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_uv} rtofs_${outnc_uv}
+export err=$?; err_chk
+
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
+${APRUNO} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
 # Rename the OBC files
