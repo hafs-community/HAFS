@@ -99,8 +99,22 @@
   <!ENTITY ENSIDS "@[ENSIDS]">
 
   <!ENTITY gtype "@[gtype:-regional]">
-  <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_regional_40x30io3x72_omp2];">
-  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_ENS_RESOURCES_regional_40x30io3x72_omp2];">
+  <!ENTITY ATM_INIT_0_RESOURCES "&@[ATM_INIT_0_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_1_RESOURCES "&@[ATM_INIT_1_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_2_RESOURCES "&@[ATM_INIT_2_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_3_RESOURCES "&@[ATM_INIT_3_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_4_RESOURCES "&@[ATM_INIT_4_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_5_RESOURCES "&@[ATM_INIT_5_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY ATM_INIT_6_RESOURCES "&@[ATM_INIT_6_RESOURCES:-ATM_INIT_RESOURCES];">
+  <!ENTITY FORECAST_RESOURCES "&@[FORECAST_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_0_RESOURCES "&@[FORECAST_0_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_1_RESOURCES "&@[FORECAST_1_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_2_RESOURCES "&@[FORECAST_2_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_3_RESOURCES "&@[FORECAST_3_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_4_RESOURCES "&@[FORECAST_4_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_5_RESOURCES "&@[FORECAST_5_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_6_RESOURCES "&@[FORECAST_6_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_RESOURCES_300PE];">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -1032,6 +1046,39 @@
           <taskdep task="atm_init_storm1_6"/>
         </or>
 @** endif
+
+@** if RUN_ATM_VI==NO
+        <or>
+          <taskdep task="atm_init_storm2"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm2.conf</cyclestr></datadep></not>
+        </or>
+        <or>
+          <taskdep task="atm_init_storm3"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm3.conf</cyclestr></datadep></not>
+        </or>
+        <or>
+          <taskdep task="atm_init_storm4"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm4.conf</cyclestr></datadep></not>
+        </or>
+        <or>
+          <taskdep task="atm_init_storm5"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm5.conf</cyclestr></datadep></not>
+        </or>
+        <or>
+          <taskdep task="atm_init_storm6"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm6.conf</cyclestr></datadep></not>
+        </or>
+        <or>
+          <taskdep task="atm_init_storm7"/>
+          <strneq><left>&RUN_ATM_INIT;</left><right>YES</right></strneq>
+          <not><datadep><cyclestr>&COMhafs;/storm7.conf</cyclestr></datadep></not>
+        </or>
+@** else
         <or>
           <taskdep task="atm_vi_storm2"/>
           <strneq><left>&RUN_ATM_VI;</left><right>YES</right></strneq>
@@ -1092,6 +1139,7 @@
           <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
           <not><datadep><cyclestr>&COMhafs;/storm7.conf</cyclestr></datadep></not>
         </or>
+@** endif
       </and>
     </dependency>
   </task>
@@ -1112,10 +1160,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_0_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_0_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1166,10 +1211,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_1_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_1_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1228,10 +1270,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_2_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_2_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1290,10 +1329,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_3_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_3_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1352,10 +1388,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_4_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_4_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1414,10 +1447,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_5_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_5_RESOURCES;
     &ENV_VARS;
 
     <dependency>
@@ -1476,10 +1506,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-<!--
-    &FORECAST_LARGE_6_RESOURCES;
--->
-    &FORECAST_LARGE_RESOURCES_40node;
+    &FORECAST_6_RESOURCES;
     &ENV_VARS;
 
     <dependency>

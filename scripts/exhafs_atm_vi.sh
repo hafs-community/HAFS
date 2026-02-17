@@ -17,6 +17,12 @@
 ################################################################################
 set -x -o pipefail
 vi_force_cold_start=${vi_force_cold_start:-no}
+# TEMPORARY WORKAROUND: Force cold start for storms too close to outer boundaries
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+  if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then
+    vi_force_cold_start=yes
+  fi
+fi
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s

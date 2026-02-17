@@ -28,6 +28,12 @@ MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 SENDCOM=${SENDCOM:-YES}
 
+if [ "${RUN_ATM_VI}" == NO ] && [ "${RUN_GSI}" == NO ]; then
+    USE_EXTERNAL_VORTEX=${USE_EXTERNAL_VORTEX:-YES}
+else
+    USE_EXTERNAL_VORTEX=${USE_EXTERNAL_VORTEX:-NO}
+fi
+
 # Merge analysis or init
 if [ ${MERGE_TYPE} = analysis ]; then
 
@@ -158,84 +164,157 @@ mkdir -p ${RESTARTtmp}
 if [ ${MERGE_TYPE} = analysis ]; then
 
 if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
-    # Step 1: merge each src0[2-N] nest analysis into src01 parent domain (for analysis_merge)
-    ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
-    tileno=2
-    for sid in ${multistorm_sids} ; do
-        RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
-        mkdir -p ${RESTARTNESTtmp}
-        echo "DEBUG:: RESTARTNESTtmp=${RESTARTNESTtmp}"
-        
-        # Update the MERGE Command by pointing to the appropriate TCVitals file
-        # Merge the src0[2-N] nest analyses directly into dst01 (RESTARTmrg) 
-        WORKhafs_nest=${WORKhafs/00L/${sid}/}
+    if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+       # Step 1: merge each src0[2-N] EXTERNAL VORTEX into src01 parent domain (for analysis_merge)
+       ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
+       tileno=2
+       for sid in ${multistorm_sids} ; do
+           export copydst="no"
+           sid_lowercase=` echo $sid | tr "A-Z" "a-z" `
+           RESTARTNESTtmp=${COMvortex}/hfsb.${ymd}/${hh}/${sid_lowercase}.${ymd}${hh}.RESTART_analysis_merge
+           echo "DEBUG:: RESTARTNESTtmp=${RESTARTNESTtmp}"
+           
+           # Update the MERGE Command by pointing to the appropriate TCVitals file
+           # Merge the src0[2-N] nest analyses directly into dst01 (RESTARTmrg) 
+           WORKhafs_nest=${WORKhafs/00L/${sid}/}
+           #tcvital_nest=${WORKhafs_nest}/tmpvit
+           tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+           if [ ${merge_method} = vortexreplace ]; then
+               MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+           else
+               MERGE_CMD_NEST="${MERGE_CMD}"
+           fi
+           
+           in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+           out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+           
+           # Loop through input vortex files to see if there are any missing files
+           #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+           # LJG 2026-02-10
+           for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+               in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.merge.nc
+               if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ]; then 
+                   echo "WARNING: Some or all of the input files for $sid are missing, skip this step, using init vortex"
+                   export copydst="yes"
+                   break
+               fi
+           done
+           if [ $copydst == no ] ; then
+           #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+           # LJG 2026-02-10
+           for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+               in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.merge.nc
+               if [[ $var = sfc_data ]]; then
+                   #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
+                   out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+               else
+                   #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
+                   out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+               fi
+               if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+                      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+                   echo "FATAL ERROR: Missing in/out_grid or in/out_file. Exiting..."
+                   exit 1
+               fi
+               #${MERGE_CMD}
+               ${MERGE_CMD_NEST} \
+                   --in_grid=${in_grid} \
+                   --out_grid=${out_grid} \
+                   --in_file=${in_file} \
+                   --out_file=${out_file}
+               status=$?; [[ $status -ne 0 ]] && exit $status
+           done
+           #else #ckw
+           #${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/ #ckw
+           fi
+           #GJA
+           #tileno=$((tileno+1))
+           #for sid in ${multistorm_sids} ; do
+       done
 
-        # Update the location of tmpvit
-        #tcvital_nest=${WORKhafs_nest}/tmpvit
-        tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
-        echo "DEBUG: ls -l tcvital_nest:"
-        ls -l ${tcvital_nest}
-        if [ ${merge_method} = vortexreplace ]; then
-    	MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
-        else
-    	MERGE_CMD_NEST="${MERGE_CMD}"
-        fi
-        if [ -e ${WORKhafs_nest}/intercom/RESTART_analysis ]; then
-    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_analysis
-        elif [ -e ${WORKhafs_nest}/intercom/RESTART_vi ]; then
-    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_vi
-        elif [ -e ${WORKhafs_nest}/intercom/RESTART_init ]; then
-    	RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_init
-        else
-    	echo "FATAL ERROR: RESTARTNESTsrc does not exist"
-    	exit 1
-        fi
-        #RESTARTNESTdst=${RESTARTdst/00L/${sid}/}
-        
-        #${NCP} -rp ${RESTARTNESTsrc}/* ${RESTARTNESTtmp}/
-        for srcf in ${RESTARTNESTsrc}/*; do
-    	dstf=$(basename ${srcf} | sed -s s/nest02/nest0${tileno}/ | sed -s s/tile2/tile${tileno}/)
-    	echo "DEBUG:: ${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}"
-    	${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}
-        done
 
-        find ${RESTARTdst} \( ! -name "*nest0[0-9]*" \) -exec ${NCP} -rp {} ${RESTARTNESTtmp}/ \;
-        in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
-        #out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
-        out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
-        
-        for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do #sfc_data; do
-    	in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.nc
-    	if [[ $var = sfc_data ]]; then
-    	    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
-    	    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
-    	else
-    	    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
-    	    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
-    	fi
-    	if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-    	       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-    	    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-    	    exit 1
-    	fi
-    	#${MERGE_CMD}
-    	${MERGE_CMD_NEST} \
-    	    --in_grid=${in_grid} \
-    	    --out_grid=${out_grid} \
-    	    --in_file=${in_file} \
-    	    --out_file=${out_file}
-    	status=$?; [[ $status -ne 0 ]] && exit $status
-        done
-        #GJA
-        tileno=$((tileno+1))
-        #for sid in ${multistorm_sids} ; do
-    done
+    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+        # Step 1: merge each src0[2-N] nest analysis into src01 parent domain (for analysis_merge)
+        ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
+        tileno=2
+        for sid in ${multistorm_sids} ; do
+            RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+            mkdir -p ${RESTARTNESTtmp}
+            echo "DEBUG:: RESTARTNESTtmp=${RESTARTNESTtmp}"
+            
+            # Update the MERGE Command by pointing to the appropriate TCVitals file
+            # Merge the src0[2-N] nest analyses directly into dst01 (RESTARTmrg) 
+            WORKhafs_nest=${WORKhafs/00L/${sid}/}
     
+            # Update the location of tmpvit
+            #tcvital_nest=${WORKhafs_nest}/tmpvit
+            tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+            echo "DEBUG: ls -l tcvital_nest:"
+            ls -l ${tcvital_nest}
+            if [ ${merge_method} = vortexreplace ]; then
+                MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+            else
+                MERGE_CMD_NEST="${MERGE_CMD}"
+            fi
+            if [ -e ${WORKhafs_nest}/intercom/RESTART_analysis ]; then
+       	        RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_analysis
+            elif [ -e ${WORKhafs_nest}/intercom/RESTART_vi ]; then
+    	        RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_vi
+            elif [ -e ${WORKhafs_nest}/intercom/RESTART_init ]; then
+                RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_init
+            else
+                echo "FATAL ERROR: RESTARTNESTsrc does not exist"
+                exit 1
+            fi
+            #RESTARTNESTdst=${RESTARTdst/00L/${sid}/}
+            
+            #${NCP} -rp ${RESTARTNESTsrc}/* ${RESTARTNESTtmp}/
+            for srcf in ${RESTARTNESTsrc}/*; do
+                dstf=$(basename ${srcf} | sed -s s/nest02/nest0${tileno}/ | sed -s s/tile2/tile${tileno}/)
+                echo "DEBUG:: ${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}"
+                ${NCP} -rp ${srcf} ${RESTARTNESTtmp}/${dstf}
+            done
+            
+            find ${RESTARTdst} \( ! -name "*nest0[0-9]*" \) -exec ${NCP} -rp {} ${RESTARTNESTtmp}/ \;
+            in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+            #out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+            out_grid=${RESTARTmrg}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
+            
+            #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+            # LJG 2026-02-10
+            for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+                in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.nc
+            if [[ $var = sfc_data ]]; then
+                #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
+                out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+            else
+                #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
+                out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+        	fi
+        	if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+        	       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+        	    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+        	    exit 1
+        	fi
+        	#${MERGE_CMD}
+        	${MERGE_CMD_NEST} \
+        	    --in_grid=${in_grid} \
+        	    --out_grid=${out_grid} \
+        	    --in_file=${in_file} \
+        	    --out_file=${out_file}
+        	status=$?; [[ $status -ne 0 ]] && exit $status
+            done
+            #GJA
+            tileno=$((tileno+1))
+            #for sid in ${multistorm_sids} ; do
+        done
+    fi #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; else
 else
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+# LJG 2026-02-10
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
@@ -325,45 +404,104 @@ fi
 
 # Step 3: merge srcd02 into dstd02
 if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
-    tileno=2
-    for sid in ${multistorm_sids} ; do
-	RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
-	WORKhafs_nest=${WORKhafs/00L/${sid}/}
+    if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+        tileno=2
+        for sid in ${multistorm_sids} ; do
+            export copydst="no"
+            sid_lowercase=` echo $sid | tr "A-Z" "a-z" `
+            RESTARTNESTtmp=${COMvortex}/hfsb.${ymd}/${hh}/${sid_lowercase}.${ymd}${hh}.RESTART_analysis_merge
+            echo "DEBUG:: RESTARTNESTtmp=${RESTARTNESTtmp}"
 
-        # Update the location of tmpvit
-        #tcvital_nest=${WORKhafs_nest}/tmpvit
-        tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
-        echo "DEBUG: ls -l tcvital_nest:"
-        ls -l ${tcvital_nest}
-	if [ ${merge_method} = vortexreplace ]; then
-	    MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
-	else
-	    MERGE_CMD_NEST="${MERGE_CMD}"
-	fi
-	for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
-	    # in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-	    # out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-	    # in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-	    # out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-	    in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
-	    out_grid=${RESTARTmrg}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
-	    in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
-	    out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
-	    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-		   [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-		echo "FATAL ERROR: Missing in/out_grid or in/out_file. Exiting..."
-		exit 1
-	    fi
-	    #${MERGE_CMD}
-	    ${MERGE_CMD_NEST} \
-		--in_grid=${in_grid} \
-		--out_grid=${out_grid} \
-		--in_file=${in_file} \
-		--out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
-	    export err=$?; err_chk
-	done #for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
-	tileno=$((tileno+1))
-    done #for sid in ${multistorm_sids} ; do
+            WORKhafs_nest=${WORKhafs/00L/${sid}/}
+            #tcvital_nest=${WORKhafs_nest}/tmpvit
+            tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+            if [ ${merge_method} = vortexreplace ]; then
+                MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+            else
+                MERGE_CMD_NEST="${MERGE_CMD}"
+            fi
+            # Loop through input vortex files to see if there are any missing files
+            #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+            # LJG 2026-02-10
+            for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+                in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+                in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.merge.nc
+                if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ]; then 
+                    echo "WARNING: Some or all of the input files for $sid are missing, skip this step, using init vortex"
+                    export copydst="yes"
+                    break
+                fi
+            done
+            if [ $copydst == no ] ; then
+            #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+            # LJG 2026-02-10
+            for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+                in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+                out_grid=${RESTARTmrg}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+                in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest02.tile2.merge.nc
+                out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+                if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+                       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+                    echo "FATAL ERROR: Missing in/out_grid or in/out_file. Exiting..."
+                    exit 1
+                fi
+                #${MERGE_CMD}
+                ${MERGE_CMD_NEST} \
+                    --in_grid=${in_grid} \
+                    --out_grid=${out_grid} \
+                    --in_file=${in_file} \
+                    --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
+                export err=$?; err_chk
+                #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
+            done
+            #else #ckw
+            #${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/ #ckw
+            fi
+            # GJA
+            tileno=$((tileno+1))
+            #for sid in ${multistorm_sids} ; do
+        done
+    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+        tileno=2
+        for sid in ${multistorm_sids} ; do
+            RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+            WORKhafs_nest=${WORKhafs/00L/${sid}/}
+    
+            # Update the location of tmpvit
+            #tcvital_nest=${WORKhafs_nest}/tmpvit
+            tcvital_nest=${WORKhafs_nest}/intercom/launch/tmpvit
+            echo "DEBUG: ls -l tcvital_nest:"
+            ls -l ${tcvital_nest}
+            if [ ${merge_method} = vortexreplace ]; then
+                MERGE_CMD_NEST="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital_nest} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+            else
+                MERGE_CMD_NEST="${MERGE_CMD}"
+            fi
+            for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+                # in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+                # out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+                # in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+                # out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+                in_grid=${RESTARTNESTtmp}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+                out_grid=${RESTARTmrg}/grid_mspec.nest0${tileno}_${yr}_${mn}_${dy}_${hh}.tile${tileno}.nc
+                in_file=${RESTARTNESTtmp}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+                out_file=${RESTARTmrg}/${PDY}.${cyc}0000.${var}.nest0${tileno}.tile${tileno}.nc
+                if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+                       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+                    echo "FATAL ERROR: Missing in/out_grid or in/out_file. Exiting..."
+                    exit 1
+                fi
+                #${MERGE_CMD}
+                ${MERGE_CMD_NEST} \
+                    --in_grid=${in_grid} \
+                    --out_grid=${out_grid} \
+                    --in_file=${in_file} \
+                    --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
+                export err=$?; err_chk
+            done #for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+            tileno=$((tileno+1))
+        done #for sid in ${multistorm_sids} ; do
+    fi
 else
 
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do

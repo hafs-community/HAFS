@@ -218,7 +218,7 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     YMDH=cyc.strftime('%Y%m%d%H')
     (case_root,parm,infiles,stid,moreopt) = \
             parse_launch_args(args[1:],logger,usage,PARMhafs)
-    print('INFILES: ', infiles)
+    logger.info('INFILES: '+repr(infiles))
     conf = launch(infiles,cyc,stid,moreopt,case_root,
                   init_dirs=False,prelaunch=prelaunch,
                   fakestorm=True)
@@ -576,6 +576,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
         if not isinstance(filename,str):
             raise TypeError('First input to hafs.config.for_initial_job '
                             'must be a list of strings.')
+    
     conf=HAFSLauncher()
     logger=conf.log()
 
@@ -586,7 +587,7 @@ def launch(file_list,cycle,stid,moreopt,case_root,init_dirs=True,
     logger.debug('FAKESTORM CONF: ' +repr(fakestorm_conf))
     logger.info('STORM ID: ' +repr(stid))
     logger.info('GLOBAL STORM NUM: ' +repr(storm_num))
-
+    
     if cycle is not None:
         conf.cycle=to_datetime(cycle)
         logger.info('Caller wants to launch a %s run of cycle %s storm %s.'

@@ -43,6 +43,7 @@ export RUN_MULTISTORM={RUN_MULTISTORM}
 [[ -z "$COMINarch" ]] && export COMINarch={COMINarch}
 [[ -z "$COMrtofs" ]] && export COMrtofs={COMrtofs}
 [[ -z "$COMINrtofs" ]] && export COMINrtofs={COMINrtofs}
+[[ -z "$COMvortex" ]] && export COMvortex={COMvortex}
 [[ -z "$COMINmsg" ]] && export COMINmsg={COMINmsg}
 [[ -z "$COMINhafs" ]] && export COMINhafs={COMINhafs}
 
