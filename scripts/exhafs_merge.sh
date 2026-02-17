@@ -106,9 +106,9 @@ else
   tcvital=${WORKhafs}/intercom/launch/tmpvit
 fi
 if [ ${merge_method} = vortexreplace ]; then
-  MERGE_CMD="${APRUNC} ${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
+  MERGE_CMD="${APRUNO} ${DATOOL} vortexreplace --tcvital=${tcvital} --infile_date=${ymd}.${hh}0000 --vortexradius=650:700"
 elif [ ${merge_method} = domainmerge ]; then
-  MERGE_CMD="${APRUNC} ${DATOOL} remap"
+  MERGE_CMD="${APRUNO} ${DATOOL} remap"
 else
   echo "FATAL ERROR: unsupported merge_method: ${merge_method}"
   exit 1
