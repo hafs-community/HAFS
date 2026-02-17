@@ -4,12 +4,12 @@
     maxraddis   = 75.,     ! Max radial distance theshold (km)
     draddis     = 2.,      ! Radial distance bin span (km)
     dazm        = 3.,      ! Azimuthal bin span (deg)
-    limit_std   = .false., ! Enable limit on velocity std dev in superob bin
+    limit_std   = .true.,  ! Enable limit on velocity std dev in superob bin
     maxstd      = 2.0,     ! Max allowed velocity std dev in superob bin (m/s)
     minazspan   = 3.0,     ! Min azimuthal span (deg) for superob bins (span changes as a function of radial distance)
     minrv       = 0.,      ! Abs(min radial velocity) (m/s)
     maxrv       = 120.,    ! Abs(max radial velocity) (m/s)
-    minbinct    = 1,       ! Min required ob count in superob bin
+    minbinct    = 3,       ! Min required ob count in superob bin
     nclose      = 25,      ! Max number of obs to average (prioritized by closeness to bin center)
  /
 
