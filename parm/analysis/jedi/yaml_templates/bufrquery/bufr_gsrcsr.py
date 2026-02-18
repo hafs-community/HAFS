@@ -90,14 +90,26 @@ def _make_description(mapping_path, update=False):
             {
                 'name':'MetaData/sensorChannelNumber',
                 'source': 'variables/sensorChannelNumber',
-                'units':'m-1',
+                'units':'',
                 'longName': 'Sensor channel number',
+            },
+            {
+                'name':'MetaData/sensorCentralWavenumber',
+                'source': 'variables/sensorCentralWavenumber',
+                'units':'m-1',
+                'longName': 'Sensor Central Wavenumber',
             },
             {
                 'name':'MetaData/cloudAmount',
                 'source': 'variables/cloudAmount',
                 'units':' ',
                 'longName': 'Amount of cloud coverage in layer',
+            },
+            {
+                'name':'MetaData/sensorViewAngle',
+                'source': 'variables/ViewAngle',
+                'units':'degree',
+                'longName': 'Sensor View Angle',
             },
             {
                 'name':'ClearSkyStdDev/brightnessTemperature',
@@ -118,8 +130,53 @@ def _make_description(mapping_path, update=False):
 
     return description
 def compute_sensor_channel_number(nlocs, nchannels):
-    return np.tile(np.arange(7, nchannels + 1, dtype=np.int32), (nlocs,1))
-
+    return np.tile(np.arange(7, nchannels + 7, dtype=np.int32), (1,nlocs))
+def compute_central_wave_number(satid, nlocs, nchannels):
+    channel_start = 7
+    channel_end = 16
+    channum = np.arange(channel_start, channel_end+1)
+    wavenum_values_dict = {
+        270: np.array(
+            [
+                257037.4,
+                162052.9,
+                144355.4,
+                136322.8,
+                118422,
+                104089.1,
+                96800.1,
+                89400.06,
+                81529.43,
+                75378.98,
+            ],
+            dtype=np.float32,
+        ),
+        271: np.array(
+            [
+                256550.4,
+                159490.2,
+                136128.6,
+                114870.3,
+                103420.4,
+                92938.72,
+                83886.68,
+                75122.19,
+                83886.68,
+                75122.19,
+            ],
+            dtype=np.float32,
+        ),
+    }
+    wavenum_fill_value =  np.float32(0)
+    if satid in wavenum_values_dict:
+        wavenum = wavenum_values_dict[satid]
+    else:
+        wavenum = np.zeros(nchannels,dtype=np.float32)
+        logging(comm,'INFO',f"Satellite ID is not in the dictionary {satid}")
+    tiled_array = np.tile(wavenum, (1,nlocs))
+#    fillwavenum = np.nan_to_num(tiled_array, nan=0.0, copy=False)
+    logging(comm,'DEBUG',f"Checking the wavenumber for {satid}\n: {wavenum}")
+    return tiled_array
 def compute_scan_position(container, category):
     # Extract variables
     satzenang = container.get('variables/sensorZenithAngle', category)
@@ -147,10 +204,11 @@ def _make_obs(comm, input_path, mapping_path):
         if satid.size == 0:
             logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
             dummy_mappings = [
-            #    ('sensorCentralWavenumber', 'brightnessTemperature'),
                 ('sensorScanPosition','brightnessTemperature'),
                 ('sensorChannelNumber','brightnessTemperature'),
+                ('sensorCentralWavenumber','brightnessTemperature'),
                 ('cloudAmount', 'brightnessTemperature'),
+                ('ViewAngle', 'brightnessTemperature'),
                 ('clearstd', 'brightnessTemperature')
             ]
             for target_var, source_var in dummy_mappings:
@@ -168,7 +226,12 @@ def _make_obs(comm, input_path, mapping_path):
                           sensor_channel_number, 
                           sccf_paths, 
                           cat)
-            
+            # Add central Wavenumber
+            central_wave_number = compute_central_wave_number(satid[0],nlocs,nchannels) 
+            container.add('variables/sensorCentralWavenumber',
+                          central_wave_number,
+                          sccf_paths,
+                          cat)
             # Compute sensorScanPosition from container variables
             location_path = container.get_paths('variables/longitude', cat)
             scanpos = compute_scan_position(container, cat)
@@ -194,6 +257,13 @@ def _make_obs(comm, input_path, mapping_path):
                            value,
                            twod_path,
                            category=cat)
+            # add the sensor View Angle, which variable is required by FV3JEDI but not in use.
+              
+            ViewAngle = np.full_like(cloudfree, cloudfree.fill_value, dtype=np.float32)
+            container.add('variables/ViewAngle',
+                          ViewAngle,
+                          location_path,
+                          category=cat)
     # Check
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')
     logging(comm, 'DEBUG', f'all_sub_categories {container.all_sub_categories()}')

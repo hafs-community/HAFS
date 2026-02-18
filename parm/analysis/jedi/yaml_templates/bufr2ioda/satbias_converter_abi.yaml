@@ -16,13 +16,13 @@ default predictors: &default_preds
 
 output:
 - sensor: abi_g16
-  output file: output/satbias_radiance_abi_goes-16_#HH#.nc
+  output file: output/satbias_radiance_abi_g16_#HH#.nc
   predictors: *default_preds
 
 - sensor: abi_g17
-  output file: output/satbias_radiance_abi_goes-17_#HH#.nc
+  output file: output/satbias_radiance_abi_g17_#HH#.nc
   predictors: *default_preds
 
 - sensor: abi_g18
-  output file: output/satbias_radiance_abi_goes-18_#HH#.nc
+  output file: output/satbias_radiance_abi_g18_#HH#.nc
   predictors: *default_preds

@@ -424,9 +424,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
 ########## Prepare executables & bufr files #######################
   convtypes="amv_abi amv_viirs hiamv_abi aircft adpsfc sfcshp adpupa drpsnd tldplr hdob"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
-  sattypes="atms ssmis amsua iasi gsrcsr cris-fsr"
+  sattypes="atms ssmis amsua iasi abi cris-fsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_goes-16 abi_goes-17 abi_goes-18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
   obstypes="${radtypes} ${convtypes}"
 #  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
