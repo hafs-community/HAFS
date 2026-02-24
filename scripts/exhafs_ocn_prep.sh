@@ -178,13 +178,43 @@ ncap2 -O -s 'u=double(u); v=double(v); Latitude=double(Latitude); Longitude=doub
 export err=$?; err_chk
 
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${APRUNO} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
+${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
 # Rename the OBC files
 for var in ssh ts uv; do
   for segm in north south east west; do
-    mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    if [[ ${segm} = "north" ]]; then
+      nseg=1
+    elif [[ ${segm} = "south" ]]; then
+      nseg=2
+    elif [[ ${segm} = "east" ]]; then
+      nseg=3
+    elif [[ ${segm} = "west" ]]; then
+      nseg=4
+    fi
+    if [[ ${var} = "ssh" ]]; then
+      ncap2 -O -s "ssh_segment_00${nseg}=double(float(ssh_segment_00${nseg}))" \
+                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    elif [[ ${var} = "ts" ]]; then
+      ncap2 -O -s "temp_segment_00${nseg}=double(float(temp_segment_00${nseg})); \
+                   vc_temp_segment_00${nseg}=double(float(vc_temp_segment_00${nseg})); \
+                   dz_temp_segment_00${nseg}=double(float(dz_temp_segment_00${nseg})); \
+                   salt_segment_00${nseg}=double(float(salt_segment_00${nseg})); \
+                   vc_salt_segment_00${nseg}=double(float(vc_salt_segment_00${nseg})); \
+                   dz_salt_segment_00${nseg}=double(float(dz_salt_segment_00${nseg}))" \
+                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    elif [[ ${var} = "uv" ]]; then
+      ncap2 -O -s "u_segment_00${nseg}=double(float(u_segment_00${nseg})); \
+                   vc_u_segment_00${nseg}=double(float(vc_u_segment_00${nseg})); \
+                   dz_u_segment_00${nseg}=double(float(dz_u_segment_00${nseg})); \
+                   v_segment_00${nseg}=double(float(v_segment_00${nseg})); \
+                   vc_v_segment_00${nseg}=double(float(vc_v_segment_00${nseg})); \
+                   dz_v_segment_00${nseg}=double(float(dz_v_segment_00${nseg}))" \
+                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    fi
+    export err=$?; err_chk
+    # mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
     # Deliver to intercom
     ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
   done
@@ -259,5 +289,5 @@ ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 # Set ecflow event if needed
 if [ -n "${ECF_NAME}" ]; then
   ecflow_client --event Ocean
-fi      
+fi
 
