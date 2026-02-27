@@ -12,9 +12,59 @@ opts="-t -f"
 #===============================================================================
 # HAFSv2.2A final configuration
  confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v2p2a_final ../parm/hafsv2p2a_final.conf"
+# Five cycle testing for Melissa 13L2025
+#./run_hafs.py ${opts} 2025102300-2025102400 13L HISTORY ${confopts} \
+#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+#===============================================================================
+## HFSA with production computation resources on WCOSS2
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa ../parm/hfsa.conf"
+# Five cycle testing for Melissa 13L2025
+#./run_hafs.py ${opts} 2025102300-2025102400 13L HISTORY ${confopts} \
+#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## Technical testing for NHC basins
+## Technical testing for Helene 09L2025
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## HFSA with dev computation resources and one-way wave coupling
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev_ww3 ../parm/hfsa_dev_ww3.conf"
+## Technical testing for Helene 09L2025
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Kiko 11E2025
+#./run_hafs.py ${opts} 2025083112-2025083118 11E HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Iona 01C2025
+#./run_hafs.py ${opts} 2025072700-2025072706 01C HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## HFSA with dev computation resources and without wave coupling
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev ../parm/hfsa_dev.conf"
 ## Technical testing for Helene 09L2024
 #./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
-#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## Technical testing for JTWC basins
+## HFSA with dev computation resources for JTWC storms (no DA and without wave coupling)
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_jtwc_dev ../parm/hfsa_dev.conf"
+## Technical testing for Ragasa 24W2025
+#./run_hafs.py ${opts} 2025091806-2025091812 24W HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Shakhti 02A2025
+#./run_hafs.py ${opts} 2025100300-2025100306 02A HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Montha 03B2025
+#./run_hafs.py ${opts} 2025102612-2025102618 03B HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Chenge 04S2025
+#./run_hafs.py ${opts} 2025101818-2025101900 04S HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Urmil 23P2026
+#./run_hafs.py ${opts} 2026022518-2026022600 23P HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
 #===============================================================================
  # 2025 NATL Storms
 #./run_hafs.py ${opts} 2025062300-2025062418 01L HISTORY ${confopts} # Andrea
@@ -140,73 +190,121 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2023 20E HISTORY ${confopts} # Ramon
 
 #===============================================================================
- # 2024 WPAC Storms
-#./run_hafs.py ${opts} 2024052418-2024053100 01W HISTORY ${confopts} # Ewiniar
-#./run_hafs.py ${opts} 2024053100-2024060100 02W HISTORY ${confopts} # Maliksi
-#./run_hafs.py ${opts} 2024071500-2024071512 03W HISTORY ${confopts} # Three
-#./run_hafs.py ${opts} 2024071918-2024072306 04W HISTORY ${confopts} # Prapiroon
-#./run_hafs.py ${opts} 2024071918-2024072518 05W HISTORY ${confopts} # Gaemi
-#./run_hafs.py ${opts} 2024080700-2024081300 06W HISTORY ${confopts} # Maria
-#./run_hafs.py ${opts} 2024081206-2024081312 07W HISTORY ${confopts} # Son-Tinh
-#./run_hafs.py ${opts} 2024081212-2024081806 08W HISTORY ${confopts} # Ampil
-#./run_hafs.py ${opts} 2024081300-2024081500 09W HISTORY ${confopts} # Wukong
-#./run_hafs.py ${opts} 2024081900-2024082018 10W HISTORY ${confopts} # Jongdari
-#./run_hafs.py ${opts} 2024082112-2024090112 11W HISTORY ${confopts} # Shanshan
-#./run_hafs.py ${opts} 2024090112-2024090718 12W HISTORY ${confopts} # Yagi
-#./run_hafs.py ${opts} 2024090400-2024090700 13W HISTORY ${confopts} # Leepi
-#./run_hafs.py ${opts} 2024091000-2024091600 14W HISTORY ${confopts} # Bebinca
-#./run_hafs.py ${opts} 2024091618-2024092112 15W HISTORY ${confopts} # Pulasan
-#./run_hafs.py ${opts} 2024091806-2024091912 16W HISTORY ${confopts} # Soulik
-#./run_hafs.py ${opts} 2024092100-2024092206 17W HISTORY ${confopts} # Seventeen
-#./run_hafs.py ${opts} 2024092412-2024092712 18W HISTORY ${confopts} # Cimaron
-#./run_hafs.py ${opts} 2024092612-2024100206 19W HISTORY ${confopts} # Jebi
-#./run_hafs.py ${opts} 2024092706-2024100318 20W HISTORY ${confopts} # Krathon
-#./run_hafs.py ${opts} 2024100606-2024101012 21W HISTORY ${confopts} # Barijat
-#./run_hafs.py ${opts} 2024102012-2024102900 22W HISTORY ${confopts} # Trami
-#./run_hafs.py ${opts} 2024102500-2024110118 23W HISTORY ${confopts} # Kong-Rey
-#./run_hafs.py ${opts} 2024110306-2024111018 24W HISTORY ${confopts} # Yinxing
-#./run_hafs.py ${opts} 2024110900-2024111412 25W HISTORY ${confopts} # Man-Yi part 1
-#./run_hafs.py ${opts} 2024111500-2024111812 25W HISTORY ${confopts} # Man-Yi part 2
-#./run_hafs.py ${opts} 2024110906-2024111318 26W HISTORY ${confopts} # Toraji
-#./run_hafs.py ${opts} 2024111100-2024111612 27W HISTORY ${confopts} # Usagi
-#./run_hafs.py ${opts} 2024122218-2024122600 28W HISTORY ${confopts} # Pabuk
-
- # 2023 WPAC Storms
-#./run_hafs.py ${opts} 2023042012-2023042206 01W HISTORY ${confopts} # Sanvu
-#./run_hafs.py ${opts} 2023052012-2023060306 02W HISTORY ${confopts} # Mawar
-#./run_hafs.py ${opts} 2023060600-2023061206 03W HISTORY ${confopts} # Guchol
-#./run_hafs.py ${opts} 2023071500-2023071806 04W HISTORY ${confopts} # Talim
-#./run_hafs.py ${opts} 2023072112-2023072806 05W HISTORY ${confopts} # Doksuri
-#./run_hafs.py ${opts} 2023072706-2023081018 06W HISTORY ${confopts} # Khanun
-#./run_hafs.py ${opts} 2023080718-2023081712 07W HISTORY ${confopts} # Lan
-#./run_hafs.py ${opts} 2023082306-2023082806 08W HISTORY ${confopts} # Damrey
-#./run_hafs.py ${opts} 2023082318-2023090312 09W HISTORY ${confopts} # Saola
-#./run_hafs.py ${opts} 2023082812-2023090418 10W HISTORY ${confopts} # Haikui
-#./run_hafs.py ${opts} 2023083000-2023090400 11W HISTORY ${confopts} # Kirogi
-#./run_hafs.py ${opts} 2023090518-2023090818 12W HISTORY ${confopts} # Yun-Yeung
-#./run_hafs.py ${opts} 2023092506-2023092518 13W HISTORY ${confopts} # Thirteen
-#./run_hafs.py ${opts} 2023092912-2023101000 14W HISTORY ${confopts} # Koinu
-#./run_hafs.py ${opts} 2023100700-2023101412 15W HISTORY ${confopts} # Bolaven
-#./run_hafs.py ${opts} 2023101800-2023102100 16W HISTORY ${confopts} # Sanba
-#./run_hafs.py ${opts} 2023111212-2023111512 17W HISTORY ${confopts} # Seventeen
-#./run_hafs.py ${opts} 2023121718-2023121812 18W HISTORY ${confopts} # Jelawat
+ # 2025 CPAC storms
+#./run_hafs.py ${opts} 2025 01C HISTORY ${confopts} # Iona
+#./run_hafs.py ${opts} 2025 02C HISTORY ${confopts} # Keli
 
 #===============================================================================
+ # 2025 WPAC Storms
+#./run_hafs.py ${opts} 2025 01W HISTORY ${confopts} # Wutip
+#./run_hafs.py ${opts} 2025 02W HISTORY ${confopts} # Sepat
+#./run_hafs.py ${opts} 2025 03W HISTORY ${confopts} # Three
+#./run_hafs.py ${opts} 2025 04W HISTORY ${confopts} # Mun
+#./run_hafs.py ${opts} 2025 05W HISTORY ${confopts} # Danas
+#./run_hafs.py ${opts} 2025 06W HISTORY ${confopts} # Nari
+#./run_hafs.py ${opts} 2025 07W HISTORY ${confopts} # Seven
+#./run_hafs.py ${opts} 2025 08W HISTORY ${confopts} # Eight
+#./run_hafs.py ${opts} 2025 09W HISTORY ${confopts} # Wipha
+#./run_hafs.py ${opts} 2025 10W HISTORY ${confopts} # Francisco
+#./run_hafs.py ${opts} 2025 11W HISTORY ${confopts} # Co-May
+#./run_hafs.py ${opts} 2025 12W HISTORY ${confopts} # Krosa
+#./run_hafs.py ${opts} 2025 13W HISTORY ${confopts} # Bailu
+#./run_hafs.py ${opts} 2025 14W HISTORY ${confopts} # Fourteen
+#./run_hafs.py ${opts} 2025 15W HISTORY ${confopts} # Fifteen
+#./run_hafs.py ${opts} 2025 16W HISTORY ${confopts} # Podul
+#./run_hafs.py ${opts} 2025 17W HISTORY ${confopts} # Seventeen
+#./run_hafs.py ${opts} 2025 18W HISTORY ${confopts} # Lingling
+#./run_hafs.py ${opts} 2025 19W HISTORY ${confopts} # Kajiki
+#./run_hafs.py ${opts} 2025 20W HISTORY ${confopts} # Nongfa
+#./run_hafs.py ${opts} 2025 21W HISTORY ${confopts} # Peipah
+#./run_hafs.py ${opts} 2025 22W HISTORY ${confopts} # Tapah
+#./run_hafs.py ${opts} 2025 23W HISTORY ${confopts} # Mitag
+#./run_hafs.py ${opts} 2025 24W HISTORY ${confopts} # Ragasa
+#./run_hafs.py ${opts} 2025 25W HISTORY ${confopts} # Neoguri
+#./run_hafs.py ${opts} 2025 26W HISTORY ${confopts} # Bualoi
+#./run_hafs.py ${opts} 2025 27W HISTORY ${confopts} # Matmo
+#./run_hafs.py ${opts} 2025 28W HISTORY ${confopts} # Halong
+#./run_hafs.py ${opts} 2025 29W HISTORY ${confopts} # Nakri
+#./run_hafs.py ${opts} 2025 30W HISTORY ${confopts} # Fengshen
+#./run_hafs.py ${opts} 2025 31W HISTORY ${confopts} # Kalmaegi
+#./run_hafs.py ${opts} 2025 32W HISTORY ${confopts} # Fung-Wong
+#./run_hafs.py ${opts} 2025 33W HISTORY ${confopts} # Koto
+#./run_hafs.py ${opts} 2025 34W HISTORY ${confopts} # Thirtyfour
+
+ # 2024 WPAC Storms
+#./run_hafs.py ${opts} 2024 01W HISTORY ${confopts} # Ewiniar
+#./run_hafs.py ${opts} 2024 02W HISTORY ${confopts} # Maliksi
+#./run_hafs.py ${opts} 2024 03W HISTORY ${confopts} # Three
+#./run_hafs.py ${opts} 2024 04W HISTORY ${confopts} # Prapiroon
+#./run_hafs.py ${opts} 2024 05W HISTORY ${confopts} # Gaemi
+#./run_hafs.py ${opts} 2024 06W HISTORY ${confopts} # Maria
+#./run_hafs.py ${opts} 2024 07W HISTORY ${confopts} # Son-Tinh
+#./run_hafs.py ${opts} 2024 08W HISTORY ${confopts} # Ampil
+#./run_hafs.py ${opts} 2024 09W HISTORY ${confopts} # Wukong
+#./run_hafs.py ${opts} 2024 10W HISTORY ${confopts} # Jongdari
+#./run_hafs.py ${opts} 2024 11W HISTORY ${confopts} # Shanshan
+#./run_hafs.py ${opts} 2024 12W HISTORY ${confopts} # Yagi
+#./run_hafs.py ${opts} 2024 13W HISTORY ${confopts} # Leepi
+#./run_hafs.py ${opts} 2024 14W HISTORY ${confopts} # Bebinca
+#./run_hafs.py ${opts} 2024 15W HISTORY ${confopts} # Pulasan
+#./run_hafs.py ${opts} 2024 16W HISTORY ${confopts} # Soulik
+#./run_hafs.py ${opts} 2024 17W HISTORY ${confopts} # Seventeen
+#./run_hafs.py ${opts} 2024 18W HISTORY ${confopts} # Cimaron
+#./run_hafs.py ${opts} 2024 19W HISTORY ${confopts} # Jebi
+#./run_hafs.py ${opts} 2024 20W HISTORY ${confopts} # Krathon
+#./run_hafs.py ${opts} 2024 21W HISTORY ${confopts} # Barijat
+#./run_hafs.py ${opts} 2024 22W HISTORY ${confopts} # Trami
+#./run_hafs.py ${opts} 2024 23W HISTORY ${confopts} # Kong-Rey
+#./run_hafs.py ${opts} 2024 24W HISTORY ${confopts} # Yinxing
+#./run_hafs.py ${opts} 2024 25W HISTORY ${confopts} # Man-Yi part 1
+#./run_hafs.py ${opts} 2024 25W HISTORY ${confopts} # Man-Yi part 2
+#./run_hafs.py ${opts} 2024 26W HISTORY ${confopts} # Toraji
+#./run_hafs.py ${opts} 2024 27W HISTORY ${confopts} # Usagi
+#./run_hafs.py ${opts} 2024 28W HISTORY ${confopts} # Pabuk
+
+ # 2023 WPAC Storms
+#./run_hafs.py ${opts} 2023 01W HISTORY ${confopts} # Sanvu
+#./run_hafs.py ${opts} 2023 02W HISTORY ${confopts} # Mawar
+#./run_hafs.py ${opts} 2023 03W HISTORY ${confopts} # Guchol
+#./run_hafs.py ${opts} 2023 04W HISTORY ${confopts} # Talim
+#./run_hafs.py ${opts} 2023 05W HISTORY ${confopts} # Doksuri
+#./run_hafs.py ${opts} 2023 06W HISTORY ${confopts} # Khanun
+#./run_hafs.py ${opts} 2023 07W HISTORY ${confopts} # Lan
+#./run_hafs.py ${opts} 2023 08W HISTORY ${confopts} # Damrey
+#./run_hafs.py ${opts} 2023 09W HISTORY ${confopts} # Saola
+#./run_hafs.py ${opts} 2023 10W HISTORY ${confopts} # Haikui
+#./run_hafs.py ${opts} 2023 11W HISTORY ${confopts} # Kirogi
+#./run_hafs.py ${opts} 2023 12W HISTORY ${confopts} # Yun-Yeung
+#./run_hafs.py ${opts} 2023 13W HISTORY ${confopts} # Thirteen
+#./run_hafs.py ${opts} 2023 14W HISTORY ${confopts} # Koinu
+#./run_hafs.py ${opts} 2023 15W HISTORY ${confopts} # Bolaven
+#./run_hafs.py ${opts} 2023 16W HISTORY ${confopts} # Sanba
+#./run_hafs.py ${opts} 2023 17W HISTORY ${confopts} # Seventeen
+#./run_hafs.py ${opts} 2023 18W HISTORY ${confopts} # Jelawat
+
+#===============================================================================
+ # 2025 NIO storms
+#./run_hafs.py ${opts} 2025 01B HISTORY ${confopts} # One
+#./run_hafs.py ${opts} 2025 02A HISTORY ${confopts} # Shakhi
+#./run_hafs.py ${opts} 2025 03B HISTORY ${confopts} # Montha
+#./run_hafs.py ${opts} 2025 04B HISTORY ${confopts} # Senyar
+#./run_hafs.py ${opts} 2025 05B HISTORY ${confopts} # Ditwah
+
  # 2024 NIO storms
-#./run_hafs.py ${opts} 2024052512-2024052700 01B HISTORY ${confopts} # Remal
-#./run_hafs.py ${opts} 2024083000-2024090200 02A HISTORY ${confopts} # Asna
-#./run_hafs.py ${opts} 2024102306-2024102518 03B HISTORY ${confopts} # Dana
-#./run_hafs.py ${opts} 2024112918-2024120312 04B HISTORY ${confopts} # Fengal
+#./run_hafs.py ${opts} 2024 01B HISTORY ${confopts} # Remal
+#./run_hafs.py ${opts} 2024 02A HISTORY ${confopts} # Asna
+#./run_hafs.py ${opts} 2024 03B HISTORY ${confopts} # Dana
+#./run_hafs.py ${opts} 2024 04B HISTORY ${confopts} # Fengal
 
  # 2023 NIO storms
-#./run_hafs.py ${opts} 2023051018-2023051418 01B HISTORY ${confopts} # Mocha
-#./run_hafs.py ${opts} 2023060600-2023061612 02A HISTORY ${confopts} # Biparjoy
-#./run_hafs.py ${opts} 2023060912-2023061000 03B HISTORY ${confopts} # Three
-#./run_hafs.py ${opts} 2023073112-2023080112 04B HISTORY ${confopts} # Four
-#./run_hafs.py ${opts} 2023102006-2023102406 05A HISTORY ${confopts} # Tej
-#./run_hafs.py ${opts} 2023102306-2023102500 06B HISTORY ${confopts} # Hamoon
-#./run_hafs.py ${opts} 2023111618-2023111712 07B HISTORY ${confopts} # Midhili
-#./run_hafs.py ${opts} 2023120300-2023120418 08B HISTORY ${confopts} # Michaung
+#./run_hafs.py ${opts} 2023 01B HISTORY ${confopts} # Mocha
+#./run_hafs.py ${opts} 2023 02A HISTORY ${confopts} # Biparjoy
+#./run_hafs.py ${opts} 2023 03B HISTORY ${confopts} # Three
+#./run_hafs.py ${opts} 2023 04B HISTORY ${confopts} # Four
+#./run_hafs.py ${opts} 2023 05A HISTORY ${confopts} # Tej
+#./run_hafs.py ${opts} 2023 06B HISTORY ${confopts} # Hamoon
+#./run_hafs.py ${opts} 2023 07B HISTORY ${confopts} # Midhili
+#./run_hafs.py ${opts} 2023 08B HISTORY ${confopts} # Michaung
 
 #===============================================================================
 

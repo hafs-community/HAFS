@@ -12,9 +12,34 @@ opts="-t -f"
 #===============================================================================
 # HAFSv2.2B final configuration
  confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_v2p2b_final ../parm/hafsv2p2b_final.conf"
-## Technical testing for Helene 09L2024
-#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+# Five cycle testing for Melissa 13L2025
+#./run_hafs.py ${opts} 2025102300-2025102400 13L HISTORY ${confopts} \
 #   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+#===============================================================================
+## HFSB with production computation resources on WCOSS2
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb ../parm/hfsb.conf"
+# Five cycle testing for Melissa 13L2025
+#./run_hafs.py ${opts} 2025102300-2025102400 13L HISTORY ${confopts} \
+#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## Technical testing for NHC basins
+## Technical testing for Helene 09L2025
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
+## HFSB with dev computation resources
+#confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsb_dev ../parm/hfsb_dev.conf"
+## Technical testing for Helene 09L2025
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Kiko 11E2025
+#./run_hafs.py ${opts} 2025083112-2025083118 11E HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+## Technical testing for Iona 01C2025
+#./run_hafs.py ${opts} 2025072700-2025072706 01C HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
 #===============================================================================
  # 2025 NATL Storms
 #./run_hafs.py ${opts} 2025062300-2025062418 01L HISTORY ${confopts} # Andrea
@@ -138,6 +163,11 @@ opts="-t -f"
 #./run_hafs.py ${opts} 2023 18E HISTORY ${confopts} # Otis
 #./run_hafs.py ${opts} 2023 19E HISTORY ${confopts} # Pilar
 #./run_hafs.py ${opts} 2023 20E HISTORY ${confopts} # Ramon
+
+#===============================================================================
+ # 2025 CPAC storms
+#./run_hafs.py ${opts} 2025 01C HISTORY ${confopts} # Iona
+#./run_hafs.py ${opts} 2025 02C HISTORY ${confopts} # Keli
 
 #===============================================================================
 
