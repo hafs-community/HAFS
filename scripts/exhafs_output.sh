@@ -39,8 +39,9 @@ if [ "${EMAIL_SDM^^}" = "YES" ] && [ -s ${afosfile} ]; then
   export err=$?; err_chk
 fi
 
-# Generate SHIPS diagnotic file if desired
-if [ ${ships_diag:-.false.} = .true. ] && [ -s ${COMhafs}/${out_prefix}.${RUN}.trak.atcfunix ]; then
+# Generate SHIPS diagnotic file with moving nesting configuration if desired
+if [[ "${ships_diag:-.false.}" == ".true." && -s "${COMhafs}/${out_prefix}.${RUN}.trak.atcfunix" && \
+	  ("${is_moving_nest}" == *".true."* || "${is_moving_nest}" == *".T."*) ]]; then
 
 DATA_SHIPS=${DATA}/ships
 rm -rf ${DATA_SHIPS}
@@ -52,7 +53,7 @@ yyyy=`echo ${CDATE} | cut -c1-4`
 StormNum=`echo ${STORMID} | cut -c1-2`
 
 # Link grib files
-for hh in $(seq -f "%02g" 0 6 126); do
+for hh in $(seq -f "%02g" 0 6 ${NHRS:-126}); do
   grib2file_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f${hh}
   grib2nest_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_n.grb2f${hh}
   hhh3=`printf %03i $(( 10#${hh} ))`
@@ -85,7 +86,7 @@ ${NCP} -p ${HOMEhafs}/exec/hafs_ships_nameparse.x       ./
 ${NCP} -p ${HOMEhafs}/exec/hafs_ships_totaldiag.x       ./
 
 # Modify or generate the input files
-sed -e "s/MODL2/${RUN}/g" input.params.in > input.params
+sed -e "s/MODL2/${RUN}/g" -e "s/NHRS/${NHRS}/g" input.params.in > input.params
 echo "${DATA_SHIPS}/${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f00" > ./input.list
 
 # Run hafs_ships_diags.sh
