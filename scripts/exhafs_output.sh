@@ -94,7 +94,7 @@ echo "${DATA_SHIPS}/${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f00" > ./inp
 export err=$?; err_chk
 
 # Rename the txt file
-mv s${hafsbasin2,,}${StormNum}${yyyy}_${RUN}_d${RUN}_${CDATE}_diag.dat ${ships_diag_txt}
+mv s${pubbasin2,,}${StormNum}${yyyy}_${RUN}_d${RUN}_${CDATE}_diag.dat ${ships_diag_txt}
 
 # Deliver to COM
 if [ $SENDCOM = YES ]; then
