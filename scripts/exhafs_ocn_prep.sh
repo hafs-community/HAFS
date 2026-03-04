@@ -113,14 +113,6 @@ ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_ic.in ./rtofs_ocean_
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_ic.in 2>&1 | tee archv2ncdf3z_3d_ic.log
 export err=$?; err_chk
 
-# Convert float to double precision
-ncap2 -O -s 'ssh=double(ssh); Latitude=double(Latitude); Longitude=double(Longitude)' rtofs_${outnc_2d} rtofs_${outnc_2d}
-export err=$?; err_chk
-ncap2 -O -s 'pot_temp=double(pot_temp); salinity=double(salinity); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_ts} rtofs_${outnc_ts}
-export err=$?; err_chk
-ncap2 -O -s 'u=double(u); v=double(v); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_uv} rtofs_${outnc_uv}
-export err=$?; err_chk
-
 # SSH file
 ${USHhafs}/hafs_mom6_ssh_ic.py rtofs_${outnc_2d} ${outnc_2d} | tee ./mom6_ssh_ic.log
 export err=$?; err_chk
@@ -131,14 +123,6 @@ export err=$?; err_chk
 
 # UV file
 ${USHhafs}/hafs_mom6_stagger_uv_ic.py rtofs_${outnc_uv} ${outnc_uv} | tee ./mom6_stagger_uv_ic.log
-export err=$?; err_chk
-
-# Convert float to double precision
-ncap2 -O -s 'ssh=double(ssh); latitude=double(latitude); longitude=double(longitude)' ${outnc_2d} ${outnc_2d}
-export err=$?; err_chk
-ncap2 -O -s 'temp=double(temp); salt=double(salt); latitude=double(latitude); longitude=double(longitude); depth=double(depth)' ${outnc_ts} ${outnc_ts}
-export err=$?; err_chk
-ncap2 -O -s 'u=double(u); v=double(v); lath=double(lath); lonh=double(lonh); depth=double(depth)' ${outnc_uv} ${outnc_uv}
 export err=$?; err_chk
 
 # Deliver to intercom
@@ -160,7 +144,7 @@ export CDF038=rtofs_${outnc_2d}
 export CDF034=rtofs_${outnc_ts}
 export CDF033=rtofs_${outnc_uv}
 
-# run HYCOM-tools executables to produce IC netcdf files
+# run HYCOM-tools executables to produce OBC netcdf files
 ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_obc.in ./rtofs_ocean_ssh_obc.in
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in 2>&1 | tee ./archv2ncdf2d_ssh_obc.log
 export err=$?; err_chk
@@ -169,52 +153,14 @@ ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee ./archv2ncdf3z_3d_obc.log
 export err=$?; err_chk
 
-# Convert float to double precision
-ncap2 -O -s 'ssh=double(ssh); Latitude=double(Latitude); Longitude=double(Longitude)' rtofs_${outnc_2d} rtofs_${outnc_2d}
-export err=$?; err_chk
-ncap2 -O -s 'pot_temp=double(pot_temp); salinity=double(salinity); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_ts} rtofs_${outnc_ts}
-export err=$?; err_chk
-ncap2 -O -s 'u=double(u); v=double(v); Latitude=double(Latitude); Longitude=double(Longitude); Depth=double(Depth)' rtofs_${outnc_uv} rtofs_${outnc_uv}
-export err=$?; err_chk
-
 ${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${APRUNS} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
+${APRUNO} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
 # Rename the OBC files
 for var in ssh ts uv; do
   for segm in north south east west; do
-    if [[ ${segm} = "north" ]]; then
-      nseg=1
-    elif [[ ${segm} = "south" ]]; then
-      nseg=2
-    elif [[ ${segm} = "east" ]]; then
-      nseg=3
-    elif [[ ${segm} = "west" ]]; then
-      nseg=4
-    fi
-    if [[ ${var} = "ssh" ]]; then
-      ncap2 -O -s "ssh_segment_00${nseg}=double(float(ssh_segment_00${nseg}))" \
-                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
-    elif [[ ${var} = "ts" ]]; then
-      ncap2 -O -s "temp_segment_00${nseg}=double(float(temp_segment_00${nseg})); \
-                   vc_temp_segment_00${nseg}=double(float(vc_temp_segment_00${nseg})); \
-                   dz_temp_segment_00${nseg}=double(float(dz_temp_segment_00${nseg})); \
-                   salt_segment_00${nseg}=double(float(salt_segment_00${nseg})); \
-                   vc_salt_segment_00${nseg}=double(float(vc_salt_segment_00${nseg})); \
-                   dz_salt_segment_00${nseg}=double(float(dz_salt_segment_00${nseg}))" \
-                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
-    elif [[ ${var} = "uv" ]]; then
-      ncap2 -O -s "u_segment_00${nseg}=double(float(u_segment_00${nseg})); \
-                   vc_u_segment_00${nseg}=double(float(vc_u_segment_00${nseg})); \
-                   dz_u_segment_00${nseg}=double(float(dz_u_segment_00${nseg})); \
-                   v_segment_00${nseg}=double(float(v_segment_00${nseg})); \
-                   vc_v_segment_00${nseg}=double(float(vc_v_segment_00${nseg})); \
-                   dz_v_segment_00${nseg}=double(float(dz_v_segment_00${nseg}))" \
-                   rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
-    fi
-    export err=$?; err_chk
-    # mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
     # Deliver to intercom
     ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
   done
