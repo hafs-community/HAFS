@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=/scratch4/HFIP/hur-aoml/Lew.Gramer/hafsv2p2_phase2_multistorm.FINAL_MERGE
+HOMEhafs=/scratch4/HFIP/hur-aoml/Lew.Gramer/hafsv2p2_phase2_multistorm
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -110,15 +110,21 @@ opts="-t -f"
 
 # TESTS OF FINAL MERGE OF WORKFLOW with RAMSTROM *ACTUAL* CODE MERGE
 
-# Technical testing for Helene 09L2024
-./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
-   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
-# Technical testing for Melissa 13L2025
+# Regression testing for Helene 09L2024
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
+./run_hafs.py ${opts} 2024092406-2024092418 09L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no #Helene
+# Regression testing for Melissa 13L2025
 ./run_hafs.py ${opts} 2025102106-2025102218 13L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no #Melissa
+# Regression testing for Narda 14E2025
+./run_hafs.py ${opts} 2025092506-2025092512 14E HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_singlestorm \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no #Narda
+
 
 # Incremental testing for Helene 09L2024 - MULTISTORM
-./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
+#./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
+./run_hafs.py ${opts} -M L,E 2024092406-2024092418 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
    grid.nest_grids=3 ../parm/hafs_multistorm.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 # Incremental testing for Melissa 13L2025 - MULTISTORM
@@ -126,24 +132,54 @@ opts="-t -f"
    grid.nest_grids=3 ../parm/hafs_multistorm.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 
-# Incremental testing for Helene 09L2024 - MULTISTORM *ATLANTIC-ONLY DOMAIN*
-./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic \
-   grid.nest_grids=3 ../parm/hafs_no_vida.conf ../parm/hafs_multistorm_atlantic.conf \
+# Incremental testing with JUST ONE or with ZERO storms - MULTISTORM
+#./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_0storm \
+./run_hafs.py ${opts} -M L,E 2024092406-2024092418 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_0storm \
+   grid.nest_grids=0 ../parm/hafs_multistorm.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
-# Incremental testing for Melissa 13L2025 - MULTISTORM *ATLANTIC-ONLY DOMAIN*
-./run_hafs.py ${opts} -M L,E 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic \
-   grid.nest_grids=3 ../parm/hafs_no_vida.conf ../parm/hafs_multistorm_atlantic.conf \
+#./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_1storm \
+./run_hafs.py ${opts} -M L,E 2024092406-2024092418 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_1storm \
+   grid.nest_grids=1 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+./run_hafs.py ${opts} -M L,E 2025102106-2025102112 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_0storm \
+   grid.nest_grids=0 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+./run_hafs.py ${opts} -M L,E 2025102106-2025102112 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_1storm \
+   grid.nest_grids=1 ../parm/hafs_multistorm.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 
+# # Incremental testing for Helene 09L2024 - MULTISTORM *ATLANTIC-ONLY DOMAIN*
+# # This test is NON-FUNCTIONAL because there are no 2024 HAFS-B vortices currently staged...
+#./run_hafs.py ${opts} -M L 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic \
+#   grid.nest_grids=3 ../parm/hafs_no_vida.conf ../parm/hafs_multistorm_atlantic.conf \
+#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Incremental testing for Melissa 13L2025 - MULTISTORM *ATLANTIC-ONLY DOMAIN*
+./run_hafs.py ${opts} -M L 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_no_vida.conf ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# # Incremental testing for NO STORM - MULTISTORM *E/C PACIFIC-ONLY DOMAIN*
+# # This test is NON-FUNCTIONAL because there are no Pacific HAFS-B vortices currently staged...
+# ./run_hafs.py ${opts} -M E 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Pacific \
+#   grid.nest_grids=3 ../parm/hafs_no_vida.conf ../parm/hafs_multistorm_pacific.conf \
+#   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+
 # Incremental testing for Helene 09L2024 - MULTISTORM *ATLANTIC-ONLY DOMAIN* *WITH VI/DA*
-./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic_VIDA
+#./run_hafs.py ${opts} -M L 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic_VIDA \
+./run_hafs.py ${opts} -M L 2024092406-2024092418 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic_VIDA \
    grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 # Incremental testing for Melissa 13L2025 - MULTISTORM *ATLANTIC-ONLY DOMAIN* *WITH VI/DA*
-./run_hafs.py ${opts} -M L,E 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic_VIDA \
+./run_hafs.py ${opts} -M L 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Atlantic_VIDA \
    grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
-
+# Incremental testing for Narda 14E2025 - MULTISTORM *E/C PACIFIC-ONLY DOMAIN* *WITH VI/DA*
+./run_hafs.py ${opts} -M E 2025092506-2025092512 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Pacific_VIDA \
+  grid.nest_grids=3 ../parm/hafs_multistorm_pacific.conf \
+  config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Incremental testing for NO STORM - MULTISTORM *E/C PACIFIC-ONLY DOMAIN* *WITH VI/DA*
+./run_hafs.py ${opts} -M E 2025102106-2025102218 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged_Pacific_VIDA \
+  grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+  config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 
 
 #===============================================================================

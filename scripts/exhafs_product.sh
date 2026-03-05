@@ -208,7 +208,10 @@ ${RLN} output.pdfwind     fort.76
 # Prepare ./deliver.sh, which will used in gettrk.x to deliver the atcfunix
 # track file to COMhafs as soon as it becomes available. It also delivers
 # atcfunix before forecast hour 12 into COMhafs for storm cycling.
-if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+
+# Lew.Gramer@noaa.gov 2024-04-30
+#if [ "${tilestr}" = ".tile${nest_grids}" ]; then
+if [ "${lasttile}" = "1" ]; then
 
 cat > ./deliver.sh<<EOF
 #!/bin/sh

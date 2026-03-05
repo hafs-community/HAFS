@@ -38,14 +38,24 @@
   <!ENTITY ATM_INIT_RESOURCES "<nodes>18:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>18:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
 
+  <!-- HAFS-C -->
+  <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>5:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_1_RESOURCES "<nodes>7:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_2_RESOURCES "<nodes>10:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>900</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_3_RESOURCES "<nodes>12:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1140</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_4_RESOURCES "<nodes>15:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_5_RESOURCES "<nodes>17:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1620</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ATLANTIC_6_RESOURCES "<nodes>20:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
 
-  <!ENTITY ATM_INIT_0_RESOURCES "<nodes>24:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>288</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_1_RESOURCES "<nodes>32:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>384</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_2_RESOURCES "<nodes>40:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_3_RESOURCES "<nodes>48:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>576</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_4_RESOURCES "<nodes>56:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>672</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_5_RESOURCES "<nodes>64:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>768</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-  <!ENTITY ATM_INIT_6_RESOURCES "<nodes>72:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>864</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+
+  <!-- HAFS-M 2024/2025 -->
+  <!ENTITY ATM_INIT_LARGE_0_RESOURCES "<nodes>24:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>288</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_1_RESOURCES "<nodes>32:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>384</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_2_RESOURCES "<nodes>40:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_3_RESOURCES "<nodes>48:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>576</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_4_RESOURCES "<nodes>56:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>672</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_5_RESOURCES "<nodes>64:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>768</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
+  <!ENTITY ATM_INIT_LARGE_6_RESOURCES "<nodes>72:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>864</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
 
 
   <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">

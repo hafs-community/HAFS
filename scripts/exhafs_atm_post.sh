@@ -731,9 +731,8 @@ if [ $FHR -lt 12 ] && [ $FHR -eq $NHRS ] && [ -s ${INPdir}/${grid_mspec} ]; then
      [ -s ${INPdir}/RESTART/${grid_mspec} ] && \
      [ ${INPdir}/RESTART/${grid_mspec} -nt ${RESTARTcom}/${grid_mspec} ]; then
     ${FCP} ${INPdir}/RESTART/${grid_mspec} ${RESTARTcom}/
-    # LJG
     if [ "${grid_mspec_old}" != "${grid_mspec_old_restart}" ]; then
-     ${NLN} ${RESTARTcom}/${grid_mspec_old} ${RESTARTcom}/${grid_mspec_old_restart}
+     ${NLN} ${RESTARTcom}/${grid_mspec} ${RESTARTcom}/${grid_mspec_restart}
     fi
   fi
 fi
@@ -777,6 +776,7 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
       fi
     done
     rm -f cmdfile
+    echo "" > cmdfile
   # for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data ; do
     for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
       if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
@@ -799,6 +799,23 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
     fi
     export err=$?; err_chk
     rm -f cmdfile
+
+    # LJG 2026-03-03
+    if [ "${fv_core}" != "${fv_core_restart}" ]; then
+      ${NLN} ${RESTARTcom}/${fv_core} ${RESTARTcom}/${fv_core_restart}
+    fi
+    if [ "${fv_core_tile}" != "${fv_core_tile_restart}" ]; then
+      ${NLN} ${RESTARTcom}/${fv_core_tile} ${RESTARTcom}/${fv_core_tile_restart}
+    fi
+    if [ "${fv_tracer_tile}" != "${fv_tracer_tile_restart}" ]; then
+      ${NLN} ${RESTARTcom}/${fv_tracer_tile} ${RESTARTcom}/${fv_tracer_tile_restart}
+    fi
+    if [ "${fv_srf_wnd_tile}" != "${fv_srf_wnd_tile_restart}" ]; then
+      ${NLN} ${RESTARTcom}/${fv_srf_wnd_tile} ${RESTARTcom}/${fv_srf_wnd_tile_restart}
+    fi
+    if [ "${sfc_data}" != "${sfc_data_restart}" ]; then
+      ${NLN} ${RESTARTcom}/${sfc_data} ${RESTARTcom}/${sfc_data_restart}
+    fi
   fi
 fi
 
