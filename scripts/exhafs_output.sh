@@ -177,8 +177,8 @@ grb2file=${out_prefix}.${RUN}.${gridstr}.atm.f${FHR3}.grb2
 swath_grb2fhhh=${out_prefix}.${RUN}.${gridstr}.swath.f${FHR3}.grb2
 
 # Replace UNKNOWN values in GRB2 messages of interest with 0; convert PCP accs to PRATEs
-${WGRIB2} ${COMhafs}/${grb2file} -match '(:GUST:)'           	-rpn "0:swap:merge" \
-    -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
+${WGRIB2} ${COMhafs}/${grb2file} -match '(:GUST:10 m above ground:)'           	-rpn "0:swap:merge" \
+    -set_metadata_str "0:0:d=+0hr:GUST:10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
     -grib_out ${GUSTF}
 export err=$?; err_chk
 ${WGRIB2} ${COMhafs}/${grb2file} | grep ":APCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} 	-rpn "0:swap:merge" -grib_out ${APCPF}
@@ -228,8 +228,8 @@ while [ $FHR -le $NHRS ]; do
   # persistent intermediate swath files (e.g., GUSTF) for each variable.
   # GUST - peak wind gust
   # Replace UNKNOWN values with 0, change variable name, metadata
-  ${WGRIB2} ${COMhafs}/${grb2file} -match '(:GUST:)'         	-rpn "0:swap:merge" \
-      -set_metadata_str "0:0:d=+0hr:GUST:10-10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
+  ${WGRIB2} ${COMhafs}/${grb2file} -match '(:GUST:10 m above ground:)'         	-rpn "0:swap:merge" \
+      -set_metadata_str "0:0:d=+0hr:GUST:10 m above ground:0-$((IFHR*DHR)) hour max fcst::Wind Speed (Gust) [m/s]:" \
       -grib_out ${TMPFILE}
   export err=$?; err_chk
   # Max with previous swath intermediate file
