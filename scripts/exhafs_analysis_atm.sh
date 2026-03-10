@@ -261,27 +261,17 @@ if [ ${RUN_ENVAR} = "YES" ]; then
      fi
     fi
     if [ ${RUN_ENSDA} != "YES" ]; then 
-#Leave ATM_INIT options for GDAS Ensemble, need to lock with atm_init_fgat_ens
-      for file in `ls ${RESTARTens}/*`; do
-        ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
-      done
-      if [ ${l4denvar:-.false.} = ".true." ] && [ ${RUN_ENSDA} = "NO" ]; then
-        for file in `ls ${WORKhafs}/intercom/RESTART_init_fgat03_ens/mem${mem}/*`; do
-          ${WLN} ${file} ${DATA}/ensemble_data/mem${mem}/
-        done
-        for file in `ls ${WORKhafs}/intercom/RESTART_init_fgat09_ens/mem${mem}/*`; do
-          ${WLN} ${file} ${DATA}/ensemble_data/mem${mem}/
-        done
+      RESTARTens=${WORKhafs}/intercom/GDAS_ENS/mem${mem}
+      if [ ${l4densvar:-.false.} = ".true." ]; then
+        fhrs="03 06 09"
+      else
+        fhrs="06"
       fi
-############# For potential GDAS ensemble 
-#      if [ ${l4densvar:-.false.} = ".true." ]; then
-#        fhrs="03 06 09"
-#      else
-#        fhrs="06"
-#      fi
-#      for fhh in $fhrs; do
-#        ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
-#      done
+      for fhh in $fhrs; do
+        for file in `ls ${RESTARTens}/*`; do
+          ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+        done
+      done
     fi
   done
 fi
@@ -359,7 +349,7 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18" # radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp
+radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120ps conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_radar_vadwnd conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_radar_vadwnd conventional_sea_ship retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
 IFS=' ' read -ra convtypes_array <<< "$convtypes"

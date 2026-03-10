@@ -456,6 +456,8 @@ export loc_v={loc_v}
 export l4denvar={l4denvar}
 export layoutx_jedi={layoutx_jedi}
 export layouty_jedi={layouty_jedi}
+export layoutx_gdasens={layoutx_gdasens}
+export layouty_gdasens={layouty_gdasens}
 export ANALYSIS_MODEL={analysis_model}
 
 #IAU related options

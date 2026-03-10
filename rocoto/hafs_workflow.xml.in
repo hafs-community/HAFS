@@ -719,6 +719,7 @@
         <taskdep task="atm_ic"/>
         <taskdep task="obs_prep"/>
         <streq><left>&RUN_ANALYSIS;</left><right>YES</right></streq>
+
 @** if RUN_ATM_VI_FGAT==YES
         <or>
           <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
@@ -729,7 +730,7 @@
           <taskdep task="atm_vi"/>
         </or>
 @** endif
-@** if ANALYSIS_MODEL==JEDI
+@** if RUN_ENSDA==YES
         <taskdep task="atm_prep_ens"/>
 @**   if RUN_ATM_MERGE_ENS==YES
         <metataskdep metatask="atm_merge_ens"/>
@@ -737,6 +738,8 @@
 @**   if RUN_ATM_INIT_FGAT_ENS==YES
         <metataskdep metatask="atm_init_fgat_ens"/>
 @**   endif
+@** else
+        <metataskdep metatask="gdas_ens"/>
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
         <or>
@@ -1038,7 +1041,45 @@
   </task>
 @** endif
 
-<!-- @** if RUN_ANALYSIS==YES -->
+@** if RUN_ENSDA==NO
+@**   if ANALYSIS_MODEL==JEDI
+  <metatask name="gdas_ens" mode="parallel">
+    <var name="MEM">&ENSIDS;</var>
+    <task name="gdas_ens#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_GDAS_ENS</command>
+      <jobname>hafs_gdas_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_gdas_ens#MEM#.log</cyclestr></join>
+      <account>&ACCOUNT;</account>
+      &RESERVATION;
+      <queue>&QUEUE_PE;</queue>
+      &PE_EXTRA;
+      &CORES_EXTRA;
+      &CLUSTER_COMPUTE;
+      &GDAS_ENS_RESOURCES;
+      &ENV_VARS;
+      <envar><name>ENSID</name><value>#MEM#</value></envar>
+
+      <dependency>
+        <and>
+          <taskdep task="atm_init"/>
+          <metataskdep metatask="atm_init_fgat"/>
+          <and>
+@** if GFSVER==PROD2019
+            <datadep age="02:00" minsize="3000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
+            <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.sfcf006.nemsio</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2021
+            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+@** endif
+          </and>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+@**   endif
+@** endif
+
 @** if RUN_ENSDA==YES
 <!-- !!!!!!!!!!!!!!!!!!!!! XL Note, this should be RUN_ENSDA==YES || ANALYSIS_MODEL==JEDI !!!!!!!!!!!!!-->
 

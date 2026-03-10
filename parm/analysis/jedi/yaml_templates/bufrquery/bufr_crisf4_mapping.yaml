@@ -32,7 +32,7 @@ bufr:
       query: "*/FORN"
 
     sensorScanPosition:
-      query: "*/FOVN"
+      query: "*/FORN"
 
     solarZenithAngle:
       query: "*/SOZA"
