@@ -67,6 +67,20 @@ export OMP_NUM_THREADS=1
 export OMP_PROC_BIND=true
 export I_MPI_COLL_INTRANODE=pt2pt
 
+if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
+  export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
+  export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10/site-packages
+  export PYTHONPATH=${PYTHONPATH}:${USHhafs}
+elif [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
+  export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11:${PYTHONPATH}
+  export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11/site-packages
+  export PYTHONPATH=${PYTHONPATH}:${USHhafs}
+else
+  export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7:${PYTHONPATH}
+  export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.7/site-packages
+  export PYTHONPATH=${PYTHONPATH}:${USHhafs}
+fi
+
 source ${USHhafs}/hafs_runcmd.sh.inc
 
 env

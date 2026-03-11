@@ -142,7 +142,7 @@ sed -e "s|_INTERP_DATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNC} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 rm gdas_ens.out.*
 
@@ -157,7 +157,7 @@ sed -e "s|_INTERP_DATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNC} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 sed -e "s|_INTERP_DATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_ENS_NML}|g" \
@@ -170,7 +170,7 @@ sed -e "s|_INTERP_DATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNC} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 rm gdas_ens.out.*
 

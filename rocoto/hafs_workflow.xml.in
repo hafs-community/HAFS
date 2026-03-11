@@ -1051,6 +1051,7 @@
       <join><cyclestr>&WORKhafs;/hafs_gdas_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
+      &MEMORYJEDI;
       <queue>&QUEUE_PE;</queue>
       &PE_EXTRA;
       &CORES_EXTRA;
