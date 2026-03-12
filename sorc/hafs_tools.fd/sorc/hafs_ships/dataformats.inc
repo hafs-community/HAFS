@@ -46,18 +46,18 @@ c   Data structure to hold best track records (b-deck)
 c
       type B_RECORD
          SEQUENCE
-         character      basin*2 
-         integer        cyNum 
-         character      DTG*10
-         character      tech*4
-         integer        tau
-         real           lat
          character      NS*1
-         real           lon
          character      EW*1
+         character      basin*2 
+         character      ty*2
+         character      tech*4
+         character      DTG*10
+         integer        cyNum 
+         integer        tau
          integer        vmax
          integer        mslp
-         character      ty*2
+         real           lat
+         real           lon
       end type B_RECORD
 
 c
@@ -65,21 +65,23 @@ c   Data structure to hold objective aids records (a-deck)
 c
       type A_RECORD
          SEQUENCE
-         character      basin*2
-         integer        cyNum
-         character      DTG*10
-         integer        technum
-         character      tech*4
-         integer        tau
-         real           lat
          character      NS*1
-         real           lon
          character      EW*1
+         character      depth*1
+         character      basin*2
+         character      ty*2
+         character      windcode*3
+         character      initials*3
+         character      seascode*3
+         character      tech*4
+         character      DTG*10
+         character      stormname*10
+         integer        cyNum
+         integer        technum
+         integer        tau
          integer        vmax
          integer        mslp
-         character      ty*2
          integer        rad
-         character      windcode*3
          integer        radii(4)
          integer        radp
          integer        rrp
@@ -87,14 +89,12 @@ c
          integer        gusts
          integer        eye
          integer        maxseas
-         character      initials*3
          integer        dir
          integer        speed
-         character      stormname*10
-         character      depth*1
          integer        seas
-         character      seascode*3
          integer        seasrad(4)
+         real           lat
+         real           lon
       end type A_RECORD
 
 c
@@ -133,14 +133,15 @@ c
 
       type OBJECTIVE_AIDS_DATAPOINT
          SEQUENCE
+         real           Latitude
+         real           Longitude
+         type (PNT)     pos
          logical*2      IsValid
          logical*2      IsEmpty
-         real           Latitude
          logical*2      North
-         real           Longitude
          logical*2      East
-         type (PNT)     pos
          integer*2      Wind
+         integer*2      pad_i
       end type OBJECTIVE_AIDS_DATAPOINT
 
 c
@@ -158,9 +159,10 @@ c   NOTE! make sure to zero the entire contents before ANY use.
 c
       type OBJECTIVE_AIDS_RCRD
          SEQUENCE
-         character      StormID*32
-         character      Technique*16
          character      DTG*9
+         character*3    pad_c
+         character      Technique*16
+         character      StormID*32
          type (OBJECTIVE_AIDS_DATAPOINTS) Data
       end type OBJECTIVE_AIDS_RCRD
 
@@ -170,9 +172,9 @@ c
       type OBJAID_RECORD
          SEQUENCE
          character      techname*5
+         character      stormID*6
          character      dtg*9
          integer        lat(5)
          integer        lon(5)
          integer        vmax(5)
-         character      stormID*6
       end type OBJAID_RECORD
