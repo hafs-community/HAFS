@@ -47,6 +47,7 @@ else:
     sys.path.append(guess_USHhafs)
 
 import produtil.setup, produtil.log, produtil.run, produtil.cd
+from produtil.prog import ExitStatusException
 import hafs.launcher
 from produtil.log import postmsg, jlogger
 from produtil.run import batchexe, checkrun, run
@@ -221,7 +222,16 @@ def main_tape():
             frompath=conf.strinterp('config',
                                     '{WORKhafs}/stage-archive.tar.gz')
             cmd=batchexe(conf.getexe('hsi'))['put',frompath,':',topath]
-        checkrun(cmd,logger=logger)
+        #checkrun(cmd,logger=logger)
+        # The EXCEPT block below catches an error related to links in the
+        # RESTART directory with non-priority storms.
+        try:
+            checkrun(cmd,logger=logger)
+        except ExitStatusException as EX:
+            if ( EX.returncode == 70 ):
+                jlogger.critical('CAUGHT ERROR: hafs_archive is aborting: '+str(EX),exc_info=True)
+            else:
+                raise EX;
     postmsg('hafs_archive tape step completed')
 
 if __name__=='__main__':

@@ -615,6 +615,12 @@ export err=$?; err_chk
 if [[ $GRIDTYPE != "regional" ]]; then
   for files in *.nc; do
     if [[ -f $files ]]; then
+      #mv $files ${sfc_climo_savedir}/${CASE}.${files}
+      # Lew.Gramer@noaa.gov 202-03-10: work around a bug in hafs_utils_sfc_clim_gen.x that truncates tile #s > 9
+      ofiles=$(echo ${files} | sed -s "s/tile1/tile${tile}/")
+      if [[ "${ofiles}" != "${files}" ]]; then
+        ${NCP} -p $files ${sfc_climo_savedir}/${CASE}.${ofiles}
+      fi
       mv $files ${sfc_climo_savedir}/${CASE}.${files}
     fi
   done
@@ -692,6 +698,12 @@ export err=$?; err_chk
 
 for files in *.nc; do
   if [[ -f $files ]]; then
+    #mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    # Lew.Gramer@noaa.gov 202-03-10: work around a bug in hafs_utils_sfc_clim_gen.x that truncates tile #s > 9
+    ofiles=$(echo ${files} | sed -s "s/tile1/tile${itile}/")
+    if [[ "${ofiles}" != "${files}" ]]; then
+      ${NCP} -p $files ${sfc_climo_savedir}/${CASE}.${ofiles}
+    fi
     mv $files ${sfc_climo_savedir}/${CASE}.${files}
   fi
 done

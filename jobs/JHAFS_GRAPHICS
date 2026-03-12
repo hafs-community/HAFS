@@ -15,7 +15,9 @@ export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export SENDECF=${SENDECF:-NO}
 export EMAIL_SDM=${EMAIL_SDM:-NO}
-export SCRUBDATA=${SCRUBDATA:-YES}
+#export SCRUBDATA=${SCRUBDATA:-YES}
+# Lew.Gramer@noaa.gov per Andrew.T.Hazelton: by default, start where we left off last run
+export SCRUBDATA=${SCRUBDATA:-NO}
 # HAFS workflow jobs use shared working dir, and the CLEANUP or SCRUB job will clean up WORKhafs
 #export KEEPDATA=${KEEPDATA:-YES}
 export KEEPDATA=YES
@@ -103,7 +105,8 @@ cd $DATA
 
 # Execute ex-script
 ${HOMEhafs}/scripts/${exscript}
-export err=$?; err_chk
+# Lew.Gramer@noaa.gov 2025-04-29: Comment out to allow hrdgraphics to complete for storms that dissipate/leave
+#export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
@@ -112,3 +115,4 @@ if [ "${KEEPDATA:-YES}" != "YES" ]; then
 fi
 
 date
+exit 0

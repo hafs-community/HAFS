@@ -123,6 +123,10 @@ opts="-t -f"
 
 
 # Incremental testing for Helene 09L2024 - MULTISTORM
+# Physics baseline - and THREE STORM test
+./run_hafs.py ${opts} -M L,E 2023082618-2023082700 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
 #./run_hafs.py ${opts} -M L,E 2024092406-2024092412 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
 ./run_hafs.py ${opts} -M L,E 2024092406-2024092418 00L HISTORY ${confopts} config.SUBEXPT=${EXPT}_merged \
    grid.nest_grids=3 ../parm/hafs_multistorm.conf \
