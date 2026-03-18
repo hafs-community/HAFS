@@ -114,7 +114,7 @@
   z_tracer = .true.
   agrid_vel_rst = .true.
   read_increment = .false.
-  increment_file_on_native_grid = .false.
+  increment_file_on_native_grid = .true.
   res_latlon_dynamics = "fv3_increment.nc"
   write_3d_diags = .true.
 
@@ -197,8 +197,8 @@
   sfc_rlm        = @[sfc_rlm_nml]
   tc_pbl         = @[tc_pbl_nml]
   use_lpt        = @[use_lpt]
-  tc_rain        = @[tc_rain]
-  tc_snow        = @[tc_snow]
+  fs_fac_rain    = @[fs_fac_rain]
+  fs_fac_snow    = @[fs_fac_snow]
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
@@ -215,6 +215,10 @@
   betascu        = @[betascu]
   betamcu        = @[betamcu]
   betadcu        = @[betadcu]
+  cat_adj_deep   = @[cat_adj_deep]
+  cat_adj_shal   = @[cat_adj_shal]
+  scale_fac_opt  = @[scale_fac_opt]
+  icu_zoentr     = @[icu_zoentr]
   cdmbgwd        = 1.0,1.0,1.0,1.0
   sfc_z0_type    = 6
   prslrd0        = 0.

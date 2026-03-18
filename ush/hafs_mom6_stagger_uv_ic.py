@@ -29,7 +29,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
 
-    #hgridfile_mom6 = args.hgridfile_mom6 
+    #hgridfile_mom6 = args.hgridfile_mom6
     uvfile_hycom = args.uvfile_hycom
     print(uvfile_hycom)
     uvfile_stagger_for_hafs_mom6 = args.uvfile_stagger_for_hafs_mom6
@@ -46,7 +46,11 @@ if __name__ == "__main__":
     depth = np.asarray(uvnc['Depth'])
     fillvalue = 0.0
 
-    # Make fill values nan 
+    # Convert u and v to double precission
+    u = u.astype(np.float64)
+    v = v.astype(np.float64)
+
+    # Make fill values nan
     u[u>1000] = np.nan
     v[v>1000] = np.nan
 
@@ -66,7 +70,7 @@ if __name__ == "__main__":
     u_stagger[:,:,-1] = u_stagger[:,:,-2]
     # Fill nans with fillvalue
     u_stagger[np.isnan(u_stagger)] = fillvalue
-    
+
     # Define v_stagger
     v_stagger = np.empty((v.shape[1],v.shape[2]+1,u.shape[3]))
     v_stagger[:] = np.nan
@@ -78,51 +82,51 @@ if __name__ == "__main__":
     v_stagger[:,-1,:] = v_stagger[:,-2,:]
     # Fill nans with fillvalue
     v_stagger[np.isnan(v_stagger)] = fillvalue
-    
+
     # Save rotated velocities into netcdf file
     nc_file= nc.Dataset(uvfile_stagger_for_hafs_mom6, 'w', format='NETCDF4')
-    
+
     # Add a global attribute
     nc_file.description = 'NetCDF file with the interpolated u and v field from RTOFS on staggered points'
-    
+
     # Define dimensions
     depth_dim = nc_file.createDimension('depth',depth.shape[0])
     lath_dim = nc_file.createDimension('lath',lath.shape[0])
     lonh_dim = nc_file.createDimension('lonh',lonh.shape[0] )
     latq_dim = nc_file.createDimension('latq',lath.shape[0]+1)
     lonq_dim = nc_file.createDimension('lonq',lonh.shape[0]+1)
-    
+
     # Create variables
-    depth_var = nc_file.createVariable('depth', 'f4', ('depth',))
-    lath_var = nc_file.createVariable('lath', 'f4', ('lath',))
-    lonh_var = nc_file.createVariable('lonh', 'f4', ('lonh',))
+    depth_var = nc_file.createVariable('depth', 'f8', ('depth',))
+    lath_var = nc_file.createVariable('lath', 'f8', ('lath',))
+    lonh_var = nc_file.createVariable('lonh', 'f8', ('lonh',))
     #latq_var = nc_file.createVariable('latq', 'f4', ('latq',))
     #lonq_var = nc_file.createVariable('lonq', 'f4', ('lonq',))
-    u_var = nc_file.createVariable('u', 'f4', ('depth','lath','lonq',),fill_value=fillvalue)
-    v_var = nc_file.createVariable('v', 'f4', ('depth','latq','lonh',),fill_value=fillvalue)
-    
+    u_var = nc_file.createVariable('u', 'f8', ('depth','lath','lonq',),fill_value=fillvalue)
+    v_var = nc_file.createVariable('v', 'f8', ('depth','latq','lonh',),fill_value=fillvalue)
+
     # Add attributes to variables
     lath_var.long_name = 'latitude'
     lath_var.units = 'degrees_north'
-    
+
     lonh_var.long_name = 'longitude'
     lonh_var.units = 'degrees_east'
-    
+
     u_var.long_name = 'eastward_sea_water_velocity'
     u_var.units = 'm/s'
 
     v_var.long_name = 'northward_sea_water_velocity'
     v_var.units = 'm/s'
-    
-    # Write data to variables
+
+    # Write data to variables and convert from float to double to ensure reproducibility
     depth_var[:] = depth
     lath_var[:] = lath
     lonh_var[:] = lonh
-    u_var[:] = u_stagger
-    v_var[:] = v_stagger
-    
+    u_var[:] = (u_stagger.astype(np.float32)).astype(np.float64)
+    v_var[:] = (v_stagger.astype(np.float32)).astype(np.float64)
+
     nc_file.close()
-    
+
     et = Time.time()
     elapse_time = et - st
     print('Elapse time = ',elapse_time,' seconds')

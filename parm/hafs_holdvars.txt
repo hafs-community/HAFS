@@ -297,8 +297,8 @@ export lsm={lsm}
 export ialb={ialb}
 export iems={iems}
 export use_lpt={use_lpt}
-export tc_rain={tc_rain}
-export tc_snow={tc_snow}
+export fs_fac_rain={fs_fac_rain}
+export fs_fac_snow={fs_fac_snow}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
 export do_rrtmgp={do_rrtmgp}
@@ -315,6 +315,8 @@ export betamcu={betamcu}
 export betadcu={betadcu}
 export cat_adj_deep={cat_adj_deep}
 export cat_adj_shal={cat_adj_shal}
+export scale_fac_opt={scale_fac_opt}
+export icu_zoentr={icu_zoentr}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
@@ -339,6 +341,7 @@ export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
 export nhcpost={nhcpost}
 export trkd12_combined={trkd12_combined}
+export ships_diag={ships_diag}
 
 # atm_init related items
 export ccpp_suite_regional_init={ccpp_suite_regional_init}

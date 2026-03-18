@@ -14,6 +14,9 @@ use_bufr_nr=no
 [atm_post]
 nhcpost=.true.
 
+[product]
+ships_diag=.false.
+
 [dir]
 HOMEhafs={ENV[HOMEhafs]}
 WORKhafs={ENV[WORKhafs]}
