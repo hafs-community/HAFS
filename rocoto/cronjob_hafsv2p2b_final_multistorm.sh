@@ -10,8 +10,8 @@ EXPT=$(basename ${HOMEhafs})
 #opts="-t -s sites/${WHERE_AM_I:-wcoss2}.ent -f"
 opts="-t -f"
 #===============================================================================
-# HAFSv2.2B phase2 configuration
- confopts="config.EXPT=${EXPT} ../parm/hafsv2p2b_phase2.conf"
+# HAFSv2.2B final configuration
+ confopts="config.EXPT=${EXPT} ../parm/hafsv2p2b_final.conf"
 
 # TESTS OF FINAL MERGE OF WORKFLOW, RAMSTROM CODE MERGE, AND hafsv2p2_final BRANCH CHANGES
 
