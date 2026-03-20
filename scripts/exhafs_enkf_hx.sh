@@ -215,8 +215,22 @@ ${NLN} ${FIXcrtm}/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
-${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+#${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
 #${NLN} ${FIXcrtm}/CloudCoeff.bin ./CloudCoeff.bin
+case ${imp_physics:?} in
+  8)
+    echo "Using CRTM Thompson cloud optical table"
+    ${NLN} ${FIXcrtm}/CloudCoeff.Thompson08.-109z-1.bin ./CloudCoeff.bin
+    ;;
+  11)
+    echo "Using CRTM GFDL cloud optical table"
+    ${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+    ;;
+  *)
+    echo "FATAL ERROR: INVALID imp_physics = ${imp_physics}"
+    err_exit "No valid CRTM cloud optical table found for imp_physics = ${imp_physics}"
+    ;;
+esac
 
 # If requested, link (and if tarred, de-tar obsinput.tar) into obs_input.* files
 if [ ${USE_SELECT:-NO} = "YES" ]; then
@@ -487,9 +501,15 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_L_TDR_THIN_ALONGBEAM_/${l_tdr_thin_alongbeam:-.true.}/g" \
     -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
     -e "s/_NAENSLOC_/${naensloc:-1}/g" \
     gsiparm.anl.tmp > gsiparm.anl
+
+# Only assimilate NOAA-21 OBS starting from 2024
+if [ ${yr} -lt "2024" ]; then
+  sed -i -e "/atms_n21/d" -e "/cris-fsr_n21/d" gsiparm.anl
+fi
 
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
@@ -540,7 +560,7 @@ if [ $GENDIAG = "YES" ]; then
   diagtype[0]="conv conv_gps conv_ps conv_pw conv_q conv_sst conv_t conv_tcp conv_uv conv_spd conv_rw"
   diagtype[1]="pcp_ssmi_dmsp pcp_tmi_trmm"
   diagtype[2]="sbuv2_n16 sbuv2_n17 sbuv2_n18 sbuv2_n19 gome_metop-a gome_metop-b omi_aura mls30_aura ompsnp_npp ompstc8_npp gome_metop-c"
-  diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c"
+  diagtype[3]="hirs2_n14 msu_n14 sndr_g08 sndr_g11 sndr_g12 sndr_g13 sndr_g08_prep sndr_g11_prep sndr_g12_prep sndr_g13_prep sndrd1_g11 sndrd2_g11 sndrd3_g11 sndrd4_g11 sndrd1_g12 sndrd2_g12 sndrd3_g12 sndrd4_g12 sndrd1_g13 sndrd2_g13 sndrd3_g13 sndrd4_g13 sndrd1_g14 sndrd2_g14 sndrd3_g14 sndrd4_g14 sndrd1_g15 sndrd2_g15 sndrd3_g15 sndrd4_g15 hirs3_n15 hirs3_n16 hirs3_n17 amsua_n15 amsua_n16 amsua_n17 amsub_n15 amsub_n16 amsub_n17 hsb_aqua airs_aqua amsua_aqua imgr_g08 imgr_g11 imgr_g12 imgr_g14 imgr_g15 ssmi_f13 ssmi_f15 hirs4_n18 hirs4_metop-a amsua_n18 amsua_metop-a mhs_n18 mhs_metop-a amsre_low_aqua amsre_mid_aqua amsre_hig_aqua ssmis_f16 ssmis_f17 ssmis_f18 ssmis_f19 ssmis_f20 iasi_metop-a hirs4_n19 amsua_n19 mhs_n19 seviri_m08 seviri_m09 seviri_m10 seviri_m11 cris_npp cris-fsr_npp cris-fsr_n20 atms_npp atms_n20 hirs4_metop-b amsua_metop-b mhs_metop-b iasi_metop-b avhrr_metop-b avhrr_n18 avhrr_n19 avhrr_metop-a amsr2_gcom-w1 gmi_gpm saphir_meghat ahi_himawari8 abi_g16 abi_g17 amsua_metop-c mhs_metop-c iasi_metop-c avhrr_metop-c cris-fsr_n21 atms_n21"
 
   diaglist[0]=listcnv
   diaglist[1]=listpcp
@@ -703,6 +723,4 @@ fi # End diagnostic file generation block - if [ $GENDIAG = "YES" ]
 if [[ "$REMOVE_DIAG_DIR" = "YES" && "$err" = "0" ]]; then
   rm -rf $DIAG_DIR
 fi
-
-exit
 

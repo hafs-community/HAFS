@@ -291,6 +291,8 @@ export lsm={lsm}
 export ialb={ialb}
 export iems={iems}
 export use_lpt={use_lpt}
+export fs_fac_rain={fs_fac_rain}
+export fs_fac_snow={fs_fac_snow}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
 export do_rrtmgp={do_rrtmgp}
@@ -305,6 +307,10 @@ export progsigma={progsigma}
 export betascu={betascu}
 export betamcu={betamcu}
 export betadcu={betadcu}
+export cat_adj_deep={cat_adj_deep}
+export cat_adj_shal={cat_adj_shal}
+export scale_fac_opt={scale_fac_opt}
+export icu_zoentr={icu_zoentr}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
@@ -329,6 +335,7 @@ export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
 export nhcpost={nhcpost}
 export trkd12_combined={trkd12_combined}
+export ships_diag={ships_diag}
 
 # atm_init related items
 export ccpp_suite_regional_init={ccpp_suite_regional_init}
@@ -463,6 +470,9 @@ export ANALYSIS_MODEL={analysis_model}
 #IAU related options
 export iau_regional={iau_regional}
 export iau_inc_scale={iau_inc_scale}
+export iau_filter_increments={iau_filter_increments}
+export iau_delthrs={iau_delthrs}
+export iaufhrs={iaufhrs}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}

@@ -45,55 +45,55 @@ if __name__ == "__main__":
 
     # Create netcdf file
     nc_file= nc.Dataset(tsfile_for_hafs_mom6, 'w', format='NETCDF4')
-    
+
     # Add a global attribute
     #nc_file.description = 'NetCDF file with the interpolated u and v field from RTOFS onto a MOM6 grid on staggered points'
-    
+
     # Define dimensions
     time_dim = nc_file.createDimension('time', None)  # Unlimited dimension
     depth_dim = nc_file.createDimension('depth',depth.shape[0])
     latitude_dim = nc_file.createDimension('latitude',latitude.shape[0])
     longitude_dim = nc_file.createDimension('longitude',longitude.shape[0] )
-    
+
     # Create variables
     time_var = nc_file.createVariable('time', 'f8', ('time',))
-    depth_var = nc_file.createVariable('depth', 'f4', ('depth',))
-    latitude_var = nc_file.createVariable('latitude', 'f4', ('latitude',))
-    longitude_var = nc_file.createVariable('longitude', 'f4', ('longitude',))
-    temp_var = nc_file.createVariable('temp', 'f4', ('time','depth','latitude','longitude',),fill_value=fillvalue)
-    salt_var = nc_file.createVariable('salt', 'f4', ('time','depth','latitude','longitude',),fill_value=fillvalue)
-    
+    depth_var = nc_file.createVariable('depth', 'f8', ('depth',))
+    latitude_var = nc_file.createVariable('latitude', 'f8', ('latitude',))
+    longitude_var = nc_file.createVariable('longitude', 'f8', ('longitude',))
+    temp_var = nc_file.createVariable('temp', 'f8', ('time','depth','latitude','longitude',),fill_value=fillvalue)
+    salt_var = nc_file.createVariable('salt', 'f8', ('time','depth','latitude','longitude',),fill_value=fillvalue)
+
     # Add attributes to variables
     time_var.long_name = 'time'
     time_var.units = tsnc['MT'].units
     time_var.calendar = tsnc['MT'].calendar
-    
+
     depth_var.long_name = 'depth'
     depth_var.units = tsnc['Depth'].units
     depth_var.positive = 'down'
 
     latitude_var.long_name = 'latitude'
     latitude_var.units = 'degrees_north'
-    
+
     longitude_var.long_name = 'longitude'
     longitude_var.units = 'degrees_east'
-    
+
     temp_var.long_name = tsnc['pot_temp'].long_name
     temp_var.units = tsnc['pot_temp'].units
-    
+
     salt_var.long_name = tsnc['salinity'].long_name
     salt_var.units = tsnc['salinity'].units
 
-    # Write data to variables
+    # Write data to variables and convert from float to double to ensure reproducibility
     time_var[:] = time
     depth_var[:] = depth
     latitude_var[:] = latitude
     longitude_var[:] = longitude
-    temp_var[:] = temp
-    salt_var[:] = salt
-    
+    temp_var[:] = (temp.astype(np.float32)).astype(np.float64)
+    salt_var[:] = (salt.astype(np.float32)).astype(np.float64)
+
     nc_file.close()
-    
+
     et = Time.time()
     elapse_time = et - st
     print('Elapse time = ',elapse_time,' seconds')

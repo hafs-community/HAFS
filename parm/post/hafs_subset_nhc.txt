@@ -4,7 +4,7 @@ VGRD:10 m a
 TMP:2 m a
 RH:2 m a
 DPT:2 m a
-GUST:surface
+GUST:10 m a
 WIND:10 m a
 WTMP:surface
 HGT:surface

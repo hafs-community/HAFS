@@ -1288,15 +1288,15 @@
         where ( glon > 180. ) glon=glon-360.
         if ( cen_lon > 0. ) where ( glon < 0.) glon=glon+360.
         if ( cen_lon < -140. ) where ( glon > 0. ) glon=glon-360.
-        call write_nc_real(trim(fl_out), 'glon', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glon, 'degree', 'rot-ll longtitude')
-        call write_nc_real(trim(fl_out), 'glat', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glat, 'degree', 'rot-ll latitude')
+        call write_nc_data(trim(fl_out), 'glon', nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', glon, 'degree', 'rot-ll longtitude')
+        call write_nc_data(trim(fl_out), 'glat', nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', glat, 'degree', 'rot-ll latitude')
         allocate(dat4(nz+1,1,1,1))
         call get_var_data(trim(infile_fvcore), 'ak', nz+1, 1, 1, 1, dat4)
-        call write_nc_real(trim(fl_out), 'ak', -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'ak')
+        call write_nc_data(trim(fl_out), 'ak', nf90_real, -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'ak')
         deallocate(dat4)
         allocate(dat4(nz+1,1,1,1))
         call get_var_data(trim(infile_fvcore), 'bk', nz+1, 1, 1, 1, dat4)
-        call write_nc_real(trim(fl_out), 'bk', -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'bk')
+        call write_nc_data(trim(fl_out), 'bk', nf90_real, -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'bk')
         deallocate(dat4)
 
      endif
@@ -1703,7 +1703,7 @@
               !--- output
               !write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
               !write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-              call write_nc_real(trim(fl_out), trim(varname), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat42, trim(units), trim(varname_long))
+              call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat42, trim(units), trim(varname_long))
               deallocate(dat41, dat42, dat43)
            else
               !----mpi: 0 is for IO, >0 is for computing
@@ -1798,7 +1798,7 @@
                  enddo
                  !write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-                 call write_nc_real(trim(fl_out), trim(varname), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
+                 call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
            endif  ! if ( nprocs == 1 ) then  !--no mpi
@@ -1913,8 +1913,8 @@
                  enddo
                  !write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-                 if (nv==1) call write_nc_real(trim(fl_out), 'u', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'u-component')
-                 if (nv==2) call write_nc_real(trim(fl_out), 'v', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'v-component')
+                 if (nv==1) call write_nc_data(trim(fl_out), 'u', nf90_real, nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'u-component')
+                 if (nv==2) call write_nc_data(trim(fl_out), 'v', nf90_real, nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'v-component')
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
               if (nv==1) deallocate(u)
@@ -1937,7 +1937,7 @@
               endif
               call combine_grids_for_remap(ix,iy,kz,1,dat43,nx,ny,kz,1,dat41,gwt%gwt_t,dat42)
               !write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-              call write_nc_real(trim(fl_out), trim(varname), nx, ny, -1, -1, 'nx', 'ny', '-', '-', dat42, trim(units), trim(varname_long))
+              call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', dat42, trim(units), trim(varname_long))
               deallocate(dat41, dat42, dat43)
            endif  !if ( my_proc_id == io_proc ) then
         endif

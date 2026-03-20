@@ -331,8 +331,22 @@ ${NLN} ${FIXcrtm}/NPOESS.VISsnow.EmisCoeff.bin ./NPOESS.VISsnow.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/NPOESS.VISwater.EmisCoeff.bin ./NPOESS.VISwater.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/FASTEM6.MWwater.EmisCoeff.bin ./FASTEM6.MWwater.EmisCoeff.bin
 ${NLN} ${FIXcrtm}/AerosolCoeff.bin ./AerosolCoeff.bin
-${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+#${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
 #${NLN} ${FIXcrtm}/CloudCoeff.bin ./CloudCoeff.bin
+case ${imp_physics:?} in
+  8)
+    echo "Using CRTM Thompson cloud optical table"
+    ${NLN} ${FIXcrtm}/CloudCoeff.Thompson08.-109z-1.bin ./CloudCoeff.bin
+    ;;
+  11)
+    echo "Using CRTM GFDL cloud optical table"
+    ${NLN} ${FIXcrtm}/CloudCoeff.GFDLFV3.-109z-1.bin ./CloudCoeff.bin
+    ;;
+  *)
+    echo "FATAL ERROR: INVALID imp_physics = ${imp_physics}"
+    err_exit "No valid CRTM cloud optical table found for imp_physics = ${imp_physics}"
+    ;;
+esac
 
 # If requested, link (and if tarred, de-tar obsinput.tar) into obs_input.* files
 if [ ${USE_SELECT:-NO} = "YES" ]; then
