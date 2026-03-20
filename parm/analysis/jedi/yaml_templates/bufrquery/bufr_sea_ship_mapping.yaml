@@ -165,6 +165,12 @@ encoder:
       units: 'seconds since 1970-01-01T00:00:00Z'
       longName: 'dateTime'
 
+    - name: "MetaData/timeOffset"
+      coordinates: "longitude latitude"
+      source: variables/timeOffset
+      longName: "Observation Time Minus Reference Time"
+      units: "s"
+
     - name: "MetaData/prepbufrDataLevelCategory"
       source: variables/prepbufrDataLevelCategory
       units: '1'

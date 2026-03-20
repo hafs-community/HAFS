@@ -49,6 +49,7 @@ if [ "$machine" = wcoss2 ]; then
   export APRUN="time"
   export APRUNS="time"
   export APRUNO="mpiexec -n 1 --cpu-bind core --depth ${OMP_NUM_THREADS}"
+  export APRUNX="mpiexec -n ${TOTAL_TASKS}"
   export APRUNC="mpiexec -n ${TOTAL_TASKS} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNCD3="mpiexec -n ${TOTAL_TASKSD3} --cpu-bind core --depth ${OMP_NUM_THREADS}"
   export APRUNF="mpiexec -n ${TOTAL_TASKS} cfp "

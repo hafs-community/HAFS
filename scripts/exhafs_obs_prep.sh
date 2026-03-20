@@ -422,7 +422,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_viirs hiamv_abi aircft adpsfc sfcshp adpupa drpsnd tldplr hdob"
+  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob drpsnd tdr hdob"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
   sattypes="atms ssmis amsua iasi abi cris-fsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
