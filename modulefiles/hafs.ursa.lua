@@ -37,7 +37,7 @@ blas_ver=os.getenv("blas_ver") or "0.3.27"
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.7"
 load(pathJoin("rocoto", rocoto_ver))
 
-load(pathJoin("impi-collectivive-settings", "1.0.0"))
+load(pathJoin("impi-collective-settings", "1.0.0"))
 
 setenv("CC", "mpiicx")
 setenv("CXX", "mpiicpx")
