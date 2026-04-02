@@ -5,8 +5,10 @@ export PS4='+ $SECONDS + '
 set -x
 
 export cycle=${cycle:-t${cyc:?}z}
-export storm_num=${storm_num:-1}
-export stormlabel=${stormlabel:-storm$storm_num}
+export real_stormlabel=${stormlabel:-storm1}
+export real_storm_num=${real_stormlabel: -1}
+export stormlabel=${real_stormlabel}
+export storm_num=${stormlabel: -1}
 export hafs_ver=${hafs_ver:?}
 export NET=${NET:?}
 export RUN=${RUN:?}
@@ -55,8 +57,17 @@ export CONFhafs=$COMhafs/$stormlabel.conf
 export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
+export stormlabel=${real_stormlabel}
+export storm_num=${stormlabel: -1}
 
 export DATA=${WORKhafs}/output${jobidstr}
+
+# Add multistorm env vars
+export STORM=${STORM:-FAKE}
+export STORMID=${STORMID:-00L}
+export FAKESTORMID=${FAKESTORMID:-00L}
+export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+export FAKEWORKhafs=${FAKEWORKhafs:-$(echo "${WORKhafs/\/${STORMID}//${FAKESTORMID}}")}
 
 if [ "${SCRUBDATA:-YES}" = "YES" ]; then
   rm -rf $DATA

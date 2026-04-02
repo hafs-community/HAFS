@@ -58,7 +58,9 @@ for hh in $(seq -f "%02g" 0 6 ${NHRS:-126}); do
   grib2nest_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_n.grb2f${hh}
   hhh3=`printf %03i $(( 10#${hh} ))`
   grib2file=${STORMID,,}.${CDATE}.${RUN}.parent.atm.f${hhh3}.grb2
-  grib2nest=${STORMID,,}.${CDATE}.${RUN}.storm.atm.f${hhh3}.grb2
+  # Lew.Gramer@noaa.gov 2026-03-24
+  #grib2nest=${STORMID,,}.${CDATE}.${RUN}.storm.atm.f${hhh3}.grb2
+  grib2nest=${STORMID,,}.${CDATE}.${RUN}.${real_stormlabel}.atm.f${hhh3}.grb2
   echo 'grib2file = ' ${grib2file}
   if [ -s ${COMhafs}/${grib2file} ]; then
     ${NLN} ${COMhafs}/${grib2file} ./${grib2file_old}

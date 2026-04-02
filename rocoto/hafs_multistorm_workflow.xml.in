@@ -1726,6 +1726,7 @@
       <name>HOLDVARS</name>
       <value><cyclestr>&COMhafs;/#storm#.holdvars.txt</cyclestr></value>
     </envar>
+    <envar><name>stormlabel</name><value>#storm#</value></envar>
 
     <dependency>
       <and>
