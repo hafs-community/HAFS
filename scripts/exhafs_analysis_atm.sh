@@ -360,6 +360,11 @@ valid_convtypes=()
 for file in ${convfiles}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
+    nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
+    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
+        echo "Skipping empty or invalid file: $ncfile"
+        continue
+    fi
     ${NLN} "$ncfile" .
     valid_convfiles+=("$file")
 
@@ -385,6 +390,11 @@ valid_radtypes=()
 for file in ${radtypes_array[@]}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
+    nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
+    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
+        echo "Skipping empty or invalid file: $ncfile"
+        continue
+    fi
     ${NLN} "$ncfile" .
     tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
     [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
