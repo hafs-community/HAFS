@@ -42,6 +42,7 @@ c      integer, parameter :: numparams = nvar+5*(nsnd+1)
 c      character(len=16), dimension(numparams) :: paramlab
       character(len=16), dimension(nvar) :: paramlab
       integer, allocatable, dimension(:,:) :: iparams
+      integer, allocatable, dimension(:) :: arr1d
       integer, allocatable, dimension(:) :: itimes
       real, allocatable, dimension(:) :: rtimes, rlat, rlon
       real, allocatable, dimension(:) :: rxt, ryt, rmagt, rspd, rhdg
@@ -109,6 +110,7 @@ c
       allocate(clon(ntimes),STAT=istat)
       allocate(clat(ntimes),STAT=istat)
       allocate(iparams(numparams,ntimes),STAT=istat)
+      allocate(arr1d(ntimes),STAT=istat)
 c 
       paramlab( 1) = 'LAT     (DEG)   '
       paramlab( 2) = 'LON     (DEG)   '
@@ -210,7 +212,8 @@ c
       write(luou,cfmtstra) paramlab(1), clat
       write(luou,cfmtstra) paramlab(2), clon
       do n=3,nvar
-         write(luou,cfmtstri) paramlab(n), iparams(n,:)
+         arr1d=iparams(n,:)
+         write(luou,cfmtstri) paramlab(n), arr1d
       enddo
       write(luou,*)''
       !begin sounding data section
@@ -222,33 +225,43 @@ c  105 format(a4,1x,i3.3,1x,a4,21(1x,i4.4))
       write(luou,cfmtstrp) 'NLEV', nlevs+1, 'SURF', iplevs
       write(luou,cfmtstri) 'TIME    (HR)    ', itimes
       itpar=nvar+1
-      write(luou,cfmtstri) ctlabt(1:16), iparams(itpar,:)
+      arr1d=iparams(itpar,:)
+      write(luou,cfmtstri) ctlabt(1:16), arr1d
       itpar=itpar+1
-      write(luou,cfmtstri) ctlabr(1:16), iparams(itpar,:)
+      arr1d=iparams(itpar,:)
+      write(luou,cfmtstri) ctlabr(1:16), arr1d
       itpar=itpar+1
-      write(luou,cfmtstri) ctlabp(1:16), iparams(itpar,:)
+      arr1d=iparams(itpar,:)
+      write(luou,cfmtstri) ctlabp(1:16), arr1d
       itpar=itpar+1
-      write(luou,cfmtstri) ctlabu(1:16), iparams(itpar,:)
+      arr1d=iparams(itpar,:)
+      write(luou,cfmtstri) ctlabu(1:16), arr1d
       itpar=itpar+1
-      write(luou,cfmtstri) ctlabv(1:16), iparams(itpar,:)
+      arr1d=iparams(itpar,:)
+      write(luou,cfmtstri) ctlabv(1:16), arr1d
       itpar=itpar+1
       do n=1,nlevs
          itpar=nvar+(5*n)+1
          write(cplev(1:4),'(i4.4)') iplevs(n)
          ctlabt(3:6) = cplev(1:4)
-         write(luou,cfmtstri) ctlabt(1:16), iparams(itpar,:)
+         arr1d=iparams(itpar,:)
+         write(luou,cfmtstri) ctlabt(1:16), arr1d
          itpar=itpar+1
          ctlabr(3:6) = cplev(1:4)
-         write(luou,cfmtstri) ctlabr(1:16), iparams(itpar,:)
+         arr1d=iparams(itpar,:)
+         write(luou,cfmtstri) ctlabr(1:16), arr1d
          itpar=itpar+1
          ctlabz(3:6) = cplev(1:4)
-         write(luou,cfmtstri) ctlabz(1:16), iparams(itpar,:)
+         arr1d=iparams(itpar,:)
+         write(luou,cfmtstri) ctlabz(1:16), arr1d
          itpar=itpar+1
          ctlabu(3:6) = cplev(1:4)
-         write(luou,cfmtstri) ctlabu(1:16), iparams(itpar,:)
+         arr1d=iparams(itpar,:)
+         write(luou,cfmtstri) ctlabu(1:16), arr1d
          itpar=itpar+1
          ctlabv(3:6) = cplev(1:4)
-         write(luou,cfmtstri) ctlabv(1:16), iparams(itpar,:)
+         arr1d=iparams(itpar,:)
+         write(luou,cfmtstri) ctlabv(1:16), arr1d
          itpar=itpar+1
       enddo
       write(luou,*)''
@@ -280,6 +293,7 @@ c
       deallocate(clon,STAT=istat)
       deallocate(clat,STAT=istat)
       deallocate(iparams,STAT=istat)
+      deallocate(arr1d,STAT=istat)
 c 
 c      return
       goto 950

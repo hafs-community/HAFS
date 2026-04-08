@@ -74,52 +74,73 @@ add_executable(hafs_ships_getcenter.x
     $<TARGET_OBJECTS:upcase_obj>
 )
 
+
+target_compile_options(lsdiags_obj PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    -traceback)
+
+target_compile_options(diag_util_obj PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    -traceback)
+
+target_compile_options(upcase_obj PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    -traceback)
+
+target_compile_options(gbland_obj PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    -traceback)
+
+target_compile_options(dataio_obj PRIVATE
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    -traceback)
+
 target_compile_options(hafs_ships_nameparse.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_compile_options(hafs_ships_gridparse.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_compile_options(hafs_ships_totaldiag.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_compile_options(hafs_ships_inddiag.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_compile_options(hafs_ships_inddiagnull.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_compile_options(hafs_ships_getcenter.x PRIVATE
-    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+    $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
     -traceback)
 
 target_link_options(hafs_ships_nameparse.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 target_link_options(hafs_ships_gridparse.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 target_link_options(hafs_ships_totaldiag.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 target_link_options(hafs_ships_inddiag.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 target_link_options(hafs_ships_inddiagnull.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 target_link_options(hafs_ships_getcenter.x PRIVATE
-     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
+     $<$<STREQUAL:${BUILD_TYPE},DEBUG>: -O0 -g -check all -ftrapuv -fpe0> $<$<STREQUAL:${BUILD_TYPE},RELEASE>:-O2>
      -traceback)
 
 install(TARGETS hafs_ships_nameparse.x DESTINATION ${exec_dir})
