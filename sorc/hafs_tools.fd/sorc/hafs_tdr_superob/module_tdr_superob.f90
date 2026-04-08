@@ -445,6 +445,7 @@ double precision, allocatable, dimension(:,:)   :: bin_stats
 double precision, allocatable, dimension(:,:)   :: so_vr
 double precision, allocatable, dimension(:,:)   :: close_rv
 double precision, allocatable, dimension(:)     :: close_dis
+double precision, dimension(10)                 :: so_wrt
 
 ! Other constants
 real   :: deg2rad, rad2deg
@@ -583,7 +584,7 @@ nrawradials = size(timerad,1)
 ! Difference between min azm angles in the sweep and gate azm angle
 ! accounts for orientation of aircraft.
 min_elv = 0.
-min_elv_idx = 0
+min_elv_idx = 1
 max_radius = radius(maxgates) ! farthest distance from radar
 
 ! Search for radial with min. elevation angle wrt nadir ("bottom" of sweep)
@@ -809,7 +810,8 @@ if (debug_level .ge. 1) then
 
   do i=1,n_all_bins
     if ( so_vr(i,8) .ne. vr_missing ) then
-      write(swpso_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_vr(i,2:11)
+      so_wrt = so_vr(i,2:11)
+      write(swpso_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
       call check_iostat_write('calc_superobs',swpso_filename,iost)
     endif
   enddo
@@ -824,12 +826,14 @@ if (fileexists) then
   do i=1,n_all_bins
     if (limit_std) then
       if ( (so_vr(i,8) .ne. vr_missing) .and. (so_vr(i,11) .le. maxstd) ) then
-        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_vr(i,2:11)
+        so_wrt = so_vr(i,2:11)
+        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
         call check_iostat_write('calc_superobs',superob_filename,iost)
       endif
     else
       if ( so_vr(i,8) .ne. vr_missing ) then
-        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_vr(i,2:11)
+        so_wrt = so_vr(i,2:11)
+        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
         call check_iostat_write('calc_superobs',superob_filename,iost)
       endif
     endif
@@ -841,12 +845,14 @@ else
   do i=1,n_all_bins
     if (limit_std) then
       if ( (so_vr(i,8) .ne. vr_missing) .and. (so_vr(i,11) .le. maxstd) ) then
-        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_vr(i,2:11)
+        so_wrt = so_vr(i,2:11)
+        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_wrt
         call check_iostat_write('calc_superobs',superob_filename,iost)
       endif
     else
       if ( so_vr(i,8) .ne. vr_missing ) then
-        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_vr(i,2:11)
+        so_wrt = so_vr(i,2:11)
+        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_wrt
         call check_iostat_write('calc_superobs',superob_filename,iost)
       endif
     endif

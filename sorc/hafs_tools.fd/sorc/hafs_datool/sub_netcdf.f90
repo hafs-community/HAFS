@@ -447,16 +447,16 @@
   endif
 
   !----4.0 check var
+  !if ( xtype < 0 .or. xtype > 99 ) xtype=nf90_real
+  if ( data_type >= 1 .and. data_type <= 6 ) then
+     xtype = data_type
+  elseif ( data_type <= -1 .and. data_type >= -6 ) then
+     xtype = abs(data_type)
+  else
+     xtype = nf90_real
+  endif
   rcode=nf90_inq_varid(ncid, varname, varid)
   if ( rcode /= nf90_noerr ) then  ! need to define the var
-     !if ( xtype < 0 .or. xtype > 99 ) xtype=nf90_real
-     if ( data_type >= 1 .and. data_type <= 6 ) then
-        xtype = data_type
-     elseif ( data_type <= -1 .and. data_type >= -6 ) then
-        xtype = abs(data_type)
-     else
-        xtype = nf90_real
-     endif
      if ( tx>0 ) then
         if ( kx >0 ) then
            if ( ix>0 .and. jx>0  ) call nccheck(nf90_def_var(ncid, trim(varname), xtype, (/ixid,jxid,kxid,txid/), varid), 'wrong in def_var '//trim(varname), .true.)
@@ -489,8 +489,9 @@
      !endif
      call nccheck(nf90_enddef(ncid), 'wrong in nf90_enddef', .false.)
   else   ! to get data's type
-     if ( xtype < 1 .or. xtype > 6 ) then
-        call nccheck(nf90_inquire_variable(ncid, varid, xtype=xtype), 'wrong in get data type of '//trim(varname), .true.)
+     if ( data_type <= -1 .and. data_type >= -6 ) then
+        rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        if ( rcode /= nf90_noerr ) xtype = abs(data_type)
      endif
   endif
 

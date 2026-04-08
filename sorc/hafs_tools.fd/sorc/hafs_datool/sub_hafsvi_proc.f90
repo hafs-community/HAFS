@@ -165,13 +165,15 @@
   lat2 = radiusf/2.0
   !!--- get rot-ll grid
   allocate(glon(nx,ny), glat(nx,ny))
-  !$omp parallel do &
-  !$omp& private(i,j,rot_lon,rot_lat)
-  do j = 1, ny; do i = 1, nx
-     rot_lon = lon1 + dlon*(i-1)
-     rot_lat = lat1 + dlat*(j-1)
-     call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
-  enddo; enddo
+  !!!!$omp parallel do &
+  !!!!$omp& private(i,j,rot_lon,rot_lat)
+  do j = 1, ny; 
+     rot_lat = dlat * (j - (ny+1)/2.0)
+     do i = 1, nx
+        rot_lon = dlon * (i - (nx+1)/2.0)
+        call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
+     enddo 
+  enddo
   call longitude_expand_360to540(nx,ny,glon)
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
