@@ -126,7 +126,6 @@ load(pathJoin("esmf-D", esmf_ver))
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
 
-prepend_path("MODULEPATH", "/apps/test/lmodules/intel/19.1.3.304")
 ve_hafs_ver=os.getenv("ve_hafs_ver")
 load(pathJoin("ve/hafs", ve_hafs_ver))
 
