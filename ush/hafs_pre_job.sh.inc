@@ -28,17 +28,7 @@ fi
 target=""
 USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
-if [[ -d /lfs5 ]] ; then
-  # We are on NOAA Jet
-  if ( ! eval module help > /dev/null 2>&1 ) ; then
-    echo load the module command 1>&2
-    source /apps/lmod/lmod/init/$__ms_shell
-  fi
-  target=jet
-  module purge
-  module use /apps/modules/modulefiles
-  module use /apps/lmod/lmod/modulefiles/Core
-elif [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
+if [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
   if [[ "$(hostname)" =~ "u" ]] ; then
     # We are on NOAA Ursa
     target=ursa

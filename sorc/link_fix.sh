@@ -19,8 +19,6 @@ elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch3/HFIP/hwrfv3/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
   FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
-elif [ ${target} == "jet" ]; then
-  FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
   FIXROOT=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "ursa" ]; then

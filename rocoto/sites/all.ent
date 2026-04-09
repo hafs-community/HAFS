@@ -1,11 +1,5 @@
 <!-- All supported sites -->
 
-<!ENTITY % tjet             SYSTEM      "tujet.ent">
-<!ENTITY % ujet             SYSTEM      "tujet.ent">
-<!ENTITY % sjet             SYSTEM      "svjet.ent">
-<!ENTITY % vjet             SYSTEM      "svjet.ent">
-<!ENTITY % xjet             SYSTEM      "xjet.ent">
-<!ENTITY % kjet             SYSTEM      "kjet.ent">
 <!ENTITY % hera             SYSTEM      "hera.ent">
 <!ENTITY % ursa             SYSTEM      "ursa.ent">
 <!ENTITY % orion            SYSTEM      "orion.ent">
