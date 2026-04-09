@@ -257,6 +257,7 @@ else # Otherwise this a regular forecast run
 
 if [ "${ENSDA}" = YES ]; then
   run_ocean=no #Should we make it optional in case we have ocean DA? But we may not have ocean ensemble anyway #XL
+  is_moving_nest=.false.,.false.
   run_wave=no
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
@@ -1066,6 +1067,11 @@ if [ ${use_orog_gsl:-no} = yes ]; then
 fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
+if [ "${ENSDA}" = YES ]; then #XL
+  if [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc ]; then
+    ln -sf ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc sfc_data.tile7.nc
+  fi
+fi
 
 # regional with nests
 if [ $nest_grids -gt 1 ]; then

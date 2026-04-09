@@ -23,6 +23,9 @@ load(pathJoin("zlib", zlib_ver))
 cdo_ver=os.getenv("cdo_ver") or "2.4.4"
 load(pathJoin("cdo", cdo_ver))
 
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio", ncio_ver))
+
 mkl_ver=os.getenv("mkl_ver") or "2024.2.1"
 load(pathJoin("intel-oneapi-mkl", mkl_ver))
 
