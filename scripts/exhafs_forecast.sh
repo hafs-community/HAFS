@@ -83,6 +83,7 @@ if [ "${ENSDA}" = YES ]; then
   nstf_n5=${nstf_n5_ens:-$nstf_n5}
   dt_atmos=${dt_atmos_ens:-90}
   restart_interval=${restart_interval_ens:-6}
+  restart_fh=${restart_fh_ens:-6}
   quilting=${quilting_ens:-.true.}
   write_groups=${write_groups_ens:-3}
   write_tasks_per_group=${write_tasks_per_group_ens:-72}
@@ -531,7 +532,7 @@ if [[ $cpl_atm_ocn = "cmeps"* ]]; then
   MED_model_component="MED_model: cmeps"
   MED_model_attribute="MED_model=cmeps"
   MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
-  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn"
+  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_restart_write"
   # CMEPS based two-way coupling
   if [ $cpl_atm_ocn = cmeps_2way ]; then
     cplflx=.true.
@@ -710,7 +711,7 @@ OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_t
 MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
 WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$ocn_tasks)) $(($ATM_tasks+$ocn_tasks+$wav_tasks-1)))
 
-runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
+runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav\n MED med_phases_restart_write"
 # CMEPS based two-way atm-ocn and atm-wav coupling
 if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -1181,6 +1182,13 @@ if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
   #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
   # fi
   done
+  # Set MOM6 warmstart option and prepare MOM6 restart files
+  if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+    input_filename='r'
+    for mres in ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res.nc ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res_*.nc; do
+      ncks -a -A ${mres} MOM.res.nc
+    done
+  fi
 fi
 
 cd ..
@@ -1625,6 +1633,8 @@ FHMAX=${NHRS}
 FHROT=${FHROT:-${FORECAST_RESTART_HR:-0}}
 DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
+RESTART_FH=${restart_fh:-${restart_interval}}
+input_filename=${input_filename:-n}
 QUILTING=${quilting}
 QUILTING_RESTART=${quilting_restart:-${quilting}}
 #QUILTING_RESTART=.false.

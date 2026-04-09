@@ -9,6 +9,7 @@ fhrot:                   @[FHROT]
 dt_atmos:                @[DT_ATMOS]
 calendar:                'julian'
 restart_interval:        @[RESTART_INTERVAL]
+restart_fh:              @[RESTART_FH]
 output_1st_tstep_rst:    .false.
 
 quilting:                @[QUILTING]

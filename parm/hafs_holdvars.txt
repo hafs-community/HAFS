@@ -212,6 +212,7 @@ export ccpp_suite_nest={ccpp_suite_nest}
 
 export dt_atmos={dt_atmos}
 export restart_interval={restart_interval}
+export restart_fh={restart_fh}
 export quilting={quilting}
 export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
@@ -385,6 +386,7 @@ export nstf_n4_ens={nstf_n4_ens}
 export nstf_n5_ens={nstf_n5_ens}
 export dt_atmos_ens={dt_atmos_ens}
 export restart_interval_ens={restart_interval_ens}
+export restart_fh_ens={restart_fh_ens}
 export quilting_ens={quilting_ens}
 export write_groups_ens={write_groups_ens}
 export write_tasks_per_group_ens={write_tasks_per_group_ens}

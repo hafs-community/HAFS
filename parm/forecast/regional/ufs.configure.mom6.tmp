@@ -65,6 +65,7 @@ OCN_attributes::
   set_missing_stks_to_zero = true
   eps_imesh = 2.5e-1
   mesh_ocn = INPUT/mom6_mesh.nc
+  write_restart_at_endofrun = .true.
 ::
 
 # WAV #
@@ -104,6 +105,7 @@ ALLCOMP_attributes::
   ScalarFieldIdxGridNTile = 3
   ScalarFieldName = cpl_scalars
   start_type = startup
+  restart_dir = RESTART/
   case_name = ufs.hafs
   restart_n = 240
   restart_option = nhours
