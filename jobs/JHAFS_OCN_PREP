@@ -70,11 +70,6 @@ if [[ "${run_docn:-no}" == yes ]] ; then
   export err=$?; err_chk
 fi
 
-if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
-  ${HOMEhafs}/scripts/exhafs_ocn_prep.py
-  export err=$?; err_chk
-fi
-
 if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == mom6 ]] ; then
   ${HOMEhafs}/scripts/exhafs_ocn_prep.sh
   export err=$?; err_chk

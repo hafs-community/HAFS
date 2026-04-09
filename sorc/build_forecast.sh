@@ -21,8 +21,3 @@ app=HAFS-MOM6W
     -DCCPP_SUITES=FV3_HAFS_v2_coupled,FV3_HAFS_v2,FV3_HAFS_v2_gfdlmp_coupled,FV3_HAFS_v2_gfdlmp,FV3_HAFS_v2_gfdlmpv3_coupled,FV3_HAFS_v2_gfdlmpv3,FV3_HAFS_v2_tiedtke_coupled,FV3_HAFS_v2_tiedtke,FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmpv3_tedmf_nonsst,FV3_HAFS_v1_gfdlmpv3_tedmf \
     -D32BIT=ON -DRRTMGP_32BIT=ON" hafs_mom6 intel YES NO
 
-app=HAFSW
-./compile.sh "$target" "-DAPP=$app -DMOVING_NEST=ON -DFASTER=ON -DDEBUG=$debug \
-    -DCCPP_SUITES=FV3_HAFS_v2_coupled,FV3_HAFS_v2,FV3_HAFS_v2_gfdlmp_coupled,FV3_HAFS_v2_gfdlmp,FV3_HAFS_v2_gfdlmpv3_coupled,FV3_HAFS_v2_gfdlmpv3,FV3_HAFS_v2_tiedtke_coupled,FV3_HAFS_v2_tiedtke,FV3_HAFS_v1_thompson_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmpv3_tedmf_nonsst,FV3_HAFS_v1_gfdlmpv3_tedmf \
-    -D32BIT=ON -DRRTMGP_32BIT=ON" hafs_hycom intel YES NO
-
