@@ -19,7 +19,7 @@ opts="-f"
 #===============================================================================
 ## HFSA with production computation resources on WCOSS2
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa ../parm/hfsa.conf"
-# Five cycle testing for Melissa 13L2025
+##Five cycle testing for Melissa 13L2025
 #./run_hafs.py ${opts} 2025102300-2025102400 13L HISTORY ${confopts} \
 #   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 

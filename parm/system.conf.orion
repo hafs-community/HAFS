@@ -48,5 +48,4 @@ quilting_restart=.false.
  
 [holdvars]
 WHERE_AM_I=orion
-WHICH_JET=none
 

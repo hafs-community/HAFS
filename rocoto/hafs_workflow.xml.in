@@ -116,25 +116,7 @@
 
 @** if SITE_FILE==
   <!-- No site file, so choose from defaults. -->
-@**   if WHERE_AM_I==jet
-@**     if WHICH_JET==t
-  %tjet;
-@**     elseif WHICH_JET==u
-  %ujet;
-@**     elseif WHICH_JET==s
-  %sjet;
-@**     elseif WHICH_JET==v
-  %vjet;
-@**     elseif WHICH_JET==x
-  %xjet;
-@**     elseif WHICH_JET==k
-  %kjet;
-@**     else
-  %xjet; <!-- Default is xjet when nothing else is specified -->
-@**     endif
-@**   else
   %@[WHERE_AM_I];
-@**   endif
 @** else
   <!ENTITY % CUSTOM_SITE SYSTEM "@[SITE_FILE]">
   %CUSTOM_SITE;
