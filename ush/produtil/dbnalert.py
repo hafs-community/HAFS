@@ -174,11 +174,8 @@ def init_dbn_alert(send_dbn=None):
         send_dbn_alerts=send_dbn
         return
 
-    if 'RUN_ENVIR' not in ENV:
-        logger.warning('RUN_ENVIR is unset.  Disabling DBN alerts.')
-    elif ENV['RUN_ENVIR'].upper()!='NCO':
-        logger.info('RUN_ENVIR=%s is not "NCO".  Disabling DBN alerts.'
-                       %(ENV['RUN_ENVIR'],))
+    if 'RUN_ENVIR' not in ENV or ENV['RUN_ENVIR'].upper()!='NCO':
+        logger.info('RUN_ENVIR=%s is not "NCO".  Disabling DBN alerts.'%(ENV['RUN_ENVIR'],))
     elif send_dbn is None:
         send_dbn_alerts = ( 'YES' == ENV.get('SENDDBN','NO').upper() )
         if send_dbn_alerts:
