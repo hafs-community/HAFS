@@ -3,8 +3,8 @@ PROGRAM TDR_SO_MAIN
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! TDR Superob Tool
 !
-! Written by:
-!   Brittany Dahl (Univ. of Miami/CIMAS)
+! Authors and history:
+!   -- 202603, Brittany Dahl (Univ. of Miami/CIMAS)
 !
 ! Description:
 !   Superobs NOAA aircraft tail Doppler radar (TDR) observations and

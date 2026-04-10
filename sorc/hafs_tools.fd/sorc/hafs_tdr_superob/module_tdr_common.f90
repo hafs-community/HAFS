@@ -1,5 +1,11 @@
 MODULE TDR_COMMON
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Authors and history:
+!   -- 202603, Brittany Dahl (Univ. of Miami/CIMAS)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 implicit none
 
 CONTAINS
