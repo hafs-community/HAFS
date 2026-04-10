@@ -1728,7 +1728,7 @@ hhnhrs=$(echo ${CDATEnhrs} | cut -c9-10)
 if [ -s ${YMDnhrs}.${hhnhrs}*.fv_core.res.nc ]; then
   for file in $(/bin/ls -1 ${YMDnhrs}.${hhnhrs}*.fv*.nc* ${YMDnhrs}.${hhnhrs}*.phy_data*.nc* ${YMDnhrs}.${hhnhrs}*.sfc_data*.nc* ${YMDnhrs}.${hhnhrs}*.coupler.res); do
     if [ ! -s ${YMDnhrs}.${hhnhrs}0000.${file:16} ]; then
-      mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file:16}
+      ${NMV} ${file} ${YMDnhrs}.${hhnhrs}0000.${file:16}
     fi
   done
   if [ ${RUN_INIT:-NO} = YES ]; then

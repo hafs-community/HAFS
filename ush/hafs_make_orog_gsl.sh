@@ -56,7 +56,7 @@ ${NCP} -p $executable ./hafs_utils_orog_gsl.x
 ${APRUNO} ./hafs_utils_orog_gsl.x < grid_info.dat 2>&1 | tee ./orog_gsl.log
 export err=$?; err_chk
 
-mv ./C*oro_data_*.nc $outdir/
+${NMV} ./C*oro_data_*.nc $outdir/
 echo "*oro_data_ls* and *oro_data_ss* files created"
 echo "Successfully running $executable "
 

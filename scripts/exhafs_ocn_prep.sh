@@ -160,7 +160,7 @@ export err=$?; err_chk
 # Rename the OBC files
 for var in ssh ts uv; do
   for segm in north south east west; do
-    mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    ${NMV} rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
     # Deliver to intercom
     ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
   done
