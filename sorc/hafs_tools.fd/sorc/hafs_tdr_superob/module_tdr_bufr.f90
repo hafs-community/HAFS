@@ -1,5 +1,11 @@
 MODULE TDR_BUFR
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Authors and history:
+!   -- 202603, Brittany Dahl (Univ. of Miami/CIMAS)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 USE TDR_COMMON
 
 IMPLICIT NONE
