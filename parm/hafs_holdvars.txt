@@ -480,7 +480,7 @@ export cpl_wav_ocn={cpl_wav_ocn}
 export wav_tasks={wav_tasks}
 export med_tasks={med_tasks}
 
-if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+if [[ "$RUN_ENVIR" != "NCO" && "$RUN_ENVIR" != "nco" ]] ; then
   export EXPT={EXPT}
   export SUBEXPT={SUBEXPT}
   export WHERE_AM_I={WHERE_AM_I}
