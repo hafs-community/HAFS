@@ -146,8 +146,8 @@ EOF
 
   $APRUN $executable
   export err=$?; err_chk
-  mv regional_grid.nml C${res}_grid.tile7.nml
-  mv regional_grid.nc C${res}_grid.tile7.nc
+  ${NMV} regional_grid.nml C${res}_grid.tile7.nml
+  ${NMV} regional_grid.nc C${res}_grid.tile7.nc
 
   # If needed, create a regional esg fine parent grid with its child/nest grid
   # resolution. It covers the regional esg parent grid, which can be subsetted
@@ -175,8 +175,8 @@ EOF
 
   $APRUN $executable
   export err=$?; err_chk
-  mv regional_grid.nml C${res}_nest1res_grid.tile7.nml
-  mv regional_grid.nc C${res}_nest1res_grid.tile7.nc
+  ${NMV} regional_grid.nml C${res}_nest1res_grid.tile7.nml
+  ${NMV} regional_grid.nc C${res}_nest1res_grid.tile7.nc
 
   # Subset to generate the regional esg nested grids
   for n in $(seq 2 ${nest_grids})

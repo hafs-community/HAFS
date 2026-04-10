@@ -363,12 +363,12 @@ export err=$?; err_chk
 # Move output files to save directory
 if [ $gtype = regional ]; then
   if [ $REGIONAL = 1 ]; then
-    mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
-    mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
-    mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
-    mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
+    ${NMV} gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
+    ${NMV} gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
+    ${NMV} out.atm.tile1.nc ${OUTDIR}/gfs_data.tile7.nc
+    ${NMV} out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile7.nc
   elif [ $REGIONAL = 2 ]; then
-    mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
+    ${NMV} gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.${FHR3}.nc
   else
     echo "WARNING: Wrong gtype: $gtype REGIONAL: $REGIONAL combination"
   fi
