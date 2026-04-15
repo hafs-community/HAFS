@@ -104,7 +104,6 @@ load(pathJoin("gsl", gsl_ver))
 nco_ver=os.getenv("nco_ver")
 load(pathJoin("nco", nco_ver))
 
-prepend_path("MODULEPATH", "/apps/ops/para/nco/modulefiles/compiler/intel/19.1.3.304")
 bufr_dump_ver=os.getenv("bufr_dump_ver")
 load(pathJoin("bufr_dump", bufr_dump_ver))
 
@@ -126,7 +125,6 @@ load(pathJoin("esmf-D", esmf_ver))
 scotch_ver=os.getenv("scotch_ver")
 load(pathJoin("scotch", scotch_ver))
 
-prepend_path("MODULEPATH", "/apps/test/lmodules/intel/19.1.3.304")
 ve_hafs_ver=os.getenv("ve_hafs_ver")
 load(pathJoin("ve/hafs", ve_hafs_ver))
 

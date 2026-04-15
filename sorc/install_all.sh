@@ -73,6 +73,7 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
+  ${CP} hafs_tools.fd/exec/hafs_enmean_recenter.x                    ../exec/hafs_tools_enmean_recenter.x
   if [ -d "hafs_tools.fd/sorc/hafs_ships" ]; then
     ${CP} hafs_tools.fd/exec/hafs_ships_nameparse.x                  ../exec/hafs_ships_nameparse.x
     ${CP} hafs_tools.fd/exec/hafs_ships_gridparse.x                  ../exec/hafs_ships_gridparse.x 

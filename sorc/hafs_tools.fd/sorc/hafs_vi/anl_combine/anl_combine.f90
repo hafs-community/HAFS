@@ -1509,6 +1509,23 @@
       JC1=MNHC+1
       DDX=(GLON(IC1,MNHC)-GLON(KNHC,MNHC))
       DDY=(GLAT(KNHC,JC1)-GLAT(KNHC,MNHC))
+      !MDX=((CLON_NHC-CLON_NEW)/DDX)
+      !MDY=((CLAT_NHC-CLAT_NEW)/DDY)
+      if(DDX.eq.0.0)then
+       write(*,*) 'WARNING: Something is wrong with DDX= ', DDX
+       write(*,*) 'WARNING: Check the longitude value in the VI input data'
+       write(*,*) 'GLON(752,751), GLON(751,751)= ',GLON(IC1,MNHC), GLON(KNHC,MNHC)
+       DDX=0.02
+       !stop
+      endif
+      if(DDY.eq.0.0)then
+       write(*,*) 'WARNING: Something is wrong with DDY= ', DDY
+       write(*,*) 'WARNING: Check the latitude value in the VI input data'
+       write(*,*) 'GLAT(751,752), GLAT(751,751)= ', GLAT(KNHC,JC1), GLAT(KNHC,MNHC)
+       DDY=0.02
+       !stop
+      endif
+
       MDX=((CLON_NHC-CLON_NEW)/DDX)
       MDY=((CLAT_NHC-CLAT_NEW)/DDY)
 

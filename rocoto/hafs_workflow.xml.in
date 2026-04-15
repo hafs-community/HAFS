@@ -84,6 +84,7 @@
   <!ENTITY ANALYSIS_D03 "@[ANALYSIS_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
+  <!ENTITY RRFS_RECENTER "@[RRFS_RECENTER]">
   <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
   <!ENTITY RUN_ANALYSIS_MERGE_ENS "@[RUN_ANALYSIS_MERGE_ENS]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
@@ -1101,6 +1102,9 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
+@** if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@** endif
         <!-- Wait until the deterministic forecast job is running or completed. -->
 <!-- XL run ens at the same time
         <or>

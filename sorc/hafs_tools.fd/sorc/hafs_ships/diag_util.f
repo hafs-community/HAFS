@@ -589,9 +589,15 @@ c
          im=0
          i0=0
          ip=0
-         if ((k .gt. 1) .and. (tlat(k-1) .gt. rmissval)) im=1
+c         if ((k .gt. 1) .and. (tlat(k-1) .gt. rmissval)) im=1
+         if (k .gt. 1) then
+            if (tlat(k-1) .gt. rmissval) im = 1
+         endif
          if (tlat(k  ) .gt. rmissval) i0=1
-         if ((k .lt. mft) .and. (tlat(k+1) .gt. rmissval)) ip=1
+c         if ((k .lt. mft) .and. (tlat(k+1) .gt. rmissval)) ip=1
+         if (k .lt. mft) then
+             if (tlat(k+1) .gt. rmissval) ip=1
+         endif
 c 
          icode = ip + 10*i0 + 100*im
 c 
