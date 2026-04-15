@@ -97,6 +97,7 @@ $Build_gsi && {
 #------------------------------------
 $Build_jedi && {
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_var.x                         ../exec/hafs_jedi.x
+  ${LN} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_letkf.x                       ../exec/hafs_jedi_enkf.x
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_converttostructuredgrid.x     ../exec/hafs_convert.x
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_bc2ioda.x
   ${LN} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_error_covariance_toolbox.x    ../exec/hafs_nicas.x

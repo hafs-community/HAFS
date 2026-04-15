@@ -411,11 +411,14 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob drpsnd tdr hdob"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
-  sattypes="atms ssmis amsua iasi abi cris-fsr"
-  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+#  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob"
+#  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
+#  sattypes="atms ssmis amsua iasi abi cris-fsr"
+#  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
+#  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+  sattypes="iasi cris-fsr"
+  satbufrs="mtiasi crisf4"
+  radtypes="iasi_metop-b iasi_metop-c cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
   obstypes="${radtypes} ${convtypes}"
 #  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
@@ -477,13 +480,13 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
     bufr=$1
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
-       ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
+       ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "abi" ]]; then
-       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
+       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "cris-fsr" ]]; then
-       ${APRUNX} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
+       ${APRUNX} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-       ${APRUNX} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc
+       ${APRUNX} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       fi
     fi
     shift
@@ -497,7 +500,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       sed -e "s|#ANADATE#|${ANADATE}|g" \
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+	if [[ "${file}" = "osw_ascat" ]]; then
+          ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+	else
+          ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+	fi
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         # Extra Check on message type NC005099
      	SUBSET_TO_FIND="5099"
@@ -508,16 +515,16 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
      	if (cd "${TEMP_DIR}" && split_by_subset "${FILENAME_ABS}") | grep -q "${SUBSET_TO_FIND}"; then
      	  echo "Success: Subset ${SUBSET_TO_FIND} found."
      	  echo "Proceeding with the Python script..."
-          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc >& log_${file}
      	else
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE}
+        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE}
+        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       else
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc >& log_${file}
       fi
     fi
     shift

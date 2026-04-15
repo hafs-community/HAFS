@@ -39,6 +39,7 @@ export grid_ratio_fv3_regional=${grid_ratio_fv3_regional:-1}
 export s_ens_h=${s_ens_h:-150}
 export s_ens_v=${s_ens_v:--0.5}
 export out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
+export write_obs_sprd=.false.
 
 export RUN_ENVAR=${RUN_ENVAR:-NO}
 export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
@@ -504,6 +505,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_L_TDR_THIN_ALONGBEAM_/${l_tdr_thin_alongbeam:-.true.}/g" \
     -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
     -e "s/_NAENSLOC_/${naensloc:-1}/g" \
+    -e "s/_WRITE_OBS_SPRD_/${write_obs_sprd:-.false.}/g" \
     gsiparm.anl.tmp > gsiparm.anl
 
 # Only assimilate NOAA-21 OBS starting from 2024

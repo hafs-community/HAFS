@@ -37,7 +37,7 @@ bufr:
     stationElevation:
       query: "*/ELV"
 
-    temperatureEventProgramCode:
+    temperatureEventCode:
       query: "*/PRSLEVEL/T___INFO/T__EVENT{1}/TPC"    
 
     pressure:
@@ -147,7 +147,7 @@ encoder:
 
   variables:
     # Observation Type: Pressure
-    - name: "ObsType/Pressure"
+    - name: "ObsType/stationPressure"
       source: variables/observationType
       longName: "Observation Type"
 
@@ -225,6 +225,11 @@ encoder:
       source: variables/prepbufrDataLevelCategory
       longName: "Prepbufr Data Level Category"
 
+    # MetaData: temperatureEventCode
+    - name: "MetaData/temperatureEventCode"
+      source: variables/temperatureEventCode
+      longName: "Temperature Event Program Code"
+
     # MetaData: pressure
     - name: "MetaData/pressure"
       coordinates: "longitude latitude"
@@ -238,12 +243,6 @@ encoder:
       source: variables/height
       longName: "Height of Observation"
       units: "m"
-
-    # QCFlags: qualityFlags 
-    - name: "QCFlags/qualityFlags"
-      #- name: "MetaData/temperatureEventProgramCode"
-      source: variables/temperatureEventProgramCode
-      longName: "Temperature Event Program Code"
 
     # ObsValue: Pressure
     - name: "ObsValue/Pressure"

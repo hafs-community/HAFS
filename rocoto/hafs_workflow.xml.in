@@ -1390,6 +1390,7 @@
 @** endif
 
 @** if RUN_ENKF==YES
+@** if ANALYSIS_MODEL==GSI
   <task name="enkf_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
     <jobname>hafs_enkf_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1414,6 +1415,7 @@
       </and>
     </dependency>
   </task>
+@** endif
 
   <task name="enkf_hx_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF_HX</command>
@@ -1435,11 +1437,15 @@
           <taskdep task="analysis" state="RUNNING"/>
           <taskdep task="analysis"/>
         </or>
+@** if ANALYSIS_MODEL==GSI
         <taskdep task="enkf_mean"/>
+@** endif
+        <taskdep task="obs_prep"/>
       </and>
     </dependency>
   </task>
 
+@** if ANALYSIS_MODEL==GSI
   <metatask name="enkf_hx_ens">
     <var name="MEM">&ENSIDS;</var>
     <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1463,6 +1469,7 @@
       </dependency>
     </task>
   </metatask>
+@** endif
 
   <task name="enkf_update" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
@@ -1482,7 +1489,9 @@
     <dependency>
       <and>
         <taskdep task="enkf_hx_mean"/>
+@** if ANALYSIS_MODEL==GSI
         <metataskdep metatask="enkf_hx_ens"/>
+@** endif
       </and>
     </dependency>
   </task>

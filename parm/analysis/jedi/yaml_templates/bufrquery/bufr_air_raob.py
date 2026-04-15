@@ -17,7 +17,7 @@ import numpy.ma as ma
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set
 log_level = os.getenv('LOG_LEVEL', 'INFO')
-logger = Logger('bufr_adpupa_prepbufr.py', level=log_level, colored_log=False)
+logger = Logger('bufr_air_raob.py', level=log_level, colored_log=False)
 
 
 def logging(comm, level, message):
@@ -117,10 +117,22 @@ def _make_description(mapping_path, cycle_time, update=False):
         # Define the variables to be added in a list of dictionaries
         variables = [
             {
-                'name': 'MetaData/sequenceNumber',
-                'source': 'variables/sequenceNumber',
-                'units': '1',
-                'longName': 'Sequence Number (Obs Subtype)',
+                'name': 'ObsValue/stationPressure',
+                'source': 'variables/stationPressure',
+                'units': 'Pa',
+                'longName': 'Station Pressure',
+            },
+            {
+                'name': 'ObsError/stationPressure',
+                'source': 'variables/stationPressureError',
+                'units': 'Pa',
+                'longName': 'Station Pressure Error',
+            },
+            {
+                'name': 'QualityMarker/stationPressure',
+                'source': 'variables/stationPressureQualityMarker',
+                'units': '',
+                'longName': 'Station Pressure Quality Marker',
             }
         ]
 
@@ -189,7 +201,7 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     ps = np.where(cat == 0, pob, ps)
 
     logging(comm, 'DEBUG', f'Do tsen and tv calculation')
-    tpc = container.get('variables/temperatureEventProgramCode')
+    tpc = container.get('variables/temperatureEventCode')
     tob = container.get('variables/airTemperature')
     tsen = np.full(tob.shape[0], tob.fill_value)
     tsen = np.where(((tpc >=1) & (tpc < 8)), tob, tsen)

@@ -30,7 +30,7 @@ yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
 mntp03=$(echo ${CDATEtp03} | cut -c5-6)
 dytp03=$(echo ${CDATEtp03} | cut -c7-8)
 hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
-nest_grids=${nest_grids:-1}
+nest_grids=${nest_grids_ens:-1}
 npx_nest=$( echo ${npx} | cut -d , -f 2 )
 npy_nest=$( echo ${npy} | cut -d , -f 2 )
 if [ ${nest_grids} -eq 2 ]; then
@@ -40,10 +40,10 @@ else
   cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f1)
   cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f1)
 fi
-MIN_LON=$(echo "$cenlon - 10" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
-MAX_LON=$(echo "$cenlon + 10" | bc)
-MIN_LAT=$(echo "$cenlat -  8" | bc)
-MAX_LAT=$(echo "$cenlat +  8" | bc)
+MIN_LON=$(echo "$cenlon - 20" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
+MAX_LON=$(echo "$cenlon + 20" | bc)
+MIN_LAT=$(echo "$cenlat - 18" | bc)
+MAX_LAT=$(echo "$cenlat + 18" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
 
@@ -64,6 +64,7 @@ export nsclgrp=${nsclgrp:-1}
 export naensloc=${naensloc:-1}
 
 export ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
+export ENS_SIZE=${ENS_SIZE:-40}
 export RUN_FGAT=${RUN_FGAT:-NO}
 export RUN_ALLSKY=${RUN_ALLSKY:-NO}
 export FGAT=${FGAT:-NO}
@@ -74,7 +75,7 @@ export GRID_RATIO_ENS=${GRID_RATIO_ENS:-1}
 export online_satbias=${online_satbias:-no}
 export l_both_fv3sar_gfs_ens=${l_both_fv3sar_gfs_ens:-.false.}
 export n_ens_gfs=${n_ens_gfs:-80}
-export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-20}}
+export n_ens_fv3sar=${n_ens_fv3sar:-${ENS_SIZE:-40}}
 export l4densvar=${l4densvar:-.false.}
 export nhr_obsbin=${nhr_obsbin:--1}
 
@@ -85,7 +86,7 @@ export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
-export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
+export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi_enkf.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
 
 FV3_CORE_ENS_FILE=${PDY}.${cyc}0000.fv_core.res.tile1.nc
@@ -94,71 +95,15 @@ FV3_SFCD_ENS_FILE=${PDY}.${cyc}0000.sfc_data.nc
 FV3_SFCW_ENS_FILE=${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
 FV3_CPLR_ENS_FILE=${PDY}.${cyc}0000.coupler.res
 FV3_AKBK_ENS_FILE=${PDY}.${cyc}0000.fv_core.res.nc
-FV3_CORE_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res.tile1.nc
-FV3_TRCR_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_tracer.res.tile1.nc
-FV3_SFCD_ENS_FILE3=${ymdtm03}.${hhtm03}0000.sfc_data.nc
-FV3_SFCW_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res.tile1.nc
-FV3_CPLR_ENS_FILE3=${ymdtm03}.${hhtm03}0000.coupler.res
-FV3_AKBK_ENS_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res.nc
-FV3_CORE_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res.tile1.nc
-FV3_TRCR_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_tracer.res.tile1.nc
-FV3_SFCD_ENS_FILE9=${ymdtp03}.${hhtp03}0000.sfc_data.nc
-FV3_SFCW_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res.tile1.nc
-FV3_CPLR_ENS_FILE9=${ymdtp03}.${hhtp03}0000.coupler.res
-FV3_AKBK_ENS_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res.nc
-FV3_CORE_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc
-FV3_TRCR_FILE=${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
-if [ ${nest_grids} -ge 2 ]; then
-  FV3_SFCD_FILE=${PDY}.${cyc}0000.sfc_data${neststr}${tilestr}.nc
-else
-  FV3_SFCD_FILE=${PDY}.${cyc}0000.sfc_data.nc
-fi
-FV3_SFCW_FILE=${PDY}.${cyc}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
-FV3_CPLR_FILE=${PDY}.${cyc}0000.coupler.res
-FV3_AKBK_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}.nc
-FV3_CORE_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc
-FV3_TRCR_FILE3=${ymdtm03}.${hhtm03}0000.fv_tracer.res${neststr}${tilestr}.nc
-if [ ${nest_grids} -ge 2 ]; then
-  FV3_SFCD_FILE3=${ymdtm03}.${hhtm03}0000.sfc_data${neststr}${tilestr}.nc
-else
-  FV3_SFCD_FILE3=${ymdtm03}.${hhtm03}0000.sfc_data.nc
-fi
-FV3_SFCW_FILE3=${ymdtm03}.${hhtm03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
-FV3_CPLR_FILE3=${ymdtm03}.${hhtm03}0000.coupler.res
-FV3_AKBK_FILE3=${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}.nc
-FV3_CORE_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc
-FV3_TRCR_FILE9=${ymdtp03}.${hhtp03}0000.fv_tracer.res${neststr}${tilestr}.nc
-if [ ${nest_grids} -ge 2 ]; then
-  FV3_SFCD_FILE9=${ymdtp03}.${hhtp03}0000.sfc_data${neststr}${tilestr}.nc
-else
-  FV3_SFCD_FILE9=${ymdtp03}.${hhtp03}0000.sfc_data.nc
-fi
-FV3_SFCW_FILE9=${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
-FV3_CPLR_FILE9=${ymdtp03}.${hhtp03}0000.coupler.res
-FV3_AKBK_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}.nc
 
-if [ $GFSVER = PROD2021 ]; then
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
-else
-  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
-  exit 9
-fi
-
-# Diagnostic files options
-export netcdf_diag=${netcdf_diag:-".true."}
-export binary_diag=${binary_diag:-".false."}
-
-if [ ! ${RUN_ANALYSIS} = "YES" ]; then
-  echo "RUN_ANALYSIS: ${RUN_ANALYSIS} is not YES"
+if [ ! ${RUN_ENKF} = "YES" ]; then
+  echo "RUN_ENKF: ${RUN_ENKF} is not YES"
   echo "Do nothing. Exiting"
   exit
 fi
 
-export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
-export OBSIODA_DIR=${OBSIODA_DIR:-${WORKhafs}/intercom/obs_prep}
+export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
+export OBSIODA_DIR=${WORKhafs}/intercom/RESTART_analysis_ens/hofx
 export DIAGanl=${DIAGanl:-${COMhafs}}
 mkdir -p ${RESTARTanl}
 mkdir -p ${DIAGanl}
@@ -168,7 +113,7 @@ cd $DATA
 # Link DataFix files
 ${NCP} ${PARMjedi}/Fix/* .
 sed -e "s|_NPX_|${npx_ens}|g" \
-    -e "s|_NPY_|${npy_ens}|g" \
+    -e "s|_NPY_|${npy_ens}|g" \ 
     -e "s|_NPZ_|${npz}|g" \
     -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_ens.nc|g" \
     -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
@@ -185,7 +130,7 @@ sed -e "s|_NPX_|${npx_nest}|g" \
     -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
     -e "s|_LAYOUTY_|${layouty_jedi}|g" \
     -e "s|_DLON_|${target_lon}|g" \
-    -e "s|_DLAT_|${target_lat}|g" \
+    -e "s|_DLAT_|${target_lat}|g" \ 
     ${PARMjedi}/Fix/input_hafs.nml > input_hafs_bkg.nml
 else
 sed -e "s|_NPX_|${npx}|g" \
@@ -197,34 +142,19 @@ sed -e "s|_NPX_|${npx}|g" \
     -e "s|_DLON_|${target_lon}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
     ${PARMjedi}/Fix/input_hafs.nml > input_hafs_bkg.nml
-fi
+fi  
 
-# Copy the first guess or fgat files
-if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03
-  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
-  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi_fgat09
-elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge_fgat03
-  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
-  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge_fgat09
-elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
-  RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init_fgat03
-  RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
-  RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init_fgat09
-else
-  if [ ${RUN_ATM_VI} = "YES" ]; then
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
-  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
-  elif [ ${RUN_ATM_INIT} = "YES" ]; then
-    RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
+if [ ${nest_grids} -ge 2 ]; then
+  INPUT_HAFS_NML=input_hafs_bkg.nml
+  if [ ${RUN_ENSDA} = "YES" ]; then
+    INPUT_HAFS_ENS_NML=input_hafs_ens.nml
   else
-    RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    INPUT_HAFS_ENS_NML=input_hafs_bkg.nml #If No HAFS Ens, GDAS Ens is interpolated to bkg.
   fi
+else
+  INPUT_HAFS_NML=input_hafs_bkg.nml
+  INPUT_HAFS_ENS_NML=input_hafs_ens.nml
 fi
-RESTARTinp=${RESTARTinp_fgat06}
-
 if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
   echo "WARNING: First guess for DA/Analysis missing"
   echo "WARNING: Do nothing, Exiting"
@@ -232,38 +162,12 @@ if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
 fi
 mkdir ${DATA}/bkg
 cd ${DATA}/bkg
-${NLN} ${RESTARTinp}/${FV3_CORE_FILE} .
-${NLN} ${RESTARTinp}/${FV3_TRCR_FILE} .
-${NLN} ${RESTARTinp}/${FV3_SFCD_FILE} .
-${NLN} ${RESTARTinp}/${FV3_SFCW_FILE} .
-${NLN} ${RESTARTinp}/${FV3_CPLR_FILE} .
-${NLN} ${RESTARTinp}/${FV3_AKBK_FILE} .
-
-if [ ${RUN_FGAT} = "YES" ]; then
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_CORE_FILE3} .
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_TRCR_FILE3} .
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_SFCD_FILE3} .
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_SFCW_FILE3} .
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_CPLR_FILE3} .
-  ${NLN} ${RESTARTinp_fgat03}/${FV3_AKBK_FILE3} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_CORE_FILE9} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_TRCR_FILE9} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_SFCD_FILE9} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_SFCW_FILE9} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_CPLR_FILE9} .
-  ${NLN} ${RESTARTinp_fgat09}/${FV3_AKBK_FILE9} .
-  ${NLN} ${FV3_CPLR_FILE} ${PDY}.${cyc}0000.coupler${neststr}${tilestr}.res
-  ${NLN} ${FV3_CPLR_FILE3} ${ymdtm03}.${hhtm03}0000.coupler${neststr}${tilestr}.res
-  ${NLN} ${FV3_CPLR_FILE9} ${ymdtp03}.${hhtp03}0000.coupler${neststr}${tilestr}.res
-fi
-if [ ${nest_grids} -ge 2 ]; then
- ${NLN} ${RESTARTinp}/${FV3_CORE_ENS_FILE} .
- ${NLN} ${RESTARTinp}/${FV3_TRCR_ENS_FILE} .
- ${NLN} ${RESTARTinp}/${FV3_SFCD_ENS_FILE} .
- ${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
- ${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
- ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
-fi
+${NLN} ${RESTARTinp}/${FV3_CORE_ENS_FILE} .
+${NLN} ${RESTARTinp}/${FV3_TRCR_ENS_FILE} .
+${NLN} ${RESTARTinp}/${FV3_SFCD_ENS_FILE} .
+${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
+${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
+${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
 
 ${NLN} ${RESTARTinp}/oro_data${nesttilestr}.nc .
 ${NLN} ${RESTARTinp}/atmos_static${nesttilestr}.nc .
@@ -275,33 +179,23 @@ if [ ${RUN_ENVAR} = "YES" ]; then
     mkdir ${DATA}/ensemble_data/mem${mem}
     if [ ${RUN_ENSDA} = "YES" ]; then
       RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+      for file in `ls ${RESTARTens}/*`; do
+        ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+      done
     else
-      RESTARTens=${WORKhafs}/intercom/GDAS_ENS/mem${mem}
+     echo 'WARNING: RUN_ENSDA must be YES for EnKF component'
+     exit
     fi
-    for file in `ls ${RESTARTens}/*`; do
-      ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
-    done
-  done
-else ## Should be 3DVar, But since JEDI is having trouble with static B. Here use direct GDAS Ens instead
-  if [ ${l4densvar:-.false.} = ".true." ]; then
-    fhrs="03 06 09"
-  else
-    fhrs="06"
-  fi
-  cd ${DATA}/ensemble_data
-  for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
-    mkdir ${DATA}/ensemble_data/mem${mem}
-    for fhh in $fhrs; do
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
-    done
   done
 fi
 
 # Stat files
-RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.radstat}
-CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.cnvstat}
-DASOUT=${DASOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.analysis.dasout}
+RADSTAT=${RADSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.EnKFana.radstat}
+CNVSTAT=${CNVSTAT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.EnKFana.cnvstat}
+DASOUT=${DASOUT:-${DIAGanl}/${out_prefix}.${RUN}.${gridstr}.EnKFana.dasout}
 # Obs diag
+export netcdf_diag=${netcdf_diag:-".true."}
+export binary_diag=${binary_diag:-".false."}
 RUN_SELECT=${RUN_SELECT:-"NO"}
 USE_SELECT=${USE_SELECT:-"NO"}
 USE_RADSTAT=${USE_RADSTAT:-"NO"}
@@ -334,11 +228,7 @@ lrun_subdirs=${lrun_subdirs:-".true."}
 mkdir ${DATA}/crtm
 cd ${DATA}/crtm
 
-#if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.11 ]; then
-# CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/3.0.0_skylab_6.0"
-#else
 CRTM_TEMP="${PARMhafs}/../sorc/hafs_jedi.fd/bundle/test-data-release/crtm/2.4.1_skylab_4.0"
-#fi
 for file in $(awk '{if($1!~"!"){print $1}}' ${DATA}/satinfo | sort | uniq); do
   ${NLN} ${CRTM_TEMP}/SpcCoeff/Little_Endian/${file}.SpcCoeff.bin ./
   ${NLN} ${CRTM_TEMP}/TauCoeff/ODPS/Little_Endian/${file}.TauCoeff.bin ./
@@ -359,6 +249,7 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
+#radtypes="radiance_iasi_metop-b"
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_radar_vadwnd conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_radar_vadwnd conventional_sea_ship retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
@@ -366,15 +257,16 @@ mkdir ${DATA}/obs
 cd ${DATA}/obs
 valid_convfiles=()
 valid_convtypes=()
-for file in ${convfiles}; do
-  ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+for file in ${convtypes}; do
+  ncfile="${OBSIODA_DIR}/diag_${file}_t${cyc}z.nc"
+  linkfile="hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
     if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
         echo "Skipping empty or invalid file: $ncfile"
         continue
     fi
-    ${NLN} "$ncfile" .
+    ${NLN} "$ncfile" "$linkfile"
     valid_convfiles+=("$file")
 
     # Keep all convtypes entries that contain this $file
@@ -397,14 +289,15 @@ IFS=' ' read -ra radtypes_array <<< "$radtypes"
 
 valid_radtypes=()
 for file in ${radtypes_array[@]}; do
-  ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+  ncfile="${OBSIODA_DIR}/diag_${file}_t${cyc}z.nc"
+  linkfile="hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
     if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
         echo "Skipping empty or invalid file: $ncfile"
         continue
     fi
-    ${NLN} "$ncfile" .
+    ${NLN} "$ncfile" "$linkfile"
     tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
     [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
     valid_radtypes+=("$file")
@@ -435,7 +328,7 @@ if [ ${nest_grids} -ge 2 ]; then
 else
   ${NCP} ${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_grid.tile7.halo3.nc .
   ${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
-  ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic_bkg --tile_file ${CASE}_grid.tile7.halo3.nc 
+  ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic_bkg --tile_file ${CASE}_grid.tile7.halo3.nc
 fi
 if [ -d ${WORKhafs}/intercom/atm_prep_ens/grid_ens ]; then
   ${NCP} ${WORKhafs}/intercom/atm_prep_ens/grid_ens/${CASE}/${CASE}_grid.tile7.halo3.nc ${CASE}_grid_ens.tile7.halo3.nc
@@ -444,73 +337,25 @@ if [ -d ${WORKhafs}/intercom/atm_prep_ens/grid_ens ]; then
 else
   ${NCP} ${CASE}_mosaic_bkg.nc ${CASE}_mosaic_ens.nc
 fi
-### XL need to think about tile #, is 7 & 8 always the default value?
-#??XL: Do it here or in atm_prep
-
-#----------------------------------------------
-# Prepare NICAS LOCALIZATION
-# ?? Should we do it here? XL
-#----------------------------------------------
-cd ${DATA}
-export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
-export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
-export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
-mkdir ${DATA}/bump
-if [ ${nest_grids} -ge 2 ]; then
-  INPUT_HAFS_NML=input_hafs_bkg.nml
-  if [ ${RUN_ENSDA} = "YES" ]; then
-    INPUT_HAFS_ENS_NML=input_hafs_ens.nml
-  else
-    INPUT_HAFS_ENS_NML=input_hafs_bkg.nml #If No HAFS Ens, GDAS Ens is interpolated to bkg.
-  fi
-else
-  INPUT_HAFS_NML=input_hafs_bkg.nml
-  INPUT_HAFS_ENS_NML=input_hafs_ens.nml
-fi
-sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_ANALYSISDATE_|'${yr}-${mn}-${dy}T${hh}:00:00Z'|g" \
-    -e "s|_LOC_H_|${loc_h}|g" \
-    -e "s|_LOC_V_|${loc_v}|g" \
-    ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
-${NCP} ${EXEChafs}/hafs_nicas.x .
-if [ ${l4densvar:-.true.} = ".true." ]; then
-#  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
-  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
-else
-  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
-fi
-mv hdas-atmosphere-templates.yaml hdas-atmosphere-templates_bump.yaml
-rm nicas.log.*
 #----------------------------------------------
 # Prepare yaml
 #----------------------------------------------
+export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
+export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
+export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-TOTAL_TASKS_tmp=60 #${TOTAL_TASKS}
+TOTAL_TASKS_tmp=${TOTAL_TASKS}
 sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
-if [ ${l4denvar:-.true.} = ".true." ]; then
-sed -e "s|_ALGORITHM_|4denvar|g" \
+sed -e "s|_ALGORITHM_|enkf3d|g" \
     ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
-elif [ ${RUN_FGAT} = NO ]; then
-sed -e "s|_ALGORITHM_|3denvar|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
-else
-sed -e "s|_ALGORITHM_|3dfgat|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
-fi
 sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_HH_|${cyc}|g" \
     -e "s|_ENS_SIZE_|${ENS_SIZE}|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    -e "s|_LAYOUTX_|${layoutx_enkf}|g" \
+    -e "s|_LAYOUTY_|${layouty_enkf}|g" \
     -e "s|_LOC_H_|${loc_h}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     -e "s|_POOL_SIZE_|${TOTAL_TASKS_tmp}|g" \
@@ -520,8 +365,8 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_MAX_LON_|${MAX_LON}|g" \
     -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_NPY_|${npy_ens}|g" \
-    -e "s|_NPZ_|${npz_ens}|g" \
-    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_NPZ_|${npz}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_ENS_FILE}|g" \
     -e "s|_YYMODD6_|${yr}${mn}${dy}|g" \
     -e "s|_HH6_|${hh}|g" \
     -e "s|_YYMODD3_|${yrtm03}${mntm03}${dytm03}|g" \
@@ -532,7 +377,7 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_NESTTILESTRSFC_|${nesttilestr}.nc|g" \
     -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_ENS_NML}|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
-    -e "s|_DISTRIBUTION_|RoundRobin|g" \
+    -e "s|_DISTRIBUTION_|Halo|g" \
     ./hdas-atmosphere-templates.yaml.tmp > hdas-atmosphere-templates.yaml
 for obstype in ${obstypes}; do
   echo "- ${obstype}" >> hdas-atmosphere-templates.yaml
@@ -545,77 +390,10 @@ python run_jedi.py
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
 #-------------------------------------------------------------------
-ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi.x}
-${NCP} -p ${ANALYSISEXEC} ./hafs_jedi.x
+${NCP} -p ${ANALYSISEXEC} ./hafs_jedi_enkf.x
 ${SOURCE_PREP_STEP}
 ${APRUNC} ${ANALYSISEXEC} jedi.yaml jedi.out
 export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
-created=0
-for file in ${radtypes}; do
-  for file0 in hofx/diag_${file}_t${cyc}z*.nc; do
-    if [ ${created} -eq 0 ]; then
-      tar cvf "$RADSTAT" "$file0"   # create once
-      created=1
-    else
-      tar rvf "$RADSTAT" "$file0"   # append thereafter
-    fi
-  done
-done
-created=0
-for file in ${convtypes}; do
-  for file0 in hofx/diag_${file}_t${cyc}z*.nc; do
-    if [ ${created} -eq 0 ]; then
-      tar cvf "$CNVSTAT" "$file0"   # create once
-      created=1
-    else
-      tar rvf "$CNVSTAT" "$file0"   # append thereafter
-    fi
-  done
-done
-
-${NLN} ${USHhafs}/offline_update_delp.py .
-python offline_update_delp.py --sfc_inc Inc6.sfc_data.nc --core_inc Inc6.fv_core.res.nc --akbk bkg/${FV3_AKBK_FILE} --rst_file ${PDY}.${cyc}0000.fv_core.res.nc
-
-#Store the output to intercom
-${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
-${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
-${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
-${NCP} ${DATA}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${FV3_CPLR_FILE}
-${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/
-${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/
-${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
-${NCP} ${RESTARTinp}/${FV3_AKBK_FILE} ${RESTARTanl}/
-
-# pass over phy_data as well
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
-
-if [[ ! -z "$neststr" ]] ; then
- if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
-   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
-   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
- fi
-fi
-
-## Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
-IN_FILE=${DATA}/${PDY}.${cyc}0000.fv_core.res.nc
-DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
-${APRUNS} ${DATOOL} ua_update_u \
-   --in_grid=${RESTARTanl}/grid_spec${nesttilestr}.nc \
-   --in_file=${IN_FILE} \
-   --out_file=${RESTARTanl}/${FV3_CORE_FILE}
-
-ncks -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} -A ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
-
-# Pass over the grid_mspec files for moving nest
-if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then
-  if [[ -z "$neststr" ]] && [[ $tilestr = ".tile1" ]]; then
-    # "grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc" for domain 02
-    ${NCP} -p ${RESTARTinp}/grid_mspec_${yr}_${mn}_${dy}_${cyc}.nc ${RESTARTanl}/
-  else
-    # "grid_mspec.nest02_${yr}_${mn}_${dy}_${cyc}.tile2.nc" for domain 02
-    ${NCP} -p ${RESTARTinp}/grid_mspec${neststr}_${yr}_${mn}_${dy}_${cyc}${tilestr}.nc ${RESTARTanl}/
-  fi
-fi

@@ -182,6 +182,7 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ./fv3_grid_spec
 if [ ${RUN_ENVAR} = "YES" ]; then
 
 export L_HYB_ENS=.true.
+export write_obs_sprd=.true.
 
 if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
 # Link gdas ensemble members
@@ -614,6 +615,7 @@ sed -e "s/_MITER_/${MITER:-2}/g" \
     -e "s/_NENS_FV3SAR_/${n_ens_fv3sar:-20}/g" \
     -e "s/_L4DENSVAR_/${l4densvar:-.false.}/g" \
     -e "s/_NHR_OBSBIN_/${nhr_obsbin:--1}/g" \
+    -e "s/_WRITE_OBS_SPRD_/${write_obs_sprd:-.false.}/g" \
     -e "s/_L_TDR_THIN_ALONGBEAM_/${l_tdr_thin_alongbeam:-.true.}/g" \
     -e "s/_NSCLGRP_/${nsclgrp:-1}/g" \
     -e "s/_NAENSLOC_/${naensloc:-1}/g" \

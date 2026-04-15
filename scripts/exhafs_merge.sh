@@ -144,25 +144,14 @@ if [[ $nest_grids -eq 1 ]]; then
 
 #for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data phy_data; do
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
-  if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
-    in_grid=${RESTARTsrc}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
-    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
-      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
-    else
-      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
-    fi
-    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+  in_grid=${RESTARTsrc}/grid_spec.nc
+  out_grid=${RESTARTmrg}/grid_spec.nc
+  if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+    in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
   else
-    in_grid=${RESTARTsrc}/grid_spec.nc
-    out_grid=${RESTARTmrg}/grid_spec.nc
-    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
-      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
-      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
-    else
-      in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
-      out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
-    fi
+    in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
   fi
   if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
@@ -176,112 +165,6 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
   export err=$?; err_chk
 done
-
-if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
-  var="sfc_data"
-  in_grid=${RESTARTsrc}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
-  out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-  in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
-  out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-  if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-     [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-    exit 1
-  fi
-  ${MERGE_CMD} \
-    --in_grid=${in_grid} \
-    --out_grid=${out_grid} \
-    --in_file=${in_file} \
-    --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
-  export err=$?; err_chk
-fi
-
-if [ ${l4denvar:-.false.} = ".true." ]; then
-  for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
-    FHR=03
-    in_grid=${RESTARTsrc}/grid_mspec_${yrtm03}_${mntm03}_${dytm03}_${hhtm03}.nc
-    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
-      in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.nc
-    else
-      in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.tile1.nc
-    fi
-    out_file=${RESTARTmrg}/${ymdtm03}.${hhtm03}0000.${var}.nest02.tile2.nc
-    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
-    ${NCP} ${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.coupler.res ${RESTARTmrg}/
-    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-      exit 1
-    fi
-    ${MERGE_CMD} \
-      --in_grid=${in_grid} \
-      --out_grid=${out_grid} \
-      --in_file=${in_file} \
-      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
-    export err=$?; err_chk
-    FHR=09
-    in_grid=${RESTARTsrc}/grid_mspec_${yrtp03}_${mntp03}_${dytp03}_${hhtp03}.nc
-    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-    if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
-      in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.nc
-    else
-      in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.tile1.nc
-    fi
-    out_file=${RESTARTmrg}/${ymdtp03}.${hhtp03}0000.${var}.nest02.tile2.nc
-    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
-    ${NCP} ${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.coupler.res ${RESTARTmrg}/
-    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-      exit 1
-    fi
-    ${MERGE_CMD} \
-      --in_grid=${in_grid} \
-      --out_grid=${out_grid} \
-      --in_file=${in_file} \
-      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
-    export err=$?; err_chk
-  done
-  if [ "${ANALYSIS_MODEL}" = "JEDI" ] && [ "${RUN_ENSDA}" = "YES" ]; then
-    var="sfc_data"
-    in_grid=${RESTARTsrc}/grid_mspec_${yrtm03}_${mntm03}_${dytm03}_${hhtm03}.nc
-    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-    in_file=${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.${var}.nc
-    out_file=${RESTARTmrg}/${ymdtm03}.${hhtm03}0000.${var}.nest02.tile2.nc
-    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
-    ${NCP} ${RESTARTsrc}/${ymdtm03}.${hhtm03}0000.coupler.res ${RESTARTmrg}/
-    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-      exit 1
-    fi
-    ${MERGE_CMD} \
-      --in_grid=${in_grid} \
-      --out_grid=${out_grid} \
-      --in_file=${in_file} \
-      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
-    export err=$?; err_chk
-    in_grid=${RESTARTsrc}/grid_mspec_${yrtp03}_${mntp03}_${dytp03}_${hhtp03}.nc
-    out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
-    in_file=${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.${var}.nc
-    out_file=${RESTARTmrg}/${ymdtp03}.${hhtp03}0000.${var}.nest02.tile2.nc
-    ${NCP} ${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc ${out_file}
-    ${NCP} ${RESTARTsrc}/${ymdtp03}.${hhtp03}0000.coupler.res ${RESTARTmrg}/
-    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-      exit 1
-    fi
-    ${MERGE_CMD} \
-      --in_grid=${in_grid} \
-      --out_grid=${out_grid} \
-      --in_file=${in_file} \
-      --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
-    export err=$?; err_chk
-  fi
-fi
-
 
 # Regional with one nest configuration
 # The following steps are needed

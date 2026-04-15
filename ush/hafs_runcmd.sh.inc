@@ -58,7 +58,8 @@ if [ "$machine" = wcoss2 ]; then
   export BACKGROUND=""
   export USE_CFP="YES"
   export USE_MPISERIAL="NO"
-elif [ "$machine" = jet ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ] || [ "$machine" = hera ]; then
+elif [ "$machine" = jet ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ]; then
+#elif [ "$machine" = jet ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ] || [ "$machine" = hera ]; then
   export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS}"
@@ -72,7 +73,7 @@ elif [ "$machine" = jet ] || [ "$machine" = orion ] || [ "$machine" = hercules ]
   export BACKGROUND="&"
   export USE_CFP="NO"
   export USE_MPISERIAL="YES"
-elif [ "$machine" = ursa ] || [ "$machine" = hera ]; then
+elif [ "$machine" = ursa ] || [ "$machine" = hera ] || [ "$machine" = gaeac6 ]; then
   export APRUN="time"
   export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 numactl --interleave=all"
   export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS} numactl --interleave=all"

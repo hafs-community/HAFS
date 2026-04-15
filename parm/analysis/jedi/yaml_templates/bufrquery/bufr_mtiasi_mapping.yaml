@@ -52,6 +52,9 @@ bufr:
       query: "*/SELV"
       type: float 
 
+    brightnessTemperature: 
+      query: '*/ATNCHV/TMBRST'
+
     sensorViewAngle:
       sensorScanAngle:
         fieldOfViewNumber: "*/FOVN"
@@ -228,3 +231,7 @@ encoder:
 #      chunks: [1000, 616]
 #      compressionLevel: 4
 
+    - name: "ObsValue/brightnessTemperature"
+      source: variables/brightnessTemperature
+      longName: "Brightness Temperature"
+      units: "K"
