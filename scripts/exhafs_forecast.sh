@@ -1029,18 +1029,18 @@ if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
-  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
-  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
-  # fi
-  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
-  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
-  # fi
+    if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
+      ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
+    fi
+    if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
+      ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
+    fi
   done
   # Set MOM6 warmstart option and prepare MOM6 restart files
   if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
     input_filename='r'
     for mres in ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res.nc ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res_*.nc; do
-      ncks -a -A ${mres} MOM.res.nc
+      ncks --no-abc -A ${mres} MOM.res.nc
     done
   fi
 fi
