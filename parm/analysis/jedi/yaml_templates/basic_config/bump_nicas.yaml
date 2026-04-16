@@ -81,7 +81,7 @@ background error:
         compute nicas: true
         write local nicas: true
       nicas:
-        resolution: 8
+        resolution: _RESOLUTION_
         explicit length-scales: true
         max horizontal grid size: 120000
         horizontal length-scale:

@@ -40,10 +40,10 @@ else
   cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f1)
   cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f1)
 fi
-MIN_LON=$(echo "$cenlon - 10" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
-MAX_LON=$(echo "$cenlon + 10" | bc)
-MIN_LAT=$(echo "$cenlat -  8" | bc)
-MAX_LAT=$(echo "$cenlat +  8" | bc)
+MIN_LON=$(echo "$cenlon - ${dlon_cutoff:-180}" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
+MAX_LON=$(echo "$cenlon + ${dlon_cutoff:-180}" | bc)
+MIN_LAT=$(echo "$cenlat - ${dlat_cutoff:-90}" | bc)
+MAX_LAT=$(echo "$cenlat + ${dlat_cutoff:-90}" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
 
@@ -263,6 +263,11 @@ if [ ${nest_grids} -ge 2 ]; then
  ${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
  ${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
  ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
+else
+ if [ ${RUN_ENVAR} = "YES" ] && [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${FV3_AKBK_ENS_FILE} ] ; then
+  ${NLN} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${FV3_AKBK_ENS_FILE} ${PDY}.${cyc}0000.fv_core_ens.res.nc
+  FV3_AKBK_ENS_FILE=${PDY}.${cyc}0000.fv_core_ens.res.nc
+ fi
 fi
 
 ${NLN} ${RESTARTinp}/oro_data${nesttilestr}.nc .
@@ -361,31 +366,82 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_radar_vadwnd conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_radar_vadwnd conventional_sea_ship retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
+mkdir -p "${DATA}/obs"
+cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
-mkdir ${DATA}/obs
-cd ${DATA}/obs
+IFS=' ' read -ra convfiles_array <<< "$convfiles"
 valid_convfiles=()
 valid_convtypes=()
-for file in ${convfiles}; do
-  ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
-  if [[ -f "$ncfile" ]]; then
-    nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
-    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
-        echo "Skipping empty or invalid file: $ncfile"
-        continue
+checked_convfiles=()
+for type in "${convtypes_array[@]}"; do
+  matched_file=""
+  # Find the matching parent convfile for this convtype
+  # Use longest prefix match
+  for file in "${convfiles_array[@]}"; do
+    if [[ "$type" == "$file"* ]]; then
+      if [[ -z "$matched_file" || ${#file} -gt ${#matched_file} ]]; then
+        matched_file="$file"
+      fi
     fi
-    ${NLN} "$ncfile" .
-    valid_convfiles+=("$file")
-
-    # Keep all convtypes entries that contain this $file
-    for type in "${convtypes_array[@]}"; do
-      if [[ "$type" == *"$file"* ]]; then
-        valid_convtypes+=("$type")
+  done
+  if [[ -z "$matched_file" ]]; then
+    echo "WARNING: No matching convfile found for convtype $type, skipping"
+    continue
+  fi
+  src_ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${matched_file}.nc"
+  local_ncfile="${DATA}/obs/hafs.t${cyc}z.${matched_file}.nc"
+  tgt_ncfile="${DATA}/obs/hafs.t${cyc}z.${type}.nc"
+  if [[ ! -f "$src_ncfile" ]]; then
+    echo "WARNING: Missing source file $src_ncfile for convtype $type, skipping"
+    continue
+  fi
+  # Check each source file only once
+  need_check=1
+  for f in "${checked_convfiles[@]}"; do
+    if [[ "$f" == "$matched_file" ]]; then
+      need_check=0
+      break
+    fi
+  done
+  if [[ $need_check -eq 1 ]]; then
+    nloc=$(ncdump -h "$src_ncfile" \
+      | sed -n '/dimensions:/,/variables:/p' \
+      | grep -E "Location|nobs" \
+      | head -1 \
+      | grep -oE '[0-9]+' \
+      | tail -1)
+    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
+      echo "Skipping empty or invalid file: $src_ncfile"
+      checked_convfiles+=("$matched_file")
+      continue
+    fi
+    # Copy source file into ${DATA}/obs once
+    if [[ ! -f "$local_ncfile" ]]; then
+      ${NCP} "$src_ncfile" "$local_ncfile"
+    fi
+    checked_convfiles+=("$matched_file")
+    valid_convfiles+=("$matched_file")
+  else
+    # If already checked before, make sure it was valid
+    already_valid=0
+    for f in "${valid_convfiles[@]}"; do
+      if [[ "$f" == "$matched_file" ]]; then
+        already_valid=1
+        break
       fi
     done
-  else
-    echo "WARNING: Missing file $ncfile, skipping $file"
+    if [[ $already_valid -eq 0 ]]; then
+      echo "Skipping convtype $type because parent file $matched_file was invalid"
+      continue
+    fi
+    # If valid and local copy somehow missing, restore it
+    if [[ ! -f "$local_ncfile" ]]; then
+      ${NCP} "$src_ncfile" "$local_ncfile"
+    fi
   fi
+  # Create link named after convtype, pointing to the local copied file
+  ${NLN} "$local_ncfile" "$tgt_ncfile"
+  valid_convtypes+=("$type")
 done
 
 # Update convtypes to only valid ones
@@ -458,6 +514,15 @@ export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_bkg.nml
+  ####### In the nest DA configuration, AKBK_ENS is used in the minimization. Needs to consider dual-resolution in the future
+  FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE} 
+  FV3_CORE_ENS_FILE=${FV3_CORE_FILE}
+  FV3_TRCR_ENS_FILE=${FV3_TRCR_FILE}
+  FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
+  FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
+  FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
+  FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE}
+  ###################################################
   if [ ${RUN_ENSDA} = "YES" ]; then
     INPUT_HAFS_ENS_NML=input_hafs_ens.nml
   else
@@ -467,16 +532,17 @@ else
   INPUT_HAFS_NML=input_hafs_bkg.nml
   INPUT_HAFS_ENS_NML=input_hafs_ens.nml
 fi
-sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_FILE}|g" \
-    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_FILE}|g" \
-    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_FILE}|g" \
-    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_FILE}|g" \
-    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_NML}|g" \
+sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
+    -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_ENS_FILE}|g" \
+    -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_ENS_FILE}|g" \
+    -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_ENS_FILE}|g" \
+    -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_ENS_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE}|g" \
+    -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_ENS_NML}|g" \
     -e "s|_ANALYSISDATE_|'${yr}-${mn}-${dy}T${hh}:00:00Z'|g" \
     -e "s|_LOC_H_|${loc_h}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
+    -e "s|_RESOLUTION_|${bump_resolution}|g" \
     ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
 if [ ${l4densvar:-.true.} = ".true." ]; then
@@ -522,6 +588,7 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz_ens}|g" \
     -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE}|g" \
     -e "s|_YYMODD6_|${yr}${mn}${dy}|g" \
     -e "s|_HH6_|${hh}|g" \
     -e "s|_YYMODD3_|${yrtm03}${mntm03}${dytm03}|g" \

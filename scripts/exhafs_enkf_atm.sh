@@ -40,10 +40,10 @@ else
   cenlat=$(echo "$output_grid_cen_lat" | cut -d',' -f1)
   cenlon=$(echo "$output_grid_cen_lon" | cut -d',' -f1)
 fi
-MIN_LON=$(echo "$cenlon - 20" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
-MAX_LON=$(echo "$cenlon + 20" | bc)
-MIN_LAT=$(echo "$cenlat - 18" | bc)
-MAX_LAT=$(echo "$cenlat + 18" | bc)
+MIN_LON=$(echo "$cenlon - ${dlon_cutoff:-180}" | bc) #Domain cut for DA efficiency, need to consider domain flexibility later
+MAX_LON=$(echo "$cenlon + ${dlon_cutoff:-180}" | bc)
+MIN_LAT=$(echo "$cenlat - ${dlat_cutoff:-90}" | bc)
+MAX_LAT=$(echo "$cenlat + ${dlat_cutoff:-90}" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
 
@@ -96,54 +96,6 @@ FV3_SFCW_ENS_FILE=${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc
 FV3_CPLR_ENS_FILE=${PDY}.${cyc}0000.coupler.res
 FV3_AKBK_ENS_FILE=${PDY}.${cyc}0000.fv_core.res.nc
 
-if [ ! ${RUN_ENKF} = "YES" ]; then
-  echo "RUN_ENKF: ${RUN_ENKF} is not YES"
-  echo "Do nothing. Exiting"
-  exit
-fi
-
-export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
-export OBSIODA_DIR=${WORKhafs}/intercom/RESTART_analysis_ens/hofx
-export DIAGanl=${DIAGanl:-${COMhafs}}
-mkdir -p ${RESTARTanl}
-mkdir -p ${DIAGanl}
-
-# We should already be in $DATA, but extra cd to be sure.
-cd $DATA
-# Link DataFix files
-${NCP} ${PARMjedi}/Fix/* .
-sed -e "s|_NPX_|${npx_ens}|g" \
-    -e "s|_NPY_|${npy_ens}|g" \ 
-    -e "s|_NPZ_|${npz}|g" \
-    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_ens.nc|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    -e "s|_DLON_|${target_lon}|g" \
-    -e "s|_DLAT_|${target_lat}|g" \
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
-
-if [ ${nest_grids} -ge 2 ]; then
-sed -e "s|_NPX_|${npx_nest}|g" \
-    -e "s|_NPY_|${npy_nest}|g" \
-    -e "s|_NPZ_|${npz}|g" \
-    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_bkg.nc|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    -e "s|_DLON_|${target_lon}|g" \
-    -e "s|_DLAT_|${target_lat}|g" \ 
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_bkg.nml
-else
-sed -e "s|_NPX_|${npx}|g" \
-    -e "s|_NPY_|${npy}|g" \
-    -e "s|_NPZ_|${npz}|g" \
-    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_bkg.nc|g" \
-    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
-    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
-    -e "s|_DLON_|${target_lon}|g" \
-    -e "s|_DLAT_|${target_lat}|g" \
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_bkg.nml
-fi  
-
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_bkg.nml
   if [ ${RUN_ENSDA} = "YES" ]; then
@@ -155,6 +107,34 @@ else
   INPUT_HAFS_NML=input_hafs_bkg.nml
   INPUT_HAFS_ENS_NML=input_hafs_ens.nml
 fi
+
+if [ ! ${RUN_ENKF} = "YES" ]; then
+  echo "RUN_ENKF: ${RUN_ENKF} is not YES"
+  echo "Do nothing. Exiting"
+  exit
+fi
+
+export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
+export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
+export OBSIODA_DIR=${OBSIODA_DIR:-${WORKhafs}/intercom/obs_prep}
+export DIAGanl=${DIAGanl:-${COMhafs}}
+mkdir -p ${RESTARTanl}
+mkdir -p ${DIAGanl}
+
+# We should already be in $DATA, but extra cd to be sure.
+cd $DATA
+# Link DataFix files
+${NCP} ${PARMjedi}/Fix/* .
+sed -e "s|_NPX_|${npx_ens}|g" \
+    -e "s|_NPY_|${npy_ens}|g" \
+    -e "s|_NPZ_|${npz}|g" \
+    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_ens.nc|g" \
+    -e "s|_LAYOUTX_|${layoutx_enkf}|g" \
+    -e "s|_LAYOUTY_|${layouty_enkf}|g" \
+    -e "s|_DLON_|${target_lon}|g" \
+    -e "s|_DLAT_|${target_lat}|g" \
+    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
+
 if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
   echo "WARNING: First guess for DA/Analysis missing"
   echo "WARNING: Do nothing, Exiting"
@@ -182,6 +162,7 @@ if [ ${RUN_ENVAR} = "YES" ]; then
       for file in `ls ${RESTARTens}/*`; do
         ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
       done
+      mkdir -p ${DATA}/output/mem${mem}
     else
      echo 'WARNING: RUN_ENSDA must be YES for EnKF component'
      exit
@@ -249,16 +230,15 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
-#radtypes="radiance_iasi_metop-b"
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_radar_vadwnd conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_radar_vadwnd conventional_sea_ship retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
+mkdir -p "${DATA}/obs"
+cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
-mkdir ${DATA}/obs
-cd ${DATA}/obs
-valid_convfiles=()
+
 valid_convtypes=()
-for file in ${convtypes}; do
-  ncfile="${OBSIODA_DIR}/diag_${file}_t${cyc}z.nc"
+for file in ${convtypes_array[@]}; do
+  ncfile="${WORKhafs}/intercom/RESTART_analysis_ens/hofx/diag_${file}_t${cyc}z.nc"
   linkfile="hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
@@ -267,29 +247,20 @@ for file in ${convtypes}; do
         continue
     fi
     ${NLN} "$ncfile" "$linkfile"
-    valid_convfiles+=("$file")
-
-    # Keep all convtypes entries that contain this $file
-    for type in "${convtypes_array[@]}"; do
-      if [[ "$type" == *"$file"* ]]; then
-        valid_convtypes+=("$type")
-      fi
-    done
+    valid_convtypes+=("$file")
   else
     echo "WARNING: Missing file $ncfile, skipping $file"
   fi
 done
 
-# Update convtypes to only valid ones
 convtypes="${valid_convtypes[*]}"
-convfiles="${valid_convfiles[*]}"
 
 # === Now handle radtypes ===
 IFS=' ' read -ra radtypes_array <<< "$radtypes"
 
 valid_radtypes=()
 for file in ${radtypes_array[@]}; do
-  ncfile="${OBSIODA_DIR}/diag_${file}_t${cyc}z.nc"
+  ncfile="${WORKhafs}/intercom/RESTART_analysis_ens/hofx/diag_${file}_t${cyc}z.nc"
   linkfile="hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
@@ -397,3 +368,15 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
+for imem in $(seq 2 $nens); do
+  memout="mem"$(printf %03i $imem)
+  mkdir -p ${RESTARTens_anl}/${memout}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/${FV3_CPLR_ENS_FILE}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTens_anl}/${memout}/${FV3_TRCR_ENS_FILE}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTens_anl}/${memout}/${FV3_SFCW_ENS_FILE}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
+done

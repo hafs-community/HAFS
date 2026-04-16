@@ -411,14 +411,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-#  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob"
-#  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
-#  sattypes="atms ssmis amsua iasi abi cris-fsr"
-#  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
-#  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
-  sattypes="iasi cris-fsr"
-  satbufrs="mtiasi crisf4"
-  radtypes="iasi_metop-b iasi_metop-c cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
+  sattypes="atms ssmis amsua iasi abi cris-fsr"
+  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
   obstypes="${radtypes} ${convtypes}"
 #  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}

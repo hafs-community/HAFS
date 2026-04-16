@@ -469,6 +469,9 @@ export layouty_gdasens={layouty_gdasens}
 export layoutx_enkf={layoutx_enkf}
 export layouty_enkf={layouty_enkf}
 export ANALYSIS_MODEL={analysis_model}
+export dlon_cutoff={dlon_cutoff}
+export dlat_cutoff={dlat_cutoff}
+export bump_resolution={bump_resolution}
 
 #IAU related options
 export iau_regional={iau_regional}
