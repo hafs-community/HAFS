@@ -34,12 +34,10 @@ dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo ${CDATE} | cut -c9-10)
 
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
-PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 PARMmom6=${PARMmom6:-${PARMhafs}/mom6/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
 if [ ${ocean_model} = "mom6" ]; then
   FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
