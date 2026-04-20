@@ -9,7 +9,6 @@
 #   interpolation to include vitals information.
 # History:
 #   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
-#   05/26/2020: Enable running HAFS-HYCOM coupling in different modes
 #   03/20/2023: Improvements for HAFSv1 implementation
 ################################################################################
 

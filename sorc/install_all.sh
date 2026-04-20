@@ -93,15 +93,15 @@ $Build_gsi && {
 # install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
-  ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf3z                   ../exec/hafs_hycom_utils_archv2ncdf3z.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf2d                   ../exec/hafs_hycom_utils_archv2ncdf2d.x
 }
