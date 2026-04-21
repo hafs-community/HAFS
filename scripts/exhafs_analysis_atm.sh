@@ -167,6 +167,17 @@ mkdir -p ${DIAGanl}
 cd $DATA
 # Link DataFix files
 ${NCP} ${PARMjedi}/Fix/* .
+if [ ${nest_grids} -ge 2 ]; then #Is it reasonable to keep ens the same as bkg when nest run?
+sed -e "s|_NPX_|${npx_nest}|g" \
+    -e "s|_NPY_|${npy_nest}|g" \
+    -e "s|_NPZ_|${npz}|g" \
+    -e "s|_FV3_GRID_FILE_|${CASE}_mosaic_bkg.nc|g" \
+    -e "s|_LAYOUTX_|${layoutx_jedi}|g" \
+    -e "s|_LAYOUTY_|${layouty_jedi}|g" \
+    -e "s|_DLON_|${target_lon}|g" \
+    -e "s|_DLAT_|${target_lat}|g" \
+    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
+else
 sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz}|g" \
@@ -176,7 +187,7 @@ sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_DLON_|${target_lon}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
     ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
-
+fi
 if [ ${nest_grids} -ge 2 ]; then
 sed -e "s|_NPX_|${npx_nest}|g" \
     -e "s|_NPY_|${npy_nest}|g" \
@@ -263,11 +274,20 @@ if [ ${nest_grids} -ge 2 ]; then
  ${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
  ${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
  ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
+fi
+if [ ${RUN_ENSDA} = "YES" ]; then
+  if [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
+    ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+    FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+  elif [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
+    ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+    FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+  fi
+elif [ -s ${WORKhafs}/intercom/GDAS_ENS/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
+  ${NCP} ${WORKhafs}/intercom/GDAS_ENS/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+  FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
 else
- if [ ${RUN_ENVAR} = "YES" ] && [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${FV3_AKBK_ENS_FILE} ] ; then
-  ${NLN} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${FV3_AKBK_ENS_FILE} ${PDY}.${cyc}0000.fv_core_ens.res.nc
-  FV3_AKBK_ENS_FILE=${PDY}.${cyc}0000.fv_core_ens.res.nc
- fi
+  FV3_AKBK_ENS_FILE_BUMP=${FV3_AKBK_FILE}
 fi
 
 ${NLN} ${RESTARTinp}/oro_data${nesttilestr}.nc .
@@ -521,7 +541,6 @@ if [ ${nest_grids} -ge 2 ]; then
   FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
   FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
   FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
-  FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE}
   ###################################################
   if [ ${RUN_ENSDA} = "YES" ]; then
     INPUT_HAFS_ENS_NML=input_hafs_ens.nml
@@ -532,18 +551,23 @@ else
   INPUT_HAFS_NML=input_hafs_bkg.nml
   INPUT_HAFS_ENS_NML=input_hafs_ens.nml
 fi
+if [ ${RUN_ENSDA} = "YES" ]; then
+  ${NCP} ${basic_yaml_dir}/bump_nicas_dual.yaml bump_nicas.yaml.tmp
+else
+  ${NCP} ${basic_yaml_dir}/bump_nicas.yaml bump_nicas.yaml.tmp
+fi
 sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
     -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_ENS_FILE}|g" \
     -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_ENS_FILE}|g" \
     -e "s|_FV3_SFCW_ENS_FILE_|${FV3_SFCW_ENS_FILE}|g" \
     -e "s|_FV3_CPLR_ENS_FILE_|${FV3_CPLR_ENS_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE_BUMP}|g" \
     -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_ENS_NML}|g" \
     -e "s|_ANALYSISDATE_|'${yr}-${mn}-${dy}T${hh}:00:00Z'|g" \
     -e "s|_LOC_H_|${loc_h}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     -e "s|_RESOLUTION_|${bump_resolution}|g" \
-    ${basic_yaml_dir}/bump_nicas.yaml > bump_nicas.yaml
+    bump_nicas.yaml.tmp > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_nicas.x .
 if [ ${l4densvar:-.true.} = ".true." ]; then
 #  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
@@ -588,7 +612,7 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz_ens}|g" \
     -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
-    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE_BUMP}|g" \
     -e "s|_YYMODD6_|${yr}${mn}${dy}|g" \
     -e "s|_HH6_|${hh}|g" \
     -e "s|_YYMODD3_|${yrtm03}${mntm03}${dytm03}|g" \

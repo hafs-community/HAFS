@@ -95,6 +95,11 @@ else
   export OMP_NUM_THREADS=1
   export OMP_PROC_BIND=true
   export I_MPI_COLL_INTRANODE=pt2pt
+#  export SLURM_QOS=debug
+#  export MAIN_DEBUG=1
+#  export OOPS_DEBUG=1
+#  export OOPS_TRACE=1
+#  export IODA_PRINT_RUNSTATS=1
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc

@@ -53,6 +53,12 @@ DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 mkdir -p ${RESTARTens_anl}
 mkdir -p ${DIAGens_anl}
 
+if [ ! -d ${RESTARTens_inp} ]; then
+  echo "WARNING: No previous cycle ensemble"
+  echo "WARNING: Do nothing, Exiting"
+  exit
+fi
+
 DATA=${DATA:-${WORKhafs}/enkf_mean}
 mkdir -p ${DATA}
 cd ${DATA}

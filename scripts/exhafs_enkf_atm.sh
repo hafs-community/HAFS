@@ -118,6 +118,12 @@ export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 export OBSIODA_DIR=${OBSIODA_DIR:-${WORKhafs}/intercom/obs_prep}
 export DIAGanl=${DIAGanl:-${COMhafs}}
+if [ ! -d ${COMOLD}/${old_out_prefix}.RESTART_ens ]; then
+  echo "WARNING: First guess for DA/Analysis missing"
+  echo "WARNING: Do nothing, Exiting"
+  exit
+fi
+mkdir ${DATA}/bkg
 mkdir -p ${RESTARTanl}
 mkdir -p ${DIAGanl}
 
@@ -135,12 +141,6 @@ sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
     ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
 
-if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
-  echo "WARNING: First guess for DA/Analysis missing"
-  echo "WARNING: Do nothing, Exiting"
-  exit
-fi
-mkdir ${DATA}/bkg
 cd ${DATA}/bkg
 ${NLN} ${RESTARTinp}/${FV3_CORE_ENS_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_TRCR_ENS_FILE} .
