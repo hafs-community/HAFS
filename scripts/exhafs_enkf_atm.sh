@@ -114,7 +114,7 @@ if [ ! ${RUN_ENKF} = "YES" ]; then
   exit
 fi
 
-export RESTARTinp=${WORKhafs}/intercom/RESTART_analysis_ens/ensmean
+export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem001
 export RESTARTens_anl=${WORKhafs}/intercom/RESTART_analysis_ens
 export OBSIODA_DIR=${OBSIODA_DIR:-${WORKhafs}/intercom/obs_prep}
 export DIAGanl=${DIAGanl:-${COMhafs}}
@@ -148,6 +148,13 @@ ${NLN} ${RESTARTinp}/${FV3_SFCD_ENS_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_SFCW_ENS_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_CPLR_ENS_FILE} .
 ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
+if [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+  FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+elif [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+  FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+fi
 
 ${NLN} ${RESTARTinp}/oro_data${nesttilestr}.nc .
 ${NLN} ${RESTARTinp}/atmos_static${nesttilestr}.nc .
@@ -337,7 +344,8 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz}|g" \
-    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_ENS_FILE}|g" \
+    -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
+    -e "s|_FV3_AKBK_ENS_FILE_|${FV3_AKBK_ENS_FILE_BUMP}|g" \
     -e "s|_YYMODD6_|${yr}${mn}${dy}|g" \
     -e "s|_HH6_|${hh}|g" \
     -e "s|_YYMODD3_|${yrtm03}${mntm03}${dytm03}|g" \

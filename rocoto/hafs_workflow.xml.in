@@ -1394,6 +1394,7 @@
   <task name="enkf_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
     <jobname>hafs_enkf_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_mean.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1420,6 +1421,7 @@
   <task name="enkf_hx_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF_HX</command>
     <jobname>hafs_enkf_hx_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_hx_mean.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1451,6 +1453,7 @@
     <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ENKF_HX</command>
       <jobname>hafs_enkf_hx_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
       <join><cyclestr>&WORKhafs;/hafs_enkf_hx_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
@@ -1474,6 +1477,7 @@
   <task name="enkf_update" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
     <jobname>hafs_enkf_update_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_update.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1498,6 +1502,7 @@
 
   <task name="enkf_recenter" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <jobname>hafs_enkf_recenter_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_enkf_recenter.log</cyclestr></join>
     <account>&ACCOUNT;</account>
