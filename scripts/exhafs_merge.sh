@@ -310,11 +310,11 @@ if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   for file in $(/bin/ls -1 ${RESTARTmrg}/*) ; do
     fname=$(basename ${file})
     if [[ "${fname}" = *".fv_"*".tile"*".nc" ]] || [[ "${fname}" = *".sfc_data"*".nc" ]] || [[ "${fname}" = *"analysis_inc"*".nc" ]]; then
-    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
-      echo ncks --deflate=1 -O ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+      echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    # echo ncks --deflate=1 -O ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
     elif [[ "${fname}" = *".phy_data"*".nc" ]]; then
-    # echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
-      echo "Currently skip deliverying ${RESTARTmrg}/${fname} to ${RESTARTcom}/${fname}"
+      echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
+    # echo "Currently skip deliverying ${RESTARTmrg}/${fname} to ${RESTARTcom}/${fname}"
     else
       echo ${FCP} ${RESTARTmrg}/${fname} ${RESTARTcom}/${fname} >> cmdfile
     fi

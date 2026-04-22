@@ -680,11 +680,11 @@ if [ ! -z "${RESTARTcom}" ] && [ $SENDCOM = YES ] && [ $FHR -lt 12 ]; then
       fi
     done
     rm -f cmdfile
-  # for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data ; do
-    for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
+  # for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data ; do
+    for file_res in $fv_core_tile $fv_tracer_tile $fv_srf_wnd_tile $sfc_data $phy_data ; do
       if [ -s ${INPdir}/RESTART/${file_res} ] && [ ${INPdir}/RESTART/${file_res} -nt ${RESTARTcom}/${file_res} ]; then
-      # echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
-        echo ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+        echo ${FCP} ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
+      # echo ncks --deflate=1 -O ${INPdir}/RESTART/${file_res} ${RESTARTcom}/${file_res} >> cmdfile
       fi
     done
     for file_res in $fv_core  $coupler_res ; do
