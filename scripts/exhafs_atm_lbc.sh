@@ -70,22 +70,9 @@ if [ "${gtype}" != "regional" ]; then
 fi
 
 if [ ${ENSDA} = YES ]; then
-  CDUMP=gdas # gfs or gdas
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
 else
-  CDUMP=gfs # gfs or gdas
-fi
-
-if [ $GFSVER = "PROD2021" ]; then
-  if [ ${ENSDA} = YES ]; then
-    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
-    export INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
-  else
-    export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
-    export INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
-  fi
-else
-  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
-  exit 9
+  export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
 fi
 
 OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp}
@@ -141,17 +128,32 @@ ${RLN} ${GRID_intercom}/${CASE}/* ./
 
 cd ${DATA_BC}
 
-# Use gfs netcdf files from GFSv16
+# Use gfs netcdf files
 if [ $bctype = "gfsnetcdf" ]; then
+ if [ $GFSVER = "PROD2021" ]; then
   if [ ${ENSDA} = YES ]; then
+    INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
     atm_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nc
   # sfc nc file is not needed/used to generate atm lbc file
   # sfc_files_input_grid=gdas.t${cyc}z.sfcf${FHR3}.nc
     sfc_files_input_grid=gdas.t${cyc}z.atmf${FHR3}.nc
   else
-    atm_files_input_grid=${CDUMP}.t${cyc}z.atmanl.nc
-    sfc_files_input_grid=${CDUMP}.t${cyc}z.sfcanl.nc
+    INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+    atm_files_input_grid=gfs.t${cyc}z.atmf${FHR3}.nc
+    sfc_files_input_grid=gfs.t${cyc}z.sfcf${FHR3}.nc
   fi
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  if [ ${ENSDA} = YES ]; then
+    INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/mem${ENSID}/model/atmos/history
+    atm_files_input_grid=enkfgdas.t${cyc}z.atm.f${FHR3}.nc
+    sfc_files_input_grid=enkfgdas.t${cyc}z.sfc.f${FHR3}.nc
+  else
+    INIDIR=${COMINgfs}/gfs.$PDY/$cyc/model/atmos/history
+    atm_files_input_grid=gfs.t${cyc}z.atm.f${FHR3}.nc
+    sfc_files_input_grid=gfs.t${cyc}z.sfc.f${FHR3}.nc
+  fi
+ fi
   grib2_file_input_grid=""
   input_type="gaussian_netcdf"
   varmap_file=""
@@ -160,9 +162,18 @@ if [ $bctype = "gfsnetcdf" ]; then
   tracers_input='"spfh","clwmr","o3mr","icmr","rwmr","snmr","grle"'
 # Use gfs master grib2 files
 elif [ $bctype = "gfsgrib2_master" ]; then
-  atm_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
-  sfc_files_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
-  grib2_file_input_grid=${CDUMP}.t${cyc}z.master.pgrb2f${FHR3}
+ if [ $GFSVER = "PROD2021" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  atm_files_input_grid=gfs.t${cyc}z.master.pgrb2f${FHR3}
+  sfc_files_input_grid=gfs.t${cyc}z.master.pgrb2f${FHR3}
+  grib2_file_input_grid=gfs.t${cyc}z.master.pgrb2f${FHR3}
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/model/atmos/master
+  atm_files_input_grid=gfs.t${cyc}z.master.f${FHR3}.grib2
+  sfc_files_input_grid=gfs.t${cyc}z.master.f${FHR3}.grib2
+  grib2_file_input_grid=gfs.t${cyc}z.master.f${FHR3}.grib2
+ fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid=""
@@ -170,9 +181,18 @@ elif [ $bctype = "gfsgrib2_master" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 files
 elif [ $bctype = "gfsgrib2_0p25" ]; then
-  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
-  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
-  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
+ if [ $GFSVER = "PROD2021" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  atm_files_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+  sfc_files_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+  grib2_file_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/products/atmos/grib2/0p25
+  atm_files_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+  sfc_files_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+  grib2_file_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+ fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid=""
@@ -180,9 +200,22 @@ elif [ $bctype = "gfsgrib2_0p25" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.25 degree grib2 a and b files
 elif [ $bctype = "gfsgrib2ab_0p25" ]; then
-  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
-  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3}
-  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2ab.0p25.f${FHR3}
+ if [ $GFSVER = "PROD2021" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  atm_files_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+  sfc_files_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+  grib2_file_input_grid=gfs.t${cyc}z.pgrb2ab.0p25.f${FHR3}
+  griba_file_input_grid=gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+  gribb_file_input_grid=gfs.t${cyc}z.pgrb2b.0p25.f${FHR3}
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/products/atmos/grib2/0p25
+  atm_files_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+  sfc_files_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+  grib2_file_input_grid=gfs.t${cyc}z.pres_ab.0p25.f${FHR3}.grib2
+  griba_file_input_grid=gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+  gribb_file_input_grid=gfs.t${cyc}z.pres_b.0p25.f${FHR3}.grib2
+ fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid=""
@@ -190,9 +223,18 @@ elif [ $bctype = "gfsgrib2ab_0p25" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 0.50 degree grib2 files
 elif [ $bctype = "gfsgrib2_0p50" ]; then
-  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
-  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
-  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.0p50.f${FHR3}
+ if [ $GFSVER = "PROD2021" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  atm_files_input_grid=gfs.t${cyc}z.pgrb2.0p50.f${FHR3}
+  sfc_files_input_grid=gfs.t${cyc}z.pgrb2.0p50.f${FHR3}
+  grib2_file_input_grid=gfs.t${cyc}z.pgrb2.0p50.f${FHR3}
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/products/atmos/grib2/0p50
+  atm_files_input_grid=gfs.t${cyc}z.pres_a.0p50.f${FHR3}.grib2
+  sfc_files_input_grid=gfs.t${cyc}z.pres_a.0p50.f${FHR3}.grib2
+  grib2_file_input_grid=gfs.t${cyc}z.pres_a.0p50.f${FHR3}.grib2
+ fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid=""
@@ -200,9 +242,18 @@ elif [ $bctype = "gfsgrib2_0p50" ]; then
   tracers_input='"spfh","clwmr","o3mr"'
 # Use gfs 1.00 degree grib2 files
 elif [ $bctype = "gfsgrib2_1p00" ]; then
-  atm_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
-  sfc_files_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
-  grib2_file_input_grid=${CDUMP}.t${cyc}z.pgrb2.1p00.f${FHR3}
+ if [ $GFSVER = "PROD2021" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/atmos
+  atm_files_input_grid=gfs.t${cyc}z.pgrb2.1p00.f${FHR3}
+  sfc_files_input_grid=gfs.t${cyc}z.pgrb2.1p00.f${FHR3}
+  grib2_file_input_grid=gfs.t${cyc}z.pgrb2.1p00.f${FHR3}
+ fi
+ if [ $GFSVER = "PROD2026" ]; then
+  INIDIR=${COMINgfs}/gfs.$PDY/$cyc/products/atmos/grib2/1p00
+  atm_files_input_grid=gfs.t${cyc}z.pres_a.1p00.f${FHR3}.grib2
+  sfc_files_input_grid=gfs.t${cyc}z.pres_a.1p00.f${FHR3}.grib2
+  grib2_file_input_grid=gfs.t${cyc}z.pres_a.1p00.f${FHR3}.grib2
+ fi
   input_type="grib2"
   varmap_file="${HOMEhafs}/parm/varmap_tables/GFSphys_var_map.txt"
   fixed_files_dir_input_grid=""
@@ -243,21 +294,21 @@ if [ $input_type = "grib2" ] && [ $bctype = gfsgrib2ab_0p25 ]; then
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
 while [ $n -le ${MAX_WAIT_TIME} ]; do
-  if [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}.idx ] && \
-     [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
-    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+  if [ -s ${INIDIR}/${gribb_file_input_grid}.idx ] && \
+     [ -s ${INIDIR}/${gribb_file_input_grid} ]; then
+    echo "${INIDIR}/${gribb_file_input_grid} ready, do chgres_bc"
     break
-  elif [ -s ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ]; then
-	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3}) )) -lt 10  ]; do sleep 10; done
-    echo "${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} ready, do chgres_bc"
+  elif [ -s ${INIDIR}/${gribb_file_input_grid} ]; then
+	while [ $(( $(date +%s) - $(stat -c %Y ${INIDIR}/${gribb_file_input_grid}) )) -lt 10  ]; do sleep 10; done
+    echo "${INIDIR}/${gribb_file_input_grid} ready, do chgres_bc"
     break
   else
-    echo "Either ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} not ready, sleep 10"
+    echo "${INIDIR}/${gribb_file_input_grid} not ready, sleep 10"
     sleep 10s
   fi
   n=$((n+10))
   if [ $n -gt ${MAX_WAIT_TIME} ]; then
-    echo "FATAL ERROR: Waited ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
+    echo "FATAL ERROR: Waited ${INIDIR}/${gribb_file_input_grid} too long $n > ${MAX_WAIT_TIME} seconds. Exiting"
     exit 1
   fi
 done
@@ -266,23 +317,19 @@ fi
 
 if [ $input_type = "grib2" ]; then
   if [ $bctype = gfsgrib2ab_0p25 ]; then
-    # Use both ${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} and ${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} files
-    cat ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2.0p25.f${FHR3} ${INIDIR}/${CDUMP}.t${cyc}z.pgrb2b.0p25.f${FHR3} \
+    cat ${INIDIR}/${griba_file_input_grid} ${INIDIR}/${gribb_file_input_grid} \
         > ./${grib2_file_input_grid}_tmp
     ${WGRIB2} ${grib2_file_input_grid}_tmp -submsg 1 | ${USHhafs}/hafs_grib2_unique.pl \
         | ${WGRIB2} -i ./${grib2_file_input_grid}_tmp -GRIB ./${grib2_file_input_grid}
+    export err=$?; err_chk
   else
     ${NLN} ${INIDIR}/${grib2_file_input_grid} ./
   fi
   INPDIR="./"
 else
-  if [ ${ENSDA} = YES ]; then
-    ${NLN} ${INIDIR}/${atm_files_input_grid} ./
-    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
-    INPDIR="./"
-  else
-    INPDIR=${INIDIR}
-  fi
+  ${NLN} ${INIDIR}/${atm_files_input_grid} ./
+  ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
+  INPDIR="./"
 fi
 
 if [ $gtype = regional ]; then
@@ -388,4 +435,3 @@ done
 
 echo "chgres_bc done"
 
-exit

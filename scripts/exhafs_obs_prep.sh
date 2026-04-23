@@ -22,7 +22,7 @@ mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 
 atmos="atmos/"
-COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
+COMINhafs_OBS=${COMINhafs_OBS:-${COMINobs}/hafs.$PDY/$cyc/${atmos}}
 RUN_GSI=${RUN_GSI:-NO}
 use_bufr_nr=${use_bufr_nr:-no}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
