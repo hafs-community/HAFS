@@ -84,15 +84,10 @@ if [ ! -s ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
  l_both_fv3sar_gfs_ens=.false.
 fi
 
-if [ $GFSVER = PROD2021 ]; then
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
-else
-  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
-  exit 9
-fi
+export atmos="atmos/"
+export USE_GFS_NEMSIO=.false.
+export USE_GFS_NCIO=.true.
+GSUFFIX=${GSUFFIX:-.nc}
 
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
@@ -194,7 +189,13 @@ if [ ${RUN_ENSDA} != "YES" ] || [ $l_both_fv3sar_gfs_ens = .true. ]; then
   for fhh in $fhrs; do
   rm -f filelist${fhh}
   for mem in $(seq -f '%03g' 1 ${n_ens_gfs}); do
-    ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
+    if [ $GFSVER = "PROD2021" ]; then
+      atmfile=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc}
+    fi
+    if [ $GFSVER = "PROD2026" ]; then
+      atmfile=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f0${fhh}${GSUFFIX:-.nc}
+    fi
+    ${NLN} ${atmfile} ./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}
     echo "./ensemble_data/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}_ens_${mem}" >> filelist${fhh}
   done
   done
@@ -369,7 +370,12 @@ if [ ${USE_SELECT:-NO} != "YES" ]; then #regular run
 
 # Link GFS/GDAS input and observation files
 COMIN_OBS=${COMIN_OBS:-${COMINobs}/gfs.$PDY/$cyc/${atmos}}
-COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
+if [ $GFSVER = "PROD2021" ]; then
+  COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/${atmos}}
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  COMIN_GFS=${COMIN_GFS:-${COMINgfs}/gfs.$PDY/$cyc/obs}
+fi
 OPREFIX=${OPREFIX:-"gfs.t${cyc}z."}
 OSUFFIX=${OSUFFIX:-""}
 PREPQC=${PREPQC:-${COMIN_OBS}/${OPREFIX}prepbufr${OSUFFIX}}
@@ -432,8 +438,8 @@ if [[ ${use_bufr_nr:-no} = "no" ]]; then
 else
   GPSROBF=${GPSROBF:-${COMIN_OBS}/${OPREFIX}gpsro.tm00.bufr_d.nr}
 fi
-#TCVITL=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
-TCVITL=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
+TCVITL_obs=${TCVITL:-${COMIN_OBS}/${OPREFIX}syndata.tcvitals.tm00}
+TCVITL_gfs=${TCVITL:-${COMIN_GFS}/${OPREFIX}syndata.tcvitals.tm00}
 B1AVHAM=${B1AVHAM:-${COMIN_OBS}/${OPREFIX}avcsam.tm00.bufr_d${OSUFFIX}}
 B1AVHPM=${B1AVHPM:-${COMIN_OBS}/${OPREFIX}avcspm.tm00.bufr_d${OSUFFIX}}
 ##HDOB=${HDOB:-${COMIN_OBS}/${OPREFIX}hdob.tm00.bufr_d${OSUFFIX}}
@@ -491,7 +497,7 @@ ${WLN} $ATMSDB           atmsbufr_db
 ##${WLN} $SSMITBF          ssmitbufr
 ${WLN} $SSMISBF          ssmisbufr
 ${WLN} $GPSROBF          gpsrobufr
-${WLN} $TCVITL           tcvitl
+##${WLN} $TCVITL           tcvitl
 ${WLN} $B1AVHAM          avhambufr
 ${WLN} $B1AVHPM          avhpmbufr
 ##${WLN} $AHIBF            ahibufr
@@ -499,6 +505,15 @@ ${WLN} $B1AVHPM          avhpmbufr
 ##${WLN} $HDOB             hdobbufr
 
 ##[[ $DONST = "YES" ]] && ${WLN} $NSSTBF nsstbufr
+
+if [ -s ${TCVITL_obs} ]; then
+  $NCP -L ${TCVITL_obs}    tcvitl
+elif [ -s ${TCVITL_gfs} ]; then
+  $NCP -L ${TCVITL_gfs}    tcvitl
+else
+  echo "WARNING: Neither ${TCVITL_obs} nor ${TCVITL_gfs} is available."
+  echo "WARNING: tcvitl not available."
+fi
 
 if [[ ${use_bufr_nr:-no} = "yes" ]]; then
 
@@ -542,13 +557,21 @@ fi
 fi #USE_SELECT
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ $GFSVER = "PROD2021" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
+fi
 if [ ${online_satbias} = "yes" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
   if [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
-    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+    ${NLN} ${SATBIAS_IN}                                                           satbias_in
+    ${NLN} ${SATBIAS_PC}                                                           satbias_pc
   elif [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
     ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
@@ -559,8 +582,8 @@ if [ ${online_satbias} = "yes" ]; then
 else
   PASSIVE_BC=.false.
   UPD_PRED=0
-  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  ${NLN} ${SATBIAS_IN}                                                             satbias_in
+  ${NLN} ${SATBIAS_PC}                                                             satbias_pc
 fi
 
 # Diagnostic files
