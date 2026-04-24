@@ -153,12 +153,21 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   ${NCP} fv3sar_tile1_tracer ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
   ${NCP} fv3sar_tile1_sfcvar ${RESTARTens_anl}/anlmean/${PDY}.${cyc}0000.sfc_data.nc
   #${NCP} ${COMhafs}/RESTART_analysis/{*grid_spec.nc,*sfc_data.nc,*coupler.res,gfs_ctrl.nc,fv_core.res.nc,*bndy*} ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc ${RESTARTens_anl}/anlmean/
-  ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc ${RESTARTens_anl}/anlmean/
+  if [[ ${ANALYSIS_MODEL} = "JEDI" ]]; then #Use old data to fill. But fv_srf_wnd can be questionable, and it might not not necessary
+    ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_inp}/mem001/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_inp}/mem001/grid_spec.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_inp}/mem001/oro_data.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_inp}/mem001/atmos_static.nc ${RESTARTens_anl}/anlmean/
+  else
+    ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_anl}/ensmean/${PDY}.${cyc}0000.fv_srf_wnd.res.tile1.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_anl}/ensmean/grid_spec.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_anl}/ensmean/oro_data.nc ${RESTARTens_anl}/anlmean/
+    ${NCP} ${RESTARTens_anl}/ensmean/atmos_static.nc ${RESTARTens_anl}/anlmean/
+  fi
   for memstr in $(seq -f 'mem%03g' 1 $nens); do
     mkdir -p ${RESTARTens_anl}/${memstr}
     ${NCP} rec_fv3sar_tile1_${memstr}_dynvar ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc

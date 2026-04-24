@@ -46,6 +46,7 @@ MIN_LAT=$(echo "$cenlat - ${dlat_cutoff:-90}" | bc)
 MAX_LAT=$(echo "$cenlat + ${dlat_cutoff:-90}" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
+TOTAL_TASKS_tmp=60 #${TOTAL_TASKS}
 
 export PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -287,6 +288,7 @@ for type in "${convtypes_array[@]}"; do
     # Copy source file into ${DATA}/obs once
     if [[ ! -f "$local_ncfile" ]]; then
       ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
     checked_convfiles+=("$matched_file")
     valid_convfiles+=("$matched_file")
@@ -306,6 +308,7 @@ for type in "${convtypes_array[@]}"; do
     # If valid and local copy somehow missing, restore it
     if [[ ! -f "$local_ncfile" ]]; then
       ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
   fi
   # Create link named after convtype, pointing to the local copied file
@@ -323,6 +326,7 @@ IFS=' ' read -ra radtypes_array <<< "$radtypes"
 valid_radtypes=()
 for file in ${radtypes_array[@]}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+  local_ncfile="${DATA}/obs/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
     if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
@@ -330,6 +334,7 @@ for file in ${radtypes_array[@]}; do
         continue
     fi
     ${NLN} "$ncfile" .
+#    python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o ${ncfile} -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
     [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
     valid_radtypes+=("$file")
@@ -377,9 +382,11 @@ export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
 export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-TOTAL_TASKS_tmp=${TOTAL_TASKS}
 sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
-sed -e "s|_ALGORITHM_|hofx3d|g" \
+export ALGORITHM="hofx3d"
+export ALGORITHM_COV=${ALGORITHM}
+sed -e "s|_ALGORITHM_|${ALGORITHM}|g" \
+    -e "s|_ALGORITHMCOV_|${ALGORITHM_COV}|g" \
     ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
 sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
@@ -431,7 +438,10 @@ rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
 export DIAGout=${WORKhafs}/intercom/RESTART_analysis_ens/
-${NCP} -rp hofx ${DIAGout}
+if [ -d ${DIAGout}/hofx ]; then
+ rm -fr ${DIAGout}/hofx
+fi
+${NCP} -rp hofx ${DIAGout}/hofx
 
 created=0
 for file in ${radtypes}; do

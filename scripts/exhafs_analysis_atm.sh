@@ -46,6 +46,8 @@ MIN_LAT=$(echo "$cenlat - ${dlat_cutoff:-90}" | bc)
 MAX_LAT=$(echo "$cenlat + ${dlat_cutoff:-90}" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
+TOTAL_TASKS_tmp=60 #${TOTAL_TASKS}
+DIRECT_GDASENS=${DIRECT_GDASENS:-NO}
 
 export PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -300,12 +302,30 @@ if [ ${RUN_ENVAR} = "YES" ]; then
     mkdir ${DATA}/ensemble_data/mem${mem}
     if [ ${RUN_ENSDA} = "YES" ]; then
       RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+      for file in `ls ${RESTARTens}/*`; do
+        ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+      done
     else
-      RESTARTens=${WORKhafs}/intercom/GDAS_ENS/mem${mem}
+      if [[ ${DIRECT_GDASENS} = "NO" ]]; then
+        RESTARTens=${WORKhafs}/intercom/GDAS_ENS/mem${mem}
+        for file in `ls ${RESTARTens}/*`; do
+          ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+        done
+      else
+        if [ ${l4densvar:-.false.} = ".true." ]; then
+	  fhrs="03 06 09"
+        else
+          fhrs="06"
+        fi
+        cd ${DATA}/ensemble_data
+        for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
+          mkdir ${DATA}/ensemble_data/mem${mem}
+          for fhh in $fhrs; do
+            ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/gdas.atmf0${fhh}
+          done
+        done
+      fi
     fi
-    for file in `ls ${RESTARTens}/*`; do
-      ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
-    done
   done
 else ## Should be 3DVar, But since JEDI is having trouble with static B. Here use direct GDAS Ens instead
   if [ ${l4densvar:-.false.} = ".true." ]; then
@@ -438,6 +458,7 @@ for type in "${convtypes_array[@]}"; do
     # Copy source file into ${DATA}/obs once
     if [[ ! -f "$local_ncfile" ]]; then
       ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
     checked_convfiles+=("$matched_file")
     valid_convfiles+=("$matched_file")
@@ -457,6 +478,7 @@ for type in "${convtypes_array[@]}"; do
     # If valid and local copy somehow missing, restore it
     if [[ ! -f "$local_ncfile" ]]; then
       ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
   fi
   # Create link named after convtype, pointing to the local copied file
@@ -474,6 +496,7 @@ IFS=' ' read -ra radtypes_array <<< "$radtypes"
 valid_radtypes=()
 for file in ${radtypes_array[@]}; do
   ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+  local_ncfile="${DATA}/obs/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
     if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
@@ -481,6 +504,7 @@ for file in ${radtypes_array[@]}; do
         continue
     fi
     ${NLN} "$ncfile" .
+#    python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o ${ncfile} -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
     [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
     valid_radtypes+=("$file")
@@ -582,18 +606,22 @@ rm nicas.log.*
 #----------------------------------------------
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-TOTAL_TASKS_tmp=60 #${TOTAL_TASKS}
 sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
 if [ ${l4denvar:-.true.} = ".true." ]; then
-sed -e "s|_ALGORITHM_|4denvar|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+export ALGORITHM="4denvar"
 elif [ ${RUN_FGAT} = NO ]; then
-sed -e "s|_ALGORITHM_|3denvar|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+export ALGORITHM="3denvar"
 else
-sed -e "s|_ALGORITHM_|3dfgat|g" \
-    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
+export ALGORITHM="3dfgat"
 fi
+if [[ ${DIRECT_GDASENS} = "NO" ]]; then
+export ALGORITHM_COV=${ALGORITHM}
+else
+export ALGORITHM_COV="${ALGORITHM}_gdasens"
+fi
+sed -e "s|_ALGORITHM_|${ALGORITHM}|g" \
+    -e "s|_ALGORITHMCOV_|${ALGORITHM_COV}|g" \
+    ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
 sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_ENDDATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \

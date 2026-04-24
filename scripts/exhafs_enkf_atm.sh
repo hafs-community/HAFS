@@ -46,6 +46,7 @@ MIN_LAT=$(echo "$cenlat - ${dlat_cutoff:-90}" | bc)
 MAX_LAT=$(echo "$cenlat + ${dlat_cutoff:-90}" | bc)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 MERGE_CMD="${APRUNS} ${DATOOL} remap"
+TOTAL_TASKS_tmp=60 #${TOTAL_TASKS}
 
 export PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 export FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
@@ -323,9 +324,11 @@ export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
 export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
-TOTAL_TASKS_tmp=${TOTAL_TASKS}
 sed -e "s|_TARGET_YAML_|jedi.yaml|g" ${jcb_yaml_dir}/run.py > run_jedi.py
-sed -e "s|_ALGORITHM_|enkf3d|g" \
+export ALGORITHM="enkf3d"
+export ALGORITHM_COV=${ALGORITHM}
+sed -e "s|_ALGORITHM_|${ALGORITHM}|g" \
+    -e "s|_ALGORITHMCOV_|${ALGORITHM_COV}|g" \
     ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
 sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_ANALYSISDATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \

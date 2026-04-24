@@ -78,6 +78,7 @@
   <!ENTITY RUN_FGAT "@[RUN_FGAT]">
   <!ENTITY RUN_ALLSKY "@[RUN_ALLSKY]">
   <!ENTITY ANALYSIS_MODEL "@[ANALYSIS_MODEL]">
+  <!ENTITY DIRECT_GDASENS "@[DIRECT_GDASENS]">
   <!ENTITY RUN_ANALYSIS "@[RUN_ANALYSIS]">
   <!ENTITY ANALYSIS_D01 "@[ANALYSIS_D01]">
   <!ENTITY ANALYSIS_D02 "@[ANALYSIS_D02]">
@@ -704,6 +705,7 @@
     <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_analysis.log</cyclestr></join>
     <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
+    <envar><name>DIRECT_GDASENS</name><value>@[DIRECT_GDASENS]</value></envar>
     <account>&ACCOUNT;</account>
     &RESERVATION;
 @** if ANALYSIS_MODEL==JEDI
@@ -739,7 +741,7 @@
 @**   if RUN_ATM_INIT_FGAT_ENS==YES
         <metataskdep metatask="atm_init_fgat_ens"/>
 @**   endif
-@** else
+@** elseif DIRECT_GDASENS==NO
         <metataskdep metatask="gdas_ens"/>
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
@@ -1044,6 +1046,7 @@
 
 @** if RUN_ENSDA==NO
 @**   if ANALYSIS_MODEL==JEDI
+@** 	if DIRECT_GDASENS==NO
   <metatask name="gdas_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="gdas_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1079,6 +1082,7 @@
       </dependency>
     </task>
   </metatask>
+@** 	endif
 @**   endif
 @** endif
 
