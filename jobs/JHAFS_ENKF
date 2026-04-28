@@ -29,7 +29,7 @@ export RRFS_RECENTER=${rrfs_recenter:-NO}
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
-if [[ "${ANALYSIS_MODEL}" = "GSI" ]]; then
+if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ ${ldo_enscalc_option} -eq 2 ]]; then
   if [[ "${RUN_ENVIR^^}" != "NCO" ]]; then
     # Detect platform and load modules if not run by NCO
     source ${USHhafs}/hafs_pre_job.sh.inc
@@ -49,6 +49,9 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]]; then
   # setpdy.sh # only needed for the launch job
     # Get PDY
     source ${WORKhafs}/PDY
+  fi
+  if [[ "${ANALYSIS_MODEL}" = "JEDI" ]]; then
+    module load nco
   fi
 else
   source ${USHhafs}/hafs_pre_job.sh.inc

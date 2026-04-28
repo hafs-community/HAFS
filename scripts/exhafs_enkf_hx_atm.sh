@@ -438,10 +438,11 @@ rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
 export DIAGout=${WORKhafs}/intercom/RESTART_analysis_ens/
+mkdir -p ${DIAGout}
 if [ -d ${DIAGout}/hofx ]; then
  rm -fr ${DIAGout}/hofx
 fi
-${NCP} -rp hofx ${DIAGout}/hofx
+${NCP} -rp $DATA/hofx ${DIAGout}/hofx
 
 created=0
 for file in ${radtypes}; do
