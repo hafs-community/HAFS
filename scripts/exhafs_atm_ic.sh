@@ -305,19 +305,19 @@ ${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_ic.log
 export err=$?; err_chk
 
 if [ $gtype = uniform ] || [ $gtype = stretch ] || [ $gtype = nest ]; then
-  mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
+  ${NMV} gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
   tile=1
   while [ $tile -le 6 ]; do
-    mv out.atm.tile${tile}.nc ${OUTDIR}/gfs_data.tile${tile}.nc
-    mv out.sfc.tile${tile}.nc ${OUTDIR}/sfc_data.tile${tile}.nc
+    ${NMV} out.atm.tile${tile}.nc ${OUTDIR}/gfs_data.tile${tile}.nc
+    ${NMV} out.sfc.tile${tile}.nc ${OUTDIR}/sfc_data.tile${tile}.nc
     tile=$(($tile + 1))
   done
 elif [ $gtype = regional ]; then
   # Move output files to save directory
-  mv gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
-  mv gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
-  mv out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
-  mv out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
+  ${NMV} gfs_ctrl.nc ${OUTDIR}/gfs_ctrl.nc
+  ${NMV} gfs.bndy.nc ${OUTDIR}/gfs_bndy.tile7.000.nc
+  ${NMV} out.atm.tile7.nc ${OUTDIR}/gfs_data.tile7.nc
+  ${NMV} out.sfc.tile7.nc ${OUTDIR}/sfc_data.tile7.nc
   # Remove the links that were set above for the halo4 files
   rm $FIXDIR/$CASE/${CASE}_grid.tile7.nc
   rm $FIXDIR/$CASE/${CASE}_oro_data.tile7.nc
@@ -401,8 +401,8 @@ ${APRUNC} ./hafs_utils_chgres_cube.x 2>&1 | tee ./chgres_cube_lbc.log
 export err=$?; err_chk
 
 
-mv out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
-mv out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
+${NMV} out.atm.tile1.nc ${OUTDIR}/gfs_data.tile${itile}.nc
+${NMV} out.sfc.tile1.nc ${OUTDIR}/sfc_data.tile${itile}.nc
 
 done
 

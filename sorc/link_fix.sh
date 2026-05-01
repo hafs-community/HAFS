@@ -2,8 +2,8 @@
 set -xeu
 source ./machine-setup.sh.inc > /dev/null 2>&1
 
-# RUN_ENVIR of nco or dev
-RUN_ENVIR=${RUN_ENVIR:-${1:-dev}}
+# INSTALL_ENVIR of nco or dev
+INSTALL_ENVIR=${INSTALL_ENVIR:-${1:-dev}}
 
 cwd=$(pwd)
 
@@ -19,8 +19,6 @@ elif [ ${target} == "hera" ]; then
   FIXROOT=/scratch3/HFIP/hwrfv3/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "orion" ] || [ ${target} == "hercules" ]; then
   FIXROOT=/work/noaa/hwrf/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
-elif [ ${target} == "jet" ]; then
-  FIXROOT=/lfs5/HFIP/hwrf-data/hafs-fix-files/hafs-${FIXversion}-fix/fix 
 elif [ ${target} == "gaeac6" ]; then
   FIXROOT=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-fix-files/hafs-${FIXversion}-fix/fix
 elif [ ${target} == "ursa" ]; then
@@ -32,7 +30,7 @@ fi
 
 for subdir in fix_am fix_aer fix_lut fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_vi fix_hycom fix_mom6 fix_ww3 fix_cdeps;
 do
-  if [ "${RUN_ENVIR^^}" != "NCO" ]; then
+  if [ "${INSTALL_ENVIR^^}" != "NCO" ]; then
     ln -sf ${FIXROOT}/${subdir} ./
   else
     rsync -av ${FIXROOT}/${subdir} ./

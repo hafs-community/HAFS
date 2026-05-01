@@ -58,9 +58,12 @@ for hh in $(seq -f "%02g" 0 6 ${NHRS:-126}); do
   grib2nest_old=${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_n.grb2f${hh}
   hhh3=`printf %03i $(( 10#${hh} ))`
   grib2file=${STORMID,,}.${CDATE}.${RUN}.parent.atm.f${hhh3}.grb2
-  # Lew.Gramer@noaa.gov 2026-03-24
-  #grib2nest=${STORMID,,}.${CDATE}.${RUN}.storm.atm.f${hhh3}.grb2
-  grib2nest=${STORMID,,}.${CDATE}.${RUN}.${real_stormlabel}.atm.f${hhh3}.grb2
+  # Lew.Gramer@noaa.gov 2026-04-30
+  if [ ${RUN_MULTISTORM:-NO} = YES ]; then
+    grib2nest=${STORMID,,}.${CDATE}.${RUN}.${real_stormlabel}.atm.f${hhh3}.grb2
+  else
+    grib2nest=${STORMID,,}.${CDATE}.${RUN}.storm.atm.f${hhh3}.grb2
+  fi
   echo 'grib2file = ' ${grib2file}
   if [ -s ${COMhafs}/${grib2file} ]; then
     ${NLN} ${COMhafs}/${grib2file} ./${grib2file_old}
@@ -96,7 +99,7 @@ echo "${DATA_SHIPS}/${STORM,,}${STORMID,,}.${CDATE}.${RUN}prs_p.grb2f00" > ./inp
 export err=$?; err_chk
 
 # Rename the txt file
-mv s${pubbasin2,,}${StormNum}${yyyy}_${RUN}_d${RUN}_${CDATE}_diag.dat ${ships_diag_txt}
+${NMV} s${pubbasin2,,}${StormNum}${yyyy}_${RUN}_d${RUN}_${CDATE}_diag.dat ${ships_diag_txt}
 
 # Deliver to COM
 if [ $SENDCOM = YES ]; then
@@ -238,14 +241,14 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${GUSTF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${GUSTF}
+  ${NMV} ${TMPFILE2} ${GUSTF}
   # PRATE - accumulated total precipitation
   ${WGRIB2} ${COMhafs}/${grb2file} | grep ":APCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} -rpn "0:swap:merge" -grib_out ${TMPFILE}
   export err=$?; err_chk
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${APCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${APCPF}
+  ${NMV} ${TMPFILE2} ${APCPF}
   ${WGRIB2} ${APCPF} -match '(:APCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
       -set_metadata_str "0:0:d=+0hr:PRATE:atmos col:0-$((IFHR*DHR)) hour ave fcst::Precipitation Rate [kg/m^2/s]:" \
       -grib_out ${PRATEF}
@@ -258,14 +261,14 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${WINDMAXF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${WINDMAXF}
+  ${NMV} ${TMPFILE2} ${WINDMAXF}
   # CPRAT - accumulated convective precipitation
   ${WGRIB2} ${COMhafs}/${grb2file} | grep ":ACPCP:" | head -n 1 | ${WGRIB2} -i ${COMhafs}/${grb2file} -rpn "0:swap:merge" -grib_out ${TMPFILE}
   export err=$?; err_chk
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${ACPCPF} -rpn "rcl_1:+" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${ACPCPF}
+  ${NMV} ${TMPFILE2} ${ACPCPF}
   ${WGRIB2} ${ACPCPF} -match '(:ACPCP:)'            	-rpn "$((IFHR*DHR*3600)):/" \
       -set_metadata_str "0:0:d=+0hr:CPRAT:atmos col:0-$((IFHR*DHR)) hour ave fcst::Convective Precipitation Rate [kg/m^2/s]:" \
       -grib_out ${CPRATF}
@@ -278,7 +281,7 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${MAXUVVF} -rpn "rcl_1:max" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${MAXUVVF}
+  ${NMV} ${TMPFILE2} ${MAXUVVF}
   # DZDTmin - peak downdrafts
   ${WGRIB2} ${COMhafs}/${grb2file} -match '(:MAXDVV:)'       	-rpn "0:swap:merge" \
       -set_metadata_str "0:0:d=+0hr:DZDT:0-400 mb above ground:0-$((IFHR*DHR)) hour min fcst::Vertical Velocity (Geometric) [m/s]:" \
@@ -287,19 +290,19 @@ while [ $FHR -le $NHRS ]; do
   ${WGRIB2} ${TMPFILE} -rpn "sto_1" -import_grib ${MAXDVVF} -rpn "rcl_1:min" -grib_out ${TMPFILE2}
   export err=$?; err_chk
   rm ${TMPFILE}
-  mv ${TMPFILE2} ${MAXDVVF}
+  ${NMV} ${TMPFILE2} ${MAXDVVF}
   # UPHLtro - updraft helicity in the lower troposphere
   ${WGRIB2} ${COMhafs}/${grb2file} -match '(:MXUPHL:5000-2000 m)' 	-rpn "0:swap:merge" \
       -set_metadata_str "0:0:d=+0hr:UPHL:5000-2000 m above ground:$(((IFHR-1)*DHR))-$((IFHR*DHR)) hour max fcst::Updraft Helicity [m^2/s^2]:" \
       -grib_out ${TMPFILE}
   export err=$?; err_chk
-  mv ${TMPFILE} ${UPHLTROF}
+  ${NMV} ${TMPFILE} ${UPHLTROF}
   # UPHLsfc - updraft helicity in the surface layer
   ${WGRIB2} ${COMhafs}/${grb2file} -match '(:MXUPHL:3000-0 m)'   	-rpn "0:swap:merge" \
       -set_metadata_str "0:0:d=+0hr:UPHL:3000-0 m above ground:$(((IFHR-1)*DHR))-$((IFHR*DHR)) hour max fcst::Updraft Helicity [m^2/s^2]:" \
       -grib_out ${TMPFILE}
   export err=$?; err_chk
-  mv ${TMPFILE} ${UPHLSFCF}
+  ${NMV} ${TMPFILE} ${UPHLSFCF}
  #cat ${GUSTF} ${PRATEF} ${WINDMAXF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLTROF} ${UPHLSFCF} > ${swath_grb2fhhh}
   cat ${GUSTF} ${PRATEF} ${WINDMAXF} ${CPRATF} ${MAXUVVF} ${MAXDVVF} ${UPHLTROF} ${UPHLSFCF} >> ${swath_grb2file}
 
@@ -312,7 +315,7 @@ done
 # Compress swath grib2 file to save disk space
 ${WGRIB2} ${swath_grb2file} -set_grib_type c2 -grib_out ${swath_grb2file}.c2
 export err=$?; err_chk
-mv ${swath_grb2file}.c2 ${swath_grb2file}
+${NMV} ${swath_grb2file}.c2 ${swath_grb2file}
 # Generate the index file for the swath grib2 file
 ${WGRIB2} -s ${swath_grb2file} > ${swath_grb2indx}
 export err=$?; err_chk
@@ -320,11 +323,11 @@ export err=$?; err_chk
 # Deliver to COMhafs
 if [ $SENDCOM = YES ]; then
   mkdir -p ${COMhafs}
-  mv ${swath_grb2file} ${COMhafs}/
+  ${FCP} ${swath_grb2file} ${COMhafs}/
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMhafs}/${swath_grb2file}
   fi
-  mv ${swath_grb2indx} ${COMhafs}/
+  ${FCP} ${swath_grb2indx} ${COMhafs}/
   if [ "${SENDDBN^^}" = "YES" ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMhafs}/${swath_grb2indx}
   fi

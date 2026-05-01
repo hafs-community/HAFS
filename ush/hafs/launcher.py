@@ -1427,10 +1427,6 @@ class HAFSLauncher(HAFSConfig):
         * config.input_catalog --- input catalog (conf section) name.
             Default: $INPUT_CATALOG or "hafsdata"
 
-        * config.RUN_ENVIR --- NCO if you are NCEP Central Operations
-            (NCO).  This is used to turn on or off DBNet alerts and
-            other NCO-specific options.
-
         In addition, the following directories are added to the [dir]
         section:
 

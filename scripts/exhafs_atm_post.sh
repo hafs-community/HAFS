@@ -399,9 +399,9 @@ ${NCP} -p ${POSTEXEC} ./hafs_post.x
 ${APRUNC} ./hafs_post.x < itag 2>&1 | tee ./post_${NEWDATE}.log
 export err=$?; err_chk
 
-mv HURPRS.GrbF${FHR2} ${grb2post}
+${NMV} HURPRS.GrbF${FHR2} ${grb2post}
 if [ ${satpost} = .true. ]; then
-  mv HURSAT.GrbF${FHR2} ${sat_grb2post}
+  ${NMV} HURSAT.GrbF${FHR2} ${sat_grb2post}
 fi
 
 fi #if [ ${write_dopost:-.false.} = .true. ]
@@ -469,9 +469,9 @@ rm -f ${grb2post}.part??
 elif [[ "$outputgrid" = "regional_latlon"* ]]; then
 
 # For regional_latlon output grid, no need to convert
-mv ${grb2post} ${grb2file}
+${NMV} ${grb2post} ${grb2file}
 if [ ${satpost} = .true. ]; then
-  mv ${sat_grb2post} ${sat_grb2file}
+  ${NMV} ${sat_grb2post} ${sat_grb2file}
 fi
 
 ## Alternatively, can use wgrib2 to convert from c3 to c2 packing, which can reduce the filesize by ~30%.
@@ -504,7 +504,7 @@ if [ ${nhcpost} = .true. ]; then
   # Regridding hafs storm domain grib2 files for NHC on a subdomain of a fixed domain with a fixed resolution
   if [ ${gridstr} = "storm" ]; then
     grb2file_raw=${nhc_grb2file}_raw
-    mv ${nhc_grb2file} ${grb2file_raw}
+    ${NMV} ${nhc_grb2file} ${grb2file_raw}
 	nhc_nlon=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 1))
 	nhc_nlat=$(echo $(${WGRIB2} -nxny -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -c2- | rev | cut -c2- | rev | cut -d "x" -f 2))
 	nhc_lon0=$(printf "%.1f" $(bc <<< "scale=1; $(${WGRIB2} -ijlat 1 1 -d 1 ${grb2file_raw} | cut -d ":" -f 3 | cut -d "," -f 3 | cut -d "=" -f 2)"))
@@ -577,7 +577,7 @@ else
 fi
   export err=$?; err_chk
   cat ${trkd12_grb2file}_p1 ${trkd12_grb2file}_p2 ${trkd12_grb2file}_p3 > ${trkd12_grb2file}
-  mv ${trkd12_grb2file} ${trkd02_grb2file}
+  ${NMV} ${trkd12_grb2file} ${trkd02_grb2file}
 fi
 
 # Generate the index file for the tracker
@@ -585,35 +585,35 @@ ${GRB2INDEX} ${trk_grb2file} ${trk_grb2indx}
 export err=$?; err_chk
 
 # Deliver to intercom
-mv ${trk_grb2file} ${intercom}/
-mv ${trk_grb2indx} ${intercom}/
+${NMV} ${trk_grb2file} ${intercom}/
+${NMV} ${trk_grb2indx} ${intercom}/
 
 # Deliver to COMOUTpost
 if [ $SENDCOM = YES ]; then
-  mv ${grb2file} ${COMOUTpost}/
+  ${FCP} ${grb2file} ${COMOUTpost}/
   if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${grb2file}
   fi
-  mv ${grb2indx} ${COMOUTpost}/
+  ${FCP} ${grb2indx} ${COMOUTpost}/
   if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
     $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${grb2indx}
   fi
   if [ ${nhcpost} = .true. ]; then
-    mv ${nhc_grb2file} ${COMOUTpost}/
+    ${FCP} ${nhc_grb2file} ${COMOUTpost}/
     if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
        $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_NHC_GB2 $job ${COMOUTpost}/${nhc_grb2file}
     fi
-    mv ${nhc_grb2indx} ${COMOUTpost}/
+    ${FCP} ${nhc_grb2indx} ${COMOUTpost}/
     if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
        $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_NHC_GB2_WIDX $job ${COMOUTpost}/${nhc_grb2indx}
     fi
   fi
   if [ ${satpost} = .true. ]; then
-    mv ${sat_grb2file} ${COMOUTpost}/
+    ${FCP} ${sat_grb2file} ${COMOUTpost}/
     if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
       $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2 $job ${COMOUTpost}/${sat_grb2file}
     fi
-    mv ${sat_grb2indx} ${COMOUTpost}/
+    ${FCP} ${sat_grb2indx} ${COMOUTpost}/
     if [ "${SENDDBN^^}" = "YES" ] && [ ${COMOUTpost} = ${COMhafs} ]; then
       $DBNROOT/bin/dbn_alert MODEL ${RUN^^}_GB2_WIDX $job ${COMOUTpost}/${sat_grb2indx}
     fi

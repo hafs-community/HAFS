@@ -163,8 +163,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
@@ -194,8 +194,8 @@ for vortexradius in 30 45; do
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 done
 

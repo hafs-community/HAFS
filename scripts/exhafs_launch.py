@@ -24,9 +24,6 @@
 # exhafs_launch.py YYYYMMDDHH STID CASE_ROOT /path/to/parm [options]
 # @endcode
 #
-# @note When NCEP Central Operations (NCO) runs this job, the $RUN_ENVIR
-#   environment variable must be set to "nco" to trigger NCO-specific rules
-#
 # Command line argument meanings:
 #
 # * YYYYMMDDHH --- a ten digit cycle date and hour

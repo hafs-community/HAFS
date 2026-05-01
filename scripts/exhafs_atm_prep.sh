@@ -211,7 +211,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -230,7 +230,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -265,7 +265,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -282,7 +282,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -329,7 +329,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -346,7 +346,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -424,7 +424,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -484,7 +484,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -615,26 +615,26 @@ export err=$?; err_chk
 if [[ $GRIDTYPE != "regional" ]]; then
   for files in *.nc; do
     if [[ -f $files ]]; then
-      #mv $files ${sfc_climo_savedir}/${CASE}.${files}
+      #${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
       # Lew.Gramer@noaa.gov 202-03-10: work around a bug in hafs_utils_sfc_clim_gen.x that truncates tile #s > 9
       ofiles=$(echo ${files} | sed -s "s/tile1/tile${tile}/")
       if [[ "${ofiles}" != "${files}" ]]; then
         ${NCP} -p $files ${sfc_climo_savedir}/${CASE}.${ofiles}
       fi
-      mv $files ${sfc_climo_savedir}/${CASE}.${files}
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
     fi
   done
 else
   for files in *.halo.nc; do
     if [[ -f $files ]]; then
       file2=${files%.halo.nc}
-      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
     fi
   done
   for files in *.nc; do
     if [[ -f $files ]]; then
       file2=${files%.nc}
-      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
     fi
   done
 fi  # is regional?
@@ -698,13 +698,13 @@ export err=$?; err_chk
 
 for files in *.nc; do
   if [[ -f $files ]]; then
-    #mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    #${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
     # Lew.Gramer@noaa.gov 202-03-10: work around a bug in hafs_utils_sfc_clim_gen.x that truncates tile #s > 9
     ofiles=$(echo ${files} | sed -s "s/tile1/tile${itile}/")
     if [[ "${ofiles}" != "${files}" ]]; then
       ${NCP} -p $files ${sfc_climo_savedir}/${CASE}.${ofiles}
     fi
-    mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    ${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
   fi
 done
 

@@ -103,7 +103,7 @@ ${APRUNO} ./hafs_utils_orog.x < INPS 2>&1 | tee ./orog.log
 export err=$?; err_chk
 
 outfile=oro.C${res}.tile${tile}.nc
-mv ./out.oro.nc $outdir/$outfile
+${NMV} ./out.oro.nc $outdir/$outfile
 echo "file $outdir/$outfile is created"
 echo "Successfully running $executable "
 

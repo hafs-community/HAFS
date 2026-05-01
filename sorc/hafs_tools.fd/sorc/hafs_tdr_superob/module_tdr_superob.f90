@@ -1,5 +1,11 @@
 MODULE TDR_SUPEROB
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Authors and history:
+!   -- 202603, Brittany Dahl (Univ. of Miami/CIMAS)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 USE TDR_COMMON
 
 IMPLICIT NONE
@@ -404,9 +410,10 @@ logical                         :: fileexists
 ! Namelist
 character(11)                   :: nml_filename
 integer                         :: nml_unit, iost
-real                            :: elevmax, minraddis, maxraddis, draddis, dazm, stdrv, minazspan, minrv, maxrv
+real                            :: elevmax, minraddis, maxraddis, draddis, dazm, maxstd, minazspan, minrv, maxrv
 integer                         :: minbinct, nclose
-namelist /so_attribute/ elevmax, minraddis, maxraddis, draddis, dazm, stdrv, minazspan, minrv, maxrv, minbinct, nclose
+logical                         :: limit_std
+namelist /so_attribute/ elevmax, minraddis, maxraddis, draddis, dazm, limit_std, maxstd, minazspan, minrv, maxrv, minbinct, nclose
 
 ! Sweep parameters
 integer                         :: i, j, k, irawradial
@@ -434,7 +441,7 @@ real                                            :: vr_missing
 real                                            :: min_elv
 real                                            :: max_radius, alpha1, d1, d2, d3, d4
 real                                            :: x, y, alpha
-real                                            :: dda, ddr, mean
+real                                            :: dda, ddr, mean, stdrv
 integer, allocatable, dimension(:)              :: raw_num_bin
 real, dimension(max_allowed_obs)                :: rtrack, rtrack_qc1, raw_hgt, hgt_qc1
 real, allocatable, dimension(:,:)               :: rtrack2
@@ -444,6 +451,7 @@ double precision, allocatable, dimension(:,:)   :: bin_stats
 double precision, allocatable, dimension(:,:)   :: so_vr
 double precision, allocatable, dimension(:,:)   :: close_rv
 double precision, allocatable, dimension(:)     :: close_dis
+double precision, dimension(10)                 :: so_wrt
 
 ! Other constants
 real   :: deg2rad, rad2deg
@@ -553,7 +561,7 @@ pop_range_loop: do iradbin = 1, n_rad_bins
     bin_hgt_offaxis(i_bin) = cos(bin_azm(i_bin) * deg2rad) * bin_rge(i_bin)
 
     if (debug_level .eq. 2) then
-      write(debug_binlist_unit,'(i5, 1X, 3(f8.3,1X))', iostat=iost) i_bin,bin_azm(i_bin),&
+      write(debug_binlist_unit,'(i5, 1X, 3(f8.3,1X))', iostat=iost) i_bin,bin_azm(i_bin), &
         r_dis,bin_hgt_offaxis(i_bin)
       call check_iostat_write('calc_superobs',debug_binlist_filename,iost)
     endif ! if (debug_level .eq. 2)
@@ -582,7 +590,7 @@ nrawradials = size(timerad,1)
 ! Difference between min azm angles in the sweep and gate azm angle
 ! accounts for orientation of aircraft.
 min_elv = 0.
-min_elv_idx = 0
+min_elv_idx = 1
 max_radius = radius(maxgates) ! farthest distance from radar
 
 ! Search for radial with min. elevation angle wrt nadir ("bottom" of sweep)
@@ -646,7 +654,7 @@ do j = 1, nrawradials
     raw_hgt(n_raw_obs)  = cos(theta(j)*deg2rad)*rtrack(n_raw_obs)
 
     if (debug_level .eq. 2) then
-      write(debug_rawobs_unit,'(f15.0,11(f12.3))',iostat=iost)(raw_vr(n_raw_obs,k),k=1,9),&
+      write(debug_rawobs_unit,'(f15.0,11(f12.3))',iostat=iost)(raw_vr(n_raw_obs,k),k=1,9), &
         rtrack(n_raw_obs),raw_hgt(n_raw_obs)
       call check_iostat_write('calc_superobs',debug_rawobs_filename,iost)
     endif
@@ -679,7 +687,7 @@ do i = 1,n_raw_obs
     hgt_qc1(n_qc1_obs)    = raw_hgt(i)
 
     if (debug_level .eq. 2) then
-      write(debug_qc1obs_unit,'(f15.0,11(f12.3))',iostat=iost)(vr_qc1(n_qc1_obs,j),j=1,9),&
+      write(debug_qc1obs_unit,'(f15.0,11(f12.3))',iostat=iost)(vr_qc1(n_qc1_obs,j),j=1,9), &
         rtrack_qc1(n_qc1_obs),hgt_qc1(n_qc1_obs)
       call check_iostat_write('calc_superobs',debug_qc1obs_filename,iost)
     endif ! if (debug_level .eq. 2)
@@ -744,18 +752,20 @@ do i = 1,n_all_bins
     mean = mean/raw_num_bin(i)
 
     ! Std
-    !stdm = 0.
-    !do j = 1, raw_num_bin(i)
-    !    dvr = abs(raw_data_bin(i, j, 8) - mean) / stdrv
+    stdrv = 0.
+    do j = 1, raw_num_bin(i)
+        stdrv = stdrv + abs(raw_data_bin(i, j, 8) - mean)**2
+    enddo
+    stdrv = sqrt(stdrv/raw_num_bin(i))
 
     bin_stats(i,1) = raw_num_bin(i)
     bin_stats(i,2) = mean
-    !bin_stats(i,3) = stdev
+    bin_stats(i,3) = stdrv
     !bin_stats(i,4) =
 
     if (debug_level .eq. 2) then
-      write(debug_binavg_unit,'(f15.0,8(f12.3),i4)',iostat=iost)raw_data_bin(i,1,1:3),bin_hgt_offaxis(i),&
-        bin_azm(i),raw_data_bin(i,1,6),bin_rge(i),bin_stats(i,2),&
+      write(debug_binavg_unit,'(f15.0,8(f12.3),i4)',iostat=iost)raw_data_bin(i,1,1:3),bin_hgt_offaxis(i), &
+        bin_azm(i),raw_data_bin(i,1,6),bin_rge(i),bin_stats(i,2), &
         rtrack2(i,1),raw_num_bin(i)
       call check_iostat_write('calc_superobs',debug_binavg_filename,iost)
     endif
@@ -763,18 +773,19 @@ do i = 1,n_all_bins
   else
     bin_stats(i,1) = raw_num_bin(i)
     bin_stats(i,2) = vr_missing
+    bin_stats(i,3) = vr_missing
   endif
 enddo
 if (debug_level .eq. 2) close(debug_binavg_unit)
 
 ! Pin down elevation angle of superob bin based on closest ob to bin center
-allocate(close_rv(nclose,9))
+allocate(close_rv(nclose,11))
 allocate(close_dis(nclose))
 do i=1,n_all_bins
   if(raw_num_bin(i) >= minbinct) then
     n = nclose ! cap number of obs in bin at nclose
     if (raw_num_bin(i) <= nclose) n = raw_num_bin(i)
-    close_rv(1:nclose,1:9) = vr_missing
+    close_rv(1:nclose,1:11) = vr_missing
     close_dis(1:nclose) = 999.
     do j=1,n
       close_rv(j,1:9) = raw_data_bin(i, j, 1:9)
@@ -789,8 +800,10 @@ do i=1,n_all_bins
 
     j = minloc(close_dis(1:n),dim=1)  ! j = index of closest distance in close_dis array
     so_vr(i,1:7) = close_rv(j,1:7)
-    so_vr(i,8) = bin_stats(i,2) ! mean vr
-    so_vr(i,9) = close_rv(j,9)
+    so_vr(i,8)   = bin_stats(i,2) ! mean vr
+    so_vr(i,9)   = close_rv(j,9)
+    so_vr(i,10)  = bin_stats(i,1) ! ob count in bin
+    so_vr(i,11)  = bin_stats(i,3) ! bin stdev
   else
     so_vr(i,8) = vr_missing
   endif
@@ -803,7 +816,8 @@ if (debug_level .ge. 1) then
 
   do i=1,n_all_bins
     if ( so_vr(i,8) .ne. vr_missing ) then
-      write(swpso_unit,'(A2,1X,A14,1X,8(f12.3))',iostat=iost) tailno,swptime_str,so_vr(i,2:9)
+      so_wrt = so_vr(i,2:11)
+      write(swpso_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
       call check_iostat_write('calc_superobs',swpso_filename,iost)
     endif
   enddo
@@ -816,9 +830,18 @@ if (fileexists) then
   open(unit=so_unit, file=superob_filename, status='old', action='write', position='append', iostat=iost)
   call check_iostat_open('calc_superobs',superob_filename,iost)
   do i=1,n_all_bins
-    if ( so_vr(i,8) .ne. vr_missing ) then
-      write(so_unit,'(A2,1X,A14,1X,8(f12.3))',iostat=iost) tailno,swptime_str,so_vr(i,2:9)
-      call check_iostat_write('calc_superobs',superob_filename,iost)
+    if (limit_std) then
+      if ( (so_vr(i,8) .ne. vr_missing) .and. (so_vr(i,11) .le. maxstd) ) then
+        so_wrt = so_vr(i,2:11)
+        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
+        call check_iostat_write('calc_superobs',superob_filename,iost)
+      endif
+    else
+      if ( so_vr(i,8) .ne. vr_missing ) then
+        so_wrt = so_vr(i,2:11)
+        write(so_unit,'(A2,1X,A14,1X,10(f12.3))',iostat=iost) tailno,swptime_str,so_wrt
+        call check_iostat_write('calc_superobs',superob_filename,iost)
+      endif
     endif
   enddo
   close(so_unit)
@@ -826,9 +849,18 @@ else
   open(unit=so_unit, file=superob_filename, status='new', action='write', iostat=iost)
   call check_iostat_open('calc_superobs',superob_filename,iost)
   do i=1,n_all_bins
-    if ( so_vr(i,8) .ne. vr_missing ) then
-      write(unit=so_unit, fmt='(A2,1X,A14,1X,8(f12.3))', iostat=iost) tailno,swptime_str,so_vr(i,2:9)
-      call check_iostat_write('calc_superobs',superob_filename,iost)
+    if (limit_std) then
+      if ( (so_vr(i,8) .ne. vr_missing) .and. (so_vr(i,11) .le. maxstd) ) then
+        so_wrt = so_vr(i,2:11)
+        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_wrt
+        call check_iostat_write('calc_superobs',superob_filename,iost)
+      endif
+    else
+      if ( so_vr(i,8) .ne. vr_missing ) then
+        so_wrt = so_vr(i,2:11)
+        write(unit=so_unit, fmt='(A2,1X,A14,1X,10(f12.3))', iostat=iost) tailno,swptime_str,so_wrt
+        call check_iostat_write('calc_superobs',superob_filename,iost)
+      endif
     endif
   enddo
   close(so_unit)
