@@ -105,10 +105,15 @@ fi
 mkdir ${DATA}/bkg
 cd ${DATA}/bkg
 ${NLN} ${RESTARTinp}/${FV3_AKBK_FILE} .
-
-export INPUT_FILE3=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf003${GSUFFIX:-.nc}
-export INPUT_FILE6=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf006${GSUFFIX:-.nc}
-export INPUT_FILE9=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf009${GSUFFIX:-.nc}
+if [ $GFSVER = "PROD2021" ]; then
+  export INPUT_FILE3=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf003${GSUFFIX:-.nc}
+  export INPUT_FILE6=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf006${GSUFFIX:-.nc}
+  export INPUT_FILE9=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${ENSID}/gdas.t${hhprior}z.atmf009${GSUFFIX:-.nc}
+elif [ $GFSVER = "PROD2026" ]; then
+  export INPUT_FILE3=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${ENSID}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f003.nc
+  export INPUT_FILE6=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${ENSID}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f006.nc
+  export INPUT_FILE9=${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${ENSID}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f009.nc
+fi
 
 # Create mosaic files
 mkdir ${DATA}/INPUT

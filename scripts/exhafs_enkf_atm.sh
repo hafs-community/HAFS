@@ -379,8 +379,8 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
-for imem in $(seq 2 $nens); do
-  memout="mem"$(printf %03i $imem)
+for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
+  memout="mem"$(printf %03i $mem)
   mkdir -p ${RESTARTens_anl}/${memout}
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/${FV3_CPLR_ENS_FILE}
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE}
@@ -390,4 +390,25 @@ for imem in $(seq 2 $nens); do
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
+#add missing sfc_data variables from the background file
+  fileA=${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}
+  fileB=${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}
+get_vars() {
+    ncdump -h "$1" | \
+    sed -n '/variables:/,/^$/p' | \
+    grep "(" | \
+    awk '{print $2}' | \
+    awk -F'(' '{print $1}' | \
+    sort -u
+}
+  varsA=$(get_vars "$fileA")
+  varsB=$(get_vars "$fileB")
+  missing_vars=$(comm -23 <(echo "$varsA") <(echo "$varsB"))
+  if [ -z "$missing_vars" ]; then
+      echo "No missing variables found. File B is already up to date."
+      exit 0
+  fi
+  var_list=$(echo $missing_vars | tr ' ' ',')
+  echo "Attaching variables: $var_list"
+  ncks -A -v "$var_list" "$fileA" "$fileB"
 done

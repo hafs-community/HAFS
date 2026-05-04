@@ -1,4 +1,4 @@
-## This is the system-specific configuration file for jet
+## This is the system-specific configuration file for gaeac6
 [config]
 ## Project disk area
 disk_project=drsa-hurr1
@@ -25,12 +25,12 @@ COMIN={COMhafs}
 COMOUT={COMhafs}
 COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
 COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
-COMgfs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMGFSv16
-COMINobs={COMgfs}
+COMgfs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMGFSv17
+COMINobs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMOBSPROCv1.2
 COMINgfs={COMgfs}
 COMINgdas={COMgfs}
 COMINarch={COMgfs}/syndat
-COMrtofs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMRTOFSv2.5_new
+COMrtofs=/gpfs/f6/drsa-hurr1/world-shared/noscrub/hafs-input/COMRTOFSv2.5
 COMINrtofs={COMrtofs}
 COMINmsg={COMINgfs}
 COMINhafs={COMINgfs}
@@ -48,5 +48,4 @@ quilting_restart=.false.
 
 [holdvars]
 WHERE_AM_I=gaeac6
-WHICH_JET=none
 

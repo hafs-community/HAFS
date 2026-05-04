@@ -37,7 +37,7 @@ hhprior=$(echo ${CDATEprior} | cut -c9-10)
 #hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
 atmos="atmos/"
-COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
+COMINhafs_OBS=${COMINhafs_OBS:-${COMINobs}/hafs.$PDY/$cyc/${atmos}}
 RUN_ANALYSIS=${RUN_ANALYSIS:-NO}
 ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 use_bufr_nr=${use_bufr_nr:-no}
@@ -450,12 +450,20 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
-  if [[ -s ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias ]]; then
-    ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias gdas.t${cyc}z.abias
+if [ $GFSVER = "PROD2021" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
+fi
+  if [[ -s ${SATBIAS_IN} ]]; then
+    ${NCP} -p ${SATBIAS_IN} gdas.t${cyc}z.abias
     sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
   fi
-  if [[ -s ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc ]]; then
-    ${NCP} -p ${COMINobs}/gdas.$ymdprior/$hhprior/${atmos}/gdas.t${hhprior}z.abias_pc gdas.t${cyc}z.abias_pc
+  if [[ -s ${SATBIAS_PC} ]]; then
+    ${NCP} -p ${SATBIAS_PC} gdas.t${cyc}z.abias_pc
   fi
 ########## Prepare yaml or json files #######################
   ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda

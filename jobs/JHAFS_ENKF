@@ -34,7 +34,7 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ ${ldo_enscalc_option} -eq 2 ]]; then
     # Detect platform and load modules if not run by NCO
     source ${USHhafs}/hafs_pre_job.sh.inc
     export machine=${WHERE_AM_I:-wcoss2}
-    if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
+    if [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
       module purge
       module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
       module load gsi_${machine}.intel
@@ -49,9 +49,6 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ ${ldo_enscalc_option} -eq 2 ]]; then
   # setpdy.sh # only needed for the launch job
     # Get PDY
     source ${WORKhafs}/PDY
-  fi
-  if [[ "${ANALYSIS_MODEL}" = "JEDI" ]]; then
-    module load nco
   fi
 else
   source ${USHhafs}/hafs_pre_job.sh.inc
@@ -92,6 +89,9 @@ else
   export OMP_NUM_THREADS=1
   export OMP_PROC_BIND=true
   export I_MPI_COLL_INTRANODE=pt2pt
+fi
+if [[ "${ANALYSIS_MODEL}" = "JEDI" ]]; then
+  module load nco
 fi
 source ${USHhafs}/hafs_runcmd.sh.inc
 

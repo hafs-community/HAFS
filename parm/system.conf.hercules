@@ -25,12 +25,12 @@ COMIN={COMhafs}
 COMOUT={COMhafs}
 COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
 COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
-COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv16
-COMINobs={COMgfs}
+COMgfs=/work/noaa/hwrf/noscrub/hafs-input/COMGFSv17
+COMINobs=/work/noaa/hwrf/noscrub/hafs-input/COMOBSPROCv1.2
 COMINgfs={COMgfs}
 COMINgdas={COMgfs}
 COMINarch={COMgfs}/syndat
-COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2.5_new
+COMrtofs=/work/noaa/hwrf/noscrub/hafs-input/COMRTOFSv2.5
 COMINrtofs={COMrtofs}
 COMINmsg={COMINgfs}
 COMINhafs={COMINgfs}
@@ -48,5 +48,4 @@ quilting_restart=.false.
 
 [holdvars]
 WHERE_AM_I=hercules
-WHICH_JET=none
 

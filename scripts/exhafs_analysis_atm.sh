@@ -139,16 +139,6 @@ FV3_SFCW_FILE9=${ymdtp03}.${hhtp03}0000.fv_srf_wnd.res${neststr}${tilestr}.nc
 FV3_CPLR_FILE9=${ymdtp03}.${hhtp03}0000.coupler.res
 FV3_AKBK_FILE9=${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}.nc
 
-if [ $GFSVER = PROD2021 ]; then
-  export atmos="atmos/"
-  export USE_GFS_NEMSIO=.false.
-  export USE_GFS_NCIO=.true.
-  GSUFFIX=${GSUFFIX:-.nc}
-else
-  echo "FATAL ERROR: Unknown or unsupported GFS version ${GFSVER}"
-  exit 9
-fi
-
 # Diagnostic files options
 export netcdf_diag=${netcdf_diag:-".true."}
 export binary_diag=${binary_diag:-".false."}
@@ -321,7 +311,11 @@ if [ ${RUN_ENVAR} = "YES" ]; then
         for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
           mkdir ${DATA}/ensemble_data/mem${mem}
           for fhh in $fhrs; do
-            ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/gdas.atmf0${fhh}
+            if [ $GFSVER = "PROD2021" ]; then
+              ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/gdas.atmf0${fhh}
+            elif [ $GFSVER = "PROD2026" ]; then
+              ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/gdas.atmf0${fhh}
+            fi
           done
         done
       fi
@@ -337,7 +331,11 @@ else ## Should be 3DVar, But since JEDI is having trouble with static B. Here us
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
     mkdir ${DATA}/ensemble_data/mem${mem}
     for fhh in $fhrs; do
-      ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
+      if [ $GFSVER = "PROD2021" ]; then
+        ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/atmos/mem${mem}/gdas.t${hhprior}z.atmf0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
+      elif [ $GFSVER = "PROD2026" ]; then
+        ${NLN} ${COMINgdas}/enkfgdas.${ymdprior}/${hhprior}/mem${mem}/model/atmos/history/enkfgdas.t${hhprior}z.atm.f0${fhh}${GSUFFIX:-.nc} ${DATA}/ensemble_data/mem${mem}/enkfgdas.${ymdprior}${hhprior}.atmf0${fhh}
+      fi
     done
   done
 fi

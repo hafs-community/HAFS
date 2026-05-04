@@ -531,7 +531,6 @@ def yesno(b):
 
 VARS.update(SID=stid.upper(),  stormlabel=str(stormlabel),
             WHERE_AM_I=conf.get('holdvars','WHERE_AM_I'),
-            WHICH_JET=conf.get('holdvars','WHICH_JET','none'),
             MORE_LAUNCH_VARS=more_launch_vars,
             CASE_ROOT=case_root,
             SITE_FILE=site_file,

@@ -12,7 +12,6 @@
 #   the whole setup.
 # History:
 #   04/10/2019: Initial version for HAFS applciation (adapted from HWRF)
-#   05/26/2020: Enable supporting for HYCOM ocean coupling
 #      12/2020: Enable supporting various DA capabilities (FGAT, EnVar, ENSDA)
 #      03/2022: Enable regional/global moving nesting configurations
 #   05/20/2022: Support vortex initialiation capability
@@ -1378,10 +1377,6 @@ class HAFSLauncher(HAFSConfig):
 
         * config.input_catalog --- input catalog (conf section) name.
             Default: $INPUT_CATALOG or "hafsdata"
-
-        * config.RUN_ENVIR --- NCO if you are NCEP Central Operations
-            (NCO).  This is used to turn on or off DBNet alerts and
-            other NCO-specific options.
 
         In addition, the following directories are added to the [dir]
         section:

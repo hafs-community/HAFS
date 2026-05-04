@@ -160,7 +160,7 @@ export err=$?; err_chk
 # Rename the OBC files
 for var in ssh ts uv; do
   for segm in north south east west; do
-    mv rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
+    ${NMV} rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
     # Deliver to intercom
     ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
   done
@@ -177,7 +177,12 @@ PARMins=":UGRD:10 m above ground|:VGRD:10 m above ground|:PRES:surface|:PRATE:su
 PARMlist="${PARMave}|${PARMins}"
 
 # Use gfs forcing from prior cycle's 6-h forecast
-grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
+if [ $GFSVER = "PROD2021" ]; then
+  grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/products/atmos/grib2/0p25/gfs.t${cyc_prior}z.pres_a.0p25.f006.grib2
+fi
 if [ ! -s ${grib2_file} ]; then
   echo "FATAL ERROR: ${grib2_file} does not exist. Exiting"
   exit 1
@@ -195,8 +200,12 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le ${FHRE} ]; do
 
 # Use gfs 0.25 degree grib2 files
-grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
-
+if [ $GFSVER = "PROD2021" ]; then
+  grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/products/atmos/grib2/0p25/gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
+fi
 # Check and wait for input data
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0

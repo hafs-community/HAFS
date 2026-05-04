@@ -17,7 +17,7 @@ module use ../modulefiles
 module load hafs.${target}
 module list
 
-if [ $target = hera ] || [ $target = orion ] || [ $target = jet ] || [ $target = hercules ]; then
+if [ $target = hera ] || [ $target = orion ] || [ $target = hercules ]; then
   export USE_NOEXECSTACK=OFF
 fi
 

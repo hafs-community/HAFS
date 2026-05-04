@@ -39,13 +39,7 @@ else
   export LEVS=${LEVS:-65}
 fi
 
-if [ $GFSVER = PROD2021 ]; then
-  export atmos="atmos/"
-elif [ $GFSVER = PROD2019 ]; then
-  export atmos=""
-else
-  export atmos="atmos/"
-fi
+export atmos="atmos/"
 
 export PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
@@ -226,13 +220,21 @@ ${NLN} ${PARMgsi}/global_ozinfo.txt ./ozinfo
 ${NLN} ${PARMgsi}/hafs_convinfo.txt ./convinfo
 
 # Workflow will read from previous cycles for satbias predictors if online_satbias is set to yes
+if [ $GFSVER = "PROD2021" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
+fi
 if [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "YES" ]; then
   PASSIVE_BC=.true.
   UPD_PRED=1
   if [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] || [ ! -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     echo "Prior cycle satbias data does not exist. Grabbing satbias data from GDAS"
-    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-    ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+    ${NLN} ${SATBIAS_IN}                                                           satbias_in
+    ${NLN} ${SATBIAS_PC}                                                           satbias_pc
   elif [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias ] && [ -s ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc ]; then
     ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias            satbias_in
     ${NLN} ${COMOLD}/${old_out_prefix}.${RUN}.${gridstr}.analysis.abias_pc         satbias_pc
@@ -246,8 +248,8 @@ elif [ ${online_satbias} = "yes" ] && [ ${RUN_ENVAR} = "NO" ]; then
 else
   PASSIVE_BC=.false.
   UPD_PRED=0
-  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias           satbias_in
-  ${NLN} ${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc        satbias_pc
+  ${NLN} ${SATBIAS_IN}                                                             satbias_in
+  ${NLN} ${SATBIAS_PC}                                                             satbias_pc
 fi
 
 # Make enkf namelist

@@ -140,14 +140,10 @@ class HAFSDataModelInsane(HAFSSanityError):
 ########################################################################
 # OCEAN AND WAVE EXCEPTIONS
 
-#NOTE: See pom.exceptions for more
 class OceanInitFailed(HAFSError):
     """!Raised when the ocean init did not produce some expected outputs."""
 class NoOceanData(HAFSError):
     """!Raised when the parent global ocean model data was unavailable."""
-class OceanExeUnspecified(OceanInitFailed):
-    """!Raised when the HyCOM init foregets to choose an executable for
-    the forecast job."""
 class InvalidOceanInitMethod(OceanInitFailed):
     """!Raised when an invalid ocean initialization method is requested."""
 class OceanRestartMissing(OceanInitFailed):
