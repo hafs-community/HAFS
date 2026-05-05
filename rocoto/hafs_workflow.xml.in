@@ -724,7 +724,9 @@
         <metataskdep metatask="atm_init_fgat_ens"/>
 @**   endif
 @** elseif DIRECT_GDASENS==NO
+@**   if ANALYSIS_MODEL==JEDI
         <metataskdep metatask="gdas_ens"/>
+@**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
         <or>
