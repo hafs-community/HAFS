@@ -1681,9 +1681,6 @@ class HAFSLauncher(HAFSConfig):
         atm_init_fgat_flag=self.getbool('config','run_atm_init_fgat')
         self.set('holdvars','cap_run_atm_init_fgat',('YES' if atm_init_fgat_flag else 'NO'))
 
-        atm_init_fgat_ens_flag=self.getbool('config','run_atm_init_fgat_ens')
-        self.set('holdvars','cap_run_atm_init_fgat_ens',('YES' if atm_init_fgat_ens_flag else 'NO'))
-
         atm_init_ens_flag=self.getbool('config','run_atm_init_ens')
         self.set('holdvars','cap_run_atm_init_ens',('YES' if atm_init_ens_flag else 'NO'))
 

@@ -40,11 +40,6 @@ source ${USHhafs}/hafs_runcmd.sh.inc
 export DATA=${DATAinit}/post
 export CDATEprior=$(${NDATE} -6 $YMDH)
 export PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
-if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
-  if [ ${FGAT_HR} = 03 ]; then
-    export PDY=${PDY_prior}
-  fi
-fi
 mkdir -p ${DATA}
 cd ${DATA}
 

@@ -74,9 +74,6 @@ if [ ${ENSDA} = YES ]; then
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
   export INIDIR=${COMINgdas}/enkfgdas.${PDY_prior}/${cyc_prior}/atmos/mem${ENSID}
   export INCDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/atmos/mem${ENSID}
-  if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
-    export OUTDIR=${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}_ens/mem${ENSID}
-  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_ic_fgat${FGAT_HR}${jobidstr}
   export OUTDIR=${OUTDIR:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}
@@ -107,9 +104,6 @@ if [ $ictype = "gfsnetcdf" ]; then
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf006.nc
     sfc_files_input_grid=gdas.t${cyc_prior}z.sfcf006.nc
     inc_files_input_grid=gdas.t${cyc}z.ratminc.nc
-    if [ "${RUN_ATM_INIT_FGAT_ENS:-NO}" = YES ]; then
-      atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
-    fi
   elif [ ${FGAT_MODEL} = gdas ]; then
     INIDIR=${COMINgdas}/gdas.${PDY_prior}/${cyc_prior}/atmos
     atm_files_input_grid=gdas.t${cyc_prior}z.atmf0${FGAT_HR}.nc
