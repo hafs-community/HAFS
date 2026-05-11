@@ -725,7 +725,7 @@
 @**   endif
 @** elseif DIRECT_GDASENS==NO
 @**   if ANALYSIS_MODEL==JEDI
-        <metataskdep metatask="gdas_ens"/>
+        <metataskdep metatask="ens_prep"/>
 @**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
@@ -1031,12 +1031,12 @@
 @** if RUN_ENSDA==NO
 @**   if ANALYSIS_MODEL==JEDI
 @** 	if DIRECT_GDASENS==NO
-  <metatask name="gdas_ens" mode="parallel">
+  <metatask name="ens_prep" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
-    <task name="gdas_ens#MEM#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_GDAS_ENS</command>
-      <jobname>hafs_gdas_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_gdas_ens#MEM#.log</cyclestr></join>
+    <task name="ens_prep#MEM#" maxtries="&MAX_TRIES;">
+      <command>&JOBhafs;/JHAFS_ENS_PREP</command>
+      <jobname>hafs_ens_prep#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <join><cyclestr>&WORKhafs;/hafs_ens_prep#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
       &MEMORYJEDI;
@@ -1044,14 +1044,18 @@
       &PE_EXTRA;
       &CORES_EXTRA;
       &CLUSTER_COMPUTE;
-      &GDAS_ENS_RESOURCES;
+      &ENS_PREP_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSID</name><value>#MEM#</value></envar>
 
       <dependency>
         <and>
-          <taskdep task="atm_init"/>
-          <metataskdep metatask="atm_init_fgat"/>
+          <or>
+            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
+            <taskdep task="atm_init"/>
+            <taskdep task="atm_vi"/>
+          </or>
+          <taskdep task="atm_prep"/>
           <and>
 @** if GFSVER==PROD2021
             <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>

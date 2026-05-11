@@ -127,15 +127,15 @@ cd $DATA
 if [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
   if [[ "${RRFS_RECENTER}" = NO ]] || [[ ${ldo_enscalc_option} -eq 0 ]]; then
     ${NLN} ${HOMEhafs}/ush/wxflow .
-    ${HOMEhafs}/scripts/exhafs_enkf_atm.sh
+    ${HOMEhafs}/scripts/exhafs_atm_enkf.sh
   else
-    ${HOMEhafs}/scripts/exhafs_recenter.sh
+    ${HOMEhafs}/scripts/exhafs_atm_recenter.sh
   fi
 else
   if [[ "${RRFS_RECENTER}" = NO ]] || [[ ${ldo_enscalc_option} -eq 0 ]]; then
     ${HOMEhafs}/scripts/exhafs_enkf.sh
   else
-    ${HOMEhafs}/scripts/exhafs_recenter.sh
+    ${HOMEhafs}/scripts/exhafs_atm_recenter.sh
   fi
 fi
 export err=$?; err_chk

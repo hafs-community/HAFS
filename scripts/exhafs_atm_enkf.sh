@@ -131,7 +131,8 @@ mkdir -p ${DIAGanl}
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
 # Link DataFix files
-${NCP} ${PARMjedi}/Fix/* .
+${NCP} ${PARMjedi}/fmsmpp.nml .
+${NCP} ${PARMjedi}/satinfo .
 sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz}|g" \
@@ -140,7 +141,7 @@ sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_LAYOUTY_|${layouty_enkf}|g" \
     -e "s|_DLON_|${target_lon}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_ens.nml
+    ${PARMjedi}/input_hafs.nml > input_hafs_ens.nml
 
 cd ${DATA}/bkg
 ${NLN} ${RESTARTinp}/${FV3_CORE_ENS_FILE} .
@@ -319,8 +320,6 @@ fi
 #----------------------------------------------
 # Prepare yaml
 #----------------------------------------------
-export basic_yaml_dir=${PARMjedi}/yaml_templates/basic_config
-export obs_yaml_dir=${PARMjedi}/yaml_templates/obtype_config
 export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 cd ${DATA}
 mkdir ${DATA}/hofx #Create hofx for diagfile output
@@ -391,8 +390,8 @@ for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
 #add missing sfc_data variables from the background file
-  fileA=${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}
-  fileB=${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}
+  fileA="${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}"
+  fileB="${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}"
 get_vars() {
     ncdump -h "$1" | \
     sed -n '/variables:/,/^$/p' | \
@@ -401,14 +400,17 @@ get_vars() {
     awk -F'(' '{print $1}' | \
     sort -u
 }
-  varsA=$(get_vars "$fileA")
-  varsB=$(get_vars "$fileB")
-  missing_vars=$(comm -23 <(echo "$varsA") <(echo "$varsB"))
+  tmpA=$(mktemp)
+  tmpB=$(mktemp)
+  get_vars "$fileA" > "$tmpA"
+  get_vars "$fileB" > "$tmpB"
+  missing_vars=$(comm -23 "$tmpA" "$tmpB")
+  rm -f "$tmpA" "$tmpB"
   if [ -z "$missing_vars" ]; then
       echo "No missing variables found. File B is already up to date."
       exit 0
   fi
-  var_list=$(echo $missing_vars | tr ' ' ',')
+  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
   echo "Attaching variables: $var_list"
   ncks -A -v "$var_list" "$fileA" "$fileB"
 done

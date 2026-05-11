@@ -15,8 +15,3 @@ module purge
 
 export BUILD_TYPE=${BUILD_MODE}
 ./build.sh -f -t ${target} 
-
-cd ${cwd}/../parm/analysis/jedi
-if [ -d jcb-hdas ]; then rm jcb-hdas; fi
-ln -sf ${cwd}/hafs_jedi.fd/parm/jcb-hdas .
-cd ${cwd}

@@ -65,13 +65,14 @@ export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
 
 FV3_AKBK_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}.nc
 
-export RESTARTout_dir=${RESTARTout_dir:-${WORKhafs}/intercom/GDAS_ENS/mem${ENSID:-001}}
-export DATA=${DATA:-${WORKhafs}/GDAS_ENS/mem${ENSID:-001}${jobidstr}}
+export RESTARTout_dir=${RESTARTout_dir:-${WORKhafs}/intercom/ENS_PREP/mem${ENSID:-001}}
+export DATA=${DATA:-${WORKhafs}/ENS_PREP/mem${ENSID:-001}${jobidstr}}
 
 # We should already be in $DATA, but extra cd to be sure.
 cd $DATA
 # Link DataFix files
-${NCP} ${PARMjedi}/Fix/* .
+${NCP} ${PARMjedi}/fmsmpp.nml .
+${NCP} ${PARMjedi}/satinfo .
 sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_NPY_|${npy_ens}|g" \
     -e "s|_NPZ_|${npz_ens}|g" \
@@ -80,7 +81,7 @@ sed -e "s|_NPX_|${npx_ens}|g" \
     -e "s|_LAYOUTY_|${layouty_gdasens}|g" \
     -e "s|_DLON_|${target_lon}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs.nml
+    ${PARMjedi}/input_hafs.nml > input_hafs.nml
 
 if [ ${nest_grids} -ge 2 ]; then
 sed -e "s|_NPX_|${npx_nest}|g" \
@@ -91,11 +92,17 @@ sed -e "s|_NPX_|${npx_nest}|g" \
     -e "s|_LAYOUTY_|${layouty_gdasens}|g" \
     -e "s|_DLON_|${target_lon}|g" \
     -e "s|_DLAT_|${target_lat}|g" \
-    ${PARMjedi}/Fix/input_hafs.nml > input_hafs_nest.nml
+    ${PARMjedi}/input_hafs.nml > input_hafs_nest.nml
 fi
 
 # Copy the first guess or fgat files
-RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat06
+if [ -d ${WORKhafs}/intercom/RESTART_init ]; then
+  RESTARTinp=${WORKhafs}/intercom/RESTART_init
+elif [ -d ${WORKhafs}/intercom/RESTART_vi ]; then
+  RESTARTinp=${WORKhafs}/intercom/RESTART_vi
+else
+  RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
+fi
 
 if [ ! -s ${RESTARTinp}/${FV3_CORE_FILE} ]; then
   echo "WARNING: First guess for DA/Analysis missing"

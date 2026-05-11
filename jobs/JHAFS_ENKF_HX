@@ -122,7 +122,7 @@ cd $DATA
 # Execute ex-script
 if [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
   ${NLN} ${HOMEhafs}/ush/wxflow .
-  ${HOMEhafs}/scripts/exhafs_enkf_hx_atm.sh
+  ${HOMEhafs}/scripts/exhafs_atm_enkf_hx.sh
 else
   ${HOMEhafs}/scripts/exhafs_enkf_hx.sh
 fi

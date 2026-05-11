@@ -100,8 +100,8 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 
-export RESTARTout_dir=${WORKhafs}/intercom/GDAS_ENS/mem${ENSID:-001}
-export DATA=${WORKhafs}/GDAS_ENS/mem${ENSID:-001}${jobidstr}
+export RESTARTout_dir=${WORKhafs}/intercom/ENS_PREP/mem${ENSID:-001}
+export DATA=${WORKhafs}/ENS_PREP/mem${ENSID:-001}${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
@@ -111,7 +111,7 @@ mkdir -p ${RESTARTout_dir}
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_gdas_ens.sh
+${HOMEhafs}/scripts/exhafs_atm_ens_prep.sh
 export err=$?; err_chk
 
 # Cleanup DATA dir

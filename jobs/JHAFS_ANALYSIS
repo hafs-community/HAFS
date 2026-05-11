@@ -169,7 +169,7 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ "${ANALYSIS_MODEL}" = "gsi" ]]; then
  export err=$?; err_chk
 elif [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
  ${NLN} ${HOMEhafs}/ush/wxflow .
- ${HOMEhafs}/scripts/exhafs_analysis_atm.sh
+ ${HOMEhafs}/scripts/exhafs_atm_analysis.sh
  export err=$?; err_chk
 else
  echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"
@@ -244,7 +244,7 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ "${ANALYSIS_MODEL}" = "gsi" ]]; then
  export err=$?; err_chk
 elif [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
  ${NLN} ${HOMEhafs}/ush/wxflow .
- ${HOMEhafs}/scripts/exhafs_analysis_atm.sh
+ ${HOMEhafs}/scripts/exhafs_atm_analysis.sh
  export err=$?; err_chk
 else
  echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"

@@ -466,7 +466,6 @@ fi
     ${NCP} -p ${SATBIAS_PC} gdas.t${cyc}z.abias_pc
   fi
 ########## Prepare yaml or json files #######################
-  ${NCP} -rp ${USHhafs}/bufr2ioda bufr2ioda
   mkdir output
   for file in ${sattypes}; do
    if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
@@ -474,7 +473,7 @@ fi
    fi
   done
 ############### RUN bufrquery #######################
-  ${NCP} -rp ${PARMjedi}/yaml_templates/bufraux aux
+  ${NCP} -rL ${FIXhafs}/bufraux aux
   ${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
   for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
    ${NCP} -rp ${file} .

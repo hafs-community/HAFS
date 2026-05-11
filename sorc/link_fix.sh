@@ -37,4 +37,5 @@ do
   fi
 done
 
+ln -sf ../sorc/hafs_jedi.fd/fix/bufraux .
 echo 'done'
