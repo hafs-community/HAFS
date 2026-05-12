@@ -114,7 +114,7 @@
   <!ENTITY FORECAST_4_RESOURCES "&@[FORECAST_4_RESOURCES:-FORECAST_RESOURCES_300PE];">
   <!ENTITY FORECAST_5_RESOURCES "&@[FORECAST_5_RESOURCES:-FORECAST_RESOURCES_300PE];">
   <!ENTITY FORECAST_6_RESOURCES "&@[FORECAST_6_RESOURCES:-FORECAST_RESOURCES_300PE];">
-  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_RESOURCES_300PE];">
+  <!ENTITY FORECAST_ENS_RESOURCES "&@[FORECAST_ENS_RESOURCES:-FORECAST_RESOURCES_480PE];">
 
   <!-- CPU account name -->
   <!ENTITY CPU_ACCOUNT "@[CPU_ACCOUNT]">
@@ -1858,11 +1858,12 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
-        <!-- Wait until the deterministic forecast job is running or completed. -->
+        <!-- Wait until the deterministic forecast job is running or completed.
         <or>
           <taskdep task="forecast" state="RUNNING"/>
           <taskdep task="forecast"/>
         </or>
+        -->
       </and>
     </dependency>
   </task>

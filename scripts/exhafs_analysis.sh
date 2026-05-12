@@ -78,8 +78,9 @@ export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
 export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_gsi.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
+COMOLD00_Ens=${COMOLD}/../00L/00l.${ymdprior}${hhprior}.RESTART_ens
 RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem001
-if [ ! -s ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ]; then
+if [ ! -s ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.tile1.nc ] && [ ! -s ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.tile1.nc ] ; then
  RUN_ENSDA=NO
  l_both_fv3sar_gfs_ens=.false.
 fi
@@ -218,6 +219,9 @@ if [ ${RUN_ENSDA} = "YES" ]; then
   for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar})
   do
     RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+    if [ -d ${COMOLD00_Ens} ]; then
+        RESTARTens=${COMOLD00_Ens}/mem${mem}
+    fi
     fhh="06"
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.coupler.res ./fv3SAR${fhh}_ens_mem${mem}-coupler.res
     ${NLN} ${RESTARTens}/${PDY}.${cyc}0000.fv_core.res.nc ./fv3SAR${fhh}_ens_mem${mem}-fv3_akbk
