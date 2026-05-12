@@ -244,10 +244,23 @@ def multistorm_priority(args, basins, logger, usage, PARMhafs=None, prelaunch=No
     #                          and Eastern threshold for LANT storms is -25
     #                          Temp fix so relocation does not fail
     if multistorm:
-        #rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
-        ## LJG 2025-09-26: Filter out, e.g., Juliette 20250827 00 west of 117W, and Gabrielle 20250926 12 north of 39N
-        # NOTE FOR v2.2 MERGE: This will obviously break for multistorm in other basins...
-        rv.discard_except(lambda v: -117<=v.lon and v.lon<=-23 and v.lat<=39)
+        try:
+            minlat = conf.getfloat('config','minlat')
+            maxlat = conf.getfloat('config','maxlat')
+            minlon = conf.getfloat('config','minlon')
+            maxlon = conf.getfloat('config','maxlon')
+        except:
+            minlat = -90
+            maxlat = 39
+            minlon = -117
+            maxlon = -23
+        # #rv.discard_except(lambda v: v.basin1!='E' or (v.basin1=='E' and v.lon>=-140))
+        # ## LJG 2025-09-26: Filter out, e.g., Juliette 20250827 00 west of 117W, and Gabrielle 20250926 12 north of 39N
+        # # NOTE FOR v2.2 MERGE: This will obviously break for multistorm in other basins...
+        # rv.discard_except(lambda v: -117<=v.lon and v.lon<=-23 and v.lat<=39)
+        # 2026-05-05
+        logger.info('MULTISTORM: DISCARD STORMS OUTSIDE '+repr([minlat,maxlat,minlon,maxlon]))
+        rv.discard_except(lambda v: minlon<=v.lon and v.lon<=maxlon and minlat<=v.lat and v.lat<=maxlat)
     rv.clean_up_vitals()
     #rv.sort_by_function(rv.hrd_multistorm_sorter)
     # Lew.Gramer@noaa.gov 2023-08-15
