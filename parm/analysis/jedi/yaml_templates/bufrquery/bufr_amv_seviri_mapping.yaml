@@ -1,6 +1,8 @@
 bufr:
   subsets:
-    - NC005091
+    - NC005067
+    - NC005068
+    - NC005069
 
   variables:
     # MetaData
@@ -27,21 +29,24 @@ bufr:
 
     sensorCentralFrequency:
       query: "*/SCCF"
+      type: float
 
     pressure:
       query: "*/PRLC[1]"
+      type: float
 
     # Processing Center
     dataProviderOrigin:
-      query: '*/OGCE[1]'
+      query: '*/OGCE'
     
-    # Generating Application - contains multiple types
-    generatingApplication:
-      query: '*/AMVQIC/GNAPS'
+    # Wind Generating Application
+    windGeneratingApplication:
+      query: '*/AMVQIC{2}/GNAPS'
 
-    # Quality Information - contains multiple types
-    qualityInformation:
-      query: '*/AMVQIC/PCCF'
+    # Quality Information Without Forecast
+    qualityInformationWithoutForecast:
+      query: '*/AMVQIC{2}/PCCF'
+      type: float
 
     # Wind Retrieval Method Information - Computation 
     windComputationMethod:
@@ -50,6 +55,7 @@ bufr:
     # ObsValue - Wind Direction
     windDirection:
       query: '*/WDIR'
+      type: float
 
     # ObsValue - Wind Speed
     windSpeed:
@@ -60,35 +66,40 @@ bufr:
       category:
         variable: satelliteId
         map:
-          _224: npp 
-          _225: n20
-          _226: n21
+          _55: m8 
+          _56: m9
+          _57: m10
+          _70: m11  
 
 encoder:
-# type: netcdf
-
-# dimensions:
-
   globals:
+    - name: "description"
+      type: string
+      value: "Atmospheric Motion Vectors (AMVs) derived from MSG SEVIRI using three spectral bands: longwave IR (LWIR), water vapor/cloud top (WVCT) and visible"
+
     - name: "platformCommonName"
       type: string
-      value: "SUOMI-NPP/NOAA-20/NOAA-21"
+      value: "Meteosat"
 
     - name: "platformLongDescription"
       type: string
-      value: "Low-Earth Orbiting Operational Satellite"
+      value: "Meteosat Second Generation (MSG)"
 
-    - name: "sensor"
+    - name: "sensorCommonName"
       type: string
-      value: "Visible Infrared Imaging Radiometer Suite"
+      value: "SEVIRI"
+
+    - name: "sensorLongDescription"
+      type: string
+      value: "Spinning Enhanced Visible Infra-Red Imager with 12 channels (11 narrow-bandwidth, 1 high-resolution broad-bandwidth VIS)"
 
     - name: "source"
       type: string
-      value: "NCEP BUFR Dump for satellite derived atmospheric motion vectors (satwnd)"
+      value: "U.S. National Weather Service, National Centres for Environmental Prediction (NCEP))"
 
-    - name: "providerFullName"
+    - name: "sourceFiles"
       type: string
-      value: "National Environmental Satellite, Data, and Information Service"
+      value: "NCEP BUFR Dump - satwnd: NC005067 (LWIR), NC005068(VIS), NC005069(WV/CT)"
 
     - name: "processingLevel"
       type: string
@@ -96,7 +107,7 @@ encoder:
 
     - name: "converter"
       type: string
-      value: "BUFR"
+      value: "bufr-query"
 
   variables:
 
@@ -141,10 +152,19 @@ encoder:
       source: variables/windComputationMethod
       longName: "Satellite-derived Wind Computation Method"
 
+    - name: "MetaData/windGeneratingApplication"
+      source: variables/windGeneratingApplication
+      longName: "Wind Generating Application"
+
+    - name: "MetaData/qiWithoutForecast"
+      source: variables/qualityInformationWithoutForecast
+      longName: "Quality Information Without Forecast"
+      units: "percent"
+
     - name: "MetaData/pressure"
       source: variables/pressure
       longName: "Pressure"
-      units: "pa"
+      units: "Pa"
 
     - name: "ObsValue/windDirection"
       source: variables/windDirection

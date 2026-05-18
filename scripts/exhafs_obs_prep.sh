@@ -411,19 +411,18 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_viirs hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr"
+  convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro"
   sattypes="atms ssmis amsua iasi abi cris-fsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
   obstypes="${radtypes} ${convtypes}"
-#  IODAEXEC=${IODAEXEC:-${EXEChafs}/hafs_ioda.x}
-  IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_bc2ioda.x}
+  IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
   GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
   output_dir=${DATA}/jedi_ioda/output
 #  ${NCP} ${IODAEXEC} .
-  ${NCP} ${IODABCEXEC} .
+  ${NCP} ${IODABCEXEC} ./hafs_jedi_bc2ioda.x
   for file in ${satbufrs}; do
     if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
       ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
@@ -450,6 +449,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d gfs.t${cyc}z.gnssro.bufr_d
+  fi
 if [ $GFSVER = "PROD2021" ]; then
   SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
   SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
@@ -474,7 +476,6 @@ fi
   done
 ############### RUN bufrquery #######################
   ${NCP} -rL ${FIXhafs}/bufraux aux
-  ${NCP}  -p ${EXEChafs}/hafs_bufr2netcdf.x .
   for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
    ${NCP} -rp ${file} .
   done
@@ -504,11 +505,13 @@ fi
       sed -e "s|#ANADATE#|${ANADATE}|g" \
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
-	if [[ "${file}" = "osw_ascat" ]]; then
+        if [[ "${file}" = "osw_ascat" ]]; then
           ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
-	else
+        else
           ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
-	fi
+        fi
+      elif [[ "${bufr}" = "gnssro" ]]; then
+        python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         # Extra Check on message type NC005099
      	SUBSET_TO_FIND="5099"
@@ -527,8 +530,8 @@ fi
         ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
         ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
-      else
-        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc >& log_${file}
+      elif [[ "${bufr}" = "satwnd" ]]; then
+        ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
       fi
     fi
     shift
@@ -537,7 +540,7 @@ fi
 ########## Converting ATMS NPP/N20 to ioda nc #################
   for file in ${sattypes}; do
    if [ -s satbias_converter_${file}.yaml ]; then
-    ${APRUNS} ${IODABCEXEC} satbias_converter_${file}.yaml #Bias File 2 IODA
+    ${APRUNS} ./hafs_jedi_bc2ioda.x satbias_converter_${file}.yaml #Bias File 2 IODA
     export err=$?; err_chk
    fi
   done

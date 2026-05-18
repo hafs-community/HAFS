@@ -84,7 +84,6 @@
   <!ENTITY ANALYSIS_D03 "@[ANALYSIS_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
-  <!ENTITY RRFS_RECENTER "@[RRFS_RECENTER]">
   <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
   <!ENTITY RUN_ANALYSIS_MERGE_ENS "@[RUN_ANALYSIS_MERGE_ENS]">
   <!ENTITY RUN_OCEAN "@[RUN_OCEAN]">
@@ -1047,7 +1046,6 @@
       <dependency>
         <and>
           <or>
-            <not><cycleexistdep cycle_offset="-6:00:00"/></not>
             <taskdep task="atm_init"/>
             <taskdep task="atm_vi"/>
           </or>

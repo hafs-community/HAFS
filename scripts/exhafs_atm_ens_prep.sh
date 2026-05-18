@@ -60,7 +60,7 @@ export neststr=${neststr:-""} # ".nest02" for domain 02
 export tilestr=${tilestr:-".tile1"} # ".tile2" for domain 02
 export nesttilestr=${nesttilestr:-""} # ".nest02.tile2" for domain 02
 
-export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_convert.x}
+export ANALYSISEXEC=${ANALYSISEXEC:-${EXEChafs}/hafs_jedi_convert.x}
 export CATEXEC=${CATEXEC:-ncdiag_cat_serial.x}
 
 FV3_AKBK_FILE=${PDY}.${cyc}0000.fv_core.res${neststr}.nc
@@ -154,7 +154,8 @@ sed -e "s|_INTERP_DATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${NCP} ${ANALYSISEXEC} ./hafs_jedi_convert.x
+${APRUNX} ./hafs_jedi_convert.x gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 rm gdas_ens.out.*
 
@@ -169,7 +170,7 @@ sed -e "s|_INTERP_DATE_|${yr}-${mn}-${dy}T${hh}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${APRUNX} ./hafs_jedi_convert.x gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 sed -e "s|_INTERP_DATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_ENS_NML}|g" \
@@ -182,7 +183,7 @@ sed -e "s|_INTERP_DATE_|${yrtp03}-${mntp03}-${dytp03}T${hhtp03}:00:00Z|g" \
     -e "s|_OUTPUT_DIR_|${RESTARTout_dir}|g" \
     ${gdas_ens_yaml}/gdas_ens.yaml > gdas_ens.yaml
 ${SOURCE_PREP_STEP}
-${APRUNX} ${ANALYSISEXEC} gdas_ens.yaml gdas_ens.out
+${APRUNX} ./hafs_jedi_convert.x gdas_ens.yaml gdas_ens.out
 export err=$?; err_chk
 rm gdas_ens.out.*
 

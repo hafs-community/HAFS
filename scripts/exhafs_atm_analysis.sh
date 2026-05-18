@@ -403,8 +403,8 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 # Link GFS/GDAS input and observation files
 radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
-convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_radar_vadwnd conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps"
-convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_radar_vadwnd conventional_sea_ship retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19"
+convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx" #conventional_radar_vadwnd
+convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx" #conventional_radar_vadwnd
 mkdir -p "${DATA}/obs"
 cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
@@ -456,7 +456,16 @@ for type in "${convtypes_array[@]}"; do
     fi
     # Copy source file into ${DATA}/obs once
     if [[ ! -f "$local_ncfile" ]]; then
-      ${NCP} "$src_ncfile" "$local_ncfile"
+      if [[ "$matched_file" == conventional_gnssro_* ]]; then
+        python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check_gpsro.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -i $src_ncfile -o $local_ncfile
+        if [[ ! -s "$local_ncfile" ]]; then
+          echo "Skipping: local file was not generated or is empty: $local_ncfile"
+          checked_convfiles+=("$matched_file")
+          continue
+        fi
+      else
+        ${NCP} "$src_ncfile" "$local_ncfile"
+      fi
 #      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
     checked_convfiles+=("$matched_file")
@@ -590,12 +599,12 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
     -e "s|_LOC_V_|${loc_v}|g" \
     -e "s|_RESOLUTION_|${bump_resolution}|g" \
     bump_nicas.yaml.tmp > bump_nicas.yaml
-${NCP} ${EXEChafs}/hafs_nicas.x .
+${NCP} ${EXEChafs}/hafs_jedi_nicas.x ./hafs_jedi_nicas.x
 if [ ${l4densvar:-.true.} = ".true." ]; then
 #  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
-  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
+  ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
 else
-  ${APRUNC} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
+  ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log
 fi
 mv hdas-atmosphere-templates.yaml hdas-atmosphere-templates_bump.yaml
 rm nicas.log.*
