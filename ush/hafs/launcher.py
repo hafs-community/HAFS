@@ -1654,9 +1654,6 @@ class HAFSLauncher(HAFSConfig):
         fgat_flag=self.getbool('config','run_fgat')
         self.set('holdvars','cap_run_fgat',('YES' if fgat_flag else 'NO'))
 
-        allsky_flag=self.getbool('config','run_allsky')
-        self.set('holdvars','cap_run_allsky',('YES' if allsky_flag else 'NO'))
-
         envar_flag=self.getbool('config','run_envar')
         self.set('holdvars','cap_run_envar',('YES' if envar_flag else 'NO'))
 

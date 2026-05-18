@@ -67,7 +67,6 @@ export naensloc=${naensloc:-1}
 export ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 export ENS_SIZE=${ENS_SIZE:-40}
 export RUN_FGAT=${RUN_FGAT:-NO}
-export RUN_ALLSKY=${RUN_ALLSKY:-NO}
 export FGAT=${FGAT:-NO}
 export RUN_ENVAR=${RUN_ENVAR:-NO}
 export RUN_ENSDA=${RUN_ENSDA:-NO}
