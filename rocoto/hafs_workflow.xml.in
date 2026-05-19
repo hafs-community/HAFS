@@ -719,7 +719,7 @@
 @**   endif
 @** elseif DIRECT_GDASENS==NO
 @**   if ANALYSIS_MODEL==JEDI
-        <metataskdep metatask="ens_prep"/>
+        <taskdep task="ens_prep"/>
 @**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
@@ -1025,44 +1025,40 @@
 @** if RUN_ENSDA==NO
 @**   if ANALYSIS_MODEL==JEDI
 @** 	if DIRECT_GDASENS==NO
-  <metatask name="ens_prep" mode="parallel">
-    <var name="MEM">&ENSIDS;</var>
-    <task name="ens_prep#MEM#" maxtries="&MAX_TRIES;">
-      <command>&JOBhafs;/JHAFS_ENS_PREP</command>
-      <jobname>hafs_ens_prep#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
-      <join><cyclestr>&WORKhafs;/hafs_ens_prep#MEM#.log</cyclestr></join>
-      <account>&ACCOUNT;</account>
-      &RESERVATION;
-      &MEMORYJEDI;
-      <queue>&QUEUE_PE;</queue>
-      &PE_EXTRA;
-      &CORES_EXTRA;
-      &CLUSTER_COMPUTE;
-      &ENS_PREP_RESOURCES;
-      &ENV_VARS;
-      <envar><name>ENSID</name><value>#MEM#</value></envar>
+  <task name="ens_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENS_PREP</command>
+    <jobname>hafs_ens_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ens_prep.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    &MEMORYJEDI;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
+    &ENS_PREP_RESOURCES;
+    &ENV_VARS;
 
-      <dependency>
+    <dependency>
+      <and>
+        <or>
+          <taskdep task="atm_init"/>
+          <taskdep task="atm_vi"/>
+        </or>
+        <taskdep task="atm_prep"/>
         <and>
-          <or>
-            <taskdep task="atm_init"/>
-            <taskdep task="atm_vi"/>
-          </or>
-          <taskdep task="atm_prep"/>
-          <and>
 @** if GFSVER==PROD2021
-            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
-            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem001/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem001/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
 @** endif
 @** if GFSVER==PROD2026
-            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/model/atmos/history/enkfgdas.t@Hz.atm.f006.nc</cyclestr></datadep>
-            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/model/atmos/history/enkfgdas.t@Hz.sfc.f006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem001/model/atmos/history/enkfgdas.t@Hz.atm.f006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem001/model/atmos/history/enkfgdas.t@Hz.sfc.f006.nc</cyclestr></datadep>
 @** endif
-          </and>
         </and>
-      </dependency>
-    </task>
-  </metatask>
+      </and>
+    </dependency>
+  </task>
 @** 	endif
 @**   endif
 @** endif

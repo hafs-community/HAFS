@@ -100,8 +100,8 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 
-export RESTARTout_dir=${WORKhafs}/intercom/ENS_PREP/mem${ENSID:-001}
-export DATA=${WORKhafs}/ENS_PREP/mem${ENSID:-001}${jobidstr}
+export RESTARTout_dir=${WORKhafs}/intercom/ENS_PREP
+export DATA=${WORKhafs}/ENS_PREP${jobidstr}
 
 if [ "${SCRUBDATA:-YES}" = YES ]; then
   rm -rf $DATA
