@@ -10,8 +10,8 @@ module list
 
 export NETCDF_INCLUDE="-I${NETCDF}/include"
 export NETCDF_LDFLAGS="-L${NETCDF}/lib -lnetcdff -lnetcdf"
-export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5}/include}"}
-export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:--L${HDF5}/lib} -lhdf5_hl -lhdf5"}
+export HDF5_INCLUDE=${HDF5_INCLUDE:-"-I${HDF5_INCLUDES:--I${HDF5_ROOT}/include}"}
+export HDF5_LDFLAGS=${HDF5_LDFLAGS:-"-L${HDF5_LIBRARIES:--L${HDF5_ROOT}/lib} -lhdf5_hl -lhdf5"}
 export ZLIB_INCLUDE=${ZLIB_INCLUDE:-"-I${ZLIB_INCLUDES:--I${ZLIB_ROOT}/include}"}
 export ZLIB_LDFLAGS=${ZLIB_LDFLAGS:-"-L${ZLIB_LIBRARIES:--L${ZLIB_ROOT}/lib} -lz -ldl -lm"}
 

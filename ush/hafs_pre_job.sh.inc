@@ -130,6 +130,7 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     source ${HOMEhafs}/versions/run.ver
     module use /apps/ops/test/nco/modulefiles/core
     module load rocoto/${rocoto_ver:-"1.3.5"}
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cray/pe/mpich/8.1.19/ofi/intel/19.0/lib
   fi
   if [[ "${WHERE_AM_I}" = "gaeac6" ]] ; then
      module use /autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles
@@ -139,5 +140,6 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
     module use ${HOMEhafs}/modulefiles
     module load hafs.${WHERE_AM_I}
   fi
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib
 fi
 

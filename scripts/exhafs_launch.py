@@ -276,9 +276,14 @@ def main():
                 alert=produtil.dbnalert.DBNAlert(['MODEL',alert_type,'{job}',fstorm_info])
                 alert()
 
-    Gsi=conf.getbool('config','run_gsi')
-    if Gsi and os.environ.get('ECF_NAME',''):
+    DA=conf.getbool('config','run_analysis')
+    if DA and os.environ.get('ECF_NAME',''):
         cmd=exe('ecflow_client')['--event', 'Analysis']
+        checkrun(cmd,logger=logger)
+
+    Ana_model=conf.getstr('config','analysis_model')
+    if Ana_model == "GSI"and os.environ.get('ECF_NAME',''):
+        cmd=exe('ecflow_client')['--event', 'GSI']
         checkrun(cmd,logger=logger)
 
     Ocean=conf.getbool('config','run_ocean')

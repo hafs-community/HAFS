@@ -34,12 +34,10 @@ dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo ${CDATE} | cut -c9-10)
 
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
-PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 PARMmom6=${PARMmom6:-${PARMhafs}/mom6/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
 if [ ${ocean_model} = "mom6" ]; then
   FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
@@ -63,6 +61,7 @@ if [ "${ENSDA}" = YES ]; then
   else
     NHRS=${NHRS_ENS:-6}
   fi
+  nest_grids=${nest_grids_ens:-1}
   NBDYHRS=${NBDYHRS_ENS:-3}
   NOUTHRS=${NOUTHRS_ENS:-3}
   CASE=${CASE_ENS:-C768}
@@ -257,6 +256,7 @@ else # Otherwise this a regular forecast run
 
 if [ "${ENSDA}" = YES ]; then
   run_ocean=no #Should we make it optional in case we have ocean DA? But we may not have ocean ensemble anyway #XL
+  is_moving_nest=.false.,.false.
   run_wave=no
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep_ens/grid_ens}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_ens/mem${ENSID}}
@@ -297,7 +297,7 @@ if [ ${RUN_ATM_VI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${YMD}.${hh}0
   RESTARTinp=${WORKhafs}/intercom/RESTART_vi
   #warm_start_opt=3
 fi
-if [ ${RUN_GSI} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
+if [ ${RUN_ANALYSIS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_analysis/${YMD}.${hh}0000.fv_core.res.tile1.nc ]; then
   warmstart_from_restart=yes
   RESTARTinp=${WORKhafs}/intercom/RESTART_analysis
   #warm_start_opt=5
@@ -654,7 +654,6 @@ fi
 # Clean up RESTART and OUTdir if not a restart run
 if [ ! "${FORECAST_RESTART}" = "YES" ]; then
   rm -f RESTART/*
-  rm -rf ${OUTdir}
 fi
 mkdir -p ${OUTdir}
 cd ${OUTdir}
@@ -924,6 +923,11 @@ if [ ${use_orog_gsl:-no} = yes ]; then
 fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
+if [ "${ENSDA}" = YES ] && [ "${RUN_ENKF}" = YES ] && [ "${ANALYSIS_MODEL}" = JEDI ]; then #XL link sfc_data since JEDI don't have the output
+  if [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc ]; then
+    ln -sf ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc sfc_data.tile7.nc
+  fi
+fi
 
 # regional with nests
 if [ $nest_grids -gt 1 ]; then
@@ -1227,7 +1231,7 @@ for n in $(seq 2 ${nest_grids}); do
   shal_cnv_nml=$( echo ${shal_cnv} | cut -d , -f ${n} )
   do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
-  if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
+  if [ ${RUN_ANALYSIS:-NO} = "YES" ] && [ ${ANALYSIS_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
     #iau_inc_files="analysis_inc_nest0${inest}.nc"
     iau_inc_files="analysis_inc_nest0${inest}.tile${inest}.nc"

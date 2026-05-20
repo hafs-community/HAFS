@@ -139,7 +139,6 @@
       ns=nmax-1
       mr=mmin+1
       nr=nmin+1
-
       !if(gm.lt.mmax)go+to 60
       if ( gm >= mmax ) then
          !if(gn.lt.nmax)go+to 20

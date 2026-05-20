@@ -28,7 +28,27 @@ MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 SENDCOM=${SENDCOM:-YES}
 
-if [ "${RUN_ATM_VI}" == NO ] && [ "${RUN_GSI}" == NO ]; then
+CDATE=${CDATE:-$YMDH}
+ymd=$(echo $CDATE | cut -c1-8)
+yr=$(echo $CDATE | cut -c1-4)
+mn=$(echo $CDATE | cut -c5-6)
+dy=$(echo $CDATE | cut -c7-8)
+hh=$(echo $CDATE | cut -c9-10)
+CDATE_prior=$(${NDATE} -6 $CDATE)
+CDATEtm03=$(${NDATE} -3 $CDATE)
+ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+CDATEtp03=$(${NDATE} +3 $CDATE)
+ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
+
+if [ "${RUN_ATM_VI}" == NO ] && [ "${RUN_ANALYSIS}" == NO ]; then
     USE_EXTERNAL_VORTEX=${USE_EXTERNAL_VORTEX:-YES}
 else
     USE_EXTERNAL_VORTEX=${USE_EXTERNAL_VORTEX:-NO}
@@ -69,20 +89,31 @@ else
 fi
 
 elif [ ${MERGE_TYPE} = init ]; then
-
-merge_method=${atm_merge_method:-vortexreplace}
-if [ ${FGAT_MODEL} = gdas ]; then
-  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
-  RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
-  RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
-  #CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
-  CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${CDATE:-${YMDH}})
-else
-  RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
-  RESTARTdst=${WORKhafs}/intercom/RESTART_init
-  RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
-fi
-
+  if [ "${ENSDA}" = YES ]; then
+    merge_method=${atm_merge_ens_method:-domainmerge}
+    export nest_grids=${nest_grids_ens:-${nest_grids}}
+    if [ -d ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID} ]; then
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
+    else
+      echo "FATAL ERROR: RESTARTsrc does not exist"
+      exit 1
+    fi
+    RESTARTdst=${WORKhafs}/intercom/RESTART_init
+    RESTARTmrg=${WORKhafs}/intercom/RESTART_init_merge_ens/mem${ENSID}
+    RESTARTcom=${COMhafs}/${out_prefix}.RESTART_init_merge_ens/mem${ENSID}
+  else
+    merge_method=${atm_merge_method:-vortexreplace}
+    if [ ${FGAT_MODEL} = gdas ]; then
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
+      RESTARTdst=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+      RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
+      CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") $CDATE)
+    else
+      RESTARTsrc=${COMOLD}/${old_out_prefix}.RESTART
+      RESTARTdst=${WORKhafs}/intercom/RESTART_init
+      RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
+    fi
+  fi
 else
 
   echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
@@ -132,12 +163,16 @@ fi
 if [[ $nest_grids -eq 1 ]]; then
 
 #for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data phy_data; do
-#for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1 sfc_data; do
-for var in fv_core.res.tile1 fv_tracer.res.tile1 fv_srf_wnd.res.tile1; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
   in_grid=${RESTARTsrc}/grid_spec.nc
   out_grid=${RESTARTmrg}/grid_spec.nc
-  in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
-  out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+  if [[ $var = sfc_data ]] || [[ $var = phy_data ]]; then
+    in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+  else
+    in_file=${RESTARTsrc}/${ymd}.${hh}0000.${var}.tile1.nc
+    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+  fi
   if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
      [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
@@ -344,8 +379,7 @@ elif [ ${MERGE_TYPE} = init ]; then
 
 # Step 1: merge srcd02 into srcd01 (for atm_merge)
 ${RLN} ${RESTARTsrc}/* ${RESTARTtmp}/
-#for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
   in_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   out_grid=${RESTARTmrg}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   if [[ $var = sfc_data ]]; then
@@ -525,7 +559,7 @@ done
 
 fi
 
-if [ ${RUN_GSI} = "YES" ] && [ ${GSI_D02} = "YES" ]; then
+if [ ${RUN_ANALYSIS} = "YES" ] && [ ${ANALYSIS_D02} = "YES" ]; then
 
 # Step 4: Calculate d02 increments for IAU
 # Extract vmax from tcvitals (m/s)

@@ -393,4 +393,45 @@ fi
 
 fi #if [ "${tilestr}" = ".tile${nest_grids}" ]; then
 
+##### Adding interpolation from d01 to nest domain for JEDI #####
+if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = "JEDI" ]; then
+  DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+  MERGE_CMD="${APRUNS} ${DATOOL} remap"
+  if [ ${GRID_RATIO_ENS} -ne 1 ]; then
+    export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
+    export neststr=".nest02"
+    export tilestr=".tile2"
+    export nesttilestr=".nest02.tile2"
+  fi
+  RESTARTinp=${WORKhafs}/intercom/RESTART_init
+  RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  in_grid=${RESTARTens}/grid_spec.nc
+  out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
+  for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
+    if [ "${var}" = "sfc_data" ]; then
+      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.nc
+    else
+      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.tile1.nc
+    fi
+    out_file=${RESTARTens}/${PDY}.${HH}0000.${var}${nesttilestr}.nc
+    if [ ${GRID_RATIO_ENS} -ne 1 ]; then
+      ${NCP} ${RESTARTinp}/${PDY}.${HH}0000.${var}${nesttilestr}.nc ${out_file}
+    fi
+    if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+      echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+      exit 1
+    fi
+    if [ ${GRID_RATIO_ENS} -eq 1 ]; then
+      echo "No need to Interpolate"
+    else
+      ${MERGE_CMD} \
+        --in_grid=${in_grid} \
+        --out_grid=${out_grid} \
+        --in_file=${in_file} \
+        --out_file=${out_file} 2>&1 | tee ./inter_ens${mem}_${var}${FGAT_HR}.log
+    fi
+  done
+fi
+
 cd ${DATA}

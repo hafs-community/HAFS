@@ -66,15 +66,16 @@ if [ ${FGAT_MODEL} = gdas ]; then
   export out_prefix="${STORMID,,}.${CDATE}"
 fi
 
-if [ "${ENSDA}" = YES ]; then
+if [ "${ENSDA}" = YES ] && [ "${ENSID}" != "000" ]; then
   export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
+  export nest_grids=${nest_grids_ens:-1}
 elif [ ${FGAT_MODEL} = gdas ]; then
   export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
 else
   export DATA=${WORKhafs}/atm_init${jobidstr}
 fi
 
-if [ "${SCRUBDATA:-YES}" = YES ]; then
+if [ "${SCRUBDATA:-YES}" = YES ] && [ "${ENSDA}" != YES ]; then
   rm -rf $DATA
 fi
 mkdir -p $DATA

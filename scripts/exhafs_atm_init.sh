@@ -42,6 +42,8 @@ export OMP_NUM_THREADS=1
 source ${USHhafs}/hafs_runcmd.sh.inc
 
 export DATA=${DATAinit}/post
+export CDATEprior=$(${NDATE} -6 $YMDH)
+export PDY_prior=$(echo ${CDATEprior} | cut -c1-8)
 mkdir -p ${DATA}
 cd ${DATA}
 

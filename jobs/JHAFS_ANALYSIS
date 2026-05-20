@@ -28,25 +28,78 @@ export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
-if [ "${RUN_ENVIR^^}" != "NCO" ]; then
-  # Detect platform and load modules if not run by NCO
+if [[ "${ANALYSIS_MODEL}" = "GSI" ]]; then
+  if [[ "${RUN_ENVIR^^}" != "NCO" ]]; then
+    # Detect platform and load modules if not run by NCO
+    source ${USHhafs}/hafs_pre_job.sh.inc
+    export machine=${WHERE_AM_I:-wcoss2}
+    if [[ ${machine}  = "wcoss2" ]]; then
+      module reset
+      module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+      module load gsi_${machine}.intel
+      module load cray-pals/1.2.2
+      module load cfp/2.0.4
+    fi
+    if [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
+      module purge
+      module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+      module load gsi_${machine}.intel
+    fi
+    module list
+  else
+    # Run by NCO on WCOSS2
+    export machine=${WHERE_AM_I:-wcoss2}
+    # Prepend $USHhafs to python package search path
+    export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+    # Initialize PDY
+  # setpdy.sh # only needed for the launch job
+    # Get PDY
+    source ${WORKhafs}/PDY
+  fi
+else
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
-    module purge
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}.intel
+  if [[ ${machine}  = "wcoss2" ]]; then
+    module reset
+    module load PrgEnv-intel/${PrgEnv_intel_ver}
+    module load craype/${craype_ver}
+    module load intel/${intel_ver}
+    module load cray-mpich/${cray_mpich_ver}
+    module load cray-pals/${cray_pals_ver}
+    module load hdf5-A/${hdf5_ver}
+    module load netcdf-A/${netcdf_ver}
+    module load ve/hafs/${ve_hafs_ver}
+    module load crtm/${crtm_ver}
+    module load ncio-A/${ncio_ver}
+    module load ncdiag-A/${ncdiag_ver}
+    module load cfp/${cfp_ver}
+    module load prod_util/${prod_util_ver}
   fi
-  module list
-else
-  # Run by NCO on WCOSS2
-  export machine=${WHERE_AM_I:-wcoss2}
-  # Prepend $USHhafs to python package search path
-  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
-  # Initialize PDY
-# setpdy.sh # only needed for the launch job
-  # Get PDY
-  source ${WORKhafs}/PDY
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "ursa" ]]; then
+    module purge
+  fi
+  if [[ ${machine}  = "gaeac6" ]]; then
+    module reset
+  fi
+  ulimit -s unlimited
+  ulimit -a
+  module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
+  module load HDAS/${machine}.intel
+  if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
+    module load intel-oneapi-mkl/2024.2.1
+  fi
+  export PYTHONPATH="${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/sorc/jcb/src/:$HOMEhafs/sorc/hafs_jedi.fd/sorc/hafs_jedi.fd/build/lib/python3.*"
+  export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export IODA_PRINT_RUNSTATS=1
+  export OMP_NUM_THREADS=1
+  export OMP_PROC_BIND=true
+  export I_MPI_COLL_INTRANODE=pt2pt
+#  export SLURM_QOS=debug
+#  export MAIN_DEBUG=1
+#  export OOPS_DEBUG=1
+#  export OOPS_TRACE=1
+#  export IODA_PRINT_RUNSTATS=1
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
@@ -59,8 +112,8 @@ export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
 
 source ${HOLDVARS}
 
-export GSI_D01=${GSI_D01:-NO}
-export GSI_D02=${GSI_D02:-NO}
+export ANALYSIS_D01=${ANALYSIS_D01:-NO}
+export ANALYSIS_D02=${ANALYSIS_D02:-NO}
 export ENSDA=${ENSDA:-NO}
 
 export CDATE=${CDATE:-${YMDH}}
@@ -68,18 +121,18 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 
-if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+if [[ ${RUN_ATM_VI_FGAT} = "YES" ]]; then
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
-elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+elif [[ ${RUN_ATM_MERGE_FGAT} = "YES" ]]; then
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
-elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+elif [[ ${RUN_ATM_INIT_FGAT} = "YES" ]]; then
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
 else
-  if [ ${RUN_ATM_VI} = "YES" ]; then
+  if [[ ${RUN_ATM_VI} = "YES" ]]; then
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
-  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+  elif [[ ${RUN_ATM_MERGE} = "YES" ]]; then
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
-  elif [ ${RUN_ATM_INIT} = "YES" ]; then
+  elif [[ ${RUN_ATM_INIT} = "YES" ]]; then
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
   else
     RESTARTinp_fgat06=${COMOLD}/RESTART
@@ -87,9 +140,16 @@ else
 fi
 RESTARTinp=${RESTARTinp_fgat06}
 
+if [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
+ if [[ ${RUN_ENSDA} = "YES" ]] && [[ ! -e "${COMOLD}" ]] ; then
+   echo "RUN_ENSDA YES for JEDI will skip DA for the first cycle"
+   echo "Do nothing. Exiting"
+   exit
+ fi
+fi
 #===============================================================================
 # Run analysis for d01 if needed
-if [ ${GSI_D01} = YES ]; then
+if [[ ${ANALYSIS_D01} = YES ]]; then
 
 export gridstr=$(echo ${out_gridnames} | cut -d, -f 1)
 export neststr=${neststr:-""}
@@ -97,19 +157,28 @@ export tilestr=${tilestr:-".tile1"}
 export nesttilestr=${nesttilestr:-""}
 export DATA=${WORKhafs}/analysis${jobidstr}
 
-if [ "${SCRUBDATA:-YES}" = YES ]; then
+if [[ "${SCRUBDATA:-YES}" = YES ]]; then
   rm -rf $DATA
 fi
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_analysis.sh
-export err=$?; err_chk
+if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ "${ANALYSIS_MODEL}" = "gsi" ]]; then
+ ${HOMEhafs}/scripts/exhafs_analysis.sh
+ export err=$?; err_chk
+elif [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
+ ${NLN} ${HOMEhafs}/ush/wxflow .
+ ${HOMEhafs}/scripts/exhafs_atm_analysis.sh
+ export err=$?; err_chk
+else
+ echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"
+ exit
+fi
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
+if [[ "${KEEPDATA:-YES}" != "YES" ]]; then
   rm -rf $DATA
 fi
 
@@ -121,7 +190,7 @@ export nesttilestr=${nesttilestr:-""}
 export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
 mkdir -p ${RESTARTanl}
 
-if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+if [[ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]]; then
 
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc
@@ -134,7 +203,7 @@ ${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/atmos_static${n
 ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttilestr}.nc
 # pass over phy_data as well
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
-if [[ ! -z "$neststr" ]] && [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+if [[ ! -z "$neststr" ]] && [[ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]]; then
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
 fi
@@ -149,13 +218,13 @@ if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".
   fi
 fi
 
-fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+fi #end if [[ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]]; then
 
-fi #end if [ ${GSI_D01} = YES ]; then
+fi #end if [[ ${ANALYSIS_D01} = YES ]]; then
 
 #===============================================================================
 # Run analysis for d02 if needed
-if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
+if [[ ${ANALYSIS_D02} = YES ]] && [[ $nest_grids -ge 2 ]]; then
 
 export gridstr=$(echo ${out_gridnames} | cut -d, -f 2)
 export neststr=".nest02"
@@ -163,23 +232,32 @@ export tilestr=".tile2"
 export nesttilestr=".nest02.tile2"
 export DATA=${WORKhafs}/analysis_d02${jobidstr}
 
-if [ "${SCRUBDATA:-YES}" = YES ]; then
+if [[ "${SCRUBDATA:-YES}" = YES ]]; then
   rm -rf $DATA
 fi
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_analysis.sh
-export err=$?; err_chk
+if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ "${ANALYSIS_MODEL}" = "gsi" ]]; then
+ ${HOMEhafs}/scripts/exhafs_analysis.sh
+ export err=$?; err_chk
+elif [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
+ ${NLN} ${HOMEhafs}/ush/wxflow .
+ ${HOMEhafs}/scripts/exhafs_atm_analysis.sh
+ export err=$?; err_chk
+else
+ echo "Sorry, currently only supports ANALYSIS_MODEL = GSI or JEDI, skipping DA!!"
+ exit
+fi
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
+if [[ "${KEEPDATA:-YES}" != "YES" ]]; then
   rm -rf $DATA
 fi
 
-elif [ ${GSI_D02} != YES ] && [[ $nest_grids -ge 2 ]]; then
+elif [[ ${ANALYSIS_D02} != YES ]] && [[ $nest_grids -ge 2 ]]; then
 
 export neststr=".nest02"
 export tilestr=".tile2"
@@ -187,7 +265,7 @@ export nesttilestr=".nest02.tile2"
 export RESTARTanl=${RESTARTanl:-${WORKhafs}/intercom/RESTART_analysis}
 mkdir -p ${RESTARTanl}
 
-if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+if [[ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]]; then
 
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${PDY}.${cyc}0000.coupler.res
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}.nc
@@ -200,7 +278,7 @@ ${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/atmos_static${n
 ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/grid_spec${nesttilestr}.nc
 # pass over phy_data as well
 ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
-if [[ ! -z "$neststr" ]] && [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+if [[ ! -z "$neststr" ]] && [[ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]]; then
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
 fi
@@ -215,9 +293,9 @@ if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".
   fi
 fi
 
-fi #end if [ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+fi #end if [[ -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]]; then
 
-fi #end if [ ${GSI_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
+fi #end if [[ ${ANALYSIS_D02} = YES ] && [[ $nest_grids -ge 2 ]]; then
 
 #===============================================================================
 date

@@ -1,0 +1,115 @@
+_filenames: &fv3file_names
+  filename_core: '_FV3_CORE_ENS_FILE_'
+  filename_trcr: '_FV3_TRCR_ENS_FILE_'
+  filename_sfcd: '_FV3_SFCD_ENS_FILE_'
+  filename_sfcw: '_FV3_SFCW_ENS_FILE_'
+  filename_cplr: '_FV3_CPLR_ENS_FILE_'
+
+geometry:
+  namelist filename: _INPUT_HAFS_ENS_NML_
+  akbk: bkg/_FV3_AKBK_ENS_FILE_
+  vert coordinate: logp
+  io_layout: [1,1]
+  ntiles: 1
+  fms initialization:
+    namelist filename: fmsmpp.nml
+    field table filename: field_table
+
+background:
+  read_from_file: 1
+  datetime: _ANALYSISDATE_
+  filetype: fms restart
+  datapath: bkg
+  <<: *fv3file_names
+  state variables: &vars_state
+  - eastward_wind
+  - northward_wind
+  - upward_air_velocity
+  - air_temperature
+  - air_pressure_thickness
+  - layer_thickness
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  - geopotential_height_times_gravity_at_surface
+  - slmsk
+  - sheleg
+  - skin_temperature_at_surface
+  - vtype
+  - stype
+  - vfrac
+  - stc
+  - soilMoistureVolumetric
+  - totalSnowDepth
+  - eastward_wind_at_surface
+  - northward_wind_at_surface
+  - f10m
+  field io names: &field_io_names
+    eastward_wind: ua
+    northward_wind: va
+    upward_air_velocity: W
+    air_temperature: T
+    air_pressure_thickness: delp
+    layer_thickness: DZ
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    cloud_liquid_water: liq_wat
+    ozone_mass_mixing_ratio: o3mr
+    skin_temperature_at_surface: tsea
+    air_pressure_at_surface: ps
+    cloud_liquid_ice: ice_wat
+    geopotential_height_times_gravity_at_surface: phis
+    soilMoistureVolumetric: smc
+    totalSnowDepth: snwdph
+    eastward_wind_at_surface: u_srf
+    northward_wind_at_surface: v_srf
+
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: BUMP_NICAS
+    calibration:
+      general:
+        universe length-scale: _LOC_H_.0e3
+      io:
+        files prefix: bump/fv3jedi_bumpparameters_nicas_hafs_atm
+        alias:
+        - in code: air_temperature
+          in file: common_250km
+      drivers:
+        multivariate strategy: univariate 
+        compute nicas: true
+        write local nicas: true
+      nicas:
+        resolution: _RESOLUTION_
+        explicit length-scales: true
+        max horizontal grid size: 120000
+        horizontal length-scale:
+        - groups: *vars_state
+          value: _LOC_H_000.0
+        vertical length-scale:
+        - groups: *vars_state
+          value: _LOC_V_
+      grids:
+      - model:
+          variables:
+          - air_temperature
+      output model files:
+      - parameter: cor_rh
+        file:
+          filetype: fms restart
+          datapath: bump/
+          filename_core: bumpparameters_nicas_hafs_atm.cor_rh.fv_core.res.nc
+          filename_trcr: bumpparameters_nicas_hafs_atm.cor_rh.fv_tracer.res.nc
+          filename_sfcd: bumpparameters_nicas_hafs_atm.cor_rh.sfc_data.nc
+          filename_sfcw: bumpparameters_nicas_hafs_atm.cor_rh.fv_srf_wnd.res.nc
+          filename_cplr: bumpparameters_nicas_hafs_atm.cor_rh.coupler.res
+      - parameter: cor_rv
+        file:
+          filetype: fms restart
+          datapath: bump/
+          filename_core: bumpparameters_nicas_hafs_atm.cor_rv.fv_core.res.nc
+          filename_trcr: bumpparameters_nicas_hafs_atm.cor_rv.fv_tracer.res.nc
+          filename_sfcd: bumpparameters_nicas_hafs_atm.cor_rv.sfc_data.nc
+          filename_sfcw: bumpparameters_nicas_hafs_atm.cor_rv.fv_srf_wnd.res.nc
+          filename_cplr: bumpparameters_nicas_hafs_atm.cor_rv.coupler.res

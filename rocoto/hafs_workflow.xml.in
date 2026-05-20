@@ -53,7 +53,7 @@
   <!ENTITY COMhafs  "@[CDSCRUB]/&SUBEXPT;/com/@Y@m@d@H/&SID;">
   <!ENTITY LOGhafs  "@[CDSCRUB]/&SUBEXPT;/log">
 
-  <!ENTITY GFSVER   "@[GFSVER:-PROD2019]">
+  <!ENTITY GFSVER   "@[GFSVER:-PROD2026]">
   <!ENTITY COMgfs   "@[COMgfs:-&WORKhafs;/hafsdata]">
   <!ENTITY COMrtofs "@[COMrtofs:-&WORKhafs;/hafsdata]">
 
@@ -75,10 +75,12 @@
   <!ENTITY RUN_ATM_VI_FGAT "@[RUN_ATM_VI_FGAT]">
   <!ENTITY RUN_ATM_VI_ENS "@[RUN_ATM_VI_ENS]">
   <!ENTITY RUN_FGAT "@[RUN_FGAT]">
-  <!ENTITY RUN_GSI "@[RUN_GSI]">
-  <!ENTITY GSI_D01 "@[GSI_D01]">
-  <!ENTITY GSI_D02 "@[GSI_D02]">
-  <!ENTITY GSI_D03 "@[GSI_D03]">
+  <!ENTITY ANALYSIS_MODEL "@[ANALYSIS_MODEL]">
+  <!ENTITY DIRECT_GDASENS "@[DIRECT_GDASENS]">
+  <!ENTITY RUN_ANALYSIS "@[RUN_ANALYSIS]">
+  <!ENTITY ANALYSIS_D01 "@[ANALYSIS_D01]">
+  <!ENTITY ANALYSIS_D02 "@[ANALYSIS_D02]">
+  <!ENTITY ANALYSIS_D03 "@[ANALYSIS_D03]">
   <!ENTITY RUN_ENSDA "@[RUN_ENSDA]">
   <!ENTITY RUN_ENKF "@[RUN_ENKF]">
   <!ENTITY RUN_ANALYSIS_MERGE "@[RUN_ANALYSIS_MERGE]">
@@ -264,13 +266,13 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
         <and>
-@** if GFSVER==PROD2019
-          <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmanl.nemsio</cyclestr></datadep>
-          <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.sfcanl.nemsio</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
           <datadep age="02:00" minsize="12000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmanl.nc</cyclestr></datadep>
           <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.sfcanl.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+          <datadep age="02:00" minsize="12000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/analysis/atmos/gfs.t@Hz.analysis.atm.a006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/analysis/atmos/gfs.t@Hz.analysis.sfc.a006.nc</cyclestr></datadep>
 @** endif
         </and>
       </and>
@@ -309,13 +311,13 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
         <and>
-@** if GFSVER==PROD2019
-          <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.atmf0#FGAT_HR#.nemsio</cyclestr></datadep>
-          <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/gdas.t@Hz.sfcf0#FGAT_HR#.nemsio</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
           <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.atmf0#FGAT_HR#.nc</cyclestr></datadep>
           <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/atmos/gdas.t@Hz.sfcf0#FGAT_HR#.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+          <datadep age="02:00" minsize="2000000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/model/atmos/history/gdas.t@Hz.atm.f0#FGAT_HR#.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/gdas.@Y@m@d/@H/model/atmos/history/gdas.t@Hz.sfc.f0#FGAT_HR#.nc</cyclestr></datadep>
 @** endif
         </and>
       </and>
@@ -448,7 +450,7 @@
     <dependency>
       <and>
         <taskdep task="atm_init"/>
-	<or>
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
@@ -526,13 +528,13 @@
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
           <or>
-@** if GFSVER==PROD2019
-            <datadep age="02:00" minsize="15000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.atmf126.nemsio</cyclestr></datadep>
-            <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
             <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+            <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/products/atmos/grib2/0p25/gfs.t@Hz.pres_a.0p25.f126.grib2</cyclestr></datadep>
+            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/model/atmos/history/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
 @** endif
           </or>
         </and>
@@ -601,11 +603,11 @@
               <datadep age="02:00" minsize="5000000000"><cyclestr>&COMrtofs;/rtofs.@Y@m@d/rtofs_glo.t00z.f@H.archv.a.tgz</cyclestr></datadep>
             </or>
           </or>
-@** if GFSVER==PROD2019
-          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/products/atmos/grib2/0p25/gfs.t@Hz.pres_a.0p25.f129.grib2</cyclestr></datadep>
 @** endif
         </and>
       </and>
@@ -638,11 +640,11 @@
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs/Ocean file dependency. Don't start until GFS/Ocean analysis is available.-->
         <and>
-@** if GFSVER==PROD2019
-          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
           <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f129</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+          <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/products/atmos/grib2/0p25/gfs.t@Hz.pres_a.0p25.f129.grib2</cyclestr></datadep>
 @** endif
         </and>
         <or>
@@ -657,7 +659,7 @@
   </task>
 @** endif
 
-@** if RUN_GSI==YES
+@** if RUN_ANALYSIS==YES
 
   <task name="obs_prep" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_OBS_PREP</command>
@@ -673,10 +675,7 @@
     &ENV_VARS;
 
     <dependency>
-      <or>
-        <taskdep task="atm_ic" state="RUNNING"/>
-        <taskdep task="atm_ic"/>
-      </or>
+      <taskdep task="atm_prep"/>
     </dependency>
   </task>
 
@@ -684,8 +683,13 @@
     <command>&JOBhafs;/JHAFS_ANALYSIS</command>
     <jobname>hafs_analysis_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_analysis.log</cyclestr></join>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
+    <envar><name>DIRECT_GDASENS</name><value>@[DIRECT_GDASENS]</value></envar>
     <account>&ACCOUNT;</account>
     &RESERVATION;
+@** if ANALYSIS_MODEL==JEDI
+    &MEMORYJEDI;
+@** endif
     <queue>&QUEUE_PE;</queue>
     &PE_EXTRA;
     &CORES_EXTRA;
@@ -696,12 +700,27 @@
       <and>
         <taskdep task="atm_ic"/>
         <taskdep task="obs_prep"/>
-        <streq><left>&RUN_GSI;</left><right>YES</right></streq>
+        <streq><left>&RUN_ANALYSIS;</left><right>YES</right></streq>
+
 @** if RUN_ATM_VI_FGAT==YES
         <or>
           <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
           <metataskdep metatask="atm_vi_fgat"/>
         </or>
+@** else
+        <or>
+          <taskdep task="atm_vi"/>
+        </or>
+@** endif
+@** if RUN_ENSDA==YES
+        <taskdep task="atm_prep_ens"/>
+@**   if RUN_ATM_MERGE_ENS==YES
+        <metataskdep metatask="atm_merge_ens"/>
+@**   endif
+@** elseif DIRECT_GDASENS==NO
+@**   if ANALYSIS_MODEL==JEDI
+        <taskdep task="ens_prep"/>
+@**   endif
 @** endif
 @** if RUN_ATM_MERGE_FGAT==YES
         <or>
@@ -749,7 +768,7 @@
         </or>
         <or>
           <taskdep task="analysis"/>
-          <strneq><left>&RUN_GSI;</left><right>YES</right></strneq>
+          <strneq><left>&RUN_ANALYSIS;</left><right>YES</right></strneq>
         </or>
       </and>
     </dependency>
@@ -800,7 +819,7 @@
 @** if RUN_ATM_VI==YES
             <taskdep task="atm_vi"/>
 @** endif
-@** if RUN_GSI==YES
+@** if RUN_ANALYSIS==YES
             <taskdep task="analysis"/>
 @** endif
 @** if RUN_ANALYSIS_MERGE==YES
@@ -1003,7 +1022,50 @@
   </task>
 @** endif
 
+@** if RUN_ENSDA==NO
+@**   if ANALYSIS_MODEL==JEDI
+@** 	if DIRECT_GDASENS==NO
+  <task name="ens_prep" maxtries="&MAX_TRIES;">
+    <command>&JOBhafs;/JHAFS_ENS_PREP</command>
+    <jobname>hafs_ens_prep_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <join><cyclestr>&WORKhafs;/hafs_ens_prep.log</cyclestr></join>
+    <account>&ACCOUNT;</account>
+    &RESERVATION;
+    &MEMORYJEDI;
+    <queue>&QUEUE_PE;</queue>
+    &PE_EXTRA;
+    &CORES_EXTRA;
+    &CLUSTER_COMPUTE;
+    &ENS_PREP_RESOURCES;
+    &ENV_VARS;
+
+    <dependency>
+      <and>
+        <or>
+          <taskdep task="atm_init"/>
+          <taskdep task="atm_vi"/>
+        </or>
+        <taskdep task="atm_prep"/>
+        <and>
+@** if GFSVER==PROD2021
+          <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem001/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem001/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+          <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem001/model/atmos/history/enkfgdas.t@Hz.atm.f006.nc</cyclestr></datadep>
+          <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem001/model/atmos/history/enkfgdas.t@Hz.sfc.f006.nc</cyclestr></datadep>
+@** endif
+        </and>
+      </and>
+    </dependency>
+  </task>
+@** 	endif
+@**   endif
+@** endif
+
 @** if RUN_ENSDA==YES
+<!-- !!!!!!!!!!!!!!!!!!!!! XL Note, this should be RUN_ENSDA==YES || ANALYSIS_MODEL==JEDI !!!!!!!!!!!!!-->
+
   <task name="atm_prep_ens" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_PREP</command>
     <jobname>hafs_atm_prep_ens_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1021,6 +1083,9 @@
     <dependency>
       <and>
         <taskdep task="launch"/>
+@** if RUN_ATM_MVNEST==YES
+        <taskdep task="atm_prep_mvnest"/>
+@** endif
         <!-- Wait until the deterministic forecast job is running or completed. -->
 <!-- XL run ens at the same time
         <or>
@@ -1060,20 +1125,19 @@
           <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
           <and>
-@** if GFSVER==PROD2019
-            <datadep age="02:00" minsize="3000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
-            <datadep age="02:00" minsize="500000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.sfcf006.nemsio</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
             <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
             <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.sfcf006.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+            <datadep age="02:00" minsize="1000000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/model/atmos/history/enkfgdas.t@Hz.atm.f006.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="200000000"><cyclestr offset="-6:00:00">&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/model/atmos/history/enkfgdas.t@Hz.sfc.f006.nc</cyclestr></datadep>
 @** endif
           </and>
         </and>
       </dependency>
     </task>
   </metatask>
-
 @** if RUN_ATM_INIT_ENS==YES
   <metatask name="atm_init_ens">
     <var name="MEM">&ENSIDS;</var>
@@ -1095,6 +1159,7 @@
       <dependency>
         <and>
           <taskdep task="atm_ic_ens#MEM#"/>
+          <taskdep task="atm_init"/>
           <streq><left>&RUN_ATM_INIT_ENS;</left><right>YES</right></streq>
         </and>
       </dependency>
@@ -1123,7 +1188,16 @@
 
       <dependency>
         <and>
-          <taskdep task="atm_init_ens#MEM#"/>
+		<!--
+			<taskdep task="atm_init_ens#MEM#"/>
+		-->
+          <taskdep task="launch"/>
+@** if RUN_ATM_INIT==YES
+          <taskdep task="atm_init"/>
+@** endif
+@** if RUN_ATM_VI==YES
+          <taskdep task="atm_vi"/>
+@** endif
           <streq><left>&RUN_ATM_MERGE_ENS;</left><right>YES</right></streq>
           <or>
             <not><cycleexistdep cycle_offset="-6:00:00"/></not>
@@ -1206,11 +1280,11 @@
             <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
             <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
             <and>
-@** if GFSVER==PROD2019
-              <datadep age="02:00" minsize="3000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/gdas.t@Hz.atmf006.nemsio</cyclestr></datadep>
-@** endif
 @** if GFSVER==PROD2021
               <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/atmos/mem#MEM#/gdas.t@Hz.atmf006.nc</cyclestr></datadep>
+@** endif
+@** if GFSVER==PROD2026
+              <datadep age="02:00" minsize="1000000000"><cyclestr>&COMgfs;/enkfgdas.@Y@m@d/@H/mem#MEM#/model/atmos/history/enkfgdas.t@Hz.atm.f006.nc</cyclestr></datadep>
 @** endif
             </and>
           </and>
@@ -1221,9 +1295,11 @@
 @** endif
 
 @** if RUN_ENKF==YES
+@** if ANALYSIS_MODEL==GSI
   <task name="enkf_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
     <jobname>hafs_enkf_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_mean.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1245,10 +1321,12 @@
       </and>
     </dependency>
   </task>
+@** endif
 
   <task name="enkf_hx_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF_HX</command>
     <jobname>hafs_enkf_hx_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_hx_mean.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1256,7 +1334,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-    &ENKF_GSI_RESOURCES;
+    &ENKF_DIAG_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
 
@@ -1266,16 +1344,21 @@
           <taskdep task="analysis" state="RUNNING"/>
           <taskdep task="analysis"/>
         </or>
+@** if ANALYSIS_MODEL==GSI
         <taskdep task="enkf_mean"/>
+@** endif
+        <taskdep task="obs_prep"/>
       </and>
     </dependency>
   </task>
 
+@** if ANALYSIS_MODEL==GSI
   <metatask name="enkf_hx_ens">
     <var name="MEM">&ENSIDS;</var>
     <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
       <command>&JOBhafs;/JHAFS_ENKF_HX</command>
       <jobname>hafs_enkf_hx_ens#MEM#_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+      <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
       <join><cyclestr>&WORKhafs;/hafs_enkf_hx_ens#MEM#.log</cyclestr></join>
       <account>&ACCOUNT;</account>
       &RESERVATION;
@@ -1283,7 +1366,7 @@
       &PE_EXTRA;
       &CORES_EXTRA;
       &CLUSTER_COMPUTE;
-      &ENKF_GSI_RESOURCES;
+      &ENKF_DIAG_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>HX_ENS</name><value>YES</value></envar>
@@ -1294,10 +1377,12 @@
       </dependency>
     </task>
   </metatask>
+@** endif
 
   <task name="enkf_update" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
     <jobname>hafs_enkf_update_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <join><cyclestr>&WORKhafs;/hafs_enkf_update.log</cyclestr></join>
     <account>&ACCOUNT;</account>
     &RESERVATION;
@@ -1313,13 +1398,16 @@
     <dependency>
       <and>
         <taskdep task="enkf_hx_mean"/>
+@** if ANALYSIS_MODEL==GSI
         <metataskdep metatask="enkf_hx_ens"/>
+@** endif
       </and>
     </dependency>
   </task>
 
   <task name="enkf_recenter" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF</command>
+    <envar><name>ANALYSIS_MODEL</name><value>@[ANALYSIS_MODEL]</value></envar>
     <jobname>hafs_enkf_recenter_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_enkf_recenter.log</cyclestr></join>
     <account>&ACCOUNT;</account>
@@ -1328,7 +1416,7 @@
     &PE_EXTRA;
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
-    &ENKF_ENKF_RESOURCES;
+    &ENKF_RECENTER_RESOURCES;
     &ENV_VARS;
     <envar><name>ENSDA</name><value>YES</value></envar>
     <envar><name>ldo_enscalc_option</name><value>2</value></envar>
@@ -1379,6 +1467,7 @@
   </metatask>
 @** endif
 
+@** if RUN_ENSDA==YES
   <metatask name="forecast_ens" mode="parallel">
     <var name="MEM">&ENSIDS;</var>
     <task name="forecast_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1486,8 +1575,9 @@
       </dependency>
     </task>
   </metatask>
-
 @** endif
+@** endif
+<!-- end for if ENSDA XL -->
 
 @** if RUN_HRDGRAPHICS==YES
   <task name="hrdgraphics" maxtries="&MAX_TRIES;">

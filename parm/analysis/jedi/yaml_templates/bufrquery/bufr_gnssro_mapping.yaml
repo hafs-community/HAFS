@@ -1,0 +1,283 @@
+bufr:
+  group_by_variable: latitude 
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+        second: "*/SECO"
+
+    latitude:
+      query: "*/ROSEQ1/CLATH"
+    longitude:
+      query: "*/ROSEQ1/CLONH"
+    gridLatitude:
+      query: "*/ROSEQ1/CLATH"
+      transforms:
+        - scale: 0.017453292519943
+    gridLongitude:
+      query: "*/ROSEQ1/CLONH"
+      transforms:
+        - scale: 0.017453292519943
+
+    satelliteId:
+      query: "*/SAID"
+    satelliteInstrument:
+      query: "*/SIID"
+    satelliteConstellationRO:
+      query: "*/SCLF"
+    satelliteTransmitterId:
+      query: "*/PTID"
+    earthRadiusCurvature:
+      query: "*/ELRC"
+    sequenceNumber:
+      query: "*/SEQNUM"
+    geoidUndulation:
+      query: "*/GEODU"
+    impactParameterRO_roseq2repl1:
+      query: "*/ROSEQ1/ROSEQ2{1}/IMPP"
+    impactParameterRO_roseq2repl2:
+      query: "*/ROSEQ1/ROSEQ2{2}/IMPP"
+    impactParameterRO_roseq2repl3:
+      query: "*/ROSEQ1/ROSEQ2{3}/IMPP"
+    frequency__roseq2repl1:
+      query: "*/ROSEQ1/ROSEQ2{1}/MEFR"
+      type: float
+    frequency__roseq2repl2:
+      query: "*/ROSEQ1/ROSEQ2{2}/MEFR"
+      type: float
+    frequency__roseq2repl3:
+      query: "*/ROSEQ1/ROSEQ2{3}/MEFR"
+      type: float
+    pccf:
+      query: "*/PCCF[1]"
+    sensorAzimuthAngle:
+      query: "*/BEARAZ"
+
+    # Processing Center
+    dataProviderOrigin:
+      query: "*/OGCE"
+
+    # Quality Information
+    qualityFlags:
+      query: "*/QFRO"
+    qfro:
+      query: "*/QFRO"
+    satelliteAscendingFlag:
+      query: "*/QFRO"
+
+    # ObsValue
+    bendingAngle_roseq2repl1:
+      query: "*/ROSEQ1/ROSEQ2{1}/BNDA[1]"
+    bendingAngle_roseq2repl2:
+      query: "*/ROSEQ1/ROSEQ2{2}/BNDA[1]"
+    bendingAngle_roseq2repl3:
+      query: "*/ROSEQ1/ROSEQ2{3}/BNDA[1]"
+
+    # ObsError
+    obsErrorBendingAngle1:
+      query: "*/ROSEQ1/ROSEQ2{1}/BNDA[2]"
+    obsErrorBendingAngle2:
+      query: "*/ROSEQ1/ROSEQ2{2}/BNDA[2]"
+    obsErrorBendingAngle3:
+      query: "*/ROSEQ1/ROSEQ2{3}/BNDA[2]"
+
+    # ObsType
+    obsTypeBendingAngle:
+      query: "*/SAID"
+    #obsTypeAtmosphericRefractivity:
+    #  query: "*/SAID"
+
+  splits:
+    satId:
+      category:
+        variable: satelliteId
+        map:
+          _3: metop_3
+          _4: metop_4
+          _5: metop_5
+          _42: terrasarx_42
+          _43:  tandemx_43
+          _44:  paz_44
+          _66:  sentinel6_66
+          _265: geooptics_265
+          _266: geooptics_266
+          _267: planetiq_267
+          _268: planetiq_268          
+          _269: spire_269
+          _750: cosmic2_750
+          _751: cosmic2_751
+          _752: cosmic2_752
+          _753: cosmic2_753
+          _754: cosmic2_754
+          _755: cosmic2_755
+          _803: grace_803
+          _804: grace_804
+          _825: kompsat5_825
+
+encoder:
+  # Need to get these from the json file. Might have to append a lot. 
+  globals:
+    - name: "dataOriginalFormatSpec"
+      type: string
+      value: "bufr_d"
+
+    - name: "data_type"
+      type: string
+      value: "gpsro"
+
+    - name: "subsets"
+      type: string
+      value: "NC003010" 
+
+    - name: "data_description"
+      type: string
+      value: "Satellite radio occultation data" 
+
+
+  variables:
+
+    # MetaData
+    # Longitude
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      units: "degrees_east" 
+      range: [-180, 180]
+      longName: "Longitude" 
+
+    # Latitude
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      units: "degrees_north" 
+      range: [-90, 90]
+      longName: "Latitude" 
+
+    # Grid Longitude
+    - name: "MetaData/gridLongitude"
+      source: variables/gridLongitude
+      units: "radians" 
+      range: [-3.14159265, 3.14159265]
+      type: float32 
+      longName: "Grid Longitude" 
+
+    # Grid Latitude
+    - name: "MetaData/gridLatitude"
+      source: variables/gridLatitude
+      units: "radians" 
+      range: [-1.570796325, 1.570796325]
+      type: float32 
+      longName: "Grid Latitude" 
+
+    # Datetime
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      units: "seconds since 1970-01-01T00:00:00Z" 
+      longName: "Datetime" 
+
+    # Satellite Identifier
+    - name: "MetaData/satelliteIdentifier"
+      source: variables/satelliteId
+      longName: "Satellite Identifier" 
+
+    # Satellite Instrument
+    - name: "MetaData/satelliteInstrument"
+      source: variables/satelliteInstrument
+      longName: "Satellite Instrument" 
+
+    # Satellite Constellation RO
+    - name: "MetaData/satelliteConstellationRO"
+      source: variables/satelliteConstellationRO
+      longName: "Satellite Constellation RO" 
+
+    # Satellite Transmitter ID
+    - name: "MetaData/satelliteTransmitterId"
+      source: variables/satelliteTransmitterId
+      longName: "Satellite Transmitter Id" 
+
+    # Earth Radius Curvature
+    - name: "MetaData/earthRadiusCurvature"
+      source: variables/earthRadiusCurvature
+      units: "m" 
+      longName: "Earth Radius of Curvature" 
+
+    # Sequence Number
+    - name: "MetaData/sequenceNumber"
+      source: variables/sequenceNumber
+      longName: "Sequence Number" 
+
+    # Geoid Undulation
+    - name: "MetaData/geoidUndulation"
+      source: variables/geoidUndulation
+      units: "m" 
+      longName: "Geoid Undulation" 
+
+    # Impact Parameter RO
+    - name: "MetaData/impactParameterRO"
+      source: variables/impactParameterRO_roseq2repl1
+      units: "m" 
+      longName: "Impact Parameter Bending Angle" 
+
+    # Frequency 
+    - name: "MetaData/frequency"
+      source: variables/frequency__roseq2repl1
+      units: "Hz" 
+      longName: "Frequency" 
+
+    # PCCF Percent Confidence
+    - name: "MetaData/pccf"
+      source: variables/pccf
+      units: "%" 
+      longName: "Profile Percent Confidence" 
+
+    # Azimuth Angle
+    - name: "MetaData/sensorAzimuthAngle"
+      source: variables/sensorAzimuthAngle
+      units: "degree" 
+      longName: "Percent Confidence" 
+
+    # Data Provider
+    - name: "MetaData/dataProviderOrigin"
+      source: variables/dataProviderOrigin
+      longName: "Identification of Originating Center" 
+
+    # QFRO 
+    - name: "MetaData/qfro"
+      source: variables/qfro
+      longName: "QFRO" 
+
+    # QualityFlags
+    - name: "MetaData/qualityFlags"
+      source: variables/qualityFlags
+      longName: "Quality Flags for QFRO bit5 and bit6" 
+
+    # Satellite Ascending Flag
+    - name: "MetaData/satelliteAscendingFlag"
+      source: variables/satelliteAscendingFlag
+      longName: "Satellite Ascending Flag" 
+
+    # ObsValue: Bending Angle
+    - name: "ObsValue/bendingAngle"
+      source: variables/bendingAngle_roseq2repl1
+      units: "radians" 
+      longName: "Bending Angle" 
+
+    # ObsError: Bending Angle
+    - name: "ObsError/bendingAngle"
+      source: variables/obsErrorBendingAngle1
+      units: "radians" 
+      longName: "Bending Angle Obs Error" 
+
+    # ObsType: Bending Angle
+    - name: "ObsType/bendingAngle"
+      source: variables/obsTypeBendingAngle
+      longName: "Bending Angle ObsType" 
+
+    # ObsType: Atmospheric Refractivity
+    #- name: "ObsType/atmosphericRefractivity"
+    #  source: variables/obsTypeAtmosphericRefractivity
+    #  longName: "Atmospheric Refractivity ObsType" 
+

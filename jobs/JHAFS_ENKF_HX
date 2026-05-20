@@ -28,25 +28,66 @@ export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
-if [ "${RUN_ENVIR^^}" != "NCO" ]; then
-  # Detect platform and load modules if not run by NCO
+if [[ "${ANALYSIS_MODEL}" = "GSI" ]]; then
+  if [[ "${RUN_ENVIR^^}" != "NCO" ]]; then
+    # Detect platform and load modules if not run by NCO
+    source ${USHhafs}/hafs_pre_job.sh.inc
+    export machine=${WHERE_AM_I:-wcoss2}
+    if [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
+      module purge
+      module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
+      module load gsi_${machine}.intel
+    fi
+    module list
+  else
+    # Run by NCO on WCOSS2
+    export machine=${WHERE_AM_I:-wcoss2}
+    # Prepend $USHhafs to python package search path
+    export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
+    # Initialize PDY
+  # setpdy.sh # only needed for the launch job
+    # Get PDY
+    source ${WORKhafs}/PDY
+  fi
+  else
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
-    module purge
-    module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-    module load gsi_${machine}.intel
+  if [[ ${machine}  = "wcoss2" ]]; then
+    module reset
+    module load PrgEnv-intel/${PrgEnv_intel_ver}
+    module load craype/${craype_ver}
+    module load intel/${intel_ver}
+    module load cray-mpich/${cray_mpich_ver}
+    module load cray-pals/${cray_pals_ver}
+    module load hdf5-A/${hdf5_ver}
+    module load netcdf-A/${netcdf_ver}
+    module load ve/hafs/${ve_hafs_ver}
+    module load crtm/${crtm_ver}
+    module load ncio-A/${ncio_ver}
+    module load ncdiag-A/${ncdiag_ver}
+    module load cfp/${cfp_ver}
+    module load prod_util/${prod_util_ver}
   fi
-  module list
-else
-  # Run by NCO on WCOSS2
-  export machine=${WHERE_AM_I:-wcoss2}
-  # Prepend $USHhafs to python package search path
-  export PYTHONPATH=$USHhafs${PYTHONPATH:+:$PYTHONPATH}
-  # Initialize PDY
-# setpdy.sh # only needed for the launch job
-  # Get PDY
-  source ${WORKhafs}/PDY
+  if [[ ${machine}  = "jet" ]] || [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "ursa" ]]; then
+    module purge
+  fi
+  if [[ ${machine}  = "gaeac6" ]]; then
+    module reset
+  fi
+  ulimit -s unlimited
+  ulimit -a
+  module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
+  module load HDAS/${machine}.intel
+  if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
+    module load intel-oneapi-mkl/2024.2.1
+  fi
+  export PYTHONPATH="${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/sorc/jcb/src/:$HOMEhafs/sorc/hafs_jedi.fd/sorc/hafs_jedi.fd/build/lib/python3.*"
+  export SALLOC_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export SBATCH_ACCOUNT=$SLURM_JOB_ACCOUNT
+  export IODA_PRINT_RUNSTATS=1
+  export OMP_NUM_THREADS=1
+  export OMP_PROC_BIND=true
+  export I_MPI_COLL_INTRANODE=pt2pt
 fi
 
 source ${USHhafs}/hafs_runcmd.sh.inc
@@ -62,7 +103,7 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export HX_ENS=${HX_ENS:-NO}
 
-if [ ${HX_ENS:-NO} = YES ]; then
+if [[ ${HX_ENS:-NO} = YES ]]; then
   export ENSID=${ENSID:-001}
   export MEMSTR="mem${ENSID}"
 else
@@ -72,19 +113,24 @@ fi
 
 export DATA=${WORKhafs}/enkf_hx/${MEMSTR}${jobidstr}
 
-if [ "${SCRUBDATA:-YES}" = YES ]; then
+if [[ "${SCRUBDATA:-YES}" = YES ]]; then
   rm -rf $DATA
 fi
 mkdir -p $DATA
 cd $DATA
 
 # Execute ex-script
-${HOMEhafs}/scripts/exhafs_enkf_hx.sh
+if [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
+  ${NLN} ${HOMEhafs}/ush/wxflow .
+  ${HOMEhafs}/scripts/exhafs_atm_enkf_hx.sh
+else
+  ${HOMEhafs}/scripts/exhafs_enkf_hx.sh
+fi
 export err=$?; err_chk
 
 # Cleanup DATA dir
 cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
+if [[ "${KEEPDATA:-YES}" != "YES" ]]; then
   rm -rf $DATA
 fi
 

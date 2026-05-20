@@ -22,6 +22,7 @@ import hafs.hafstask, hafs.exceptions
 import hafs.namelist, hafs.input
 import hafs.launcher, hafs.config
 
+from pathlib import Path
 from produtil.datastore import FileProduct, RUNNING, COMPLETED, FAILED, UpstreamFile
 from produtil.fileop import make_symlink, deliver_file, wait_for_files
 from produtil.dbnalert import DBNAlert
@@ -317,6 +318,9 @@ class WW3Init(hafs.hafstask.HAFSTask):
                         self.get_ww3bdy_inputs()
                         # Run ww3_bound
                         deliver_file(self.icstr('{bound_inp}'),'ww3_bound.inp',keep=True,logger=logger)
+                        if os.environ.get('GFSVER') == 'PROD2026':
+                            ww3_inp=Path('ww3_bound.inp')
+                            ww3_inp.write_text(ww3_inp.read_text().replace('gfswave', 'gfs'))
                         link(self.getexe('ww3_bound'),'ww3_bound')
                         cmd=exe('./ww3_bound')
                         if redirect: cmd = cmd>='ww3_bound.log'
@@ -425,7 +429,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
             # We get here if the ww3bdyfile exists and is big enough.
             ww3bdyspectar='gfs.t'+when.strftime('%H')+'z.ibp_tar'
             make_symlink(ww3bdyfile,ww3bdyspectar,force=True,logger=logger)
-            ww3bdyfbase=self.icstr('./gfswave.HWRF{vit[basin1lc]}*')
+            ww3bdyfbase=self.icstr('./gfs*.HWRF{vit[basin1lc]}*')
             #cmd=exe('tar')['-zxvf', ww3bdyspectar, '--wildcards', ww3bdyfbase]
             cmd=exe('tar')['-xvf', ww3bdyspectar, '--wildcards', ww3bdyfbase]
             if redirect: cmd = cmd>='ww3_untarbdy.log'

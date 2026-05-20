@@ -160,7 +160,6 @@ EOF
   refine=$( echo ${refine_ratio} | cut -d , -f ${n} )
   lx=$(( ${lx} * ${refine} ))
   ly=$(( ${ly} * ${refine} ))
-
   cat > ./regional_grid.nml << EOF
     &regional_grid_nml
       plon = ${target_lon}
@@ -188,10 +187,10 @@ EOF
   jstart=$( echo ${jstart_nest} | cut -d , -f ${n} )
   iend=$( echo ${iend_nest} | cut -d , -f ${n} )
   jend=$( echo ${jend_nest} | cut -d , -f ${n} )
-  istart_sub=$(( $(( ${istart}+${halop2}*2-1 )) * ${refine} ))
-  jstart_sub=$(( $(( ${jstart}+${halop2}*2-1 )) * ${refine} ))
-  iend_sub=$(( $(( ${iend}+${halop2}*2 )) * ${refine} - 1 ))
-  jend_sub=$(( $(( ${jend}+${halop2}*2 )) * ${refine} - 1 ))
+  istart_sub=$(( $(( ${istart}+${halop2}*2-1 )) * ${refine} - ${halop2}*2 ))
+  jstart_sub=$(( $(( ${jstart}+${halop2}*2-1 )) * ${refine} - ${halop2}*2 ))
+  iend_sub=$(( $(( ${iend}+${halop2}*2 )) * ${refine} - 1 + ${halop2}*2 ))
+  jend_sub=$(( $(( ${jend}+${halop2}*2 )) * ${refine} - 1 + ${halop2}*2 ))
   ncks -O -d nx,${istart_sub},${iend_sub} \
           -d ny,${jstart_sub},${jend_sub} \
           -d nxp,${istart_sub},$((${iend_sub}+1)) \

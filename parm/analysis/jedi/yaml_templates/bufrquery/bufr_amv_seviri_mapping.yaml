@@ -1,0 +1,177 @@
+bufr:
+  subsets:
+    - NC005067
+    - NC005068
+    - NC005069
+
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+        second: "*/SECO"
+
+    latitude:
+      query: "*/CLATH"
+
+    longitude:
+      query: "*/CLONH"
+
+    satelliteId:
+      query: "*/SAID"
+
+    satelliteZenithAngle:
+      query: "*/SAZA"
+
+    sensorCentralFrequency:
+      query: "*/SCCF"
+      type: float
+
+    pressure:
+      query: "*/PRLC[1]"
+      type: float
+
+    # Processing Center
+    dataProviderOrigin:
+      query: '*/OGCE'
+    
+    # Wind Generating Application
+    windGeneratingApplication:
+      query: '*/AMVQIC{2}/GNAPS'
+
+    # Quality Information Without Forecast
+    qualityInformationWithoutForecast:
+      query: '*/AMVQIC{2}/PCCF'
+      type: float
+
+    # Wind Retrieval Method Information - Computation 
+    windComputationMethod:
+      query: '*/SWCM'
+
+    # ObsValue - Wind Direction
+    windDirection:
+      query: '*/WDIR'
+      type: float
+
+    # ObsValue - Wind Speed
+    windSpeed:
+      query: '*/WSPD'
+
+  splits:
+    satId:
+      category:
+        variable: satelliteId
+        map:
+          _55: m8 
+          _56: m9
+          _57: m10
+          _70: m11  
+
+encoder:
+  globals:
+    - name: "description"
+      type: string
+      value: "Atmospheric Motion Vectors (AMVs) derived from MSG SEVIRI using three spectral bands: longwave IR (LWIR), water vapor/cloud top (WVCT) and visible"
+
+    - name: "platformCommonName"
+      type: string
+      value: "Meteosat"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Meteosat Second Generation (MSG)"
+
+    - name: "sensorCommonName"
+      type: string
+      value: "SEVIRI"
+
+    - name: "sensorLongDescription"
+      type: string
+      value: "Spinning Enhanced Visible Infra-Red Imager with 12 channels (11 narrow-bandwidth, 1 high-resolution broad-bandwidth VIS)"
+
+    - name: "source"
+      type: string
+      value: "U.S. National Weather Service, National Centres for Environmental Prediction (NCEP))"
+
+    - name: "sourceFiles"
+      type: string
+      value: "NCEP BUFR Dump - satwnd: NC005067 (LWIR), NC005068(VIS), NC005069(WV/CT)"
+
+    - name: "processingLevel"
+      type: string
+      value: "Level-2"
+
+    - name: "converter"
+      type: string
+      value: "bufr-query"
+
+  variables:
+
+    # MetaData 
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degrees_north"
+      range: [ -90, 90 ]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degrees_east"
+      range: [ -180, 180 ]
+
+    - name: "MetaData/satelliteIdentifier"
+      source: variables/satelliteId
+      longName: "Satellite Identifier"
+
+    - name: "MetaData/satelliteZenithAngle"
+      source: variables/satelliteZenithAngle
+      longName: "Satellite Zenith Angle"
+      units: "degree"
+      range: [ 0, 90 ]
+
+    - name: "MetaData/sensorCentralFrequency"
+      source: variables/sensorCentralFrequency
+      longName: "Satellite Channel Center Frequency"
+      units: "Hz"
+
+    - name: "MetaData/dataProviderOrigin"
+      source: variables/dataProviderOrigin
+      longName: "Identification of Originating/Generating Center"
+
+    - name: "MetaData/windComputationMethod"
+      source: variables/windComputationMethod
+      longName: "Satellite-derived Wind Computation Method"
+
+    - name: "MetaData/windGeneratingApplication"
+      source: variables/windGeneratingApplication
+      longName: "Wind Generating Application"
+
+    - name: "MetaData/qiWithoutForecast"
+      source: variables/qualityInformationWithoutForecast
+      longName: "Quality Information Without Forecast"
+      units: "percent"
+
+    - name: "MetaData/pressure"
+      source: variables/pressure
+      longName: "Pressure"
+      units: "Pa"
+
+    - name: "ObsValue/windDirection"
+      source: variables/windDirection
+      longName: "Wind Direction"
+      units: "degree"
+
+    - name: "ObsValue/windSpeed"
+      source: variables/windSpeed
+      longName: "Wind Speed"
+      units: "m s-1"

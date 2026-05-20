@@ -1,0 +1,28 @@
+input coeff file: gdas.#HH#.abias
+input err file: gdas.#HH#.abias_pc
+default predictors: &default_preds
+- constant
+- zenith_angle
+- cloud_liquid_water
+- lapseRate_order_2
+- lapseRate
+- cosine_of_latitude_times_orbit_node
+- sine_of_latitude
+- emissivityJacobian
+- sensorScanAngle_order_4
+- sensorScanAngle_order_3
+- sensorScanAngle_order_2
+- sensorScanAngle
+
+output:
+- sensor: abi_g16
+  output file: output/satbias_radiance_abi_g16_#HH#.nc
+  predictors: *default_preds
+
+- sensor: abi_g17
+  output file: output/satbias_radiance_abi_g17_#HH#.nc
+  predictors: *default_preds
+
+- sensor: abi_g18
+  output file: output/satbias_radiance_abi_g18_#HH#.nc
+  predictors: *default_preds

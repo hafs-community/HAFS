@@ -4,6 +4,7 @@ set -xeu
 cwd=$(pwd)
 
 CP='/bin/cp -rp'
+LN='/bin/ln -sf'
 
 #------------------------------------
 # INCLUDE PARTIAL BUILD
@@ -72,6 +73,7 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
+  ${CP} hafs_tools.fd/exec/hafs_enmean_recenter.x                    ../exec/hafs_tools_enmean_recenter.x
   if [ -d "hafs_tools.fd/sorc/hafs_ships" ]; then
     ${CP} hafs_tools.fd/exec/hafs_ships_nameparse.x                  ../exec/hafs_ships_nameparse.x
     ${CP} hafs_tools.fd/exec/hafs_ships_gridparse.x                  ../exec/hafs_ships_gridparse.x 
@@ -91,18 +93,30 @@ $Build_gsi && {
 }
 
 #------------------------------------
+# install jedi
+#------------------------------------
+$Build_jedi && {
+  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_var.x                         ../exec/hafs_jedi.x
+  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_letkf.x                       ../exec/hafs_jedi_enkf.x
+  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_converttostructuredgrid.x     ../exec/hafs_jedi_convert.x
+  ${CP} ${cwd}/hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_jedi_bc2ioda.x
+  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_error_covariance_toolbox.x    ../exec/hafs_jedi_nicas.x
+}
+
+#------------------------------------
+#------------------------------------
 # install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
-  ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf3z                   ../exec/hafs_hycom_utils_archv2ncdf3z.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf2d                   ../exec/hafs_hycom_utils_archv2ncdf2d.x
 }

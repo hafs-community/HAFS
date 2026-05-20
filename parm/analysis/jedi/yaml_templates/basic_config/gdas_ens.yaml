@@ -1,0 +1,84 @@
+states to structured grid:
+- state geometry:
+    namelist filename: _INPUT_HAFS_NML_
+    akbk: bkg/_FV3_AKBK_FILE_
+    io_layout: [1,1]
+    ntiles: 1
+    fms initialization:
+      namelist filename: fmsmpp.nml
+      field table filename: field_table
+    vert coordinate: logp
+  state:
+    datetime: _INTERP_DATE_
+    filetype: structured grid
+    gridtype: gaussian
+    akbk: bkg/_FV3_AKBK_FILE_
+    mode: both
+    lon_min: _MIN_LON_
+    lon_max: _MAX_LON_
+    lat_min: _MIN_LAT_
+    lat_max: _MAX_LAT_
+    input filename: _INPUT_FILE_
+    state variables: &state_variables_B
+    - eastward_wind
+    - northward_wind
+    - upward_air_velocity
+    - air_temperature
+    - air_pressure_at_surface
+    - water_vapor_mixing_ratio_wrt_moist_air
+    - cloud_liquid_ice
+    - cloud_liquid_water
+    - ozone_mass_mixing_ratio
+    - air_pressure_thickness
+    - layer_thickness
+    field io names: &id001_new
+      eastward_wind: ugrd
+      northward_wind: vgrd
+      upward_air_velocity: dzdt
+      air_temperature: tmp
+      air_pressure_at_surface: pressfc
+      water_vapor_mixing_ratio_wrt_moist_air: spfh
+      cloud_liquid_ice: icmr
+      cloud_liquid_water: clwmr
+      ozone_mass_mixing_ratio: o3mr
+      geopotential_height_times_gravity_at_surface: hgtsfc
+      air_pressure_thickness: dpres
+      layer_thickness: delz
+    output datapath: _OUTPUT_DIR_
+    output filename_core: fv_core.res.nest02.tile2.nc
+    output filename_trcr: fv_tracer.res.nest02.tile2.nc
+    output filename_sfcd: sfc_data.nest02.tile2.nc
+    output filename_sfcw: fv_srf_wnd.res.nest02.tile2.nc
+    output filename_cplr: coupler.res
+    output field io names:
+      eastward_wind: ua
+      northward_wind: va
+      upward_air_velocity: W
+      air_temperature: T
+      air_pressure_thickness: delp
+      layer_thickness: DZ
+      water_vapor_mixing_ratio_wrt_moist_air: sphum
+      cloud_liquid_water: liq_wat
+      cloud_liquid_ice: ice_wat
+      snow_water: snowwat
+      rain_water: rainwat
+      graupel: graupel
+      cloud_ice_number_concentration: ice_nc
+      rain_number_concentration: rain_nc
+      ozone_mass_mixing_ratio: o3mr
+      skin_temperature_at_surface: tsea
+      air_pressure_at_surface: ps
+      geopotential_height_times_gravity_at_surface: phis
+      soilMoistureVolumetric: smc
+      totalSnowDepth: snwdph
+      eastward_wind_at_surface: u_srf
+      northward_wind_at_surface: v_srf
+  structured grid interpolation:
+    grid type: latlon
+    local interpolator type: atlas interpolator
+    interpolation method:
+      type: nearest-neighbour
+    variables to output: *state_variables_B
+    all model levels: true
+    number of latitude gridpoints: 10
+    prefix: Interpolated

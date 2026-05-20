@@ -17,6 +17,12 @@
 #where restart_file is unstructured WW3 restart file, src_script is unstructured mesh
 #scrip file, dst_scrip is destination mesh scrip file (e.eg.,hafs mesh), mask_file is
 #destination mesh mask file, and output_file is the name of destination restart file
+#
+# The scrip files are created by running ww3_grid with the SCRIPNC switch
+#
+# Note, there is a weights file that is created called WHTGRIDINT.nc if you 
+# create this file and put it in the run directory, subsequent calls to this script
+# will execute faster
 ################################################################################
 
 

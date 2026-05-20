@@ -24,6 +24,9 @@ load(pathJoin("zlib", zlib_ver))
 cdo_ver=os.getenv("cdo_ver") or "2.4.4"
 load(pathJoin("cdo", cdo_ver))
 
+ncio_ver=os.getenv("ncio_ver") or "1.1.2"
+load(pathJoin("ncio", ncio_ver))
+
 prepend_path("MODULEPATH", "/autofs/ncrc-svm1_proj/hurr1/hafs/shared/modulefiles")
 rocoto_ver=os.getenv("rocoto_ver") or "1.3.7_fix"
 load(pathJoin("rocoto", rocoto_ver))

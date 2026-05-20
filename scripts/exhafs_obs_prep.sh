@@ -13,27 +13,44 @@
 #   == 0 : success
 #   != 0 : fatal error encounted
 ################################################################################
-set -x -o pipefail
+set -e -x -o pipefail
 
 cyc=${cyc:?}
 CDATE=${CDATE:-${YMDH}}
 yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
+CDATEprior=$(${NDATE} -6 $CDATE)
+ymdprior=$(echo ${CDATEprior} | cut -c1-8)
+hhprior=$(echo ${CDATEprior} | cut -c9-10)
+#CDATEtm03=$(${NDATE} -3 $CDATE)
+#ymdtm03=$(echo ${CDATEtm03} | cut -c1-8)
+#yrtm03=$(echo ${CDATEtm03} | cut -c1-4)
+#mntm03=$(echo ${CDATEtm03} | cut -c5-6)
+#dytm03=$(echo ${CDATEtm03} | cut -c7-8)
+#hhtm03=$(echo ${CDATEtm03} | cut -c9-10)
+#CDATEtp03=$(${NDATE} +3 $CDATE)
+#ymdtp03=$(echo ${CDATEtp03} | cut -c1-8)
+#yrtp03=$(echo ${CDATEtp03} | cut -c1-4)
+#mntp03=$(echo ${CDATEtp03} | cut -c5-6)
+#dytp03=$(echo ${CDATEtp03} | cut -c7-8)
+#hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
 atmos="atmos/"
-COMINhafs_OBS=${COMINhafs_OBS:-${COMINhafs}/hafs.$PDY/$cyc/${atmos}}
-RUN_GSI=${RUN_GSI:-NO}
+COMINhafs_OBS=${COMINhafs_OBS:-${COMINobs}/hafs.$PDY/$cyc/${atmos}}
+RUN_ANALYSIS=${RUN_ANALYSIS:-NO}
+ANALYSIS_MODEL=${ANALYSIS_MODEL:-JEDI}
 use_bufr_nr=${use_bufr_nr:-no}
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}
 
-if [ ${RUN_GSI} = "NO" ]; then
-  echo "RUN_GSI: $RUN_GSI"
+if [ ${RUN_ANALYSIS} = "NO" ]; then
+  echo "RUN_ANALYSIS: $RUN_ANALYSIS"
   echo "Do nothing. Exiting"
   exit
 fi
 
 PARMgsi=${PARMgsi:-${PARMhafs}/analysis/gsi}
+PARMjedi=${PARMjedi:-${PARMhafs}/analysis/jedi}
 SENDCOM=${SENDCOM:-YES}
 intercom=${intercom:-${WORKhafs}/intercom/obs_prep}
 mkdir -p ${COMhafs} ${intercom}
@@ -389,6 +406,159 @@ fi # end if [ -s ./tempdrop.filelist ]; then
 
 fi # end if [ ! -s ${intercom}/${NFtempdrop} ] && [ -s ${intercom}/${NFdropsonde} ]; then
 
-cd ${DATA}
+if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
+  cd ${DATA}
+  mkdir -p jedi_ioda
+  cd jedi_ioda
+########## Prepare executables & bufr files #######################
+  convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro"
+  sattypes="atms ssmis amsua iasi abi cris-fsr"
+  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
+  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+  obstypes="${radtypes} ${convtypes}"
+  IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
+  tilestr=` expr ${nest_grids} + 6 `
+  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
+  output_dir=${DATA}/jedi_ioda/output
+#  ${NCP} ${IODAEXEC} .
+  ${NCP} ${IODABCEXEC} ./hafs_jedi_bc2ioda.x
+  for file in ${satbufrs}; do
+    if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d ]]; then
+      ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.${file}.tm00.bufr_d gfs.t${cyc}z.${file}.bufr_d
+    fi
+  done
+  if [ -s ${intercom}/${NFTLDPLR} ]; then
+    ${NCP} -p ${intercom}/${NFTLDPLR} gfs.t${cyc}z.tldplr.bufr_d
+  fi
+  if [ -s ${intercom}/${NFHDOB} ]; then
+    ${NCP} -p ${intercom}/${NFHDOB} gfs.t${cyc}z.hdobbufr.bufr_d
+  fi
+  if [[ -s ${intercom}/${NFtempdrop} ]]; then
+    ${NCP} -p ${intercom}/${NFtempdrop} gfs.t${cyc}z.drpsnd.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
+  fi
+  if [[ -s ${intercom}/${NET}.t${cyc}z.prepbufr ]]; then
+    ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
+  fi
+  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d ]]; then
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d gfs.t${cyc}z.gnssro.bufr_d
+  fi
+if [ $GFSVER = "PROD2021" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
+  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
+fi
+  if [[ -s ${SATBIAS_IN} ]]; then
+    ${NCP} -p ${SATBIAS_IN} gdas.t${cyc}z.abias
+    sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
+  fi
+  if [[ -s ${SATBIAS_PC} ]]; then
+    ${NCP} -p ${SATBIAS_PC} gdas.t${cyc}z.abias_pc
+  fi
+########## Prepare yaml or json files #######################
+  mkdir output
+  for file in ${sattypes}; do
+   if [ -s ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml ]; then
+    sed -e "s|#HH#|t${cyc}z|g" ${PARMjedi}/yaml_templates/bufr2ioda/satbias_converter_${file}.yaml > satbias_converter_${file}.yaml
+   fi
+  done
+############### RUN bufrquery #######################
+  ${NCP} -rL ${FIXhafs}/bufraux aux
+  for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
+   ${NCP} -rp ${file} .
+  done
 
+  set -- $satbufrs
+  for file in $sattypes; do
+    bufr=$1
+    if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
+      if [[ "${file}" = "amsua" ]]; then
+       ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+      elif [[ "${file}" = "abi" ]]; then
+       python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+      elif [[ "${file}" = "cris-fsr" ]]; then
+       ${APRUNX} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+      elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
+       ${APRUNX} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+      fi
+    fi
+    shift
+  done
+
+  ANADATE="${yr}-${mn}-${dy}T${cyc}:00:00Z"
+  set -- $convbufrs
+  for file in $convtypes; do
+    bufr=$1
+    if [ -s gfs.t${cyc}z.${bufr}.bufr_d ]; then
+      sed -e "s|#ANADATE#|${ANADATE}|g" \
+        ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
+      if [[ "${bufr}" = "prepbufr" ]]; then
+        if [[ "${file}" = "osw_ascat" ]]; then
+          ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        else
+          ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+        fi
+      elif [[ "${bufr}" = "gnssro" ]]; then
+        python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
+      elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
+        # Extra Check on message type NC005099
+     	SUBSET_TO_FIND="5099"
+     	FILENAME_ABS=$(readlink -f "gfs.t${cyc}z.${bufr}.bufr_d")
+     	TEMP_DIR=$(mktemp -d)
+     	trap 'echo "Cleaning up temporary directory..."; rm -rf "${TEMP_DIR}"' EXIT
+     	echo "Created temporary directory: ${TEMP_DIR}"
+     	if (cd "${TEMP_DIR}" && split_by_subset "${FILENAME_ABS}") | grep -q "${SUBSET_TO_FIND}"; then
+     	  echo "Success: Subset ${SUBSET_TO_FIND} found."
+     	  echo "Proceeding with the Python script..."
+          python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc >& log_${file}
+     	else
+     	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
+        fi
+      elif [[ "${bufr}" = "tldplr" ]]; then
+        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
+      elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
+        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
+      elif [[ "${bufr}" = "satwnd" ]]; then
+        ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
+      fi
+    fi
+    shift
+  done
+
+########## Converting ATMS NPP/N20 to ioda nc #################
+  for file in ${sattypes}; do
+   if [ -s satbias_converter_${file}.yaml ]; then
+    ${APRUNS} ./hafs_jedi_bc2ioda.x satbias_converter_${file}.yaml #Bias File 2 IODA
+    export err=$?; err_chk
+   fi
+  done
+
+  for file in ${radtypes}; do
+   if [ -s ${output_dir}/satbias_radiance_${file}_t${cyc}z.nc ]; then
+    ${NCP} ${output_dir}/satbias_radiance_${file}_t${cyc}z.nc ${output_dir}/satbias_radiance_${file}_t${cyc}z_cov.nc
+   fi
+  done
+########## Getting lapse rate for each satellite radiance from gdas ################
+  for file in ${radtypes}; do
+    awk -v sid="$file" '$2 == sid {print $2, $3, $4}' gdas.t${cyc}z.abias > ${output_dir}/radiance_${file}.tlapse.txt
+  done
+
+########## Converting ATMS NPP/N20 to ioda nc Done #################
+  for file in ${output_dir}/*; do
+    ${NCP} ${file} ${intercom}/
+  done
+fi
+cd ${DATA}
 date
