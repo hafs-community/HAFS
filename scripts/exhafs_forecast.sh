@@ -920,7 +920,7 @@ if [ ${use_orog_gsl:-no} = yes ]; then
 fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
-if [ "${ENSDA}" = YES ]; then #XL
+if [ "${ENSDA}" = YES ] && [ "${RUN_ENKF}" = YES ] && [ "${ANALYSIS_MODEL}" = JEDI ]; then #XL link sfc_data since JEDI don't have the output
   if [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc ]; then
     ln -sf ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc sfc_data.tile7.nc
   fi

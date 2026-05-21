@@ -564,17 +564,15 @@ export jcb_yaml_dir=${PARMjedi}/jcb-hdas/test/client_integration
 mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_bkg.nml
-  ####### In the nest DA configuration, AKBK_ENS is used in the minimization. Needs to consider dual-resolution in the future
-  FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE} 
-  FV3_CORE_ENS_FILE=${FV3_CORE_FILE}
-  FV3_TRCR_ENS_FILE=${FV3_TRCR_FILE}
-  FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
-  FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
-  FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
-  ###################################################
   if [ ${RUN_ENSDA} = "YES" ]; then
     INPUT_HAFS_ENS_NML=input_hafs_ens.nml
   else
+    FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE}
+    FV3_CORE_ENS_FILE=${FV3_CORE_FILE}
+    FV3_TRCR_ENS_FILE=${FV3_TRCR_FILE}
+    FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
+    FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
+    FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
     INPUT_HAFS_ENS_NML=input_hafs_bkg.nml #If No HAFS Ens, GDAS Ens is interpolated to bkg.
   fi
 else
@@ -625,6 +623,15 @@ export ALGORITHM_COV=${ALGORITHM}
 else
 export ALGORITHM_COV="${ALGORITHM}_gdasens"
 fi
+if [ ${RUN_ENSDA} = "YES" ] && [ ${nest_grids} -eq 2 ]; then
+  export neststr_ens=""
+  export tilestr_ens=".tile1"
+  export nesttilestr_ens=""
+else
+  export neststr_ens=${neststr}
+  export tilestr_ens=${tilestr}
+  export nesttilestr_ens=${nesttilestr}
+fi
 sed -e "s|_ALGORITHM_|${ALGORITHM}|g" \
     -e "s|_ALGORITHMCOV_|${ALGORITHM_COV}|g" \
     ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
@@ -655,6 +662,8 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_HH9_|${hhtp03}|g" \
     -e "s|_NESTTILESTRNC_|${neststr}${tilestr}.nc|g" \
     -e "s|_NESTTILESTRSFC_|${nesttilestr}.nc|g" \
+    -e "s|_NESTTILESTRNCENS_|${neststr_ens}${tilestr_ens}.nc|g" \
+    -e "s|_NESTTILESTRSFCENS_|${nesttilestr_ens}.nc|g" \
     -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_ENS_NML}|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
     -e "s|_DISTRIBUTION_|RoundRobin|g" \
