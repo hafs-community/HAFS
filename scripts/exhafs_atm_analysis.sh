@@ -268,11 +268,15 @@ if [ ${nest_grids} -ge 2 ]; then
  ${NLN} ${RESTARTinp}/${FV3_AKBK_ENS_FILE} .
 fi
 if [ ${RUN_ENSDA} = "YES" ]; then
+  COMOLD00_Ens=${COMOLD}/../00L/00l.${ymdprior}${hhprior}.RESTART_ens
   if [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
     FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
   elif [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+    FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+  elif [ -s ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
+    ${NCP} ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
     FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
   fi
 elif [ -s ${WORKhafs}/intercom/ENS_PREP/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
@@ -292,6 +296,9 @@ if [ ${RUN_ENVAR} = "YES" ]; then
     mkdir ${DATA}/ensemble_data/mem${mem}
     if [ ${RUN_ENSDA} = "YES" ]; then
       RESTARTens=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${mem}
+      if [ -d ${COMOLD00_Ens} ]; then
+        RESTARTens=${COMOLD00_Ens}/mem${mem}
+      fi
       for file in `ls ${RESTARTens}/*`; do
         ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
       done
@@ -565,16 +572,16 @@ mkdir ${DATA}/bump
 if [ ${nest_grids} -ge 2 ]; then
   INPUT_HAFS_NML=input_hafs_bkg.nml
   ####### In the nest DA configuration, AKBK_ENS is used in the minimization. Needs to consider dual-resolution in the future
-  FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE} 
-  FV3_CORE_ENS_FILE=${FV3_CORE_FILE}
-  FV3_TRCR_ENS_FILE=${FV3_TRCR_FILE}
-  FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
-  FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
-  FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
   ###################################################
   if [ ${RUN_ENSDA} = "YES" ]; then
     INPUT_HAFS_ENS_NML=input_hafs_ens.nml
   else
+    FV3_AKBK_ENS_FILE=${FV3_AKBK_FILE}
+    FV3_CORE_ENS_FILE=${FV3_CORE_FILE}
+    FV3_TRCR_ENS_FILE=${FV3_TRCR_FILE}
+    FV3_SFCD_ENS_FILE=${FV3_SFCD_FILE}
+    FV3_SFCW_ENS_FILE=${FV3_SFCW_FILE}
+    FV3_CPLR_ENS_FILE=${FV3_CPLR_FILE}
     INPUT_HAFS_ENS_NML=input_hafs_bkg.nml #If No HAFS Ens, GDAS Ens is interpolated to bkg.
   fi
 else
@@ -625,6 +632,15 @@ export ALGORITHM_COV=${ALGORITHM}
 else
 export ALGORITHM_COV="${ALGORITHM}_gdasens"
 fi
+if [ ${RUN_ENSDA} = "YES" ] && [ ${nest_grids} -eq 2 ]; then
+  export neststr_ens=""
+  export tilestr_ens=".tile1"
+  export nesttilestr_ens=""
+else
+  export neststr_ens=${neststr}
+  export tilestr_ens=${tilestr}
+  export nesttilestr_ens=${nesttilestr}
+fi
 sed -e "s|_ALGORITHM_|${ALGORITHM}|g" \
     -e "s|_ALGORITHMCOV_|${ALGORITHM_COV}|g" \
     ${jcb_yaml_dir}/hdas-atmosphere-templates.yaml > hdas-atmosphere-templates.yaml.tmp
@@ -655,6 +671,8 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_HH9_|${hhtp03}|g" \
     -e "s|_NESTTILESTRNC_|${neststr}${tilestr}.nc|g" \
     -e "s|_NESTTILESTRSFC_|${nesttilestr}.nc|g" \
+    -e "s|_NESTTILESTRNCENS_|${neststr_ens}${tilestr_ens}.nc|g" \
+    -e "s|_NESTTILESTRSFCENS_|${nesttilestr_ens}.nc|g" \
     -e "s|_INPUT_HAFS_ENS_NML_|${INPUT_HAFS_ENS_NML}|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
     -e "s|_DISTRIBUTION_|RoundRobin|g" \
