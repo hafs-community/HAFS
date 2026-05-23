@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=/gpfs/f6/drsa-hurr1/world-shared/save/Xu.Lu/hafsv2p2j_20260408
+HOMEhafs=/scratch3/HFIP/hwrfv3/save/Xu.Lu/hafsv2p2j_20260511
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -11,11 +11,19 @@ EXPT=$(basename ${HOMEhafs})
 opts="-t -f"
 #===============================================================================
 # HAFSv2.1.1A final configuration
- confopts="config.EXPT=${EXPT} config.SUBEXPT=JEDI_ENKF ../parm/hafsv2p2j_enkf.conf"
+# confopts="config.EXPT=${EXPT} config.SUBEXPT=JEDI_ENKF2 ../parm/hafsv2p2j_enkf.conf"
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#   config.NHRS=12 config.scrub_work=no config.scrub_com=no
+
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=GSI_ENKF ../parm/hafsv2p2a_enkf.conf"
+#./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
+#   config.NHRS=12 config.scrub_work=no config.scrub_com=no
+
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=JEDI_AJ ../parm/hafsv2p2p1a_final.conf"
 ./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
    config.NHRS=12 config.scrub_work=no config.scrub_com=no
 
-# confopts="config.EXPT=${EXPT} config.SUBEXPT=GSI_ENKF ../parm/hafsv2p2a_enkf.conf"
+ confopts="config.EXPT=${EXPT} config.SUBEXPT=GSI_AJ ../parm/hafsv2p2a_final.conf"
 #./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #   config.NHRS=12 config.scrub_work=no config.scrub_com=no
 #===============================================================================

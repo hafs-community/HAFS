@@ -1,8 +1,6 @@
 #!/bin/sh
 set -xeu
 
-cwd=$(pwd)
-
 CP='/bin/cp -rp'
 LN='/bin/ln -sf'
 
@@ -95,11 +93,11 @@ $Build_gsi && {
 # install jedi
 #------------------------------------
 $Build_jedi && {
-  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_var.x                         ../exec/hafs_jedi.x
-  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_letkf.x                       ../exec/hafs_jedi_enkf.x
-  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_converttostructuredgrid.x     ../exec/hafs_jedi_convert.x
-  ${CP} ${cwd}/hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_jedi_bc2ioda.x
-  ${CP} ${cwd}/hafs_jedi.fd/build/bin/fv3jedi_error_covariance_toolbox.x    ../exec/hafs_jedi_nicas.x
+  ${CP} hafs_jedi.fd/build/bin/fv3jedi_var.x                         ../exec/hafs_jedi.x
+  ${CP} hafs_jedi.fd/build/bin/fv3jedi_letkf.x                       ../exec/hafs_jedi_enkf.x
+  ${CP} hafs_jedi.fd/build/bin/fv3jedi_ensconvertstate.x             ../exec/hafs_jedi_convert.x
+  ${CP} hafs_jedi.fd/build/bin/satbias2ioda.x                        ../exec/hafs_jedi_bc2ioda.x
+  ${CP} hafs_jedi.fd/build/bin/fv3jedi_error_covariance_toolbox.x    ../exec/hafs_jedi_nicas.x
 }
 
 #------------------------------------

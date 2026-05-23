@@ -66,6 +66,8 @@ export IODA_PRINT_RUNSTATS=1
 export OMP_NUM_THREADS=1
 export OMP_PROC_BIND=true
 export I_MPI_COLL_INTRANODE=pt2pt
+export SLURM_OOM_KILL_STEP=1
+export KMP_STACKSIZE=256m
 
 if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
   export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
@@ -110,7 +112,6 @@ mkdir -p $DATA
 mkdir -p ${RESTARTout_dir}
 cd $DATA
 
-# Execute ex-script
 ${HOMEhafs}/scripts/exhafs_atm_ens_prep.sh
 export err=$?; err_chk
 
