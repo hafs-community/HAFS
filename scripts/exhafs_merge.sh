@@ -350,7 +350,7 @@ else
 ${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 # LJG 2026-02-10
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc

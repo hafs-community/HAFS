@@ -269,14 +269,14 @@ if [ ${nest_grids} -ge 2 ]; then
 fi
 if [ ${RUN_ENSDA} = "YES" ]; then
   COMOLD00_Ens=${COMOLD}/../00L/00l.${ymdprior}${hhprior}.RESTART_ens
-  if [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
+  if [ -s ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
+    ${NCP} ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
+    FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
+  elif [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
     FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
   elif [ -s ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
-    FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
-  elif [ -s ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ]; then
-    ${NCP} ${COMOLD00_Ens}/mem001/${PDY}.${cyc}0000.fv_core.res.nc ${PDY}.${cyc}0000.fv_core_ens.res.nc
     FV3_AKBK_ENS_FILE_BUMP=${PDY}.${cyc}0000.fv_core_ens.res.nc
   fi
 elif [ -s ${WORKhafs}/intercom/ENS_PREP/mem001/${PDY}.${cyc}0000.fv_core.res${neststr}.nc ]; then
