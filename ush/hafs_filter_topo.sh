@@ -45,8 +45,8 @@ mkdir -p $outdir
 cd $outdir
 
 ${NCP} $griddir/$mosaic_grid .
-${NCP} $griddir/C${res}_grid.tile?.nc .
-for file in $orodir/${topo_file}.tile?.nc ; do
+${NCP} $griddir/C${res}_grid.tile*.nc .
+for file in $orodir/${topo_file}.tile*.nc ; do
   filebase=$(basename $file)
   if [ ! -e ./${filebase} ]; then
     ${NCP} ${file} ./${filebase}
