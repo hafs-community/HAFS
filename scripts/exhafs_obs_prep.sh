@@ -529,7 +529,7 @@ fi
       elif [[ "${bufr}" = "tldplr" ]]; then
         ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
+        python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
         ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
       fi
