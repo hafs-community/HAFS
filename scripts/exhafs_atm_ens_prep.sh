@@ -240,7 +240,7 @@ create_ensemble_yaml() {
   n=1
   while [ "${n}" -le "${ENS_SIZE}" ]; do
     mem=$(printf "%03d" "${n}")
-    mem_restart=${WORKhafs}/intercom/ENS_PREP/mem${mem}
+    mem_restart=../../../intercom/ENS_PREP/mem${mem}
     input_file=$(get_member_input_file "${mem}" "${lead}") || return 2
     member_yaml=${member_yaml_dir}/gdas_ens_${tag}_mem${mem}.yaml
 
