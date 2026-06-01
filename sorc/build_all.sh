@@ -73,11 +73,10 @@ echo " .... Building utils .... "
 #------------------------------------
 $Build_tools && {
 echo " .... Building tools .... "
+./build_tools.sh > $logs_dir/build_tools.log 2>&1 &
 source ./machine-setup.sh.inc
 if [[ "${WHERE_AM_I}" == "wcoss2" ]]; then
  ./build_tools_stack1.9.sh > $logs_dir/build_tools.log 2>&1 &
-else
- ./build_tools.sh > $logs_dir/build_tools.log 2>&1 &
 fi
 }
 

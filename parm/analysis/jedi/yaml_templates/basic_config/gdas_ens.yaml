@@ -60,7 +60,7 @@ states:
       cloud_ice_number_concentration: nccice
       rain_number_concentration: nconrd
       ozone_mass_mixing_ratio: o3mr
-      geopotential_height_times_gravity_at_surface: hgtsfc
+      geopotential_height_at_surface: hgtsfc
       air_pressure_thickness: dpres
       layer_thickness: delz
   output:
