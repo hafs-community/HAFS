@@ -193,16 +193,19 @@ setup_member_cwd() {
       ${RLN} ../../input_hafs_nest.nml input_hafs_nest.nml
     fi
 
-    # Only needed if a YAML/template uses relative output paths under intercom/.
-    # The current script uses absolute output dirs, but this keeps the cwd portable.
-    if [ -d "${WORKhafs}/intercom" ]; then
-      ${RLN} "${WORKhafs}/intercom" intercom
-    fi
+    # YAML output paths use intercom/ENS_PREP/mem### from the member cwd.
+    # Keep this link relative so the whole DATA/WORKhafs tree is more portable.
+    ${RLN} ../../../intercom intercom
 
     # Fail early if the member cwd is not usable.  FMS/MPP reads this file
     # from the current working directory during Geometry initialization.
     if [ ! -s "fmsmpp.nml" ]; then
       echo "ERROR: ${mem_cwd}/fmsmpp.nml is missing or broken" >&2
+      ls -l "${mem_cwd}" >&2
+      exit 1
+    fi
+    if [ ! -d "intercom" ]; then
+      echo "ERROR: ${mem_cwd}/intercom is missing or broken" >&2
       ls -l "${mem_cwd}" >&2
       exit 1
     fi
@@ -231,7 +234,7 @@ create_ensemble_yaml() {
   local lead="$3"
   local member_yaml_dir="${ENS_YAML_ROOT}/${tag}"
   local ens_yaml="${ENS_YAML_ROOT}/ens_${tag}.yaml"
-  local n mem mem_restart mem_cwd mem_cwd_rel input_file member_yaml
+  local n mem mem_restart_abs mem_restart_yaml mem_cwd mem_cwd_rel input_file member_yaml
 
   mkdir -p "${member_yaml_dir}"
   : > "${ens_yaml}"
@@ -240,11 +243,12 @@ create_ensemble_yaml() {
   n=1
   while [ "${n}" -le "${ENS_SIZE}" ]; do
     mem=$(printf "%03d" "${n}")
-    mem_restart=${WORKhafs}/intercom/ENS_PREP/mem${mem}
+    mem_restart_abs=${WORKhafs}/intercom/ENS_PREP/mem${mem}
+    mem_restart_yaml=intercom/ENS_PREP/mem${mem}
     input_file=$(get_member_input_file "${mem}" "${lead}") || return 2
     member_yaml=${member_yaml_dir}/gdas_ens_${tag}_mem${mem}.yaml
 
-    mkdir -p "${mem_restart}"
+    mkdir -p "${mem_restart_abs}"
 
     mem_cwd=$(setup_member_cwd "${mem}")
     mem_cwd_rel="ens_member_cwd/mem${mem}"
@@ -260,7 +264,7 @@ create_ensemble_yaml() {
             -e "s|_MAX_LON_|${MAX_LON}|g" \
             -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
             -e "s|_INPUT_FILE_|${input_file}|g" \
-            -e "s|_OUTPUT_DIR_|${mem_restart}|g" \
+            -e "s|_OUTPUT_DIR_|${mem_restart_yaml}|g" \
             "${gdas_ens_yaml}/gdas_ens.yaml"
       } > "${member_yaml}"
     else
@@ -272,7 +276,7 @@ create_ensemble_yaml() {
           -e "s|_MAX_LON_|${MAX_LON}|g" \
           -e "s|_FV3_AKBK_FILE_|${FV3_AKBK_FILE}|g" \
           -e "s|_INPUT_FILE_|${input_file}|g" \
-          -e "s|_OUTPUT_DIR_|${mem_restart}|g" \
+          -e "s|_OUTPUT_DIR_|${mem_restart_yaml}|g" \
           "${gdas_ens_yaml}/gdas_ens.yaml" > "${member_yaml}"
     fi
 
@@ -300,6 +304,16 @@ run_ensemble_convert() {
   # Keep this hook close to the executable launch.  It now runs once per ensemble
   # stage, not once per member.
   ${SOURCE_PREP_STEP}
+
+  # The FV3-JEDI ensemble driver resolves "working directory: ens_member_cwd/mem###"
+  # relative to the launch cwd.  SOURCE_PREP_STEP may change directories, so
+  # always return to DATA immediately before launching JEDI.
+  cd "${DATA}" || exit 1
+  echo "INFO: Launch cwd for ${tag}: $(pwd)"
+
+  # Quick sanity check for the member-local relative-path layout.
+  test -s "${DATA}/ens_member_cwd/mem001/fmsmpp.nml" || exit 1
+  test -d "${DATA}/ens_member_cwd/mem001/intercom/ENS_PREP/mem001" || exit 1
 
   ${APRUNX} ./hafs_jedi_convert.x "${ens_yaml}" "ens_${tag}.out" > "${log_file}" 2>&1
   export err=$?
