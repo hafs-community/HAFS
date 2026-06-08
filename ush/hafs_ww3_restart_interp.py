@@ -54,14 +54,6 @@ nyy, nxx = mask_2d.shape
 mask_flat = mask_2d.flatten(order="C")
 mask_zero_idx = np.where(mask_flat == 0)[0]
 
-##################################################
-# === Inject mask into destination SCRIP file ===#
-##################################################
-with nc.Dataset(args.dst_scrip, "r+") as dst_nc:
-  if "grid_imask" not in dst_nc.variables:
-    dst_nc.createVariable("grid_imask", "i4", ("grid_size",))
-  dst_nc.variables["grid_imask"][:] = mask_flat
-
 #############################
 # === Open source NetCDF ===#
 #############################
