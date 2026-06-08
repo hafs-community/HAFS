@@ -150,12 +150,20 @@ with nc.Dataset(tmp_file, "r") as src, nc.Dataset(args.output_file, "w") as dst:
   for varname, varin in src.variables.items():
     if varname in ["time", "nk", "nth"]:
       continue
-    fill_value = varin.getncattr("_FillValue")
-    data = varin[:, 0, :].copy()
-    data[:, mask_zero_idx] = fill_value
-    reshaped = data.reshape((nt, nyy, nxx), order="C")
-    dst_var = dst.createVariable(varname, "f4", ("time", "ny", "nx"), fill_value=fill_value)
-    dst_var[:] = reshaped
+    if varname == "mapsta":
+      fill_value = -2147483647
+      data = mask_flat
+      data[mask_zero_idx] = fill_value
+      reshaped = data.reshape((nt, nyy, nxx), order="C")
+      dst_var = dst.createVariable(varname, "i4", ("time", "ny", "nx"), fill_value=fill_value)
+      dst_var[:] = reshaped
+    else:
+      fill_value = varin.getncattr("_FillValue")
+      data = varin[:, 0, :].copy()
+      data[:, mask_zero_idx] = fill_value
+      reshaped = data.reshape((nt, nyy, nxx), order="C")
+      dst_var = dst.createVariable(varname, "f4", ("time", "ny", "nx"), fill_value=fill_value)
+      dst_var[:] = reshaped
 
 #Cleanup
 os.remove(tmp_file)
