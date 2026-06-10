@@ -538,7 +538,7 @@ fi
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
-        python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --stormid ${STORMID} >& log_${file}
       fi
     fi
     shift
