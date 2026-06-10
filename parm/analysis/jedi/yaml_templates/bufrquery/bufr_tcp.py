@@ -21,7 +21,24 @@ def parse_tcvitals(filepath):
             parts = line.split()
             if len(parts) < 11:
                 continue
-            
+           
+            date_element = next((p for p in parts if ':' in p), None)
+            if date_element:
+                date_part = date_element.split(':')[-1]
+                idx = parts.index(date_element)
+                time_part = parts[idx + 1]
+                lat_str = parts[idx + 2]
+                lon_str = parts[idx + 3]
+                # Shift elements up to pull pressure correctly later
+                pmin_hpa = float(parts[idx + 6]) 
+            else:
+                # Standard case
+                date_part = parts[3]
+                time_part = parts[4]
+                lat_str = parts[5]
+                lon_str = parts[6]
+                pmin_hpa = float(parts[9])
+
             # 1. Center and Storm ID (e.g., NHC_10E)
             center = parts[0]
             storm_id = parts[1]
@@ -29,8 +46,6 @@ def parse_tcvitals(filepath):
             
             # 2. Date and Time (YYYYMMDD HHMM)
             # handle cases like ':20240924'
-            date_part = parts[3].lstrip(':')
-            time_part = parts[4]
             dt_str = date_part + time_part
             dt = datetime.strptime(dt_str, '%Y%m%d%H%M')
             # Convert to epoch seconds for IODA MetaData/dateTime
@@ -38,9 +53,6 @@ def parse_tcvitals(filepath):
             times.append(epoch_sec)
             
             # 3. Latitude and Longitude (e.g., 169N -> 16.9, 0993W -> -99.3)
-            lat_str = parts[5]
-            lon_str = parts[6]
-            
             lat = float(lat_str[:-1]) / 10.0
             if lat_str[-1] == 'S':
                 lat = -lat
@@ -54,7 +66,6 @@ def parse_tcvitals(filepath):
             
             # 4. Central Pressure (e.g., 0973 -> 973 hPa)
             # IODA standard is usually Pascals, so multiply by 100
-            pmin_hpa = float(parts[9])
             pressures.append(pmin_hpa * 100.0)
 
     return {
