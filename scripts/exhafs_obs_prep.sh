@@ -440,14 +440,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.esamua.tm00.bufr_d gfs.t${cyc}z.esamua.bufr_d
   fi
-  if [[ ${use_bufr_nr:-no} = "yes" ]]; then
-    if [[ -s ${intercom}/${NET}.t${cyc}z.prepbufr.nr ]]; then
-      ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr.nr gfs.t${cyc}z.prepbufr.bufr_d
-    fi
-  else
-    if [[ -s ${intercom}/${NET}.t${cyc}z.prepbufr ]]; then
-      ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
-    fi
+  if [[ -s ${intercom}/${NET}.t${cyc}z.prepbufr ]]; then
+    ${NCP} -p ${intercom}/${NET}.t${cyc}z.prepbufr gfs.t${cyc}z.prepbufr.bufr_d
   fi
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwnd.tm00.bufr_d gfs.t${cyc}z.satwnd.bufr_d
