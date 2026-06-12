@@ -16,7 +16,7 @@ import numpy.ma as ma
 
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set
-log_level = os.getenv('LOG_LEVEL', 'INFO')
+log_level = os.getenv('LOG_LEVEL', 'DEBUG')
 logger = Logger('bufr_drpsnd.py', level=log_level, colored_log=False)
 
 
@@ -178,6 +178,9 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
 
     logging(comm, 'DEBUG', f'Do DateTime calculation')
     otmct = container.get('variables/timeOffset')
+    if otmct is None or np.all(np.ma.getmaskarray(otmct)):
+        logging(comm, 'INFO', f'WARNING! no time info find, quit converting to IODA NetCDF')
+        sys.exit(0)
     otmct_paths = container.get_paths('variables/timeOffset')
     otmct2 = np.array(otmct)
     cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
