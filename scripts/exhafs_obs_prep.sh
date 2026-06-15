@@ -411,8 +411,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
+  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
   convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
+  # convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob tcp"
+  # convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr tcvital"
   sattypes="atms ssmis amsua iasi abi cris-fsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
@@ -449,8 +452,15 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
-  if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d ]]; then
-    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d gfs.t${cyc}z.gnssro.bufr_d
+  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
+  if [[ ${use_bufr_nr:-no} = "yes" ]]; then
+    if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr ]]; then
+      ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr gfs.t${cyc}z.gnssro.bufr_d
+    fi
+  else
+    if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d ]]; then
+      ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d gfs.t${cyc}z.gnssro.bufr_d
+    fi
   fi
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.syndata.tcvitals.tm00 ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.syndata.tcvitals.tm00 gfs.t${cyc}z.tcvital
@@ -513,6 +523,7 @@ fi
         else
           ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
         fi
+      # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
       elif [[ "${bufr}" = "gnssro" ]]; then
         python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
@@ -538,7 +549,8 @@ fi
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
-        python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        #python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --stormid ${STORMID} >& log_${file}
       fi
     fi
     shift

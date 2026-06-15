@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=/scratch4/HFIP/hur-aoml/Lew.Gramer/hafsv2p2_final_multistorm_extras
+HOMEhafs=/scratch4/AOML/aoml-hafs1/Lew.Gramer/HAFSV2.2.1M_2026_RT
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -13,6 +13,75 @@ opts="-t -f"
 # HAFSv2.2B final configuration
  confopts_a="config.EXPT=${EXPT} ../parm/hafsv2p2a_final.conf"
  confopts_b="config.EXPT=${EXPT} ../parm/hafsv2p2b_final.conf"
+
+
+#### HAFS-C JEDI test cases
+
+# TEST KIRK EDGE CASE: 2024100606
+./run_hafs.py ${opts} -M L 2024100600-2024100712 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_TEST_Atlantic_JEDI \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic_jedi.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# # TEST KIRK EDGE CASE: 2024100606: Fails due to missing "i" files
+# ./run_hafs.py ${opts} -M L 2024100600-2024100712 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_TEST_Atlantic_ENS_JEDI \
+#    grid.nest_grids=3 ../parm/hafs_multistorm_atlantic_ens_jedi.conf \
+#    config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# Known good dates for "i" files on Ursa
+./run_hafs.py ${opts} -M L 2024092400-2024092506 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_TEST_Atlantic_ENS_JEDI \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic_ens_jedi.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# TEST KIRK EDGE CASE: 2024100606
+./run_hafs.py ${opts} -M L 2024100600-2024100712 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_TEST_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+# TEST KIRK EDGE CASE: 2024100606
+./run_hafs.py ${opts} -M L,E 2024100600-2024100612 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_TEST_M \
+   grid.nest_grids=3 ../parm/hafs_multistorm.conf \
+   config.NHRS=126 config.scrub_work=no config.scrub_com=no config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+exit 0
+
+
+#### HAFS-C Retros
+
+# 2022: (just) BONNIE->COLIN
+./run_hafs.py ${opts} -M L 2022062318-2022070306 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+# 2023: FRANKLIN->IDALIA->KATIA->LEE: 
+./run_hafs.py ${opts} -M L 2023081906-2023091712 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+# 2023: DORA->EUGENE->FERNANDA->GREG->HILARY->IRWIN->JOVA: 
+./run_hafs.py ${opts} -M E,C 2023073000-2023091018 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Pacific \
+   grid.nest_grids=3 ../parm/hafs_multistorm_pacific.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+# 2024: HELENE->ISAAC->JOYCE->KIRK->LESLIE->MILTON: 
+./run_hafs.py ${opts} -M L 2024092218-2024101212 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+# 2024: JOHN->INVEST91C->INVEST94E->INVEST97E->INVEST98E->INVEST99E:
+./run_hafs.py ${opts} -M E,C 2024092200-2024101000 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Pacific \
+   grid.nest_grids=3 ../parm/hafs_multistorm_pacific.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+# 2025: GABRIELLE->HUMBERTO->IMELDA: 
+./run_hafs.py ${opts} -M L 2025091512-2025100212 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Atlantic \
+   grid.nest_grids=3 ../parm/hafs_multistorm_atlantic.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+# 2025: IONA01C->KELI02C->INVEST98E->INVEST99E:
+./run_hafs.py ${opts} -M E,C 2025072600-2025080400 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Pacific \
+   grid.nest_grids=3 ../parm/hafs_multistorm_pacific.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+# 2025: NARDA14E->OCTAVE15E->PRISCILLA16E->RAYMOND17E:
+./run_hafs.py ${opts} -M E,C 2025091918-2025101200 00L HISTORY ${confopts_b} config.SUBEXPT=${EXPT}_RETRO_Pacific \
+   grid.nest_grids=3 ../parm/hafs_multistorm_pacific.conf \
+   config.NHRS=126 config.scrub_work=yes config.scrub_com=yes config.run_hrdgraphics=yes config.run_emcgraphics=no
+
+exit 0
+
+
 
 
 #### HAFS-C Retros

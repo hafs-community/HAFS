@@ -13,8 +13,8 @@ from wxflow import Logger
 
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set
-log_level = os.getenv('LOG_LEVEL', 'INFO')
-logger = Logger('BUFR_tldplr.py', level=log_level, colored_log=False)
+log_level = os.getenv('LOG_LEVEL', 'DEBUG')
+logger = Logger('BUFR_tdr.py', level=log_level, colored_log=False)
 
 def logging(comm, level, message):
     """
@@ -86,6 +86,9 @@ def _compute_timeoffset(obstime, cycletime):
     Returns:
         Masked array of timeoffset values
     """
+    # ADD THIS CHECK: If the array is empty on this MPI rank, return an empty array
+    if np.size(obstime) == 0:
+        return np.array([], dtype=np.float32)
 
     otmct2 = np.array(obstime)
     otmct3 = [datetime.fromtimestamp(ts) for ts in otmct2]
@@ -283,9 +286,11 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
         logging(comm, 'DEBUG', f'Do DateTime calculation')
         otmct = container.get('variables/timestamp', cat)
         timediff = _compute_timeoffset(otmct, cycle_time)
+
+        if np.size(timediff) > 0:
         #logging(comm,'DEBUG',f'datetime min/max = {mindatetime, maxdatetime}')
-        logging(comm,'DEBUG',f'cycle time is {cycle_time}')
-        logging(comm, 'DEBUG', f'timeOffset min/max = {np.nanmin(timediff)} {np.nanmax(timediff)}')
+            logging(comm,'DEBUG',f'cycle time is {cycle_time}')
+            logging(comm, 'DEBUG', f'timeOffset min/max = {np.nanmin(timediff)} {np.nanmax(timediff)}')
         # Replace the timeOffset variable
         logging(comm, 'DEBUG', f'Update timeoffset in container')
         container.replace('variables/timeOffset',timediff,cat)
@@ -314,20 +319,25 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
         # replace the org lat and lon
         container.replace('variables/latitude', obslat,cat)
         container.replace('variables/longitude', obslon,cat)
-        logging(comm, 'DEBUG', f'replace latitude, before: lat min/max = {station_lat.min()} {station_lat.min()} after: lat min/max={obslat.min()} {obslat.max()}')
-        logging(comm, 'DEBUG', f'replace longitude, before: lon min/max = {station_lon.min()} {station_lon.min()} after: lon min/max={obslon.min()} {obslon.max()}')
+
+        if np.size(station_lat) > 0:
+            logging(comm, 'DEBUG', f'replace latitude, before: lat min/max = {station_lat.min()} {station_lat.max()} after: lat min/max={obslat.min()} {obslat.max()}')
+            logging(comm, 'DEBUG', f'replace longitude, before: lon min/max = {station_lon.min()} {station_lon.max()} after: lon min/max={obslon.min()} {obslon.max()}')
         # replace the org tilt and azm
         container.replace('variables/beamAzimuthAngle', azm, cat)
         container.replace('variables/beamTiltAngle', tilt, cat)
-        logging(comm, 'DEBUG', f'azm min/max = {azm.min()} {azm.max()}')
-        logging(comm, 'DEBUG', f'tilt min/max = {tilt.min()} {tilt.max()}')
+       
+        if np.size(azm) > 0:
+            logging(comm, 'DEBUG', f'azm min/max = {azm.min()} {azm.max()}')
+            logging(comm, 'DEBUG', f'tilt min/max = {tilt.min()} {tilt.max()}')
 
         cosazm_costilt, sinazm_costilt, sintilt = compute_radar_related(tilt,azm)
         
-        logging(comm, 'DEBUG', f'cosazm_costilt min/max = {cosazm_costilt.min()} {cosazm_costilt.max()}')
-        logging(comm, 'DEBUG', f'sinazm_costilt min/max = {sinazm_costilt.min()} {sinazm_costilt.max()}')
-        logging(comm, 'DEBUG', f'sintilt min/max = {sintilt.min()} {sintilt.max()}')
-        logging(comm, 'DEBUG', f'height min/max = {obshgt.min()} {obshgt.max()}')
+        if np.size(cosazm_costilt) > 0:
+            logging(comm, 'DEBUG', f'cosazm_costilt min/max = {cosazm_costilt.min()} {cosazm_costilt.max()}')
+            logging(comm, 'DEBUG', f'sinazm_costilt min/max = {sinazm_costilt.min()} {sinazm_costilt.max()}')
+            logging(comm, 'DEBUG', f'sintilt min/max = {sintilt.min()} {sintilt.max()}')
+            logging(comm, 'DEBUG', f'height min/max = {obshgt.min()} {obshgt.max()}')
 
         # add new variables
         paths = container.get_paths('variables/beamAzimuthAngle', cat)
