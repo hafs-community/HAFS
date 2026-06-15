@@ -105,10 +105,24 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
+                         ${RESTARTdst}/atmos_static*.nc \
+                         ${RESTARTdst}/grid_*spec*.nc \
+                         ${RESTARTdst}/oro_data*.nc) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
 
 echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
 echo "INFO: exiting after skipping vortex initialization ..."
@@ -594,10 +608,25 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
+                         ${RESTARTdst}/atmos_static*.nc \
+                         ${RESTARTdst}/grid_*spec*.nc \
+                         ${RESTARTdst}/oro_data*.nc) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
+
 if [ -s ${DATA}/anl_storm/storm_txt ]; then
  ${NCP} -rp ${DATA}/anl_storm/storm_txt ${RESTARTout}/
 fi

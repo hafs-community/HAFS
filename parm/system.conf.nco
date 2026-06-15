@@ -55,4 +55,3 @@ WHERE_AM_I=wcoss2
 
 [forecast]
 restart_interval="3 6 9 12 24 36 48 60 72 84 96 108"
-restart_fh="12 24 36 48 60 72 84 96 108"
