@@ -59,6 +59,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
         self.outstep=int(outstep)
         self.pntstep=int(pntstep)
         self.rststep=int(rststep)
+        self._ncks_path=False
     def _make_products(self):
         """Creates FileProduct objects for all output files.  The
         outdir is the directory to which the WW3 package output its
@@ -83,6 +84,21 @@ class WW3Init(hafs.hafstask.HAFSTask):
             (prod,localpath)=stuff
             if name is None or name==prod.prodname:
                 yield prod
+
+    @property
+    def ncks_path(self):
+        """Returns the path to ncks.  Returns None if ncks cannot be
+        found.  This function will only search for ncks once, and will
+        cache the result.  Set self._ncks_path=False to force a
+        recheck."""
+        if self._ncks_path is False:
+            ncks=self.getexe('ncks','')
+            if not self._ncks_path:
+                ncks=produtil.fileop.find_exe('ncks',raise_missing=False)
+            assert(ncks is None or
+                   (isinstance(ncks,str) and ncks!=''))
+            self._ncks_path=ncks
+        return self._ncks_path
 
     def inputiter(self):
         atime=to_datetime(self.conf.cycle)
@@ -275,7 +291,7 @@ class WW3Init(hafs.hafstask.HAFSTask):
                         logger.warning('restart.ww3: will generate restart.ww3 because prior cycle does not exist.')
 
                 if (not have_restart and ww3_rst == 'yes') or ww3_rst == 'always':
-                    try:
+                    if os.environ.get('GFSVER') == 'PROD2021':
                         with NamedDir('ww3gint',keep=True,logger=logger) as nameddir:
                             logger.info('ww3_grid: generating mod_def.ww3 for gnh_10m grid from gdaswave')
                             make_symlink('../mod_def.ww3','mod_def.hafs_ww3',force=True,logger=logger)
@@ -298,19 +314,43 @@ class WW3Init(hafs.hafstask.HAFSTask):
                             deliver_file('./restart.hafs_ww3','../restart.ww3',keep=False,logger=logger)
                         if produtil.fileop.isnonempty('restart.ww3'):
                             have_restart=True
-                    except Exception as ee:
-                        produtil.log.jlogger.warning(
-                            'WARNING: restart.ww3: will generate dummy because ww3_gint '
-                            'did not run successfully.',exc_info=True)
+                    elif os.environ.get('GFSVER') == 'PROD2026':
+                        with NamedDir('ww3_restart_interp',keep=True,logger=logger) as nameddir:
+                            logger.info('Generating restart.ww3 by using ww3_restart_interp.py with restart files from gdaswave')
+                            # Get gfs/gdas wave restart file
+                            self.get_ww3rst_inputs()
+                            make_symlink('./restart.gnh_10m','./gfs.restart.ww3.nc',force=True,logger=logger)
+                            make_symlink(self.icstr('{grid_msk2}'),'./ww3_grid.msk',force=True,logger=logger)
+                            make_symlink(self.icstr('{scrip_src}'),'./ww3_scrip_src.nc',force=True,logger=logger)
+                            make_symlink(self.icstr('{scrip_dst}'),'./ww3_scrip_dst.nc',force=True,logger=logger)
+                            if produtil.fileop.isnonempty(self.icstr('{interp_wgt}')):
+                                deliver_file(self.icstr('{interp_wgt}'),'./WHTGRIDINT.nc',keep=True,logger=logger)
+                            make_symlink(self.getexe('ww3_restart_interp'),'./ww3_restart_interp.py',force=True,logger=logger)
+                            # Run ww3_restart_interp.py
+                            cmdstr='./ww3_restart_interp.py --restart_file gfs.restart.ww3.nc --src_scrip ww3_scrip_src.nc --dst_scrip ww3_scrip_dst.nc --mask_file ww3_grid.msk --output_file hafs.restart.ww3.nc > ./ww3_restart_interp.log 2>&1'
+                            logger.info('Run command: '+cmdstr)
+                            os.system(cmdstr)
+                            # Convert into NetCDF-5 format (--cdf5)
+                            checkrun(bigexe(self.ncks_path)['--no_abc','-O','-5','./hafs.restart.ww3.nc','./restart.ww3.nc'],logger=logger)
+                            deliver_file('./restart.ww3.nc','../restart.ww3',keep=False,logger=logger)
+                        if produtil.fileop.isnonempty('restart.ww3'):
+                            have_restart=True
+                    else:
+                        logger.critical('FATAL ERROR: Unknown GFSVER of %s. Exiting.'%(os.environ.get('GFSVER'),))
+                        sys.exit(2)
 
                 if not have_restart:
-                    logger.info('restart.ww3: generating dummy with ww3_strt')
-                    # Run ww3_strt
-                    deliver_file(self.icstr('{strt_inp}'),'ww3_strt.inp',keep=True,logger=logger)
-                    link(self.getexe('ww3_strt'),'ww3_strt')
-                    cmd=exe('./ww3_strt')
-                    if redirect: cmd = cmd>='ww3_strt.log'
-                    checkrun(cmd,logger=logger)
+                    logger.critical('FATAL ERROR: restart.ww3 not exist. Exiting.')
+                    sys.exit(2)
+
+               #if not have_restart:
+               #    logger.info('restart.ww3: generating dummy with ww3_strt')
+               #    # Run ww3_strt
+               #    deliver_file(self.icstr('{strt_inp}'),'ww3_strt.inp',keep=True,logger=logger)
+               #    link(self.getexe('ww3_strt'),'ww3_strt')
+               #    cmd=exe('./ww3_strt')
+               #    if redirect: cmd = cmd>='ww3_strt.log'
+               #    checkrun(cmd,logger=logger)
 
                 if ww3_bdy == 'yes':
                     try:

@@ -1,0 +1,26 @@
+&input_nml
+  input%forcing%water_levels	= 'F'
+  input%forcing%winds      = '@[INPUT_WNDFLD]'
+  input%forcing%currents   = '@[INPUT_CURFLD]'
+  input%forcing%ice_conc   = '@[INPUT_ICEFLD]'
+  input%forcing%ice_param1 = 'F'
+  input%forcing%ice_param5 = 'F'
+/
+
+&output_type_nml
+  type%field%list = '@[OUTPARS_WAV]'
+  type%point%file = 'ww3_points.list'
+  type%restart%extra = ' '
+/
+
+&output_date_nml
+! date%field%outffile  = '1'
+  date%field%stride    = '@[FLD_DT]'
+! date%point%outffile  = '1'
+  date%point%stride    = '@[PNT_DT]'
+/
+&output_path_nml
+  path%grd_out = './'
+  path%pnt_out = './'
+  path%rst_out = './'
+/
