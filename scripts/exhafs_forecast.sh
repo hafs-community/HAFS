@@ -353,6 +353,11 @@ if [ ${warmstart_from_restart} = yes ]; then
   warm_start=.true.
 fi
 
+# For now, automatically turn off WW3 coupling if warmstart from middle of forecast
+if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
+  echo "WARNING: Warmstart forecast, set run_wave=no"
+  export run_wave=no
+fi
 # Ocean coupling related settings
 run_ocean=${run_ocean:-no}
 ocean_model=${ocean_model:-mom6}
@@ -1044,13 +1049,13 @@ if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
       ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
     fi
   done
-  # Set MOM6 warmstart option and prepare MOM6 restart files
-  if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
-    input_filename='r'
-    for mres in ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res.nc ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res_*.nc; do
-      ncks --no-abc -A ${mres} MOM.res.nc
-    done
-  fi
+# # Set MOM6 warmstart option and prepare MOM6 restart files
+# if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+#   input_filename='r'
+#   for mres in ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res.nc ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res_*.nc; do
+#     ncks --no-abc -A ${mres} MOM.res.nc
+#   done
+# fi
 fi
 
 cd ..
