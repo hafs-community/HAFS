@@ -16,7 +16,7 @@ import numpy.ma as ma
 
 # Initialize Logger
 # Get log level from the environment variable, default to 'INFO it not set
-log_level = os.getenv('LOG_LEVEL', 'DEBUG')
+log_level = os.getenv('LOG_LEVEL', 'INFO')
 logger = Logger('bufr_drpsnd.py', level=log_level, colored_log=False)
 
 
@@ -168,12 +168,17 @@ def _make_obs(comm, input_path, mapping_path, cycle_time):
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
     logging(comm, 'DEBUG', f'prepbufrDataLevelCategory')
     cat = container.get('variables/prepbufrDataLevelCategory')
+    # Check if the fetched category is None or empty (0 subsets)
+    if cat is None or len(cat) == 0:
+        logging(comm, 'WARNING', f'No subsets available in the BUFR file {input_path}. Exiting gracefully.')
+        return None
+    # ----------------------------
 
     logging(comm, 'DEBUG', f'Change longitude range from [0,360] to [-180,180]')
     lon = container.get('variables/longitude')
     lon_paths = container.get_paths('variables/longitude')
     lon[lon > 180] -= 360
-    lon = ma.round(lon, decimals=2)
+    lon = np.round(lon, decimals=2)
     logging(comm, 'DEBUG', f'longitude max and min are {lon.max()}, {lon.min()}')
 
     logging(comm, 'DEBUG', f'Do DateTime calculation')
