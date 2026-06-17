@@ -79,6 +79,15 @@ WAV_attributes::
   merge_import = .false.
   mesh_wav = ww3_mesh.nc
   user_sets_restname = false
+  user_histname = false
+  use_historync = false
+  use_restartnc = _use_restartnc_ # true or false
+  restart_from_binary = _restart_from_binary_ # true or false
+  pio_typename = pnetcdf
+  pio_numiotasks = -99
+  pio_stride = 4
+  pio_rearranger = box
+  pio_root = -99
 ::
 
 # Run Sequence #
@@ -104,7 +113,7 @@ ALLCOMP_attributes::
   ScalarFieldIdxGridNY = 2
   ScalarFieldIdxGridNTile = 3
   ScalarFieldName = cpl_scalars
-  start_type = startup
+  start_type = _start_type_ # startup or continue
   restart_dir = RESTART/
   case_name = ufs.hafs
   restart_n = 240

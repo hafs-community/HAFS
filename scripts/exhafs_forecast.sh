@@ -375,8 +375,8 @@ cplocn2atm=${cplocn2atm:-.true.}
 use_oceanuv=${use_oceanuv:-.false.}
 cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
-INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
-INPUT_CURFLD=${INPUT_CURFLD:-"F F"}
+INPUT_WNDFLD=${INPUT_WNDFLD:-"C"}
+INPUT_CURFLD=${INPUT_CURFLD:-"F"}
 use_waves=${use_waves:-False}
 use_la_li2016=${use_la_li2016:-False}
 cpl_dt=${cpl_dt:-360}
@@ -414,6 +414,16 @@ else
   exit 1
 fi
 
+fi
+
+# WW3 coupling related settings
+if [ $GFSVER = "PROD2021" ]; then
+  use_restartnc=false
+  restart_from_binary=true
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  use_restartnc=true
+  restart_from_binary=false
 fi
 
 # CDEPS related settings
@@ -517,7 +527,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
-    INPUT_WNDFLD="C F"
+    INPUT_WNDFLD="C"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from atm to wav only
   elif [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
@@ -525,7 +535,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
-    INPUT_WNDFLD="C F"
+    INPUT_WNDFLD="C"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> WAV :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based one-way atm-wav coupling from wav to atm only
   elif [ $cpl_atm_wav = cmeps_1way_2to1 ]; then
@@ -533,7 +543,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.true.
-    INPUT_WNDFLD="T F"
+    INPUT_WNDFLD="T"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   # CMEPS based atm-wav side by side run (no coupling)
   elif [ $cpl_atm_wav = cmeps_sidebyside ]; then
@@ -541,7 +551,7 @@ elif [[ $cpl_atm_wav = "cmeps"* ]]; then
     cplocn2atm=.false.
     cplwav=.true.
     cplwav2atm=.false.
-    INPUT_WNDFLD="T F"
+    INPUT_WNDFLD="T"
     runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_wav\n "
   fi
 # Currently unsupported coupling option combinations
@@ -575,28 +585,28 @@ if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplocn2atm=.true.
   cplwav=.true.
   cplwav2atm=.true.
-  INPUT_WNDFLD="C F"
+  INPUT_WNDFLD="C"
 # CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
   cplocn2atm=.true.
   cplwav=.true.
   cplwav2atm=.false.
-  INPUT_WNDFLD="C F"
+  INPUT_WNDFLD="C"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.true.
-  INPUT_WNDFLD="C F"
+  INPUT_WNDFLD="C"
 # CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
 elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
   cplflx=.true.
   cplocn2atm=.false.
   cplwav=.true.
   cplwav2atm=.false.
-  INPUT_WNDFLD="C F"
+  INPUT_WNDFLD="C"
 # Currently unsupported coupling option combinations
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
@@ -606,19 +616,19 @@ fi
 if [ $cpl_wav_ocn = cmeps_2way ]; then
   use_waves=True
   use_la_li2016=True
-  INPUT_CURFLD="C F"
+  INPUT_CURFLD="C"
 elif [ $cpl_wav_ocn = cmeps_1way_1to2 ]; then
   use_waves=True
   use_la_li2016=True
-  INPUT_CURFLD="T F"
+  INPUT_CURFLD="T"
 elif [ $cpl_wav_ocn = cmeps_1way_2to1 ]; then
   use_waves=False
   use_la_li2016=False
-  INPUT_CURFLD="C F"
+  INPUT_CURFLD="C"
 elif [ $cpl_wav_ocn = cmeps_sidebyside ]; then
   use_waves=False
   use_la_li2016=False
-  INPUT_CURFLD="T F"
+  INPUT_CURFLD="T"
 else
   echo "FATAL ERROR: Unsupported coupling options: cpl_wav_ocn=${cpl_wav_ocn}"
   exit 9
@@ -634,7 +644,7 @@ if [ ${run_datm} = yes ]; then
   cplocn2atm=.false.
   cplwav=.false.
   cplwav2atm=.false.
-  INPUT_WNDFLD="T F"
+  INPUT_WNDFLD="T"
   runSeq_ALL="" # not used yet
 elif [ ${run_docn} = yes ]; then
   OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
@@ -643,7 +653,7 @@ elif [ ${run_docn} = yes ]; then
   cplocn2atm=.true.
   cplwav=.false.
   cplwav2atm=.false.
-  INPUT_WNDFLD="T F"
+  INPUT_WNDFLD="T"
   runSeq_ALL="" # not used yet
 fi
 
@@ -1111,6 +1121,9 @@ sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "/_mesh_atm_/d" \
     -e "s/_mesh_wav_/ww3_mesh.nc/g" \
     -e "s/_multigrid_/false/g" \
+    -e "s/_use_restartnc_/${use_restartnc:-true}/g" \
+    -e "s/_restart_from_binary_/${restart_from_binary:-false}/g" \
+    -e "s/_start_type_/${start_type:-startup}/g" \
     ufs.configure.tmp > ufs.configure
 
 ngrids=${nest_grids}
@@ -1297,35 +1310,33 @@ if [ ${run_wave} = yes ]; then
   ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/ww3_mesh.nc ww3_mesh.nc
   ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/wind.ww3 wind.ww3
   ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/current.ww3 current.ww3
-  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/restart_init.ww3 restart.ww3
   # nest.ww3 is not mandatory, using WLN and treat it as data opportunity
   ${WLN} ${WORKhafs}/intercom/wav_prep/ww3/nest.ww3 nest.ww3
   # copy parms
-  ${NCP} ${PARMww3}/ww3_shel.inp_tmpl ./ww3_shel.inp_tmpl
+  ${NCP} ${PARMww3}/ww3_points.list ./ww3_points.list
+  ${NCP} ${PARMww3}/ww3_shel.nml_tmpl ./ww3_shel.nml_tmpl
   # generate ww3_shel.inp
-  INPUT_CURFLD=${INPUT_CURFLD:-"F F"}
-  INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
-  INPUT_ICEFLD="F F"
+  INPUT_CURFLD=${INPUT_CURFLD:-"F"}
+  INPUT_WNDFLD=${INPUT_WNDFLD:-"C"}
+  INPUT_ICEFLD="F"
   EDATE=$($NDATE +${NHRSint} ${CDATE})
   RDATE=$($NDATE +6 ${CDATE})
-  RUN_BEG="${CDATE:0:8} ${CDATE:8:2}0000"
-  FLD_BEG=${RUN_BEG}
-  PNT_BEG=${RUN_BEG}
-  RST_BEG=${RUN_BEG}
-  RUN_END="${EDATE:0:8} ${EDATE:8:2}0000"
-  FLD_END=${RUN_END}
-  PNT_END=${RUN_END}
-  RST_END="${RDATE:0:8} ${RDATE:8:2}0000"
   FLD_DT=$((3600*${NOUTHRS}))
   PNT_DT=$((3600*${NOUTHRS}))
   RST_DT=$((3600*6))
-  GOFILETYPE=0
-  POFILETYPE=0
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
-  atparse < ./ww3_shel.inp_tmpl > ./ww3_shel.inp
-  # Create symbolic links for ww3 restart and history output files from OUTdir
+  atparse < ./ww3_shel.nml_tmpl > ./ww3_shel.nml
+  # Create symbolic links for ww3 restart files
+if [ $GFSVER = "PROD2021" ]; then
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/restart_init.ww3 restart.ww3
   ${RLN} ${OUTdir}/${CDATE:0:8}.${CDATE:8:2}0000.restart.ww3 ./
   ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./
+fi
+if [ $GFSVER = "PROD2026" ]; then
+  ${NLN} ${WORKhafs}/intercom/wav_prep/ww3/restart_init.ww3  ./ufs.hafs.ww3.r.${CDATE:0:4}-${CDATE:4:2}-${CDATE:6:2}-$(printf "%05d" $((${CDATE:8:2}*3600))).nc
+  ${RLN} ${OUTdir}/${RDATE:0:8}.${RDATE:8:2}0000.restart.ww3 ./ufs.hafs.ww3.r.${RDATE:0:4}-${RDATE:4:2}-${RDATE:6:2}-$(printf "%05d" $((${RDATE:8:2}*3600))).nc
+fi
+  # Create symbolic links for ww3 history output files from OUTdir
   ${RLN} ${OUTdir}/out_grd.ww3 ./
   ${RLN} ${OUTdir}/out_pnt.ww3.nc ./
 fi #if [ ${run_wave} = yes ]; then
