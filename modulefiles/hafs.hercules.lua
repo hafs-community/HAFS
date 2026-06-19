@@ -20,6 +20,9 @@ load("hafs_common")
 zlib_ver=os.getenv("zlib_ver") or "1.2.13"
 load(pathJoin("zlib", zlib_ver))
 
+zstd_ver=os.getenv("zstd_ver") or "1.5.2"
+load(pathJoin("zstd", zstd_ver))
+
 cdo_ver=os.getenv("cdo_ver") or "2.4.4"
 load(pathJoin("cdo", cdo_ver))
 

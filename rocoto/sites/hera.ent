@@ -29,7 +29,13 @@
   <!ENTITY DOCN_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
   <!ENTITY DATM_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
   <!ENTITY ATM_PREP_RESOURCES "<nodes>6:ppn=2:tpp=6</nodes><envar><name>TOTAL_TASKS</name><value>12</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>6</value></envar><walltime>02:30:00</walltime><memory>24G</memory>">
+<!-- WAS:
   <!ENTITY OBS_PREP_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+-->
+<!-- AND THEN:
+  <!ENTITY OBS_PREP_RESOURCES "<nodes>2:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
+-->
+  <!ENTITY OBS_PREP_RESOURCES "<nodes>1:ppn=4:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:30:00</walltime>">
   <!ENTITY ATM_IC_RESOURCES "<nodes>6:ppn=10:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>10</value></envar><envar><name>OMP_THREADS</name><value>4</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_LBC_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">
   <!ENTITY ATM_IC_ENS_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
@@ -37,20 +43,19 @@
   <!ENTITY OCN_PREP_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_VI_RESOURCES "<nodes>4:ppn=1:tpp=20</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>20</value></envar><walltime>01:30:00</walltime>">
   <!ENTITY WAV_PREP_RESOURCES "<nodes>1:ppn=40:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
-<<<<<<< HEAD
-  <!ENTITY ANALYSIS_RESOURCES_LEGACY_MULTISTORM "<nodes>40:ppn=10:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>400</value></envar><envar><name>NCTSK</name><value>10</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>03:59:00</walltime>">
-  <!ENTITY MERGE_RESOURCES "<nodes>2:ppn=2:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
-  <!ENTITY ATM_INIT_RESOURCES_LEGACY_MULTISTORM "<nodes>27:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>540</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
-=======
->>>>>>> origin/feature/hafs_HDASApp_GFSv17
+<!-- Lew.Gramer@noaa.gov 2026-06-16 Legacy multistorm spec
+  <!ENTITY ANALYSIS_RESOURCES "<nodes>50:ppn=1:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>50</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><envar><name>FI_OFI_RXM_SAR_LIMIT</name><value>3145728</value></envar><walltime>02:59:00</walltime>">
+-->
   <!ENTITY ANALYSIS_RESOURCES "<nodes>40:ppn=15:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>15</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>05:30:00</walltime>">
-  <!ENTITY ENS_PREP_RESOURCES "<nodes>16:ppn=30:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>30</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime><native>--exclusive</native>">
+  <!-- WAS: <nodes>16:ppn=30:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>30</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime> -->
+  <!-- THEN: "<nodes>16:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
+  <!-- AND THEN: <!ENTITY ENS_PREP_RESOURCES "<nodes>20:ppn=16:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
+  <!-- AND LATER: <!ENTITY ENS_PREP_RESOURCES "<nodes>32:ppn=10:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>32</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
+  <!-- AND LAST: <!ENTITY ENS_PREP_RESOURCES "<nodes>40:ppn=8:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>40</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
+  <!ENTITY ENS_PREP_RESOURCES "<nodes>64:ppn=5:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>64</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime><native>--exclusive</native>">
   <!ENTITY ENKF_DIAG_RESOURCES "<nodes>40:ppn=15:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>15</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ENKF_RECENTER_RESOURCES "<nodes>4:ppn=10:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ENKF_ENKF_RESOURCES "<nodes>40:ppn=15:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>15</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:30:00</walltime>">
-<<<<<<< HEAD
-  <!ENTITY ATM_INIT_RESOURCES "<nodes>18:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
-  <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>15:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>300</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
 
   <!-- HAFS-C -->
   <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>18:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
@@ -69,11 +74,10 @@
   <!ENTITY ATM_INIT_LARGE_4_RESOURCES "<nodes>56:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>672</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
   <!ENTITY ATM_INIT_LARGE_5_RESOURCES "<nodes>64:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>768</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
   <!ENTITY ATM_INIT_LARGE_6_RESOURCES "<nodes>72:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>864</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
-=======
+
   <!ENTITY MERGE_RESOURCES "<nodes>4:ppn=2:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>8</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>4</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_RESOURCES "<nodes>18:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>15:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>300</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
->>>>>>> origin/feature/hafs_HDASApp_GFSv17
 
   <!ENTITY FORECAST_WALLTIME "<walltime>07:59:00</walltime>">
   <!ENTITY FORECAST_OMP_LEGACY_MULTISTORM "<envar><name>OMP_THREADS</name><value>2</value></envar>">
