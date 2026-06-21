@@ -1,7 +1,7 @@
 #! /bin/sh
 
-export hafs_ver=v2.2.4
-export gfs_ver=v16.3
+export hafs_ver=v2.3.0
+export gfs_ver=v17.0
 export rtofs_ver=v2.5
 export obsproc_ver=v1.2
 
@@ -56,13 +56,13 @@ export ncdiag_ver=1.1.2
 #export DBNLOG=YES
 #export DCOMROOT=/lfs/h1/ops/prod/dcom
 #export COMPATH=/lfs/h1/ops/prod/com/gfs:/lfs/h1/ops/prod/com/rtofs:/lfs/h1/ops/prod/com/obsproc
-#export COMINarch=/lfs/h1/ops/prod/com/gfs/v16.3/syndat
-#export COMINmsg=/lfs/h1/ops/prod/com/hafs/v2.1/inphfsa
+#export COMINarch=/lfs/h1/ops/prod/com/gfs/v17.0/syndat
+#export COMINmsg=/lfs/h1/ops/prod/com/hafs/v2.3/inphfsa
 
 # For canned cases use EMC staged input
 #export DCOMROOT=/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/dcom
 #export COMPATH=/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/gfs:/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/rtofs:/lfs/h2/emc/hur/noscrub/CANNED_input_for_HAFS/com/obsproc
-#export COMINmsg=/lfs/h1/ops/test/com/hafs/v2.1/inphfsa
+#export COMINmsg=/lfs/h1/ops/test/com/hafs/v2.3/inphfsa
 
 #export MAILTO="justin.cooke@noaa.gov"
 #export MAILFROM="justin.cooke@noaa.gov"
