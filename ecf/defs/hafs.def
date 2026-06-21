@@ -35,7 +35,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.2.4'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -1861,7 +1861,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.2.4'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -3686,7 +3686,7 @@ suite para_hafs_v2
 #        edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.2.4'
+        edit hafs_ver 'v2.3.0'
 #        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -5511,7 +5511,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.2.4'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
