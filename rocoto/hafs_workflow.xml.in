@@ -707,7 +707,8 @@
           <strneq><left>&RUN_ATM_VI_FGAT;</left><right>YES</right></strneq>
           <metataskdep metatask="atm_vi_fgat"/>
         </or>
-@** else
+@** endif
+@** if RUN_ATM_VI==YES
         <or>
           <taskdep task="atm_vi"/>
         </or>
