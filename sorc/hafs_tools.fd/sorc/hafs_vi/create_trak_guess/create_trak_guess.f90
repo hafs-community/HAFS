@@ -59,7 +59,8 @@ program create_trak_guess
 
   ! Reading fort.12 (previous HAFS forecast ATCF file)
   do
-    read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+   read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+   if(stat /= 0) exit
 
    if(ew.eq.'W')lon=-lon !ckw
    if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center. (i.e., lat=0)
@@ -74,7 +75,7 @@ program create_trak_guess
       !if(ew2.ne.ew .and. lon.ne.9999) lonhr(ifh-2)=3600-lonhr(ifh-2) !ckw
     end if
     !If we find 9-h information or reach the end of file WITHOUT 9-h data, exit the do loop
-    if(stat /= 0 .or. ifh.eq.9) exit
+   if(ifh.ge.9) exit
   enddo
 
   ! If there are no valid lat/lon locations from fort.12, then using the lat/lon

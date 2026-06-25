@@ -35,7 +35,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.0.0'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -194,7 +194,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -344,7 +344,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -494,7 +494,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -644,7 +644,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -794,7 +794,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -944,7 +944,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1094,7 +1094,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1245,7 +1245,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1393,7 +1393,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1541,7 +1541,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1689,7 +1689,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1837,7 +1837,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -1861,7 +1861,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.0.0'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -2019,7 +2019,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2169,7 +2169,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2319,7 +2319,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2469,7 +2469,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2619,7 +2619,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2769,7 +2769,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -2919,7 +2919,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3070,7 +3070,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3218,7 +3218,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3366,7 +3366,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3514,7 +3514,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3662,7 +3662,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3686,7 +3686,7 @@ suite para_hafs_v2
 #        edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.0.0'
+        edit hafs_ver 'v2.3.0'
 #        edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -3844,7 +3844,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -3994,7 +3994,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4144,7 +4144,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4294,7 +4294,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4444,7 +4444,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4594,7 +4594,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4744,7 +4744,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -4895,7 +4895,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5043,7 +5043,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5191,7 +5191,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5339,7 +5339,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5487,7 +5487,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5511,7 +5511,7 @@ suite para_hafs_v2
 #       edit QUEUE_ARCH 'prod_transfer'
         edit NET 'hafs'
         edit PROJ 'HAFS'
-        edit hafs_ver 'v2.0.0'
+        edit hafs_ver 'v2.3.0'
 #       edit PACKAGEHOME '/lfs/h1/ops/%ENVIR%/packages/hafs.%hafs_ver%'
         edit VER '_%hafs_ver%'
         # Begin for EMC TEST
@@ -5669,7 +5669,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5819,7 +5819,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -5969,7 +5969,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6119,7 +6119,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6269,7 +6269,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6419,7 +6419,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6569,7 +6569,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6720,7 +6720,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -6868,7 +6868,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -7016,7 +7016,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -7164,7 +7164,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete
@@ -7312,7 +7312,7 @@ suite para_hafs_v2
                   trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
                 task jhafs_ocn_post
                   complete ../prep==complete and ../prep/jhafs_ocn_prep:Ocean==clear
-                  trigger ./jhafs_unpost==complete and (../forecast==active or ../forecast==complete)
+                  trigger ./jhafs_unpost==complete and ../forecast==complete
                 task jhafs_wav_post
                   complete ../prep==complete and (../prep/jhafs_ocn_prep:Ocean==clear or../prep/jhafs_wav_prep:Wave==clear)
                   trigger ./jhafs_unpost==complete and ../forecast==complete

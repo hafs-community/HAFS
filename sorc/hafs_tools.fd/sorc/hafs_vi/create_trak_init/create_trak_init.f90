@@ -59,6 +59,7 @@ program create_trak_init
   ! Reading fort.12 (atcfunix: GFS/GDAS vortex center)
   do
     read(12,65,iostat=stat) part1,num,idat,ihour,ifh,lat,ns,lon,ew
+    if( stat /= 0 ) exit
 
     if(lat.eq.0) lat=9999   ! If tracker fails to find the TC center (i.e.,lat=0)
 
@@ -68,7 +69,6 @@ program create_trak_init
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
     ! exit the do loop if stat is NOT 0
-    if( stat /= 0 ) exit
   enddo
 
   ! Checking the status of fort.12.
