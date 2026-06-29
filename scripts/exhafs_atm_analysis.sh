@@ -223,7 +223,9 @@ else
   elif [ ${RUN_ATM_INIT} = "YES" ]; then
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
   else
+    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
     RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
   fi
 fi
 RESTARTinp=${RESTARTinp_fgat06}
@@ -303,7 +305,7 @@ if [ ${RUN_ENVAR} = "YES" ]; then
         done
       else
         if [ ${l4densvar:-.false.} = ".true." ]; then
-	  fhrs="03 06 09"
+	      fhrs="03 06 09"
         else
           fhrs="06"
         fi
@@ -455,16 +457,7 @@ for type in "${convtypes_array[@]}"; do
     fi
     # Copy source file into ${DATA}/obs once
     if [[ ! -f "$local_ncfile" ]]; then
-      if [[ "$matched_file" == conventional_gnssro_* ]]; then
-        python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check_gpsro.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -i $src_ncfile -o $local_ncfile
-        if [[ ! -s "$local_ncfile" ]]; then
-          echo "Skipping: local file was not generated or is empty: $local_ncfile"
-          checked_convfiles+=("$matched_file")
-          continue
-        fi
-      else
-        ${NCP} "$src_ncfile" "$local_ncfile"
-      fi
+       ${NCP} "$src_ncfile" "$local_ncfile"
 #      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
     checked_convfiles+=("$matched_file")
@@ -724,7 +717,34 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/${FV3_AKBK_FILE} ${RESTARTanl}/
 
 # pass over phy_data as well
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+fi
+
+#add missing sfc_data variables from the background file
+fileA="${RESTARTinp}/${FV3_SFCD_FILE}"
+fileB="${RESTARTanl}/${FV3_SFCD_FILE}"
+get_vars() {
+    ncdump -h "$1" | \
+    sed -n '/variables:/,/^$/p' | \
+    grep "(" | \
+    awk '{print $2}' | \
+    awk -F'(' '{print $1}' | \
+    sort -u
+}
+tmpA=$(mktemp)
+tmpB=$(mktemp)
+get_vars "$fileA" > "$tmpA"
+get_vars "$fileB" > "$tmpB"
+missing_vars=$(comm -23 "$tmpA" "$tmpB")
+rm -f "$tmpA" "$tmpB"
+if [ -z "$missing_vars" ]; then
+    echo "No missing variables found. File B is already up to date."
+    exit 0
+fi
+var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+echo "Attaching variables: $var_list"
+ncks -A -v "$var_list" "$fileA" "$fileB"
 
 if [[ ! -z "$neststr" ]] ; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then

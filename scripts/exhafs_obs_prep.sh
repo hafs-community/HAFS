@@ -419,7 +419,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   obstypes="${radtypes} ${convtypes}"
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
-  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
+  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_oro_data.tile${tilestr}.halo3.nc}
   output_dir=${DATA}/jedi_ioda/output
 #  ${NCP} ${IODAEXEC} .
   ${NCP} ${IODABCEXEC} ./hafs_jedi_bc2ioda.x
@@ -521,6 +521,46 @@ fi
         fi
       elif [[ "${bufr}" = "gnssro" ]]; then
         python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
+        shopt -s nullglob
+        files=(output/hafs.t${cyc}z.conventional_${file}_*.nc)
+        shopt -u nullglob
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "ERROR: No files found for domain check:"
+          echo "  output/hafs.t${cyc}z.conventional_${file}_*.nc"
+          exit 1
+        fi
+        pids=()
+        for f in "${files[@]}"; do
+          target_name="${f%.nc}_dc.nc"
+          log_file="dclog_${f##*/}"
+          echo "Domain Check for $f -> $target_name, log=${log_file}"
+          (python "${USHhafs:-${HOMEhafs}/ush}/offline_domain_check_gpsro.py" \
+              -g "${GEO_PATH}" \
+              -i "${f}" \
+              -o "${target_name}" \
+              > "${log_file}" 2>&1
+            rc=$?
+            if [ $rc -ne 0 ]; then
+              echo "ERROR: offline_domain_check failed for $f with rc=$rc" >> "${log_file}"
+              exit $rc
+            fi
+            if [ -s "${target_name}" ]; then
+              mv "${target_name}" "${f}"
+            else
+              rm "${f}"
+            fi
+          ) &
+          pids+=($!)
+        done
+        fail=0
+        for pid in "${pids[@]}"; do
+          wait "$pid" || fail=1
+        done
+        if [ $fail -ne 0 ]; then
+          echo "ERROR: One or more offline domain checks failed. Check dclog_* files."
+          exit 1
+        fi
+        echo "All offline domain checks completed successfully."
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         # Extra Check on message type NC005099
      	SUBSET_TO_FIND="5099"

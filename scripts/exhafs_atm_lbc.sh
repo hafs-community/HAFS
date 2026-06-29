@@ -147,10 +147,7 @@ if [ $bctype = "gfsnetcdf" ]; then
   if [ ${ENSDA} = YES ]; then
     INIDIR=${COMINgdas}/enkfgdas.${PDY}/${cyc}/mem${ENSID}/model/atmos/history
     atm_files_input_grid=enkfgdas.t${cyc}z.atm.f${FHR3}.nc
-    sfc_files_input_grid=enkfgdas.t${cyc}z.sfc.f${FHR3}.nc
-    if [ ! -s ${INIDIR}/enkfgdas.t${cyc}z.sfc.f${FHR3}.nc]; then
-      sfc_files_input_grid=enkfgdas.t${cyc}z.sfc.f006.nc #XL Fallback configure when sfc03/09 is missing.
-    fi
+    sfc_files_input_grid=enkfgdas.t${cyc}z.atm.f${FHR3}.nc
   else
     INIDIR=${COMINgfs}/gfs.$PDY/$cyc/model/atmos/history
     atm_files_input_grid=gfs.t${cyc}z.atm.f${FHR3}.nc

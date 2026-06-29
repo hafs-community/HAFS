@@ -689,7 +689,9 @@ ${NCP} ./fv3_dynvars ${RESTARTanl}/${PDY}.${cyc}0000.fv_core.res${neststr}${tile
 ${NCP} ./fv3_tracer ${RESTARTanl}/${PDY}.${cyc}0000.fv_tracer.res${neststr}${tilestr}.nc
 
 # pass over phy_data as well
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+fi
 
 if [[ ! -z "$neststr" ]] ; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then

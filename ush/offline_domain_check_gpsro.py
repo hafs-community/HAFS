@@ -28,7 +28,7 @@ def parse_args():
     p.add_argument("-i", "--input", required=True, help="Input GPS RO data netCDF")
     p.add_argument("-o", "--output", required=True, help="Output filtered IODA file")
     p.add_argument("-g", "--gridspec", required=True, help="HAFS grid info (grid_spec.nc)")
-    p.add_argument("--alpha", type=float, default=0.25, help="Alpha value for concave hull (degrees)")
+    p.add_argument("--alpha", type=float, default=2., help="Alpha value for concave hull (degrees)")
     p.add_argument("--shrink", type=float, default=0.01, help="Factor to shrink the hull")
     return p.parse_args()
 
@@ -122,8 +122,14 @@ def is_inside_vectorized(x, y, poly_x, poly_y):
         p1x, p1y = p2x, p2y
     return inside
 
-def normalize_lons(lons, target_min):
-    return (lons - target_min) % 360 + target_min
+#def normalize_lons(lons, target_min):
+def normalize_lons(lons, anchor_lon):
+    """
+    Wraps longitudes to be strictly within +/- 180 degrees of the anchor_lon.
+    This prevents 0/360 boundary jumps.
+    """
+    return (lons - anchor_lon + 180) % 360 - 180 + anchor_lon
+    #return (lons - target_min) % 360 + target_min
 
 # --- 3. Main Logic ---
 def main():
@@ -132,8 +138,10 @@ def main():
 
     print(f"Reading grid from {args.gridspec}...")
     with nc.Dataset(args.gridspec, 'r') as grid_ds:
-        glat = grid_ds.variables['grid_lat'][:]
-        glon = grid_ds.variables['grid_lon'][:]
+        #glat = grid_ds.variables['grid_lat'][:]
+        #glon = grid_ds.variables['grid_lon'][:]
+        glat = grid_ds.variables['geolat'][:]
+        glon = grid_ds.variables['geolon'][:]
 
     # Subsample grid to save memory and Delaunay compute time. 
     # For a boundary, we only need the perimeter points anyway.
@@ -143,9 +151,19 @@ def main():
     perim_lats = np.concatenate([glat[0:5, :].flatten(), glat[-5:, :].flatten(), 
                                  glat[:, 0:5].flatten(), glat[:, -5:].flatten()])
 
+    # Filter out NaNs and invalid halo points
+    valid_grid_mask = (perim_lats >= -90.0) & (perim_lats <= 90.0) & \
+                      (perim_lons >= -360.0) & (perim_lons <= 720.0) & \
+                      np.isfinite(perim_lats) & np.isfinite(perim_lons)
+    perim_lons = perim_lons[valid_grid_mask].astype(np.float64)
+    perim_lats = perim_lats[valid_grid_mask].astype(np.float64)
+
     # Normalize longitudes before Delaunay to prevent dateline spanning triangles
-    grid_min_lon = np.min(perim_lons)
-    perim_lons_norm = normalize_lons(perim_lons, grid_min_lon)
+    #grid_min_lon = np.min(perim_lons)
+    #perim_lons_norm = normalize_lons(perim_lons, grid_min_lon)
+
+    anchor_lon = np.median(perim_lons)
+    perim_lons_norm = normalize_lons(perim_lons, anchor_lon)
 
     points = np.column_stack((perim_lons_norm, perim_lats))
     points = np.unique(points, axis=0) # Remove duplicates from overlapping rings
@@ -175,7 +193,8 @@ def main():
         lon_vals = np.ma.filled(obs_lon, np.nan)
         seq_vals = np.ma.filled(obs_seq, -999)
 
-        lon_vals_norm = normalize_lons(lon_vals, grid_min_lon)
+        #lon_vals_norm = normalize_lons(lon_vals, grid_min_lon)
+        lon_vals_norm = normalize_lons(lon_vals, anchor_lon)
 
         print("Executing Ray Casting against Concave Hull...")
         valid_mask = np.isfinite(lat_vals) & np.isfinite(lon_vals)
