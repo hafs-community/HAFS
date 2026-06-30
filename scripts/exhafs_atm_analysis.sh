@@ -591,7 +591,6 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
     bump_nicas.yaml.tmp > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_jedi_nicas.x ./hafs_jedi_nicas.x
 if [ ${l4densvar:-.true.} = ".true." ]; then
-#  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
   ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
 else
   ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log
@@ -722,16 +721,40 @@ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
 fi
 
 #add missing sfc_data variables from the background file
-fileA="${RESTARTinp}/${FV3_SFCD_FILE}"
-fileB="${RESTARTanl}/${FV3_SFCD_FILE}"
+fileA="${RESTARTinp}/${FV3_SFCD_FILE}"   # bkg/source
+fileB="${RESTARTanl}/${FV3_SFCD_FILE}"   # ana/target
 get_vars() {
-    ncdump -h "$1" | \
-    sed -n '/variables:/,/^$/p' | \
-    grep "(" | \
-    awk '{print $2}' | \
-    awk -F'(' '{print $1}' | \
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    grep "(" |
+    awk '{print $2}' |
+    awk -F'(' '{print $1}' |
     sort -u
 }
+dim_len() {
+  ncdump -h "$1" |
+    sed -n '/dimensions:/,/variables:/p' |
+    awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
+}
+# ----------------------------------------------------------------------
+# Fix zaxis naming before appending variables.
+# In bkg: zaxis_1=2, zaxis_2=4
+# In ana: zaxis_1=4, so rename ana zaxis_1 -> zaxis_2
+# ----------------------------------------------------------------------
+b_z1=$(dim_len "$fileB" zaxis_1)
+a_z1=$(dim_len "$fileA" zaxis_1)
+a_z2=$(dim_len "$fileA" zaxis_2)
+if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
+  echo "Renaming fileB zaxis_1 -> zaxis_2"
+  ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
+fi
+# Add/update zaxis coordinate variables from bkg/source
+zvars=$(ncdump -h "$fileA" |
+  sed -n '/variables:/,/^$/p' |
+  awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
+  tr '\n' ',' | sed 's/,$//')
+[ -n "$zvars" ] && ncks -A -v "$zvars" "$fileA" "$fileB"
+# missing-variable append
 tmpA=$(mktemp)
 tmpB=$(mktemp)
 get_vars "$fileA" > "$tmpA"
@@ -739,10 +762,11 @@ get_vars "$fileB" > "$tmpB"
 missing_vars=$(comm -23 "$tmpA" "$tmpB")
 rm -f "$tmpA" "$tmpB"
 if [ -z "$missing_vars" ]; then
-    echo "No missing variables found. File B is already up to date."
-    exit 0
+  echo "No missing variables found. File B is already up to date."
+  exit 0
 fi
 var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+
 echo "Attaching variables: $var_list"
 ncks -A -v "$var_list" "$fileA" "$fileB"
 

@@ -494,13 +494,13 @@ fi
     bufr=$1
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
-       ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "abi" ]]; then
        python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "cris-fsr" ]]; then
-       ${APRUNX} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-       ${APRUNX} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       fi
     fi
     shift
@@ -515,9 +515,9 @@ fi
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
         if [[ "${file}" = "osw_ascat" ]]; then
-          ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+          ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
         else
-          ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
         fi
       elif [[ "${bufr}" = "gnssro" ]]; then
         python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
@@ -576,11 +576,11 @@ fi
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
+        ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
-        ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
+        ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
