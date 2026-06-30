@@ -469,6 +469,7 @@
 /
 
 &nam_stochy
+  new_lscale = .true.
   skebnorm = 1
   skeb_npass = 30
   skeb_vdof = 5
