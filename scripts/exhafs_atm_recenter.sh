@@ -179,13 +179,13 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
     ${NCP} ${RESTARTens_inp}/${memstr}/oro_data.nc ${RESTARTens_anl}/${memstr}/
     ${NCP} ${RESTARTens_inp}/${memstr}/atmos_static.nc ${RESTARTens_anl}/${memstr}/
     if [[ ${ANALYSIS_MODEL} = "JEDI" ]]; then
-      IN_FILE=rec_fv3sar_tile1_${memstr}_dynva
+      IN_FILE=rec_fv3sar_tile1_${memstr}_dynvar
       DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
       ${APRUNS} ${DATOOL} ua_update_u \
          --in_grid=${RESTARTens_anl}/${memstr}/grid_spec.nc \
          --in_file=${IN_FILE} \
          --out_file=${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc
-      ncks -v sgs_tke ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc -A ${RESTARTens_anl}/${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
+      ncks -v sgs_tke ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc -A ${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc
     fi
   done
 else
