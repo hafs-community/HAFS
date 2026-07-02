@@ -1,0 +1,211 @@
+bufr:
+  group_by_variable: prepbufrDataLvlCat
+  subsets:
+    - VADWND
+  variables:
+    # MetaData
+    timestamp:
+      timeoffset:
+        timeOffset: "*/DHR"
+        transforms:
+          - scale: 3600
+        referenceTime: 2024-07-08T06:00:00Z
+    timeOffset:
+      query: "*/DHR"
+      transforms:
+        - scale: 3600
+
+
+    stationIdentification:
+      query: "*/SID"
+
+    latitude:
+      query: "*/YOB"
+
+    longitude:
+      query: "*/XOB"
+
+    stationElevation:
+      query: "*/ELV"
+
+    prepbufrReportType:
+      query: "*/TYP"
+    dumpReportType:
+      query: "*/T29"
+    dumpReportSubType:
+      query: "*/TSB"
+    prepbufrDataLvlCat:
+      query: "*/PRSLEVEL/CAT"
+
+    pressure:
+      query: "*/PRSLEVEL/P___INFO/P__EVENT{1}/POB"
+      transforms:
+        - scale: 100
+    pressureQualityMarker:
+      query: "*/PRSLEVEL/P___INFO/P__EVENT{1}/PQM"
+    pressureError:
+      query: "*/PRSLEVEL/P___INFO/P__BACKG/POE"
+      transforms:
+        - scale: 100
+    pressureTunedError:
+      query: "*/PRSLEVEL/P___INFO/P__POSTP/POETU"
+      transforms:
+        - scale: 100
+
+    heightOfObservation:
+      query: "*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZOB"
+    heightOfObservationQualityMark:
+      query: "*/PRSLEVEL/Z___INFO/Z__EVENT{1}/ZQM"
+
+    # ObsValue
+    windEastward:
+      query: "*/PRSLEVEL/W___INFO/W__EVENT{1}/UOB"
+    windNorthward:
+      query: "*/PRSLEVEL/W___INFO/W__EVENT{1}/VOB"
+    bestwindEastward:
+      type: float
+      query: "*/PRSLEVEL/W___INFO/W__BACKG{1}/UFC"
+    bestwindNorthward:
+      type: float
+      query: "*/PRSLEVEL/W___INFO/W__BACKG{1}/VFC"
+    windQualityMarker:
+      query: "*/PRSLEVEL/W___INFO/W__EVENT{1}/WQM"
+    windError:
+      query: "*/PRSLEVEL/W___INFO/W__BACKG/WOE"
+    windTunedError:
+      query: "*/PRSLEVEL/W___INFO/W__POSTP/WOETU"
+      transform:
+        - scale: 0.514444
+      
+
+encoder:
+  type: netcdf
+
+  variables:
+    # MetaData
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/timeOffset"
+      source: variables/timeOffset
+      longName: "Observation Time Minus Reference Time"
+      units: "s"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degree_north"
+      range: [-90, 90]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degree_east"
+      range: [-180, 180]
+
+    - name: "MetaData/stationIdentification"
+      source: variables/stationIdentification
+      longName: "Station Identification"
+
+    - name: "MetaData/stationElevation"
+      source: variables/stationElevation
+      longName: "Height Of Station Ground Above MSL"
+      units: "m"
+
+    - name: "MetaData/prepbufrReportType"
+      source: variables/prepbufrReportType
+      longName: "Prepbufr Report Type"
+      units: ""
+
+    - name: "MetaData/dumpReportType"
+      source: variables/dumpReportType
+      longName: "Data Dump Report Type"
+      units: ""
+
+    - name: "MetaData/dumpReportSubType"
+      source: variables/dumpReportSubType
+      longName: "Data Dump Report Sub Type"
+      units: ""
+
+    - name: "MetaData/prepbufrDataLvlCat"
+      source: variables/prepbufrDataLvlCat
+      longName: "Prepbufr Data Level Category"
+      units: ""
+
+    - name: "MetaData/height"
+      source: variables/heightOfObservation
+      longName: "Height"
+      units: "m"
+
+    - name: "MetaData/pressure"
+      source: variables/pressure
+      longName: "Pressure"
+      units: "Pa"
+
+    # ObsType
+    - name: "ObsType/windEastward"
+      source: variables/prepbufrReportType
+      longName: "windEastward Report Type"
+      units: ""
+
+    - name: "ObsType/windNorthward"
+      source: variables/prepbufrReportType
+      longName: "windNorthward Report Type"
+      units: ""
+
+    # ObsValue
+    - name: "ObsValue/windEastward"
+      source: variables/windEastward
+      longName: "Eastward Wind"
+      units: "m s-1"
+
+    - name: "ObsValue/windNorthward"
+      source: variables/windNorthward
+      longName: "Northward Wind"
+      units: "m s-1"
+
+    - name: "ObsValue/bestwindEastward"
+      source: variables/bestwindEastward
+      longName: "Eastward Wind"
+      units: "m s-1"
+
+    - name: "ObsValue/bestwindNorthward"
+      source: variables/bestwindNorthward
+      longName: "Northward Wind"
+      units: "m s-1"
+
+    # Quality Marker
+    - name: "QualityMarker/pressure"
+      source: variables/pressureQualityMarker
+      longName: "Pressure Quality Marker"
+
+    - name: "QualityMarker/height"
+      source: variables/heightOfObservationQualityMark
+      longName: "Height Quality Marker"
+
+    - name: "QualityMarker/windEastward"
+      source: variables/windQualityMarker
+      longName: "windEastward Quality Marker"
+
+    - name: "QualityMarker/windNorthward"
+      source: variables/windQualityMarker
+      longName: "windNorthward Quality Marker"
+ 
+    # ObsError
+    - name: "ObsError/pressure"
+      source: variables/pressureError
+      longName: "Pressure Observation Error"
+      units: "Pa"
+
+    - name: "ObsError/windEastward"
+      source: variables/windError
+      longName: "Eastward wind error"
+      units: "m s-1"
+
+    - name: "ObsError/windNorthward"
+      source: variables/windError
+      longName: "Northward wind error"
+      units: "m s-1"
+
