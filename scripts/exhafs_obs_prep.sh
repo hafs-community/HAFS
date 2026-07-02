@@ -411,8 +411,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
+  convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp vadwnd"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital prepbufr"
   sattypes="atms ssmis amsua iasi abi cris-fsr"
   satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
   radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
@@ -516,6 +516,33 @@ fi
       if [[ "${bufr}" = "prepbufr" ]]; then
         if [[ "${file}" = "osw_ascat" ]]; then
           ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        elif [[ "${file}" = "vadwnd" ]]; then
+          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+          f="output/hafs.t${cyc}z.conventional_${file}.nc"
+          if [ ! -f "${f}" ]; then
+            echo "ERROR: file not found for vadwnd thinning:"
+            echo "  ${f}"
+            exit 1
+          fi
+          target_name="${f%.nc}_thin.nc"
+          log_file="thinlog_${f##*/}"
+          echo "Thinning for $f -> $target_name, log=${log_file}"
+          python "${USHhafs:-${HOMEhafs}/ush}/offline_vad_thinning.py" \
+            -i "${f}" \
+            -o "${target_name}" \
+            > "${log_file}" 2>&1
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "ERROR: offline_vad_thinning failed for $f with rc=$rc" >> "${log_file}"
+            exit $rc
+          fi
+          if [ -s "${target_name}" ]; then
+            mv "${target_name}" "${f}"
+          else
+            echo "WARNING: ${target_name} is empty or missing after thinning. Removing original."
+            rm  -f "${f}"
+          fi
+          echo "Offline vad thinning completed successfully"
         else
           ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
         fi
