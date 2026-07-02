@@ -723,6 +723,7 @@ fi
 #add missing sfc_data variables from the background file
 fileA="${RESTARTinp}/${FV3_SFCD_FILE}"   # bkg/source
 fileB="${RESTARTanl}/${FV3_SFCD_FILE}"   # ana/target
+
 get_vars() {
   ncdump -h "$1" |
     sed -n '/variables:/,/^$/p' |
@@ -731,11 +732,20 @@ get_vars() {
     awk -F'(' '{print $1}' |
     sort -u
 }
+
+get_zvars() {
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
+    sort -u
+}
+
 dim_len() {
   ncdump -h "$1" |
     sed -n '/dimensions:/,/variables:/p' |
     awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
 }
+
 # ----------------------------------------------------------------------
 # Fix zaxis naming before appending variables.
 # In bkg: zaxis_1=2, zaxis_2=4
@@ -744,17 +754,31 @@ dim_len() {
 b_z1=$(dim_len "$fileB" zaxis_1)
 a_z1=$(dim_len "$fileA" zaxis_1)
 a_z2=$(dim_len "$fileA" zaxis_2)
+
 if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
   echo "Renaming fileB zaxis_1 -> zaxis_2"
   ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
 fi
-# Add/update zaxis coordinate variables from bkg/source
-zvars=$(ncdump -h "$fileA" |
-  sed -n '/variables:/,/^$/p' |
-  awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
-  tr '\n' ',' | sed 's/,$//')
-[ -n "$zvars" ] && ncks -A -v "$zvars" "$fileA" "$fileB"
-# missing-variable append
+
+# ----------------------------------------------------------------------
+# Append only missing zaxis coordinate variables from fileA.
+# Do not overwrite existing coordinate variables with different type.
+# ----------------------------------------------------------------------
+tmpA=$(mktemp)
+tmpB=$(mktemp)
+get_zvars "$fileA" > "$tmpA"
+get_vars  "$fileB" > "$tmpB"
+missing_zvars=$(comm -23 "$tmpA" "$tmpB")
+rm -f "$tmpA" "$tmpB"
+if [ -n "$missing_zvars" ]; then
+  zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
+  echo "Attaching missing zaxis coordinate variables: $zvar_list"
+  ncks -A -v "$zvar_list" "$fileA" "$fileB"
+fi
+# ----------------------------------------------------------------------
+# Append missing non-coordinate variables.
+# Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
+# ----------------------------------------------------------------------
 tmpA=$(mktemp)
 tmpB=$(mktemp)
 get_vars "$fileA" > "$tmpA"
@@ -763,13 +787,11 @@ missing_vars=$(comm -23 "$tmpA" "$tmpB")
 rm -f "$tmpA" "$tmpB"
 if [ -z "$missing_vars" ]; then
   echo "No missing variables found. File B is already up to date."
-  exit 0
+else
+  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+  echo "Attaching variables: $var_list"
+  ncks -A -C -v "$var_list" "$fileA" "$fileB"
 fi
-var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-
-echo "Attaching variables: $var_list"
-ncks -A -v "$var_list" "$fileA" "$fileB"
-
 if [[ ! -z "$neststr" ]] ; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
@@ -785,7 +807,7 @@ ${APRUNS} ${DATOOL} ua_update_u \
    --in_file=${IN_FILE} \
    --out_file=${RESTARTanl}/${FV3_CORE_FILE}
 
-ncks -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} -A ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
+ncks -A -C -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
 
 # Pass over the grid_mspec files for moving nest
 if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then

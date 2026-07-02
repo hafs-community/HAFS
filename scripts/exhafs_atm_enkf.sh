@@ -400,6 +400,12 @@ get_vars() {
     awk -F'(' '{print $1}' |
     sort -u
 }
+get_zvars() {
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
+    sort -u
+}
 dim_len() {
   ncdump -h "$1" |
     sed -n '/dimensions:/,/variables:/p' |
@@ -413,17 +419,32 @@ dim_len() {
   b_z1=$(dim_len "$fileB" zaxis_1)
   a_z1=$(dim_len "$fileA" zaxis_1)
   a_z2=$(dim_len "$fileA" zaxis_2)
+
   if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
     echo "Renaming fileB zaxis_1 -> zaxis_2"
     ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
   fi
-  # Add/update zaxis coordinate variables from bkg/source
-  zvars=$(ncdump -h "$fileA" |
-    sed -n '/variables:/,/^$/p' |
-    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
-    tr '\n' ',' | sed 's/,$//')
-  [ -n "$zvars" ] && ncks -A -v "$zvars" "$fileA" "$fileB"
-  # missing-variable append
+
+  # ----------------------------------------------------------------------
+  # Append only missing zaxis coordinate variables from fileA.
+  # Do not overwrite existing coordinate variables with different type.
+  # ----------------------------------------------------------------------
+  tmpA=$(mktemp)
+  tmpB=$(mktemp)
+  get_zvars "$fileA" > "$tmpA"
+  get_vars  "$fileB" > "$tmpB"
+  missing_zvars=$(comm -23 "$tmpA" "$tmpB")
+  rm -f "$tmpA" "$tmpB"
+  if [ -n "$missing_zvars" ]; then
+    zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
+    echo "Attaching missing zaxis coordinate variables: $zvar_list"
+    ncks -A -v "$zvar_list" "$fileA" "$fileB"
+  fi
+
+  # ----------------------------------------------------------------------
+  # Append missing non-coordinate variables.
+  # Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
+  # ----------------------------------------------------------------------
   tmpA=$(mktemp)
   tmpB=$(mktemp)
   get_vars "$fileA" > "$tmpA"
@@ -432,10 +453,9 @@ dim_len() {
   rm -f "$tmpA" "$tmpB"
   if [ -z "$missing_vars" ]; then
     echo "No missing variables found. File B is already up to date."
-    exit 0
+  else
+    var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+    echo "Attaching variables: $var_list"
+    ncks -A -C -v "$var_list" "$fileA" "$fileB"
   fi
-  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-
-  echo "Attaching variables: $var_list"
-  ncks -A -v "$var_list" "$fileA" "$fileB"
 done

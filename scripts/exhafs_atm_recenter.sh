@@ -247,7 +247,7 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
         echo "Check ${DATA}/log_datool_${memstr}"
         exit ${status}
       fi
-      ncks -v sgs_tke "${TRACER_IN}" -A "${TRACER_OUT}" \
+      ncks -A -C -v sgs_tke "${TRACER_IN}" "${TRACER_OUT}" \
         > "${DATA}/log_sgs_tke_${memstr}" 2>&1
       status=$?
       if [ ${status} -ne 0 ]; then
