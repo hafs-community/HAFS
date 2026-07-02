@@ -732,7 +732,11 @@
         <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
 	      <and>
+@** if RUN_FGAT==YES
+            <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+@** else
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr>@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
+@** endif
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/grid_spec.nc</datadep>
 @** if RUN_ENSDA==YES
 @** if RUN_FGAT==YES
