@@ -517,7 +517,7 @@ fi
         if [[ "${file}" = "osw_ascat" ]]; then
           ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
         elif [[ "${file}" = "vadwnd" ]]; then
-          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc >& log_${file}
           f="output/hafs.t${cyc}z.conventional_${file}.nc"
           if [ ! -f "${f}" ]; then
             echo "ERROR: file not found for vadwnd thinning:"
