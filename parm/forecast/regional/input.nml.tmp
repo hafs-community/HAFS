@@ -418,7 +418,7 @@
   de_ice = .false.
   fix_negative = .true.
   icloud_f = 1
-  mp_time = 90.
+  mp_time = @[dt_inner]
 /
 
 &interpolator_nml
