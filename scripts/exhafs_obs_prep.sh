@@ -413,9 +413,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
 ########## Prepare executables & bufr files #######################
   convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
-  sattypes="atms ssmis amsua iasi abi cris-fsr mhs"
-  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4 1bmhs"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b"
+  sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
+  satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
+  radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b" #ssmis_f17 
   obstypes="${radtypes} ${convtypes}"
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
