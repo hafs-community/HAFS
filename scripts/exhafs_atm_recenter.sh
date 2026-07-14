@@ -228,34 +228,35 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   # JEDI-specific update after all copied files are available
   if [ "${ANALYSIS_MODEL}" = "JEDI" ]; then
     DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+    NCKS=${NCKS:-ncks}
+    cmdfile="${DATA}/cmdfile_datool_ua_update_u"
+    rm -f "${cmdfile}"
+    touch "${cmdfile}"
+    # Optional but usually safer for many independent NetCDF tools
+    export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+    export MKL_NUM_THREADS=${MKL_NUM_THREADS:-1}
+    export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
+    export HDF5_USE_FILE_LOCKING=${HDF5_USE_FILE_LOCKING:-FALSE}
     for memstr in $(seq -f 'mem%03g' 1 "${nens}"); do
       IN_FILE="${DATA}/rec_fv3sar_tile1_${memstr}_dynvar"
       IN_GRID="${RESTARTens_anl}/${memstr}/grid_spec.nc"
       OUT_FILE="${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc"
       TRACER_IN="${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc"
       TRACER_OUT="${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc"
-      echo "Running ua_update_u for ${memstr}"
-      ${APRUNS} ${DATOOL} ua_update_u \
-        --in_grid="${IN_GRID}" \
-        --in_file="${IN_FILE}" \
-        --out_file="${OUT_FILE}" \
-        > "${DATA}/log_datool_${memstr}" 2>&1
-
-      status=$?
-      if [ ${status} -ne 0 ]; then
-        echo "ERROR: ua_update_u failed for ${memstr} with status ${status}"
-        echo "Check ${DATA}/log_datool_${memstr}"
-        exit ${status}
-      fi
-      ncks -A -C -v sgs_tke "${TRACER_IN}" "${TRACER_OUT}" \
-        > "${DATA}/log_sgs_tke_${memstr}" 2>&1
-      status=$?
-      if [ ${status} -ne 0 ]; then
-        echo "ERROR: ncks sgs_tke append failed for ${memstr} with status ${status}"
-        echo "Check ${DATA}/log_sgs_tke_${memstr}"
-        exit ${status}
-      fi
+      LOG_DATOOL="${DATA}/log_datool_${memstr}"
+      LOG_NCKS="${DATA}/log_sgs_tke_${memstr}"
+      echo "${APRUNS} ${DATOOL} ua_update_u --in_grid=${IN_GRID} --in_file=${IN_FILE} --out_file=${OUT_FILE} > ${LOG_DATOOL} 2>&1 && ${NCKS} -A -C -v sgs_tke ${TRACER_IN} ${TRACER_OUT} > ${LOG_NCKS} 2>&1" >> "${cmdfile}"
     done
+    chmod +x "${cmdfile}"
+    ncmd=$(wc -l < "${cmdfile}")
+    ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+    if [ "${USE_CFP:-NO}" = "YES" ]; then
+      ${APRUNCFP} -n ${ncmd_max} cfp "${cmdfile}"
+    else
+      ${APRUNC} ${MPISERIAL} -m "${cmdfile}"
+    fi
+    export err=$?
+    err_chk
   fi
 else
   echo "Wrong ldo_enscalc_option: $ldo_enscalc_option"

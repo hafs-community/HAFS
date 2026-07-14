@@ -148,10 +148,36 @@
                                             ! wave_numc=-5: only the 5th wave number.
 
   real, dimension(3)   :: center
+
+  logical  :: serial_cfp_action
 !----------------------------------------------------------------
 ! 0 --- initialization
 ! Initialize parallel stuff
-  call parallel_start()
+!
+! Some hafs_datool actions are serial utilities. They are safe to run
+! as one process per file/member under CFP, but they should not inherit
+! CFP's MPI rank context. If they call MPI_Init under CFP, only commands
+! that see my_proc_id == 0 will execute the rank-guarded work.
+!
+! Therefore, for these serial actions, skip MPI_Init and force local
+! serial rank settings.
+
+  actions='w'
+  if (iargc() >= 1) call getarg(1, actions)
+
+  serial_cfp_action = .false.
+  if ( trim(actions) == "u_update_ua" .or. trim(actions) == "ua_update_u" ) then
+     serial_cfp_action = .true.
+  endif
+
+  if ( serial_cfp_action ) then
+     nprocs = 1
+     my_proc_id = 0
+     comm = 0
+     ierr = 0
+  else
+     call parallel_start()
+  endif
 
 !----------------------------------------------------------------
 ! 1 --- argc and usage
