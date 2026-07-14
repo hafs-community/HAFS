@@ -434,7 +434,7 @@
   de_ice = .false.
   fix_negative = .true.
   icloud_f = 1
-  mp_time = 90.
+  mp_time = @[dt_inner]
 /
 
 &interpolator_nml
@@ -485,6 +485,7 @@
 /
 
 &nam_stochy
+  new_lscale = .true.
   skebnorm = 1
   skeb_npass = 30
   skeb_vdof = 5

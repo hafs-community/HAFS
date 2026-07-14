@@ -411,18 +411,15 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
-  convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
-  # convtypes="amv_abi amv_seviri hiamv_abi air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob tcp"
-  # convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr tcvital"
-  sattypes="atms ssmis amsua iasi abi cris-fsr"
-  satbufrs="atms ssmisu 1bamua mtiasi gsrcsr crisf4"
-  radtypes="atms_n20 atms_npp ssmis_f17 amsua_n18 amsua_n19 amsua_metop-b iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21"
+  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
+  sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
+  satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
+  radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 amsua_metop-b amsua_metop-c iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b mhs_metop-c" #ssmis_f17 
   obstypes="${radtypes} ${convtypes}"
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
-  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/grid/${CASE}/${CASE}_oro_data_ls.tile${tilestr}.nc}
+  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_oro_data.tile${tilestr}.halo3.nc}
   output_dir=${DATA}/jedi_ioda/output
 #  ${NCP} ${IODAEXEC} .
   ${NCP} ${IODABCEXEC} ./hafs_jedi_bc2ioda.x
@@ -452,7 +449,6 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
-  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
   if [[ ${use_bufr_nr:-no} = "yes" ]]; then
     if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr ]]; then
       ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr gfs.t${cyc}z.gnssro.bufr_d
@@ -498,13 +494,13 @@ fi
     bufr=$1
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
-       ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "abi" ]]; then
        python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ "${file}" = "cris-fsr" ]]; then
-       ${APRUNX} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-       ${APRUNX} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNC} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       fi
     fi
     shift
@@ -519,13 +515,80 @@ fi
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
         if [[ "${file}" = "osw_ascat" ]]; then
-          ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+          ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+        elif [[ "${file}" = "vadwnd" ]]; then
+          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc >& log_${file}
+          f="output/hafs.t${cyc}z.conventional_${file}.nc"
+          if [ ! -f "${f}" ]; then
+            echo "ERROR: file not found for vadwnd thinning:"
+            echo "  ${f}"
+            exit 1
+          fi
+          target_name="${f%.nc}_thin.nc"
+          log_file="thinlog_${f##*/}"
+          echo "Thinning for $f -> $target_name, log=${log_file}"
+          python "${USHhafs:-${HOMEhafs}/ush}/offline_vad_thinning.py" \
+            -i "${f}" \
+            -o "${target_name}" \
+            > "${log_file}" 2>&1
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "ERROR: offline_vad_thinning failed for $f with rc=$rc" >> "${log_file}"
+            exit $rc
+          fi
+          if [ -s "${target_name}" ]; then
+            mv "${target_name}" "${f}"
+          else
+            echo "WARNING: ${target_name} is empty or missing after thinning. Removing original."
+            rm  -f "${f}"
+          fi
+          echo "Offline vad thinning completed successfully"
         else
-          ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
         fi
       # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
       elif [[ "${bufr}" = "gnssro" ]]; then
         python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
+        shopt -s nullglob
+        files=(output/hafs.t${cyc}z.conventional_${file}_*.nc)
+        shopt -u nullglob
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "ERROR: No files found for domain check:"
+          echo "  output/hafs.t${cyc}z.conventional_${file}_*.nc"
+          exit 1
+        fi
+        pids=()
+        for f in "${files[@]}"; do
+          target_name="${f%.nc}_dc.nc"
+          log_file="dclog_${f##*/}"
+          echo "Domain Check for $f -> $target_name, log=${log_file}"
+          (python "${USHhafs:-${HOMEhafs}/ush}/offline_domain_check_gpsro.py" \
+              -g "${GEO_PATH}" \
+              -i "${f}" \
+              -o "${target_name}" \
+              > "${log_file}" 2>&1
+            rc=$?
+            if [ $rc -ne 0 ]; then
+              echo "ERROR: offline_domain_check failed for $f with rc=$rc" >> "${log_file}"
+              exit $rc
+            fi
+            if [ -s "${target_name}" ]; then
+              mv "${target_name}" "${f}"
+            else
+              rm "${f}"
+            fi
+          ) &
+          pids+=($!)
+        done
+        fail=0
+        for pid in "${pids[@]}"; do
+          wait "$pid" || fail=1
+        done
+        if [ $fail -ne 0 ]; then
+          echo "ERROR: One or more offline domain checks failed. Check dclog_* files."
+          exit 1
+        fi
+        echo "All offline domain checks completed successfully."
       elif [[ "${bufr}" = "satwhr" ]]; then #XL temp solution for satwhr as it switched from g16 -> g19
         # Extra Check on message type NC005099
      	SUBSET_TO_FIND="5099"
@@ -541,15 +604,14 @@ fi
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
-        ${APRUNX} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
+        ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
-        ${APRUNX} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
+        ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
-        #python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
         python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --stormid ${STORMID} >& log_${file}
       fi
     fi

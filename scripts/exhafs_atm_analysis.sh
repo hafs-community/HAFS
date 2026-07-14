@@ -260,7 +260,9 @@ else
   elif [ ${RUN_ATM_INIT} = "YES" ]; then
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
   else
+    RESTARTinp_fgat03=${COMOLD}/${old_out_prefix}.RESTART
     RESTARTinp_fgat06=${COMOLD}/${old_out_prefix}.RESTART
+    RESTARTinp_fgat09=${COMOLD}/${old_out_prefix}.RESTART
   fi
 fi
 RESTARTinp=${RESTARTinp_fgat06}
@@ -347,7 +349,7 @@ if [ ${RUN_ENVAR} = "YES" ]; then
         done
       else
         if [ ${l4densvar:-.false.} = ".true." ]; then
-	  fhrs="03 06 09"
+	      fhrs="03 06 09"
         else
           fhrs="06"
         fi
@@ -445,11 +447,9 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-# Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
-# See also /scratch4/AOML/aoml-hafs1/Lew.Gramer/src/HAFSV2.2.1M_2026_RT/sorc/hafs_jedi.fd/parm/jcb-hdas/test/client_integration/hdas-atmosphere-templates.yaml
-radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
-convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112" #conventional_radar_vadwnd
-convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp" #conventional_radar_vadwnd
+radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp radiance_mhs_n18 radiance_mhs_n19 radiance_mhs_metop-b" #radiance_iasi_metop-c radiance_amsua_metop-c radiance_mhs_metop-c" #radiance_ssmis_f17 
+convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112 conventional_radar_vadwnd"
+convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp conventional_radar_vadwnd"
 mkdir -p "${DATA}/obs"
 cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
@@ -501,16 +501,7 @@ for type in "${convtypes_array[@]}"; do
     fi
     # Copy source file into ${DATA}/obs once
     if [[ ! -f "$local_ncfile" ]]; then
-      if [[ "$matched_file" == conventional_gnssro_* ]]; then
-        python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check_gpsro.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -i $src_ncfile -o $local_ncfile
-        if [[ ! -s "$local_ncfile" ]]; then
-          echo "Skipping: local file was not generated or is empty: $local_ncfile"
-          checked_convfiles+=("$matched_file")
-          continue
-        fi
-      else
-        ${NCP} "$src_ncfile" "$local_ncfile"
-      fi
+       ${NCP} "$src_ncfile" "$local_ncfile"
 #      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     fi
     checked_convfiles+=("$matched_file")
@@ -646,7 +637,6 @@ sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
     bump_nicas.yaml.tmp > bump_nicas.yaml
 ${NCP} ${EXEChafs}/hafs_jedi_nicas.x ./hafs_jedi_nicas.x
 if [ ${l4densvar:-.true.} = ".true." ]; then
-#  ${APRUNCD3} ${EXEChafs}/hafs_nicas.x bump_nicas.yaml nicas.log
   ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log #XL turn off parallel subwindow until the thinning issue is fixed
 else
   ${APRUNC} ./hafs_jedi_nicas.x bump_nicas.yaml nicas.log
@@ -772,8 +762,82 @@ ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/${FV3_AKBK_FILE} ${RESTARTanl}/
 
 # pass over phy_data as well
-${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+fi
 
+#add missing sfc_data variables from the background file
+fileA="${RESTARTinp}/${FV3_SFCD_FILE}"   # bkg/source
+fileB="${RESTARTanl}/${FV3_SFCD_FILE}"   # ana/target
+
+get_vars() {
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    grep "(" |
+    awk '{print $2}' |
+    awk -F'(' '{print $1}' |
+    sort -u
+}
+
+get_zvars() {
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
+    sort -u
+}
+
+dim_len() {
+  ncdump -h "$1" |
+    sed -n '/dimensions:/,/variables:/p' |
+    awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
+}
+
+# ----------------------------------------------------------------------
+# Fix zaxis naming before appending variables.
+# In bkg: zaxis_1=2, zaxis_2=4
+# In ana: zaxis_1=4, so rename ana zaxis_1 -> zaxis_2
+# ----------------------------------------------------------------------
+b_z1=$(dim_len "$fileB" zaxis_1)
+a_z1=$(dim_len "$fileA" zaxis_1)
+a_z2=$(dim_len "$fileA" zaxis_2)
+
+if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
+  echo "Renaming fileB zaxis_1 -> zaxis_2"
+  ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
+fi
+
+# ----------------------------------------------------------------------
+# Append only missing zaxis coordinate variables from fileA.
+# Do not overwrite existing coordinate variables with different type.
+# ----------------------------------------------------------------------
+tmpA=$(mktemp)
+tmpB=$(mktemp)
+get_zvars "$fileA" > "$tmpA"
+get_vars  "$fileB" > "$tmpB"
+missing_zvars=$(comm -23 "$tmpA" "$tmpB")
+rm -f "$tmpA" "$tmpB"
+if [ -n "$missing_zvars" ]; then
+  zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
+  echo "Attaching missing zaxis coordinate variables: $zvar_list"
+  ncks -A -v "$zvar_list" "$fileA" "$fileB"
+fi
+# ----------------------------------------------------------------------
+# Append missing non-coordinate variables.
+# Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
+# ----------------------------------------------------------------------
+tmpA=$(mktemp)
+tmpB=$(mktemp)
+get_vars "$fileA" > "$tmpA"
+get_vars "$fileB" > "$tmpB"
+missing_vars=$(comm -23 "$tmpA" "$tmpB")
+rm -f "$tmpA" "$tmpB"
+if [ -z "$missing_vars" ]; then
+  echo "No missing variables found. File B is already up to date."
+else
+  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+  echo "Attaching variables: $var_list"
+  ncks -A -C -v "$var_list" "$fileA" "$fileB"
+fi
 if [[ ! -z "$neststr" ]] ; then
  if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
    ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
@@ -789,7 +853,7 @@ ${APRUNS} ${DATOOL} ua_update_u \
    --in_file=${IN_FILE} \
    --out_file=${RESTARTanl}/${FV3_CORE_FILE}
 
-ncks -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} -A ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
+ncks -A -C -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
 
 # Pass over the grid_mspec files for moving nest
 if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then

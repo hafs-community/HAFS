@@ -255,15 +255,17 @@ if [ $input_type = "grib2" ]; then
   INPDIR="./"
 else
   if [ ${ENSDA} = YES ]; then
-   ${NCP} ${INIDIR}/${atm_files_input_grid} ./anl.06
-   ${NLN} ${INCDIR}/${inc_files_input_grid} ./inc.06
-   ${NLN} ${INIDIR}/${atm_files_input_grid} ./ges.06
-   ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
+#   ${NCP} ${INIDIR}/${atm_files_input_grid} ./anl.06
+#   ${NLN} ${INCDIR}/${inc_files_input_grid} ./inc.06
+#   ${NLN} ${INIDIR}/${atm_files_input_grid} ./ges.06
+#   ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
    INPDIR="./"
-   ${NCP} -p ${HOMEhafs}/ush/hafs_calc_enkfgdas_analysis.py ./
-   ${APRUNS} ./hafs_calc_enkfgdas_analysis.py 2>&1 | tee ./hafs_calc_enkfgdas_analysis.log
-   export err=$?; err_chk
-   ${NLN} ./anl.06 ./${atm_files_input_grid}
+#   ${NCP} -p ${HOMEhafs}/ush/hafs_calc_enkfgdas_analysis.py ./
+#   ${APRUNS} ./hafs_calc_enkfgdas_analysis.py 2>&1 | tee ./hafs_calc_enkfgdas_analysis.log
+#   export err=$?; err_chk
+#   ${NLN} ./anl.06 ./${atm_files_input_grid}
+   ${NLN} ${INIDIR}/${atm_files_input_grid} ./
+   ${NLN} ${INIDIR}/${sfc_files_input_grid} ./
   elif [ ${FGAT_MODEL} = gdas ]; then
    ${NLN} ${INIDIR}/${atm_files_input_grid} ./
    ${NLN} ${INIDIR}/${sfc_files_input_grid} ./

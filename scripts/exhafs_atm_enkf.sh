@@ -237,9 +237,9 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp"
-convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112" #conventional_radar_vadwnd
-convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp" #conventional_radar_vadwnd
+#radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp radiance_mhs_n18 radiance_mhs_n19 radiance_mhs_metop-b radiance_iasi_metop-c radiance_amsua_metop-c radiance_mhs_metop-c"
+convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112 conventional_radar_vadwnd"
+convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp conventional_radar_vadwnd"
 mkdir -p "${DATA}/obs"
 cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
@@ -377,8 +377,8 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
-for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
-  memout="mem"$(printf %03i $mem)
+for mem in $(seq 1 ${n_ens_fv3sar}); do
+  memout=$(printf "mem%03d" "$mem")
   mkdir -p ${RESTARTens_anl}/${memout}
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/${FV3_CPLR_ENS_FILE}
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE}
@@ -388,17 +388,63 @@ for mem in $(seq -f '%03g' 1 ${n_ens_fv3sar}); do
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
   ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
-#add missing sfc_data variables from the background file
+
+  #add missing sfc_data variables from the background file
   fileA="${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}"
   fileB="${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}"
 get_vars() {
-    ncdump -h "$1" | \
-    sed -n '/variables:/,/^$/p' | \
-    grep "(" | \
-    awk '{print $2}' | \
-    awk -F'(' '{print $1}' | \
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    grep "(" |
+    awk '{print $2}' |
+    awk -F'(' '{print $1}' |
     sort -u
 }
+get_zvars() {
+  ncdump -h "$1" |
+    sed -n '/variables:/,/^$/p' |
+    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
+    sort -u
+}
+dim_len() {
+  ncdump -h "$1" |
+    sed -n '/dimensions:/,/variables:/p' |
+    awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
+}
+  # ----------------------------------------------------------------------
+  # Fix zaxis naming before appending variables.
+  # In bkg: zaxis_1=2, zaxis_2=4
+  # In ana: zaxis_1=4, so rename ana zaxis_1 -> zaxis_2
+  # ----------------------------------------------------------------------
+  b_z1=$(dim_len "$fileB" zaxis_1)
+  a_z1=$(dim_len "$fileA" zaxis_1)
+  a_z2=$(dim_len "$fileA" zaxis_2)
+
+  if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
+    echo "Renaming fileB zaxis_1 -> zaxis_2"
+    ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
+  fi
+
+  # ----------------------------------------------------------------------
+  # Append only missing zaxis coordinate variables from fileA.
+  # Do not overwrite existing coordinate variables with different type.
+  # ----------------------------------------------------------------------
+  tmpA=$(mktemp)
+  tmpB=$(mktemp)
+  get_zvars "$fileA" > "$tmpA"
+  get_vars  "$fileB" > "$tmpB"
+  missing_zvars=$(comm -23 "$tmpA" "$tmpB")
+  rm -f "$tmpA" "$tmpB"
+  if [ -n "$missing_zvars" ]; then
+    zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
+    echo "Attaching missing zaxis coordinate variables: $zvar_list"
+    ncks -A -v "$zvar_list" "$fileA" "$fileB"
+  fi
+
+  # ----------------------------------------------------------------------
+  # Append missing non-coordinate variables.
+  # Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
+  # ----------------------------------------------------------------------
   tmpA=$(mktemp)
   tmpB=$(mktemp)
   get_vars "$fileA" > "$tmpA"
@@ -406,10 +452,10 @@ get_vars() {
   missing_vars=$(comm -23 "$tmpA" "$tmpB")
   rm -f "$tmpA" "$tmpB"
   if [ -z "$missing_vars" ]; then
-      echo "No missing variables found. File B is already up to date."
-      exit 0
+    echo "No missing variables found. File B is already up to date."
+  else
+    var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
+    echo "Attaching variables: $var_list"
+    ncks -A -C -v "$var_list" "$fileA" "$fileB"
   fi
-  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-  echo "Attaching variables: $var_list"
-  ncks -A -v "$var_list" "$fileA" "$fileB"
 done

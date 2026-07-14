@@ -137,7 +137,22 @@ DATA=${DATA:-${WORKhafs}/merge}
 cd ${DATA}
 
 mkdir -p ${RESTARTmrg}
-${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/
+#${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/*) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTmrg}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
 
 if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then
 
@@ -347,10 +362,25 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
 else
 
 # Step 1: merge srcd02 into srcd01 (for analysis_merge)
-${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
+#${NCP} -rp ${RESTARTsrc}/* ${RESTARTtmp}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTsrc}/*) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTsrc}/${fname} ${RESTARTtmp}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
+
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
-# LJG 2026-02-10
-for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
+for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
   in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
   out_grid=${RESTARTtmp}/grid_mspec_${yr}_${mn}_${dy}_${hh}.nc
   in_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nest02.tile2.nc

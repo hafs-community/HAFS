@@ -80,7 +80,6 @@ cd "${DATA}" || exit 1
 echo "INFO: ENS_SIZE=${ENS_SIZE}"
 echo "INFO: RTASKS=${RTASKS}"
 echo "INFO: TOTAL_TASKS=${TOTAL_TASKS}"
-echo "INFO: APRUNX=${APRUNX}"
 echo "INFO: DATA=${DATA}"
 echo "INFO: ENS_YAML_ROOT=${ENS_YAML_ROOT}"
 echo "INFO: ENS_MEMBER_CWD_ROOT=${ENS_MEMBER_CWD_ROOT}"
@@ -315,7 +314,7 @@ run_ensemble_convert() {
   test -s "${DATA}/ens_member_cwd/mem001/fmsmpp.nml" || exit 1
   test -d "${DATA}/ens_member_cwd/mem001/intercom/ENS_PREP/mem001" || exit 1
 
-  ${APRUNX} ./hafs_jedi_convert.x "${ens_yaml}" "ens_${tag}.out" > "${log_file}" 2>&1
+  ${APRUNC} ./hafs_jedi_convert.x "${ens_yaml}" "ens_${tag}.out" > "${log_file}" 2>&1
   export err=$?
   if [ "${err}" -ne 0 ]; then
     echo "ERROR: Ensemble ConvertState failed for ${tag}; see ${log_file}" >&2
