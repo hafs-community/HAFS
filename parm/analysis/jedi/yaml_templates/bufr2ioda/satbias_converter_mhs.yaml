@@ -26,3 +26,7 @@ output:
 - sensor: mhs_metop-b
   output file: output/satbias_radiance_mhs_metop-b_#HH#.nc
   predictors: *default_preds
+
+- sensor: mhs_metop-c
+  output file: output/satbias_radiance_mhs_metop-c_#HH#.nc
+  predictors: *default_preds
