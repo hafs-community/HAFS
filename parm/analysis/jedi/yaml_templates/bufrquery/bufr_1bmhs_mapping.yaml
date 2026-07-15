@@ -6,6 +6,7 @@ bufr:
           _209: n18
           _223: n19
           _3: metop-b
+          _5: metop-c
         variable: satelliteIdentifier
 
   variables:
