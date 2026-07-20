@@ -207,7 +207,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -226,7 +226,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -261,7 +261,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -278,7 +278,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -325,7 +325,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -342,7 +342,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -420,7 +420,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -480,7 +480,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = jet ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -581,8 +581,9 @@ fi
 
 cat>./fort.41<<EOF
 &config
+!input_leaf_area_index_file="${input_sfc_climo_dir}/leaf_area_index.0.05.nc"
 input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
-input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.2.6x1.5.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.gfs.0.5.nc"
 input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
@@ -596,6 +597,7 @@ halo=${HALO}
 maximum_snow_albedo_method="bilinear"
 snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
+!leaf_area_index_method="bilinear"
 /
 EOF
 
@@ -609,20 +611,20 @@ export err=$?; err_chk
 if [[ $GRIDTYPE != "regional" ]]; then
   for files in *.nc; do
     if [[ -f $files ]]; then
-      mv $files ${sfc_climo_savedir}/${CASE}.${files}
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
     fi
   done
 else
   for files in *.halo.nc; do
     if [[ -f $files ]]; then
       file2=${files%.halo.nc}
-      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${file2}.halo${HALO}.nc
     fi
   done
   for files in *.nc; do
     if [[ -f $files ]]; then
       file2=${files%.nc}
-      mv $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
+      ${NMV} $files ${sfc_climo_savedir}/${CASE}.${file2}.halo0.nc
     fi
   done
 fi  # is regional?
@@ -657,8 +659,9 @@ the_orog_files='"'${CASE}'_oro_data.tile'${itile}'.nc"'
 
 cat>./fort.41<<EOF
 &config
+!input_leaf_area_index_file="${input_sfc_climo_dir}/leaf_area_index.0.05.nc"
 input_facsf_file="${input_sfc_climo_dir}/facsf.1.0.nc"
-input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.1.0.nc"
+input_substrate_temperature_file="${input_sfc_climo_dir}/substrate_temperature.gfs.0.5.nc"
 input_maximum_snow_albedo_file="${input_sfc_climo_dir}/maximum_snow_albedo.0.05.nc"
 input_snowfree_albedo_file="${input_sfc_climo_dir}/snowfree_albedo.4comp.0.05.nc"
 input_slope_type_file="${input_sfc_climo_dir}/slope_type.1.0.nc"
@@ -672,6 +675,7 @@ halo=${HALO}
 maximum_snow_albedo_method="bilinear"
 snowfree_albedo_method="bilinear"
 vegetation_greenness_method="bilinear"
+!leaf_area_index_method="bilinear"
 /
 EOF
 
@@ -684,7 +688,7 @@ export err=$?; err_chk
 
 for files in *.nc; do
   if [[ -f $files ]]; then
-    mv $files ${sfc_climo_savedir}/${CASE}.${files}
+    ${NMV} $files ${sfc_climo_savedir}/${CASE}.${files}
   fi
 done
 

@@ -28,21 +28,11 @@ export FIXhafs=$HOMEhafs/fix
 
 export WORKhafs=${WORKhafs:-${DATAROOT:?}/${RUN:?}${storm_num:?}_${cyc:?}_${envir:?}_${hafs_ver:?}}
 
-export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
-export CONFhafs=$COMhafs/$stormlabel.conf
-export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
-
-source ${HOLDVARS}
-
 if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ "${machine}" != "wcoss2" ]] && [[ "${ocean_model}" == mom6 ]]; then
-      module use ${HOMEhafs}/modulefile
-      module load hafs_mom6_obc.${machine}  
-      module list
-  fi
+  module list
 else
   # Run by NCO on WCOSS2
   export machine=${WHERE_AM_I:-wcoss2}
@@ -58,6 +48,12 @@ source ${USHhafs}/hafs_runcmd.sh.inc
 
 env
 
+export COMhafs=${COMhafs:-$(compath.py ${envir}/${NET}/${hafs_ver})/${RUN}.${PDY}/${cyc}}
+export CONFhafs=$COMhafs/$stormlabel.conf
+export HOLDVARS=${HOLDVARS:-$COMhafs/$stormlabel.holdvars.txt}
+
+source ${HOLDVARS}
+
 export PYTHONPATH=$PYTHONPATH:${HOMEhafs}/ush/mom6_obc
 
 export DATA=${WORKhafs}/ocn_prep${jobidstr}
@@ -71,11 +67,6 @@ cd $DATA
 # Execute ex-script
 if [[ "${run_docn:-no}" == yes ]] ; then
   ${HOMEhafs}/scripts/exhafs_docn_prep.sh
-  export err=$?; err_chk
-fi
-
-if [[ "${run_ocean:-no}" == yes ]] && [[ "${ocean_model}" == hycom ]] ; then
-  ${HOMEhafs}/scripts/exhafs_ocn_prep.py
   export err=$?; err_chk
 fi
 

@@ -165,13 +165,15 @@
   lat2 = radiusf/2.0
   !!--- get rot-ll grid
   allocate(glon(nx,ny), glat(nx,ny))
-  !$omp parallel do &
-  !$omp& private(i,j,rot_lon,rot_lat)
-  do j = 1, ny; do i = 1, nx
-     rot_lon = lon1 + dlon*(i-1)
-     rot_lat = lat1 + dlat*(j-1)
-     call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
-  enddo; enddo
+  !!!!$omp parallel do &
+  !!!!$omp& private(i,j,rot_lon,rot_lat)
+  do j = 1, ny; 
+     rot_lat = dlat * (j - (ny+1)/2.0)
+     do i = 1, nx
+        rot_lon = dlon * (i - (nx+1)/2.0)
+        call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
+     enddo 
+  enddo
   call longitude_expand_360to540(nx,ny,glon)
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
@@ -1288,15 +1290,15 @@
         where ( glon > 180. ) glon=glon-360.
         if ( cen_lon > 0. ) where ( glon < 0.) glon=glon+360.
         if ( cen_lon < -140. ) where ( glon > 0. ) glon=glon-360.
-        call write_nc_real(trim(fl_out), 'glon', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glon, 'degree', 'rot-ll longtitude')
-        call write_nc_real(trim(fl_out), 'glat', nx, ny, -1, -1, 'nx', 'ny', '-', '-', glat, 'degree', 'rot-ll latitude')
+        call write_nc_data(trim(fl_out), 'glon', nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', glon, 'degree', 'rot-ll longtitude')
+        call write_nc_data(trim(fl_out), 'glat', nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', glat, 'degree', 'rot-ll latitude')
         allocate(dat4(nz+1,1,1,1))
         call get_var_data(trim(infile_fvcore), 'ak', nz+1, 1, 1, 1, dat4)
-        call write_nc_real(trim(fl_out), 'ak', -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'ak')
+        call write_nc_data(trim(fl_out), 'ak', nf90_real, -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'ak')
         deallocate(dat4)
         allocate(dat4(nz+1,1,1,1))
         call get_var_data(trim(infile_fvcore), 'bk', nz+1, 1, 1, 1, dat4)
-        call write_nc_real(trim(fl_out), 'bk', -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'bk')
+        call write_nc_data(trim(fl_out), 'bk', nf90_real, -1, -1, nz+1, -1, '-', '-', 'nz1', '-', dat4, 'scalar', 'bk')
         deallocate(dat4)
 
      endif
@@ -1703,7 +1705,7 @@
               !--- output
               !write(*,'(a,i2.2,a,200f)')'=== record',nrecord,': ', dat42(int(nx/2),int(ny/2),:,1)
               !write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-              call write_nc_real(trim(fl_out), trim(varname), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat42, trim(units), trim(varname_long))
+              call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat42, trim(units), trim(varname_long))
               deallocate(dat41, dat42, dat43)
            else
               !----mpi: 0 is for IO, >0 is for computing
@@ -1798,7 +1800,7 @@
                  enddo
                  !write(*,'(a,3i5,100f12.3)')'===w34 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-                 call write_nc_real(trim(fl_out), trim(varname), nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
+                 call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, kz, -1, 'nx', 'ny', trim(nzc), '-', dat43, trim(units), trim(varname_long))
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
            endif  ! if ( nprocs == 1 ) then  !--no mpi
@@ -1913,8 +1915,8 @@
                  enddo
                  !write(*,'(a,3i5,100f12.3)')'===w51 ', nx, ny, kz, (dat43(10,10,k,1),k=kz,1,-1)
                  !write(flid_out) (((dat43(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-                 if (nv==1) call write_nc_real(trim(fl_out), 'u', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'u-component')
-                 if (nv==2) call write_nc_real(trim(fl_out), 'v', nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'v-component')
+                 if (nv==1) call write_nc_data(trim(fl_out), 'u', nf90_real, nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'u-component')
+                 if (nv==2) call write_nc_data(trim(fl_out), 'v', nf90_real, nx, ny, kz, -1, 'nx', 'ny', 'nz', '-', dat43, 'm/s', 'v-component')
                  deallocate(dat43)
               endif  !if ( my_proc_id == io_proc ) then
               if (nv==1) deallocate(u)
@@ -1937,7 +1939,7 @@
               endif
               call combine_grids_for_remap(ix,iy,kz,1,dat43,nx,ny,kz,1,dat41,gwt%gwt_t,dat42)
               !write(flid_out) (((dat42(i,j,k,1),i=1,nx),j=1,ny),k=kz,1,-1)
-              call write_nc_real(trim(fl_out), trim(varname), nx, ny, -1, -1, 'nx', 'ny', '-', '-', dat42, trim(units), trim(varname_long))
+              call write_nc_data(trim(fl_out), trim(varname), nf90_real, nx, ny, -1, -1, 'nx', 'ny', '-', '-', dat42, trim(units), trim(varname_long))
               deallocate(dat41, dat42, dat43)
            endif  !if ( my_proc_id == io_proc ) then
         endif
@@ -2458,7 +2460,7 @@
               tmp4d(i,j,k,1) = 0.5*(u1(i,j,k,1)+u1(i,j+1,k,1))
            enddo
            enddo
-           enddo 
+           enddo
          ! call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, 0.5*(u1(:,1:iy,1:ke-ks+1,1)+u1(:,2:iy+1,1:ke-ks+1,1)), 1, 1, ks, 1)
            call update_hafs_restart_par(trim(ncfile_core), 'ua', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
            do k = 1, ke-ks+1
@@ -2467,7 +2469,7 @@
               tmp4d(i,j,k,1) = 0.5*(v1(i,j,k,1)+v1(i+1,j,k,1))
            enddo
            enddo
-           enddo 
+           enddo
          ! call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, 0.5*(v1(1:ix,:,1:ke-ks+1,1)+v1(2:ix+1,:,1:ke-ks+1,1)), 1, 1, ks, 1)
            call update_hafs_restart_par(trim(ncfile_core), 'va', ix, iy, ke-ks+1, 1, tmp4d, 1, 1, ks, 1)
            deallocate(tmp4d)

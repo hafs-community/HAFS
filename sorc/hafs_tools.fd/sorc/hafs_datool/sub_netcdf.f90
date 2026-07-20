@@ -3,6 +3,7 @@
 ! authors and history:
 !      -- 202102, created by Yonghui Weng
 !      -- 202411, Yonghui Weng modified subroutine write_nc_real to output float/double/int type data
+!      -- 202512, Yonghui Weng, replace write_nc_real with write_nc_data to write any type data.
 !
 !========================================================================================
   subroutine rd_grid_spec_data(ncfile, grid)
@@ -366,7 +367,7 @@
   end subroutine write_nc_real0d
 
 !========================================================================================
-  subroutine write_nc_real(ncfile, varname, ix, jx, kx, tx, cx, cy, ck, ct, data, units, long_name)
+  subroutine write_nc_data(ncfile, varname, data_type, ix, jx, kx, tx, cx, cy, ck, ct, data, units, long_name)
 
   use netcdf
   use module_mpi
@@ -374,6 +375,25 @@
   implicit none
   character(len=*), intent(in)    :: ncfile
   character(len=*), intent(in)    :: varname
+  integer, intent(in)             :: data_type        !netcdf data type
+                                     ! 1~6: use the user specfied type
+                                     ! -1~-6: if the variable exist, use its type, ortherwise, use abs(data_type). E.g.,
+                                     !        when data_type=-6, if the original variable type is 4, then xtype=4,
+                                     !                           if the variable is not exist, then xtype=6
+                                     ! < -6: if the variable exist, use its type, ortherwise, xtype=4
+                                     ! nf90 parameters:
+                                     !   nf90_byte   = 1,            &
+                                     !   nf90_int1   = nf90_byte,    &
+                                     !   nf90_char   = 2,            &
+                                     !   nf90_short  = 3,            &
+                                     !   nf90_int2   = nf90_short,   &
+                                     !   nf90_int    = 4,            &
+                                     !   nf90_int4   = nf90_int,     &
+                                     !   nf90_float  = 5,            &
+                                     !   nf90_real   = nf90_float,   &
+                                     !   nf90_real4  = nf90_float,   &
+                                     !   nf90_double = 6,            &
+                                     !   nf90_real8  = nf90_double
   integer, intent(in)             :: ix, jx, kx, tx   !dimensions for this varname
   character(len=*), intent(in)    :: cx, cy, ck, ct   !dimension name
   real, dimension(abs(ix), abs(jx), abs(kx), abs(tx)), intent(inout)  :: data
@@ -387,7 +407,6 @@
 
   real                            :: FillValue
 
-  xtype=-999  !hint: the default data type is nf90_float
   FillValue=9.999e+20
   !----1.0 process data _FillValue
   where( data > 9.0e+8 .or. data < -300000. ) data=FillValue
@@ -406,49 +425,36 @@
      rcode=nf90_inq_dimid(ncid, trim(cx), ixid)
      if ( rcode /= nf90_noerr ) then
         call nccheck(nf90_def_dim(ncid, cx, ix, ixid), 'wrong in def_dim '//trim(cx), .true.)
-     else
-        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
-           rcode=nf90_inq_varid(ncid, trim(cx), varid)
-           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
-        endif
      endif
   endif
   if ( len_trim(cy) > 0 .and. cy(1:1) /= '-' .and. cy(1:1) /= '=' .and. jx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(cy), jxid)
      if ( rcode /= nf90_noerr )  then
         call nccheck(nf90_def_dim(ncid, cy, jx, jxid), 'wrong in def_dim '//trim(cy), .true.)
-     else
-        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
-           rcode=nf90_inq_varid(ncid, trim(cy), varid)
-           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
-        endif
      endif
   endif
   if ( len_trim(ck) > 0 .and. ck(1:1) /= '-' .and. ck(1:1) /= '=' .and. kx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ck), kxid)
      if ( rcode /= nf90_noerr ) then
         call nccheck(nf90_def_dim(ncid, ck, kx, kxid), 'wrong in def_dim '//trim(ck), .true.)
-     else
-        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
-           rcode=nf90_inq_varid(ncid, trim(ck), varid)
-           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
-        endif
      endif
   endif
   if ( len_trim(ct) > 0 .and. ct(1:1) /= '-' .and. ct(1:1) /= '=' .and. tx > 0 ) then
      rcode=nf90_inq_dimid(ncid, trim(ct), txid)
      if ( rcode /= nf90_noerr ) then
         call nccheck(nf90_def_dim(ncid, ct, tx, txid), 'wrong in def_dim '//trim(ct), .true.)
-     else
-        if ( xtype < 0 .or. xtype > 99 ) then !get dimension type
-           rcode=nf90_inq_varid(ncid, trim(ct), varid)
-           if ( rcode == nf90_noerr ) rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
-        endif
      endif
   endif
-  if ( xtype < 0 .or. xtype > 99 ) xtype=nf90_real
 
   !----4.0 check var
+  !if ( xtype < 0 .or. xtype > 99 ) xtype=nf90_real
+  if ( data_type >= 1 .and. data_type <= 6 ) then
+     xtype = data_type
+  elseif ( data_type <= -1 .and. data_type >= -6 ) then
+     xtype = abs(data_type)
+  else
+     xtype = nf90_real
+  endif
   rcode=nf90_inq_varid(ncid, varname, varid)
   if ( rcode /= nf90_noerr ) then  ! need to define the var
      if ( tx>0 ) then
@@ -482,6 +488,11 @@
      !   call nccheck(nf90_def_var_deflate(ncid, varid, 1, 1, 4), 'wrong in nf90_def_var_deflate 4', .false.)
      !endif
      call nccheck(nf90_enddef(ncid), 'wrong in nf90_enddef', .false.)
+  else   ! to get data's type
+     if ( data_type <= -1 .and. data_type >= -6 ) then
+        rcode=nf90_inquire_variable(ncid, varid, xtype=xtype)
+        if ( rcode /= nf90_noerr ) xtype = abs(data_type)
+     endif
   endif
 
   !----5.0 write data
@@ -576,7 +587,7 @@
   call nccheck(nf90_close(ncid), 'wrong in close '//trim(ncfile), .true.)
 
   return
-  end subroutine write_nc_real
+  end subroutine write_nc_data
 
 !========================================================================================
   subroutine write_nc_real_par(ncfile, varname, ix, jx, kx, tx, cx, cy, ck, ct,      &

@@ -27,3 +27,7 @@ find_package(MPI REQUIRED)
 
 add_subdirectory(sorc/mpiserial)
 add_subdirectory(sorc/hafs_nhc_products)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/sorc/hafs_ships")
+    add_subdirectory(sorc/hafs_ships)
+endif()
+

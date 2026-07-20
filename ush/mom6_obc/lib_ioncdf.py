@@ -163,18 +163,18 @@ def write_obc_file(list_segments, list_variables, list_vectvariables,
         ncsegments_jlist[nseg][:] = list_segments[nseg].jlist
         ncsegments_jlist[nseg].orientation = list_segments[nseg].orientation
 
-    # fill variables
+    # fill variables and convert from float to double to ensure reproducibility
     for nvar in np.arange(len(list_variables)):
-        ncvariables[nvar][0, :] = list_variables[nvar].data
+        ncvariables[nvar][0, :] = (list_variables[nvar].data.astype(np.float32)).astype(np.float64)
 
     for nvar in np.arange(len(list_variables_with_vc)):
         ncvariables_vc[nvar][0, :] = list_variables_with_vc[nvar].depth
         ncvariables_dz[nvar][0, :] = list_variables_with_vc[nvar].dz
 
-    # fill vect variables
+    # fill vect variables and convert from float to double to ensure reproducibility
     for nvar in np.arange(len(list_vectvariables)):
-        ncvectvariables[2*nvar][0, :] = list_vectvariables[nvar].data_u_out
-        ncvectvariables[2*nvar+1][0, :] = list_vectvariables[nvar].data_v_out
+        ncvectvariables[2*nvar][0, :] = (list_vectvariables[nvar].data_u_out.astype(np.float32)).astype(np.float64)
+        ncvectvariables[2*nvar+1][0, :] = (list_vectvariables[nvar].data_v_out.astype(np.float32)).astype(np.float64)
 
     for nvar in np.arange(len(list_vectvariables_with_vc)):
         ncvectvariables_vc[2*nvar][0, :] = \

@@ -38,7 +38,7 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
     if [[ ${machine} = hera ]] || [[ ${machine} = ursa ]]; then
        module purge
     fi
-    if [ ${machine} = wcoss2 ]; then
+    if [[ ${machine} = wcoss2 ]] || [[ ${machine} = gaeac6 ]]; then
        module reset
     fi
     module use ${HOMEhafs}/sorc/hafs_graphics.fd/emc_graphics/modulefiles

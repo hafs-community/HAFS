@@ -16,7 +16,6 @@ CP='/bin/cp -rp'
 #------------------------------------
 $Build_forecast && {
   ${CP} hafs_forecast.fd/tests/fv3_hafs_mom6.exe                     ../exec/hafs_forecast_mom6.x
-  ${CP} hafs_forecast.fd/tests/fv3_hafs_hycom.exe                    ../exec/hafs_forecast_hycom.x
 }
 
 #------------------------------------
@@ -72,6 +71,14 @@ $Build_tools && {
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_combine.x                     ../exec/hafs_tools_vi_anl_combine.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_enhance.x                     ../exec/hafs_tools_vi_anl_enhance.x
   ${CP} hafs_tools.fd/exec/hafs_vi_anl_bogus.x                       ../exec/hafs_tools_vi_anl_bogus.x
+  if [ -d "hafs_tools.fd/sorc/hafs_ships" ]; then
+    ${CP} hafs_tools.fd/exec/hafs_ships_nameparse.x                  ../exec/hafs_ships_nameparse.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_gridparse.x                  ../exec/hafs_ships_gridparse.x 
+    ${CP} hafs_tools.fd/exec/hafs_ships_totaldiag.x                  ../exec/hafs_ships_totaldiag.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_inddiag.x                    ../exec/hafs_ships_inddiag.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_inddiagnull.x                ../exec/hafs_ships_inddiagnull.x
+    ${CP} hafs_tools.fd/exec/hafs_ships_getcenter.x                  ../exec/hafs_ships_getcenter.x
+  fi 
 }
 
 #------------------------------------
@@ -86,15 +93,15 @@ $Build_gsi && {
 # install hycom_utils
 #------------------------------------
 $Build_hycom_utils && {
-  ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
-  ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_get_rtofs                      ../exec/hafs_hycom_utils_get_rtofs.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data3z                   ../exec/hafs_hycom_utils_archv2data3z.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2data2d                   ../exec/hafs_hycom_utils_archv2data2d.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv3z2nc                     ../exec/hafs_hycom_utils_archv3z2nc.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_gfs2ofs2                       ../exec/hafs_hycom_utils_gfs2ofs2.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_rtofs_subregion                ../exec/hafs_hycom_utils_rtofs_subregion.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_archv2restart                  ../exec/hafs_hycom_utils_archv2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_restart2restart                ../exec/hafs_hycom_utils_restart2restart.x
+# ${CP} hafs_hycom_utils.fd/exec/hafs_timeinterp_forcing             ../exec/hafs_hycom_utils_timeinterp_forcing.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf3z                   ../exec/hafs_hycom_utils_archv2ncdf3z.x
   ${CP} hafs_hycom_utils.fd/exec/hafs_archv2ncdf2d                   ../exec/hafs_hycom_utils_archv2ncdf2d.x
 }

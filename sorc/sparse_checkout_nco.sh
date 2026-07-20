@@ -28,14 +28,14 @@ if [ ! -e parm/hafs.conf ]; then
 fi
 
 # By default set sparse-checkout to include everything
-git sparse-checkout set "/*"
-git submodule foreach --recursive 'git sparse-checkout set "/*"'
+git sparse-checkout set --no-cone "/*"
+git submodule foreach --recursive 'git sparse-checkout set --no-cone "/*"'
 
 # Apply sparse-checkout at the HAFS application repository level
-#echo -e "/*\n!/ush/rsync-no-vanished.sh" > ${HOMEhafs}/.git/info/sparse-checkout
+#echo -e "/*\n!/doc/UsersGuide/" > ${HOMEhafs}/.git/info/sparse-checkout
 cat <<EOF > ${HOMEhafs}/.git/info/sparse-checkout
 /*
-!/ush/rsync-no-vanished.sh
+!/doc/UsersGuide/
 EOF
 #submodule UFS_UTILS
 #echo -e "/*\n!/docs/\n!/driver_scripts/\n!/fix/\n!/parm/\n!/reg_tests/\n!/scripts/\n!/tests/\n!/ush/" > ${HOMEhafs}/.git/modules/UFS_UTILS/info/sparse-checkout
@@ -55,36 +55,53 @@ cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/info/sparse-checkout
 /*
 !/doc/
 !/tests/logs/
+!/tests-dev/
 EOF
-#submodule ufs-weather-model/FV3
-cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/FV3/info/sparse-checkout
+#submodule ufs-weather-model/UFSATM
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/info/sparse-checkout
+/*
+!/docs/
+!/tests/
+EOF
+#submodule ufs-weather-model/UFSATM/fv3/atmos_cubed_sphere
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/fv3/atmos_cubed_sphere/info/sparse-checkout
 /*
 !/docs/
 EOF
-#submodule ufs-weather-model/FV3/atmos_cubed_sphere
-cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/FV3/modules/atmos_cubed_sphere/info/sparse-checkout
+#submodule ufs-weather-model/UFSATM/mpas/MPAS-Model
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/mpas/MPAS-Model/info/sparse-checkout
 /*
 !/docs/
 EOF
-#submodule ufs-weather-model/FV3/ccpp/physics
-cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/FV3/modules/ccpp/physics/info/sparse-checkout
+#submodule ufs-weather-model/UFSATM/ccpp/physics
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/ccpp/physics/info/sparse-checkout
 /*
 !/physics/docs/
 EOF
-#submodule ufs-weather-model/FV3/ccpp/framework
-cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/FV3/modules/ccpp/framework/info/sparse-checkout
+#submodule ufs-weather-model/UFSATM/ccpp/physics/physics/Radiation/RRTMGP/rte-rrtmgp
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/ccpp/physics/modules/physics/Radiation/RRTMGP/rte-rrtmgp/info/sparse-checkout
 /*
-!/test/
+!/doc/
+!/tests/
+!/examples/
+EOF
+#submodule ufs-weather-model/UFSATM/ccpp/physics/physics/MP/TEMPO/TEMPO
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/ccpp/physics/modules/physics/MP/TEMPO/TEMPO/info/sparse-checkout
+/*
+!/tests/
+EOF
+#submodule ufs-weather-model/UFSATM/ccpp/framework
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/ccpp/framework/info/sparse-checkout
+/*
+!/doc/
 !/test_prebuild/
 EOF
-#submodule ufs-weather-model/FV3/upp
-cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/FV3/modules/upp/info/sparse-checkout
+#submodule ufs-weather-model/UFSATM/upp
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/UFSATM/modules/upp/info/sparse-checkout
 /*
 !/doc/
 !/fix/
-!/jobs/
-!/scripts/
-!/ush/
+!/tests/logs/
 EOF
 #submodule ufs-weather-model/stochastic_physics
 cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/stochastic_physics/info/sparse-checkout
@@ -97,6 +114,12 @@ cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/MOM6/info/sparse-
 /*
 !/docs/
 EOF
+#submodule ufs-weather-model/MOM6/pkg/CVMix-src
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/MOM6/modules/pkg/CVMix-src/info/sparse-checkout
+/*
+!/doc/
+!/reg_tests/
+EOF
 #submodule ufs-weather-model/WW3
 cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/WW3/info/sparse-checkout
 /*
@@ -107,6 +130,11 @@ cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/WW3/info/sparse-c
 EOF
 #submodule ufs-weather-model/CICE
 cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/CICE/info/sparse-checkout
+/*
+!/doc/
+EOF
+#submodule ufs-weather-model/CICE/icepack
+cat <<EOF > ${HOMEhafs}/.git/modules/ufs-weather-model/modules/CICE/modules/icepack/info/sparse-checkout
 /*
 !/doc/
 EOF

@@ -205,6 +205,8 @@
   sfc_rlm        = @[sfc_rlm_nml]
   tc_pbl         = @[tc_pbl_nml]
   use_lpt        = @[use_lpt]
+  fs_fac_rain    = @[fs_fac_rain]
+  fs_fac_snow    = @[fs_fac_snow]
   random_clds    = .false.
   trans_trac     = .true.
   cnvcld         = .true.
@@ -221,6 +223,10 @@
   betascu        = @[betascu]
   betamcu        = @[betamcu]
   betadcu        = @[betadcu]
+  cat_adj_deep   = @[cat_adj_deep]
+  cat_adj_shal   = @[cat_adj_shal]
+  scale_fac_opt  = @[scale_fac_opt]
+  icu_zoentr     = @[icu_zoentr]
   cdmbgwd        = 1.0,1.0,1.0,1.0
   sfc_z0_type    = 6
   prslrd0        = 0.
@@ -250,13 +256,14 @@
   cplflx         = @[cplflx]
   cplice         = .false.
   cplocn2atm     = @[cplocn2atm]
-  icplocn2atm    = @[icplocn2atm]
+  use_oceanuv    = @[use_oceanuv]
   cplwav         = @[cplwav]
   cplwav2atm     = @[cplwav2atm]
   cpl_imp_mrg    = @[merge_import]
   psautco        = 0.0008, 0.0005
   prautco        = 0.00015, 0.00015
   iau_delthrs    = @[iau_delthrs]
+  iau_filter_increments = @[iau_filter_increments]
   iaufhrs        = @[iaufhrs]
   iau_inc_files  = @[iau_inc_files]
   iau_regional   = @[iau_regional]
@@ -264,6 +271,18 @@
   iau_drymassfixer = .false.
   lgfdlmprad     = @[lgfdlmprad]
   effr_in        = .true.
+  do_RRTMGP      = @[do_rrtmgp]
+  active_gases   = 'h2o_co2_o3_n2o_ch4_o2'
+  ngases         = 6
+  lw_file_gas    = 'rrtmgp-gas-lw-g078.nc'
+  lw_file_clouds = 'rrtmgp-cloud-optics-coeffs-lw.nc'
+  sw_file_gas    = 'rrtmgp-gas-sw-g075.nc'
+  sw_file_clouds = 'rrtmgp-cloud-optics-coeffs-sw.nc'
+  rrtmgp_nGptsSW = 75
+  rrtmgp_nGptsLW = 78
+  rrtmgp_nBandsLW = 16
+  rrtmgp_nBandsSW = 14
+  doGP_lwscat    = .true.
   do_sppt        = @[do_sppt]
   do_shum        = @[do_shum]
   do_skeb        = @[do_skeb]
@@ -397,7 +416,7 @@
   de_ice = .false.
   fix_negative = .true.
   icloud_f = 1
-  mp_time = 90.
+  mp_time = @[dt_inner]
 /
 
 &interpolator_nml
@@ -488,7 +507,7 @@
 
 &MOM_input_nml
   output_directory = 'OUTPUT',
-  input_filename = 'n'
+  input_filename = '@[input_filename]'
   restart_input_dir = 'INPUT',
   restart_output_dir = 'RESTART',
   parameter_filename = 'MOM_input'

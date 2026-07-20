@@ -1,4 +1,4 @@
-## This is the system-specific configuration file for jet
+## This is the system-specific configuration file for gaeac6
 [config]
 ## Project disk area
 disk_project=drsa-hurr1
@@ -48,5 +48,4 @@ quilting_restart=.false.
 
 [holdvars]
 WHERE_AM_I=gaeac6
-WHICH_JET=none
 

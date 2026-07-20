@@ -19,6 +19,7 @@
 #      04/2024: Enable the atmosphere-only forecast job restart capability
 #      05/2024: Improvements (error/stdout/stderr handling) for HAFSv2 upgrade
 #      07/2024: Add 3DIAU related capabilities for HAFS regional configuration
+#      04/2020: Remove support for HYCOM ocean coupling
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -33,16 +34,12 @@ dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo ${CDATE} | cut -c9-10)
 
 PARMforecast=${PARMforecast:-${PARMhafs}/forecast/regional}
-PARMhycom=${PARMhycom:-${PARMhafs}/hycom/regional}
 PARMmom6=${PARMmom6:-${PARMhafs}/mom6/regional}
 PARMww3=${PARMww3:-${PARMhafs}/ww3/regional}
 FIXam=${FIXam:-${FIXhafs}/fix_am}
 FIXcrtm=${FIXcrtm:-${CRTM_FIX:?}}
-FIXhycom=${FIXhycom:-${FIXhafs}/fix_hycom}
 FIXmom6=${FIXmom6:-${FIXhafs}/fix_mom6}
-if [ ${ocean_model} = "hycom" ]; then
-  FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_hycom.x}
-else
+if [ ${ocean_model} = "mom6" ]; then
   FORECASTEXEC=${FORECASTEXEC:-${EXEChafs}/hafs_forecast_mom6.x}
 fi
 
@@ -83,6 +80,7 @@ if [ "${ENSDA}" = YES ]; then
   nstf_n5=${nstf_n5_ens:-$nstf_n5}
   dt_atmos=${dt_atmos_ens:-90}
   restart_interval=${restart_interval_ens:-6}
+  restart_fh=${restart_fh_ens:-6}
   quilting=${quilting_ens:-.true.}
   write_groups=${write_groups_ens:-3}
   write_tasks_per_group=${write_tasks_per_group_ens:-72}
@@ -199,8 +197,9 @@ fi
 
 # Set default options for IAU
 iau_inc_files=","
-iau_delthrs=6
-iaufhrs=0
+iau_filter_increments=${iau_filter_increments:-.true.}
+iau_delthrs=${iau_delthrs:-2}
+iaufhrs=${iaufhrs:-0}
 
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
@@ -354,9 +353,14 @@ if [ ${warmstart_from_restart} = yes ]; then
   warm_start=.true.
 fi
 
+# For now, automatically turn off WW3 coupling if warmstart from middle of forecast
+if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
+  echo "WARNING: Warmstart forecast, set run_wave=no"
+  export run_wave=no
+fi
 # Ocean coupling related settings
 run_ocean=${run_ocean:-no}
-ocean_model=${ocean_model:-hycom}
+ocean_model=${ocean_model:-mom6}
 run_wave=${run_wave:-no}
 wave_model=${wave_model:-ww3}
 cpl_atm_ocn=${cpl_atm_ocn:-cmeps_2way}
@@ -368,7 +372,7 @@ med_tasks=${med_tasks:-${ocn_tasks}}
 dat_tasks=${dat_tasks:-${ocn_tasks}}
 cplflx=${cplflx:-.false.}
 cplocn2atm=${cplocn2atm:-.true.}
-icplocn2atm=${icplocn2atm:-0}
+use_oceanuv=${use_oceanuv:-.false.}
 cplwav=${cplwav:-.false.}
 cplwav2atm=${cplwav2atm:-.false.}
 INPUT_WNDFLD=${INPUT_WNDFLD:-"C F"}
@@ -445,74 +449,6 @@ fi
 
 ATM_petlist_bounds=$(printf "ATM_petlist_bounds: %04d %04d" 0 $(($ATM_tasks-1)))
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} != yes ]; then
-
-ATM_model_component="ATM_model: fv3"
-WAV_model_component=""
-ATM_model_attribute="ATM_model = fv3"
-WAV_model_attribute=""
-OCN_model_component="OCN_model: ${ocean_model}"
-OCN_model_attribute="OCN_model = ${ocean_model}"
-
-OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
-
-# NUOPC based coupling options
-if [[ $cpl_atm_ocn = "nuopc"* ]]; then
-  EARTH_component_list="EARTH_component_list: ATM OCN"
-  MED_model_component=""
-  MED_model_attribute=""
-  MED_petlist_bounds=""
-  # NUOPC based atm-ocn side by side run (no coupling)
-  if [ $cpl_atm_ocn = nuopc_sidebyside ]; then
-    cplflx=.true.
-    cplocn2atm=.false.
-    runSeq_ALL="ATM\n OCN"
-  # direct coupling through the nearest point regridding method
-  elif [ $cpl_atm_ocn = nuopc_nearest ]; then
-    cplflx=.true.
-    cplocn2atm=.true.
-    runSeq_ALL="OCN -> ATM :remapMethod=nearest_stod:srcmaskvalues=0\n ATM -> OCN :remapMethod=nearest_stod:srcmaskvalues=1:dstmaskvalues=0\n ATM\n OCN"
-  # direct coupling through the bilinear regridding method
-  elif [ $cpl_atm_ocn = nuopc_bilinear ]; then
-    cplflx=.true.
-    cplocn2atm=.true.
-    runSeq_ALL="OCN -> ATM :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=0\n ATM -> OCN :remapMethod=bilinear:unmappedaction=ignore:zeroregion=select:srcmaskvalues=1:dstmaskvalues=0\n ATM\n OCN"
-  fi
-# CMEPS based coupling options
-elif [[ $cpl_atm_ocn = "cmeps"* ]]; then
-  EARTH_component_list="EARTH_component_list: ATM OCN MED"
-  MED_model_component="MED_model: cmeps"
-  MED_model_attribute="MED_model=cmeps"
-  MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
-  # CMEPS based two-way coupling
-  if [ $cpl_atm_ocn = cmeps_2way ]; then
-    cplflx=.true.
-    cplocn2atm=.true.
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN"
-  # CMEPS based one-way coupling from atm to ocn only
-  elif [ $cpl_atm_ocn = cmeps_1way_1to2 ]; then
-    cplflx=.true.
-    cplocn2atm=.false.
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> OCN :remapMethod=redist\n ATM\n OCN"
-  # CMEPS based one-way coupling from ocn to atm only
-  elif [ $cpl_atm_ocn = cmeps_1way_2to1 ]; then
-    cplflx=.true.
-    cplocn2atm=.true.
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n MED med_phases_prep_atm\n MED -> ATM :remapMethod=redist\n ATM\n OCN"
-  # CMEPS based atm-ocn side by side run (no coupling)
-  elif [ $cpl_atm_ocn = cmeps_sidebyside ]; then
-    cplflx=.true.
-    cplocn2atm=.false.
-    runSeq_ALL="ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n OCN -> MED :remapMethod=redist\n MED med_phases_post_ocn\n ATM\n OCN"
-  fi
-# Currently unsupported coupling option combinations
-else
-  echo "FATAL ERROR: Unsupported coupling option: cpl_atm_ocn=${cpl_atm_ocn}"
-  exit 9
-fi
-
-fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} != yes ]; then
-
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_wave} != yes ]; then
 
 ATM_model_component="ATM_model: fv3"
@@ -530,7 +466,7 @@ if [[ $cpl_atm_ocn = "cmeps"* ]]; then
   MED_model_component="MED_model: cmeps"
   MED_model_attribute="MED_model=cmeps"
   MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
-  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn"
+  runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n ATM\n OCN\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_restart_write"
   # CMEPS based two-way coupling
   if [ $cpl_atm_ocn = cmeps_2way ]; then
     cplflx=.true.
@@ -616,83 +552,6 @@ fi
 
 fi #if [ ${run_ocean} != yes ] && [ ${run_wave} = yes ]; then
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ] && [ ${run_wave} = yes ]; then
-EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
-ATM_model_component="ATM_model: fv3"
-OCN_model_component="OCN_model: ${ocean_model}"
-WAV_model_component="WAV_model: ww3"
-MED_model_component="MED_model: cmeps"
-ATM_model_attribute="ATM_model = fv3"
-OCN_model_attribute="OCN_model = ${ocean_model}"
-WAV_model_attribute="WAV_model = ww3"
-MED_model_attribute="MED_model = cmeps"
-
-OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$ocn_tasks-1)))
-MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
-WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$ocn_tasks)) $(($ATM_tasks+$ocn_tasks+$wav_tasks-1)))
-
-# NUOPC based atm-ocn-wav side by side run
-# Currently, this is the only supported non-CMEPS based configuration for the three component system.
-# And this configuration can bitwisely reproduce the CMEPS based sidebyside configuration result (cpl_atm_ocn = cmeps_sidebyside and cpl_atm_wav = cmeps_sidebyside)
-if [ $cpl_atm_ocn = nuopc_sidebyside ] && [ $cpl_atm_wav = nuopc_sidebyside ]; then
-  EARTH_component_list="EARTH_component_list: ATM OCN WAV"
-  MED_model_component=""
-  MED_model_attribute=""
-  MED_petlist_bounds=""
-  cplflx=.true.
-  cplocn2atm=.false.
-  cplwav=.true.
-  cplwav2atm=.false.
-  INPUT_WNDFLD="T F"
-  runSeq_ALL="ATM\n OCN\n WAV"
-# CMEPS based two-way atm-ocn and atm-wav coupling
-elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
-  cplflx=.true.
-  cplocn2atm=.true.
-  cplwav=.true.
-  cplwav2atm=.true.
-  INPUT_WNDFLD="C F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
-# CMEPS based two-way atm-ocn coupling and one-way atm-wav coupling from atm to wav only
-elif [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
-  cplflx=.true.
-  cplocn2atm=.true.
-  cplwav=.true.
-  cplwav2atm=.false.
-  INPUT_WNDFLD="C F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
-# CMEPS based one-way atm-ocn coupling from atm to ocn only and two-way atm-wav coupling
-elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_2way ]; then
-  cplflx=.true.
-  cplocn2atm=.false.
-  cplwav=.true.
-  cplwav2atm=.true.
-  INPUT_WNDFLD="C F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
-# CMEPS based one-way atm-ocn coupling from atm to ocn only and one-way atm-wav coupling from atm to wav only
-elif [ $cpl_atm_ocn = cmeps_1way_1to2 ] && [ $cpl_atm_wav = cmeps_1way_1to2 ]; then
-  cplflx=.true.
-  cplocn2atm=.false.
-  cplwav=.true.
-  cplwav2atm=.false.
-  INPUT_WNDFLD="C F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
-# CMEPS based atm-ocn-wav side by side run
-elif [ $cpl_atm_ocn = cmeps_sidebyside ] && [ $cpl_atm_wav = cmeps_sidebyside ]; then
-  cplflx=.true.
-  cplocn2atm=.false.
-  cplwav=.true.
-  cplwav2atm=.false.
-  INPUT_WNDFLD="T F"
-  runSeq_ALL="MED med_phases_prep_atm\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
-# Currently unsupported coupling option combinations
-else
-  echo "FATAL ERROR: Unsupported coupling options: cpl_atm_ocn=${cpl_atm_ocn}; cpl_atm_wav=${cpl_atm_wav}"
-  exit 9
-fi
-
-fi #if [ ${run_ocean} = yes ] && [${ocean_model}=hycom] && [ ${run_wave} = yes ]; then
-
 if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ] && [ ${run_wave} = yes ]; then
 
 EARTH_component_list="EARTH_component_list: ATM OCN WAV MED"
@@ -709,7 +568,7 @@ OCN_petlist_bounds=$(printf "OCN_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_t
 MED_petlist_bounds=$(printf "MED_petlist_bounds: %04d %04d" $ATM_tasks $(($ATM_tasks+$med_tasks-1)))
 WAV_petlist_bounds=$(printf "WAV_petlist_bounds: %04d %04d" $(($ATM_tasks+$ocn_tasks)) $(($ATM_tasks+$ocn_tasks+$wav_tasks-1)))
 
-runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav"
+runSeq_ALL="MED med_phases_cdeps_run\n MED med_phases_prep_atm\n MED med_phases_ocnalb_run\n MED med_phases_prep_ocn_accum\n MED med_phases_prep_ocn_avg\n MED med_phases_prep_wav_accum\n MED med_phases_prep_wav_avg\n MED -> ATM :remapMethod=redist\n MED -> OCN :remapMethod=redist\n MED -> WAV :remapMethod=redist\n ATM\n OCN\n WAV\n ATM -> MED :remapMethod=redist\n OCN -> MED :remapMethod=redist\n WAV -> MED :remapMethod=redist\n MED med_phases_post_atm\n MED med_phases_post_ocn\n MED med_phases_post_wav\n MED med_phases_restart_write"
 # CMEPS based two-way atm-ocn and atm-wav coupling
 if [ $cpl_atm_ocn = cmeps_2way ] && [ $cpl_atm_wav = cmeps_2way ]; then
   cplflx=.true.
@@ -857,6 +716,15 @@ ${NLN} $FIXam/global_shdmin.0.144x0.144.grb .
 ${NLN} $FIXam/global_shdmax.0.144x0.144.grb .
 ${NLN} $FIXam/global_slope.1x1.grb .
 ${NLN} $FIXam/global_mxsnoalb.uariz.t1534.3072.1536.rg.grb .
+
+if [ ${do_rrtmgp:-.false.} = .true. ]; then
+# ${NLN} $FIXam/rrtmgp-data-lw-g128-210809.nc .
+# ${NLN} $FIXam/rrtmgp-data-sw-g112-210809.nc .
+  ${NLN} $FIXam/rrtmgp-gas-lw-g078.nc .
+  ${NLN} $FIXam/rrtmgp-gas-sw-g075.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-lw.nc .
+  ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-sw.nc .
+fi
 
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
@@ -1164,13 +1032,20 @@ if [ ${FORECAST_RESTART} = YES ] && [[ ${FORECAST_RESTART_HR} -gt 0 ]]; then
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
-  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
-  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
-  # fi
-  # if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
-  #   ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
-  # fi
+    if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
+      ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
+    fi
+    if [ -e ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ]; then
+      ${NLN} ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.fv_BC_sw.res.nest$(printf %02d ${n}).nc ./fv_BC_sw.res.nest$(printf %02d ${n}).nc
+    fi
   done
+# # Set MOM6 warmstart option and prepare MOM6 restart files
+# if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
+#   input_filename='r'
+#   for mres in ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res.nc ${RESTARTout}/${RESTARTymd}.${RESTARThh}0000.MOM.res_*.nc; do
+#     ncks --no-abc -A ${mres} MOM.res.nc
+#   done
+# fi
 fi
 
 cd ..
@@ -1192,13 +1067,7 @@ ${NCP} ${PARMforecast}/model_configure.tmp .
 # NoahMP table file
 ${NCP} ${PARMforecast}/noahmptable.tbl .
 
-if [ ${ocean_model} = hycom ]; then
-  if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
-    ${NCP} ${PARMforecast}/ufs.configure.cpl.tmp ./ufs.configure.tmp
-  else
-    ${NCP} ${PARMforecast}/ufs.configure.atmonly ./ufs.configure.tmp
-  fi
-elif [ ${ocean_model} = mom6 ]; then
+if [ ${ocean_model} = mom6 ]; then
   if [ ${run_ocean} = yes ] || [ ${run_wave} = yes ]; then
     ${NCP} ${PARMforecast}/ufs.configure.mom6.tmp ./ufs.configure.tmp
     ${NCP} ${PARMforecast}/data_table ./
@@ -1351,9 +1220,9 @@ for n in $(seq 2 ${nest_grids}); do
   blocksize=$(( ${npy_nml}/${layouty_nml} ))
   if [ ${RUN_GSI:-NO} = "YES" ] && [ ${GSI_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
-    iau_inc_files="analysis_inc_nest0${inest}.nc"
+    iau_inc_files="analysis_inc_nest0${inest}.tile${inest}.nc"
     # Linking increment file
-    ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/
+    ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/${iau_inc_files}
   fi
   atparse < input_nest.nml.tmp > input_nest0${inest}.nml
 done
@@ -1414,51 +1283,13 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
 
   # MOM_input
   ${NCP} ${PARMmom6}/hafs_mom6_${RUN}.input.IN ./hafs_mom6.input.IN
-  niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
-  njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
+  niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": longitude, size =" | cut -f 7 -d ' ' | uniq)
+  njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": latitude, size =" | cut -f 7 -d ' ' | uniq)
+  #niglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lonh, size =" | cut -f 7 -d ' ' | uniq)
+  #njglobal=$(ncks --trd -m INPUT/ocean_ts_ic.nc | grep -E -i ": lath, size =" | cut -f 7 -d ' ' | uniq)
   atparse < ./hafs_mom6.input.IN > ./MOM_input
 
 fi # if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
-
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
-  # link hycom related files
-  ${NLN} ${WORKhafs}/intercom/hycominit/hycom_settings hycom_settings
-  hycom_basin=$(grep RUNmodIDout ./hycom_settings | cut -c20-)
-  # link IC/BC
-  ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.a restart_in.a
-  ${NLN} ${WORKhafs}/intercom/hycominit/restart_out.b restart_in.b
-  # link forcing
-  ${RLN} ${WORKhafs}/intercom/hycominit/forcing* .
-  ${NLN} forcing.presur.a forcing.mslprs.a
-  ${NLN} forcing.presur.b forcing.mslprs.b
-  # link hycom limits
-  ${NLN} ${WORKhafs}/intercom/hycominit/limits .
-  # link fix
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.a regional.depth.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.depth.b regional.depth.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.a regional.grid.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.regional.grid.b regional.grid.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.a forcing.chl.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.forcing.chl.b forcing.chl.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.a iso.sigma.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.iso.sigma.b iso.sigma.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.a relax.ssh.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.ssh.b relax.ssh.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.a tbaric.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.tbaric.b tbaric.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.a thkdf4.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.thkdf4.b thkdf4.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.a veldf2.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf2.b veldf2.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.a veldf4.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.veldf4.b veldf4.b
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.a relax.rmu.a
-  ${NLN} ${FIXhycom}/hafs_${hycom_basin}.basin.relax.rmu.b relax.rmu.b
-  # copy parms
-  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.fcst.blkdat.input blkdat.input
-  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.ports.input ports.input
-  ${NCP} ${PARMhycom}/hafs_${hycom_basin}.basin.patch.input.${ocn_tasks} patch.input
-fi #if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
 
 if [ ${run_wave} = yes ]; then
   # link ww3 related files
@@ -1613,6 +1444,8 @@ FHMAX=${NHRS}
 FHROT=${FHROT:-${FORECAST_RESTART_HR:-0}}
 DT_ATMOS=${dt_atmos}
 RESTART_INTERVAL=${restart_interval}
+RESTART_FH=${restart_fh:-${restart_interval}}
+input_filename=${input_filename:-n}
 QUILTING=${quilting}
 QUILTING_RESTART=${quilting_restart:-${quilting}}
 #QUILTING_RESTART=.false.
@@ -1838,19 +1671,6 @@ if [ ${run_ocean} = yes ] && [ ${ocean_model} = mom6 ]; then
   fi
 fi
 
-if [ ${run_ocean} = yes ] && [ ${ocean_model} = hycom ]; then
-  # Use date2jday.sh from prod_util to get julian day
-  JDAY=$(date2jday.sh ${YYYY}${MM}${DD} | cut -c5-)
-  if [ $FHR -gt 0 ] ; then
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archs.${YYYY}_${JDAY}_${HH}.txt ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.a ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.b ./
-    ${RLN} ${OUTdir}/archv.${YYYY}_${JDAY}_${HH}.txt ./
-  fi
-fi
-
 # Clean up previously generated post, ocnpost, and gempak related files when appropriate
 gridstr=$(echo ${out_gridnames} | cut -d, -f ${ng})
 if [ "${gridstr}" = "parent" ]; then
@@ -1911,7 +1731,7 @@ hhnhrs=$(echo ${CDATEnhrs} | cut -c9-10)
 if [ -s ${YMDnhrs}.${hhnhrs}*.fv_core.res.nc ]; then
   for file in $(/bin/ls -1 ${YMDnhrs}.${hhnhrs}*.fv*.nc* ${YMDnhrs}.${hhnhrs}*.phy_data*.nc* ${YMDnhrs}.${hhnhrs}*.sfc_data*.nc* ${YMDnhrs}.${hhnhrs}*.coupler.res); do
     if [ ! -s ${YMDnhrs}.${hhnhrs}0000.${file:16} ]; then
-      mv ${file} ${YMDnhrs}.${hhnhrs}0000.${file:16}
+      ${NMV} ${file} ${YMDnhrs}.${hhnhrs}0000.${file:16}
     fi
   done
   if [ ${RUN_INIT:-NO} = YES ]; then

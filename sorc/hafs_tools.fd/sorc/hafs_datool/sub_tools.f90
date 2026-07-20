@@ -319,7 +319,7 @@
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_yt, grid_src%grid_latt, grid_src%grid_lont, &
                           grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
                           x_oini, y_oini)
-  if ( debug_level > 10 ) then
+  if ( my_proc_id == 0 .and. debug_level > 10 ) then
      write(*,'(a)')' ---    i     j        lon        lat          x          y m(i,j)_lon m(i,j)_lat '
      write(*,'(a3,2i6)')' t:', i, j
      write(*,'(a3,2i6, 2f11.2,2i11, 2f11.2)')' t:', i, j, grid_dst%grid_lont(i,j), grid_dst%grid_latt(i,j), x_oini(i,j), y_oini(i,j), &
@@ -335,6 +335,7 @@
                        grid_dst%grid_xt, grid_dst%grid_yt, grid_dst%grid_latt, grid_dst%grid_lont, &
                        x_oini, y_oini, gwt%max_points, gwt%gwt_t)
   deallocate(x_oini, y_oini)
+  if ( my_proc_id == 0 .and. debug_level > 30 ) &
   write(*,'(a,30i6)')'    gwt%gwt_t @ ', i, j, gwt%gwt_t(i,j)%src_points, gwt%gwt_t(i,j)%src_x(1:gwt%gwt_t(i,j)%src_points), &
                      gwt%gwt_t(i,j)%src_y(1:gwt%gwt_t(i,j)%src_points)
 
@@ -343,7 +344,7 @@
   !               dst_weight*sum(gwt%gwt_t(i,j)%dst_weight(:)*DSTVAR(gwt%gwt_t(i,j)%dst_x(:),gwt%gwt_t(i,j)%dst_y(:)))
 
   !---4.2, U-grid (grid_dst%grid_xt, grid_dst%grid_y)
-  write(*,'(a)')'---- processing u-cell ----'
+  if ( my_proc_id == 0 ) write(*,'(a)')'---- processing u-cell ----'
   allocate(x_oini(grid_dst%grid_xt, grid_dst%grid_y), y_oini(grid_dst%grid_xt, grid_dst%grid_y))
   allocate(lon_src(grid_src%grid_xt, grid_src%grid_y), lat_src(grid_src%grid_xt, grid_src%grid_y))
   if ( grid_src%grid_x-grid_src%grid_xt >= 1 ) then
@@ -369,28 +370,29 @@
      lat_dst(1:grid_dst%grid_xt,1:grid_dst%grid_y) = grid_dst%grid_lat(1:grid_dst%grid_xt,1:grid_dst%grid_y)
   endif
 
-  !if (debug) then
-  write(*,'(a,2i8,4f10.3)')'src grid_lat: ', grid_src%grid_x , grid_src%grid_y, grid_src%grid_lat(1,1), &
+  if ( debug_level > 30 ) then
+     write(*,'(a,2i8,4f10.3)')'src grid_lat: ', grid_src%grid_x , grid_src%grid_y, grid_src%grid_lat(1,1), &
                            grid_src%grid_lat(grid_src%grid_x,1), grid_src%grid_lat(grid_src%grid_x,grid_src%grid_y), &
                            grid_src%grid_lat(1,grid_src%grid_y)
-  write(*,'(a,2i8,4f10.3)')'src    u lat: ', grid_src%grid_xt, grid_src%grid_y, lat_src(1,1),lat_src(grid_src%grid_xt,1), &
+     write(*,'(a,2i8,4f10.3)')'src    u lat: ', grid_src%grid_xt, grid_src%grid_y, lat_src(1,1),lat_src(grid_src%grid_xt,1), &
                            lat_src(grid_src%grid_xt,grid_src%grid_y), lat_src(1,grid_src%grid_y)
-  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src  grid range:',minval(grid_src%grid_lon),':',maxval(grid_src%grid_lon), &
+     write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src  grid range:',minval(grid_src%grid_lon),':',maxval(grid_src%grid_lon), &
                            '; ',minval(grid_src%grid_lat),':',maxval(grid_src%grid_lat)
-  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src u-grid range:',minval(lon_src),':',maxval(lon_src),'; ',minval(lat_src),':',maxval(lat_src)
-  write(*,'(a,2i8,4f10.3)')'dst grid_lat: ', grid_dst%grid_x , grid_dst%grid_y, grid_dst%grid_lat(1,1), &
+     write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'src u-grid range:',minval(lon_src),':',maxval(lon_src),'; ',minval(lat_src),':',maxval(lat_src)
+     write(*,'(a,2i8,4f10.3)')'dst grid_lat: ', grid_dst%grid_x , grid_dst%grid_y, grid_dst%grid_lat(1,1), &
                            grid_dst%grid_lat(grid_dst%grid_x,1), grid_dst%grid_lat(grid_dst%grid_x,grid_dst%grid_y), &
                            grid_dst%grid_lat(1,grid_dst%grid_y)
-  write(*,'(a,2i8,4f10.3)')'dst    u lat: ', grid_dst%grid_xt, grid_dst%grid_y, lat_dst(1,1),lat_dst(grid_dst%grid_xt,1),&
+     write(*,'(a,2i8,4f10.3)')'dst    u lat: ', grid_dst%grid_xt, grid_dst%grid_y, lat_dst(1,1),lat_dst(grid_dst%grid_xt,1),&
                            lat_dst(grid_dst%grid_xt,grid_dst%grid_y), lat_dst(1,grid_dst%grid_y)
-  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst  grid range:',minval(grid_dst%grid_lon),':',maxval(grid_dst%grid_lon), &
+     write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst  grid range:',minval(grid_dst%grid_lon),':',maxval(grid_dst%grid_lon), &
                            '; ',minval(grid_dst%grid_lat),':',maxval(grid_dst%grid_lat)
-  write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst u-grid range:',minval(lon_dst),':',maxval(lon_dst),'; ',minval(lat_dst),':',maxval(lat_dst)
-  !endif !if (debug) then
+     write(*,'(a,f7.2,a,f7.2,a,f7.2,a,f7.2)')'dst u-grid range:',minval(lon_dst),':',maxval(lon_dst),'; ',minval(lat_dst),':',maxval(lat_dst)
+  endif
 
   call search_nearst_grid(grid_src%grid_xt, grid_src%grid_y, lat_src, lon_src, &
                           grid_dst%grid_xt, grid_dst%grid_y, lat_dst, lon_dst, x_oini, y_oini)
 
+  if ( my_proc_id == 0 .and. debug_level > 30 ) &
   write(*,'(a3, 2i6, 2f11.2,2i11)')' u:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j)
 
   allocate(gwt%gwt_u(grid_dst%grid_xt, grid_dst%grid_y))  !grid_weight_info
@@ -399,7 +401,7 @@
   deallocate(x_oini, y_oini, lon_src, lat_src, lon_dst, lat_dst)
 
   !---4.3, V-grid
-  write(*,'(a)')'---- processing v-cell ----'
+  if ( my_proc_id == 0 ) write(*,'(a)')'---- processing v-cell ----'
   allocate(x_oini(grid_dst%grid_x, grid_dst%grid_yt), y_oini(grid_dst%grid_x, grid_dst%grid_yt))
   allocate(lon_src(grid_src%grid_x, grid_src%grid_yt), lat_src(grid_src%grid_x , grid_src%grid_yt))
   if ( grid_src%grid_y-grid_src%grid_yt >= 1 ) then
@@ -425,6 +427,7 @@
   call search_nearst_grid(grid_src%grid_x, grid_src%grid_yt, lat_src, lon_src, &
                           grid_dst%grid_x, grid_dst%grid_yt, lat_dst, lon_dst, x_oini, y_oini)
 
+  if ( my_proc_id == 0 .and. debug_level > 30 ) &
   write(*,'(a3,2i6, 2f11.2,2i11)')' v:', i, j, lon_dst(i,j), lat_dst(i,j), x_oini(i,j), y_oini(i,j)
 
   allocate(gwt%gwt_v(grid_dst%grid_x, grid_dst%grid_yt))  !grid_weight_info
@@ -495,6 +498,8 @@
   subroutine search_nearst_grid(src_ix, src_jx, src_lat, src_lon, dst_ix, dst_jx, &
              dst_lat, dst_lon, dst_in_src_x, dst_in_src_y)
 
+  use module_mpi
+  use var_type
   implicit none
 
   integer, intent(in)                  :: src_ix, src_jx, dst_ix, dst_jx
@@ -535,11 +540,11 @@
 
   ll_ix = int((max_lon - min_lon)/d_ll) + 1
   ll_jx = int((max_lat - min_lat)/d_ll) + 1
-  write(*,'(a,f,i )')'ll bin size d_ll and max_points:', d_ll, max_points
-  write(*,'(a,3f  )')'min lon for src dst min:', minval(src_lon), minval(dst_lon), min_lon
-  write(*,'(a,3f,i)')'max lon for src dst max:', maxval(src_lon), maxval(dst_lon), max_lon, ll_ix
-  write(*,'(a,3f  )')'min lat for src dst min:', minval(src_lat), minval(dst_lat), min_lat
-  write(*,'(a,3f,i)')'max lat for src dst max:', maxval(src_lat), maxval(dst_lat), max_lat, ll_jx
+  if ( my_proc_id == 0 ) write(*,'(a,f,i )')'ll bin size d_ll and max_points:', d_ll, max_points
+  if ( my_proc_id == 0 ) write(*,'(a,3f  )')'min lon for src dst min:', minval(src_lon), minval(dst_lon), min_lon
+  if ( my_proc_id == 0 ) write(*,'(a,3f,i)')'max lon for src dst max:', maxval(src_lon), maxval(dst_lon), max_lon, ll_ix
+  if ( my_proc_id == 0 ) write(*,'(a,3f  )')'min lat for src dst min:', minval(src_lat), minval(dst_lat), min_lat
+  if ( my_proc_id == 0 ) write(*,'(a,3f,i)')'max lat for src dst max:', maxval(src_lat), maxval(dst_lat), max_lat, ll_jx
   allocate ( ll_lon(ll_ix), ll_lat(ll_jx))
   do i = 1, ll_ix
      ll_lon(i) = min_lon + (i-1)*d_ll
@@ -547,7 +552,7 @@
   do j = 1, ll_jx
      ll_lat(j) = min_lat + (j-1)*d_ll
   enddo
-  write(*,'(a,f10.3,a,f10.3,a,f10.3,a,f10.3)')'search grids: ', ll_lon(1),'-->',ll_lon(ll_ix),' : ', ll_lat(1), '-->', ll_lat(ll_jx)
+  if ( my_proc_id == 0 ) write(*,'(a,f10.3,a,f10.3,a,f10.3,a,f10.3)')'search grids: ', ll_lon(1),'-->',ll_lon(ll_ix),' : ', ll_lat(1), '-->', ll_lat(ll_jx)
 
   !---sign src grids to search bins
   allocate ( src_points(ll_ix,ll_jx))
@@ -555,7 +560,7 @@
   src_points=0
 
   !--- may need halo
-  write(*,'(a)')'---sign src to ll grids'
+  if ( my_proc_id == 0 ) write(*,'(a)')'---sign src to ll grids'
   !$omp parallel do &
   !$omp& private(i,j)
   do j = 1, src_jx; do i = 1, src_ix
@@ -590,7 +595,7 @@
   enddo; enddo
 
   !---search nearest src grid for each dst grid
-  write(*,'(a)')'---search nearest src grid for each dst grid'
+  !write(*,'(a)')'---search nearest src grid for each dst grid'
   !$omp parallel do &
   !$omp& private(i,j)
   do j = 1, dst_jx; do i = 1, dst_ix
@@ -629,7 +634,7 @@
 
   !---clean up
   deallocate(ll_lon, ll_lat, src_points, src_points_lon, src_points_lat)
-  write(*,'(a)')'---search_nearst_grid finished'
+  !write(*,'(a)')'---search_nearst_grid finished'
 
   return
   end subroutine search_nearst_grid
@@ -865,6 +870,7 @@
         if (debug_level>20) write(*,'(a,   5i10)')'--combine_grids_for_remap: ',i,j, gw(i,j)%src_points, gw(i,j)%dst_points, ncount
         if (debug_level>20) write(*,'(a,  90i10)')'--             src_points: ', ((gw(i,j)%src_x(n1), gw(i,j)%src_y(n1)),n1=1,gw(i,j)%src_points)
         if (debug_level>20) write(*,'(a,90e)')    '--             src_weight: ', ((gw(i,j)%src_weight(n1)),n1=1,gw(i,j)%src_points)
+        if (debug_level>=10) then
         write(*,'(a,90e)')    '--             src_values: ', ( fdat_src(gw(i,j)%src_x(n1),gw(i,j)%src_y(n1),k,n),n1=1,gw(i,j)%src_points)
         if ( gw(i,j)%dst_points > 0 ) then
            if (debug_level>20) write(*,'(a,  90i13)')'--             dst_points: ', ((gw(i,j)%dst_x(n1), gw(i,j)%dst_y(n1)),n1=1,gw(i,j)%dst_points)
@@ -874,6 +880,7 @@
            write(*,'(a)')     '--             no dst point'
         endif
         write(*,'(a,e)')    '--          remaped value: ', fdat_out(i,j,k,n)
+        endif
      endif
 
   enddo; enddo; enddo; enddo

@@ -212,6 +212,7 @@ export ccpp_suite_nest={ccpp_suite_nest}
 
 export dt_atmos={dt_atmos}
 export restart_interval={restart_interval}
+export restart_fh={restart_fh}
 export quilting={quilting}
 export write_groups={write_groups}
 export write_tasks_per_group={write_tasks_per_group}
@@ -288,8 +289,11 @@ export lsm={lsm}
 export ialb={ialb}
 export iems={iems}
 export use_lpt={use_lpt}
+export fs_fac_rain={fs_fac_rain}
+export fs_fac_snow={fs_fac_snow}
 export fhswr={fhswr}
 export fhlwr={fhlwr}
+export do_rrtmgp={do_rrtmgp}
 export iaer={iaer}
 export lseaspray={lseaspray}
 export imfshalcnv={imfshalcnv}
@@ -301,6 +305,10 @@ export progsigma={progsigma}
 export betascu={betascu}
 export betamcu={betamcu}
 export betadcu={betadcu}
+export cat_adj_deep={cat_adj_deep}
+export cat_adj_shal={cat_adj_shal}
+export scale_fac_opt={scale_fac_opt}
+export icu_zoentr={icu_zoentr}
 export nstf_n1={nstf_n1}
 export nstf_n2={nstf_n2}
 export nstf_n3={nstf_n3}
@@ -325,6 +333,7 @@ export trak_gridspecs={trak_gridspecs}
 export satpost={satpost}
 export nhcpost={nhcpost}
 export trkd12_combined={trkd12_combined}
+export ships_diag={ships_diag}
 
 # atm_init related items
 export ccpp_suite_regional_init={ccpp_suite_regional_init}
@@ -377,6 +386,7 @@ export nstf_n4_ens={nstf_n4_ens}
 export nstf_n5_ens={nstf_n5_ens}
 export dt_atmos_ens={dt_atmos_ens}
 export restart_interval_ens={restart_interval_ens}
+export restart_fh_ens={restart_fh_ens}
 export quilting_ens={quilting_ens}
 export write_groups_ens={write_groups_ens}
 export write_tasks_per_group_ens={write_tasks_per_group_ens}
@@ -449,6 +459,9 @@ export nhcpost_ens={nhcpost_ens}
 #IAU related options
 export iau_regional={iau_regional}
 export iau_inc_scale={iau_inc_scale}
+export iau_filter_increments={iau_filter_increments}
+export iau_delthrs={iau_delthrs}
+export iaufhrs={iaufhrs}
 
 export run_ocean={run_ocean}
 export ocean_model={ocean_model}
@@ -458,7 +471,7 @@ export cpl_atm_ocn={cpl_atm_ocn}
 export ocn_tasks={ocn_tasks}
 export ocean_start_dtg={ocean_start_dtg}
 export merge_import={merge_import}
-export icplocn2atm={icplocn2atm}
+export use_oceanuv={use_oceanuv}
 
 export run_wave={run_wave}
 export wave_model={wave_model}

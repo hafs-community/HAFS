@@ -191,37 +191,37 @@
 ! 4 --- output
 
 ! 4.1 update 2-D varibales in sfc files if needed
-  call write_nc_real(trim(infile_sfc), 'tsea', ix, iy, 1, 1, 'xaxis_1', 'yaxis_1', '-', 'Time', phis*0+302.15, '-', '-')
+  call write_nc_data(trim(infile_sfc), 'tsea', -999, ix, iy, 1, 1, 'xaxis_1', 'yaxis_1', '-', 'Time', phis*0+302.15, '-', '-')
 
   !call update_hafs_restart(trim(infile_sfc), 'tsea', ix, iy, 1, 1, phis*0+302.15)
 
-  call write_nc_real(trim(infile_tracer), 'sphum', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', q, '-', '-')
+  call write_nc_data(trim(infile_tracer), 'sphum', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', q, '-', '-')
   deallocate(q)
 
   call update_hafs_restart(trim(infile_core), 'phis', ix, iy, 1, 1, phis)
 
   ! --- T
-  call write_nc_real(trim(infile_core), 'T', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', temp, '-', '-')
+  call write_nc_data(trim(infile_core), 'T', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', temp, '-', '-')
   deallocate(temp)
 
-  call write_nc_real(trim(infile_core), 'DZ', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', delz, '-', '-')
+  call write_nc_data(trim(infile_core), 'DZ', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', delz, '-', '-')
   deallocate(delz)
 
-  call write_nc_real(trim(infile_core), 'delp', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', delp, '-', '-')
+  call write_nc_data(trim(infile_core), 'delp', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', delp, '-', '-')
   deallocate(delp)
 
  if ( .not. allocated(ua) ) allocate(ua(ix, iy, iz, 1))
    ua(:,:,:,1)=0.5*(u(:,1:iy,:,1)+u(:,2:iy+1,:,1))
-  call write_nc_real(trim(infile_core), 'ua', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', ua, '-', '-')
+  call write_nc_data(trim(infile_core), 'ua', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', ua, '-', '-')
    deallocate(ua)
-  call write_nc_real(trim(infile_core), 'u', ix, iy+1, iz, 1, 'xaxis_1', 'yaxis_1', 'zaxis_1', 'Time', u, '-', '-')
+  call write_nc_data(trim(infile_core), 'u', -999, ix, iy+1, iz, 1, 'xaxis_1', 'yaxis_1', 'zaxis_1', 'Time', u, '-', '-')
   deallocate(u)
 
  if ( .not. allocated(va) ) allocate(va(ix, iy, iz, 1))
    va(:,:,:,1)=0.5*(v(1:ix,:,:,1)+v(2:ix+1,:,:,1))
-  call write_nc_real(trim(infile_core), 'va', ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', va, '-', '-')
+  call write_nc_data(trim(infile_core), 'va', -999, ix, iy, iz, 1, 'xaxis_1', 'yaxis_2', 'zaxis_1', 'Time', va, '-', '-')
    deallocate(va)
-  call write_nc_real(trim(infile_core), 'v', ix+1, iy, iz, 1, 'xaxis_2', 'yaxis_2', 'zaxis_1', 'Time', v, '-', '-')
+  call write_nc_data(trim(infile_core), 'v', -999, ix+1, iy, iz, 1, 'xaxis_2', 'yaxis_2', 'zaxis_1', 'Time', v, '-', '-')
   deallocate(v)
 
 

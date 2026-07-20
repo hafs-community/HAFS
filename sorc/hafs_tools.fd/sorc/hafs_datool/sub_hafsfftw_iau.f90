@@ -48,12 +48,13 @@
   real, allocatable, dimension(:,:,:,:) :: fdat_anu, fdat_anv, fdat_bgu, fdat_bgv
   real, allocatable, dimension(:,:)     :: cangu, sangu, cangv, sangv
   real, allocatable, dimension(:,:)     :: dat21, dat22, vr, vt, vtr, vrr
+  real, allocatable, dimension(:)       :: dat11
   character(len=nf90_max_name) :: varname  !, dimname
   character(len=50)  :: strrep
   integer            :: anid, bgid, varid, ndims, nvars, xtype, dimids(5), vdim(5), nvarindex
   integer            :: wndsize, nx, ixv, jxv
   real               :: pil, xc, yc, xr, sta, sta1, a, b
-  character(len=3)   :: kxc
+  character(len=50)  :: kxc
 
 !------------------------------------------------------------------------------
 ! 1 --- arg process and parameters
@@ -123,9 +124,17 @@
   !             sfc_data.nc: xaxis_1 = 2880, yaxis_1 = 2400, zaxis_1 = 4
 
   if ( len_trim(out_file) > 3 .and. my_proc_id == io_proc ) then
-     call write_nc_dim(trim(out_file), 'nx', grid%grid_xt)
-     call write_nc_dim(trim(out_file), 'ny', grid%grid_yt)
+     call write_nc_dim(trim(out_file), 'xaxis_1', grid%grid_xt)
+     call write_nc_dim(trim(out_file), 'yaxis_1', grid%grid_yt)
      !call write_nc_dim(trim(out_file), 'nz', nz)
+     allocate( dat11(grid%grid_xt))
+     dat11(1:grid%grid_xt)=[(real(i), i = 1, grid%grid_xt)]
+     call write_nc_data(trim(out_file),'xaxis_1',nf90_int,grid%grid_xt,-1,-1,-1,'xaxis_1','-','-','-', dat11,'-','xaxis_1')
+     deallocate( dat11)
+     allocate( dat11(grid%grid_yt))
+     dat11(1:grid%grid_yt)=[(real(i), i = 1, grid%grid_yt)]
+     call write_nc_data(trim(out_file),'yaxis_1',nf90_int,grid%grid_yt,-1,-1,-1,'yaxis_1','-','-','-', dat11,'-','yaxis_1')
+     deallocate( dat11)
   endif
 
 !------------------------------------------------------------------------------
@@ -177,13 +186,17 @@
         cycle do_input_var_loop
      endif
      if ( len_trim(out_file) > 3 .and. kx > 1 .and. kxdimwrite < 1) then
-        call write_nc_dim(trim(out_file), 'nz', kx)
+        call write_nc_dim(trim(out_file), 'zaxis_1', kx)
+        allocate( dat11(kx))
+        dat11(1:kx)=[(real(i), i = 1, kx)]
+        call write_nc_data(trim(out_file),'zaxis_1',nf90_int,kx,-1,-1,-1,'zaxis_1','-','-','-', dat11,'-','zaxis_1')
+        deallocate( dat11)
         kxdimwrite=1
      endif
-     kxc='nz'; kxo=kx
+     kxc='zaxis_1'; kxo=kx
      if ( kx<=1) then
         kxo=-kx
-        kxc='-  '
+        kxc='-     '
      endif
      !----fwd_radius=380
      fwd_radius=min(fwd_radius,int(ix/2-1), int(jx/2-1))
@@ -338,10 +351,7 @@
               enddo
               enddo
               enddo
-            ! call write_nc_real(trim(out_file),'u_inc',ix,jx-1,kx,-1,'nx','ny','nz','-', &
-            !                     0.5*(fdat_incru(1:ix,1:jx-1,1:kx,1)+fdat_incru(1:ix,2:jx,1:kx,1)),'m/s','u_inc')
-              call write_nc_real(trim(out_file),'u_inc',ix,jx-1,kx,-1,'nx','ny','nz','-', &
-                                 tmp4d,'m/s','u_inc')
+              call write_nc_data(trim(out_file),'u_inc',-9,ix,jx-1,kx,-1,'xaxis_1','yaxis_1','zaxis_1','-', tmp4d,'m/s','u_inc')
               do k = 1, kx
               do j = 1, jx-1
               do i = 1, ix
@@ -349,14 +359,11 @@
               enddo
               enddo
               enddo
-             ! call write_nc_real(trim(out_file),'v_inc',ix,jx-1,kx,-1,'nx','ny','nz','-', &
-             !                    0.5*(fdat_incrv(1:ix,1:jx-1,1:kx,1)+fdat_incrv(2:ix+1,1:jx-1,1:kx,1)),'m/s','v_inc')
-              call write_nc_real(trim(out_file),'v_inc',ix,jx-1,kx,-1,'nx','ny','nz','-', &
-                                 tmp4d,'m/s','v_inc')
+              call write_nc_data(trim(out_file),'v_inc',-9,ix,jx-1,kx,-1,'xaxis_1','yaxis_1','zaxis_1','-', tmp4d,'m/s','v_inc')
               deallocate(tmp4d)
            else
-              call write_nc_real(trim(out_file),'ua_inc',ix,jx,kx,-1,'nx','ny','nz','-', fdat_incru,'m/s','ua_inc')
-              call write_nc_real(trim(out_file),'va_inc',ix,jx,kx,-1,'nx','ny','nz','-', fdat_incrv,'m/s','ua_inc')
+              call write_nc_data(trim(out_file),'ua_inc',-9,ix,jx,kx,-1,'xaxis_1','yaxis_1','zaxis_1','-', fdat_incru,'m/s','ua_inc')
+              call write_nc_data(trim(out_file),'va_inc',-9,ix,jx,kx,-1,'xaxis_1','yaxis_1','zaxis_1','-', fdat_incrv,'m/s','ua_inc')
            endif
         endif
         deallocate(fdat_anu, fdat_anv, fdat_bgu, fdat_bgv, fdat_incru, fdat_incrv)
@@ -405,10 +412,10 @@
         else
            !---output to increment file
            if ( trim(varname) == 'DZ' ) then
-              call write_nc_real(trim(out_file),'delz_inc',ix,jx,kxo,-1,'nx','ny',trim(kxc),'-', &
+              call write_nc_data(trim(out_file),'delz_inc',-9,ix,jx,kxo,-1,'xaxis_1','yaxis_1',trim(kxc),'-', &
                               fdat_incr(1:ix,1:jx,1:kx,1),'-',trim(varname)//'_inc')
            else
-              call write_nc_real(trim(out_file),trim(varname)//'_inc',ix,jx,kxo,-1,'nx','ny',trim(kxc),'-', &
+              call write_nc_data(trim(out_file),trim(varname)//'_inc',-9,ix,jx,kxo,-1,'xaxis_1','yaxis_1',trim(kxc),'-', &
                               fdat_incr(1:ix,1:jx,1:kx,1),'-',trim(varname)//'_inc')
            endif
            deallocate(fdat_incr)

@@ -105,10 +105,24 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
+                         ${RESTARTdst}/atmos_static*.nc \
+                         ${RESTARTdst}/grid_*spec*.nc \
+                         ${RESTARTdst}/oro_data*.nc) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
 
 echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
 echo "INFO: exiting after skipping vortex initialization ..."
@@ -157,8 +171,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
@@ -188,8 +202,8 @@ for vortexradius in 30 45; do
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 done
 
@@ -594,10 +608,25 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
-${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
+                         ${RESTARTdst}/atmos_static*.nc \
+                         ${RESTARTdst}/grid_*spec*.nc \
+                         ${RESTARTdst}/oro_data*.nc) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
+
 if [ -s ${DATA}/anl_storm/storm_txt ]; then
  ${NCP} -rp ${DATA}/anl_storm/storm_txt ${RESTARTout}/
 fi
