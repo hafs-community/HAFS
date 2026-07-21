@@ -411,8 +411,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
+  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp nexrad"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital nexrad"
   sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
   satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
   radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 amsua_metop-b amsua_metop-c iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b mhs_metop-c" #ssmis_f17 
@@ -604,6 +604,25 @@ fi
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
         ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
+      elif [[ "${bufr}" = "nexrad" ]]; then
+	mkdir -p nexrad_superob
+	cd nexrad_superob || exit 1
+        ${NCP} -p ${intercom}/${RFNEXRAD} ./l2rwbufr
+	${NCP} -p ${PARMhafs}/obs_prep/nexrad_so.nml.tmp ./
+	# set the cycling time
+	sed -e "s/_CYCTIME_/${CDATE}/g" \
+            nexrad_so.nml.tmp > nexrad_so.nml
+	# Run the executable
+	${NCP} -p ${EXEChafs}/hafs_tools_nexrad_superob.x ./hafs_tools_nexrad_superob.x
+	${SOURCE_PREP_STEP}
+        ${APRUNS} ./hafs_tools_nexrad_superob.x l2rwbufr so_l2rwbufr nexrad_so.nml 2>&1 | tee ./hafs_tools_nexrad_superob.out
+	export err=$?; err_chk
+	cd ..
+	if [[ -f "nexrad_superob/superob_radar.nc" ]]; then
+    	  python radar_renameStnID.py -i nexrad_superob/superob_radar.nc -o hafs.t${cyc}z.conventional_radar_${file}.nc >& log_${file}_RenameStnID 
+	else
+          echo "WARNING: nexrad_superob/superob_radar.nc not found! Python script skipped."	
+	fi
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
