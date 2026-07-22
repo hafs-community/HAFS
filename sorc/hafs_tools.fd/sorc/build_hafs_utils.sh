@@ -409,6 +409,9 @@ build_hafsutils (){
 
      # Build the tdr_superob application
     _hafs_tdr_superob
+
+     # Build the nexrad_superob application
+    _hafs_nexrad_superob
 }
 
 #----
