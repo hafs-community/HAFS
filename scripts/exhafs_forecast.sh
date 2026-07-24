@@ -1252,6 +1252,8 @@ for n in $(seq 2 ${nest_grids}); do
   if [ ${RUN_ANALYSIS:-NO} = "YES" ] && [ ${ANALYSIS_D02:-NO} = "YES" ] && \
      [ ${RUN_INIT:-NO} = "NO" ] && [ ${iau_regional:-.false.} = ".true." ]; then
     #iau_inc_files="analysis_inc_nest0${inest}.nc"
+    # Lew.Gramer@noaa.gov 2026-07-10 COULD COMMENT OUT for testing per Xu
+    #echo "FORCING NON-IAU RUN: CDATE=${CDATE}"
     iau_inc_files="analysis_inc_nest0${inest}.tile${inest}.nc"
     # Linking increment file
     ${NLN} ${RESTARTinp}/analysis_inc_nest0${inest}.nc INPUT/${iau_inc_files}

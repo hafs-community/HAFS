@@ -28,6 +28,8 @@ GPLOT_ARCHIVE="${GPLOThafs}/archive/GPLOT_tarballer.sh"
 ADECKhafs=${ADECKhafs:?}
 BDECKhafs=${BDECKhafs:?}
 SYNDAThafs=${SYNDAThafs:?}
+CARTOPY_DIR=${cartopyDataDir:?}
+
 if [ "${machine}" == "orion" ]; then
   SIDhafs="/home/galaka/GPLOT/tbl/SIDs_Old_New.dat"
 else
@@ -77,7 +79,7 @@ sed -i 's@^ADECK_DIR =.*@ADECK_DIR = '"${ADECKhafs}"'@g' ${NML}
 sed -i 's@^BDECK_DIR =.*@BDECK_DIR = '"${BDECKhafs}"'@g' ${NML}
 sed -i 's/^SYS_ENV =.*/SYS_ENV = '"$( echo ${machine} | tr "[a-z]" "[A-Z]")"'/g' ${NML}
 sed -i 's/^BATCH_MODE =.*/BATCH_MODE = Background/g' ${NML}
-
+sed -i 's@^CARTOPY_DIR =.*@CARTOPY_DIR = '"${CARTOPY_DIR}"'@g' ${NML}
 # Initialize ALL_COMPLETE as false
 ALL_COMPLETE=0
 

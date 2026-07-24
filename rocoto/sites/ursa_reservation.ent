@@ -16,7 +16,10 @@
   <!ENTITY NODES_EXTRA     "<nodesize>192</nodesize>">
   <!ENTITY CLUSTER_COMPUTE "">
   <!ENTITY CLUSTER_DT      "">
+<!--
   <!ENTITY RESERVATION     "">
+-->
+  <!ENTITY RESERVATION     "<native>--reservation=<cyclestr offset='00:00:00'>aoml_fcst_@H</cyclestr></native>">
   <!ENTITY MEMORY          "<memory>4G</memory>">
   <!ENTITY MEMORYJEDI      "">
 
@@ -31,7 +34,7 @@
   <!ENTITY ATM_IC_ENS_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime>">
   <!ENTITY ATM_LBC_ENS_RESOURCES "<nodes>1:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>96</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:30:00</walltime>">
   <!ENTITY OCN_PREP_RESOURCES "<nodes>1:ppn=32:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>32</value></envar><envar><name>NCTSK</name><value>32</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
-  <!-- was 15 -->
+  <!-- WAS: 15 -->
   <!ENTITY ATM_VI_RESOURCES "<nodes>1:ppn=6:tpp=16</nodes><envar><name>TOTAL_TASKS</name><value>6</value></envar><envar><name>NCTSK</name><value>6</value></envar><envar><name>OMP_THREADS</name><value>16</value></envar><walltime>00:19:00</walltime>">
   <!ENTITY WAV_PREP_RESOURCES "<nodes>1:ppn=32:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>32</value></envar><envar><name>NCTSK</name><value>32</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!-- APPLICATION SAYS 7 min! -->
@@ -53,9 +56,9 @@
   <!ENTITY ATM_INIT_RESOURCES "<nodes>27:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>540</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:00:00</walltime>">
 -->
   <!-- HAFS-C -->
-  <!-- Was 5: storm1_0 failing 2026-02-22
+<!-- Was: 5: storm1_0 failing 2026-02-22
   <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>5:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
-  -->
+-->
   <!-- OLD VALUES FOR SOME REASON?? Updated based on hafs_multistorm_atlantic.conf on 2026/05/04
   <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>7:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_1_RESOURCES "<nodes>7:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
@@ -66,7 +69,12 @@
   <!ENTITY ATM_INIT_ATLANTIC_6_RESOURCES "<nodes>20:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>5:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   -->
+<!-- For ghost moving nest bug
+-->
   <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>7:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
+<!-- WAS: for bug fix
+  <!ENTITY ATM_INIT_ATLANTIC_0_RESOURCES "<nodes>5:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
+-->
   <!ENTITY ATM_INIT_ATLANTIC_1_RESOURCES "<nodes>7:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_2_RESOURCES "<nodes>10:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>900</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_3_RESOURCES "<nodes>12:ppn=96:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1140</value></envar><envar><name>NCTSK</name><value>96</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:10:00</walltime>">
@@ -85,7 +93,16 @@
 
   <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>2:ppn=150:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>300</value></envar><envar><name>NCTSK</name><value>150</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
 
+<!--
   <!ENTITY FORECAST_WALLTIME "<walltime>04:10:00</walltime>">
+-->
+<!--
+  <!ENTITY FORECAST_WALLTIME "<walltime>03:10:00</walltime>">
+-->
+  <!ENTITY FORECAST_WALLTIME "<walltime>02:50:00</walltime>">
+<!-- REDUCE TO BARE MINIMUM 2026-07-23 00:19 ET
+  <!ENTITY FORECAST_WALLTIME "<walltime>02:10:00</walltime>">
+-->
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>3</value></envar>">
   <!ENTITY FORECAST_EXTRA "<native>--exclusive</native><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
 
@@ -162,10 +179,28 @@
   <!ENTITY FORECAST_ATLANTIC_5_RESOURCES "<nodes>44:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2100</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_6_RESOURCES "<nodes>49:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2340</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
 -->
+<!--
   <!ENTITY FORECAST_ATLANTIC_0_RESOURCES "<nodes>36:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2304</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_1_RESOURCES "<nodes>36:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2304</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_2_RESOURCES "<nodes>36:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2304</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_3_RESOURCES "<nodes>36:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2304</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_4_RESOURCES "<nodes>39:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;"> 
+  <!ENTITY FORECAST_ATLANTIC_5_RESOURCES "<nodes>44:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2100</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_6_RESOURCES "<nodes>49:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2340</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
+-->
+<!--
+  <!ENTITY FORECAST_ATLANTIC_0_RESOURCES "<nodes>32:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2048</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_1_RESOURCES "<nodes>32:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2048</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_2_RESOURCES "<nodes>32:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2048</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_3_RESOURCES "<nodes>32:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>2048</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_4_RESOURCES "<nodes>39:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;"> 
+  <!ENTITY FORECAST_ATLANTIC_5_RESOURCES "<nodes>44:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2100</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_6_RESOURCES "<nodes>49:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2340</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
+-->
+  <!ENTITY FORECAST_ATLANTIC_0_RESOURCES "<nodes>30:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_1_RESOURCES "<nodes>30:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_2_RESOURCES "<nodes>30:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_ATLANTIC_3_RESOURCES "<nodes>30:ppn=64:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>1920</value></envar><envar><name>NCTSK</name><value>64</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_4_RESOURCES "<nodes>39:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;"> 
   <!ENTITY FORECAST_ATLANTIC_5_RESOURCES "<nodes>44:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2100</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_ATLANTIC_6_RESOURCES "<nodes>49:ppn=48:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>2340</value></envar><envar><name>NCTSK</name><value>48</value></envar>&FORECAST_EXTRA;">

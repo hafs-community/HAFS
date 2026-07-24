@@ -411,8 +411,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
+  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
   convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
   convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
+  # convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob tcp"
+  # convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr tcvital"
   sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
   satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
   radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 amsua_metop-b amsua_metop-c iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b mhs_metop-c" #ssmis_f17 
@@ -449,6 +452,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
+  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
   if [[ ${use_bufr_nr:-no} = "yes" ]]; then
     if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr ]]; then
       ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr gfs.t${cyc}z.gnssro.bufr_d

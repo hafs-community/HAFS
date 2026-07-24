@@ -16,13 +16,7 @@
 #   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
-vi_force_cold_start=${vi_force_cold_start:-no}
-# TEMPORARY WORKAROUND: Force cold start for storms too close to outer boundaries
-if [[ ${vi_force_cold_start,,} != "yes" ]]; then
-  if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then
-    vi_force_cold_start=yes
-  fi
-fi
+
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
@@ -39,6 +33,32 @@ pubbasin2=${pubbasin2:-AL}
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
+
+vi_force_cold_start=${vi_force_cold_start:-no}
+# WORKAROUND: Force cold start for storms too close to outer boundaries
+if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+  # Lew.Gramer@noaa.gov 2026-07-16
+  if [[ ${pubbasin2} == AL ]]; then
+    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -97 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then # Atl domain
+      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
+      vi_force_cold_start=yes
+    fi
+  elif [[ ${pubbasin2} == EP ]]; then
+    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -140 ]] || [[ ${target_lon%[.][0-9]*} -ge -103 ]]; then # Pac domain
+      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
+      vi_force_cold_start=yes
+    fi
+  else
+    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then # M domain
+      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
+      vi_force_cold_start=yes
+    fi
+  fi
+fi
+
+#useFakestormInit=false
+# Lew.Gramer@noaa.gov 2026-07-13
+useFakestormInit=true
 
 if [ "${ENSDA}" = YES ]; then
   export nest_grids=${nest_grids_ens:-${nest_grids}}
@@ -62,6 +82,15 @@ else
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi
   export CDATE=${CDATE:-${YMDH}}
+
+  if [ "${useFakestormInit}" = "true" ]; then
+    # #### Lew.Gramer@noaa.gov 2026-07-13
+    echo "WARNING: FORCING VI from 00L init: Initial position ${target_lon},${target_lat}"
+    WORKhafs_fakestorm=${WORKhafs:0:-3}00L
+    export RESTARTinit_fakestorm=${WORKhafs_fakestorm}/intercom/RESTART_init
+    export RESTARTinit=$RESTARTinit_fakestorm
+    if [ ! -d $RESTARTinit ]; then echo "FATAL ERROR: MISSING RESTARTinit=$RESTARTinit"; exit -1; fi
+  fi
 fi
 
 CDATEprior=$(${NDATE} -6 $YMDH)

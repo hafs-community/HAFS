@@ -75,10 +75,14 @@ if [ "${ENSDA}" = YES ]; then
 else
   if [ -e ${WORKhafs}/intercom/RESTART_analysis ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_analysis
+    echo "INFO: RESTARTsrc=${RESTARTsrc}"
+  # Lew.Gramer@noaa.gov COULD COMMENT OUT for testing - 2026-07-06
   elif [ -e ${WORKhafs}/intercom/RESTART_vi ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_vi
+    echo "INFO: RESTARTsrc=${RESTARTsrc}"
   elif [ -e ${WORKhafs}/intercom/RESTART_init ]; then
     RESTARTsrc=${WORKhafs}/intercom/RESTART_init
+    echo "INFO: RESTARTsrc=${RESTARTsrc}"
   else
     echo "FATAL ERROR: RESTARTsrc does not exist"
     exit 1
@@ -138,6 +142,7 @@ cd ${DATA}
 
 mkdir -p ${RESTARTmrg}
 #${NCP} -rp ${RESTARTdst}/* ${RESTARTmrg}/
+
 rm -f cmdfile
 for file in $(/bin/ls -1 ${RESTARTdst}/*) ; do
   fname=$(basename ${file})
@@ -283,7 +288,7 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
        done
 
 
-    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then; else...
         # Step 1: merge each src0[2-N] nest analysis into src01 parent domain (for analysis_merge)
         ${NCP} -rp ${RESTARTdst}/* ${RESTARTtmp}/
         tileno=2
@@ -308,9 +313,12 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
             fi
             if [ -e ${WORKhafs_nest}/intercom/RESTART_analysis ]; then
        	        RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_analysis
+            # Lew.Gramer@noaa.gov COULD COMMENT OUT for testing - 2026-07-06
             elif [ -e ${WORKhafs_nest}/intercom/RESTART_vi ]; then
+                echo "WARNING: FORCING VI START: Missing ${WORKhafs_nest}/intercom/RESTART_analysis"
     	        RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_vi
             elif [ -e ${WORKhafs_nest}/intercom/RESTART_init ]; then
+                echo "WARNING: FORCING INIT START: Missing ${WORKhafs_nest}/intercom/RESTART_vi"
                 RESTARTNESTsrc=${WORKhafs_nest}/intercom/RESTART_init
             else
                 echo "FATAL ERROR: RESTARTNESTsrc does not exist"
@@ -334,27 +342,28 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
             # LJG 2026-02-10
             for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
                 in_file=${RESTARTNESTtmp}/${ymd}.${hh}0000.${var}.nest0${tileno}.tile${tileno}.nc
-            if [[ $var = sfc_data ]]; then
-                #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
-                out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
-            else
-                #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
-                out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
-        	fi
-        	if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
-        	       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
-        	    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
-        	    exit 1
-        	fi
-        	#${MERGE_CMD}
-        	${MERGE_CMD_NEST} \
-        	    --in_grid=${in_grid} \
-        	    --out_grid=${out_grid} \
-        	    --in_file=${in_file} \
-        	    --out_file=${out_file}
-        	status=$?; [[ $status -ne 0 ]] && exit $status
+                if [[ $var = sfc_data ]]; then
+                    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.nc
+                    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nc
+                else
+                    #out_file=${RESTARTtmp}/${ymd}.${hh}0000.${var}.tile1.nc
+                    out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.tile1.nc
+                fi
+                if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
+                       [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then
+                    echo "FATAL ERROR: Missing in/out_grid or in/out_file"
+                    exit 1
+                fi
+                #${MERGE_CMD}
+                ${MERGE_CMD_NEST} \
+                    --in_grid=${in_grid} \
+                    --out_grid=${out_grid} \
+                    --in_file=${in_file} \
+                    --out_file=${out_file}
+                status=$?; [[ $status -ne 0 ]] && exit $status
             done
             #GJA
+
             tileno=$((tileno+1))
             #for sid in ${multistorm_sids} ; do
         done
@@ -465,10 +474,12 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
 done
 
 fi
+#if [ "${STORMID}" != "00L" ]; then
 
 # Step 3: merge srcd02 into dstd02
 if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
     if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+        # Multistorm, use external (e.g., operational HAFS-B single-storm) vortex
         tileno=2
         for sid in ${multistorm_sids} ; do
             export copydst="no"
@@ -525,7 +536,8 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
             tileno=$((tileno+1))
             #for sid in ${multistorm_sids} ; do
         done
-    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then
+    else #if [ ${USE_EXTERNAL_VORTEX:-NO} == "YES" ]; then; else
+        # Multistorm, use our VI/DA
         tileno=2
         for sid in ${multistorm_sids} ; do
             RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
@@ -563,10 +575,12 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
                     --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
                 export err=$?; err_chk
             done #for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
+            
             tileno=$((tileno+1))
         done #for sid in ${multistorm_sids} ; do
     fi
 else
+# Single storm
 
 #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
@@ -592,26 +606,40 @@ fi
 if [ ${RUN_ANALYSIS} = "YES" ] && [ ${ANALYSIS_D02} = "YES" ]; then
 
 # Step 4: Calculate d02 increments for IAU
-# Extract vmax from tcvitals (m/s)
-${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals
-vmax_vit=$(cat tcvitals | cut -c68-69 | bc -l)
-export err=$?; err_chk
-if [ ${vmax_vit} -gt ${fwd_vmax_threshold:-33} ]; then
-  wave_num=${fwd_wave_number:-2}
-else
-  wave_num=-999
-fi
 
-if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
+if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
+# Multi-storm configuration
 
-  if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
-    tileno=2
-    for sid in ${multistorm_sids} ; do
-      WORKhafs_nest=${WORKhafs/00L/${sid}/}
-      RESTARTbkg=${WORKhafs_nest}/intercom/RESTART_vi
-      RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
-      
-      in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+  tileno=2
+  for sid in ${multistorm_sids} ; do
+
+    WORKhafs_nest=${WORKhafs/00L/${sid}/}
+    RESTARTbkg=${WORKhafs_nest}/intercom/RESTART_vi
+    # # Lew.Gramer@noaa.gov 2026-07=04
+    # echo "WARNING: FORCING IAU FROM INIT: Initial position ${target_lon},${target_lat}"
+    # RESTARTbkg=${WORKhafs_nest}/intercom/RESTART_init
+    echo "WARNING: FORCING IAU FROM 00L INIT: Initial position ${target_lon},${target_lat}"
+    RESTARTbkg=${WORKhafs}/intercom/RESTART_init
+    
+    RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
+    
+    ${NCP} ${WORKhafs_nest}/intercom/launch/tmpvit tcvitals
+    vmax_vit=$(cat tcvitals | cut -c68-69 | bc -l)
+    export err=$?; err_chk
+    if [ ${vmax_vit} -gt ${fwd_vmax_threshold:-33} ]; then
+      wave_num=${fwd_wave_number:-2}
+    else
+      wave_num=-999
+    fi
+    
+    if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
+
+      neststr="nest$(printf '%02d' ${tileno})"
+      tilestr="tile$(printf '%d' ${tileno})"
+
+      #### Lew.Gramer@noaa.gov 2026-07-16 POST_MERGE: Check this!
+      #in_grid=${RESTARTNESTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
+      in_grid=${RESTARTNESTtmp}/grid_mspec.${neststr}_${yr}_${mn}_${dy}_${hh}.${tilestr}.nc
       iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
       if [ -s ./tcvitals ]; then
         iau_fwd_command="${iau_fwd_command} --tcvital=./tcvitals"
@@ -620,35 +648,60 @@ if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
         iau_fwd_command="${iau_fwd_command} --in_grid=${in_grid}"
       fi
       if [ ${iau_regional} = ".true." ]; then
-        iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_nest02.nc"
+        iau_fwd_command="${iau_fwd_command} --out_file=./analysis_inc_${neststr}.nc"
       fi
       if [ ${wave_num} -gt "-99" -a ${wave_num} -lt "99" ]; then
         iau_fwd_command="${iau_fwd_command} --wave_num=${wave_num}"
       fi
       #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
       for var in fv_core.res fv_tracer.res; do
+        # ${iau_fwd_command} \
+        #      --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
+        #      --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.nc 2>&1 | tee -a ./analysis_fftw_iau.${var}.log
+        # Lew.Gramer@noaa.gov 2026-07-21
         ${iau_fwd_command} \
-             --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc \
-             --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc 2>&1 | tee ./analysis_fftw_iau.${var}.log
+             --bg_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.nc \
+             --an_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.nc 2>&1 | tee -a ./analysis_fftw_iau.${var}.log
         export err=$?; err_chk
       done
       if [ ${iau_regional} = ".true." ]; then
-        ${NCP} -rp ./analysis_inc_nest02.nc ${RESTARTmrg}/
+        ${NCP} -rp ./analysis_inc_${neststr}.nc ${RESTARTmrg}/
         # Replace d02 restart files
         #for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data; do
         for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
-          in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-          out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
-          mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.nest02.tile2.merge.nc
+          #in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.nest02.tile2.nc
+          # Lew.Gramer@noaa.gov 2026-07-21
+          in_file=${RESTARTbkg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.nc
+          out_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.nc
+          mrg_file=${RESTARTmrg}/${ymd}.${hh}0000.${var}.${neststr}.${tilestr}.merge.nc
           ${NCP} -rp ${out_file} ${mrg_file}
           ${NCP} -rp ${in_file} ${out_file}
         done
       fi
 
-      tileno=$((tileno+1))
-    done
+      # Lew.Gramer@noaa.gov 2026-07-19
+      #tileno=$((tileno+1))
+    fi #if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
 
+    # Lew.Gramer@noaa.gov 2026-07-19
+    tileno=$((tileno+1))
+  done
+
+else
+# Single-storm configuration
+
+  # Extract vmax from tcvitals (m/s)
+  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals
+  vmax_vit=$(cat tcvitals | cut -c68-69 | bc -l)
+  export err=$?; err_chk
+  if [ ${vmax_vit} -gt ${fwd_vmax_threshold:-33} ]; then
+    wave_num=${fwd_wave_number:-2}
   else
+    wave_num=-999
+  fi
+  
+  if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
+    
     RESTARTbkg=${WORKhafs}/intercom/RESTART_vi
     in_grid=${RESTARTtmp}/grid_mspec.nest02_${yr}_${mn}_${dy}_${hh}.tile2.nc
     iau_fwd_command="${APRUNO} ${DATOOL} fftw_iau --vars=u:v:delp:DZ:T:sphum"
@@ -685,8 +738,10 @@ if [ ${iau_regional:-.false.} = ".true." ] || [ ${wave_num} -gt "-99" ]; then
     fi
   fi
 fi
+#if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then; else...
 
 fi
+#if [ ${RUN_ANALYSIS} = "YES" ] && [ ${ANALYSIS_D02} = "YES" ]; then
 
 if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   mkdir -p ${RESTARTcom}
@@ -715,12 +770,14 @@ if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
   export err=$?; err_chk
 # rm -f cmdfile
 fi
+#if [ ${MERGE_TYPE} = analysis ] && [ $SENDCOM = YES ]; then
 
 else
   echo "FATAL ERROR: only support nest_grids = 1 or 2"
   echo "FATAL ERROR: nest_grids = $nest_grids"
   exit 1
 fi
+#if [[ $nest_grids -eq 1 ]]; then elif [[ $nest_grids -ge 2 ]]; then; else
 
 else
 
@@ -728,5 +785,6 @@ echo "RESTARTsrc: ${RESTARTsrc} does not exist"
 echo "RESTARTmrg is the same as RESTARTdst"
 
 fi
+#if [ -d ${RESTARTsrc} ] || [ -L ${RESTARTsrc} ]; then; else...
 
 date

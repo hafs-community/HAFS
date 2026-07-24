@@ -214,7 +214,9 @@
     <jobname>hafs_input_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&WORKhafs;/hafs_input.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
@@ -764,6 +766,17 @@
     <dependency>
       <and>
         <taskdep task="atm_init_#real_storm#"/>
+        <or>
+          <!-- NEW DEPENDCY to support VI from 00L/init: Lew.Gramer@noaa.gov 2026/07/17 -->
+          <taskdep task="atm_init"/>
+          <taskdep task="atm_init_storm1_0"/>
+          <taskdep task="atm_init_storm1_1"/>
+          <taskdep task="atm_init_storm1_2"/>
+          <taskdep task="atm_init_storm1_3"/>
+          <taskdep task="atm_init_storm1_4"/>
+          <taskdep task="atm_init_storm1_5"/>
+          <taskdep task="atm_init_storm1_6"/>
+        </or>
 	<or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
@@ -860,11 +873,11 @@
           <or>
 @** if GFSVER==PROD2026
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/products/atmos/grib2/0p25/gfs.t@Hz.pres_a.0p25.f126.grib2</cyclestr></datadep>
-            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/model/atmos/history/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/model/atmos/history/gfs.t@Hz.atmf126.nc</cyclestr></datadep>
 @** endif
 @** if GFSVER==PROD2021
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
-            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
+            <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmf126.nc</cyclestr></datadep>
 @** endif
           </or>
         </and>
@@ -1786,7 +1799,6 @@
 <!--
     &RESERVATION;
 -->
-    &RESERVATION;
     <queue>&QUEUE_PE;</queue>
     &PE_POST_EXTRA;
     &CORES_EXTRA;
@@ -2443,7 +2455,9 @@
     <jobname>hafs_emcgraphics_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_emcgraphics_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_PE;</queue>
     &CORES_EXTRA;
     &CLUSTER_COMPUTE;
@@ -2476,7 +2490,9 @@
     <jobname>hafs_archive_disk_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_archive_disk_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
@@ -2535,7 +2551,9 @@
     <jobname>hafs_archive_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&WORKhafs;/hafs_archive_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERVICE;</queue>
     &SERVICE_EXTRA;
     <cores>1</cores>
@@ -2595,7 +2613,9 @@
     <jobname>hafs_scrub_work_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&LOGhafs;/hafs_scrub_work_&SID;_@Y@m@d@H_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
@@ -2665,7 +2685,9 @@
     <jobname>hafs_scrub_com_&SID;_<cyclestr>@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&LOGhafs;/hafs_scrub_com_&SID;_@Y@m@d@H_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     &CLUSTER_COMPUTE;
@@ -2704,7 +2726,9 @@
     <jobname><cyclestr>hafs_donefile_&SID;_@Y@m@d@H</cyclestr>_#storm#</jobname>
     <join><cyclestr>&LOGhafs;/hafs_donefile_&SID;_@Y@m@d@H_#storm#.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>
@@ -2772,7 +2796,9 @@
     <jobname><cyclestr>hafs_completion_&SID;_@Y@m@d@H</cyclestr></jobname>
     <join><cyclestr>&LOGhafs;/hafs_completion_&SID;_@Y@m@d@H.log</cyclestr></join>
     <account>&ACCOUNT;</account>
+<!--
     &RESERVATION;
+-->
     <queue>&QUEUE_SERIAL;</queue>
     &SERIAL_EXTRA;
     <cores>1</cores>

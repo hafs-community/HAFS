@@ -110,6 +110,31 @@ cd $DATA
 
 #If VI produced any NaNs, disregard it in the analysis
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+ # Check FGAT03 for NaN
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+  echo "WARNING: VI FGAT03 DA/Analysis missing: FORCING COLD START"
+  export RUN_ATM_VI_FGAT="NO"
+ else
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  if [ "${NANcount}" != "0" ]; then
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT03 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc"
+   export RUN_ATM_VI_FGAT="NO"
+  fi
+ fi
+
+ # Check FGAT06 for NaN
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+  echo "WARNING: VI FGAT06 DA/Analysis missing: FORCING COLD START"
+  export RUN_ATM_VI_FGAT="NO"
+ else
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  if [ "${NANcount}" != "0" ]; then
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT06 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc"
+   export RUN_ATM_VI_FGAT="NO"
+  fi
+ fi
+
+ # Check FGAT09 for NaN
  if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   echo "WARNING: VI FGAT09 DA/Analysis missing: FORCING COLD START"
   export RUN_ATM_VI_FGAT="NO"

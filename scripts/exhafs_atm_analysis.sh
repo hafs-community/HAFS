@@ -15,6 +15,7 @@ yr=$(echo $CDATE | cut -c1-4)
 mn=$(echo $CDATE | cut -c5-6)
 dy=$(echo $CDATE | cut -c7-8)
 hh=$(echo $CDATE | cut -c9-10)
+ymdtzero=$(echo ${CDATE} | cut -c1-8)
 CDATEprior=$(${NDATE} -6 $CDATE)
 ymdprior=$(echo ${CDATEprior} | cut -c1-8)
 hhprior=$(echo ${CDATEprior} | cut -c9-10)
@@ -160,26 +161,31 @@ cd $DATA
 
 # If VI produced any NaNs, disregard it in the analysis: Lew.Gramer@noaa.gov, readded 2026/06/03
 if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
- if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+ # Check FGAT03 for NaN
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   echo "WARNING: VI FGAT03 DA/Analysis missing: FORCING COLD START"
   export RUN_ATM_VI_FGAT="NO"
  else
-  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
   if [ "${NANcount}" != "0" ]; then
-   echo "WARNING: FORCING COLD START: NaN found in VI FGAT03 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc"
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT03 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat03/${ymdtm03}.${hhtm03}0000.fv_core.res${neststr}${tilestr}.nc"
    export RUN_ATM_VI_FGAT="NO"
   fi
  fi
- if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+
+ # Check FGAT06 for NaN
+ if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   echo "WARNING: VI FGAT06 DA/Analysis missing: FORCING COLD START"
   export RUN_ATM_VI_FGAT="NO"
  else
-  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
+  NANcount=$(ncdump -v delp ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc | head -n 500000 | grep -m 1 -c NaN)
   if [ "${NANcount}" != "0" ]; then
-   echo "WARNING: FORCING COLD START: NaN found in VI FGAT06 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc"
+   echo "WARNING: FORCING COLD START: NaN found in VI FGAT06 DA/Analysis: ${WORKhafs}/intercom/RESTART_vi_fgat06/${ymdtzero}.${hh}0000.fv_core.res${neststr}${tilestr}.nc"
    export RUN_ATM_VI_FGAT="NO"
   fi
  fi
+
+ # Check FGAT09 for NaN
  if [ ! -s ${WORKhafs}/intercom/RESTART_vi_fgat09/${ymdtp03}.${hhtp03}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   echo "WARNING: VI FGAT09 DA/Analysis missing: FORCING COLD START"
   export RUN_ATM_VI_FGAT="NO"
@@ -447,6 +453,8 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
+# Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
+# See also /scratch4/AOML/aoml-hafs1/Lew.Gramer/src/HAFSV2.2.1M_2026_RT/sorc/hafs_jedi.fd/parm/jcb-hdas/test/client_integration/hdas-atmosphere-templates.yaml
 radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp radiance_mhs_n18 radiance_mhs_n19 radiance_mhs_metop-b radiance_iasi_metop-c radiance_amsua_metop-c radiance_mhs_metop-c" #radiance_ssmis_f17
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112 conventional_radar_vadwnd"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp conventional_radar_vadwnd"
