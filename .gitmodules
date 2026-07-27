@@ -25,4 +25,4 @@
 [submodule "sorc/hafs_jedi.fd"]
     path = sorc/hafs_jedi.fd
     url = https://github.com/NOAA-EMC/HDASApp.git
-    branch = feature/hafsv2p2p1a_v0
+    branch = feature/hafsv2p2p1a
