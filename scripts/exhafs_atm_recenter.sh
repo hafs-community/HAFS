@@ -118,7 +118,7 @@ else # enkf_recenter
   # ----------------------------------------------------------------------
   # Prepare ensemble member files for recenter in parallel
   # ----------------------------------------------------------------------
-  ENBATCH_FILE="${DATA}/enkf_recenter_prep_cmdfile"
+  ENBATCH_FILE="./enkf_recenter_prep_cmdfile"
   rm -f "${ENBATCH_FILE}"
   for memstr in $(seq -f 'mem%03g' 1 "${nens}"); do
     echo "${NCP} ${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc fv3sar_tile1_${memstr}_dynvar" >> "${ENBATCH_FILE}"
@@ -195,7 +195,7 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
 # ----------------------------------------------------------------------
 # Copy recentered ensemble analysis files in parallel with CFP/mpiserial
 # ----------------------------------------------------------------------
-  ENBATCH_FILE="${DATA}/enkf_recenter_copy_cmdfile"
+  ENBATCH_FILE="./enkf_recenter_copy_cmdfile"
   rm -f "${ENBATCH_FILE}"
   for memstr in $(seq -f 'mem%03g' 1 "${nens}"); do
     mkdir -p "${RESTARTens_anl}/${memstr}"
@@ -229,7 +229,7 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
   if [ "${ANALYSIS_MODEL}" = "JEDI" ]; then
     DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
     NCKS=${NCKS:-ncks}
-    cmdfile="${DATA}/cmdfile_datool_ua_update_u"
+    cmdfile="./cmdfile_datool_ua_update_u"
     rm -f "${cmdfile}"
     touch "${cmdfile}"
     # Optional but usually safer for many independent NetCDF tools
@@ -243,8 +243,8 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
       OUT_FILE="${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_core.res.tile1.nc"
       TRACER_IN="${RESTARTens_inp}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc"
       TRACER_OUT="${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc"
-      LOG_DATOOL="${DATA}/log_datool_${memstr}"
-      LOG_NCKS="${DATA}/log_sgs_tke_${memstr}"
+      LOG_DATOOL="./log_datool_${memstr}"
+      LOG_NCKS="./log_sgs_tke_${memstr}"
       echo "${APRUNS} ${DATOOL} ua_update_u --in_grid=${IN_GRID} --in_file=${IN_FILE} --out_file=${OUT_FILE} > ${LOG_DATOOL} 2>&1 && ${NCKS} -A -C -v sgs_tke ${TRACER_IN} ${TRACER_OUT} > ${LOG_NCKS} 2>&1" >> "${cmdfile}"
     done
     chmod +x "${cmdfile}"
