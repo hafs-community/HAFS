@@ -411,11 +411,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  # Lew.Gramer@noaa.gov 2026-06-04 comment out for crashes per Xu.Lu@noaa.gov
-  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital"
-  # convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob tcp"
-  # convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr tcvital"
+  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp nexrad"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital nexrad"
   sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
   satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
   radtypes="atms_n20 atms_npp amsua_n18 amsua_n19 amsua_metop-b amsua_metop-c iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b mhs_metop-c" #ssmis_f17 
@@ -433,6 +430,9 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   done
   if [ -s ${intercom}/${NFTLDPLR} ]; then
     ${NCP} -p ${intercom}/${NFTLDPLR} gfs.t${cyc}z.tldplr.bufr_d
+  fi
+  if [ -s ${intercom}/${NFNEXRAD} ]; then
+    ${NCP} -p ${intercom}/${NFNEXRAD} gfs.t${cyc}z.nexrad.bufr
   fi
   if [ -s ${intercom}/${NFHDOB} ]; then
     ${NCP} -p ${intercom}/${NFHDOB} gfs.t${cyc}z.hdobbufr.bufr_d
@@ -618,6 +618,28 @@ fi
       if [[ "${bufr}" = "tcvital" ]]; then
         python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --stormid ${STORMID} >& log_${file}
       fi
+    elif [ -s gfs.t${cyc}z.${bufr}.bufr ]; then
+      if  [[ "${bufr}" = "nexrad" ]]; then	
+        mkdir -p nexrad_superob
+        cd nexrad_superob || exit 1
+        ${NLN} ../gfs.t${cyc}z.${bufr}.bufr ./l2rwbufr
+	${NLN} ${GEO_PATH} ./C512_oro_data.tile8.nc
+        ${NCP} -p ${PARMhafs}/obs_prep/nexrad_so.nml.tmp ./
+        # set the cycling time
+        sed -e "s/_CYCTIME_/${CDATE}/g" \
+            nexrad_so.nml.tmp > nexrad_so.nml
+        # Run the executable
+        ${NCP} -p ${EXEChafs}/hafs_tools_nexrad_superob.x ./hafs_tools_nexrad_superob.x
+        ${SOURCE_PREP_STEP}
+        ${APRUNS} ./hafs_tools_nexrad_superob.x l2rwbufr so_l2rwbufr nexrad_so.nml 2>&1 | tee ./hafs_tools_nexrad_superob.out
+        export err=$?; err_chk
+        cd ..
+        if [[ -f "nexrad_superob/superob_radar.nc" ]]; then
+          python radar_renameStnID.py -i nexrad_superob/superob_radar.nc -o output/hafs.t${cyc}z.conventional_radar_${file}.nc >& log_${file}_RenameStnID
+        else
+          echo "WARNING: nexrad_superob/superob_radar.nc not found! Python script skipped."     
+        fi
+      fi    
     fi
     shift
   done
