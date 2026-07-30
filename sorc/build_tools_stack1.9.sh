@@ -39,6 +39,21 @@ make install
 
 cd ..
 
+
+# build nexrad_superob
+if [ -d "${HAFS_UTILS_SORC}/build" ]; then
+   rm -rf ${HAFS_UTILS_SORC}/build
+fi
+mkdir ${HAFS_UTILS_SORC}/build
+cd ${HAFS_UTILS_SORC}/build
+
+cmake ../hafs_nexrad_superob -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DBUILD_TYPE=${BUILD_TYPE}
+make all VERBOSE=3
+make install
+
+cd ..
+
+
 if [ -d "${HAFS_UTILS_SORC}/build" ]; then
    rm -rf ${HAFS_UTILS_SORC}/build
 fi
