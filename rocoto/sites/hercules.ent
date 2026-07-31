@@ -17,6 +17,7 @@
   <!ENTITY CLUSTER_DT      "">
   <!ENTITY RESERVATION     "">
   <!ENTITY MEMORY          "<memory>4G</memory>">
+  <!ENTITY MEMORYJEDI      "<memory>48G</memory>">
 
   <!ENTITY LAUNCH_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:15:00</walltime><memory>24G</memory>">
   <!ENTITY DOCN_PREP_RESOURCES "<nodes>1:ppn=1</nodes><envar><name>TOTAL_TASKS</name><value>1</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:25:00</walltime><memory>24G</memory>">
