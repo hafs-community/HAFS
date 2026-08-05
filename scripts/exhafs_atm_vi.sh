@@ -230,6 +230,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
     if grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
       echo "trak.atcfunix.tmp generated."
+	  sed -i -e "s/${pubbasin2^^}, ${old_out_prefix_nodate:0:2},/${pubbasin2^^}, ${STORMID:0:2},/g" trak.atcfunix.tmp
     else
       touch trak.atcfunix.tmp
     fi
