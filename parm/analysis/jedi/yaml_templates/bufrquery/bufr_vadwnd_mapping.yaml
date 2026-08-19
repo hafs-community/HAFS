@@ -9,7 +9,7 @@ bufr:
         timeOffset: "*/DHR"
         transforms:
           - scale: 3600
-        referenceTime: 2024-07-08T06:00:00Z
+        referenceTime: #ANADATE#
     timeOffset:
       query: "*/DHR"
       transforms:
