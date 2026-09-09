@@ -280,4 +280,3 @@ encoder:
     #- name: "ObsType/atmosphericRefractivity"
     #  source: variables/obsTypeAtmosphericRefractivity
     #  longName: "Atmospheric Refractivity ObsType" 
-

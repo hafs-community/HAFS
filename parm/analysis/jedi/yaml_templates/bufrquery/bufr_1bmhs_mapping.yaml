@@ -146,3 +146,9 @@ encoder:
     longName: Longitude
     source: variables/longitude
     units: degree_east
+
+  #ObsError
+  - name: ObsError/brightnessTemperature
+    source: variables/brightnessTemperature
+    longName: Brightness Temperature Error
+    units: K

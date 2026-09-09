@@ -90,7 +90,7 @@ states:
       ozone_mass_mixing_ratio: o3mr
       skin_temperature_at_surface: tsea
       air_pressure_at_surface: ps
-      geopotential_height_times_gravity_at_surface: phis
+      geopotential_at_surface: phis
       soilMoistureVolumetric: smc
       totalSnowDepth: snwdph
       eastward_wind_at_surface: u_srf

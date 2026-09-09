@@ -71,6 +71,18 @@ class SatWndAmvObsBuilder(ObsBuilder):
                 'source': 'windNorthward',
                 'units': 'm s-1',
                 'longName': 'Northward Wind Component',
+            },
+            {
+                'name': 'ObsError/windEastward',
+                'source': 'windEastward',
+                'units': 'm s-1',
+                'longName': 'Eastward Wind Error',
+            },      
+            {       
+                'name': 'ObsError/windNorthward',
+                'source': 'windNorthward',
+                'units': 'm s-1',
+                'longName': 'Northward Wind Error',
             }])
 
     def _add_metadata_descriptions(self, description):

@@ -15,3 +15,7 @@
        deflate_level           = -1
        cf_compliance           = F
 /
+
+&fms2_io_nml
+       netcdf_default_format = 'netcdf4'
+/

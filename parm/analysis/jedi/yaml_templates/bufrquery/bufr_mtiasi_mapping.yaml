@@ -235,3 +235,9 @@ encoder:
       source: variables/brightnessTemperature
       longName: "Brightness Temperature"
       units: "K"
+
+    #ObsError
+    - name: "ObsError/brightnessTemperature"
+      source: variables/spectralRadiance
+      longName: "Brightness Temperature Error"
+      units: "K"

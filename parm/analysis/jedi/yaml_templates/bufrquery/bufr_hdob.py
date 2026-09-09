@@ -166,6 +166,33 @@ def get_description(yaml_path, update=False):
                                  units='',
                                  longName='Quality indicator for SFMR wind speed')
 
+
+        description.add_variable(name='ObsError/windEastward',
+                                 source='variables/windEastward',
+                                 units='m s-1',
+                                 longName='Eastward Wind Component Error')
+
+        description.add_variable(name='ObsError/windNorthward',
+                                 source='variables/windNorthward',
+                                 units='m s-1',
+                                 longName='Northward Wind Component Error')
+
+        description.add_variable(name='ObsError/specificHumidity',
+                                 source='variables/specificHumidity',
+                                 units='kg kg-1',
+                                 longName='Specific Humidity Error')
+
+        description.add_variable(name='ObsError/virtualTemperature',
+                                 source='variables/virtualTemperature',
+                                 units='K',
+                                 longName='virtual Temperature Error')
+
+        description.add_variable(name='ObsError/airTemperature',
+                                 source='variables/virtualTemperature',
+                                 units='K',
+                                 longName='virtual Temperature Error')
+
+
     return description
 
 

@@ -180,4 +180,3 @@ encoder:
     - name: "QualityMarker/meteoroStatus"
       source: variables/meteroQM
       longName: "Quality Indicator for HDOB METEROLOGICAL STATUS"
-

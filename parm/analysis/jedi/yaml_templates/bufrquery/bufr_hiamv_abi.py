@@ -108,6 +108,18 @@ def _make_description(mapping_path, update=False):
                 'longName': 'Northward Wind Component',
             },
             {
+                'name': 'ObsError/windEastward',
+                'source': 'variables/windEastward',
+                'units': 'm s-1',
+                'longName': 'Eastward Wind Error',
+            },
+            {
+                'name': 'ObsError/windNorthward',
+                'source': 'variables/windNorthward',
+                'units': 'm s-1',
+                'longName': 'Northward Wind Error',
+            },
+            {
                 'name': 'MetaData/height',
                 'source': 'variables/height',
                 'units': 'm',

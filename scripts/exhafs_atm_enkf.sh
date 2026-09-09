@@ -237,46 +237,105 @@ ${NLN} ${CRTM_TEMP}/CloudCoeff/Little_Endian/CloudCoeff.bin ./CloudCoeff.bin
 
 
 # Link GFS/GDAS input and observation files
-#radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp radiance_mhs_n18 radiance_mhs_n19 radiance_mhs_metop-b radiance_iasi_metop-c radiance_amsua_metop-c radiance_mhs_metop-c"
+radtypes="radiance_atms_npp radiance_amsua_n19 radiance_atms_n20 radiance_iasi_metop-b radiance_ssmis_f17 radiance_amsua_metop-b radiance_amsua_n18 radiance_abi_g16 radiance_abi_g18 radiance_cris-fsr_n20 radiance_cris-fsr_n21 radiance_cris-fsr_npp radiance_mhs_n18 radiance_mhs_n19 radiance_mhs_metop-b radiance_iasi_metop-c radiance_amsua_metop-c radiance_mhs_metop-c"
 convtypes="conventional_air_aircar_133q conventional_air_aircar_133t conventional_air_aircar_233 conventional_air_drpsnd_137q conventional_air_drpsnd_137t conventional_air_drpsnd_237 conventional_air_amdar_130t conventional_air_amdar_131t conventional_air_amdar_230 conventional_air_amdar_231 conventional_air_amdar_234 conventional_air_amdar_235 conventional_air_hdob_136q conventional_air_hdob_136t conventional_air_hdob_236 conventional_air_raob_120q conventional_air_raob_220 conventional_air_raob_120t conventional_land_synop_181ps conventional_land_synop_187ps conventional_land_synop_181q conventional_land_synop_181t conventional_land_synop_281 conventional_land_synop_287 conventional_radar_tdr_992 conventional_radar_tdr_993 conventional_sea_ship_180ps conventional_sea_ship_180q conventional_sea_ship_180t conventional_sea_ship_280 retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_osw_ascat conventional_air_raob_120ps conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp_112 conventional_radar_vadwnd"
 convfiles="conventional_air_aircar conventional_air_drpsnd conventional_air_amdar conventional_air_hdob conventional_air_raob conventional_land_synop conventional_radar_tdr conventional_sea_ship retrieval_amv_seviri_m8 retrieval_amv_seviri_m9 retrieval_amv_seviri_m10 retrieval_amv_seviri_m11 retrieval_amv_abi_goes-16 retrieval_amv_abi_goes-18 retrieval_hiamv_abi_goes-16 retrieval_hiamv_abi_goes-18 retrieval_hiamv_abi_goes-19 conventional_gnssro_cosmic2 conventional_gnssro_geooptics conventional_gnssro_grace conventional_gnssro_kompsat5 conventional_gnssro_metop conventional_gnssro_paz.yaml conventional_gnssro_planetiq conventional_gnssro_sentinel6 conventional_gnssro_spire conventional_gnssro_tandemx conventional_gnssro_terrasarx conventional_tcp conventional_radar_vadwnd"
 mkdir -p "${DATA}/obs"
 cd "${DATA}/obs" || exit 1
 IFS=' ' read -ra convtypes_array <<< "$convtypes"
-
+IFS=' ' read -ra convfiles_array <<< "$convfiles"
+valid_convfiles=()
 valid_convtypes=()
-for file in ${convtypes_array[@]}; do
-  ncfile="${WORKhafs}/intercom/RESTART_analysis_ens/hofx/diag_${file}_t${cyc}z.nc"
-  linkfile="hafs.t${cyc}z.${file}.nc"
-  if [[ -f "$ncfile" ]]; then
-    nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
-    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
-        echo "Skipping empty or invalid file: $ncfile"
-        continue
+checked_convfiles=()
+for type in "${convtypes_array[@]}"; do
+  matched_file=""
+  # Find the matching parent convfile for this convtype
+  # Use longest prefix match
+  for file in "${convfiles_array[@]}"; do
+    if [[ "$type" == "$file"* ]]; then
+      if [[ -z "$matched_file" || ${#file} -gt ${#matched_file} ]]; then
+        matched_file="$file"
+      fi
     fi
-    ${NLN} "$ncfile" "$linkfile"
-    valid_convtypes+=("$file")
-  else
-    echo "WARNING: Missing file $ncfile, skipping $file"
+  done
+  if [[ -z "$matched_file" ]]; then
+    echo "WARNING: No matching convfile found for convtype $type, skipping"
+    continue
   fi
+  src_ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${matched_file}.nc"
+  local_ncfile="${DATA}/obs/hafs.t${cyc}z.${matched_file}.nc"
+  tgt_ncfile="${DATA}/obs/hafs.t${cyc}z.${type}.nc"
+  if [[ ! -f "$src_ncfile" ]]; then
+    echo "WARNING: Missing source file $src_ncfile for convtype $type, skipping"
+    continue
+  fi
+  # Check each source file only once
+  need_check=1
+  for f in "${checked_convfiles[@]}"; do
+    if [[ "$f" == "$matched_file" ]]; then
+      need_check=0
+      break
+    fi
+  done
+  if [[ $need_check -eq 1 ]]; then
+    nloc=$(ncdump -h "$src_ncfile" \
+      | sed -n '/dimensions:/,/variables:/p' \
+      | grep -E "Location|nobs" \
+      | head -1 \
+      | grep -oE '[0-9]+' \
+      | tail -1)
+    if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
+      echo "Skipping empty or invalid file: $src_ncfile"
+      checked_convfiles+=("$matched_file")
+      continue
+    fi
+    # Copy source file into ${DATA}/obs once
+    if [[ ! -f "$local_ncfile" ]]; then
+       ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
+    fi
+    checked_convfiles+=("$matched_file")
+    valid_convfiles+=("$matched_file")
+  else
+    # If already checked before, make sure it was valid
+    already_valid=0
+    for f in "${valid_convfiles[@]}"; do
+      if [[ "$f" == "$matched_file" ]]; then
+        already_valid=1
+        break
+      fi
+    done
+    if [[ $already_valid -eq 0 ]]; then
+      echo "Skipping convtype $type because parent file $matched_file was invalid"
+      continue
+    fi
+    # If valid and local copy somehow missing, restore it
+    if [[ ! -f "$local_ncfile" ]]; then
+      ${NCP} "$src_ncfile" "$local_ncfile"
+#      python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o $src_ncfile -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
+    fi
+  fi
+  # Create link named after convtype, pointing to the local copied file
+  ${NLN} "$local_ncfile" "$tgt_ncfile"
+  valid_convtypes+=("$type")
 done
-
+# Update convtypes to only valid ones
 convtypes="${valid_convtypes[*]}"
-
+convfiles="${valid_convfiles[*]}"
 # === Now handle radtypes ===
 IFS=' ' read -ra radtypes_array <<< "$radtypes"
-
 valid_radtypes=()
 for file in ${radtypes_array[@]}; do
-  ncfile="${WORKhafs}/intercom/RESTART_analysis_ens/hofx/diag_${file}_t${cyc}z.nc"
-  linkfile="hafs.t${cyc}z.${file}.nc"
+  ncfile="${OBSIODA_DIR}/hafs.t${cyc}z.${file}.nc"
+  local_ncfile="${DATA}/obs/hafs.t${cyc}z.${file}.nc"
   if [[ -f "$ncfile" ]]; then
     nloc=$(ncdump -h "$ncfile" | sed -n '/dimensions:/,/variables:/p' | grep -E "Location|nobs" | head -1 | grep -oE '[0-9]+' | tail -1)
     if [[ -z "$nloc" || "$nloc" -eq 0 ]]; then
         echo "Skipping empty or invalid file: $ncfile"
         continue
     fi
-    ${NLN} "$ncfile" "$linkfile"
+    ${NLN} "$ncfile" .
+#    python ${USHhafs:-${HOMEhafs}/ush}/offline_domain_check.py -g ${DATA}/bkg/grid_spec${nesttilestr}.nc -o ${ncfile} -s 0.1 -clon=${target_lon} -clat=${target_lat} -n ${TOTAL_TASKS} -out $local_ncfile
     tlapse_file="${OBSIODA_DIR}/${file}.tlapse.txt"
     [[ -f "$tlapse_file" ]] && ${NLN} "$tlapse_file" .
     valid_radtypes+=("$file")
@@ -284,9 +343,7 @@ for file in ${radtypes_array[@]}; do
     echo "WARNING: Missing file $ncfile, skipping $file"
   fi
 done
-
 radtypes="${valid_radtypes[*]}"
-
 # Final combined types
 obstypes="$convtypes $radtypes"
 bctypes="${radtypes}"
@@ -367,6 +424,8 @@ for obstype in ${obstypes}; do
 done
 python run_jedi.py
 
+sed -i '/obsdataout:/{N;N;N;N;N;d}' jedi.yaml #Removing the obsdataout for speedup
+
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
 #-------------------------------------------------------------------
@@ -377,85 +436,73 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
-for mem in $(seq 1 ${n_ens_fv3sar}); do
-  memout=$(printf "mem%03d" "$mem")
-  mkdir -p ${RESTARTens_anl}/${memout}
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/${FV3_CPLR_ENS_FILE}
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE}
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTens_anl}/${memout}/${FV3_TRCR_ENS_FILE}
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTens_anl}/${memout}/${FV3_SFCW_ENS_FILE}
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}
-  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
-  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
-  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
-
-  #add missing sfc_data variables from the background file
-  fileA="${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}"
-  fileB="${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}"
 get_vars() {
-  ncdump -h "$1" |
-    sed -n '/variables:/,/^$/p' |
-    grep "(" |
-    awk '{print $2}' |
-    awk -F'(' '{print $1}' |
-    sort -u
+  ncdump -h "$1" | sed -n '/variables:/,/^$/p' | grep "(" | awk '{print $2}' | awk -F'(' '{print $1}' | sort -u
 }
 get_zvars() {
-  ncdump -h "$1" |
-    sed -n '/variables:/,/^$/p' |
-    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
-    sort -u
+  ncdump -h "$1" | sed -n '/variables:/,/^$/p' | awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' | sort -u
 }
 dim_len() {
-  ncdump -h "$1" |
-    sed -n '/dimensions:/,/variables:/p' |
-    awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
+  ncdump -h "$1" | sed -n '/dimensions:/,/variables:/p' | awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
 }
-  # ----------------------------------------------------------------------
-  # Fix zaxis naming before appending variables.
-  # In bkg: zaxis_1=2, zaxis_2=4
-  # In ana: zaxis_1=4, so rename ana zaxis_1 -> zaxis_2
-  # ----------------------------------------------------------------------
+process_member() {
+  memout="$1"
+  echo "[${memout}] Processing"
+  mkdir -p ${RESTARTens_anl}/${memout}
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.coupler.res ${RESTARTens_anl}/${memout}/${FV3_CPLR_ENS_FILE} || return 1
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE} || return 1
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTens_anl}/${memout}/${FV3_TRCR_ENS_FILE} || return 1
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTens_anl}/${memout}/${FV3_SFCW_ENS_FILE} || return 1
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE} || return 1
+  fileA="${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}"
+  fileB="${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}"
+  if [ ! -f "$fileA" ]; then
+    echo "[${memout}] ERROR: fileA does not exist: $fileA"
+    return 1
+  fi
+  if [ ! -f "$fileB" ]; then
+    echo "[${memout}] ERROR: fileB does not exist: $fileB"
+    return 1
+  fi
   b_z1=$(dim_len "$fileB" zaxis_1)
   a_z1=$(dim_len "$fileA" zaxis_1)
   a_z2=$(dim_len "$fileA" zaxis_2)
-
   if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
-    echo "Renaming fileB zaxis_1 -> zaxis_2"
-    ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
+    echo "[${memout}] Renaming fileB zaxis_1 -> zaxis_2"
+    ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB" || return 1
   fi
-
-  # ----------------------------------------------------------------------
-  # Append only missing zaxis coordinate variables from fileA.
-  # Do not overwrite existing coordinate variables with different type.
-  # ----------------------------------------------------------------------
-  tmpA=$(mktemp)
-  tmpB=$(mktemp)
-  get_zvars "$fileA" > "$tmpA"
-  get_vars  "$fileB" > "$tmpB"
-  missing_zvars=$(comm -23 "$tmpA" "$tmpB")
-  rm -f "$tmpA" "$tmpB"
+  missing_zvars=$(comm -23 <(get_zvars "$fileA") <(get_vars "$fileB"))
   if [ -n "$missing_zvars" ]; then
     zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
-    echo "Attaching missing zaxis coordinate variables: $zvar_list"
-    ncks -A -v "$zvar_list" "$fileA" "$fileB"
+    echo "[${memout}] Attaching zaxis variables: $zvar_list"
+    ncks -A -v "$zvar_list" "$fileA" "$fileB" || return 1
   fi
-
-  # ----------------------------------------------------------------------
-  # Append missing non-coordinate variables.
-  # Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
-  # ----------------------------------------------------------------------
-  tmpA=$(mktemp)
-  tmpB=$(mktemp)
-  get_vars "$fileA" > "$tmpA"
-  get_vars "$fileB" > "$tmpB"
-  missing_vars=$(comm -23 "$tmpA" "$tmpB")
-  rm -f "$tmpA" "$tmpB"
+  missing_vars=$(comm -23 <(get_vars "$fileA") <(get_vars "$fileB"))
   if [ -z "$missing_vars" ]; then
-    echo "No missing variables found. File B is already up to date."
+    echo "[${memout}] No missing variables"
   else
     var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-    echo "Attaching variables: $var_list"
-    ncks -A -C -v "$var_list" "$fileA" "$fileB"
+    echo "[${memout}] Attaching variables: $var_list"
+    ncks -A -C -v "$var_list" "$fileA" "$fileB" || return 1
   fi
+  echo "[${memout}] Done"
+}
+${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
+${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
+${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
+export -f get_vars get_zvars dim_len process_member
+export NCP DATA PDY cyc COMOLD old_out_prefix RESTARTens_anl
+export FV3_CPLR_ENS_FILE FV3_CORE_ENS_FILE FV3_TRCR_ENS_FILE FV3_SFCW_ENS_FILE FV3_SFCD_ENS_FILE
+rm -f cmdfile
+for mem in $(seq 1 ${n_ens_fv3sar}); do
+  memout=$(printf "mem%03d" "$mem")
+  echo "bash -c 'process_member ${memout}'" >> cmdfile
 done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ]; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi

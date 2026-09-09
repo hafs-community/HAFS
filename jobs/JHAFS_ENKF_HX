@@ -123,6 +123,7 @@ cd $DATA
 if [[ "${ANALYSIS_MODEL}" = "JEDI" ]] || [[ "${ANALYSIS_MODEL}" = "jedi" ]]; then
   ${NLN} ${HOMEhafs}/ush/wxflow .
   ${HOMEhafs}/scripts/exhafs_atm_enkf_hx.sh
+#JEDI ENKF DOES NOT NEED PRE CALCULATION OF HOFX ANYMORE, KEPT FOR DIAGNOSTIC POTENTIAL
 else
   ${HOMEhafs}/scripts/exhafs_enkf_hx.sh
 fi

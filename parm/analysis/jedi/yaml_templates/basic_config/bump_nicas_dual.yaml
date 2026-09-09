@@ -38,7 +38,7 @@ background:
   - cloud_ice_number_concentration
   - rain_number_concentration
   - ozone_mass_mixing_ratio
-  - geopotential_height_times_gravity_at_surface
+  - geopotential_at_surface
   field io names: &field_io_names
     eastward_wind: ua
     northward_wind: va
@@ -57,7 +57,7 @@ background:
     graupel: graupel
     cloud_ice_number_concentration: ice_nc
     rain_number_concentration: rain_nc
-    geopotential_height_times_gravity_at_surface: phis
+    geopotential_at_surface: phis
     soilMoistureVolumetric: smc
     totalSnowDepth: snwdph
     eastward_wind_at_surface: u_srf

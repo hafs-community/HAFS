@@ -198,3 +198,9 @@ encoder:
       units: "K"
       range: [120, 500]
       chunks: [10000, 24]
+
+    #ObsError
+    - name: "ObsError/brightnessTemperature"
+      source: variables/remappedBT
+      longName: "Brightness Temperature Error"
+      units: "K"

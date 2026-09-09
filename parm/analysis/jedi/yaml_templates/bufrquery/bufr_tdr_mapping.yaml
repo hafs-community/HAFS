@@ -100,5 +100,3 @@ encoder:
       source: variables/radialVelocity
       longName: "Doppler Mean Radial Velocity"
       units: "m s-1"
-
-

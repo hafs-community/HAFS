@@ -66,6 +66,13 @@ bufr:
           minute: "*/MINU"
           second: "*/SECO"
 
+    # Placeholder ObsError
+    obsErrorBT:
+      query: "*/ATMSCH/TMANT"
+      transforms:
+        - scale: 0
+        - offset: 1.0
+
   splits:
     satId:
       category:
@@ -194,5 +201,12 @@ encoder:
     - name: "ObsValue/brightnessTemperature"
       source: variables/remappedBT
       longName: "3-by-3 Averaged Brightness Temperature"
+      units: "K"
+      chunks: [10000, 22]
+
+    # ObsError placeholder
+    - name: "ObsError/brightnessTemperature"
+      source: variables/obsErrorBT
+      longName: "Brightness Temperature Observation Error"
       units: "K"
       chunks: [10000, 22]

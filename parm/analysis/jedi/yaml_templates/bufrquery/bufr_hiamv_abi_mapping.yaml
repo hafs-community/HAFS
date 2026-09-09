@@ -195,3 +195,14 @@ encoder:
       source: variables/windSpeed
       longName: "Wind Speed"
       units: "m s-1"
+
+    #ObsError
+    - name: "ObsError/windDirection"
+      source: variables/windDirection
+      longName: "Wind Direction Error"
+      units: "degrees"
+
+    - name: "ObsError/windSpeed"
+      source: variables/windSpeed
+      longName: "Wind Speed Error"
+      units: "m s-1"
