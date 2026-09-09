@@ -161,6 +161,7 @@ CONTAINS
         REAL(8) :: rlonglob, rlatglob, clat1
         REAL(8) :: caz0, saz0, cdlon, sdlon, caz1, saz1
         REAL(8) :: corrected_azimuth
+        REAL(8) :: output_azimuth  ! for 0 degree azimuth conversion
         REAL(8) :: thislat, thislon
         REAL(8) :: stn_hgt
 
@@ -582,7 +583,9 @@ CONTAINS
                 out_lon(obs_idx)   = REAL(thislon, 4)
                 out_elv(obs_idx)   = REAL(stn_hgt, 4)
                 out_range(obs_idx) = REAL(gamma, 4)             ! gamma not thisrange
-                out_az(obs_idx)    = REAL(corrected_azimuth, 4) ! corrected azimuth
+                ! Adjusted the 0 azimuth from east to north, for updated UFO operators
+                output_azimuth     = MODULO(90.0_8 - corrected_azimuth, 360.0_8)
+                out_az(obs_idx)    = REAL(output_azimuth, 4) ! corrected azimuth
                 out_tilt(obs_idx)  = REAL(corrected_tilt, 4)    ! corrected tilt
                 out_hgt(obs_idx)   = REAL(thishgt, 4)           ! MSL height
                 out_vr(obs_idx)    = REAL(thisvr_avg, 4)
