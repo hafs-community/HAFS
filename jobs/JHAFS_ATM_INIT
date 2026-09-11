@@ -66,32 +66,102 @@ if [ ${FGAT_MODEL} = gdas ]; then
   export out_prefix="${STORMID,,}.${CDATE}"
 fi
 
-if [ "${ENSDA}" = YES ] && [ "${ENSID}" != "000" ]; then
-  export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
-  export nest_grids=${nest_grids_ens:-1}
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
+################################################
+export FGAT_MODEL=${FGAT_MODEL:-gfs}
+export FGAT_HR=${FGAT_HR:-00}
+
+run_needed=NO
+if [ -d ${WORKhafs}/intercom/atm_merge_prep ]; then
+  echo 'outside parent domain'
+  run_needed=YES
+  export run_needed=YES
+fi
+
+if [ "${run_needed}" = "YES" ]; then
+    if [ "${ENSDA}" = YES ]; then
+      export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
+    elif [ ${FGAT_MODEL} = gdas ]; then
+      export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
+    else
+      export DATA=${WORKhafs}/atm_init${jobidstr}
+    fi
+
+    if [ "${SCRUBDATA:-YES}" = YES ]; then
+      rm -rf $DATA
+    fi
+    mkdir -p $DATA
+    cd $DATA
+
+    # Add multistorm env vars
+    export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+
+    # Execute ex-script
+    ${HOMEhafs}/scripts/exhafs_atm_init.sh
+    export err=$?; err_chk
+
+    # Cleanup DATA dir
+    cd ${WORKhafs}
+    if [ "${KEEPDATA:-YES}" != "YES" ]; then
+
+      rm -rf $DATA
+    fi
+
+##    
+    if [ "${ENSDA}" = YES ]; then
+      export DATA=${WORKhafs}/atm_merge_init_ens/mem${ENSID}${jobidstr}
+    elif [ ${FGAT_MODEL} = gdas ]; then
+      export DATA=${WORKhafs}/atm_merge_init_fgat${FGAT_HR}${jobidstr}
+    else
+      export DATA=${WORKhafs}/atm_merge_init${jobidstr}
+    fi
+
+    if [ "${SCRUBDATA:-YES}" = YES ]; then
+      rm -rf $DATA
+    fi
+    mkdir -p $DATA
+    cd $DATA
+
+    # Add multistorm env vars
+    export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+
+    # Execute ex-script
+    ${HOMEhafs}/scripts/exhafs_atm_init_test.sh
+    export err=$?; err_chk
+    # Cleanup DATA dir
+    cd ${WORKhafs}
+    if [ "${KEEPDATA:-YES}" != "YES" ]; then
+      rm -rf $DATA
+    fi
 else
-  export DATA=${WORKhafs}/atm_init${jobidstr}
+####
+
+  if [ "${ENSDA}" = YES ] && [ "${ENSID}" != "000" ]; then
+    export DATA=${WORKhafs}/atm_init_ens/mem${ENSID}${jobidstr}
+    export nest_grids=${nest_grids_ens:-1}
+  elif [ ${FGAT_MODEL} = gdas ]; then
+    export DATA=${WORKhafs}/atm_init_fgat${FGAT_HR}${jobidstr}
+  else
+    export DATA=${WORKhafs}/atm_init${jobidstr}
+  fi
+  
+  if [ "${SCRUBDATA:-YES}" = YES ] && [ "${ENSDA}" != YES ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+  
+  # Add multistorm env vars
+  export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
+  
+  # Execute ex-script
+  ${HOMEhafs}/scripts/exhafs_atm_init.sh
+  export err=$?; err_chk
+  
+  # Cleanup DATA dir
+  cd ${WORKhafs}
+  if [ "${KEEPDATA:-YES}" != "YES" ]; then
+    rm -rf $DATA
+  fi
+
 fi
-
-if [ "${SCRUBDATA:-YES}" = YES ] && [ "${ENSDA}" != YES ]; then
-  rm -rf $DATA
-fi
-mkdir -p $DATA
-cd $DATA
-
-# Add multistorm env vars
-export RUN_MULTISTORM=${RUN_MULTISTORM:-NO}
-
-# Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_init.sh
-export err=$?; err_chk
-
-# Cleanup DATA dir
-cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
-fi
-
 date

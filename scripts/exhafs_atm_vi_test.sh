@@ -16,7 +16,13 @@
 #   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
-
+#vi_force_cold_start=${vi_force_cold_start:-no}
+# TEMPORARY WORKAROUND: Force cold start for storms too close to outer boundaries
+#if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+#  if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then
+#    vi_force_cold_start=yes
+#  fi
+#fi
 vi_min_wind_for_init=${vi_min_wind_for_init:-9} # m/s
 vi_warm_start_vmax_threshold=$(printf "%.0f" ${vi_warm_start_vmax_threshold:-20}) # m/s
 vi_bogus_vmax_threshold=$(printf "%.0f" ${vi_bogus_vmax_threshold:-50}) # m/s
@@ -34,28 +40,6 @@ vi_domain=${vi_domain:-40}
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
-
-vi_force_cold_start=${vi_force_cold_start:-no}
-# WORKAROUND: Force cold start for storms too close to outer boundaries
-if [[ ${vi_force_cold_start,,} != "yes" ]]; then
-  # Lew.Gramer@noaa.gov 2026-07-16
-  if [[ ${pubbasin2} == AL ]]; then
-    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -97 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then # Atl domain
-      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
-      vi_force_cold_start=yes
-    fi
-  elif [[ ${pubbasin2} == EP ]]; then
-    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -140 ]] || [[ ${target_lon%[.][0-9]*} -ge -103 ]]; then # Pac domain
-      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
-      vi_force_cold_start=yes
-    fi
-  else
-    if [[ ${target_lat%[.][0-9]*} -ge 32 ]] || [[ ${target_lon%[.][0-9]*} -le -110 ]] || [[ ${target_lon%[.][0-9]*} -ge -40 ]]; then # M domain
-      echo "WARNING: FORCING COLD START: Initial position ${target_lon},${target_lat} too close to D01 boundary"
-      vi_force_cold_start=yes
-    fi
-  fi
-fi
 
 #useFakestormInit=false
 # Lew.Gramer@noaa.gov 2026-07-13
@@ -76,6 +60,9 @@ elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}
   export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+
+  export RESTARTinitvi=${WORKhafs}/intercom/RESTART_initvi_fgat${FGAT_HR}
+  export RESTARTinpvi=${WORKhafs}/intercom/RESTART_prevvi_fgat${FGAT_HR}
 else
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge
@@ -83,6 +70,9 @@ else
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi
   export CDATE=${CDATE:-${YMDH}}
+
+  export RESTARTinitvi=${WORKhafs}/intercom/RESTART_initvi
+  export RESTARTinpvi=${WORKhafs}/intercom/RESTART_prevvi
 
   if [ "${useFakestormInit}" = "true" ]; then
     # #### Lew.Gramer@noaa.gov 2026-07-13
@@ -100,6 +90,75 @@ DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 DATA=${DATA:-${WORKhafs}/atm_vi}
 mkdir -p ${DATA}
 
+vi_force_cold_start=${vi_force_cold_start:-no}
+
+echo 'copy RESTART_merge files'
+if [ -d ${RESTARTinp} ]; then
+    #indicate previous cycle exits, try warm start
+    echo 'try warm start, previous cycle exist'
+  #  if [ ${FGAT_MODEL} = gdas ]; then
+  #      ${NMV} ${RESTARTinp} ${RESTARTinp}_org
+  #      mkdir ${RESTARTinp}
+  #      ${NCP} ${RESTARTinp}_org/*nest* ${RESTARTinp}/
+  #      ${NCP} ${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}/* ${RESTARTinp}/
+  #       ${NCP} ${RESTARTinp}/*nest* ${RESTARTmrg}/
+      mkdir ${RESTARTinpvi}
+      ${NCP} ${RESTARTinp}/*nest* ${RESTARTinpvi}/
+      ${NCP} ${RESTARTmrg}/* ${RESTARTinpvi}/
+  #  else
+  #      ${NMV} ${RESTARTinp} ${RESTARTinp}_org
+  #      mkdir ${RESTARTinp}
+  #      ${NCP} ${RESTARTinp}_org/*nest* ${RESTARTinp}/
+  #      ${NCP} ${WORKhafs}/intercom/RESTART_merge/* ${RESTARTinp}/
+  #       ${NCP} ${RESTARTinp}/*nest* ${RESTARTmrg}/
+  #  fi
+  else 
+    if [[ ${vi_force_cold_start,,} != "yes" ]]; then
+      if [[ ${pubbasin2} == AL ]]; then
+        if [[ ${target_lat%[.][0-9]*} -ge 45 ]] || [[ ${target_lon%[.][0-9]*} -le -101 ]] || [[ ${target_lon%[.][0-9]*} -ge -10 ]]; then # Atl domain
+          echo 'outside parent domain but no previous cycle'
+          vi_force_cold_start=yes
+          #exit
+        fi
+      elif [[ ${pubbasin2} == EP ]]; then
+        if [[ ${target_lat%[.][0-9]*} -ge 45 ]] || [[ ${target_lon%[.][0-9]*} -le -180 ]] || [[ ${target_lon%[.][0-9]*} -ge -80 ]]; then # Pac domain
+          echo 'outside parent domain but no previous cycle'
+          vi_force_cold_start=yes
+          #exit
+        fi
+      else
+        if [[ ${target_lat%[.][0-9]*} -ge 45 ]] || [[ ${target_lon%[.][0-9]*} -le -180 ]] || [[ ${target_lon%[.][0-9]*} -ge -80 ]]; then # M domain
+          echo 'outside parent domain but no previous cycle'
+          vi_force_cold_start=yes
+          #exit
+        fi
+      fi
+    fi
+fi
+#else #cold start
+if [ ${FGAT_MODEL} = gdas ]; then
+      mkdir ${RESTARTinitvi}
+      ${NCP} ${RESTARTinit}/*nest* ${RESTARTinitvi}/
+      ${NCP} ${WORKhafs}/intercom/RESTART_atm_merge_init_fgat${FGAT_HR}/* ${RESTARTinitvi}/
+#    echo "intercom/RESTART_atm_merge_init_fgat${FGAT_HR}"
+#    ${NMV} ${RESTARTinit} ${RESTARTinit}_org
+#    mkdir ${RESTARTinit}
+#    ${NCP} ${RESTARTinit}_org/*nest* ${RESTARTinit}
+#    ${NCP} ${WORKhafs}/intercom/RESTART_atm_merge_init_fgat${FGAT_HR}/* ${RESTARTinit}/
+#     ${NCP} ${RESTARTinit}/*nest* ${RESTARTmrg}/
+else
+      mkdir ${RESTARTinitvi}
+      ${NCP} ${RESTARTinit}/*nest* ${RESTARTinitvi}/
+      ${NCP} ${WORKhafs}/intercom/RESTART_atm_merge_init/* ${RESTARTinitvi}/
+#    echo "intercom/RESTART_atm_merge_init"
+#    ${NMV} ${RESTARTinit} ${RESTARTinit}_org
+#    mkdir ${RESTARTinit}
+#    ${NCP} ${RESTARTinit}_org/*nest* ${RESTARTinit}
+#    ${NCP} ${WORKhafs}/intercom/RESTART_atm_merge_init/* ${RESTARTinit}/
+#     ${NCP} ${RESTARTinit}/*nest* ${RESTARTmrg}/
+fi
+#fi #warm/cold start if statement
+
 cd $DATA
 # Prepare tcvitals file
 if [ ${FGAT_HR} = 03 ]; then
@@ -110,7 +169,7 @@ elif [ ${FGAT_HR} = 06 ]; then
   gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
   ${NCP} ${WORKhafs}/intercom/launch/tp03vit tcvitals.vi
-  gesfhr=9
+   gesfhr=9
 else
   ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
@@ -141,24 +200,10 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-rm -f cmdfile
-for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
-                         ${RESTARTdst}/atmos_static*.nc \
-                         ${RESTARTdst}/grid_*spec*.nc \
-                         ${RESTARTdst}/oro_data*.nc) ; do
-  fname=$(basename ${file})
-  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
-done
-chmod +x cmdfile
-if [ $USE_CFP = "YES" ] ; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
-export err=$?; err_chk
-# rm -f cmdfile
+${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 
 echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
 echo "INFO: exiting after skipping vortex initialization ..."
@@ -211,7 +256,7 @@ for res in 0.02 0.20; do
     mkdir -p ${work_dir}
     cd ${work_dir}
     ${APRUNC} ${DATOOL} hafsvi_preproc \
-        --in_dir=${RESTARTinp} \
+        --in_dir=${RESTARTinpvi} \
         --debug_level=1 --interpolation_points=5 \
         --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
         --tcvital=${tcvital} \
@@ -221,8 +266,8 @@ for res in 0.02 0.20; do
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+      mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
@@ -243,7 +288,7 @@ for res in 0.02 0.20; do
   mkdir -p ${work_dir}
   cd ${work_dir}
   ${APRUNC} ${DATOOL} hafsvi_preproc \
-      --in_dir=${RESTARTinit} \
+      --in_dir=${RESTARTinitvi} \
       --debug_level=1 --interpolation_points=5 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
       --tcvital=${tcvital} \
@@ -253,8 +298,8 @@ for res in 0.02 0.20; do
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 done
 
@@ -659,25 +704,10 @@ elif [ -d ${RESTARTmrg} ]; then
 else
   RESTARTdst=${RESTARTinp}
 fi
-rm -f cmdfile
-for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
-                         ${RESTARTdst}/atmos_static*.nc \
-                         ${RESTARTdst}/grid_*spec*.nc \
-                         ${RESTARTdst}/oro_data*.nc) ; do
-  fname=$(basename ${file})
-  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
-done
-chmod +x cmdfile
-if [ $USE_CFP = "YES" ] ; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
-export err=$?; err_chk
-# rm -f cmdfile
-
+${NCP} -rp ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/atmos_static*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/grid_*spec*.nc ${RESTARTout}/
+${NCP} -rp ${RESTARTdst}/oro_data*.nc ${RESTARTout}/
 if [ -s ${DATA}/anl_storm/storm_txt ]; then
  ${NCP} -rp ${DATA}/anl_storm/storm_txt ${RESTARTout}/
 fi
@@ -693,6 +723,14 @@ for nd in $(seq 1 ${nest_grids}); do
       --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
   export err=$?; err_chk
 done
+
+#if [ -d ${RESTARTinit}_org ]; then
+#  ${NMV} ${RESTARTinit}  ${RESTARTinit}_mergetmp
+#  ${NMV} ${RESTARTinit}_org ${RESTARTinit} 
+#elif [ -d ${RESTARTinp}_org ]; then
+#  ${NMV} ${RESTARTinp} ${RESTARTinp}_mergetmp
+#  ${NMV} ${RESTARTinp}_org ${RESTARTinp}
+#fi
 
 #===============================================================================
 

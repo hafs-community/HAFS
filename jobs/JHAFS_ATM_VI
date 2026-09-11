@@ -60,29 +60,103 @@ export ENSID=${ENSID:-000}
 export FGAT_MODEL=${FGAT_MODEL:-gfs}
 export FGAT_HR=${FGAT_HR:-00}
 
-# Deterministic or ensemble
-if [ "${ENSDA}" = YES ]; then
-  export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}${jobidstr}
-elif [ ${FGAT_MODEL} = gdas ]; then
-  export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}${jobidstr}
+run_needed=NO
+if [ -d ${WORKhafs}/intercom/atm_merge_prep ]; then
+  echo 'outside parent domain'
+  run_needed=YES
+  export run_needed=YES
+fi
+#########################################
+export RESTARTprev=${COMOLD}/${old_out_prefix}.RESTART
+
+if [ "${run_needed}" = "YES" ]; then #&& [ -d ${RESTARTprev}  ]; then
+#if [ "${run_needed}" = "YES" ]; then #&& [  = "YES" ]; then to-do later
+
+  echo "previous cycle exisit, merge first"
+  #merge first
+  export MERGE_TYPE=init
+  # Merge analysis or init
+  if [ ${MERGE_TYPE} = analysis ]; then
+    if [ "${ENSDA}" = YES ]; then
+      export DATA=${WORKhafs}/analysis_merge_ens/mem${ENSID}${jobidstr}
+    else
+      export DATA=${WORKhafs}/analysis_merge${jobidstr}
+    fi
+  elif [ ${MERGE_TYPE} = init ]; then
+    if [ ${FGAT_MODEL} = gdas ]; then
+      export DATA=${WORKhafs}/atm_merge_fgat${FGAT_HR}${jobidstr}
+    else
+      export DATA=${WORKhafs}/atm_merge${jobidstr}
+    fi
+  else
+    echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
+    exit 1
+  fi
+
+  if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+
+if [ -d ${RESTARTprev}  ]; then
+  # Execute ex-script
+  ${HOMEhafs}/scripts/exhafs_merge_test.sh
+  export err=$?; err_chk
+fi
+
+  # Cleanup DATA dir
+  cd ${WORKhafs}
+  if [ "${KEEPDATA:-YES}" != "YES" ]; then
+    rm -rf $DATA
+  fi
+
+  # Deterministic or ensemble
+  if [ "${ENSDA}" = YES ]; then
+    export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}${jobidstr}
+  elif [ ${FGAT_MODEL} = gdas ]; then
+    export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}${jobidstr}
+  else
+    export DATA=${WORKhafs}/atm_vi${jobidstr}
+  fi
+
+  if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+
+  # Execute ex-script
+  ${HOMEhafs}/scripts/exhafs_atm_vi_test.sh
+  export err=$?; err_chk
+
 else
-  export DATA=${WORKhafs}/atm_vi${jobidstr}
+
+  ####
+  # Deterministic or ensemble
+  if [ "${ENSDA}" = YES ]; then
+    export DATA=${WORKhafs}/atm_vi_ens/mem${ENSID}${jobidstr}
+  elif [ ${FGAT_MODEL} = gdas ]; then
+    export DATA=${WORKhafs}/atm_vi_fgat${FGAT_HR}${jobidstr}
+  else
+    export DATA=${WORKhafs}/atm_vi${jobidstr}
+  fi
+  
+  if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+  
+  # Execute ex-script
+  ${HOMEhafs}/scripts/exhafs_atm_vi.sh
+  export err=$?; err_chk
+  
+  # Cleanup DATA dir
+  cd ${WORKhafs}
+  if [ "${KEEPDATA:-YES}" != "YES" ]; then
+    rm -rf $DATA
+  fi
+
 fi
-
-if [ "${SCRUBDATA:-YES}" = "YES" ]; then
-  rm -rf $DATA
-fi
-mkdir -p $DATA
-cd $DATA
-
-# Execute ex-script
-${HOMEhafs}/scripts/exhafs_atm_vi.sh
-export err=$?; err_chk
-
-# Cleanup DATA dir
-cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
-fi
-
 date

@@ -1,7 +1,10 @@
 !??????????????????????????????????????????????????????????
-      SUBROUTINE CREAT_41X41(ITIM,KST,KMX,MTV6,KS850,U850,V850,SDAT,P2)
+      SUBROUTINE CREAT_41X41(ITIM,KST,KMX,MTV6,KS850,U850,V850,SDAT,P2,IRX,JRX) !2024
       !Authors: Qingfu Liu (NCEP/EMC)
       !Revised by Chuan-Kai Wang (NCEP/EMC) 2022
+      !Revised by: JungHoon Shin, NCEP/EMC, Mar 2026 Mimic Kun Gao's method (at GFDL) to use 
+      !            a smaller VI domain as an option
+      !            Kun Gao's subroutine is modified and used for this change
 ! SUBPROGRAM
 !   PRGRMMR
 !
@@ -16,8 +19,10 @@
       use stname
       implicit none
       INTEGER I,J,K,NX,NY,NZ
+      INTEGER IRX,JRX  !2024
 !
-      integer,parameter:: IRX=41,JRX=41,MAXNGRID=10000
+      !integer,parameter:: IRX=11,JRX=11,MAXNGRID=10000
+      integer,parameter:: MAXNGRID=10000  !2024
       real, parameter:: GAMMA=6.5E-3,G=9.8,GI=1./G,D608=0.608
 !
 ! variable for outer nest
@@ -116,6 +121,19 @@
       READ(IUNIT)
       CLOSE(IUNIT)
       print*,'finish reading data'
+
+      ! KGao
+      !print*, 'KGao Checking LAT LON'
+      !print*, HLON(1,1:5)
+      !print*, HLAT(1:5,1)
+      !OPEN(UNIT=221, FILE="lon_box2.txt", ACTION="write")
+      !OPEN(UNIT=222, FILE="lat_box2.txt", ACTION="write")
+      !DO i=1,KX
+      !DO j=1,KY
+      !  WRITE(221,*) (HLON3(i,j))
+      !  WRITE(222,*) (HLAT3(i,j))
+      !END DO
+      !END DO
 !
 !$omp parallel do &
 !$omp& private(i,j,k)

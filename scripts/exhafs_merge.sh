@@ -618,8 +618,9 @@ if [ ${RUN_MULTISTORM} == "YES" ] && [ "${STORMID^^}" == "00L" ]; then
     # # Lew.Gramer@noaa.gov 2026-07=04
     # echo "WARNING: FORCING IAU FROM INIT: Initial position ${target_lon},${target_lat}"
     # RESTARTbkg=${WORKhafs_nest}/intercom/RESTART_init
-    echo "WARNING: FORCING IAU FROM 00L INIT: Initial position ${target_lon},${target_lat}"
-    RESTARTbkg=${WORKhafs}/intercom/RESTART_init
+    # Chuan-kai.Wang@noaa.gov 20260908
+    #echo "WARNING: FORCING IAU FROM 00L INIT: Initial position ${target_lon},${target_lat}"
+    #RESTARTbkg=${WORKhafs}/intercom/RESTART_init
     
     RESTARTNESTtmp=${DATA}/RESTARTtmp${sid}
     

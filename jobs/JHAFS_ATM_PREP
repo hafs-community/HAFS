@@ -57,42 +57,236 @@ source ${HOLDVARS}
 export ENSDA=${ENSDA:-NO}
 export ATM_PREP_MVNEST=${ATM_PREP_MVNEST:-NO}
 
-if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
+run_needed=NO
 
-# Deterministic or ensemble
-if [ ${ENSDA:-NO} = YES ]; then
-  export DATA=${WORKhafs}/atm_prep_ens${jobidstr}
+for FGAT_HR in 3 6 9; do
+  if [ ${FGAT_HR} -eq 3 ]; then
+      tcvital=${WORKhafs}/intercom/launch/tm03vit
+   elif [ ${FGAT_HR} -eq 9  ]; then
+      tcvital=${WORKhafs}/intercom/launch/tp03vit
+   else
+      tcvital=${WORKhafs}/intercom/launch/tmpvit
+  fi
+
+  lon_vit=$(cat ${tcvital} | cut -c39-42 | bc -l )
+  lon_vit=`echo "scale=1; $lon_vit/10" |bc `
+
+  lon_vit_hem=$(cat ${tcvital} | cut -c43)
+
+  lat_vit=$(cat ${tcvital} | cut -c34-36 | bc -l )
+  lat_vit=`echo "scale=1; $lat_vit/10" |bc `
+
+  lat_vit_hem=$(cat ${tcvital} | cut -c37)
+
+  echo $lon_vit $lon_vit_hem $lat_vit $lat_vit_hem
+
+  if [ $lon_vit_hem == 'W' ]; then
+  lon_vit=`echo "scale=1; ( $lon_vit - 360 ) *-1 " |bc `
+  fi
+
+  if [ $lat_vit_hem == 'S' ]; then
+  lat_vit=`echo "scale=1; $lat_vit * -1 " |bc `
+  fi
+
+  echo $lon_vit $lon_vit_hem $lat_vit $lat_vit_hem
+
+  vi_domain=${vi_domain:-40}
+  vi_domain_halfs=`echo "scale=1; $vi_domain / 2" |bc `
+
+  echo $vi_domain_halfs 
+
+  maxlon=`echo "scale=1; $lon_vit + $vi_domain_halfs " |bc `
+  minlon=`echo "scale=1; $lon_vit - $vi_domain_halfs " |bc `
+  maxlat=`echo "scale=1; $lat_vit + $vi_domain_halfs " |bc `
+  minlat=`echo "scale=1; $lat_vit - $vi_domain_halfs " |bc `
+
+  echo $minlon $maxlon $minlat $maxlat
+
+#  ldmlonmin=`head -n 1 $FIXhafs/fix_fv3/lon2087`
+#  ldmlonmax=`tail -n 1 $FIXhafs/fix_fv3/lon2087`
+#  
+#  rdmlonmin=`head -n 1 $FIXhafs/fix_fv3/lon0`
+#  rdmlonmin=`echo "scale=1; $rdmlonmin + 360" |bc `
+#  
+#  bdmlatmin=`head -n 1 $FIXhafs/fix_fv3/lat1049`
+#  bdmlatmax=`tail -n 1 $FIXhafs/fix_fv3/lat1049`
+#  
+#  udmlatmin=`head -n 1 $FIXhafs/fix_fv3/lat0`
+#  udmlatmax=`tail -n 1 $FIXhafs/fix_fv3/lat0`
+#  
+#  echo ' $rdmlonmin $rdmlonmax $ldmlonmin $ldmlonmax' $rdmlonmin $rdmlonmax $ldmlonmin $ldmlonmax $maxlon $minlon
+#  echo ' $udmlatmin $udmlatmax $bdmlatmin $bdmlatmax' $udmlatmin $udmlatmax $bdmlatmin $bdmlatmax $maxlat $minlat
+  #Could change the domain criteria
+
+  echo 'pubbasin2:' $pubbasin2
+
+#  if [ "$(echo "$CENLO < -100" | bc)" -eq 1 ]; then
+  if [ $pubbasin2 == 'AL' ] && [ $STORMID == '00L' ] ; then
+     if [ "$(echo "$CENLO < -100" | bc)" -eq 1 ]; then
+         echo 'pacific'
+         rdmlonmax=288  #Lon at right edge of parent domain
+         ldmlonmin=171  #Lon at left edge of parent domain
+         udmlatmax=52   #Lat at up edge of parent domain
+         bdmlatmin=0    #Lat at bottom edge of parent domain
+      else
+         echo 'atlantic'
+         rdmlonmax=358  #Lon at right edge of parent domain
+         ldmlonmin=259  #Lon at left edge of parent domain
+         udmlatmax=52   #Lat at up edge of parent domain
+         bdmlatmin=0    #Lat at bottom edge of parent domain
+      fi
+  elif [ $pubbasin2 == 'EP' ]; then
+     echo 'pacific'
+     rdmlonmax=288  #Lon at right edge of parent domain
+     ldmlonmin=171  #Lon at left edge of parent domain
+     udmlatmax=52   #Lat at up edge of parent domain
+     bdmlatmin=0    #Lat at bottom edge of parent domain
+  else
+     echo 'atlantic'
+     rdmlonmax=358  #Lon at right edge of parent domain
+     ldmlonmin=259  #Lon at left edge of parent domain
+     udmlatmax=52   #Lat at up edge of parent domain
+     bdmlatmin=0    #Lat at bottom edge of parent domain
+#  elif [ $pubbasin2 -eq 'AL' ] && [ $STORMID -ne '00L'] ; then
+#     echo 'atlantic'
+#     rdmlonmax=358  #Lon at right edge of parent domain
+#     ldmlonmin=245  #Lon at left edge of parent domain
+#     udmlatmax=52   #Lat at up edge of parent domain
+#     bdmlatmin=0    #Lat at bottom edge of parent domain
+  fi
+
+  echo '$rdmlonmin $rdmlonmax $udmlatmax $bdmlatmin ' $rdmlonmin $rdmlonmax $udmlatmax $bdmlatmin
+  echo '$lonmin $lonmax $latmax $latmin ' $lonmin $lonmax $latmax $latmin
+  is_outside=$(awk -v r="${rdmlonmax:-0}" -v rmax="${maxlon:-0}" \
+                   -v l="${ldmlonmin:-0}" -v lmin="${minlon:-0}" \
+                   -v u="${udmlatmax:-0}" -v umax="${maxlat:-0}" \
+                   -v b="${bdmlatmin:-0}" -v bmin="${minlat:-0}" '
+    BEGIN {
+      # Outside if
+      if (r < rmax || l > lmin || u < umax || b > bmin) print 1;
+      else print 0;
+    }')
+
+  vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
+
+  if [[ "$is_outside" -eq 1 ]] &&  [[ ${vmax_vit} -gt ${vi_min_wind_for_init} ]] ; then
+    echo 'outside parent domain and ' ${vmax_vit} ' gt ' ${vi_min_wind_for_init}
+    run_needed=YES
+    export run_needed=YES
+  fi
+
+done
+
+if [ "${run_needed}" = "YES" ]; then
+  if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
+     export DATA=${WORKhafs}/atm_merge_prep${jobidstr}
+  else
+
+      if [[ "${is_moving_nest}" = *".true."* ]]; then
+      export DATA=${WORKhafs}/atm_merge_prep_mvnest${jobidstr}
+      fi
+
+   fi
+      if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+     rm -rf $DATA
+   fi
+   mkdir -p $DATA
+   cd $DATA
+
+   # Execute ex-script
+   if [[ "${run_datm:-no}" = "yes" ]]; then
+     ${HOMEhafs}/scripts/exhafs_datm_prep.sh
+     export err=$?; err_chk
+   else
+     ${HOMEhafs}/scripts/exhafs_atm_prep_test.sh
+     export err=$?; err_chk
+   fi
+
+   # Cleanup DATA dir
+   cd ${WORKhafs}
+   if [ "${KEEPDATA:-YES}" != "YES" ]; then
+     rm -rf $DATA
+   fi
+
+  if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
+
+##############    
+  # Deterministic or ensemble
+  if [ ${ENSDA:-NO} = YES ]; then
+
+    export DATA=${WORKhafs}/atm_prep_ens${jobidstr}
+  else
+    export DATA=${WORKhafs}/atm_prep${jobidstr}
+  fi
+
+  else # Moving nest is enabled
+
+  if [[ "${is_moving_nest}" = *".true."* ]]; then
+    export DATA=${WORKhafs}/atm_prep_mvnest${jobidstr}
+  fi
+
+  fi
+
+  if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+
+  # Execute ex-script
+  if [[ "${run_datm:-no}" = "yes" ]]; then
+    ${HOMEhafs}/scripts/exhafs_datm_prep.sh
+    export err=$?; err_chk
+  else
+    ${HOMEhafs}/scripts/exhafs_atm_prep.sh
+    export err=$?; err_chk
+  fi
+
+  # Cleanup DATA dir
+  cd ${WORKhafs}
+  if [ "${KEEPDATA:-YES}" != "YES" ]; then
+    rm -rf $DATA
+  fi
+
 else
-  export DATA=${WORKhafs}/atm_prep${jobidstr}
+
+  if [[ ${ATM_PREP_MVNEST:-NO} != YES ]]; then
+
+  # Deterministic or ensemble
+  if [ ${ENSDA:-NO} = YES ]; then
+    export DATA=${WORKhafs}/atm_prep_ens${jobidstr}
+  else
+    export DATA=${WORKhafs}/atm_prep${jobidstr}
+  fi
+  
+  else # Moving nest is enabled
+  
+  if [[ "${is_moving_nest}" = *".true."* ]]; then
+    export DATA=${WORKhafs}/atm_prep_mvnest${jobidstr}
+  fi
+  
+  fi
+  
+  if [ "${SCRUBDATA:-YES}" = "YES" ]; then
+    rm -rf $DATA
+  fi
+  mkdir -p $DATA
+  cd $DATA
+  
+  # Execute ex-script
+  if [[ "${run_datm:-no}" = "yes" ]]; then
+    ${HOMEhafs}/scripts/exhafs_datm_prep.sh
+    export err=$?; err_chk
+  else
+    ${HOMEhafs}/scripts/exhafs_atm_prep.sh
+    export err=$?; err_chk
+  fi
+  
+  # Cleanup DATA dir
+  cd ${WORKhafs}
+  if [ "${KEEPDATA:-YES}" != "YES" ]; then
+    rm -rf $DATA
+  fi
+
 fi
-
-else # Moving nest is enabled
-
-if [[ "${is_moving_nest}" = *".true."* ]]; then
-  export DATA=${WORKhafs}/atm_prep_mvnest${jobidstr}
-fi
-
-fi
-
-if [ "${SCRUBDATA:-YES}" = "YES" ]; then
-  rm -rf $DATA
-fi
-mkdir -p $DATA
-cd $DATA
-
-# Execute ex-script
-if [[ "${run_datm:-no}" = "yes" ]]; then
-  ${HOMEhafs}/scripts/exhafs_datm_prep.sh
-  export err=$?; err_chk
-else
-  ${HOMEhafs}/scripts/exhafs_atm_prep.sh
-  export err=$?; err_chk
-fi
-
-# Cleanup DATA dir
-cd ${WORKhafs}
-if [ "${KEEPDATA:-YES}" != "YES" ]; then
-  rm -rf $DATA
-fi
-
 date

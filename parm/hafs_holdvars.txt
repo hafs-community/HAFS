@@ -103,6 +103,7 @@ export vi_adjust_size={vi_adjust_size}
 export vi_cloud={vi_cloud}
 export vi_slp_adjust={vi_slp_adjust}
 export vi_pert_smth={vi_pert_smth}
+export vi_domain={vi_domain}
 
 export atm_merge_method={atm_merge_method}
 export atm_merge_ens_method={atm_merge_ens_method}
