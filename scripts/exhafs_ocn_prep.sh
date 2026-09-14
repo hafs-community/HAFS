@@ -6,11 +6,6 @@
 #   This script runs the HAFS oceanic preprocessing steps to generate MOM6
 #   coupling needed ocean initial condition (IC), open boundary condition (OBC)
 #   and atmospheric forcings.
-# History:
-#   05/13/2023: Enabled MOM6 coupling in HAFS application/workflow
-# Condition codes:
-#   == 0 : success
-#   != 0 : fatal error encounted
 ################################################################################
 set -x -o pipefail
 
@@ -28,9 +23,11 @@ cyc_prior=`echo ${CDATEprior} | cut -c9-10`
 pubbasin2=${pubbasin2:-AL}
 if [ ${ocean_domain:-auto} = "auto" ]; then
 
-if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
+if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
   ocean_domain=nhc
+elif [ ${pubbasin2} = "EP" ]; then
+  ocean_domain="arafs_pac"
 elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ]; then
   ocean_domain=jtnh
 elif [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
@@ -61,11 +58,11 @@ mkdir -p ${DATA}/mom6_init
 cd ${DATA}/mom6_init
 
 # Link global RTOFS depth and grid files
-if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "EP" ] || [ ${pubbasin2} = "CP" ] || \
+if [ ${pubbasin2} = "AL" ] || [ ${pubbasin2} = "CP" ] || \
    [ ${pubbasin2} = "SL" ] || [ ${pubbasin2} = "LS" ]; then
   ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.a regional.depth.a
   ${NLN} ${FIXhafs}/fix_hycom/rtofs_glo.navy_0.08.regional.depth.b regional.depth.b
-elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ] || \
+elif [ ${pubbasin2} = "WP" ] || [ ${pubbasin2} = "IO" ] || [ ${pubbasin2} = "EP" ] || \
      [ ${pubbasin2} = "SH" ] || [ ${pubbasin2} = "SP" ] || [ ${pubbasin2} = "SI" ]; then
   ${NLN} ${FIXhafs}/fix_mom6/fix_gofs/depth_GLBb0.08_09m11ob.a regional.depth.a
   ${NLN} ${FIXhafs}/fix_mom6/fix_gofs/depth_GLBb0.08_09m11ob.b regional.depth.b
@@ -102,7 +99,7 @@ outnc_ts=ocean_ts_ic.nc
 outnc_uv=ocean_uv_ic.nc
 export CDF038=rtofs_${outnc_2d}
 export CDF034=rtofs_${outnc_ts}
-export CDF033=rtofs_${outnc_uv}
+export CDF033=rtofs_ocean_uv_no_stagger_ic.nc
 
 # run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_ic.in ./rtofs_ocean_ssh_ic.in
@@ -122,8 +119,12 @@ ${USHhafs}/hafs_mom6_ts_ic.py rtofs_${outnc_ts} ${outnc_ts} | tee ./mom6_ts_ic.l
 export err=$?; err_chk
 
 # UV file
-${USHhafs}/hafs_mom6_stagger_uv_ic.py rtofs_${outnc_uv} ${outnc_uv} | tee ./mom6_stagger_uv_ic.log
+# Average velocities on u and v points in order to stagger them
+${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
+${USHhafs}/hafs_stagger_uv.py ocean_hgrid.nc rtofs_ocean_uv_no_stagger_ic.nc ${outnc_uv} | tee ./mom6_uv_ic.log
 export err=$?; err_chk
+#cp ${USHhafs}/hafs_stagger_uv.py .
+#python hafs_stagger_uv.py ocean_hgrid.nc rtofs_ocean_uv_no_stagger_ic.nc ocean_uv_ic.nc
 
 # Deliver to intercom
 ${NCP} -p ${outnc_2d} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_ssh_ic.nc
@@ -136,53 +137,46 @@ ${NCP} -p ${outnc_uv} ${WORKhafs}/intercom/ocn_prep/mom6/ocean_uv_ic.nc
 mkdir -p ${DATA}/mom6_init
 cd ${DATA}/mom6_init
 
-# Define output file names
 outnc_2d=ocean_ssh_obc.nc
 outnc_ts=ocean_ts_obc.nc
-outnc_uv=ocean_uv_obc.nc
-export CDF038=rtofs_${outnc_2d}
-export CDF034=rtofs_${outnc_ts}
-export CDF033=rtofs_${outnc_uv}
+outnc_uv=ocean_uv_no_stagger_obc.nc
+export CDF038=${outnc_2d}
+export CDF034=${outnc_ts}
+export CDF033=${outnc_uv}
 
-# run HYCOM-tools executables to produce OBC netcdf files
+# run HYCOM-tools executables to produce IC netcdf files
 ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_ssh_obc.in ./rtofs_ocean_ssh_obc.in
 ${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf2d.x < ./rtofs_ocean_ssh_obc.in 2>&1 | tee ./archv2ncdf2d_ssh_obc.log
 export err=$?; err_chk
 
 ${NCP} ${PARMmom6}/hafs_mom6_${ocean_domain}.rtofs_ocean_3d_obc.in ./rtofs_ocean_3d_obc.in
-${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee ./archv2ncdf3z_3d_obc.log
+${APRUNS} ${EXEChafs}/hafs_hycom_utils_archv2ncdf3z.x < ./rtofs_ocean_3d_obc.in 2>&1 | tee archv2ncdf3z_3d_obc.log
 export err=$?; err_chk
 
-${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
-${APRUNO} ${USHhafs}/hafs_mom6_obc_from_rtofs.py rtofs_${outnc_2d} rtofs_${outnc_ts} rtofs_${outnc_uv} ocean_hgrid.nc 2>&1 | tee ./mom6_obc_from_rtofs.log
+# Run Python script to generate OBC
+#${NLN} ${FIXhafs}/fix_mom6/${ocean_domain}/ocean_hgrid.nc ./
+cp ${USHhafs}/hafs_mom6_obc_from_rtofs.py .
+python hafs_mom6_obc_from_rtofs.py \
+    ocean_ssh_obc.nc ocean_ts_obc.nc ocean_uv_no_stagger_obc.nc \
+    ocean_hgrid.nc | tee ./mom6_obc_from_rtofs.log
 export err=$?; err_chk
 
-# Rename the OBC files
-for var in ssh ts uv; do
-  for segm in north south east west; do
-    ${NMV} rtofs_${var}_obc_${segm}.nc ocean_${var}_obc_${segm}.nc
-    # Deliver to intercom
-    ${NCP} -p ocean_${var}_obc_${segm}.nc ${WORKhafs}/intercom/ocn_prep/mom6/
-  done
-done
+# Deliver to intercom
+${NCP} -p ocean_*obc_*.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 
 #==============================================================================
 
 # Prepare atmospheric forcings from GFS forcing
-mkdir -p ${DATA}/mom6_forcings
-cd ${DATA}/mom6_forcings
+mkdir -p ${WORKhafs}/ocn_prep/mom6_forcings
+cd ${WORKhafs}/ocn_prep/mom6_forcings
 
 PARMave=":USWRF:surface|:DSWRF:surface|:ULWRF:surface|:DLWRF:surface|:UFLX:surface|:VFLX:surface|:SHTFL:surface|:LHTFL:surface"
 PARMins=":UGRD:10 m above ground|:VGRD:10 m above ground|:PRES:surface|:PRATE:surface|:TMP:surface"
 PARMlist="${PARMave}|${PARMins}"
 
 # Use gfs forcing from prior cycle's 6-h forecast
-if [ $GFSVER = "PROD2021" ]; then
-  grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
-fi
-if [ $GFSVER = "PROD2026" ]; then
-  grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/products/atmos/grib2/0p25/gfs.t${cyc_prior}z.pres_a.0p25.f006.grib2
-fi
+#grib2_file=${COMINgfs}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
+grib2_file=${COMgfs_ocean}/gfs.${ymd_prior}/${cyc_prior}/atmos/gfs.t${cyc_prior}z.pgrb2.0p25.f006
 if [ ! -s ${grib2_file} ]; then
   echo "FATAL ERROR: ${grib2_file} does not exist. Exiting"
   exit 1
@@ -200,12 +194,9 @@ FHR3=$( printf "%03d" "$FHR" )
 while [ $FHR -le ${FHRE} ]; do
 
 # Use gfs 0.25 degree grib2 files
-if [ $GFSVER = "PROD2021" ]; then
-  grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
-fi
-if [ $GFSVER = "PROD2026" ]; then
-  grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/products/atmos/grib2/0p25/gfs.t${cyc}z.pres_a.0p25.f${FHR3}.grib2
-fi
+#grib2_file=${COMINgfs}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+grib2_file=${COMgfs_ocean}/gfs.${ymd}/${cyc}/atmos/gfs.t${cyc}z.pgrb2.0p25.f${FHR3}
+
 # Check and wait for input data
 MAX_WAIT_TIME=${MAX_WAIT_TIME:-900}
 n=0
@@ -242,7 +233,7 @@ ${NCP} -p gfs_forcings.nc ${WORKhafs}/intercom/ocn_prep/mom6/
 #==============================================================================
 
 # Set ecflow event if needed
-if [ -n "${ECF_NAME}" ]; then
+if [ "${RUN_ENVIR^^}" = "NCO" ]; then
   ecflow_client --event Ocean
-fi
+fi      
 

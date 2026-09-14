@@ -1,24 +1,24 @@
 ## This is the system-specific configuration file for gaeac6
 [config]
 ## Project disk area
-disk_project=drsa-hurr1
+disk_project=ar-cpu
 ## Project hpss tape area
 tape_project=emc-hwrf
 ## CPU account name for submitting jobs to the batch system.
-cpu_account=drsa-hurr1
+cpu_account=ar-cpu
 ## Archive path
 archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
 #archens=sync:/gpfs/f6/{disk_project}/world-shared/scrub/{ENV[USER]}/hafsarch_ens/{SUBEXPT}/com/{YMDH}/{STID}
 
 [dir]
 ## Save directory.  Make sure you edit this.
-CDSAVE=/gpfs/f6/{disk_project}/world-shared/save/{ENV[USER]}
+CDSAVE=/gpfs/f6/{disk_project}/scratch/{ENV[USER]}
 ## Non-scrubbed directory for track files, etc.  Make sure you edit this.
-CDNOSCRUB=/gpfs/f6/{disk_project}/world-shared/noscrub/{ENV[USER]}/hafstrak
+CDNOSCRUB=/gpfs/f6/{disk_project}/scratch/{ENV[USER]}/noscrub/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
-CDSCRUB=/gpfs/f6/{disk_project}/world-shared/scrub/{ENV[USER]}
+CDSCRUB=/gpfs/f6/{disk_project}/scratch/{ENV[USER]}/scrub
 ## Syndat directory for finding which cycles to run
-syndat=/gpfs/f6/{disk_project}/world-shared/noscrub/input/SYNDAT-PLUS
+syndat=/gpfs/f6/drsa-hurr1/world-shared/noscrub/input/SYNDAT-PLUS
 #oldcom={ENV[COMOLD]}
 COMOLD={oldcom}
 COMIN={COMhafs}

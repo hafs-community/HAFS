@@ -28,7 +28,7 @@ else
   exit 1
 fi
 
-for subdir in fix_am fix_aer fix_lut fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_vi fix_hycom fix_mom6 fix_ww3 fix_cdeps;
+for subdir in fix_am fix_aer fix_lut fix_orog fix_fv3_gmted2010 fix_sfc_climo fix_vi fix_hycom fix_ww3 fix_cdeps;
 do
   if [ "${INSTALL_ENVIR^^}" != "NCO" ]; then
     ln -sf ${FIXROOT}/${subdir} ./
@@ -38,4 +38,13 @@ do
 done
 
 ln -sf ../sorc/hafs_jedi.fd/fix/bufraux .
+
+# Copy MOM6 fix files without linking
+# to be able to link directory arafs-fix-files/fix_mom6/arafs_pac
+cp -r ${FIXROOT}/fix_mom6 ${FIXhafs}/fix_mom6 
+
+mkdir ${FIXhafs}/fix_mom6/arafs_pac
+
+ln -sf /gpfs/f6/ar-cpu/world-shared/noscrub/arafs-fix-files/fix_mom6/arafs_pac/* ${FIXhafs}/fix_mom6/arafs_pac 
+
 echo 'done'

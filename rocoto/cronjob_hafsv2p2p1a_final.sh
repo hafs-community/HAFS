@@ -2,7 +2,7 @@
 set -x
 date
 
-HOMEhafs=${HOMEhafs:-/lfs/h2/emc/hur/noscrub/${USER}/save/HAFS}
+HOMEhafs=${HOMEhafs:-/gpfs/f6/ar-cpu/scratch/Maria.Aristizabal/hafsv2p2p1a_arafs_ocean}
 source ${HOMEhafs}/ush/hafs_pre_job.sh.inc
 
 cd ${HOMEhafs}/rocoto
@@ -27,6 +27,8 @@ opts="-f"
 ## Technical testing for Helene 09L2025
 #./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+./run_hafs.py ${opts} 2024092406 09L HISTORY ${confopts} \
+    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and one-way wave coupling
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev_ww3 ../parm/hfsa_dev_ww3.conf"
@@ -36,6 +38,8 @@ opts="-f"
 ## Technical testing for Kiko 11E2025
 #./run_hafs.py ${opts} 2025083112-2025083118 11E HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+./run_hafs.py ${opts} 2025083112 11E HISTORY ${confopts} \
+    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 ## Technical testing for Iona 01C2025
 #./run_hafs.py ${opts} 2025072700-2025072706 01C HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes

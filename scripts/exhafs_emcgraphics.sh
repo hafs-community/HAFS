@@ -4,14 +4,9 @@
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
 #   This script generates EMC graphics through hafs_graphcs.
-# History:
-#   07/30/2020: Add EMC hafs_graphics in HAFS workflow
-# Condition codes:
-#   == 0 : success
-#   != 0 : fatal error encounted
 ################################################################################
 #
-set -x -o pipefail
+set -xe
 
 date
 
@@ -100,7 +95,6 @@ archbase="${COMgraph}/figures"
 archdir="${archbase}/RT${yyyy}_${BASIN}/${STORMNM}${STID}/${STORMNM}${STID}.${YMDH}"
 
 intercompost=${WORKhafs}/intercom/post
-intercomprod=${WORKhafs}/intercom/product
 intercomgraph=${WORKhafs}/intercom/emc_graphics
 mkdir -p ${WORKgraph} ${intercomgraph}
 cd ${WORKgraph}
@@ -133,16 +127,19 @@ echo "skip graphics for forecast hour ${FHR3} valid at ${NEWDATE}"
 # Otherwise run graphics for this forecast hour
 else
 
-atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
+#atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
+#prodlog=${WORKhafs}/product/run_product.storm.log
+FHRN=$(($FHR + $NOUTHRS))
+STRFHRN="New forecast hour:$( printf "%5d" "$FHRN" ):00"
+STRDONE="top of output_all"
 
 # Wait for post and product output
 n=1
 while [ $n -le 600 ]; do
-  if [ -f ${intercompost}/postf${FHR3} ] && [ -f ${intercomprod}/trak.nest02.f${FHR3} ] && [ -f ${atcfFile} ]; then
-    echo "${intercompost}/postf${FHR3}, ${intercomprod}/trak.nest02.f${FHR3}, and ${atcfFile} exist"
-    echo "Reay to do graphics."
+  if [ -f ${intercompost}/postf${FHR3} ]; then
+    echo "${intercompost}/postf${FHR3} exist"
   else
-    echo "${intercompost}/postf${FHR3}, ${intercomprod}/trak.nest02.f${FHR3}, or ${atcfFile} not ready, sleep 60s"
+    echo "${intercompost}/postf${FHR3} not ready, sleep 60s"
     sleep 60s
   fi
   n=$(( n+1 ))
@@ -156,145 +153,68 @@ rm -f $cmdfile
 touch $cmdfile
 
 #==============================================================================
-# Plot ATCF track and intensity figures
-#==============================================================================
-
-# Produce these figures only if product job is still running (not done yet).
-if [ ${IFHR} -eq 0 ] || [ ! -s ${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all ]; then
-
-atcfFile=${COMhafs}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-
-cd ${WORKgraph}
-
-if [ -f ${atcfFile} ]; then
-  echo "${atcfFile} present, will proceed"
-  # make the track and intensity plots
-  sh ${PLOTATCF} ${STORMNM} ${STID} ${YMDH} ${stormModel} ${COMhafs} ${ADECKgraph} ${BDECKgraph} \
-     ${HOMEgraph}/ush/python ${WORKgraph} ${archdir} \
-     ${modelLabels} ${modelColors} ${modelMarkers} ${modelMarkerSizes} ${nset}
-else
-  echo "${atcfFile} NOT PRESENT. SKIP."
-fi
-
-fi
-
-date
-
-#==============================================================================
 # For the atmos figures
 #==============================================================================
-for stormDomain in parent storm; do
+figScriptAll=( \
+  plot_mslp_wind10m.py \
+  plot_tsfc_mslp_wind10m.py \
+  plot_t2m_mslp_wind10m.py \
+  plot_heatflux_wind10m.py \
+  plot_shtflux_wind10m.py \
+  plot_lhtflux_wind10m.py \
+  plot_precip_mslp_thk.py \
+  plot_reflectivity.py \
+  plot_850mb_200mb_vws.py \
+  plot_rhmidlev_hgt_wind.py \
+  plot_temp_hgt_wind.py \
+  plot_temp_hgt_wind.py \
+  plot_temp_hgt_wind.py \
+  plot_temp_hgt_wind.py \
+  plot_rh_hgt_wind.py \
+  plot_rh_hgt_wind.py \
+  plot_rh_hgt_wind.py \
+  plot_rh_hgt_wind.py \
+  plot_vort_hgt_wind.py \
+  plot_vort_hgt_wind.py \
+  plot_vort_hgt_wind.py \
+  plot_vort_hgt_wind.py \
+  plot_streamline_wind.py \
+  plot_tempanomaly_hgt_wind.py \
+  )
+levAll=( \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  1003 \
+  850 \
+  700 \
+  500 \
+  200 \
+  850 \
+  700 \
+  500 \
+  200 \
+  850 \
+  700 \
+  500 \
+  200 \
+  850 \
+  200 \
+  )
 
-if [ ${stormDomain} = "parent" ]; then
-  figScriptAll=( \
-    plot_mslp_wind10m.py \
-    plot_tsfc_mslp_wind10m.py \
-    plot_t2m_mslp_wind10m.py \
-    plot_heatflux_wind10m.py \
-    plot_shtflux_wind10m.py \
-    plot_lhtflux_wind10m.py \
-    plot_precip_mslp_thk.py \
-    plot_reflectivity.py \
-    plot_850mb_200mb_vws.py \
-    plot_rhmidlev_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_streamline_wind.py \
-    )
-  levAll=( \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    )
-elif [ ${stormDomain} = "storm" ]; then
-  figScriptAll=( \
-    plot_mslp_wind10m.py \
-    plot_tsfc_mslp_wind10m.py \
-    plot_t2m_mslp_wind10m.py \
-    plot_heatflux_wind10m.py \
-    plot_shtflux_wind10m.py \
-    plot_lhtflux_wind10m.py \
-    plot_precip_mslp_thk.py \
-    plot_reflectivity.py \
-    plot_rhmidlev_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_temp_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_rh_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_vort_hgt_wind.py \
-    plot_streamline_wind.py \
-    plot_tempanomaly_hgt_wind.py \
-    )
-  levAll=( \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    700 \
-    500 \
-    200 \
-    850 \
-    200 \
-    )
-fi
 nscripts=${#figScriptAll[*]}
 
 for((i=0;i<${nscripts};i++)); do
   fhhh="f${FHR3}"
   echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
-  echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
-        > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+  echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+        > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
 done
 
 if [ ${satpost} = .true. ]; then
@@ -314,12 +234,10 @@ if [ ${satpost} = .true. ]; then
   for((i=0;i<${nscripts};i++)); do
     fhhh="f${FHR3}"
     echo ${figScriptAll[$i]} ${levAll[$i]} ${fhhh}
-    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
-          > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+    echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH ${figScriptAll[$i]} ${levAll[$i]} ${fhhh} \
+          > ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
   done
 fi
-
-done
 
 #==============================================================================
 
@@ -353,111 +271,6 @@ FHR3=$( printf "%03d" "$FHR" )
 done
 # End loop for forecast hours
 
-#==============================================================================
-# Plot ATCF track and intensity figures after the product job is done
-#==============================================================================
-
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-
-# Wait for atcfFile under ${CDNOSCRUB}/${SUBEXPT}
-n=1
-while [ $n -le 600 ]; do
-  if [ ! -f ${atcfFile} ]; then
-    echo "${atcfFile} not ready, sleep 60s"
-    sleep 60s
-  else
-    echo "${atcfFile} exist, do graphics"
-    sleep 1s
-    break
-  fi
-  n=$(( n+1 ))
-done
-
-cd ${WORKgraph}
-
-if [ -f ${atcfFile} ]; then
-  echo "${atcfFile} present, will proceed"
-  # make the track and intensity plots
-  sh ${PLOTATCF} ${STORMNM} ${STID} ${YMDH} ${stormModel} ${COMhafs} ${ADECKgraph} ${BDECKgraph} \
-     ${HOMEgraph}/ush/python ${WORKgraph} ${archdir} \
-     ${modelLabels} ${modelColors} ${modelMarkers} ${modelMarkerSizes} ${nset}
-else
-  echo "${atcfFile} NOT PRESENT. SKIP."
-fi
-
-date
-
-#==============================================================================
-# Plot some atmosphere figures after the product and output jobs are done
-#==============================================================================
-
-cd ${WORKgraph}
-
-# Wait for product and output
-atcfFile=${CDNOSCRUB}/${SUBEXPT}/${stormid}.${YMDH}.${RUN}.trak.atcfunix.all
-n=1
-while [ $n -le 600 ]; do
-  if [ -f ${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx ] && [ -f ${atcfFile} ]; then
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx and ${atcfFile} exist"
-    sleep 1s
-    break
-  else
-    echo "${COMhafs}/${stormid}.${YMDH}.${RUN}.parent.swath.grb2.idx or ${atcfFile} not ready, sleep 60s"
-    sleep 60s
-  fi
-  n=$(( n+1 ))
-done
-
-#Generate the cmdfile
-cmdfile='cmdfile_output'
-rm -f $cmdfile
-touch $cmdfile
-
-fhhhAll=$(seq -f "f%03g" 0 $NOUTHRS $NHRS)
-# Loop for forecast hours
-for fhhh in ${fhhhAll}; do
-
-for stormDomain in storm; do
-
-if [ ${stormDomain} = "storm" ]; then
-  figScriptAll=( \
-    plot_crs_sn_wind.py \
-    plot_crs_sn_rh_tempanomaly.py \
-    plot_crs_sn_reflectivity.py \
-    plot_crs_we_wind.py \
-    plot_crs_we_rh_tempanomaly.py \
-    plot_crs_we_reflectivity.py \
-    plot_azimuth_wind.py \
-    plot_azimuth_tempanomaly.py \
-    plot_azimuth_rh_q.py \
-    plot_azimuth_reflectivity.py \
-    )
-  levAll=( \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    1003 \
-    )
-fi
-
-nscripts=${#figScriptAll[*]}
-
-for((i=0;i<${nscripts};i++)); do
-  echo ${figScriptAll[$i]} ${levAll[$i]}
-  echo "time ${DRIVERATMOS} $stormModel $STORM $STORMID $YMDH $stormDomain ${figScriptAll[$i]} ${levAll[$i]} $fhhh > ${WORKgraph}/$STORM$STORMID.$YMDH.${stormDomain}.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1 || exit 0" >> $cmdfile
-done
-
-done
-
-done
-# End loop for forecast hours
-
 chmod u+x ./$cmdfile
 if [ $USE_CFP = "YES" ] ; then
   ncmd=$(cat ./$cmdfile | wc -l)
@@ -486,48 +299,56 @@ do
 
 cd ${WORKgraph}
 
+if [ ${ocean_model,,} = hycom ] && [[ $(($FHR%2)) -ne 0 ]]; then
+    echo "Forecast hour f${FHR3} does not exist"
+    FHR=$(($FHR + $NOUTHRS))
+    FHR3=$( printf "%03d" "$FHR" )
+    continue
+fi
+
 #Generate the cmdfile
 cmdfile="cmdfile_ocean.${FHR3}"
 rm -f $cmdfile
 touch $cmdfile
 
 figScriptAll=( \
-  plot_sst.py \
-  plot_sss.py \
-  plot_mld.py \
-  plot_ohc.py \
-  plot_z20.py \
-  plot_z26.py \
-  plot_storm_sst.py \
-  plot_storm_sss.py \
-  plot_storm_mld.py \
-  plot_storm_ohc.py \
-  plot_storm_z20.py \
-  plot_storm_z26.py \
-  plot_storm_tempz40m.py \
-  plot_storm_tempz70m.py \
-  plot_storm_tempz100m.py \
-  plot_storm_wvelz40m.py \
-  plot_storm_wvelz70m.py \
-  plot_storm_wvelz100m.py \
-  plot_storm_crs_sn_temp.py \
-  plot_storm_crs_trk_temp.py \
-  plot_storm_crs_we_temp.py \
+	plot_sst.py\
   )
+  #plot_sss.py \
+  #plot_mld.py \
+  #plot_ohc.py \
+  #plot_z20.py \
+  #plot_z26.py \
+  #plot_storm_sst.py \
+  #plot_storm_sss.py \
+  #plot_storm_mld.py \
+  #plot_storm_ohc.py \
+  #plot_storm_z20.py \
+  #plot_storm_z26.py \
+  #plot_storm_tempz40m.py \
+  #plot_storm_tempz70m.py \
+  #plot_storm_tempz100m.py \
+  #plot_storm_wvelz40m.py \
+  #plot_storm_wvelz70m.py \
+  #plot_storm_wvelz100m.py \
+  #plot_storm_crs_sn_temp.py \
+  #plot_storm_crs_trk_temp.py \
+  #plot_storm_crs_we_temp.py \
+  #)
 
 nscripts=${#figScriptAll[*]}
 TRACKON="yes"
 
-for((i=0;i<${nscripts};i++)); do
-  fhhh="f${FHR3}"
-  if [ ${ocean_model,,} = mom6 ] && [ ${figScriptAll[$i]: 11:5} = wvelz ]; then
-     echo "Vertical velocity plots for MOM6 are not being produced yet."
-  else
-     echo ${figScriptAll[$i]} ${fhhh}
-     echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $TRACKON ${figScriptAll[$i]} $fhhh \
-	> ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
-  fi
-done
+#for((i=0;i<${nscripts};i++)); do
+#  fhhh="f${FHR3}"
+#  if [ ${ocean_model,,} = mom6 ] && [ ${figScriptAll[$i]: 11:5} = wvelz ]; then
+#     echo "Vertical velocity plots for MOM6 are not being produced yet."
+#  else
+#     echo ${figScriptAll[$i]} ${fhhh}
+#     echo "time ${DRIVEROCEAN} $stormModel $STORM $STORMID $YMDH $TRACKON ${figScriptAll[$i]} $fhhh \
+#	> ${WORKgraph}/$STORM$STORMID.$YMDH.${figScriptAll[$i]%.*}.${fhhh}.log 2>&1" >> $cmdfile
+#  fi
+#done
 
 chmod u+x ./$cmdfile
 if [ $USE_CFP = "YES" ] ; then
@@ -635,3 +456,5 @@ fi # if [ ${run_wave} = yes ]; then
 date
 
 echo "graphics job done"
+
+exit
