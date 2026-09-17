@@ -92,16 +92,16 @@ if __name__ == "__main__":
     # Define dimensions
     depth_dim = nc_file.createDimension('depth',depth.shape[0])
     lath_dim = nc_file.createDimension('lath',lath.shape[0])
-    lonh_dim = nc_file.createDimension('lonh',lonh.shape[0] )
+    lonh_dim = nc_file.createDimension('lonh',lath.shape[1] )
     latq_dim = nc_file.createDimension('latq',lath.shape[0]+1)
-    lonq_dim = nc_file.createDimension('lonq',lonh.shape[0]+1)
+    lonq_dim = nc_file.createDimension('lonq',lath.shape[1]+1)
 
     # Create variables
     depth_var = nc_file.createVariable('depth', 'f8', ('depth',))
-    lath_var = nc_file.createVariable('lath', 'f8', ('lath',))
-    lonh_var = nc_file.createVariable('lonh', 'f8', ('lonh',))
-    #latq_var = nc_file.createVariable('latq', 'f4', ('latq',))
-    #lonq_var = nc_file.createVariable('lonq', 'f4', ('lonq',))
+    lath_var = nc_file.createVariable('lath', 'f8', ('lath','lonh',))
+    lonh_var = nc_file.createVariable('lonh', 'f8', ('lath','lonh',))
+    #latq_var = nc_file.createVariable('latq', 'f8', ('latq',))
+    #lonq_var = nc_file.createVariable('lonq', 'f8', ('lonq',))
     u_var = nc_file.createVariable('u', 'f8', ('depth','lath','lonq',),fill_value=fillvalue)
     v_var = nc_file.createVariable('v', 'f8', ('depth','latq','lonh',),fill_value=fillvalue)
 

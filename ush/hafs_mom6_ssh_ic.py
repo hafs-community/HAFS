@@ -54,12 +54,12 @@ if __name__ == "__main__":
     # Define dimensions
     time_dim = nc_file.createDimension('time', None)  # Unlimited dimension
     latitude_dim = nc_file.createDimension('latitude',latitude.shape[0])
-    longitude_dim = nc_file.createDimension('longitude',longitude.shape[0] )
+    longitude_dim = nc_file.createDimension('longitude',latitude.shape[1] )
 
     # Create variables
     time_var = nc_file.createVariable('time', 'f8', ('time',))
-    latitude_var = nc_file.createVariable('latitude', 'f8', ('latitude',))
-    longitude_var = nc_file.createVariable('longitude', 'f8', ('longitude',))
+    latitude_var = nc_file.createVariable('latitude', 'f8', ('latitude','longitude',))
+    longitude_var = nc_file.createVariable('longitude', 'f8', ('latitude','longitude',))
     ssh_var = nc_file.createVariable('ssh', 'f8', ('time','latitude','longitude',),fill_value=fillvalue)
 
     # Add attributes to variables

@@ -38,8 +38,10 @@ opts="-f"
 ## Technical testing for Kiko 11E2025
 #./run_hafs.py ${opts} 2025083112-2025083118 11E HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
-./run_hafs.py ${opts} 2025083112 11E HISTORY ${confopts} \
+#
+./run_hafs.py ${opts} 2025103100 81E HISTORY ${confopts} \
     config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+
 ## Technical testing for Iona 01C2025
 #./run_hafs.py ${opts} 2025072700-2025072706 01C HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes

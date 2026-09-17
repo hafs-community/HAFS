@@ -562,7 +562,7 @@ MASS_WEIGHT_IN_PRESSURE_GRADIENT = True !   [Boolean] default = False
                                 ! bathymetry in AFV pressure gradient calculations.
 
 ! === module MOM_PressureForce_FV ===
-RHO_PGF_REF_BUG = False          !   [Boolean] default = True
+RHO_PGF_REF_BUG = False         !   [Boolean] default = True
                                 ! If true, recover a bug that RHO_0 (the mean seawater density in Boussinesq
                                 ! mode) and RHO_PGF_REF (the subtracted reference density in finite volume
                                 ! pressure gradient forces) are incorrectly interchanged in several instances in
@@ -809,7 +809,7 @@ ML_OMEGA_FRAC = 0.001           !   [nondim] default = 0.0
 TKE_DECAY = 0.001                !   [nondim] default = 2.5
                                 ! TKE_DECAY relates the vertical rate of decay of the TKE available for
                                 ! mechanical entrainment to the natural Ekman depth.
-EPBL_MSTAR_SCHEME = "@[epbl_mstar_scheme]"       ! default = "CONSTANT"
+EPBL_MSTAR_SCHEME = "OM4"       ! default = "CONSTANT"
                                 ! EPBL_MSTAR_SCHEME selects the method for setting mstar.  Valid values are:
                                 !    CONSTANT   - Use a fixed mstar given by MSTAR
                                 !    OM4        - Use L_Ekman/L_Obukhov in the sabilizing limit, as in OM4

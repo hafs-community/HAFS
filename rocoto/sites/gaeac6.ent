@@ -1,12 +1,12 @@
   <!-- gaeac6 -->
   <!ENTITY SCHEDULER       "slurm">
   <!ENTITY ACCOUNT         "&CPU_ACCOUNT;">
-  <!ENTITY QUEUE_PE        "windfall"> <!-- queue for PE (parallel environment) jobs -->
+  <!ENTITY QUEUE_PE        "normal"> <!-- queue for PE (parallel environment) jobs -->
   <!ENTITY QUEUE_FORECAST  "&QUEUE_PE;"> <!-- queue for the forecast job -->
   <!ENTITY PE_EXTRA        "">
-  <!ENTITY QUEUE_SERIAL    "windfall"> <!-- queue for serial jobs -->
+  <!ENTITY QUEUE_SERIAL    "normal"> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "">
-  <!ENTITY QUEUE_SHARED    "windfall">
+  <!ENTITY QUEUE_SHARED    "normal">
   <!ENTITY SHARED_EXTRA    "">
   <!ENTITY QUEUE_SERVICE   "hpss">
   <!ENTITY SERVICE         "<native>--partition=dtn_f5_f6 --constraint=f6</native>">

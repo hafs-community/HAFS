@@ -53,13 +53,13 @@ if __name__ == "__main__":
     time_dim = nc_file.createDimension('time', None)  # Unlimited dimension
     depth_dim = nc_file.createDimension('depth',depth.shape[0])
     latitude_dim = nc_file.createDimension('latitude',latitude.shape[0])
-    longitude_dim = nc_file.createDimension('longitude',longitude.shape[0] )
+    longitude_dim = nc_file.createDimension('longitude',latitude.shape[1] )
 
     # Create variables
     time_var = nc_file.createVariable('time', 'f8', ('time',))
     depth_var = nc_file.createVariable('depth', 'f8', ('depth',))
-    latitude_var = nc_file.createVariable('latitude', 'f8', ('latitude',))
-    longitude_var = nc_file.createVariable('longitude', 'f8', ('longitude',))
+    latitude_var = nc_file.createVariable('latitude', 'f8', ('latitude','longitude',))
+    longitude_var = nc_file.createVariable('longitude', 'f8', ('latitude','longitude',))
     temp_var = nc_file.createVariable('temp', 'f8', ('time','depth','latitude','longitude',),fill_value=fillvalue)
     salt_var = nc_file.createVariable('salt', 'f8', ('time','depth','latitude','longitude',),fill_value=fillvalue)
 
