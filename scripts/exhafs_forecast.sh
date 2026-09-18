@@ -443,7 +443,7 @@ elif [ $gtype = nest ]; then
     ATM_tasks=$(($ATM_tasks+$write_groups*$write_tasks_per_group))
   fi
 else
-  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
+  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently only support gtype of nest or regional."
   exit 9
 fi
 
@@ -1466,7 +1466,7 @@ if [ $gtype = regional ]; then
 elif [ $gtype = nest ]; then
   ngrids=$(( ${nest_grids} + 1 ))
 else
-  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently onnly support gtype of nest or regional."
+  echo "FATAL ERROR: Unsupported gtype of ${gtype}. Currently only support gtype of nest or regional."
   exit 9
 fi
 
