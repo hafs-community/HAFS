@@ -18,7 +18,8 @@ CDNOSCRUB=/gpfs/f6/{disk_project}/scratch/{ENV[USER]}/noscrub/hafstrak
 ## Scrubbed directory for large work files.  Make sure you edit this.
 CDSCRUB=/gpfs/f6/{disk_project}/scratch/{ENV[USER]}/scrub
 ## Syndat directory for finding which cycles to run
-syndat=/gpfs/f6/drsa-hurr1/world-shared/noscrub/input/SYNDAT-PLUS
+#syndat=/gpfs/f6/drsa-hurr1/world-shared/noscrub/input/SYNDAT-PLUS
+syndat=/gpfs/f6/drsa-hurr1/world-shared/noscrub/Maria.Aristizabal/arafs-input/SYNDAT-PLUS
 #oldcom={ENV[COMOLD]}
 COMOLD={oldcom}
 COMIN={COMhafs}

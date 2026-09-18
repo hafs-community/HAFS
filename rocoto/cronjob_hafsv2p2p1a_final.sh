@@ -27,8 +27,8 @@ opts="-f"
 ## Technical testing for Helene 09L2025
 #./run_hafs.py ${opts} 2024092406-2024092412 09L HISTORY ${confopts} \
 #    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
-./run_hafs.py ${opts} 2024092406 09L HISTORY ${confopts} \
-    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
+#./run_hafs.py ${opts} 2024092406 09L HISTORY ${confopts} \
+#    config.NHRS=12 config.scrub_work=no config.scrub_com=no config.run_emcgraphics=yes
 
 ## HFSA with dev computation resources and one-way wave coupling
 #confopts="config.EXPT=${EXPT} config.SUBEXPT=${EXPT}_hfsa_dev_ww3 ../parm/hfsa_dev_ww3.conf"
