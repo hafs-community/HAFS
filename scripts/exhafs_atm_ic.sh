@@ -235,7 +235,7 @@ elif [ $ictype = "gfsgrib2_1p00" ]; then
   tracers='"sphum","liq_wat","o3mr"'
   tracers_input='"spfh","clwmr","o3mr"'
 else
-  echo "FATAL ERROR: unsupportted input data type yet."
+  echo "FATAL ERROR: unsupported input data type yet."
   exit 9
 fi
 
