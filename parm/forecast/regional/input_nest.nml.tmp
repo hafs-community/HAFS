@@ -71,7 +71,7 @@
   d4_bg = 0.15
   vtdm4 = 0.04
   delt_max = 0.008
-  dz_min = 2.0
+  dz_min = 10.0
   ke_bg = 0.
   do_vort_damp = .true.
   external_ic = @[external_ic]
