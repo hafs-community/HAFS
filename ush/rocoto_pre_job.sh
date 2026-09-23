@@ -10,6 +10,9 @@
 ################################################################################
 set -x
 date
+
+saved_args="$@"
+
 . $USHhafs/hafs_pre_job.sh.inc
 . $USHhafs/hafs_runcmd.sh.inc
-exec "$@"
+exec ${saved_args}

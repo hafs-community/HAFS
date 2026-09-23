@@ -22,7 +22,7 @@ export OMP_NUM_THREADS=${OMP_THREADS:-${OMP_NUM_THREADS:-24}}
 export PURE_OMP_THREADS=${PURE_OMP_THREADS:-${OMP_NUM_THREADS:-24}}
 export NCNODE=${NCNODE:-$(($NCTSK * $OMP_NUM_THREADS))}
 export KMP_AFFINITY=disabled
-export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
+#export KMP_STACKSIZE=${KMP_STACKSIZE:-2048m}
 #export OMP_STACKSIZE=${OMP_STACKSIZE:-2048m}
 # Avoild "NetCDF: HDF error"
 export HDF5_USE_FILE_LOCKING=FALSE
@@ -67,6 +67,28 @@ elif [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac
   export BACKGROUND="&"
   export USE_CFP="NO"
   export USE_MPISERIAL="YES"
+elif [ "$machine" = nimbus ]; then
+  export APRUN="/home/biju_thomas_hpc_noaa_gov/opt/utils/time"
+  export APRUNS="srun --mem=0 --ntasks=1 --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --mpi=pmi2"
+  export APRUNO="srun --mem=0 --exclusive --ntasks=1 --nodes=1 --ntasks-per-node=${NCTSK} --cpus-per-task=${PURE_OMP_THREADS} --mpi=pmi2"
+  export APRUNC="srun -l -n${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --mpi=pmi2"
+ #export APRUNF="srun --mem=0 --ntasks=${TOTAL_TASKS} --ntasks-per-node=${NCTSK} --cpus-per-task=${OMP_NUM_THREADS} --multi-prog --mpi=pmi2"
+  export APRUNT1="srun --mem=0 --ntasks-per-node=1 --mpi=pmi2"
+  export APRUNF="/home/biju_thomas_hpc_noaa_gov/opt/utils/time"
+  export APRUNCFP="/home/biju_thomas_hpc_noaa_gov/opt/utils/time"
+  export BACKGROUND="&"
+  export USE_CFP="NO"
+  export USE_MPISERIAL="YES"
+  export OMP_STACKSIZE='2G'
+  export I_MPI_FABRICS=ofi
+  export FI_PROVIDER='verbs;ofi_rxm'
+  #export FI_UNIVERSE_SIZE=$SLURM_NTASKS
+  export FI_OFI_RXM_SAR_LIMIT=2147483648
+  export I_MPI_PIN_DOMAIN=numa
+  export I_MPI_PMI=pmi2
+  export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi2.so
+  ulimit -l unlimited || true
+  ulimit -n 65535 || true
 else
   echo "WARNING: unknown platform. Guessing the job run commands..."
   export APRUN="time"

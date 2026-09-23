@@ -208,7 +208,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGSSH $CRES 4 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 5 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   echo "${APRUN} $MAKEOROGSSH $CRES 6 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -227,7 +227,7 @@ if [ $gtype = uniform ] || [ $gtype = stretch ];  then
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 4 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 5 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 6 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -262,7 +262,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -279,7 +279,7 @@ elif [ $gtype = nest ]; then
   for itile in $(seq 2 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -326,7 +326,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGSSH $CRES ${itile} $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -343,7 +343,7 @@ elif [ $gtype = regional ] && [ ${nest_grids} -gt 1 ]; then
   for itile in $(seq 8 $ntiles); do
     echo "${APRUN} $MAKEOROGGSLSSH $CRES ${itile} -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >>$DATA/orog_gsl.file1
   done
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1
@@ -431,7 +431,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGSSH ................."
   echo "${APRUN} $MAKEOROGSSH $CRES 7 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> orog.file1
   fi
   chmod u+x $DATA/orog.file1
@@ -527,7 +527,7 @@ if [ $gtype = regional ]; then
   date
   echo "............ execute $MAKEOROGGSLSSH ................."
   echo "${APRUN} $MAKEOROGGSLSSH $CRES 7 -999 $grid_dir $orog_dir $FIXorog $DATA ${BACKGROUND}" >$DATA/orog_gsl.file1
-  if [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
+  if [ "$machine" = nimbus ] || [ "$machine" = hera ] || [ "$machine" = orion ] || [ "$machine" = hercules ] || [ "$machine" = gaeac6 ] || [ "$machine" = ursa ]; then
     echo 'wait' >> $DATA/orog_gsl.file1
   fi
   chmod u+x $DATA/orog_gsl.file1

@@ -1,0 +1,51 @@
+## This is the system-specific configuration file for ursa
+[config]
+## Project disk area
+disk_project=hwrfv3
+## Project hpss tape area
+tape_project=emc-hwrf
+## CPU account name for submitting jobs to the batch system.
+cpu_account=compute
+## Archive path
+archive=hpss:/NCEPDEV/{tape_project}/5year/{ENV[USER]}/{SUBEXPT}/{out_prefix}.tar
+#archens=sync:/scratch3/HFIP/{disk_project}/scrub/{ENV[USER]}/hafsarch_ens/{SUBEXPT}/com/{YMDH}/{STID}
+
+[dir]
+## Save directory.  Make sure you edit this.
+CDSAVE=/home/biju_thomas_hpc_noaa_gov/save
+## Non-scrubbed directory for track files, etc.  Make sure you edit this.
+CDNOSCRUB=/home/biju_thomas_hpc_noaa_gov/noscrub/hafstrak
+## Scrubbed directory for large work files.  Make sure you edit this.
+CDSCRUB=/home/biju_thomas_hpc_noaa_gov/scrub
+## Syndat directory for finding which cycles to run
+syndat=/home/biju_thomas_hpc_noaa_gov/noscrub/input/SYNDAT-PLUS
+#oldcom={ENV[COMOLD]}
+COMOLD={oldcom}
+COMIN={COMhafs}
+COMOUT={COMhafs}
+COMINnhc={ENV[DCOMROOT|-/dcom]}/nhc/atcf/ncep
+COMINjtwc={ENV[DCOMROOT|-/dcom]}/{ENV[PDY]}/wtxtbul/storm_data
+COMgfs=/home/biju_thomas_hpc_noaa_gov/noscrub/hafs-input/COMGFSv17
+COMINobs=/home/biju_thomas_hpc_noaa_gov/noscrub/hafs-input/COMOBSPROCv1.2
+COMINgfs={COMgfs}
+COMINgdas={COMgfs}
+COMINarch={COMgfs}/syndat
+COMrtofs=/home/biju_thomas_hpc_noaa_gov/noscrub/hafs-input/COMRTOFSv2.5
+COMINrtofs={COMrtofs}
+COMINmsg={COMINgfs}
+COMINhafs={COMINgfs}
+DATMdir=/scratch3/HFIP/{disk_project}/noscrub/input/{disk_project}/noscrub/{ENV[USER]}/DATM
+DOCNdir=/scratch3/HFIP/{disk_project}/noscrub/{ENV[USER]}/DOCN
+## A-Deck directory for graphics
+ADECKhafs=/scratch3/HFIP/{disk_project}/noscrub/input/abdeck/aid
+## B-Deck directory for graphics
+BDECKhafs=/scratch3/HFIP/{disk_project}/noscrub/input/abdeck/btk
+## cartopyDataDir directory for graphics
+cartopyDataDir=/scratch3/HFIP/{disk_project}/noscrub/local/cartopy
+
+[forecast]
+quilting_restart=.false.
+
+[holdvars]
+WHERE_AM_I=nimbus
+
