@@ -47,6 +47,15 @@ if [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
     module use /apps/modules/modulefiles
     module use /apps/lmod/lmod/modulefiles/Core
   fi
+elif [[ "$(hostname)" =~ "wcoss3" ]] ; then
+   echo "We are on NOAA NIMBUS"
+  # We are on NOAA NIMBUS
+   
+    export OCL_ICD_FILENAMES=""
+    . /opt/intel/oneapi/compiler/2023.2.1/env/vars.sh
+    . /opt/intel/oneapi/mpi/2021.18/env/vars.sh
+    target=nimbus
+    source $MODULESHOME/init/sh
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion/Hercules
   if [[ "$(hostname)" =~ "hercules" ]] ; then
