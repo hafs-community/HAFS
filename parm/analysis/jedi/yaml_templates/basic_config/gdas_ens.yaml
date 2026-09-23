@@ -22,6 +22,9 @@ states:
     filetype: structured grid
     gridtype: gaussian
     akbk: bkg/_FV3_AKBK_FILE_
+    latitude dim name: grid_yt
+    longitude dim name: grid_xt
+    level dim name: pfull
     mode: read
     lon_min: _MIN_LON_
     lon_max: _MAX_LON_

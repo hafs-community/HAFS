@@ -32,12 +32,14 @@ bufr:
 
     satelliteZenithAngle:
       query: "*/SAZA"
+      type: float
 
     sensorCentralFrequency:
       query: "*/SCCF"
 
     pressure:
-      query: "*/PRLC[1]"
+      query: "*/PRLC"
+      type: float
 
     # Processing Center
     dataProviderOrigin:

@@ -298,7 +298,7 @@ def _make_obs(comm, input_path, mapping_path):
             satzenith = container.get('variables/satelliteZenithAngle',cat)
             satzenith_paths = container.get_paths('variables/satelliteZenithAngle',cat)
             logging(comm, 'Debug', f'satzenith min/max = {satzenith.min()}, {satzenith.max()}')
-            satzenith.fill(61.23)
+            satzenith = np.full(satzenith.shape, 61.23, dtype=satzenith.dtype)
             container.replace('variables/satelliteZenithAngle',satzenith, cat)
 
     # Check

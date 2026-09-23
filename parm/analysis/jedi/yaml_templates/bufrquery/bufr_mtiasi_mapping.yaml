@@ -216,14 +216,14 @@ encoder:
       source: variables/sensorChannelNumber
       longName: "Sensor Channel Number"
 
-    - name: "MetaData/fractionOfClearPixelsInFOV"
+    - name: "ObsValue/cloudFree"
       source: variables/fractionOfClearPixelsInFOV
       longName: "Fraction of Clear Pixels in a Field of View"
       units: "1"
       range: [0, 100]
 
 #   The unit from BUFR is W m-2 sr-1 m -- this is radiance per wavenumber
-    - name: "ObsValue/radiance"
+    - name: "ObsValue/spectralRadiance"
       source: variables/spectralRadiance
       longName: "IASI Spectral Radiance"
       units: "W m-2 sr-1"  # units: "W m-2 sr-1 m-1"
