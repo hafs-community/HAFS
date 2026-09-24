@@ -35,6 +35,10 @@ else
   export BUFR_LDFLAGS="${BUFR_LIB4}"
 fi
 
+if [ $target = nimbus ]; then
+  export MKLROOT=/opt/intel/oneapi/mkl/2026.1
+fi
+
 TOOLS_PATH=${cwd}/hafs_tools.fd
 export TOOLS_INC=${TOOLS_PATH}/include
 export TOOLS_INCLUDE="-I${TOOLS_PATH}/include"
