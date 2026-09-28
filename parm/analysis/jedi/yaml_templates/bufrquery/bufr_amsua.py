@@ -2,9 +2,12 @@
 import bufr
 import argparse
 import netCDF4 as nc
+import numpy as np
+import numpy.ma as ma
 import os
 import sys
 import time
+import calendar
 from bufr.bufr_python.encoders import *
 from bufr.encoders.netcdf import Encoder as netcdfEncoder
 from wxflow import Logger
@@ -117,8 +120,15 @@ def _apply_ant_corr(i, ac, ifov, t):
     return t
 
 
-def _make_description(yaml_path):
+def _make_description(yaml_path, update=False):
     description = bufr.encoders.Description(yaml_path)
+
+    if update:
+        description.add_variable(name='MetaData/timeOffset',
+                                 source='variables/timeOffset',
+                                 units='s',
+                                 longName='Observation Time Minus Reference Time')
+
     return description
 
 
@@ -153,6 +163,48 @@ def _re_map_variable(comm, container):
             container.replace('variables/brightnessTemperature', tb, sat_id)
 
 
+def ComputeTimeOffset(obtime, cycle_time):
+    """Compute observation time minus cycle time, in seconds."""
+
+    cycle_epoch = np.int64(
+        calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H'))
+    )
+    return (ma.array(obtime, copy=True) - cycle_epoch).astype(np.float32)
+
+
+def _add_time_offset(comm, container, cycle_time):
+    """Add variables/timeOffset to every mapped sub-category."""
+
+    for cat in container.all_sub_categories():
+        logging(comm, f'Adding timeOffset for {cat}', level=DEBUG)
+
+        paths = container.get_paths('variables/timestamp', cat)
+        obtime = container.get('variables/timestamp', cat)
+        time_diff = ComputeTimeOffset(obtime, cycle_time)
+
+        container.add('variables/timeOffset', time_diff, paths, cat)
+
+
+def _get_cycle_time(env=None, cycle_time=None):
+    """Get cycle time from explicit input, env dictionary, or CDATE."""
+
+    if cycle_time is not None:
+        return str(cycle_time)
+
+    if env is not None:
+        for key in ('cycle_time', 'cycleTime', 'CDATE'):
+            if key in env and env[key] is not None:
+                return str(env[key])
+
+    cdate = os.getenv('CDATE')
+    if cdate:
+        return cdate
+
+    raise ValueError(
+        'Cycle time is required. Provide cycle_time in YYYYMMDDHH format.'
+    )
+
+
 def _make_obs(comm, input_path, yaml_path):
     cache = bufr.DataCache.has(input_path, yaml_path)
     if cache:
@@ -176,13 +228,20 @@ def _mark_one_data(comm, cache, input_path, yaml_path, category, container=None)
         bufr.DataCache.mark_finished(input_path, yaml_path, [category])
 
 
-def create_obs_group(input_path1, input_path2, yaml_1b, yaml_es, category, env):
+def create_obs_group(input_path1, input_path2, yaml_1b, yaml_es, category, env, cycle_time=None):
     comm = bufr.mpi.Comm(env["comm_name"])
 
     logging(comm, f'Imput_path: {input_path1}, {input_path2}, and category: {category}')
     logging(comm, f'Entering function to create obs group for {category} with yaml path {yaml_es} and {yaml_1b}')
     cache_1, container_1 = _make_obs(comm, input_path1, yaml_es)
     cache_2, container_2 = _make_obs(comm, input_path2, yaml_1b)
+
+    cycle_time = _get_cycle_time(env=env, cycle_time=cycle_time)
+
+    if not cache_1:
+        _add_time_offset(comm, container_1, cycle_time)
+    if not cache_2:
+        _add_time_offset(comm, container_2, cycle_time)
 
     container = container_1
 
@@ -192,13 +251,13 @@ def create_obs_group(input_path1, input_path2, yaml_1b, yaml_es, category, env):
         container.append(container_2)
         logging(comm, 'Container append done')
 
-    data = Encoder(_make_description(yaml_es)).encode(container)[(category,)]
+    data = Encoder(_make_description(yaml_es, update=True)).encode(container)[(category,)]
     _mark_one_data(comm, cache_1, input_path1, yaml_es, category, container=container_1)
     _mark_one_data(comm, cache_2, input_path2, yaml_1b, category, container=container_2)
     return data
 
 
-def create_obs_file(input_path1, input_path2, yaml_1b, yaml_es, output_path):
+def create_obs_file(input_path1, input_path2, yaml_1b, yaml_es, output_path, cycle_time):
 
     comm = bufr.mpi.Comm("world")
 
@@ -207,13 +266,17 @@ def create_obs_file(input_path1, input_path2, yaml_1b, yaml_es, output_path):
     cache_1, container_1 = _make_obs(comm, input_path1, yaml_es)
     cache_2, container_2 = _make_obs(comm, input_path2, yaml_1b)
 
+    cycle_time = _get_cycle_time(cycle_time=cycle_time)
+    _add_time_offset(comm, container_1, cycle_time)
+    _add_time_offset(comm, container_2, cycle_time)
+
     _re_map_variable(comm, container_2)
 
     container = container_1
     container.append(container_2)
     logging(comm, 'Container append done')
 
-    description = _make_description(yaml_es)
+    description = _make_description(yaml_es, update=True)
 
     # Encode the data
     if comm.rank() == 0:
@@ -234,6 +297,7 @@ if __name__ == '__main__':
     parser.add_argument('yaml_1b', type=str, help='BUFR2IODA Mapping File for 1b')
     parser.add_argument('yaml_es', type=str, help='BUFR2IODA Mapping File for es')
     parser.add_argument('output', type=str, help='Output NetCDF file')
+    parser.add_argument('cycle_time', type=str, help='Cycle time in YYYYMMDDHH format')
 
     args = parser.parse_args()
     input_path1 = args.input_path1
@@ -241,8 +305,9 @@ if __name__ == '__main__':
     yaml_1b = args.yaml_1b
     yaml_es = args.yaml_es
     output = args.output
+    cycle_time = args.cycle_time
 
-    create_obs_file(input_path1, input_path2, yaml_1b, yaml_es, output)
+    create_obs_file(input_path1, input_path2, yaml_1b, yaml_es, output, cycle_time)
 
     end_time = time.time()
     running_time = end_time - start_time

@@ -3,12 +3,14 @@ import sys
 import os
 import argparse
 import time
+import calendar
 import bufr
 from bufr.bufr_python.encoders import *
 from bufr.encoders.netcdf import Encoder as netcdfEncoder 
 from bufr.obs_builder import add_dummy_variable
 from wxflow import Logger
 import numpy as np
+import numpy.ma as ma
 from netCDF4 import Dataset
 
 # Initialize Logger
@@ -81,6 +83,12 @@ def _make_description(mapping_path, update=False):
     if update:
         logging(comm, 'INFO', f'updating the netcdf file')
         variables = [
+            {
+                'name':'MetaData/timeOffset',
+                'source': 'variables/timeOffset',
+                'units':'s',
+                'longName': 'Observation Time Minus Reference Time',
+            },
             {
                 'name':'MetaData/sensorScanPosition',
                 'source': 'variables/sensorScanPosition',
@@ -184,7 +192,32 @@ def compute_scan_position(container, category):
     scanpos = rounded_values.astype(np.int32) + 1
    
     return scanpos 
-def _make_obs(comm, input_path, mapping_path):
+def ComputeTimeOffset(obtime, cycle_time):
+    cycle_epoch = np.int64(
+        calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H'))
+    )
+    return (ma.array(obtime, copy=True) - cycle_epoch).astype(np.float32)
+
+
+def _get_cycle_time(env=None, cycle_time=None):
+    if cycle_time is not None:
+        return str(cycle_time)
+
+    if env is not None:
+        for key in ('cycle_time', 'cycleTime', 'CDATE'):
+            if key in env and env[key] is not None:
+                return str(env[key])
+
+    cdate = os.getenv('CDATE')
+    if cdate:
+        return cdate
+
+    raise ValueError(
+        'Cycle time is required. Provide cycle_time in YYYYMMDDHH format.'
+    )
+
+
+def _make_obs(comm, input_path, mapping_path, cycle_time):
 
     # Get container from mapping file first
     logging(comm, 'INFO', 'Get container from bufr')
@@ -204,6 +237,7 @@ def _make_obs(comm, input_path, mapping_path):
         if satid.size == 0:
             logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
             dummy_mappings = [
+                ('timeOffset', 'longitude'),
                 ('sensorScanPosition','brightnessTemperature'),
                 ('sensorChannelNumber','brightnessTemperature'),
                 ('sensorCentralWavenumber','brightnessTemperature'),
@@ -215,6 +249,15 @@ def _make_obs(comm, input_path, mapping_path):
                 add_dummy_variable(container, target_var, cat, source_var)
             continue
         else:
+            # Add observation time relative to the cycle time
+            location_path = container.get_paths('variables/longitude', cat)
+            obtime = container.get('variables/timestamp', cat)
+            time_diff = ComputeTimeOffset(obtime, cycle_time)
+            container.add('variables/timeOffset',
+                          time_diff,
+                          location_path,
+                          category=cat)
+
             # Add channel number and wavenumber
             sccf_paths = container.get_paths('variables/sensorCentralFrequency', cat)
             nlocs = satid.shape[0] # Number of locations
@@ -233,7 +276,6 @@ def _make_obs(comm, input_path, mapping_path):
                           sccf_paths,
                           cat)
             # Compute sensorScanPosition from container variables
-            location_path = container.get_paths('variables/longitude', cat)
             scanpos = compute_scan_position(container, cat)
             container.add('variables/sensorScanPosition',
                           scanpos,
@@ -270,7 +312,7 @@ def _make_obs(comm, input_path, mapping_path):
 
     return container
 
-def create_obs_group(input_path, mapping_path, category, env):
+def create_obs_group(input_path, mapping_path, category, env, cycle_time=None):
 
     comm = bufr.mpi.Comm(env["comm_name"])
 
@@ -287,7 +329,8 @@ def create_obs_group(input_path, mapping_path, category, env):
         logging(comm, 'INFO', f'Return the encoded data for {category}')
         return data
 
-    container = _make_obs(comm, input_path, mapping_path)
+    cycle_time = _get_cycle_time(env=env, cycle_time=cycle_time)
+    container = _make_obs(comm, input_path, mapping_path, cycle_time)
 
     # Gather data from all tasks into all tasks. Each task will have the complete record 
     logging(comm, 'INFO', f'Gather data from all tasks into all tasks')
@@ -308,10 +351,11 @@ def create_obs_group(input_path, mapping_path, category, env):
     logging(comm, 'INFO', f'Return the encoded data for {category}')
     return data
 
-def create_obs_file(input_path, mapping_path, output_path):
+def create_obs_file(input_path, mapping_path, output_path, cycle_time):
 
     comm = bufr.mpi.Comm("world")
-    container = _make_obs(comm, input_path, mapping_path)
+    cycle_time = _get_cycle_time(cycle_time=cycle_time)
+    container = _make_obs(comm, input_path, mapping_path, cycle_time)
     container.gather(comm)
 
     description = _make_description(mapping_path, update=True)
@@ -335,13 +379,15 @@ if __name__ == '__main__':
     parser.add_argument('input', type=str, help='Input BUFR file')
     parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
     parser.add_argument('output', type=str, help='Output NetCDF file')
+    parser.add_argument('cycle_time', type=str, help='Cycle time in YYYYMMDDHH format')
 
     args = parser.parse_args()
     mapping = args.mapping
     infile = args.input
     output = args.output
+    cycle_time = args.cycle_time
 
-    create_obs_file(infile, mapping, output)
+    create_obs_file(infile, mapping, output, cycle_time)
 
     end_time = time.time()
     running_time = end_time - start_time
