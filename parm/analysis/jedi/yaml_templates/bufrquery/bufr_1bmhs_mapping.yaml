@@ -73,7 +73,7 @@ encoder:
 
   - name: platformLongDescription
     type: string
-    value: MTYP 021-023 PROC MHS 1B Tb
+    value: MTYP 021-027 PROCESSED MHS Tb
 
   variables:
   - name: MetaData/satelliteIdentifier
@@ -113,8 +113,8 @@ encoder:
     source: variables/sensorAzimuthAngle
     units: degree
 
-  - name: MetaData/sensorViewAngle
-    longName: Sensor View Angle
+  - name: MetaData/sensorScanAngle
+    longName: Sensor Scan Angle
     source: variables/sensorScanAngle
     units: degree
 
