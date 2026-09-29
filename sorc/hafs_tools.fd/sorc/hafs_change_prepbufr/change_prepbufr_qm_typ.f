@@ -57,6 +57,9 @@ ccccc CALL SETBMISS(10E10_8)
      * ' SUCCESSFULLY OPENED FOR INPUT; FIRST MESSAGES ',
      * 'CONTAIN BUFR TABLES A,B,D'/)
 
+C     Increase max message length to prevent dropping overlarge subsets
+      CALL MAXOUT(50000)      
+
       CALL OPENBF(LUBFJ,'OUT',LUBFI)
       PRINT 101, LUBFJ
   101 FORMAT(/5X,'===> PREPBUFR DATA SET IN UNIT',I3,' SUCCESSFULLY',
