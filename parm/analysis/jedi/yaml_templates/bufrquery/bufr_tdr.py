@@ -236,7 +236,10 @@ def correct_tilt_azm(tilt, azm, stahgt, sta_lat, sta_lon,gaterange):
     sdlon = np.sin(rlonglob-rlon0)
     caz1 = clat0*caz0/clat1
     saz1 = saz0*cdlon - caz0*sdlon*slat0
-    corrected_azimuth=np.arctan2(saz1,caz1)*rad2deg
+   
+    # fix according to UFO operature update, azimuth 0 degree change from east to north
+    azimuth_east=np.arctan2(saz1,caz1)*rad2deg
+    corrected_azimuth = (90.0 - azimuth_east)%360.0
 
     return corrected_tilt, corrected_azimuth, thislat, thislon, thishgt
 
