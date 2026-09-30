@@ -113,8 +113,8 @@ encoder:
     source: variables/sensorAzimuthAngle
     units: degree
 
-  - name: MetaData/sensorScanAngle
-    longName: Sensor Scan Angle
+  - name: MetaData/sensorViewAngle
+    longName: Sensor View Angle
     source: variables/sensorScanAngle
     units: degree
 
