@@ -42,16 +42,17 @@ local ufs_modules = {
     {["py-setuptools"]   = "73.0.1"},
     {["py-packaging"]    = "26.2"},
     {["py-numpy"]        = "1.26.4"},
-    {["py-six"]          = "1.17.0"},
-    {["py-python-dateutil"]        = "2.9.0.post0"},
-    {["py-pytz"]         = "2025.2"},
-    {["py-tzdata"]       = "2026.1"},
-    {["py-pandas"]       = "2.1.4"},
-    {["py-pyyaml"]       = "6.0.3"},
-    {["py-xarray"]       = "2023.7.0"},
+    {["py-scipy"]        = "1.13.1"},
     {["py-certifi"]      = "2026.2.25"},
     {["py-cftime"]       = "1.6.4"},
+    {["py-tzdata"]       = "2026.1"},
+    {["py-pytz"]         = "2025.2"},
+    {["py-six"]          = "1.17.0"},
+    {["py-python-dateutil"]        = "2.9.0.post0"},
     {["py-netcdf4"]      = "1.7.2"},
+    {["py-pandas"]       = "2.1.4"},
+    {["py-xarray"]       = "2023.7.0"},
+    {["py-pyyaml"]       = "6.0.3"},
     {["libyaml"]         = "0.2.5"},
     {["jasper"]          = "4.2.8"},
     {["libpng"]          = "1.6.55"},
@@ -60,7 +61,7 @@ local ufs_modules = {
     {["netcdf-c"]        = "4.9.2"},
     {["netcdf-fortran"]  = "4.6.1"},
     {["parallelio"]      = "2.6.2"},
-    {["esmf"]            = "8.8.0"},
+    {["esmf"]            = "8.8.0-python"},
     {["fms"]             = "2024.03-gfs-constants"},
     {["bacio"]           = "2.4.1"},
     {["crtm"]            = "2.4.0.1"},
@@ -81,7 +82,6 @@ local ufs_modules = {
     {["grib-util"]       = "1.4.0"},
     {["wgrib2"]          = "3.8.0"},
     {["nco"]             = "5.3.9"},
-    {["py-scipy"]        = "1.13.1"},
 }
 
 for i = 1, #ufs_modules do
@@ -92,8 +92,8 @@ for i = 1, #ufs_modules do
 end
 
 prepend_path("PATH", "/home/biju_thomas_hpc_noaa_gov/opt/prod-util/bin")
-prepend_path("PATH", "/home/biju_thomas_hpc_noaa_gov/opt/rocoto/1.3.7/bin")
-prepend_path("PATH", "/home/biju_thomas_hpc_noaa_gov/opt/ruby/3.2.3/bin")
+prepend_path("PATH", "/lfs/work/alexander_richert/stack/rocoto-80f8ccc/bin")
+--prepend_path("PATH", "/home/biju_thomas_hpc_noaa_gov/opt/ruby/3.2.3/bin")
 prepend_path("PATH", "/home/biju_thomas_hpc_noaa_gov/opt/utils/bin")
 
 setenv("CC", "mpiicx")

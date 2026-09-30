@@ -32,13 +32,15 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ ${machine}  = "gaeac6" ]]; then
-    module reset
-  else
-    module purge
+  if [[ ${machine} != "nimbus" ]]; then
+    if [[ ${machine}  = "gaeac6" ]]; then
+      module reset
+    else
+      module purge
+    fi  
+    module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
+    module load HDAS/${machine}.intel
   fi
-  module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-  module load HDAS/${machine}.intel
   if [[ ${machine}  != "wcoss2" ]] ; then
     module use ${HOMEhafs}/modulefiles
     #module load hafs_obs_prep_${machine}

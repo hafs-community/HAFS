@@ -54,6 +54,7 @@ elif [[ "$(hostname)" =~ "wcoss3" ]] ; then
     export OCL_ICD_FILENAMES=""
     . /opt/intel/oneapi/compiler/2023.2.1/env/vars.sh
     . /opt/intel/oneapi/mpi/2021.18/env/vars.sh
+    . /opt/intel/oneapi/mkl/latest/env/vars.sh
     target=nimbus
     source $MODULESHOME/init/sh
 elif [[ -d /work/noaa ]] ; then
