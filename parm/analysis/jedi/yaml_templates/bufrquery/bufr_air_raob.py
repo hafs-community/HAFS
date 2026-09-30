@@ -11,10 +11,10 @@ from prepbufr_obs_builder import PrepbufrObsBuilder, check_include_tv
 
 MAPPING_PATH = map_path('bufr_air_raob_mapping.yaml')
 NUM_T_EVENTS = 5
-REF_TIME = os.environ.get("CDATE")
+REF_TIME = os.environ.get("CYC_TIME")
 if not REF_TIME:
     raise ValueError(
-        "CDATE environment variable must be set in YYYYMMDDHH format"
+        "CYC_TIME environment variable must be set in YYYYMMDDHH format"
     )
 
 class AdpupaPrepbufrObsBuilder(PrepbufrObsBuilder):
