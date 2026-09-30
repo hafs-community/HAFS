@@ -55,6 +55,7 @@ class AdpupaPrepbufrObsBuilder(PrepbufrObsBuilder):
             container.add('stationPressure', empty_float, ydr_paths)
             container.add('stationPressureQualityMarker', empty_int, ydr_paths)
             container.add('stationPressureError', empty_float, ydr_paths)
+            container.add('statioPressureObType', empty_int, ydr_paths)
             container.add('obsSubType', empty_int, ydr_paths)
             return container
 
@@ -145,6 +146,12 @@ class AdpupaPrepbufrObsBuilder(PrepbufrObsBuilder):
                 'source': 'stationPressureError',
                 'units': 'Pa',
                 'longName': 'Station Pressure Error',
+            },
+            {
+                'name': 'ObsType/stationPressure',
+                'source': 'observationType',
+                'units': '',
+                'longName': 'Station Pressure Observation Type',
             },
             {
                 'name': 'ObsSubType/stationPressure',
