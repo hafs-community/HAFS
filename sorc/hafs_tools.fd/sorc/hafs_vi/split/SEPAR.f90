@@ -1,6 +1,9 @@
-       SUBROUTINE SEPAR(XD,XM)
+       SUBROUTINE SEPAR(XD,XM,IMX,JMX) !2024
        !Authors Qingfu Liu (NCEP/EMC)
        !Revised by Chuan-Kai Wang (NCEP/EMC) 2022
+       !Revised by: JungHoon Shin, NCEP/EMC, Mar 2026 Mimic Kun Gao's method (at GFDL) to use 
+       !            a smaller VI domain as an option
+       !            Kun Gao's subroutine is modified and used for this change
 !C
 !C  SEPERATES A FIELD INTO HURRICANE COMPONENT AND REMAINDER
 !C
@@ -11,6 +14,7 @@
 
        implicit none
        integer, parameter :: nmx1=nmx+1,nmx2=nmx*2,nmx6=nmx*6
+       integer:: IMX,JMX  !2024
        real XR(NMX),XD(IMX,JMX)
        real:: ro,x,y,romax,delx,dely,dr,temp,theta,delth,xro,dpij,rnm
        integer::ip,jp,jy,i,j,is,ie,js,je,n1,n2,ix,md

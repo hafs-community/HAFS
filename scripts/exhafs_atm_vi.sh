@@ -30,6 +30,8 @@ vi_pert_smth=${vi_pert_smth:-0}
 vi_slp_adjust=${vi_slp_adjust:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
+vi_domain=${vi_domain:-45}
+vi_multi_storm=${vi_multi_storm:-no}
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
@@ -58,6 +60,14 @@ else
   export CDATE=${CDATE:-${YMDH}}
 fi
 
+#-----------------------------------------------------------------
+if [ $vi_storm_env = pert ] && [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
+  echo "WARNING: vi_storm_env = pert, First guess for VI missing"
+  echo "WARNING: Do nothing for VI, Exiting"
+  exit
+fi
+#------------------------------------------------------------------
+
 CDATEprior=$(${NDATE} -6 $YMDH)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
@@ -79,15 +89,49 @@ else
   ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
   gesfhr=6
 fi
+
+${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
+sed -i '/INVEST/d' allvit_
+grep -E '^.{7}L' allvit > tcvitals.vi-tmp
+tac tcvitals.vi-tmp > tcvitals.vi-all
+rm tcvitals.vi-tmp
+num=`wc tcvitals.vi-all | awk '{print substr($1,1,4)}'`
+
+tccase=1
+#==========================================
+while [ $tccase -le $num ]
+do
+echo ${tccase}
+
+cd $DATA
+head -n ${tccase} tcvitals.vi-all | tail -1 > tcvitals.vi
+tcvital=${DATA}/tcvitals.vi
+cat ${tcvital}
+STORMID=`awk '{print $2}' tcvitals.vi`
+old_out_prefix_nodate=$STORMID
+
+${USHhafs}/tcutil_generate_vitals.py -c ${YMDH} -o ./ $STORMID ${CYCLE:0:4}
+${NCP} oldvit ${WORKhafs}/intercom/launch
+if [ ${FGAT_HR} = 03 ]; then
+ ${NCP} tm03vit tcvitals.vi
+elif [ ${FGAT_HR} = 09 ]; then
+ ${NCP} tp03vit tcvitals.vi
+fi
+
 # Convert 1800W to 1800E for date line TCs
 sed -i 's/1800W/1800E/g' ./tcvitals.vi
-tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
+STORMID=`awk '{print $2}' tcvitals.vi`
+
+${NCP} tcvitals.vi tcvitals.vi_${tccase}
+${NCP} tm03vit tm03vit_${tccase}
+${NCP} tmpvit tmpvit_${tccase}
+${NCP} tp03vit tp03vit_${tccase}
+${NCP} oldvit oldvit_${tccase}
 
 int_mode=0
 #----------------------------------------------------------------------
-#-----------------------------------------------------------------------
 
 cd $DATA
 
@@ -135,6 +179,49 @@ fi
 
 cd $DATA
 
+#----------------------------------------------------------------------
+if [ $vi_multi_storm = yes ]; then
+ dis=9999.9
+ ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
+        --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
+        --tcvital=${tcvital}
+ distancebc=${DATA}/distance
+ dis=$(<${distancebc})
+ if [ "$(echo "$dis < 13.0 && $dis >= 8.0" | bc)" -eq 1 ]; then
+  echo "Shrink further"
+  vi_domain=15
+ fi
+ if [ "$(echo "$dis < 8.0" | bc)" -eq 1 ]; then
+  echo "INFO: skip vortex initialization because TC is too close to BC."
+ # break
+ # exit
+ fi
+
+ grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all > ./trak.atcfunix.check
+ if [ -s "trak.atcfunix.check" ]; then
+    echo "Have TC information from the previous cycle"
+ else
+    echo "No TC information from the previous cycle"
+ fi
+
+fi
+#----------------------------------------------------------------------
+
+if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then  #====================== domain ============================
+# ----------------------------------------------------------------
+if [[ ${vi_domain} == 45 ]]; then
+ deg_box1=30
+ deg_box2=45
+elif [[ ${vi_domain} == 25 ]]; then
+ deg_box1=25
+ deg_box2=25
+elif [[ ${vi_domain} == 15 ]]; then
+ deg_box1=15
+ deg_box2=15
+fi
+
+#-----------------------------------------------------------------------
+
 # Force to cold start storm vortex if desired
 if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
@@ -150,12 +237,12 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
   fi
 fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
-  for vortexradius in 30 45; do
-    if [[ ${vortexradius} == 30 ]]; then
-      res=0.02
-    elif [[ ${vortexradius} == 45 ]]; then
-      res=0.20
-    fi
+for res in 0.02 0.20; do
+  if [[ ${res} == 0.02 ]]; then
+    vortexradius=${deg_box1}
+  elif [[ ${res} == 0.20 ]]; then
+    vortexradius=${deg_box2}
+  fi
     # prep
     work_dir=${DATA}/prep_guess
     mkdir -p ${work_dir}
@@ -171,8 +258,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+      mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
@@ -181,11 +268,14 @@ fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
 cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
-for vortexradius in 30 45; do
-  if [[ ${vortexradius} == 30 ]]; then
-    res=0.02
-  elif [[ ${vortexradius} == 45 ]]; then
-    res=0.20
+
+if [ $vi_storm_env = init ] && [ $vi_multi_storm = no ]; then
+#for vortexradius in 30 45; do
+for res in 0.02 0.20; do
+  if [[ ${res} == 0.02 ]]; then
+    vortexradius=${deg_box1}
+  elif [[ ${res} == 0.20 ]]; then
+    vortexradius=${deg_box2}
   fi
   # prep
   work_dir=${DATA}/prep_init
@@ -202,10 +292,11 @@ for vortexradius in 30 45; do
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 done
+fi
 
 #===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and if storm intensity is
@@ -246,6 +337,9 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vdif_guess="${vdif_guess#-}"
 
   ${NLN} trak.atcfunix.tmp fort.12
+#  ${RLN} trak.atcfunix.tmp fort.12
+#  ${WLN} trak.atcfunix.tmp fort.12
+
   # output
   ${RLN} ./trak.fnl.all fort.30
 
@@ -258,8 +352,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ./trak.fnl.all fort.30
-  ${NLN} ../prep_guess/vi_inp_30deg0p02.bin fort.26
-  ${NLN} ../prep_guess/vi_inp_45deg0p20.bin fort.46
+  ${NLN} ../prep_guess/vi_inp_${deg_box1}deg0p02.bin fort.26
+  ${NLN} ../prep_guess/vi_inp_${deg_box2}deg0p20.bin fort.46
   # output
   ${RLN} storm_env fort.56
   ${RLN} rel_inform fort.52
@@ -273,7 +367,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
@@ -296,7 +390,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_guess/storm_env fort.26
-  ${NLN} ../prep_guess/vi_inp_30deg0p02.bin fort.46
+  ${NLN} ../prep_guess/vi_inp_${deg_box1}deg0p02.bin fort.46
   ${NLN} ../split_guess/storm_pert fort.71
   ${NLN} ../split_guess/storm_radius fort.65
   # output
@@ -337,6 +431,7 @@ fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model
 
+if [ $vi_storm_env = init ] && [ $vi_multi_storm = no ]; then
 cd $DATA
 # This step is always needed currently
 if true; then
@@ -347,8 +442,10 @@ if true; then
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
-    ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+#  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
+#   ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+   if [ -e ${INTCOMinit}/00l.${CDATE}.${RUN}.trak.atcfunix.all ]; then
+    ${NCP} ${INTCOMinit}/00l.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
@@ -380,8 +477,8 @@ if true; then
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ./trak.fnl.all fort.30
-  ${NLN} ../prep_init/vi_inp_30deg0p02.bin fort.26
-  ${NLN} ../prep_init/vi_inp_45deg0p20.bin fort.46
+  ${NLN} ../prep_init/vi_inp_${deg_box1}deg0p02.bin fort.26
+  ${NLN} ../prep_init/vi_inp_${deg_box2}deg0p20.bin fort.46
   if [ -s ../split_guess/storm_radius ]; then
     ${NLN} ../split_guess/storm_radius fort.65
   fi
@@ -403,7 +500,7 @@ if true; then
     iflag_cold=1
   fi
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
@@ -413,7 +510,7 @@ if true; then
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_init/storm_env fort.26
-  ${NLN} ../prep_init/vi_inp_30deg0p02.bin fort.46
+  ${NLN} ../prep_init/vi_inp_${deg_box1}deg0p02.bin fort.46
   ${NLN} ../split_init/storm_pert fort.71
   ${NLN} ../split_init/storm_radius fort.65
   # output
@@ -450,6 +547,7 @@ if true; then
 
 fi
 
+fi
 #===============================================================================
 # Stage 3:
 
@@ -469,8 +567,8 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_${senv}/storm_env fort.26
-  ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.36
-  ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
+  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.36
+  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
   ${NLN} ../split_${pert}/storm_pert fort.61
   ${NLN} ../split_${pert}/storm_radius fort.85
 
@@ -529,7 +627,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   ${NLN} ../anl_pert_${pert}/storm_sym fort.23
   ${NLN} ../anl_pert_${pert}/storm_pert_new fort.71
   ${NLN} ../split_${senv}/storm_env fort.26
-  ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
+  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
   ${NLN} ../anl_pert_${pert}/iteration ./
 
   # output
@@ -542,7 +640,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
@@ -559,7 +657,7 @@ else # warm-start from prior cycle or cold start from global/parent model
    #${NLN} ./flag_file flag_file
     ${NLN} ../anl_pert_${pert}/storm_sym fort.23
     ${NLN} storm_env_new fort.26
-    ${NLN} ../prep_${pert}/vi_inp_30deg0p02.bin fort.46 #roughness
+    ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
     ${NLN} ../split_${pert}/storm_radius fort.85
 
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
@@ -641,6 +739,20 @@ for nd in $(seq 1 ${nest_grids}); do
       --vi_cloud=${vi_cloud} \
       --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
   export err=$?; err_chk
+done
+
+cd $DATA
+
+#anl_pert_guess  anl_storm prep_guess  split_guess
+ mv anl_storm anl_storm_${tccase}
+ mv anl_pert_guess anl_pert_guess_${tccase}
+ mv prep_guess prep_guess_${tccase}
+ mv split_guess split_guess_${tccase}
+ ${NCP} -rp ${RESTARTout} ${RESTARTout}_${tccase}
+ ${NCP} -rp ${RESTARTout}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTinp}
+fi #====================== domain ============================
+
+tccase=$((tccase + 1))
 done
 
 #===============================================================================
