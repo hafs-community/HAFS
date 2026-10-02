@@ -2664,3 +2664,120 @@
   end subroutine hafsvi_postproc
 
 !========================================================================================
+!========================================================================================
+  subroutine hafsvi_domaincheck(in_dir)
+
+!-----------------------------------------------------------------------------
+! HAFS DA tool - hafsvi_preproc
+! authors and history:
+!      -- 202112, created by Yonghui Weng
+!      -- 202307, JungHoon Shin added vi_cloud
+!      -- 202411, Yonghui Weng added updating ua/va in hafsvi_postproc
+!
+!------------------------------------------------------------------------------
+! June 2026: Simply copy the part of vi_preproc, Read grid_spec.nc
+!------------------------------------------------------------------------------
+
+  use constants
+  use netcdf
+  use module_mpi
+  use var_type
+
+  implicit none
+
+  character (len=*), intent(in) :: in_dir
+!--- in_dir,  HAFS_restart_folder, which holds grid_spec.nc, fv_core.res.tile1.nc,
+!             fv_srf_wnd.res.tile1.nc, fv_tracer.res.tile1.nc, phy_data.nc, sfc_data.nc
+!--- nestdoms: total nest domain number: 0-no nesting
+!---                                     1-nest02.tile2 + 0
+!---                                     2-nest03.tile3 + 1
+
+  character (len=2500)   :: indir, infile
+  character (len=2500)   :: infile_grid_ck
+  type(grid2d_info)      :: dstgrid  ! rot-ll grid for output
+  type(grid2d_info)      :: ingrid   ! hafs restart grid
+  type(grid2d_info)      :: ingrid_ck ! hafs restart grid for checking
+  logical  :: file_exist
+
+!----for hafs restart
+  integer  :: ix, iy, iz, kz, ndom, nd
+
+!----for hafsvi
+  real     :: cen_lat,cen_lon
+  real     :: dis_min   !new
+  real, allocatable, dimension(:,:) :: lont_spec, latt_spec  !new
+  real, allocatable, dimension(:) :: ns_dis1,ns_dis2,we_dis1,we_dis2  !new
+
+  integer  :: i, j, k, flid_in, flid_out, ncid, ndims, nrecord, ii, jj
+  real     :: rot_lon, rot_lat, ptop
+  integer, dimension(nf90_max_var_dims) :: dims
+
+  integer :: io_proc
+
+!------------------------------------------------------------------------------
+! 1 --- arg process
+  io_proc=nprocs-1
+  !io_proc=0
+!
+! 1.1 --- input_dir
+  if (len_trim(in_dir) < 2 .or. trim(in_dir) == 'w' .or. trim(in_dir) == 'null') then
+     indir='.'
+  else
+     indir=trim(in_dir)
+  endif
+
+  write(*,*) 'Running hafsvi_checkdomain'
+
+!======================================================================
+! 1.2 --- Check the domain
+  cen_lat = tc%lat
+  cen_lon = tc%lon
+  if(cen_lon.ge.180.0) cen_lon=cen_lon-360.0
+  write(*,*) 'Running hafsvi_checkdomain: TC center is ',cen_lat,cen_lon
+
+  infile_grid_ck=trim(indir)//'/grid_spec.nc'
+  call rd_grid_spec_data(trim(infile_grid_ck), ingrid_ck)
+  ix=ingrid_ck%grid_xt
+  iy=ingrid_ck%grid_yt
+!  allocate(lont_spec(ix,iy),latt_spec(ix,iy),ns_dis1(ix),ns_dis2(ix),we_dis1(iy),we_dis2(iy))
+!  allocate(lont_ck(ix,iy)); lont_ck=ingrid_ck%grid_lont
+!  allocate(latt_ck(ix,iy)); latt_ck=ingrid_ck%grid_latt
+!  do i = 1, ix; do j = 1, iy
+!    lont_spec(i,j)=lont_ck(ix-i+1,iy-j+1)
+!    latt_spec(i,j)=latt_ck(ix-i+1,iy-j+1)
+!    if(lont_spec(i,j).ge.180.0) lont_spec(i,j)=lont_spec(i,j)-360.0
+!  enddo; enddo
+
+  allocate(ns_dis1(ix),ns_dis2(ix),we_dis1(iy),we_dis2(iy))
+  allocate(lont_spec(ix,iy)); lont_spec=ingrid_ck%grid_lont
+  allocate(latt_spec(ix,iy)); latt_spec=ingrid_ck%grid_latt
+  do i = 1, ix; do j = 1, iy
+   if(lont_spec(i,j).ge.180.0) lont_spec(i,j)=lont_spec(i,j)-360.0
+  enddo; enddo
+
+  write(*,'(a,4f10.5)')'---rot-ll grid rot_lon: spec', lont_spec(1,1), lont_spec(1,iy), lont_spec(ix,iy), lont_spec(ix,1)
+  write(*,'(a,4f10.5)')'---rot-ll grid rot_lat: spec', latt_spec(1,1), latt_spec(1,iy), latt_spec(ix,iy), latt_spec(ix,1)
+
+  do i = 1, ix  ! Restart file domain
+   ns_dis1(i)=sqrt((lont_spec(i,1)-cen_lon)**2+(latt_spec(i,1)-cen_lat)**2)
+   ns_dis2(i)=sqrt((lont_spec(i,iy)-cen_lon)**2+(latt_spec(i,iy)-cen_lat)**2)
+  enddo
+
+  do j = 1, iy ! Restart file domain
+   we_dis1(j)=sqrt((lont_spec(1,j)-cen_lon)**2+(latt_spec(1,j)-cen_lat)**2)
+   we_dis2(j)=sqrt((lont_spec(iy,j)-cen_lon)**2+(latt_spec(iy,j)-cen_lat)**2)
+  enddo
+
+  write(*,*) 'minval(ns_dis1(:) ', minval(ns_dis1(:))
+  write(*,*) 'minval(ns_dis2(:) ', minval(ns_dis2(:))
+  write(*,*) 'minval(we_dis1(:) ', minval(we_dis1(:))
+  write(*,*) 'minval(we_dis2(:) ', minval(we_dis2(:))
+  dis_min=min(minval(ns_dis1(:)),minval(ns_dis2(:)),minval(we_dis1(:)),minval(we_dis2(:)))
+  write(*,*)'---Minimum distance', dis_min
+
+  open(77, file='distance', status='unknown', form = 'formatted')
+  write(77,*) dis_min
+  close(77)
+  write(*,*)'--- hafsvi_domaincheck completed ---'
+
+  end subroutine hafsvi_domaincheck
