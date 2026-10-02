@@ -31,10 +31,10 @@ if [ ${ENSDA} = YES ]; then
   else
     NHRS=${NHRS_ENS:-6}
   fi
-  NOUTHRS=${NOUTHRS_ENS:-3}
+  NOUTHRS=${NOUTHRS_OCN:-${NOUTHRS_ENS:-3}}
 else
   NHRS=${NHRS:-126}
-  NOUTHRS=${NOUTHRS:-3}
+  NOUTHRS=${NOUTHRS_OCN:-${NOUTHRS:-3}}
 fi
 
 out_prefix=${out_prefix:-$(echo "${STORMID,,}.${CDATE}")}

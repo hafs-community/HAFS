@@ -1122,7 +1122,7 @@ sed -e "s/_EARTH_component_list_/${EARTH_component_list}/g" \
     -e "s/_ocean_start_dtg_/${ocean_start_dtg}/g" \
     -e "s/_end_hour_/${end_hour}/g" \
     -e "s/_NHRS_/${NHRS}/g" \
-    -e "s/_NOUTHRS_/${NOUTHRS}/g" \
+    -e "s/_NOUTHRS_OCN_/${NOUTHRS_OCN:-${NOUTHRS}}/g" \
     -e "s/_merge_import_/${merge_import:-.false.}/g" \
     -e "/_mesh_atm_/d" \
     -e "s/_mesh_wav_/ww3_mesh.nc/g" \
@@ -1327,9 +1327,9 @@ if [ ${run_wave} = yes ]; then
   INPUT_ICEFLD="F"
   EDATE=$($NDATE +${NHRSint} ${CDATE})
   RDATE=$($NDATE +6 ${CDATE})
-  FLD_DT=$((3600*${NOUTHRS}))
-  PNT_DT=$((3600*${NOUTHRS}))
-  RST_DT=$((3600*6))
+  FLD_DT=$((3600*${NOUTHRS_WAV:-${NOUTHRS:-3}}))
+  PNT_DT=$((3600*${NOUTHRS_WAV:-${NOUTHRS:-3}}))
+  RST_DT=$((3600*6)) # Not used anymore, controlled by restart_fh instead
   OUTPARS_WAV="WND HS T01 T02 DIR FP DP PHS PTP PDIR UST CHA USP"
   atparse < ./ww3_shel.nml_tmpl > ./ww3_shel.nml
   # Create symbolic links for ww3 restart files
