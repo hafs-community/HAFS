@@ -57,7 +57,7 @@ _OCN_petlist_bounds_
 OCN_attributes::
   Verbosity = 0
   Diagnostic = 0
-  history_n = _NOUTHRS_
+  history_n = _NOUTHRS_OCN_
   history_option = nhours
   merge_import = .false.
   skip_first_import = .false.
