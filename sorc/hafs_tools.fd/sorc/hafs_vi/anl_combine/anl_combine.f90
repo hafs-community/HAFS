@@ -41,7 +41,7 @@
       implicit none
       INTEGER I,J,K,L,NX,NY,NZ,IFLAG,NX2,NST,ITIM,IGFS_FLAG,INITOPT
       integer IUNIT,I360,NX1,NY1,NZ1,KMX,JX,JY,I1,J1,NX_1,NY_1,N,N1
-      integer ITER,ics,CURRENT_DOMAIN_ID,stat
+      integer ITER,ics,CURRENT_DOMAIN_ID,stat,idomsize
       integer ICLAT,ICLON,Ipsfc,Ipcls,Irmax,ivobs,Ir_vobs
       integer NCHT,KSTM,k850,KST,IWMIN1,IWMAX1,JWMIN1,JWMAX1,KNHC,MNHC
       integer IC1,JC1,MDX,MDY,NXT,NYT,NXT1,NYT1
@@ -222,7 +222,7 @@
       deg2km= deg2rad*6.371E3 !* deg -> km
       deg2m = deg2rad*6.371E6 !* deg ->  m
 
-      READ(5,*)ITIM,basin1,IGFS_FLAG,INITOPT,ivi_cloud
+      READ(5,*)ITIM,basin1,IGFS_FLAG,INITOPT,ivi_cloud,idomsize
 
       print*,'ITIM,basin1,IGFS_FLAG,INITOPT=',ITIM,basin1,IGFS_FLAG,INITOPT
       if(ivi_cloud.eq.0) write(*,*) 'Cloud modification is OFF!!'
@@ -232,6 +232,12 @@
       OPEN(72,file='iteration',form='formatted')
        READ(72,*) N_smth
       CLOSE(72)
+
+      if(idomsize.lt.20)then
+       irange = 200        !For cloud relocation
+       nd = 2*irange+1     !For cloud relocation
+       write(*,*) 'Adjusting cloud relocation'
+      endif
 
 ! Read TC vitals ...
 
@@ -1721,8 +1727,10 @@
 
       U21=0.
       V21=0.
-      USC1=USC_1
-      VSC1=VSC_1
+!      USC1=USC_1
+!      VSC1=VSC_1
+      USC1=0.
+      VSC1=0.
 
       NX_1=NX-1
       NY_1=NY-1

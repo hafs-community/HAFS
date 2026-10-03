@@ -241,9 +241,9 @@
   wave_num=-999; if (len_trim(wave_numc) > 0 .and. trim(wave_numc) .ne. "w") read(wave_numc,*)wave_num
 
 ! 2.2 --- tc info requirement
-  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" ) then
+  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" .or. trim(actions) == "hafsvi_domaincheck" ) then
      if ( trim(vortex_position_file) == "w" .and. trim(tcvital_file) == "w" .and. trim(besttrackfile) == "w" ) then
-        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace and hafsvi_preproc functions require at least one vortex information, '
+        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace, hafsvi_preproc functions and hafsvi_domaincheck require at least one vortex information, '
         if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
         if ( my_proc_id == 0 )write(*,'(a)')'  --vortexposition=user_define_vortex_position_file.txt or '
         if ( my_proc_id == 0 )write(*,'(a)')'  --tcvital=TCvital_file or '
@@ -251,7 +251,7 @@
         stop
      endif
      if ( len_trim(infile_date) < 2 .and. len_trim(tc_date) < 2 .and. trim(vortex_position_file) == "w" ) then
-        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace and hafsvi_preproc functions require date information when read tcvital or besttrack , '
+        if ( my_proc_id == 0 )write(*,'(a)')' vortexreplace, hafsvi_preproc functions and hafsvi_domaincheck require date information when read tcvital or besttrack , '
         if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
         if ( my_proc_id == 0 )write(*,'(a)')'  --infile_date=input_file_date or/and'
         if ( my_proc_id == 0 )write(*,'(a)')'  --tc_date=tc_date'
@@ -259,9 +259,9 @@
      endif
   endif
 
-  if ( trim(actions) == "hafsvi_preproc" ) then
+  if ( trim(actions) == "hafsvi_preproc" .or. trim(actions) == "hafsvi_domaincheck" ) then
      if ( trim(infile_date) == "w" ) then
-        if ( my_proc_id == 0 )write(*,'(a)')' hafsvi_preproc function requires input file date for filename'
+        if ( my_proc_id == 0 )write(*,'(a)')' hafsvi_preproc/hafsvi_domaincheck function requires input file date for filename'
         if ( my_proc_id == 0 )write(*,'(a)')' please add one of the following arg:'
         if ( my_proc_id == 0 )write(*,'(a)')'  --infile_date=input_file_date'
         stop
@@ -277,7 +277,8 @@
   else
      tc%vortexrep=0
   endif
-  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" .or. trim(actions) == "fftw_iau" ) then
+  if ( trim(actions) == "vortexreplace" .or. trim(actions) == "hafsvi_preproc" .or. trim(actions) == "fftw_iau" &
+         .or. trim(actions) == "hafsvi_domaincheck" ) then
      call get_tc_info(trim(vortex_position_file), trim(tcvital_file), trim(besttrackfile), trim(tc_date), &
                    trim(vortexradius))
   endif
@@ -291,6 +292,11 @@
 
 !----------------------------------------------------------------
 ! 4.0 --- HAFS VI
+  if ( trim(actions) == "hafsvi_domaincheck" ) then
+     if ( my_proc_id == 0 )write(*,'(a)')' --- call hafsvi_domaincheck/hafs_datool for '//trim(in_dir)
+     call hafsvi_domaincheck(trim(in_dir))
+  endif
+
   if ( trim(actions) == "hafsvi_preproc" ) then
      if ( my_proc_id == 0 )write(*,'(a)')' --- call hafsvi_preproc/hafs_datool for '//trim(in_grid)
      if ( index(trim(out_file),'.nc') > 1 ) then
