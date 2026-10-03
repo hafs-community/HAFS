@@ -99,8 +99,8 @@ num=`wc tcvitals.vi-all | awk '{print substr($1,1,4)}'`
 
 tccase=1
 #==========================================
-while [ $tccase -le $num ]
-do
+while [ $tccase -le $num ]; do
+
 echo ${tccase}
 
 cd $DATA
@@ -207,7 +207,11 @@ if [ $vi_multi_storm = yes ]; then
 fi
 #----------------------------------------------------------------------
 
-if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then  #====================== domain ============================
+# Check if the storm is too close to domain boundary and has TC information from the previous cycle
+#if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then
+# Currently, the above domain check does not work properly
+if true; then
+
 # ----------------------------------------------------------------
 if [[ ${vi_domain} == 45 ]]; then
  deg_box1=30
@@ -258,8 +262,8 @@ for res in 0.02 0.20; do
         --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
     fi
   done
 fi
@@ -269,7 +273,8 @@ fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 cd $DATA
 # Stage 0.2: Process current cycle's vortex from the global/parent model
 
-if [ $vi_storm_env = init ] && [ $vi_multi_storm = no ]; then
+if [ $vi_storm_env = init ]; then
+
 #for vortexradius in 30 45; do
 for res in 0.02 0.20; do
   if [[ ${res} == 0.02 ]]; then
@@ -292,10 +297,11 @@ for res in 0.02 0.20; do
       --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    mv vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
+    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
   fi
 done
+
 fi
 
 #===============================================================================
@@ -337,8 +343,6 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vdif_guess="${vdif_guess#-}"
 
   ${NLN} trak.atcfunix.tmp fort.12
-#  ${RLN} trak.atcfunix.tmp fort.12
-#  ${WLN} trak.atcfunix.tmp fort.12
 
   # output
   ${RLN} ./trak.fnl.all fort.30
@@ -431,10 +435,8 @@ fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model
 
-if [ $vi_storm_env = init ] && [ $vi_multi_storm = no ]; then
 cd $DATA
-# This step is always needed currently
-if true; then
+if [ $vi_storm_env = init ]; then
 
   # create_trak and split
   work_dir=${DATA}/split_init
@@ -442,10 +444,8 @@ if true; then
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-#  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
-#   ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
-   if [ -e ${INTCOMinit}/00l.${CDATE}.${RUN}.trak.atcfunix.all ]; then
-    ${NCP} ${INTCOMinit}/00l.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  if [ -e ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ]; then
+    ${NCP} ${INTCOMinit}/${STORMID,,}.${CDATE}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
@@ -544,8 +544,6 @@ if true; then
   ${SOURCE_PREP_STEP}
   echo 6 ${pubbasin2} ${initopt} ${vi_pert_smth} ${int_mode} | ${APRUNO} ./hafs_tools_vi_anl_pert.x 2>&1 | tee ./vi_anl_pert.log
   export err=$?; err_chk
-
-fi
 
 fi
 #===============================================================================
@@ -743,16 +741,39 @@ done
 
 cd $DATA
 
+if [ $tccase -lt $num ]; then
+
 #anl_pert_guess  anl_storm prep_guess  split_guess
- mv anl_storm anl_storm_${tccase}
- mv anl_pert_guess anl_pert_guess_${tccase}
- mv prep_guess prep_guess_${tccase}
- mv split_guess split_guess_${tccase}
- ${NCP} -rp ${RESTARTout} ${RESTARTout}_${tccase}
- ${NCP} -rp ${RESTARTout}/${CDATE:0:8}.${CDATE:8:2}0000* ${RESTARTinp}
-fi #====================== domain ============================
+${NMV} anl_storm anl_storm_${tccase}
+${NMV} anl_pert_guess anl_pert_guess_${tccase}
+${NMV} prep_guess prep_guess_${tccase}
+${NMV} split_guess split_guess_${tccase}
+mkdir -p ${RESTARTout}_${tccase}
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTout}/*) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTout}/${fname} ${RESTARTout}_${tccase}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
+
+# Reset RESTARTinp to process next storm if needed.
+RESTARTinp=${RESTARTout}_${tccase}
+
+fi
+
+fi # if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then
 
 tccase=$((tccase + 1))
+
 done
 
 #===============================================================================

@@ -433,7 +433,7 @@
   </metatask>
 @** endif
 
-@** if RUN_ATM_VI==NO
+@** if RUN_ATM_VI==YES
   <task name="atm_vi" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ATM_VI</command>
     <jobname>hafs_atm_vi_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -450,6 +450,9 @@
     <dependency>
       <and>
         <taskdep task="atm_ic"/>
+@** if RUN_ATM_INIT==YES
+        <taskdep task="atm_init"/>
+@** endif
         <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
@@ -483,7 +486,10 @@
     <dependency>
       <and>
         <taskdep task="atm_ic"/>
-	<or>
+@** if RUN_ATM_INIT_FGAT==YES
+        <taskdep task="atm_init_fgat#FGAT_HR#"/>
+@** endif
+        <or>
           <not><cycleexistdep cycle_offset="-6:00:00"/></not>
           <and>
             <datadep age="02:00"><cyclestr offset="-6:00:00">&COMhafs;/&sidlc;.@Y@m@d@H</cyclestr>.RESTART/<cyclestr offset="3:00:00">@Y@m@d.@H</cyclestr>0000.fv_core.res.tile1.nc</datadep>
@@ -708,7 +714,7 @@
           <metataskdep metatask="atm_vi_fgat"/>
         </or>
 @** endif
-@** if RUN_ATM_VI==NO
+@** if RUN_ATM_VI==YES
         <or>
           <taskdep task="atm_vi"/>
         </or>
@@ -825,7 +831,7 @@
 @** if RUN_ATM_MERGE==YES
             <taskdep task="atm_merge"/>
 @** endif
-@** if RUN_ATM_VI==NO
+@** if RUN_ATM_VI==YES
             <taskdep task="atm_vi"/>
 @** endif
 @** if RUN_ANALYSIS==YES
@@ -1204,7 +1210,7 @@
 @** if RUN_ATM_INIT==YES
           <taskdep task="atm_init"/>
 @** endif
-@** if RUN_ATM_VI==NO
+@** if RUN_ATM_VI==YES
           <taskdep task="atm_vi"/>
 @** endif
           <streq><left>&RUN_ATM_MERGE_ENS;</left><right>YES</right></streq>
@@ -1332,6 +1338,7 @@
   </task>
 @** endif
 
+@** if ANALYSIS_MODEL==GSI
   <task name="enkf_hx_mean" maxtries="&MAX_TRIES;">
     <command>&JOBhafs;/JHAFS_ENKF_HX</command>
     <jobname>hafs_enkf_hx_mean_&SID;_<cyclestr>@Y@m@d@H</cyclestr></jobname>
@@ -1353,15 +1360,12 @@
           <taskdep task="analysis" state="RUNNING"/>
           <taskdep task="analysis"/>
         </or>
-@** if ANALYSIS_MODEL==GSI
         <taskdep task="enkf_mean"/>
-@** endif
         <taskdep task="obs_prep"/>
       </and>
     </dependency>
   </task>
 
-@** if ANALYSIS_MODEL==GSI
   <metatask name="enkf_hx_ens">
     <var name="MEM">&ENSIDS;</var>
     <task name="enkf_hx_ens#MEM#" maxtries="&MAX_TRIES;">
@@ -1406,10 +1410,15 @@
 
     <dependency>
       <and>
-        <taskdep task="enkf_hx_mean"/>
 @** if ANALYSIS_MODEL==GSI
+        <taskdep task="enkf_hx_mean"/>
         <metataskdep metatask="enkf_hx_ens"/>
 @** endif
+        <or>
+          <taskdep task="analysis" state="RUNNING"/>
+          <taskdep task="analysis"/>
+        </or>
+        <taskdep task="obs_prep"/>
       </and>
     </dependency>
   </task>
