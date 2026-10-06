@@ -80,11 +80,13 @@ elif [ "$machine" = nimbus ]; then
   export USE_CFP="NO"
   export USE_MPISERIAL="YES"
   export OMP_STACKSIZE='2G'
-  export I_MPI_FABRICS=ofi
+  export I_MPI_FABRICS=shm:ofi
   export FI_PROVIDER='verbs;ofi_rxm'
-  #export FI_UNIVERSE_SIZE=$SLURM_NTASKS
+  export FI_VERBS_INLINE_SIZE=39
+  export FI_OFI_RXM_BUFFER_SIZE=4096
   export FI_OFI_RXM_SAR_LIMIT=2147483648
   export I_MPI_PIN_DOMAIN=numa
+  export FI_UNIVERSE_SIZE=${TOTAL_TASKS}
   export I_MPI_PMI=pmi2
   export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi2.so
   ulimit -l unlimited || true

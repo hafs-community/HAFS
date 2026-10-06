@@ -6,11 +6,11 @@
   <!ENTITY QUEUE_PE        "">
   <!ENTITY QUEUE_FORECAST  "&QUEUE_PE;"> <!-- queue for the forecast job -->
   <!ENTITY PE_EXTRA        "<native>--partition=compute</native>">
-  <!ENTITY QUEUE_SERIAL    "batch"> <!-- queue for serial jobs -->
+  <!ENTITY QUEUE_SERIAL    ""> <!-- queue for serial jobs -->
   <!ENTITY SERIAL_EXTRA    "<native>--partition=compute</native>">
-  <!ENTITY QUEUE_SHARED    "batch">
+  <!ENTITY QUEUE_SHARED    "">
   <!ENTITY SHARED_EXTRA    "<native>--partition=compute</native>">
-  <!ENTITY QUEUE_SERVICE   "batch">
+  <!ENTITY QUEUE_SERVICE   "">
   <!ENTITY SERVICE         "<native>--partition=compute</native>">
   <!ENTITY SERVICE_EXTRA   "<native>--partition=compute</native>">
   <!ENTITY CORES_EXTRA     "<nodesize>192</nodesize>">
@@ -44,7 +44,7 @@
 
   <!ENTITY FORECAST_WALLTIME "<walltime>05:59:00</walltime>">
   <!ENTITY FORECAST_OMP "<envar><name>OMP_THREADS</name><value>3</value></envar>">
-  <!ENTITY FORECAST_EXTRA "<native>--exclusive</native><envar><name>FI_CXI_RX_MATCH_MODE</name><value>hybrid</value></envar><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
+  <!ENTITY FORECAST_EXTRA "<native>--exclusive</native><envar><name>OMP_STACKSIZE</name><value>1G</value></envar>&FORECAST_OMP;&FORECAST_WALLTIME;">
 
   <!ENTITY FORECAST_RESOURCES_60PE "<nodes>1:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_120PE "<nodes>2:ppn=60:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>60</value></envar>&FORECAST_EXTRA;">

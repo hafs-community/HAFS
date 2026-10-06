@@ -7,3 +7,4 @@
 <!ENTITY % hercules         SYSTEM      "hercules.ent">
 <!ENTITY % gaeac6           SYSTEM      "gaeac6.ent">
 <!ENTITY % ursa             SYSTEM      "ursa.ent">
+<!ENTITY % nimbus           SYSTEM      "nimbus.ent">
