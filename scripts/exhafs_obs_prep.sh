@@ -622,7 +622,7 @@ fi
       if [[ "${bufr}" = "tcvital" ]]; then
 	# check previous cycle COM direcotry atcf.f06 exists
 	atcf_f06=${COMhafs%/*/*}/${CDATEprior}/${STORMID^^}/${STORMID,,}.${CDATEprior}.hfsa.trak.atcfunix.f006
-	if [ -f "${atcf_f06}" ]; then
+	if [ -f "${atcf_f06}" ] && [ ${RUN_ATM_VI_FGAT} = "NO" ]; then
 	    echo "ATCF 06 File exists: $atcf_f06. Using lat/lon from ATCF to replace the tcvital lat/lon in IODA"
             python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --atcf_file --domain_file ${GEO_PATH} >& log_${file}
 	else
