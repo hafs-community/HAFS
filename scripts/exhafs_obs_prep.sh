@@ -620,7 +620,15 @@ fi
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
-        python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --stormid ${STORMID} >& log_${file}
+	# check previous cycle COM direcotry atcf.f06 exists
+	atcf_f06=${COMhafs%/*/*}/${CDATEprior}/${STORMID^^}/${STORMID,,}.${CDATEprior}.hfsa.trak.atcfunix.f006
+	if [ -f "${atcf_f06}" ]; then
+	    echo "ATCF 06 File exists: $atcf_f06. Using lat/lon from ATCF to replace the tcvital lat/lon in IODA"
+            python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --atcf_file --domain_file ${GEO_PATH} >& log_${file}
+	else
+	    echo "ATCF 06 File does not exist, exporting TcVital info into IODA"
+            python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --domain_file ${GEO_PATH} >& log_${file}
+	fi
       fi
     elif [ -s gfs.t${cyc}z.${bufr}.bufr ]; then
       if  [[ "${bufr}" = "nexrad" ]]; then	
