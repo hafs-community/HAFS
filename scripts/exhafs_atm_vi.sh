@@ -143,7 +143,7 @@ if [ ${vi_multi_storm} = yes ]; then
   old_vi_stormid=${old_vi_message:5:3}
 else
   vi_vit_dir=${WORKhafs}/intercom/launch
-  ${NCP} ${vi_vit_dir}/tmpvit ./tm00.vit
+  ${NCP} ${vi_vit_dir}/tmpvit ./tm00vit
   vi_message=$( head -1 ./tm00vit )
   vi_stormid=${vi_message:5:3} # e.g., 13L
   ${NCP} ${vi_vit_dir}/oldvit ./oldvit
@@ -348,8 +348,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   vdif_guess=$(( ${vmax_guess}-${vmax_vit} ))
   vdif_guess="${vdif_guess#-}"
 
-  ${NLN} trak.atcfunix.tmp fort.12
-
+  ${RLN} trak.atcfunix.tmp fort.12
   # output
   ${RLN} ./trak.fnl.all fort.30
 
@@ -457,7 +456,7 @@ if [ $vi_storm_env = init ]; then
   vdif_init=$(( ${vmax_init}-${vmax_vit} ))
   vdif_init="${vdif_init#-}"
 
-  ${NLN} trak.atcfunix.tmp fort.12
+  ${RLN} trak.atcfunix.tmp fort.12
   # output
   ${RLN} ./trak.fnl.all fort.30
 
