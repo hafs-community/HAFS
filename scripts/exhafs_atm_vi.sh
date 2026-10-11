@@ -11,6 +11,7 @@
 #               back to restart files
 #   03/02/2022: Enable handling the regional moving nesting configuration
 #   06/12/2023: Improvements for HAFSv1 operational implementation
+#      10/2026: Expand to support vortex initialization for multiple storms
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -30,7 +31,7 @@ vi_pert_smth=${vi_pert_smth:-0}
 vi_slp_adjust=${vi_slp_adjust:-0}
 crfactor=${crfactor:-1.0}
 pubbasin2=${pubbasin2:-AL}
-vi_domain=${vi_domain:-45}
+vi_domain_size=${vi_domain_size:-45}
 vi_multi_storm=${vi_multi_storm:-no}
 
 FGAT_MODEL=${FGAT_MODEL:-gfs}
@@ -60,14 +61,6 @@ else
   export CDATE=${CDATE:-${YMDH}}
 fi
 
-#-----------------------------------------------------------------
-if [ $vi_storm_env = pert ] && [ ! -s ${RESTARTinp}/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
-  echo "WARNING: vi_storm_env = pert, First guess for VI missing"
-  echo "WARNING: Do nothing for VI, Exiting"
-  exit
-fi
-#------------------------------------------------------------------
-
 CDATEprior=$(${NDATE} -6 $YMDH)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 
@@ -75,66 +68,124 @@ DATA=${DATA:-${WORKhafs}/atm_vi}
 mkdir -p ${DATA}
 
 cd $DATA
-# Prepare tcvitals file
-if [ ${FGAT_HR} = 03 ]; then
-  ${NCP} ${WORKhafs}/intercom/launch/tm03vit tcvitals.vi
-  gesfhr=3
-elif [ ${FGAT_HR} = 06 ]; then
-  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
-  gesfhr=6
-elif [ ${FGAT_HR} = 09 ]; then
-  ${NCP} ${WORKhafs}/intercom/launch/tp03vit tcvitals.vi
-  gesfhr=9
-else
-  ${NCP} ${WORKhafs}/intercom/launch/tmpvit tcvitals.vi
-  gesfhr=6
+
+# default nstorms=1 for single storm VI
+vi_nstorms=1
+
+if [ ${vi_multi_storm} = yes ]; then
+
+if [ ${vi_storm_env} = pert ] && [ ! -s ${RESTARTinp}/${CDATE:0:8}.${CDATE:8:2}0000.fv_core.res.nc ]; then
+  echo "INFO: vi_multi_storm = yes, vi_storm_env = pert, first guess from prior cycle for VI missing"
+  echo "INFO: exiting after skipping vortex initialization ..."
+  exit
+fi
+# Check, extract and sort active storms as desired
+#${USHhafs}/tcutil_multistorm_sort.py -r -b -180,0,5,50 ${YMDH} L E C > allvit
+${USHhafs}/tcutil_multistorm_sort.py -r ${YMDH} ${STORMID:2:1} > allvit
+export err=$?; err_chk
+all_nstorms=$(wc -l allvit | awk '{print $1}')
+touch allvit.vi
+tmp_storm_num=1
+while [ ${tmp_storm_num} -le ${all_nstorms} ]; do
+  head -${tmp_storm_num} allvit > ./tttvit
+  tmp_message=$( head -1 ./tttvit )
+  tmp_stormid=${tmp_message:5:3} # e.g., 13L
+  # Check if storm is sufficiently inside the domain
+  ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
+        --infile_date=${YMDH:0:8}.${YMDH:8:2}0000 \
+        --tcvital=./tttvit
+  export err=$?; err_chk
+  mindis=$(<./distance)
+  if [ "$(echo "$mindis < ${vi_domain_size}/2" | bc)" -eq 1 ]; then
+    echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+  else
+    cat ./tttvit >> allvit.vi
+  fi
+  tmp_storm_num=$((tmp_storm_num + 1))
+done
+vi_nstorms=$(wc -l allvit.vi | awk '{print $1}')
+if [ ${vi_nstorms} -lt 1 ]; then
+  echo "INFO: no active storm, exiting after skipping vortex initialization ..."
+  exit
 fi
 
-${USHhafs}/tcutil_multistorm_sort.py ${YMDH} | cut -c1-95 > allvit
-sed -i '/INVEST/d' allvit_
-grep -E '^.{7}L' allvit > tcvitals.vi-tmp
-tac tcvitals.vi-tmp > tcvitals.vi-all
-rm tcvitals.vi-tmp
-num=`wc tcvitals.vi-all | awk '{print substr($1,1,4)}'`
+fi #if [ $vi_multi_storm = yes ]; then
 
-tccase=1
-#==========================================
-while [ $tccase -le $num ]; do
+if [[ ${vi_domain_size} == 45 ]]; then
+  deg_box1=30
+  deg_box2=45
+elif [[ ${vi_domain_size} == 25 ]] || [[ ${vi_domain_size} == 15 ]]; then
+  deg_box1=${vi_domain_size}
+  deg_box2=${vi_domain_size}
+else
+  echo "FATAL ERROR: unsupported vi_domain_size: ${vi_domain_size}. Exiting ..."
+  exit 1
+fi
 
-echo ${tccase}
+vi_storm_num=1
+#===============================================================================
+# Loop over VI storms
+while [ ${vi_storm_num} -le ${vi_nstorms} ]; do
 
-cd $DATA
-head -n ${tccase} tcvitals.vi-all | tail -1 > tcvitals.vi
-tcvital=${DATA}/tcvitals.vi
-cat ${tcvital}
-STORMID=`awk '{print $2}' tcvitals.vi`
-old_out_prefix_nodate=$STORMID
+DATAstorm=${DATA}/storm${vi_storm_num}
+mkdir -p ${DATAstorm}
+cd $DATAstorm
 
-${USHhafs}/tcutil_generate_vitals.py -c ${YMDH} -o ./ $STORMID ${CYCLE:0:4}
-${NCP} oldvit ${WORKhafs}/intercom/launch
+if [ ${vi_multi_storm} = yes ]; then
+  vi_vit_dir="."
+  head -${vi_storm_num} ${DATA}/allvit.vi > ./tm00vit
+  vi_message=$( head -1 ./tm00vit )
+  vi_stormid=${vi_message:5:3} # e.g., 13L
+  # Generate tcvitals files: tmpvit, oldvit, tm03vit, tp03vit
+  ${USHhafs}/tcutil_generate_vitals.py -c ${YMDH} -o ./ ${vi_stormid} ${YMDH:0:4}
+  export err=$?; err_chk
+  old_vi_message=$( head -1 ./oldvit )
+  old_vi_stormid=${old_vi_message:5:3}
+else
+  vi_vit_dir=${WORKhafs}/intercom/launch
+  ${NCP} ${vi_vit_dir}/tmpvit ./tm00.vit
+  vi_message=$( head -1 ./tm00vit )
+  vi_stormid=${vi_message:5:3} # e.g., 13L
+  ${NCP} ${vi_vit_dir}/oldvit ./oldvit
+  old_vi_message=$( head -1 ./oldvit )
+  #old_vi_stormid=${old_vi_message:5:3}
+  old_vi_stormid=${old_out_prefix_nodate}
+fi
+
+# Prepare tcvitals file
 if [ ${FGAT_HR} = 03 ]; then
- ${NCP} tm03vit tcvitals.vi
+  ${NCP} ${vi_vit_dir}/tm03vit tcvitals.vi
+  gesfhr=3
+elif [ ${FGAT_HR} = 06 ]; then
+  ${NCP} ${vi_vit_dir}/tmpvit tcvitals.vi
+  gesfhr=6
 elif [ ${FGAT_HR} = 09 ]; then
- ${NCP} tp03vit tcvitals.vi
+  ${NCP} ${vi_vit_dir}/tp03vit tcvitals.vi
+  gesfhr=9
+else
+  ${NCP} ${vi_vit_dir}/tmpvit tcvitals.vi
+  gesfhr=6
 fi
 
 # Convert 1800W to 1800E for date line TCs
 sed -i 's/1800W/1800E/g' ./tcvitals.vi
+tcvital=${DATAstorm}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
-STORMID=`awk '{print $2}' tcvitals.vi`
-
-${NCP} tcvitals.vi tcvitals.vi_${tccase}
-${NCP} tm03vit tm03vit_${tccase}
-${NCP} tmpvit tmpvit_${tccase}
-${NCP} tp03vit tp03vit_${tccase}
-${NCP} oldvit oldvit_${tccase}
 
 int_mode=0
-#----------------------------------------------------------------------
+old_tcvital=${DATAstorm}/oldvit
+if [ -e ${old_tcvital} ]; then
+  old_vmax_vit=$(cat ${old_tcvital} | cut -c68-69 | bc -l)
+  vdif_tcvital=$(( ${vmax_vit}-${old_vmax_vit} ))
+  if [[ ${vdif_tcvital} -ge 5 ]]; then
+    int_mode=1
+  fi
+fi
 
-cd $DATA
+cd $DATAstorm
 
+#===============================================================================
 # Skip atm_vi if vmax is weaker than vi_min_wind_for_init (e.g., 9 m/s)
 if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
 
@@ -147,6 +198,10 @@ if [ -d ${RESTARTinit} ]; then
 elif [ -d ${RESTARTmrg} ]; then
   RESTARTdst=${RESTARTmrg}
 else
+  RESTARTdst=${RESTARTinp}
+fi
+# Currently, force RESTARTdst=${RESTARTinp} if vi_multi_storm=yes
+if [ ${vi_multi_storm} = yes ]; then
   RESTARTdst=${RESTARTinp}
 fi
 rm -f cmdfile
@@ -169,62 +224,14 @@ export err=$?; err_chk
 # rm -f cmdfile
 
 echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
-echo "INFO: exiting after skipping vortex initialization ..."
-exit
+echo "INFO: skipping vortex initialization ..."
 
-fi
+else
 
 #===============================================================================
 # Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
 
-cd $DATA
-
-#----------------------------------------------------------------------
-if [ $vi_multi_storm = yes ]; then
- dis=9999.9
- ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
-        --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-        --tcvital=${tcvital}
- distancebc=${DATA}/distance
- dis=$(<${distancebc})
- if [ "$(echo "$dis < 13.0 && $dis >= 8.0" | bc)" -eq 1 ]; then
-  echo "Shrink further"
-  vi_domain=15
- fi
- if [ "$(echo "$dis < 8.0" | bc)" -eq 1 ]; then
-  echo "INFO: skip vortex initialization because TC is too close to BC."
- # break
- # exit
- fi
-
- grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all > ./trak.atcfunix.check
- if [ -s "trak.atcfunix.check" ]; then
-    echo "Have TC information from the previous cycle"
- else
-    echo "No TC information from the previous cycle"
- fi
-
-fi
-#----------------------------------------------------------------------
-
-# Check if the storm is too close to domain boundary and has TC information from the previous cycle
-#if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then
-# Currently, the above domain check does not work properly
-if true; then
-
-# ----------------------------------------------------------------
-if [[ ${vi_domain} == 45 ]]; then
- deg_box1=30
- deg_box2=45
-elif [[ ${vi_domain} == 25 ]]; then
- deg_box1=25
- deg_box2=25
-elif [[ ${vi_domain} == 15 ]]; then
- deg_box1=15
- deg_box2=15
-fi
-
-#-----------------------------------------------------------------------
+cd $DATAstorm
 
 # Force to cold start storm vortex if desired
 if [[ ${vi_force_cold_start,,} != "yes" ]]; then
@@ -241,14 +248,14 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
   fi
 fi
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
-for res in 0.02 0.20; do
-  if [[ ${res} == 0.02 ]]; then
-    vortexradius=${deg_box1}
-  elif [[ ${res} == 0.20 ]]; then
-    vortexradius=${deg_box2}
-  fi
+  for res in 0.02 0.20; do
+    if [[ ${res} == 0.02 ]]; then
+      vortexradius=${deg_box1}
+    elif [[ ${res} == 0.20 ]]; then
+      vortexradius=${deg_box2}
+    fi
     # prep
-    work_dir=${DATA}/prep_guess
+    work_dir=${DATAstorm}/prep_guess
     mkdir -p ${work_dir}
     cd ${work_dir}
     ${APRUNC} ${DATOOL} hafsvi_preproc \
@@ -259,23 +266,22 @@ for res in 0.02 0.20; do
         --vortexradius=${vortexradius} --res=${res} \
         --nestdoms=$((${nest_grids:-1}-1)) \
         --vi_cloud=${vi_cloud} \
-        --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
+        --out_file=vi_inp_${res/\./p}.bin 2>&1 | tee ./vi_inp_${res/\./p}.log
     export err=$?; err_chk
     if [[ ${nest_grids} -gt 1 ]]; then
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-      ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+      ${NMV} vi_inp_${res/\./p}.bin vi_inp_${res/\./p}.bin_grid01
+      ${NMV} vi_inp_${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${res/\./p}.bin
     fi
   done
 fi
 
 fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 
-cd $DATA
+cd $DATAstorm
 # Stage 0.2: Process current cycle's vortex from the global/parent model
 
 if [ $vi_storm_env = init ]; then
 
-#for vortexradius in 30 45; do
 for res in 0.02 0.20; do
   if [[ ${res} == 0.02 ]]; then
     vortexradius=${deg_box1}
@@ -283,7 +289,7 @@ for res in 0.02 0.20; do
     vortexradius=${deg_box2}
   fi
   # prep
-  work_dir=${DATA}/prep_init
+  work_dir=${DATAstorm}/prep_init
   mkdir -p ${work_dir}
   cd ${work_dir}
   ${APRUNC} ${DATOOL} hafsvi_preproc \
@@ -294,11 +300,11 @@ for res in 0.02 0.20; do
       --vortexradius=${vortexradius} --res=${res} \
       --nestdoms=$((${nest_grids:-1}-1)) \
       --vi_cloud=${vi_cloud} \
-      --out_file=vi_inp_${vortexradius}deg${res/\./p}.bin 2>&1 | tee ./vi_inp_${vortexradius}deg${res/\./p}.log
+      --out_file=vi_inp_${res/\./p}.bin 2>&1 | tee ./vi_inp_${res/\./p}.log
   export err=$?; err_chk
   if [[ ${nest_grids} -gt 1 ]]; then
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin vi_inp_${vortexradius}deg${res/\./p}.bin_grid01
-    ${NMV} vi_inp_${vortexradius}deg${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${vortexradius}deg${res/\./p}.bin
+    ${NMV} vi_inp_${res/\./p}.bin vi_inp_${res/\./p}.bin_grid01
+    ${NMV} vi_inp_${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${res/\./p}.bin
   fi
 done
 
@@ -314,7 +320,7 @@ if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
 
   # create_trak and split
-  work_dir=${DATA}/split_guess
+  work_dir=${DATAstorm}/split_guess
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
@@ -325,7 +331,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
 	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
-    if grep "^${pubbasin2^^}, ${old_out_prefix_nodate:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
+    if grep "^${pubbasin2^^}, ${old_vi_stormid:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
       echo "trak.atcfunix.tmp generated."
     else
       touch trak.atcfunix.tmp
@@ -334,7 +340,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     touch trak.atcfunix.tmp
   fi
   # get vmax in kt then convert into m/s
-  vmax_guess=$(grep "^${pubbasin2^^}, ${STORMID:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | \
+  vmax_guess=$(grep "^${pubbasin2^^}, ${vi_storm:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | \
                grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_guess=${vmax_guess:-0}
   vmax_guess=$(printf "%.0f" $(bc <<< "scale=6; ${vmax_guess}*0.514444"))
@@ -349,15 +355,15 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_guess.x ./
   ${SOURCE_PREP_STEP}
-  ${APRUNS} ./hafs_tools_vi_create_trak_guess.x ${STORMID}
+  ${APRUNS} ./hafs_tools_vi_create_trak_guess.x ${vi_stormid}
   export err=$?; err_chk
 
   # split
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ./trak.fnl.all fort.30
-  ${NLN} ../prep_guess/vi_inp_${deg_box1}deg0p02.bin fort.26
-  ${NLN} ../prep_guess/vi_inp_${deg_box2}deg0p20.bin fort.46
+  ${NLN} ../prep_guess/vi_inp_0p02.bin fort.26
+  ${NLN} ../prep_guess/vi_inp_0p20.bin fort.46
   # output
   ${RLN} storm_env fort.56
   ${RLN} rel_inform fort.52
@@ -371,30 +377,17 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
-#----------------------------------------------------------------------
-  if [ -e ${WORKhafs}/intercom/launch/oldvit ]; then
-  ${NCP} ${WORKhafs}/intercom/launch/oldvit ${DATA}/oldtcvitals.vi
-  oldtcvital=${DATA}/oldtcvitals.vi
-  vmax_vit_old=$(cat ${oldtcvital} | cut -c68-69 | bc -l)
-  vdif_tcvital=$(( ${vmax_vit}-${vmax_vit_old} ))
-#  vdif_tcvital="${vdif_tcvital#-}"
-   if [[ ${vdif_tcvital} -ge 5 ]]; then
-    int_mode=1
-   fi
-  fi
-#-----------------------------------------------------------------------
-
-  work_dir=${DATA}/anl_pert_guess
+  work_dir=${DATAstorm}/anl_pert_guess
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_guess/storm_env fort.26
-  ${NLN} ../prep_guess/vi_inp_${deg_box1}deg0p02.bin fort.46
+  ${NLN} ../prep_guess/vi_inp_0p02.bin fort.46
   ${NLN} ../split_guess/storm_pert fort.71
   ${NLN} ../split_guess/storm_radius fort.65
   # output
@@ -435,11 +428,11 @@ fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
 #===============================================================================
 # Stage 2: Process current cycle's vortex from the global/parent model
 
-cd $DATA
+cd $DATAstorm
 if [ $vi_storm_env = init ]; then
 
   # create_trak and split
-  work_dir=${DATA}/split_init
+  work_dir=${DATAstorm}/split_init
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
@@ -450,13 +443,13 @@ if [ $vi_storm_env = init ]; then
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
 	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
-    grep "^${pubbasin2^^}, ${STORMID:0:2}," trak.atcfunix.all \
+    grep "^${pubbasin2^^}, ${vi_stormid:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
   else
     touch trak.atcfunix.tmp
   fi
   # get vmax in kt then convert into m/s
-  vmax_init=$(grep "^${pubbasin2^^}, ${STORMID:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | \
+  vmax_init=$(grep "^${pubbasin2^^}, ${vi_stormid:0:2}, ${CDATE}, .., ...., 000," trak.atcfunix.tmp | \
               grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_init=${vmax_init:-0}
   vmax_init=$(printf "%.0f" $(bc <<< "scale=6; ${vmax_init}*0.514444"))
@@ -470,15 +463,15 @@ if [ $vi_storm_env = init ]; then
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_create_trak_init.x ./
   ${SOURCE_PREP_STEP}
-  ${APRUNS} ./hafs_tools_vi_create_trak_init.x ${STORMID}
+  ${APRUNS} ./hafs_tools_vi_create_trak_init.x ${vi_stormid}
   export err=$?; err_chk
 
   # split
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ./trak.fnl.all fort.30
-  ${NLN} ../prep_init/vi_inp_${deg_box1}deg0p02.bin fort.26
-  ${NLN} ../prep_init/vi_inp_${deg_box2}deg0p20.bin fort.46
+  ${NLN} ../prep_init/vi_inp_0p02.bin fort.26
+  ${NLN} ../prep_init/vi_inp_0p20.bin fort.46
   if [ -s ../split_guess/storm_radius ]; then
     ${NLN} ../split_guess/storm_radius fort.65
   fi
@@ -500,17 +493,17 @@ if [ $vi_storm_env = init ]; then
     iflag_cold=1
   fi
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
-  work_dir=${DATA}/anl_pert_init
+  work_dir=${DATAstorm}/anl_pert_init
   mkdir -p ${work_dir}
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_init/storm_env fort.26
-  ${NLN} ../prep_init/vi_inp_${deg_box1}deg0p02.bin fort.46
+  ${NLN} ../prep_init/vi_inp_0p02.bin fort.46
   ${NLN} ../split_init/storm_pert fort.71
   ${NLN} ../split_init/storm_radius fort.65
   # output
@@ -550,7 +543,7 @@ fi
 # Stage 3:
 
 # anl_storm
-work_dir=${DATA}/anl_storm
+work_dir=${DATAstorm}/anl_storm
 mkdir -p ${work_dir}
 cd ${work_dir}
 
@@ -565,8 +558,8 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   # input
   ${NLN} ${tcvital} fort.11
   ${NLN} ../split_${senv}/storm_env fort.26
-  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.36
-  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
+  ${NLN} ../prep_${pert}/vi_inp_0p02.bin fort.36
+  ${NLN} ../prep_${pert}/vi_inp_0p02.bin fort.46 #roughness
   ${NLN} ../split_${pert}/storm_pert fort.61
   ${NLN} ../split_${pert}/storm_radius fort.85
 
@@ -575,9 +568,9 @@ if [[ ${vmax_vit} -ge ${vi_bogus_vmax_threshold} ]] && [ ! -s ../anl_pert_guess/
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
   if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
-   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
   else
-   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
+    ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
   fi
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
   ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
@@ -625,7 +618,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   ${NLN} ../anl_pert_${pert}/storm_sym fort.23
   ${NLN} ../anl_pert_${pert}/storm_pert_new fort.71
   ${NLN} ../split_${senv}/storm_env fort.26
-  ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
+  ${NLN} ../prep_${pert}/vi_inp_0p02.bin fort.46 #roughness
   ${NLN} ../anl_pert_${pert}/iteration ./
 
   # output
@@ -638,7 +631,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} ${vi_domain} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
@@ -655,7 +648,7 @@ else # warm-start from prior cycle or cold start from global/parent model
    #${NLN} ./flag_file flag_file
     ${NLN} ../anl_pert_${pert}/storm_sym fort.23
     ${NLN} storm_env_new fort.26
-    ${NLN} ../prep_${pert}/vi_inp_${deg_box1}deg0p02.bin fort.46 #roughness
+    ${NLN} ../prep_${pert}/vi_inp_0p02.bin fort.46 #roughness
     ${NLN} ../split_${pert}/storm_radius fort.85
 
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.71
@@ -663,9 +656,9 @@ else # warm-start from prior cycle or cold start from global/parent model
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.73
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_axisy_47 fort.74
     if [[ $pubbasin2 = AL ]] || [[ $pubbasin2 = EP ]] || [[ $pubbasin2 = CP ]]; then
-     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep  fort.75
     else
-     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
+      ${NLN} ${FIXhafs}/fix_vi/hafs_storm_deep_jtwc fort.75
     fi
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.76
     ${NLN} ${FIXhafs}/fix_vi/hafs_storm_shallow fort.77
@@ -695,7 +688,7 @@ fi
 # Stage 4: Run hafs_datool's hafsvi_postproc to interpolate VI analysis back to
 # HAFS restart files
 
-cd $DATA
+cd $DATAstorm
 mkdir -p ${RESTARTout}
 if [ $senv = init ]; then
   RESTARTdst=${RESTARTinit}
@@ -723,13 +716,13 @@ fi
 export err=$?; err_chk
 # rm -f cmdfile
 
-if [ -s ${DATA}/anl_storm/storm_txt ]; then
- ${NCP} -rp ${DATA}/anl_storm/storm_txt ${RESTARTout}/
+if [ -s ${DATAstorm}/anl_storm/storm_txt ]; then
+ ${NCP} -rp ${DATAstorm}/anl_storm/storm_txt ${RESTARTout}/
 fi
 
 for nd in $(seq 1 ${nest_grids}); do
   ${APRUNS} ${DATOOL} hafsvi_postproc \
-      --in_file=${DATA}/anl_storm/storm_anl \
+      --in_file=${DATAstorm}/anl_storm/storm_anl \
       --debug_level=1 --interpolation_points=5 \
       --relaxzone=30 \
       --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
@@ -739,40 +732,20 @@ for nd in $(seq 1 ${nest_grids}); do
   export err=$?; err_chk
 done
 
-cd $DATA
+fi #if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
 
-if [ $tccase -lt $num ]; then
+#===============================================================================
+# Save RESTARTout results for intermediate steps if necessary
 
-#anl_pert_guess  anl_storm prep_guess  split_guess
-${NMV} anl_storm anl_storm_${tccase}
-${NMV} anl_pert_guess anl_pert_guess_${tccase}
-${NMV} prep_guess prep_guess_${tccase}
-${NMV} split_guess split_guess_${tccase}
-mkdir -p ${RESTARTout}_${tccase}
-rm -f cmdfile
-for file in $(/bin/ls -1 ${RESTARTout}/*) ; do
-  fname=$(basename ${file})
-  echo ${NCP} -rp ${RESTARTout}/${fname} ${RESTARTout}_${tccase}/${fname} >> cmdfile
-done
-chmod +x cmdfile
-if [ $USE_CFP = "YES" ] ; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
-export err=$?; err_chk
-# rm -f cmdfile
-
-# Reset RESTARTinp to process next storm if needed.
-RESTARTinp=${RESTARTout}_${tccase}
-
+cd $DATAstorm
+if [ $vi_storm_num -lt $vi_nstorms ]; then
+  mkdir -p ${RESTARTout}_storm${vi_storm_num}
+  ${NMV} ${RESTARTout}/* ${RESTARTout}_storm${vi_storm_num}/
+  # Reset RESTARTinp to process next storm if needed.
+  RESTARTinp=${RESTARTout}_storm${vi_storm_num}
 fi
 
-fi # if [[ "$(echo "$dis >= 8.0" | bc)" -eq 1 ]] && [[ -s "trak.atcfunix.check" ]]; then
-
-tccase=$((tccase + 1))
+vi_storm_num=$((vi_storm_num + 1))
 
 done
 
