@@ -96,10 +96,33 @@ while [ ${tmp_storm_num} -le ${all_nstorms} ]; do
         --tcvital=./tttvit
   export err=$?; err_chk
   mindis=$(<./distance)
-  if [ "$(echo "$mindis < ${vi_domain_size}/2" | bc)" -eq 1 ]; then
-    echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+  if [ "${vi_domain_size}" = "45auto" ] || [ "${vi_domain_size}" = "25auto" ]; then
+    if [ "$(echo "$mindis < 8.0" | bc)" -eq 1 ]; then
+      echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+    else
+      cat ./tttvit >> allvit.vi
+    fi
+  elif [ "${vi_domain_size}" = "45" ]; then
+    if [ "$(echo "$mindis < 23.0" | bc)" -eq 1 ]; then
+      echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+    else
+      cat ./tttvit >> allvit.vi
+    fi
+  elif [ "${vi_domain_size}" = "25" ]; then
+    if [ "$(echo "$mindis < 13.0" | bc)" -eq 1 ]; then
+      echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+    else
+      cat ./tttvit >> allvit.vi
+    fi
+  elif [ "${vi_domain_size}" = "15" ]; then
+    if [ "$(echo "$mindis < 8.0" | bc)" -eq 1 ]; then
+      echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
+    else
+      cat ./tttvit >> allvit.vi
+    fi
   else
-    cat ./tttvit >> allvit.vi
+    echo "FATAL ERROR: unsupported vi_domain_size: ${vi_domain_size}. Exiting ..."
+    exit 1
   fi
   tmp_storm_num=$((tmp_storm_num + 1))
 done
@@ -110,17 +133,6 @@ if [ ${vi_nstorms} -lt 1 ]; then
 fi
 
 fi #if [ $vi_multi_storm = yes ]; then
-
-if [[ ${vi_domain_size} == 45 ]]; then
-  deg_box1=30
-  deg_box2=45
-elif [[ ${vi_domain_size} == 25 ]] || [[ ${vi_domain_size} == 15 ]]; then
-  deg_box1=${vi_domain_size}
-  deg_box2=${vi_domain_size}
-else
-  echo "FATAL ERROR: unsupported vi_domain_size: ${vi_domain_size}. Exiting ..."
-  exit 1
-fi
 
 vi_storm_num=1
 #===============================================================================
@@ -141,6 +153,29 @@ if [ ${vi_multi_storm} = yes ]; then
   export err=$?; err_chk
   old_vi_message=$( head -1 ./oldvit )
   old_vi_stormid=${old_vi_message:5:3}
+  # Calculate minimum distance from storm center to domain boundaries
+  ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
+        --infile_date=${YMDH:0:8}.${YMDH:8:2}0000 \
+        --tcvital=./tm00vit
+  export err=$?; err_chk
+  mindis=$(<./distance)
+  # Configure vi_domain_size_storm accordingly
+  if [ "${vi_domain_size}" = "45auto" ] || [ "${vi_domain_size}" = "25auto" ]; then
+    vi_domain_size_storm=${vi_domain_size:0:2}
+    if [ "${vi_domain_size_storm}" = "45" ] && [ "$(echo "$mindis < 23.0" | bc)" -eq 1 ]; then
+      echo "WARNING: Reduce vi_domain_size_storm from 45 to 25 degrees."
+      vi_domain_size_storm=25
+    fi
+    if [ "${vi_domain_size_storm}" = "25" ] && [ "$(echo "$mindis < 13.0" | bc)" -eq 1 ]; then
+      echo "WARNING: Reduce vi_domain_size_storm from 25 to 15 degrees."
+      vi_domain_size_storm=15
+    fi
+  elif [ "${vi_domain_size}" = "45" ] || [ "${vi_domain_size}" = "25" ] || [ "${vi_domain_size}" = 15 ]; then
+    vi_domain_size_storm=${vi_domain_size}
+  else
+    echo "FATAL ERROR: unsupported vi_domain_size: ${vi_domain_size}. Exiting ..."
+    exit 1
+  fi
 else
   vi_vit_dir=${WORKhafs}/intercom/launch
   ${NCP} ${vi_vit_dir}/tmpvit ./tm00vit
@@ -150,6 +185,18 @@ else
   old_vi_message=$( head -1 ./oldvit )
   #old_vi_stormid=${old_vi_message:5:3}
   old_vi_stormid=${old_out_prefix_nodate}
+  vi_domain_size_storm=${vi_domain_size}
+fi
+
+if [[ ${vi_domain_size_storm} == 45 ]]; then
+  deg_box1=30
+  deg_box2=45
+elif [[ ${vi_domain_size_storm} == 25 ]] || [[ ${vi_domain_size_storm} == 15 ]]; then
+  deg_box1=${vi_domain_size_storm}
+  deg_box2=${vi_domain_size_storm}
+else
+  echo "FATAL ERROR: unsupported vi_domain_size_storm: ${vi_domain_size_storm}. Exiting ..."
+  exit 1
 fi
 
 # Prepare tcvitals file
@@ -376,7 +423,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   iflag_cold=0
   crfactor=${crfactor:-1.0}
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold $crfactor ${vi_cloud} ${vi_domain_size_storm} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
@@ -492,7 +539,7 @@ if [ $vi_storm_env = init ]; then
     iflag_cold=1
   fi
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
+  echo ${gesfhr} $ibgs $vmax_vit $iflag_cold 1.0 ${vi_cloud} ${vi_domain_size_storm} | ${APRUNO} ./hafs_tools_vi_split.x 2>&1 | tee ./vi_split.log
   export err=$?; err_chk
 
   # anl_pert
@@ -630,7 +677,7 @@ else # warm-start from prior cycle or cold start from global/parent model
 
   ${NCP} -p ${EXEChafs}/hafs_tools_vi_anl_combine.x ./
   ${SOURCE_PREP_STEP}
-  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} ${vi_domain_size} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
+  echo ${gesfhr} ${pubbasin2} ${gfs_flag} ${initopt} ${vi_cloud} ${vi_domain_size_storm} | ${APRUNO} ./hafs_tools_vi_anl_combine.x 2>&1 | tee ./vi_anl_combine.log
   export err=$?; err_chk
   if [ -s storm_anl_combine ]; then
     ${NCP} -p storm_anl_combine storm_anl
