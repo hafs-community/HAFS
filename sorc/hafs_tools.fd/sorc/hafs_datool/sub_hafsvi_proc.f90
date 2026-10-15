@@ -2700,11 +2700,11 @@
 
 !----for hafsvi
   real     :: cen_lat,cen_lon
-  real     :: dis_min   !new
+  real     :: dis_min,distm,distt   !new
   real, allocatable, dimension(:,:) :: lont_spec, latt_spec  !new
   real, allocatable, dimension(:) :: ns_dis1,ns_dis2,we_dis1,we_dis2  !new
 
-  integer  :: i, j, k, flid_in, flid_out, ncid, ndims, nrecord, ii, jj
+  integer  :: i, j, k, flid_in, flid_out, ncid, ndims, nrecord, ii, jj, icst, jcst
   integer, dimension(nf90_max_var_dims) :: dims
 
   integer :: io_proc
@@ -2754,11 +2754,28 @@
    we_dis2(j)=sqrt((lont_spec(ix,j)-cen_lon)**2+(latt_spec(ix,j)-cen_lat)**2)
   enddo
 
-  write(*,*) 'minval(ns_dis1(:) ', minval(ns_dis1(:))
-  write(*,*) 'minval(ns_dis2(:) ', minval(ns_dis2(:))
-  write(*,*) 'minval(we_dis1(:) ', minval(we_dis1(:))
-  write(*,*) 'minval(we_dis2(:) ', minval(we_dis2(:))
-  dis_min=min(minval(ns_dis1(:)),minval(ns_dis2(:)),minval(we_dis1(:)),minval(we_dis2(:)))
+  distm=1.e20
+  do j = 1, iy; do i = 1, ix !* Search for indices nearest to center of storm
+     distt=(lont_spec(i,j)-cen_lon)**2+(latt_spec(i,j)-cen_lat)**2
+     if (distm.gt.distt) then
+       distm=distt
+       icst=i
+       jcst=j
+     end if
+  enddo; enddo
+  write(*,*) 'TC center index ', icst, jcst
+
+  if( icst.eq.1 .or. icst.eq.ix .or. jcst.eq.1 .or. jcst.eq.iy )then
+   write(*,*) 'WARNING!! TC is not inside the domain'
+   dis_min=-9999.99
+  else
+   write(*,*) 'minval(ns_dis1(:) ', minval(ns_dis1(:))
+   write(*,*) 'minval(ns_dis2(:) ', minval(ns_dis2(:))
+   write(*,*) 'minval(we_dis1(:) ', minval(we_dis1(:))
+   write(*,*) 'minval(we_dis2(:) ', minval(we_dis2(:))
+   dis_min=min(minval(ns_dis1(:)),minval(ns_dis2(:)),minval(we_dis1(:)),minval(we_dis2(:)))
+  endif
+
   write(*,*)'---Minimum distance', dis_min
 
   open(77, file='distance', status='unknown', form = 'formatted')

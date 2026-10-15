@@ -97,8 +97,8 @@
       real COEF3,COEF2,PI,PI_DEG
       real SDT,SDIF,PT,PDTOP,PSFX,DTEMP,ES,QS1,QSK,W1,W
       real ZSFC,PSFC,TSFC,A,DP1
-      integer IX,JX,IR,IJ,idomsize  !2024
-      real radi  !2024- 10: for original NCEP VI, 5 for KGao's method
+      integer IX,JX,IR,IJ,idomsize
+      real radi
 
 333   format('Have ',I0,' OpenMP threads.')
       print 333,omp_get_max_threads()
@@ -112,12 +112,6 @@
 
       READ(5,*)ITIM,IBGS,IVOBS,iflag_cold,crfactor,ivi_cloud,idomsize
 
-!2024: radi=10: for original NCEP VI, radi=5 for KGao's method
-!2024: NCEP IX=JX=41,IR=120, GFDL KGao's method IX=JX=11,IR=50
-!      IX=41
-!      JX=41
-!      IR=120
-!      radi=10.0
       if(idomsize.eq.45)then
        IX=41
        JX=41
@@ -125,20 +119,11 @@
        radi=10.0
        write(*,*) 'Using original NCEP VI, 40 by 40 domain'
       endif
-      !if(idomsize.eq.30)then  !NOT tested yet. don't use
-      ! IX=31
-      ! JX=31
-      ! IR=110
-      ! radi=10.0
-      ! write(*,*) 'Using 30 by 30 domain'
-      !endif
       if(idomsize.eq.25)then
        IX=21
        JX=21
        IR=80
-       !IR=100
        radi=8.0
-       !radi=10.0
        write(*,*) 'Using 20 by 20 domain'
       endif
       if(idomsize.eq.15)then
@@ -623,7 +608,7 @@
 
       print*,'call before HURR_MESS'
 
-      CALL HURR_MESS(ITIM,IBGS,NX,NY,GLON,GLAT,I360,IX,JX)  !2024
+      CALL HURR_MESS(ITIM,IBGS,NX,NY,GLON,GLAT,I360,IX,JX)
 
       print*,'call after HURR_MESS'
 
@@ -647,7 +632,7 @@
         CALL wrf_move(ITIM,KST,GLON,GLAT,US850,VS850, &
         KS850,P2, &
         Z2,T2,Q2,U2,V2,SLP,SIG,HLAT,HLON,VLAT,VLON, &
-        KMX,1,NX,1,NY,IBGS,IVOBS,iflag_cold,I360,crfactor,IX,JX,IR,radi,idomsize) !2024
+        KMX,1,NX,1,NY,IBGS,IVOBS,iflag_cold,I360,crfactor,IX,JX,IR,radi,idomsize)
 
       END DO
 
@@ -1003,7 +988,7 @@
       END program split
 
 
-      SUBROUTINE HURR_MESS(ITIM,IBGS,IMAX,JMAX,GLON,GLAT,I360,IRX,JRX) !2024
+      SUBROUTINE HURR_MESS(ITIM,IBGS,IMAX,JMAX,GLON,GLAT,I360,IRX,JRX)
 
 ! all common blocks are output
       use nhc, only: KSTM,IC_N,JC_N, NST
@@ -1013,7 +998,6 @@
       use rsfc, only: STRPSF,STVMAX,STRPSF_06
 
       implicit none
-!      integer,PARAMETER:: IRX=11,JRX=11   !2024
       integer,PARAMETER:: MAXVIT=15
 
       REAL(4) GLAT(IMAX,JMAX),GLON(IMAX,JMAX)
@@ -1047,7 +1031,7 @@
       integer i,j,k,INDX1,iv,nch,i360,itim,K1STM
       integer NERROR,KSTORM,KREC,ILA,ILO,IFWRT,imax,jmax,ic,jc
       integer IBGS,IERDEC
-      integer IRX,JRX !2024
+      integer IRX,JRX
       real DXM1,DYM1,DXP1,DYP1,PI,PI180,DT,ONEDEG,FACT,AMN
       real CLAT,CLON,VSTM,USTM,STMCX,STMCY,DMN,OMN,DISTC
       real YDIST6H,XDIST6H,STMSPD,STMDIR,STMCY21,STMCX21,STMVMX
@@ -1448,7 +1432,7 @@
            twindow,qwindow,uwindow,vwindow,pwindow,SIG, &
            HLAT,HLON,VLAT,VLON,lmeta,iswin,iewin, &
           jswin,jewin,IBGS,IVOBS,iflag_cold,I360,crfactor, & 
-          IRX,JRX,IR,radi,idomsize)   !2024
+          IRX,JRX,IR,radi,idomsize)
 !
 ! ITIM: Time level
 ! CLON_N,CLAT_N: observed storm center
@@ -1469,8 +1453,8 @@
        integer    iflag_cold,I360
        integer    IST,IED,JST,JED,KS850
 !       integer, parameter:: IRX=11,JRX=11,gd_dim3=450
-       integer    IRX,JRX,IR,IJ,idomsize  !2024
-       integer, parameter:: gd_dim3=450  !2024
+       integer    IRX,JRX,IR,IJ,idomsize
+       integer, parameter:: gd_dim3=450
 
        integer(4) iswin,iewin,jswin,jewin,lmeta
        real(4) twindow(iswin:iewin,jswin:jewin,lmeta)
@@ -1523,7 +1507,7 @@
 !       real(8) test3,uv_diff,uv_tt
 
        integer(4) KST
-       real(4) radi !2024
+       real(4) radi
 
        inx=iewin-iswin+1
        jnx=jewin-jswin+1
@@ -1599,34 +1583,25 @@
 
       IF(AB1.LT.XB1.or.AB2.GT.XB2.or.BB1.LT.YB1.or.BB2.GT.YB2)THEN
         CALL CREAT_41X41(ITIM,KST,KMX,MTV6,KS850,U850,V850,SDAT,P2,IRX,JRX)
-        !2024
 !         RDST1=0.75
-        if(idomsize.eq.15)then !2024
-        ! NCEP's original VI 10 by 10 domain
+        if(idomsize.eq.15)then
          IST=1
          IED=IRX
          JST=1
          JED=JRX
-        endif  !2024
-        if(idomsize.eq.25)then !2024
+        endif
+        if(idomsize.eq.25)then
          IST=1
          IED=IRX
          JST=1
          JED=JRX
-        endif  !2024
-        !if(idomsize.eq.30)then !2024 !NOT tested yet. don't use
-        ! IST=3
-        ! IED=28
-        ! JST=3
-        ! JED=28
-        !endif  !2024
-        if(idomsize.eq.45)then !2024
-        ! NCEP's original VI 40 by 40 domain
+        endif
+        if(idomsize.eq.45)then
         IST=8
         IED=33
         JST=8
         JED=33
-        endif  !2024
+        endif
         print*,'using outer nest data'
       ELSE
 !         RDST1=0.06
@@ -1919,10 +1894,10 @@
 !      END DO
 
 
-       IJ=IRX*JRX  !2024
+       IJ=IRX*JRX
        CALL HURR_MOVE(ITIM,KST,INX,JNX,KMX,MTV6,MTV4,SDAT,HDATN, &
               U850,V850,XLON1,XLAT1,XLON,XLAT,SIG,IBGS,IVOBS, &
-              iflag_cold,I360,IRX,JRX,IR,IJ,radi)    !2024
+              iflag_cold,I360,IRX,JRX,IR,IJ,radi)
 
 
 !23456789012345678901234567890123456789012345678901234567890123456789012
@@ -2130,7 +2105,7 @@
 
       SUBROUTINE hurr_move(ITIM,KST,IMAX,JMAX,KMAX,MTV6,MTV4,SDAT, &
             HDATN,U850,V850,XLON1,XLAT1,XLON,XLAT,SL,IBGS,IVOBS, &
-            iflag_cold,I360,IX,JX,IR,IJ,radi)     !2024
+            iflag_cold,I360,IX,JX,IR,IJ,radi)
 ! KST is the storm number
       use posit
       use vect
@@ -2153,12 +2128,10 @@
       integer IV,ISE,NRED1,IFLAG,KMP,KDIV1,KQ1,ING5,JNG5,IW,JW
       integer M3,NCHT,IGU,JGU,IREM,MTV4,MTV6,JMAX,IMAX
       integer KDIV2,KQ2
-      integer IX,JX,IR,IJ !2024
-      real radi !2024
+      integer IX,JX,IR,IJ
+      real radi
 
-      ! KGao - change IR from 120 (12 deg) to 50 (5 deg)
-      !integer, PARAMETER:: IX=11,JX=11,NF=11,IT=24,IR=50,IJ=IX*JX  !2024
-      integer, PARAMETER:: NF=11,IT=24   !2024
+      integer, PARAMETER:: NF=11,IT=24
       integer, PARAMETER:: NSG5=NSG/5
 
       REAL(4) SDAT(IX,JX,MTV6),HDATN(IMAX,JMAX,MTV4),SL(KMAX)
@@ -2475,16 +2448,16 @@
 !.. CALCULATE TANGENTIAL WIND AROUND CIRCLE
 !             24 DIRECTION, RADIALLY 0.1DEG INTERVAL
 
-      CALL TWIND(UD,VD,TW,IX,JX,IR)   ! 2024
+      CALL TWIND(UD,VD,TW,IX,JX,IR)
 
 !.. CALCULATE STARTING POINT AT EACH DIRECTION
 
-      CALL STRT_PT(RS,TW,RFAVG,IX,JX,IR)  !2024
+      CALL STRT_PT(RS,TW,RFAVG,IX,JX,IR)
 
 !.. DETERMINE FILTER DOMAIN D0 (=1.25*Rf)
 
 
-      CALL FILTER(RS,TW,RF,RFAVG,KST,IBGS,IVOBS,iflag_cold,IX,JX,IR,radi) !2024
+      CALL FILTER(RS,TW,RF,RFAVG,KST,IBGS,IVOBS,iflag_cold,IX,JX,IR,radi)
 
       AMDX=CLON_NHC-CLON_NEW
       AMDY=CLAT_NHC-CLAT_NEW
@@ -2862,7 +2835,7 @@
 !      print*,'before call SEPAR',ISE
 
       DKM=DKY
-      CALL SEPAR(DKY,DKM,IX,JX)  !2024
+      CALL SEPAR(DKY,DKM,IX,JX)
 
 !      print*,'after call SEPAR'
 
@@ -3228,13 +3201,12 @@
 
       end SUBROUTINE hurr_move
 
-      SUBROUTINE TWIND(UD,VD,TW,IX,JX,IR) !2024
+      SUBROUTINE TWIND(UD,VD,TW,IX,JX,IR)
       use posit
       use vect
       implicit none
-      ! KGao change IR=120 to 50
       !integer,PARAMETER:: IX=11,JX=11,NF=11,IT=24,IR=50
-      integer IX,JX,IR  !2024
+      integer IX,JX,IR
       integer,PARAMETER:: NF=11,IT=24
       real UD,VD,TW
       DIMENSION UD(IX,JX),VD(IX,JX),TW(IT,IR)
@@ -3296,12 +3268,12 @@
       RETURN
       END SUBROUTINE TWIND
 
-      SUBROUTINE STRT_PT(RMX,TW,RFAVG,IX,JX,IR)  !2024
+      SUBROUTINE STRT_PT(RMX,TW,RFAVG,IX,JX,IR)
       implicit none
 
       !integer, PARAMETER :: IX=11,JX=11,NF=11,IT=24,IR=50
-      integer IX,JX,IR   !2024
-      integer, PARAMETER :: NF=11,IT=24  !2024
+      integer IX,JX,IR
+      integer, PARAMETER :: NF=11,IT=24
       integer I, J, K, ICK, ICL, LL, MR, IRA, IRB, IK, KK, JJ
 
       real TM, TMX, JXX, RF, RFAVG, RA, RB, DXX, DV, DVDR, RM, CNT
@@ -3422,13 +3394,13 @@
       RETURN
       END SUBROUTINE STRT_PT
 
-      SUBROUTINE FILTER(RS,TW,RF,RFAVG,KST,IBGS,IVOBS,iflag_cold,IX,JX,IR,radi) !2024
+      SUBROUTINE FILTER(RS,TW,RF,RFAVG,KST,IBGS,IVOBS,iflag_cold,IX,JX,IR,radi)
       use vect
       use rsfc
       implicit none
       !integer, PARAMETER:: IX=11,JX=11,IT=24,IR=50
-      integer IX,JX,IR  !2024
-      integer, PARAMETER:: IT=24   ! 2024
+      integer IX,JX,IR
+      integer, PARAMETER:: IT=24
 !      integer, PARAMETER:: NST=10
       integer I, ICK,  K, IK, IS, KST, IBGS, IVOBS, iflag_cold
 
@@ -3439,7 +3411,7 @@
       DIMENSION RS(IT),TW(IT,IR),RF(IT),IST(IT)
       real R01,max_R0,max_RF
       DIMENSION R01(IT)
-      real radi  !2024: 10: for original NCEP VI, 5 for KGao's method
+      real radi
 
       ICK = 1
       CNT = 0.000004
@@ -3478,8 +3450,7 @@
         ENDDO
 
 !c      print *,'3rd Catagory ',I
-        !RF(I) = 5. ! 10. KGao reduce default value of 10deg to 5deg
-        RF(I) = radi  ! 2024: radi depends on the input argument
+        RF(I) = radi
       enddo iloop
 
 !c      RMAX=0.
