@@ -89,7 +89,7 @@ else # enkf_recenter
   ${NLN} control_sfcvar control_sfc_data.nc
   ${NLN} control_tracer control_fv_tracer.res.tile1.nc
   ${NLN} control_dynvar control_fv_core.res.tile1.nc
-  MERGE_CMD="${APRUNC} ${DATOOL} remap"
+  MERGE_CMD="${APRUNS} ${DATOOL} remap"
   for var in fv_core.res.tile1 fv_tracer.res.tile1 sfc_data; do
     in_grid=${WORKhafs}/intercom/RESTART_analysis/grid_spec.nc
     out_grid=${RESTARTens_inp}/${memstr}/grid_spec.nc
@@ -156,6 +156,8 @@ sed -e "s/_ENS_SIZE_/${nens:-40}/g" \
 
 RECENTEREXEC=${RECENTEREXEC:-$HOMEhafs/exec/hafs_tools_enmean_recenter.x}
 ${APRUNC} ${RECENTEREXEC} < hafs_mean_recenter.nml 2>&1 | tee stdout
+export err=$?
+err_chk
 
 if  [ $ldo_enscalc_option -eq 1 ]; then # enkf_mean
   memstr="ensmean"
@@ -245,7 +247,11 @@ elif [ $ldo_enscalc_option -eq 2 ]; then # enkf_recenter
       TRACER_OUT="${RESTARTens_anl}/${memstr}/${PDY}.${cyc}0000.fv_tracer.res.tile1.nc"
       LOG_DATOOL="./log_datool_${memstr}"
       LOG_NCKS="./log_sgs_tke_${memstr}"
-      echo "${APRUNS} ${DATOOL} ua_update_u --in_grid=${IN_GRID} --in_file=${IN_FILE} --out_file=${OUT_FILE} > ${LOG_DATOOL} 2>&1 && ${NCKS} -A -C -v sgs_tke ${TRACER_IN} ${TRACER_OUT} > ${LOG_NCKS} 2>&1" >> "${cmdfile}"
+      if [ ${machine} = "ursa" ] || [ ${machine} = "gaeac6" ]; then
+        echo "${DATOOL} ua_update_u --in_grid=${IN_GRID} --in_file=${IN_FILE} --out_file=${OUT_FILE} > ${LOG_DATOOL} 2>&1 && ${NCKS} -A -C -v sgs_tke ${TRACER_IN} ${TRACER_OUT} > ${LOG_NCKS} 2>&1" >> "${cmdfile}" #Somehow the APRUNS is not recognized by Ursa and Gaea
+      else
+        echo "${APRUNS} ${DATOOL} ua_update_u --in_grid=${IN_GRID} --in_file=${IN_FILE} --out_file=${OUT_FILE} > ${LOG_DATOOL} 2>&1 && ${NCKS} -A -C -v sgs_tke ${TRACER_IN} ${TRACER_OUT} > ${LOG_NCKS} 2>&1" >> "${cmdfile}"
+      fi
     done
     chmod +x "${cmdfile}"
     ncmd=$(wc -l < "${cmdfile}")

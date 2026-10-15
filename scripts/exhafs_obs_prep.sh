@@ -36,6 +36,11 @@ hhprior=$(echo ${CDATEprior} | cut -c9-10)
 #dytp03=$(echo ${CDATEtp03} | cut -c7-8)
 #hhtp03=$(echo ${CDATEtp03} | cut -c9-10)
 
+if [ ${machine} = "ursa" ] || [ ${machine} = "orion" ]; then
+ export APRUNTMP="" #Somehow Ursa and Orion don't support MPI Python
+else
+ export APRUNTMP=${APRUNC}
+fi
 atmos="atmos/"
 COMINhafs_OBS=${COMINhafs_OBS:-${COMINobs}/hafs.$PDY/$cyc/${atmos}}
 RUN_ANALYSIS=${RUN_ANALYSIS:-NO}
@@ -498,15 +503,15 @@ fi
     bufr=$1
     if [[ -s gfs.t${cyc}z.${bufr}.bufr_d ]]; then
       if [[ "${file}" = "amsua" ]]; then
-       ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc ${CDATE} >& log_${file}
+       ${APRUNTMP} python bufr_${file}.py gfs.t${cyc}z.esamua.bufr_d gfs.t${cyc}z.1bamua.bufr_d bufr_1bamua_mapping.yaml bufr_esamua_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc ${CDATE} >& log_${file}
       elif [[ "${file}" = "abi" ]]; then
        python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc ${CDATE} >& log_${file}
       elif [[ "${file}" = "cris-fsr" ]]; then
-       ${APRUNC} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc --cycle-time ${CDATE}>& log_${file}
+       ${APRUNTMP} python bufr_${bufr}.py --input gfs.t${cyc}z.${bufr}.bufr_d --output output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc --cycle-time ${CDATE}>& log_${file}
       elif [[ "${file}" = "atms" ]] || [[ "${file}" = "iasi" ]] || [[ "${file}" = "mhs" ]]; then
-       ${APRUNC} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc ${CDATE} >& log_${file}
+       ${APRUNTMP} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc ${CDATE} >& log_${file}
       elif [[ -s bufr_${bufr}_mapping.yaml ]]; then
-       ${APRUNC} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
+       ${APRUNTMP} python bufr_${bufr}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${bufr}_mapping.yaml output/hafs.t${cyc}z.radiance_${file}_{splits/satId}.nc >& log_${file}
       fi
     fi
     shift
@@ -521,12 +526,12 @@ fi
         ${PARMjedi}/yaml_templates/bufrquery/bufr_${file}_mapping.yaml > bufr_${file}_mapping.yaml
       if [[ "${bufr}" = "prepbufr" ]]; then
         if [[ "${file}" = "osw_ascat" ]]; then
-          ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
+          ${APRUNTMP} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
         elif [[ "${file}" = "air_raob" ]]; then
           export CYC_TIME=$CDATE
-          ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file} 
+          ${APRUNTMP} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file} 
         elif [[ "${file}" = "vadwnd" ]]; then
-          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc >& log_${file}
+          ${APRUNTMP} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc >& log_${file}
           f="output/hafs.t${cyc}z.conventional_radar_${file}.nc"
           if [ ! -f "${f}" ]; then
             echo "ERROR: file not found for vadwnd thinning:"
@@ -553,7 +558,7 @@ fi
           fi
           echo "Offline vad thinning completed successfully"
         else
-          ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
+          ${APRUNTMP} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_${file}.nc ${CDATE} >& log_${file}
         fi
       elif [[ "${bufr}" = "gnssro" ]]; then
         python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}_{splits/satId}.nc">& log_${file}
@@ -612,11 +617,11 @@ fi
      	  echo "Info: Subset ${SUBSET_TO_FIND} was not found. Skipping Python script."
         fi
       elif [[ "${bufr}" = "tldplr" ]]; then
-        ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
+        ${APRUNTMP} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "hdobbufr" ]] || [[ "${bufr}" = "drpsnd" ]]; then
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
-        ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
+        ${APRUNTMP} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
@@ -624,7 +629,7 @@ fi
 	atcf_f06=${COMhafs%/*/*}/${CDATEprior}/${STORMID^^}/${STORMID,,}.${CDATEprior}.hfsa.trak.atcfunix.f006
 	if [ -f "${atcf_f06}" ] && [ ${RUN_ATM_VI_FGAT} = "NO" ]; then
 	    echo "ATCF 06 File exists: $atcf_f06. Using lat/lon from ATCF to replace the tcvital lat/lon in IODA"
-            python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --atcf_file --domain_file ${GEO_PATH} >& log_${file}
+            python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --atcf_file ${atcf_f06} --domain_file ${GEO_PATH} >& log_${file}
 	else
 	    echo "ATCF 06 File does not exist, exporting TcVital info into IODA"
             python bufr_${file}.py "gfs.t${cyc}z.${bufr}" "output/hafs.t${cyc}z.conventional_${file}.nc" --domain_file ${GEO_PATH} >& log_${file}

@@ -1550,7 +1550,7 @@
       &PE_EXTRA;
       &CORES_EXTRA;
       &CLUSTER_COMPUTE;
-      &ATM_POST_RESOURCES;
+      &ATM_POST_ENS_RESOURCES;
       &ENV_VARS;
       <envar><name>ENSDA</name><value>YES</value></envar>
       <envar><name>ENSID</name><value>#MEM#</value></envar>
