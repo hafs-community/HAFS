@@ -87,8 +87,8 @@ all_nstorms=$(wc -l allvit | awk '{print $1}')
 touch allvit.vi
 tmp_storm_num=1
 while [ ${tmp_storm_num} -le ${all_nstorms} ]; do
-  head -${tmp_storm_num} allvit > ./tttvit
-  tmp_message=$( head -1 ./tttvit )
+  head -n ${tmp_storm_num} allvit | tail -n 1 > ./tttvit
+  tmp_message=$( head -n 1 ./tttvit )
   tmp_stormid=${tmp_message:5:3} # e.g., 13L
   # Check if storm is sufficiently inside the domain
   ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
@@ -145,13 +145,13 @@ cd $DATAstorm
 
 if [ ${vi_multi_storm} = yes ]; then
   vi_vit_dir="."
-  head -${vi_storm_num} ${DATA}/allvit.vi > ./tm00vit
-  vi_message=$( head -1 ./tm00vit )
+  head -n ${vi_storm_num} ${DATA}/allvit.vi | tail -n 1 > ./tm00vit
+  vi_message=$( head -n 1 ./tm00vit )
   vi_stormid=${vi_message:5:3} # e.g., 13L
   # Generate tcvitals files: tmpvit, oldvit, tm03vit, tp03vit
   ${USHhafs}/tcutil_generate_vitals.py -c ${YMDH} -o ./ ${vi_stormid} ${YMDH:0:4}
   export err=$?; err_chk
-  old_vi_message=$( head -1 ./oldvit )
+  old_vi_message=$( head -n 1 ./oldvit )
   old_vi_stormid=${old_vi_message:5:3}
   # Calculate minimum distance from storm center to domain boundaries
   ${APRUNC} ${DATOOL} hafsvi_domaincheck --in_dir=${RESTARTinp} \
@@ -179,10 +179,10 @@ if [ ${vi_multi_storm} = yes ]; then
 else
   vi_vit_dir=${WORKhafs}/intercom/launch
   ${NCP} ${vi_vit_dir}/tmpvit ./tm00vit
-  vi_message=$( head -1 ./tm00vit )
+  vi_message=$( head -n 1 ./tm00vit )
   vi_stormid=${vi_message:5:3} # e.g., 13L
   ${NCP} ${vi_vit_dir}/oldvit ./oldvit
-  old_vi_message=$( head -1 ./oldvit )
+  old_vi_message=$( head -n 1 ./oldvit )
   #old_vi_stormid=${old_vi_message:5:3}
   old_vi_stormid=${old_out_prefix_nodate}
   vi_domain_size_storm=${vi_domain_size}
@@ -658,7 +658,7 @@ else # warm-start from prior cycle or cold start from global/parent model
   rm -f flag_file
   # input
   ${NLN} ${tcvital} fort.11
-  ${NLN} ../split_${pert}/trak.atcfunix.tmp fort.12
+  ${RLN} ../split_${pert}/trak.atcfunix.tmp fort.12
   ${NLN} ../split_${pert}/trak.fnl.all fort.30
   ${NLN} ../anl_pert_${pert}/storm_size_p fort.14
   ${NLN} ../anl_pert_${pert}/storm_sym fort.23
