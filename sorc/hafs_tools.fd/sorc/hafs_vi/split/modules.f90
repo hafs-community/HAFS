@@ -1,5 +1,3 @@
-!Authors: Qingfu Liu (NCEP/EMC)
-!Revised by Chuan-Kai Wang (NCEP/EMC) 2022
 
 module setparms
    implicit none
@@ -80,8 +78,7 @@ module setparms
 
  module xxx
  implicit none
- integer, parameter :: imx=41, jmx=41
- real,save:: XF(IMX,JMX),XC,YC,DX,DY
+ real,save:: XF(41,41),XC,YC,DX,DY
  end module xxx
 
  module vect
