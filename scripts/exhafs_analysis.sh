@@ -108,28 +108,28 @@ mkdir -p ${DIAGanl}
 cd $DATA
 
 # Copy the first guess or fgat files
-if [ ${RUN_ATM_VI_FGAT} = "YES" ]; then
+if [ ${RUN_ATM_VI_FGAT} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_vi_fgat06/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi_fgat03
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi_fgat06
   RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi_fgat09
-elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ]; then
+elif [ ${RUN_ATM_MERGE_FGAT} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_merge_fgat06/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge_fgat03
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge_fgat06
   RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge_fgat09
-elif [ ${RUN_ATM_INIT_FGAT} = "YES" ]; then
+elif [ ${RUN_ATM_INIT_FGAT} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_init_fgat06/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
   RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init_fgat03
   RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init_fgat06
   RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init_fgat09
 else
-  if [ ${RUN_ATM_VI} = "YES" ]; then
+  if [ ${RUN_ATM_VI} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_vi/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
     RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_vi
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_vi
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_vi
-  elif [ ${RUN_ATM_MERGE} = "YES" ]; then
+  elif [ ${RUN_ATM_MERGE} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_merge/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
     RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_merge
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_merge
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_merge
-  elif [ ${RUN_ATM_INIT} = "YES" ]; then
+  elif [ ${RUN_ATM_INIT} = "YES" ] && [ -s ${WORKhafs}/intercom/RESTART_init/${PDY}.${cyc}0000.fv_core.res${neststr}${tilestr}.nc ]; then
     RESTARTinp_fgat03=${WORKhafs}/intercom/RESTART_init
     RESTARTinp_fgat06=${WORKhafs}/intercom/RESTART_init
     RESTARTinp_fgat09=${WORKhafs}/intercom/RESTART_init
