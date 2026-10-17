@@ -127,10 +127,45 @@ while [ ${tmp_storm_num} -le ${all_nstorms} ]; do
   tmp_storm_num=$((tmp_storm_num + 1))
 done
 vi_nstorms=$(wc -l allvit.vi | awk '{print $1}')
+
+# If no active storms, simply copy over the restart files
 if [ ${vi_nstorms} -lt 1 ]; then
-  echo "INFO: no active storm, exiting after skipping vortex initialization ..."
-  exit
+
+mkdir -p ${RESTARTout}
+if [ -d ${RESTARTinit} ]; then
+  RESTARTdst=${RESTARTinit}
+elif [ -d ${RESTARTmrg} ]; then
+  RESTARTdst=${RESTARTmrg}
+else
+  RESTARTdst=${RESTARTinp}
 fi
+# Currently, force RESTARTdst=${RESTARTinp} if vi_multi_storm=yes
+if [ ${vi_multi_storm} = yes ]; then
+  RESTARTdst=${RESTARTinp}
+fi
+rm -f cmdfile
+for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
+                         ${RESTARTdst}/atmos_static*.nc \
+                         ${RESTARTdst}/grid_*spec*.nc \
+                         ${RESTARTdst}/oro_data*.nc) ; do
+  fname=$(basename ${file})
+  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
+done
+chmod +x cmdfile
+if [ $USE_CFP = "YES" ] ; then
+  ncmd=$(cat ./cmdfile | wc -l)
+  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
+  $APRUNCFP -n $ncmd_max cfp ./cmdfile
+else
+  ${APRUNC} ${MPISERIAL} -m cmdfile
+fi
+export err=$?; err_chk
+# rm -f cmdfile
+echo "INFO: no active storm, copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
+echo "INFO: exiting after skipping vortex initialization ..."
+exit
+
+fi #if [ ${vi_nstorms} -lt 1 ]; then
 
 fi #if [ $vi_multi_storm = yes ]; then
 
