@@ -477,13 +477,19 @@ if [ $GFSVER = "PROD2026" ]; then
   SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
   SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
 fi
-  if [[ -s ${SATBIAS_IN} ]]; then
-    ${NCP} -p ${SATBIAS_IN} gdas.t${cyc}z.abias
-    sed -i 's/\bNaN\b/0.00/g' gdas.t${cyc}z.abias # Somehow NaN values in gmi_gpm crashes the satbias2ioda
-  fi
-  if [[ -s ${SATBIAS_PC} ]]; then
-    ${NCP} -p ${SATBIAS_PC} gdas.t${cyc}z.abias_pc
-  fi
+  while [[ ! -s "${SATBIAS_IN}" ]]; do
+    echo "WAIT: File is missing or empty: ${SATBIAS_IN}. Retrying in 30s..." >&2
+    sleep 30
+  done
+  ${NCP} -p "${SATBIAS_IN}" "gdas.t${cyc}z.abias" || exit 1
+  # Replace NaN values that can crash satbias2ioda.
+  sed -i 's/\bNaN\b/0.00/g' "gdas.t${cyc}z.abias" || exit 1
+  while [[ ! -s "${SATBIAS_PC}" ]]; do
+    echo "WAIT: File is missing or empty: ${SATBIAS_PC}. Retrying in 30s..." >&2
+    sleep 30
+  done
+  ${NCP} -p "${SATBIAS_PC}" "gdas.t${cyc}z.abias_pc" || exit 1
+
 ########## Prepare yaml or json files #######################
   mkdir output
   for file in ${sattypes}; do
