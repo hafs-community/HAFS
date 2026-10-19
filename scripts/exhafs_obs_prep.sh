@@ -424,7 +424,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   obstypes="${radtypes} ${convtypes}"
   IODABCEXEC=${IODABCEXEC:-${EXEChafs}/hafs_jedi_bc2ioda.x}
   tilestr=` expr ${nest_grids} + 6 `
-  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_oro_data.tile${tilestr}.halo3.nc}
+  GEO_PATH=${GEO_PATH:-${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_oro_data.tile${tilestr}.halo0.nc}
   output_dir=${DATA}/jedi_ioda/output
 #  ${NCP} ${IODAEXEC} .
   ${NCP} ${IODABCEXEC} ./hafs_jedi_bc2ioda.x
