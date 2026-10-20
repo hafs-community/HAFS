@@ -11,52 +11,12 @@ from bufr.obs_builder import add_main_functions, map_path, add_dummy_variable
 from wxflow import Logger
 
 # Initialize Logger
-# Get log level from the environment variable, default to 'INFO it not set
 log_level = os.getenv('LOG_LEVEL', 'INFO')
 logger = Logger('BUFR2IODA_satwhr_amv_goes.py', level=log_level, colored_log=False)
 
 
 def logging(comm, level, message):
-    """
-    Logs a message to the console or log file, based on the specified logging level.
-
-    This function ensures that logging is only performed by the root process (`rank 0`)
-    in a distributed computing environment. The function maps the logging level to
-    appropriate logger methods and defaults to the 'INFO' level if an invalid level is provided.
-
-    Parameters:
-        comm: object
-            The communicator object, typically from a distributed computing framework
-            (e.g., MPI). It must have a `rank()` method to determine the process rank.
-        level: str
-            The logging level as a string. Supported levels are:
-                - 'DEBUG'
-                - 'INFO'
-                - 'WARNING'
-                - 'ERROR'
-                - 'CRITICAL'
-            If an invalid level is provided, a warning will be logged, and the level
-            will default to 'INFO'.
-        message: str
-            The message to be logged.
-
-    Behavior:
-        - Logs messages only on the root process (`comm.rank() == 0`).
-        - Maps the provided logging level to a method of the logger object.
-        - Defaults to 'INFO' and logs a warning if an invalid logging level is given.
-        - Supports standard logging levels for granular control over log verbosity.
-
-    Example:
-        >>> logging(comm, 'DEBUG', 'This is a debug message.')
-        >>> logging(comm, 'ERROR', 'An error occurred!')
-
-    Notes:
-        - Ensure that a global `logger` object is configured before using this function.
-        - The `comm` object should conform to MPI-like conventions (e.g., `rank()` method).
-    """
-
     if comm.rank() == 0:
-        # Define a dictionary to map levels to logger methods
         log_methods = {
             'DEBUG': logger.debug,
             'INFO': logger.info,
@@ -64,24 +24,16 @@ def logging(comm, level, message):
             'ERROR': logger.error,
             'CRITICAL': logger.critical,
         }
-
-        # Get the appropriate logging method, default to 'INFO'
         log_method = log_methods.get(level.upper(), logger.info)
-
         if log_method == logger.info and level.upper() not in log_methods:
-            # Log a warning if the level is invalid
             logger.warning(f'log level = {level}: not a valid level --> set to INFO')
-
-        # Call the logging method
         log_method(message)
 
 
 def _make_description(mapping_path, update=False):
     description = bufr.encoders.Description(mapping_path)
-    #ReferenceTime = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
 
     if update:
-        # Define the variables to be added in a list of dictionaries
         variables = [
             {
                 'name': 'ObsType/windEastward',
@@ -106,18 +58,6 @@ def _make_description(mapping_path, update=False):
                 'source': 'variables/windNorthward',
                 'units': 'm s-1',
                 'longName': 'Northward Wind Component',
-            },
-            {
-                'name': 'ObsError/windEastward',
-                'source': 'variables/windEastward',
-                'units': 'm s-1',
-                'longName': 'Eastward Wind Error',
-            },
-            {
-                'name': 'ObsError/windNorthward',
-                'source': 'variables/windNorthward',
-                'units': 'm s-1',
-                'longName': 'Northward Wind Error',
             },
             {
                 'name': 'MetaData/height',
@@ -145,7 +85,6 @@ def _make_description(mapping_path, update=False):
             },
         ]
 
-        # Loop through each variable and add it to the description
         for var in variables:
             description.add_variable(
                 name=var['name'],
@@ -158,150 +97,151 @@ def _make_description(mapping_path, update=False):
 
 
 def compute_wind_components(wdir, wspd):
-    """
-    Compute the U and V wind components from wind direction and wind speed.
-
-    Parameters:
-        wdir (array-like): Wind direction in degrees (meteorological convention: 0° = North, 90° = East).
-        wspd (array-like): Wind speed (m/s).
-
-    Returns:
-        tuple: U and V wind components as numpy arrays with dtype float32.
-    """
-    wdir_rad = np.radians(wdir)  # Convert degrees to radians
+    wdir_rad = np.radians(wdir)
     u = -wspd * np.sin(wdir_rad)
     v = -wspd * np.cos(wdir_rad)
-
     return u.astype(np.float32), v.astype(np.float32)
 
 
 def _get_obs_type(swcm, chanfreq):
-    """
-    Determine the observation type based on `swcm` and `chanfreq`.
+    if swcm.size == 0:
+        return np.array([], dtype=swcm.dtype)
 
-    Parameters:
-        swcm (array-like): Satellite derived wind calculation method.
-        chanfreq (array-like): Satellite channel center frequency (Hz).
+    obstype = np.array(swcm, copy=True)
 
-    Returns:
-        numpy.ndarray: Observation type array.
+    valid_mask = ~np.isnan(swcm) if np.issubdtype(swcm.dtype, np.floating) else np.ones(swcm.shape, dtype=bool)
+    if hasattr(swcm, 'mask'):
+        valid_mask &= ~swcm.mask
 
-    Raises:
-        ValueError: If any `obstype` is unassigned.
-    """
-
-    obstype = swcm.copy()
-    condition = np.logical_and(swcm >= 1, swcm < 7)
+    condition = np.logical_and(swcm >= 1, swcm < 7) & valid_mask
     obstype = np.where(condition, 241, obstype)
 
-    if not np.any(np.isin(obstype, [241])):
+    if not np.any(np.isin(obstype[valid_mask], [241])):
         raise ValueError("Error: Unassigned ObsType found ... ")
 
     return obstype
 
 
-def _make_obs(comm, input_path, mapping_path):
+def _is_invalid_array(arr):
+    """Utility helper to check if a BUFR data array is empty or contains only missing values."""
+    if arr is None or arr.size == 0:
+        return True
+    if hasattr(arr, 'mask') and np.all(arr.mask):
+        return True
+    if np.issubdtype(arr.dtype, np.floating) and np.all(np.isnan(arr)):
+        return True
+    str_repr = str(arr)
+    if str_repr.strip() == '--' or np.all(arr == '--'):
+        return True
+    return False
 
-    # Get container from mapping file first
+
+def _populate_dummies(container, cat):
+    """Adds dummy placeholders for categories missing valid observation data."""
+    dummy_mappings = [
+        ('windEastward', 'windSpeed'),
+        ('windNorthward', 'windSpeed'),
+        ('coefficientOfVariation', 'windComputationMethod'),
+        ('expectedError', 'windComputationMethod'),
+        ('height', 'windComputationMethod'),
+        ('stationElevation', 'windComputationMethod'),
+        ('obstype_uwind', 'windComputationMethod'),
+        ('obstype_vwind', 'windComputationMethod')
+    ]
+    for target_var, source_var in dummy_mappings:
+        add_dummy_variable(container, target_var, cat, source_var)
+
+
+def _make_obs(comm, input_path, mapping_path):
     logging(comm, 'INFO', 'Get container from bufr')
     try:
         container = bufr.Parser(input_path, mapping_path).parse(comm)
     except RuntimeError as e:
-        # Catch the error for empty or invalid BUFR data and return None
         logging(comm, 'ERROR', f"Failed to process BUFR file: {input_path}. Reason: {e}")
         return None
 
     logging(comm, 'DEBUG', f'container list (original): {container.list()}')
-    logging(comm, 'DEBUG', f'all_sub_categories =  {container.all_sub_categories()}')
-    logging(comm, 'DEBUG', f'category map =  {container.get_category_map()}')
+    logging(comm, 'DEBUG', f'all_sub_categories = {container.all_sub_categories()}')
+    logging(comm, 'DEBUG', f'category map = {container.get_category_map()}')
 
-    # Add new/derived data into container
     for cat in container.all_sub_categories():
-
         logging(comm, 'DEBUG', f'category = {cat}')
+
         satid = container.get('variables/satelliteId', cat)
-        if not satid.size:
-            logging(comm, 'WARNING', f'category {cat[0]} does not exist in input file')
-            dummy_mappings = [
-                ('windEastward', 'windSpeed'),
-                ('windNorthward', 'windSpeed'),
-                ('coefficientOfVariation','windComputationMethod'),
-                ('expectedError','windComputationMethod'),
-                ('height','windComputationMethod'),
-                ('stationElevation','windComputationMethod'),
-                ('obstype_uwind','windComputationMethod'),
-                ('obstype_vwind','windComputationMethod')
-            ]
-            for target_var, source_var in dummy_mappings:
-                add_dummy_variable(container, target_var, cat, source_var)
+        if _is_invalid_array(satid):
+            logging(comm, 'WARNING', f'Skipping category {cat[0]}: satelliteId contains no valid records.')
+            _populate_dummies(container, cat)
             continue
-        else:
-            # Add new variables: ObsType/windEastward & ObsType/windNorthward
-            swcm = container.get('variables/windComputationMethod', cat)
-            chanfreq = container.get('variables/sensorCentralFrequency', cat)
 
-            logging(comm, 'DEBUG', f'swcm min/max = {swcm.min()} {swcm.max()}')
-            logging(comm, 'DEBUG', f'chanfreq min/max = {chanfreq.min()} {chanfreq.max()}')
+        swcm = container.get('variables/windComputationMethod', cat)
+        chanfreq = container.get('variables/sensorCentralFrequency', cat)
 
+        if _is_invalid_array(swcm) or _is_invalid_array(chanfreq):
+            logging(comm, 'WARNING', f'Skipping category {cat[0]}: missing or unassigned wind computation/frequency data.')
+            _populate_dummies(container, cat)
+            continue
+
+        logging(comm, 'DEBUG', f'swcm min/max = {swcm.min()} {swcm.max()}')
+        logging(comm, 'DEBUG', f'chanfreq min/max = {chanfreq.min()} {chanfreq.max()}')
+
+        try:
             obstype = _get_obs_type(swcm, chanfreq)
+        except ValueError as e:
+            logging(comm, 'WARNING', f'Skipping category {cat[0]}: {e}')
+            _populate_dummies(container, cat)
+            continue
 
-            logging(comm, 'DEBUG', f'obstype = {obstype}')
-            logging(comm, 'DEBUG', f'obstype min/max =  {obstype.min()} {obstype.max()}')
+        logging(comm, 'DEBUG', f'obstype = {obstype}')
+        logging(comm, 'DEBUG', f'obstype min/max = {obstype.min()} {obstype.max()}')
 
-            paths = container.get_paths('variables/windComputationMethod', cat)
-            container.add('variables/obstype_uwind', obstype, paths, cat)
-            container.add('variables/obstype_vwind', obstype, paths, cat)
+        paths = container.get_paths('variables/windComputationMethod', cat)
+        container.add('variables/obstype_uwind', obstype, paths, cat)
+        container.add('variables/obstype_vwind', obstype, paths, cat)
 
-            # Add new variables: ObsValue/windEastward & ObsValue/windNorthward
-            wdir = container.get('variables/windDirection', cat)
-            wspd = container.get('variables/windSpeed', cat)
+        wdir = container.get('variables/windDirection', cat)
+        wspd = container.get('variables/windSpeed', cat)
 
-            logging(comm, 'DEBUG', f'wdir min/max = {wdir.min()} {wdir.max()}')
-            logging(comm, 'DEBUG', f'wspd min/max = {wspd.min()} {wspd.max()}')
+        if _is_invalid_array(wdir) or _is_invalid_array(wspd):
+            logging(comm, 'WARNING', f'Skipping category {cat[0]}: wind direction or speed contains invalid data.')
+            _populate_dummies(container, cat)
+            continue
 
-            uob, vob = compute_wind_components(wdir, wspd)
+        logging(comm, 'DEBUG', f'wdir min/max = {wdir.min()} {wdir.max()}')
+        logging(comm, 'DEBUG', f'wspd min/max = {wspd.min()} {wspd.max()}')
 
-            logging(comm, 'DEBUG', f'uob min/max = {uob.min()} {uob.max()}')
-            logging(comm, 'DEBUG', f'vob min/max = {vob.min()} {vob.max()}')
+        uob, vob = compute_wind_components(wdir, wspd)
 
-            paths = container.get_paths('variables/windSpeed', cat)
-            container.add('variables/windEastward', uob, paths, cat)
-            container.add('variables/windNorthward', vob, paths, cat)
+        logging(comm, 'DEBUG', f'uob min/max = {uob.min()} {uob.max()}')
+        logging(comm, 'DEBUG', f'vob min/max = {vob.min()} {vob.max()}')
 
-            # Fake Height variable
-            height = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/height', height, paths, cat)
-            stheight = np.full_like(swcm, np.nan, dtype=np.float32)
-            container.add('variables/stationElevation', stheight, paths, cat)
+        paths = container.get_paths('variables/windSpeed', cat)
+        container.add('variables/windEastward', uob, paths, cat)
+        container.add('variables/windNorthward', vob, paths, cat)
 
-            # Assign values for the mnemonics/variables missing in original datafile for type 241
-            # in GSI
-            # qifn=hdrdat_005099(2) 'PCCF' no need to change
-            # qm=2
-            # pct1=0.4
-            # ee=1.0
+        height = np.full_like(swcm, np.nan, dtype=np.float32)
+        container.add('variables/height', height, paths, cat)
+        stheight = np.full_like(swcm, np.nan, dtype=np.float32)
+        container.add('variables/stationElevation', stheight, paths, cat)
 
-            ee = np.full_like(swcm, np.nan, dtype=np.float32)
-            ee.fill(1.0)
-            container.add('variables/expectedError',ee, paths, cat)
-            logging(comm, 'Debug', f'ee min/max = {ee.min()}, {ee.max()}')
+        ee = np.full_like(swcm, 1.0, dtype=np.float32)
+        container.add('variables/expectedError', ee, paths, cat)
+        logging(comm, 'DEBUG', f'ee min/max = {ee.min()}, {ee.max()}')
 
-            pct1 = np.full_like(swcm, np.nan, dtype=np.float32)
-            pct1.fill(0.4)
-            container.add('variables/coefficientOfVariation', pct1, paths, cat)
-            logging(comm, 'Debug', f'pct1 min/max = {pct1.min()}, {pct1.max()}') 
+        pct1 = np.full_like(swcm, 0.4, dtype=np.float32)
+        container.add('variables/coefficientOfVariation', pct1, paths, cat)
+        logging(comm, 'DEBUG', f'pct1 min/max = {pct1.min()}, {pct1.max()}')
 
-            qifn = container.get('variables/qiWithoutForecast', cat)
-            qifn_paths = container.get_paths('variables/qiWithoutForecast', cat)
-            logging(comm, 'Debug', f'qifn min/max = {qifn.min()}, {qifn.max()}')
+        qifn = container.get('variables/qiWithoutForecast', cat)
+        qifn_paths = container.get_paths('variables/qiWithoutForecast', cat)
+        logging(comm, 'DEBUG', f'qifn min/max = {qifn.min()}, {qifn.max()}')
 
-            satzenith = container.get('variables/satelliteZenithAngle',cat)
-            satzenith_paths = container.get_paths('variables/satelliteZenithAngle',cat)
-            logging(comm, 'Debug', f'satzenith min/max = {satzenith.min()}, {satzenith.max()}')
-            satzenith = np.full(satzenith.shape, 61.23, dtype=satzenith.dtype)
-            container.replace('variables/satelliteZenithAngle',satzenith, cat)
+        satzenith = container.get('variables/satelliteZenithAngle', cat)
+        satzenith_paths = container.get_paths('variables/satelliteZenithAngle', cat)
+        logging(comm, 'DEBUG', f'satzenith min/max = {satzenith.min()}, {satzenith.max()}')
 
-    # Check
+        satzenith = np.full(satzenith.shape, 61.23, dtype=satzenith.dtype)
+        container.replace('variables/satelliteZenithAngle', satzenith, cat)
+
     logging(comm, 'DEBUG', f'container list (updated): {container.list()}')
     logging(comm, 'DEBUG', f'all_sub_categories {container.all_sub_categories()}')
 
@@ -309,12 +249,9 @@ def _make_obs(comm, input_path, mapping_path):
 
 
 def create_obs_group(input_path, mapping_path, category, env):
-
     comm = bufr.mpi.Comm(env["comm_name"])
-
     description = _make_description(mapping_path, update=True)
 
-    # Check the cache for the data and return it if it exists
     logging(comm, 'DEBUG', f'Check if bufr.DataCache exists? {bufr.DataCache.has(input_path, mapping_path)}')
     if bufr.DataCache.has(input_path, mapping_path):
         container = bufr.DataCache.get(input_path, mapping_path)
@@ -327,20 +264,16 @@ def create_obs_group(input_path, mapping_path, category, env):
 
     container = _make_obs(comm, input_path, mapping_path)
 
-    # Gather data from all tasks into all tasks. Each task will have the complete record
     logging(comm, 'INFO', f'Gather data from all tasks into all tasks')
     container.all_gather(comm)
 
     logging(comm, 'INFO', f'Add container to cache')
-    # Add the container to the cache
     bufr.DataCache.add(input_path, mapping_path, container.all_sub_categories(), container)
 
-    # Encode the data
     logging(comm, 'INFO', f'Encode {category}')
     data = iodaEncoder(description).encode(container)[(category,)]
 
     logging(comm, 'INFO', f'Mark {category} as finished in the cache')
-    # Mark the data as finished in the cache
     bufr.DataCache.mark_finished(input_path, mapping_path, [category])
 
     logging(comm, 'INFO', f'Return the encoded data for {category}')
@@ -348,13 +281,12 @@ def create_obs_group(input_path, mapping_path, category, env):
 
 
 def create_obs_file(input_path, mapping_path, output_path):
-
     comm = bufr.mpi.Comm("world")
     container = _make_obs(comm, input_path, mapping_path)
 
     container.gather(comm)
     description = _make_description(mapping_path, update=True)
-    # Encode the data
+
     if comm.rank() == 0:
         netcdfEncoder(description).encode(container, output_path)
 
@@ -368,7 +300,6 @@ if __name__ == '__main__':
     bufr.mpi.App(sys.argv)
     comm = bufr.mpi.Comm("world")
 
-    # Required input arguments as positional arguments
     parser = argparse.ArgumentParser(description="Convert BUFR to NetCDF using a mapping file.")
     parser.add_argument('input', type=str, help='Input BUFR file')
     parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
