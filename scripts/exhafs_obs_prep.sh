@@ -469,25 +469,25 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.syndata.tcvitals.tm00 ]]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.syndata.tcvitals.tm00 gfs.t${cyc}z.tcvital
   fi
-if [ $GFSVER = "PROD2021" ]; then
-  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
-  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
-fi
-if [ $GFSVER = "PROD2026" ]; then
-  SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
-  SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
-fi
-  while [[ ! -s "${SATBIAS_IN}" ]]; do
-    echo "WAIT: File is missing or empty: ${SATBIAS_IN}. Retrying in 30s..." >&2
-    sleep 30
-  done
+  if [ $GFSVER = "PROD2021" ]; then
+    SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias
+    SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/${atmos}gdas.t${hhprior}z.abias_pc
+  fi
+  if [ $GFSVER = "PROD2026" ]; then
+    SATBIAS_IN=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias.txt
+    SATBIAS_PC=${COMINgdas}/gdas.${ymdprior}/${hhprior}/analysis/atmos/gdas.t${hhprior}z.abias_pc.txt
+  fi
+  if [[ ! -s "${SATBIAS_IN}" ]]; then
+    echo "FATAL ERROR: ${SATBIAS_IN} does not exist or is empty. Exiting ..."
+    exit 1
+  fi
   ${NCP} -p "${SATBIAS_IN}" "gdas.t${cyc}z.abias" || exit 1
   # Replace NaN values that can crash satbias2ioda.
   sed -i 's/\bNaN\b/0.00/g' "gdas.t${cyc}z.abias" || exit 1
-  while [[ ! -s "${SATBIAS_PC}" ]]; do
-    echo "WAIT: File is missing or empty: ${SATBIAS_PC}. Retrying in 30s..." >&2
-    sleep 30
-  done
+  if [[ ! -s "${SATBIAS_PC}" ]]; then
+    echo "FATAL ERROR: ${SATBIAS_PC} does not exist or is empty. Exiting ..."
+    exit 1
+  fi
   ${NCP} -p "${SATBIAS_PC}" "gdas.t${cyc}z.abias_pc" || exit 1
 
 ########## Prepare yaml or json files #######################
