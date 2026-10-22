@@ -97,25 +97,25 @@ while [ ${tmp_storm_num} -le ${all_nstorms} ]; do
   export err=$?; err_chk
   mindis=$(<./distance)
   if [ "${vi_domain_size}" = "45auto" ] || [ "${vi_domain_size}" = "25auto" ]; then
-    if [ "$(echo "$mindis < 8.0" | bc)" -eq 1 ]; then
+    if [ "$(echo "$mindis < 10.0" | bc)" -eq 1 ]; then
       echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
     else
       cat ./tttvit >> allvit.vi
     fi
   elif [ "${vi_domain_size}" = "45" ]; then
-    if [ "$(echo "$mindis < 23.0" | bc)" -eq 1 ]; then
+    if [ "$(echo "$mindis < 25.0" | bc)" -eq 1 ]; then
       echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
     else
       cat ./tttvit >> allvit.vi
     fi
   elif [ "${vi_domain_size}" = "25" ]; then
-    if [ "$(echo "$mindis < 13.0" | bc)" -eq 1 ]; then
+    if [ "$(echo "$mindis < 15.0" | bc)" -eq 1 ]; then
       echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
     else
       cat ./tttvit >> allvit.vi
     fi
   elif [ "${vi_domain_size}" = "15" ]; then
-    if [ "$(echo "$mindis < 8.0" | bc)" -eq 1 ]; then
+    if [ "$(echo "$mindis < 10.0" | bc)" -eq 1 ]; then
       echo "INFO: too close to domain boundary, skip vortex initialization for storm $tmp_stormid."
     else
       cat ./tttvit >> allvit.vi
@@ -197,11 +197,11 @@ if [ ${vi_multi_storm} = yes ]; then
   # Configure vi_domain_size_storm accordingly
   if [ "${vi_domain_size}" = "45auto" ] || [ "${vi_domain_size}" = "25auto" ]; then
     vi_domain_size_storm=${vi_domain_size:0:2}
-    if [ "${vi_domain_size_storm}" = "45" ] && [ "$(echo "$mindis < 23.0" | bc)" -eq 1 ]; then
+    if [ "${vi_domain_size_storm}" = "45" ] && [ "$(echo "$mindis < 25.0" | bc)" -eq 1 ]; then
       echo "WARNING: Reduce vi_domain_size_storm from 45 to 25 degrees."
       vi_domain_size_storm=25
     fi
-    if [ "${vi_domain_size_storm}" = "25" ] && [ "$(echo "$mindis < 13.0" | bc)" -eq 1 ]; then
+    if [ "${vi_domain_size_storm}" = "25" ] && [ "$(echo "$mindis < 15.0" | bc)" -eq 1 ]; then
       echo "WARNING: Reduce vi_domain_size_storm from 25 to 15 degrees."
       vi_domain_size_storm=15
     fi
@@ -422,7 +422,7 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
     touch trak.atcfunix.tmp
   fi
   # get vmax in kt then convert into m/s
-  vmax_guess=$(grep "^${pubbasin2^^}, ${vi_storm:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | \
+  vmax_guess=$(grep "^${pubbasin2^^}, ${vi_stormid:0:2}, ${CDATEprior}, .., ...., 00${gesfhr}," trak.atcfunix.tmp | \
                grep "34, NEQ," | cut -c48-51 | bc -l)
   vmax_guess=${vmax_guess:-0}
   vmax_guess=$(printf "%.0f" $(bc <<< "scale=6; ${vmax_guess}*0.514444"))
