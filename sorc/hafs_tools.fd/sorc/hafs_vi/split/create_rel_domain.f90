@@ -116,6 +116,18 @@
       READ(IUNIT)
       CLOSE(IUNIT)
       print*,'finish reading data'
+
+      write(*,*) 'rare case1 near longitude 0 CREAT_41X41', LON1,LON2,CLON3
+      IF( CLON3 .ge. -10.0 .and. CLON3 .le. 10.0 )THEN
+        write(*,*) 'rare case1 near longitude 0 CREAT_41X41', CLON3
+        DO J=1,KY
+        DO I=1,KX
+          HLON3(I,J)=HLON3(I,J)-360.
+          VLON3(I,J)=VLON3(I,J)-360.
+        END DO
+        END DO
+      ENDIF
+
 !
 !$omp parallel do &
 !$omp& private(i,j,k)

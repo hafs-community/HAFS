@@ -136,6 +136,10 @@
 ! For HAFS, I360 is newly defined to handle the storms in eastern/western hemisphere 2022 July
       IF(EW.eq.'W') I360=180 ! Western hemisphere TC
       IF(EW.eq.'E') I360=360 ! Eastern hemisphere TC 
+      IF( CLON_VIT .ge. -10.0 .and. CLON_VIT .le. 10.0 )THEN
+        write(*,*) 'rare case1 near longitude 0', CLON_VIT,EW
+        I360=720
+      ENDIF
 
       READ(IUNIT) NX,NY,NZ
 
@@ -227,6 +231,17 @@
       endif
 !ckw
 !
+      if(I360.eq.720) then
+        write(*,*) 'rare case2 near longitude 0'
+        CENTRAL_LON=CENTRAL_LON-360.
+        DO J=1,NY
+        DO I=1,NX
+          HLON(I,J)=HLON(I,J)-360.
+          VLON(I,J)=VLON(I,J)-360.
+        END DO
+        END DO
+      endif
+
       DO J=1,NY
         DO I=1,NX
           GLON(I,J)=HLON(I,J)            ! LON & LAT at T,Q P Z (H) points
@@ -1050,6 +1065,14 @@
            end do
          end if
 !ckw
+         if(I360.eq.720)then
+           write(*,*) 'rare case3 near longitude 0'
+           do j=1,7
+             if(ISTMCX1(J,I).ge.-3500 .and. ISTMCX1(J,I).lt.3500) ISTMCX1(J,I)=ISTMCX1(J,I)-3600
+             if(ISTMCX1(J,I).ge.3500) ISTMCX1(J,I)=ISTMCX1(J,I)-7200
+             print*,ISTMCX1(J,I)
+           end do
+         end if
 
 !wpac         if(I360.eq.180)then
 !wpac           do j=1,7
@@ -1200,6 +1223,10 @@
 !wpac        if(I360.eq.360)then
 !wpac          STMLNZ=-360+STMLNZ
 !wpac        end if
+      elseif(I360.eq.720)then
+        if(STMLNZ.ge.-10.0 .and. STMLNZ.le.10.0) STMLNZ=STMLNZ-360
+        LONEW='W'
+        write(*,*) 'rare case and recovering error', STMLNZ,LONEW
       ELSE IF(LONEW .NE. 'E')  THEN
         WRITE(6,157) STMLTZ,STMLNZ,LATNS
   157   FORMAT('******ERROR DECODING LONEW, ERROR RECOVERY NEEDED.', &
@@ -1315,8 +1342,9 @@
               CLON_N(I)=CLON_N(I)+USTM*FACT/COS(PI180*CLAT_N(I))
               CLAT_N(I)=CLAT_N(I)+VSTM*FACT
             END IF
-            if (CLON_N(I).lt.-360) CLON_N(I)=CLON_N(I)+360 !ckw
+            if (CLON_N(I).lt.-360 .and. I360.ne.720) CLON_N(I)=CLON_N(I)+360 !ckw
             if (CLON_N(I).gt.360) CLON_N(I)=CLON_N(I)-360 !ckw
+
             PRINT*, ' CT STORM OBS. CENTER at ',ITIM,'h = ', &
             STMNAME(K),CLON_N(I),CLAT_N(I)
           END IF
@@ -2246,6 +2274,14 @@
            endif
         endif
 !ckw
+        IF(I360.eq.720) STMCX(I)=ISTMCX1(INDX1,I)*0.1
+
+        IF(I360.eq.720)THEN
+          write(*,*) 'rare case5 near longitude 0'
+          if(STMCX(I).ge.-350.0 .and. STMCX(I).lt.350.0) STMCX(I)=STMCX(I)-360.
+          if(STMCX(I).ge.350.0) STMCX(I)=STMCX(I)-720.
+          write(*,*) 'STMCX(I)  ', STMCX(I)
+        END IF
 !wpac        IF(I360.eq.180)THEN
 !wpac          IF(STMCX(I).lt.-180.)STMCX(I)=STMCX(I)+360.
 !wpac        END IF
