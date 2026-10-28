@@ -66,6 +66,8 @@ program create_trak_guess
     if(ns.eq.'S')lat=-lat
     !We only need 3-,6-,9-h HAFS storm postion & Make sure part1(basin code from ATCF file)is equal to 'basin'
     if(ifh.ge.3 .and. ifh.le.9 .and. part1.eq.basin .and. storm_num.eq.num)then
+      if(ew2.eq.'W' .and. ew.eq.'E') lon=lon-3600
+      if(ew2.eq.'E' .and. ew.eq.'W') lon=3600+lon
       lathr(ifh-2)=lat
       lonhr(ifh-2)=lon
       ! Only for TCs near date line: near the date line (180E or 180W), longitude of tcvital (ew2) and
