@@ -81,6 +81,8 @@ else
 fi
 # Convert 1800W to 1800E for date line TCs
 sed -i 's/1800W/1800E/g' ./tcvitals.vi
+# Convert 0000W to 0000E for Greenwich line TCs
+sed -i 's/0000W/0000E/g' ./tcvitals.vi
 tcvital=${DATA}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
