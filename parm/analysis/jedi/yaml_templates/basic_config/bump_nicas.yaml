@@ -19,7 +19,7 @@ background:
   read_from_file: 1
   datetime: _ANALYSISDATE_
   filetype: fms restart
-  datapath: bkg
+  datapath: ensemble_data/mem001
   <<: *fv3file_names
   state variables: &vars_state
   - eastward_wind
@@ -47,11 +47,9 @@ background:
     air_pressure_thickness: delp
     layer_thickness: DZ
     water_vapor_mixing_ratio_wrt_moist_air: sphum
-    cloud_liquid_water: liq_wat
     ozone_mass_mixing_ratio: o3mr
     skin_temperature_at_surface: tsea
     air_pressure_at_surface: ps
-    cloud_liquid_ice: ice_wat
     cloud_liquid_water: liq_wat
     cloud_liquid_ice: ice_wat
     snow_water: snowwat
