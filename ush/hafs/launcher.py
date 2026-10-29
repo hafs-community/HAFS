@@ -1663,6 +1663,9 @@ class HAFSLauncher(HAFSConfig):
         enkf_flag=self.getbool('config','run_enkf')
         self.set('holdvars','cap_run_enkf',('YES' if enkf_flag else 'NO'))
 
+        ainudging_flag=self.getbool('config','run_ai_nudging')
+        self.set('holdvars','cap_run_ai_nudging',('YES' if ainudging_flag else 'NO'))
+
         atm_mvnest_flag=self.getbool('config','run_atm_mvnest')
         self.set('holdvars','cap_run_atm_mvnest',('YES' if atm_mvnest_flag else 'NO'))
 

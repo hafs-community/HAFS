@@ -37,6 +37,7 @@
 [[ -z "$COMINobs" ]] && export COMINobs={COMINobs}
 [[ -z "$COMINgfs" ]] && export COMINgfs={COMINgfs}
 [[ -z "$COMINgdas" ]] && export COMINgdas={COMINgdas}
+[[ -z "$COMAIGFS" ]] && export COMAIGFS={COMAIGFS}
 [[ -z "$COMINarch" ]] && export COMINarch={COMINarch}
 [[ -z "$COMrtofs" ]] && export COMrtofs={COMrtofs}
 [[ -z "$COMINrtofs" ]] && export COMINrtofs={COMINrtofs}
@@ -77,6 +78,7 @@ export RUN_ENSDA={RUN_ENSDA}
 export RUN_ENKF={RUN_ENKF}
 export RUN_ANALYSIS_MERGE={RUN_ANALYSIS_MERGE}
 export RUN_ANALYSIS_MERGE_ENS={RUN_ANALYSIS_MERGE_ENS}
+export RUN_AI_NUDGING={RUN_AI_NUDGING}
 export GSI_D01={GSI_D01}
 export GSI_D02={GSI_D02}
 export GSI_D03={GSI_D03}
@@ -457,6 +459,9 @@ export post_gridspecs_ens={post_gridspecs_ens}
 export trak_gridspecs_ens={trak_gridspecs_ens}
 export satpost_ens={satpost_ens}
 export nhcpost_ens={nhcpost_ens}
+
+#AI Nudging related options
+export nudge_option={nudge_option}
 
 #IAU related options
 export iau_regional={iau_regional}

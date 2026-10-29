@@ -40,6 +40,7 @@
   reset_eta = .false.
   upoff = 2
   n_sponge = 24
+  nudge    = @[nudge]
   nudge_qv = .false.
   nudge_dz = .false.
   tau = 5.
@@ -513,4 +514,40 @@
   restart_input_dir = 'INPUT',
   restart_output_dir = 'RESTART',
   parameter_filename = 'MOM_input'
+/
+
+&fv_nwp_nudge_nml
+  add_bg_wind = .false.
+  conserve_hgt = .false.
+  conserve_mom = .false.
+  do_ps_bias = .false.
+  ibtrack = .false.
+  tc_mask = .false.
+  nudge_option = @[nudge_option]
+  nudge_debug = .true.
+  nudge_winds = .true.
+  nudge_virt = .true.
+  time_varying = .true.
+  nf_t      = 1
+  nf_uv     = 1
+  L_t      = 480
+  L_uv     = 480
+  lat_nudge_taper_uv = 0.0
+  lat_nudge_taper_t = 0.0
+  nf_skip_timestep = 10
+  nf_skip_grid     = 3
+  time_interval = 21600
+  tau_winds = 21600.
+  tau_virt = 21600.
+  tau_hght = 21600.
+  mask_fac = 1.
+  P_relax  = 200.E2
+  P_Lower  = 850.E2
+  rf_debug_dump = .false.
+  rf_debug_k = 50
+  input_fname_list = "INPUT/nudge_data_list"
+  grib2_input = .true.
+  grib2_nplev = 13
+  grib2_plev_pa = 5000.0, 10000.0, 15000.0, 20000.0, 25000.0, 30000.0, 40000.0, &
+    50000.0, 60000.0, 70000.0, 85000.0, 92500.0,100000.0
 /

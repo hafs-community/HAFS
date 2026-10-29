@@ -201,6 +201,12 @@ iau_filter_increments=${iau_filter_increments:-.true.}
 iau_delthrs=${iau_delthrs:-2}
 iaufhrs=${iaufhrs:-0}
 
+nudge=.false.
+nudge_option=${nudge_option}
+n_filestring=""
+n_filenum=0
+n_interval=0
+
 # Sepcial settings if this is an atm_init forecast run
 if [ ${RUN_INIT:-NO} = YES ]; then
 if [ "${ENSDA}" = YES ]; then
@@ -1201,8 +1207,24 @@ do_deep_nml=$( echo ${do_deep} | cut -d , -f ${n} )
 bc_update_interval=${NBDYHRS}
 nrows_blend=${halo_blend}
 blocksize=$(( ${npy_nml}/${layouty_nml} ))
+if [ "${RUN_AI_NUDGING}" = "YES" ] && [ "${RUN_INIT:-NO}" = "NO" ]; then
+  nudge=.true.
+  n_interval=6
+  n_filenum=0
+  list_file="INPUT/nudge_data_list"
+  export AIGFS_DIR=${COMAIGFS}
+  for fhr in $(seq -f "%03g" 0 "$n_interval" "$NHRS"); do
+    filename="aigfs.t${hh}z.pres.f${fhr}.grib2"
+    src_file="${AIGFS_DIR}/aigfs.${YMD}/${hh}/model/atmos/grib2/${graphcast}/${filename}"
+    [ -e "$src_file" ] || continue
+    ${RLN} "${src_file}" INPUT/
+    echo "INPUT/${filename}" >> "$list_file"
+    n_filenum=$((n_filenum + 1))
+  done
+fi
 atparse < input.nml.tmp > input.nml
 
+nudge=.false.
 for n in $(seq 2 ${nest_grids}); do
   inest=$(( ${n} ))
   ccpp_suite_nml=${ccpp_suite_nest}
