@@ -359,6 +359,11 @@ sed -e "s|_INITIALDATE_|${yrtm03}-${mntm03}-${dytm03}T${hhtm03}:00:00Z|g" \
     -e "s|_INPUT_HAFS_NML_|${INPUT_HAFS_NML}|g" \
     -e "s|_DISTRIBUTION_|Halo|g" \
     ./hdas-atmosphere-templates.yaml.tmp > hdas-atmosphere-templates.yaml
+# Special treatment if using GFDL MP (instead of Thompson MP)
+if [ ${imp_physics:-11} = 11 ]; then
+  sed -i -e "s/,cloud_ice_number_concentration,rain_number_concentration,/,/g" \
+         -e "s/thompson/none/g" hdas-atmosphere-templates.yaml
+fi
 for obstype in ${obstypes}; do
   echo "- ${obstype}" >> hdas-atmosphere-templates.yaml
 done
@@ -366,6 +371,7 @@ for obstype in ${obstypes}; do
   echo "iuse_${obstype}: accept" >> hdas-atmosphere-templates.yaml
 done
 python run_jedi.py
+export err=$?; err_chk
 
 #-------------------------------------------------------------------
 # Link the executable and run the analysis
