@@ -305,6 +305,11 @@
         CLON_NHC=CLON_NHC+360. !ckw
         EW='E' !ckw
       endif !ckw
+      IF( CLON_NHC .ge. -10.0 .and. CLON_NHC .le. 10.0 )THEN
+        write(*,*) 'rare case1 near longitude 0', CLON_NHC
+        CLON_NHC=CLON_NHC-360.0
+        I360=720
+      ENDIF
 
       print*,'CLON_NHC',CLON_NHC
 
@@ -373,6 +378,10 @@
 !wpac      if(I360.eq.360)then
 !wpac       IF(CLON_NHC.GT.0.)CLON_NHC=CLON_NHC-360.
 !wpac      endif
+
+      IF( I360.eq.720 )THEN
+        write(*,*) 'rare case2 near longitude 0', CENTRAL_LON
+      ENDIF
 
       DO J=1,NY
       DO I=1,NX
@@ -582,6 +591,15 @@
       endif
 
 !ckw
+      if(I360.eq.720) then
+        write(*,*) 'rare case3 near longitude 0'
+        DO J=1,NY
+        DO I=1,NX
+          HLON3(I,J)=HLON3(I,J)-360.
+          VLON3(I,J)=VLON3(I,J)-360.
+        END DO
+        END DO
+      endif
 
 !wpac      if(I360.eq.360) then
 !wpac        DO J=1,NY
@@ -2500,6 +2518,20 @@
       write(*,*) 'DONE reverting from pressure to hybrid level!'
       endif
 !---------------------------------------------------------------------
+      if(I360.eq.720) then       
+        write(*,*) 'rare case5 near longitude 0 reverting!'
+        CENTRAL_LON=CENTRAL_LON+360.
+        DO J=1,NY
+        DO I=1,NX
+          HLON(I,J)=HLON(I,J)+360.
+          VLON(I,J)=VLON(I,J)+360.
+        END DO
+        END DO
+
+       IF(CENTRAL_LON.lt.0.0) I360=180 ! Western hemisphere TC
+       IF(CENTRAL_LON.ge.0.0) I360=360 ! Eastern hemisphere TC
+       write(*,*) 'rare case5 near longitude 0 reverting!', CENTRAL_LON,I360,HLON(177,77),VLON(77,177)
+      endif
 
 ! WRITE 4x area env. data HWRF
 
@@ -3333,6 +3365,21 @@
  98    format('anl_combine final: vmax_obs,vmax_mod,psfc_obs,psfc_mod=',4F16.6)
        write(91,99) vobs,vs_t,psfc_obs,press1
  99    format(4F16.6)
+!-------------------------------------------------------------------
+      if(I360.eq.720) then
+        write(*,*) 'rare case5 near longitude 0 reverting!'
+        CENTRAL_LON=CENTRAL_LON+360.
+        DO J=1,NY
+        DO I=1,NX
+          HLON(I,J)=HLON(I,J)+360.
+          VLON(I,J)=VLON(I,J)+360.
+        END DO
+        END DO
+       IF(CENTRAL_LON.lt.0.0) I360=180 ! Western hemisphere TC
+       IF(CENTRAL_LON.ge.0.0) I360=360 ! Eastern hemisphere TC
+       write(*,*) 'rare case5 near longitude 0 reverting!', CENTRAL_LON,I360,HLON(177,77),VLON(77,177)
+      endif
+
 
       IUNIT=56
 

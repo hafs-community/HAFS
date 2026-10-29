@@ -251,6 +251,8 @@ fi
 
 # Convert 1800W to 1800E for date line TCs
 sed -i 's/1800W/1800E/g' ./tcvitals.vi
+# Convert 0000W to 0000E for Greenwich line TCs
+sed -i 's/0000W/0000E/g' ./tcvitals.vi
 tcvital=${DATAstorm}/tcvitals.vi
 # Extract vmax from tcvitals (m/s)
 vmax_vit=$(cat ${tcvital} | cut -c68-69 | bc -l)
@@ -413,6 +415,8 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
 	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
+    # Convert 0000W to 0000E for Greenwich line TCs
+    sed -i 's/0000W/0000E/g' ./trak.atcfunix.all
     if grep "^${pubbasin2^^}, ${old_vi_stormid:0:2}," trak.atcfunix.all > trak.atcfunix.tmp ; then
       echo "trak.atcfunix.tmp generated."
     else
@@ -524,6 +528,8 @@ if [ $vi_storm_env = init ]; then
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
 	sed -i 's/1800W/1800E/g' ./trak.atcfunix.all
+    # Convert 0000W to 0000E for Greenwich line TCs
+    sed -i 's/0000W/0000E/g' ./trak.atcfunix.all
     grep "^${pubbasin2^^}, ${vi_stormid:0:2}," trak.atcfunix.all \
       > trak.atcfunix.tmp
   else

@@ -1146,7 +1146,8 @@
      rot_lat = lat1 + dlat*(j-1)
      call rtll(rot_lon, rot_lat, glon(i,j), glat(i,j), cen_lon, cen_lat)
   enddo; enddo
-  call longitude_expand_360to540(nx,ny,glon)
+  !call longitude_expand_360to540(nx,ny,glon)
+  if ( minval(glon) < 0. ) glon=glon+360.
   if ( my_proc_id == 0 ) write(*,'(a)')'---rot-ll grid: nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2'
   if ( my_proc_id == 0 ) write(*,'(15x,2i5,8f10.5)')    nx, ny, cen_lon, cen_lat, dlon, dlat, lon1, lon2, lat1, lat2
   !write(*,'(a,4f10.5)')'---rot-ll grid rot_lon:', glon(1,1), glon(1,ny), glon(nx,ny), glon(nx,1)
@@ -2052,6 +2053,8 @@
                          !subrotine: option=0: 14 variables, option=1:19 variables,option=2: 21 variables
   real     :: lon1,lat1,lon2,lat2,cen_lat,cen_lon,dlat,dlon
   real, allocatable, dimension(:,:) :: hlon, hlat, vlon, vlat
+  real, allocatable, dimension(:,:) :: glon2, glat2
+  real     :: rot_lon, rot_lat
 
   integer  :: i, j, k, n, flid, ncid, ndims, nrecord, iunit
   real, allocatable, dimension(:,:,:,:) :: dat4, dat41, dat42, dat43, dat44, phis1, phis2, sfcp1, sfcp2, u1, v1, u, v
@@ -2106,8 +2109,29 @@
   allocate(hlon(nx,ny), hlat(nx,ny), vlon(nx,ny), vlat(nx,ny))
   read(iunit)hlon, hlat, vlon, vlat
   close(iunit)
-  call longitude_expand_360to540(nx,ny,hlon)
-  call longitude_expand_360to540(nx,ny,vlon)
+
+  !---hlon/hlat in in_file were made by hafsvi_preproc with single-precision rtll,
+  !---which has up to ~0.06 deg noise near the central meridian of the rot-ll grid.
+  !---Recompute them from the header (lon1,lat1,lon2,lat2,cen_lon,cen_lat).
+  allocate(glon2(nx,ny), glat2(nx,ny))
+  do j = 1, ny; do i = 1, nx
+     rot_lon = lon1 + (lon2-lon1)/real(nx-1)*real(i-1)
+     rot_lat = lat1 + (lat2-lat1)/real(ny-1)*real(j-1)
+     call rtll(rot_lon, rot_lat, glon2(i,j), glat2(i,j), cen_lon, cen_lat)
+  enddo; enddo
+  dlon = maxval(abs(modulo(glon2-hlon+180., 360.)-180.))
+  dlat = maxval(abs(glat2-hlat))
+  if (my_proc_id==0) write(*,'(a,2f10.5)')' max diff of recomputed hlon/hlat from in_file: ', dlon, dlat
+  if ( dlon < 0.2 .and. dlat < 0.01 .and. maxval(abs(hlon-vlon)) == 0. .and. maxval(abs(hlat-vlat)) == 0. ) then
+     hlon=glon2; hlat=glat2
+     vlon=glon2; vlat=glat2
+  else
+     if (my_proc_id==0) write(*,'(a)')' WARNING: in_file grid differs from header-defined rot-ll grid, use in_file hlon/hlat'
+  endif
+  deallocate(glon2, glat2)
+
+  if ( minval(hlon) < 0. ) hlon=hlon+360.
+  if ( minval(vlon) < 0. ) vlon=vlon+360.
 
   if (my_proc_id==0) then
      write(*, '(a,8f10.3)')' hlon,hlat(1,1; nx,1; nx,ny; 1,ny) =', &
@@ -2178,6 +2202,14 @@
               dstgrid%grid_lon(int(ix/2), int(iy/2)), dstgrid%grid_lat(int(ix/2), int(iy/2)), &
               dstgrid%grid_lont(int(ix/2), int(iy/2)), dstgrid%grid_latt(int(ix/2), int(iy/2))
      endif
+
+     !---put src (storm_anl) longitudes in the same 360-period as dst, e.g. dst 351.9~371.2 and
+     !---src 330.9~391.1; otherwise the dst points without matching src lon are not replaced
+     dlon = 360.*nint((dstgrid%grid_lont(int(ix/2), int(iy/2)) - hlon(int(nx/2)+1, int(ny/2)+1))/360.)
+     ingrid%grid_lon  = hlon + dlon
+     ingrid%grid_lont = vlon + dlon
+     if (my_proc_id==0) write(*,'(a,f8.1,a,2f10.3,a,2f10.3)')' src lon shifted by ', dlon, ': src lon ', &
+        minval(ingrid%grid_lont), maxval(ingrid%grid_lont), ', dst lon ', minval(dstgrid%grid_lont), maxval(dstgrid%grid_lont)
 
      !-----------------------------
      !---4.2 call FV3-grid cos and sin

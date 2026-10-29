@@ -66,6 +66,9 @@ program create_trak_init
     if(ns.eq.'S')lat=-lat
 
     if(ew.eq.'W')lon=-lon !ckw
+
+    if(ew2.eq.'W' .and. ew.eq.'E') lon=lon-3600
+    if(ew2.eq.'E' .and. ew.eq.'W') lon=3600+lon
     ! If we find the correct information, finish the do loop, with stat=0
     if(part1.eq.basin .and. num.eq.storm_id(1:2) .and. ifh.eq.0) exit
     ! exit the do loop if stat is NOT 0

@@ -122,18 +122,17 @@
       CLOSE(IUNIT)
       print*,'finish reading data'
 
-      ! KGao
-      !print*, 'KGao Checking LAT LON'
-      !print*, HLON(1,1:5)
-      !print*, HLAT(1:5,1)
-      !OPEN(UNIT=221, FILE="lon_box2.txt", ACTION="write")
-      !OPEN(UNIT=222, FILE="lat_box2.txt", ACTION="write")
-      !DO i=1,KX
-      !DO j=1,KY
-      !  WRITE(221,*) (HLON3(i,j))
-      !  WRITE(222,*) (HLAT3(i,j))
-      !END DO
-      !END DO
+      write(*,*) 'rare case1 near longitude 0 CREAT_41X41', LON1,LON2,CLON3
+      IF( CLON3 .ge. -10.0 .and. CLON3 .le. 10.0 )THEN
+        write(*,*) 'rare case1 near longitude 0 CREAT_41X41', CLON3
+        DO J=1,KY
+        DO I=1,KX
+          HLON3(I,J)=HLON3(I,J)-360.
+          VLON3(I,J)=VLON3(I,J)-360.
+        END DO
+        END DO
+      ENDIF
+
 !
 !$omp parallel do &
 !$omp& private(i,j,k)
