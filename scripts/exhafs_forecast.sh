@@ -1212,13 +1212,14 @@ if [ "${RUN_AI_NUDGING}" = "YES" ] && [ "${RUN_INIT:-NO}" = "NO" ]; then
   n_interval=6
   n_filenum=0
   list_file="INPUT/nudge_data_list"
+  mkdir -p INPUT/nudging
   export AIGFS_DIR=${COMAIGFS}
   for fhr in $(seq -f "%03g" 0 "$n_interval" "$NHRS"); do
     filename="aigfs.t${hh}z.pres.f${fhr}.grib2"
     src_file="${AIGFS_DIR}/aigfs.${YMD}/${hh}/model/atmos/grib2/${graphcast}/${filename}"
     [ -e "$src_file" ] || continue
-    ${RLN} "${src_file}" INPUT/
-    echo "INPUT/${filename}" >> "$list_file"
+    ${RLN} "${src_file}" INPUT/nudging/
+    echo "INPUT/nudging/${filename}" >> "$list_file"
     n_filenum=$((n_filenum + 1))
   done
 fi
