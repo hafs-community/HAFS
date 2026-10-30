@@ -626,6 +626,10 @@ else
 fi
 # Prepare localization bump yaml file
 ${NCP} ${basic_yaml_dir}/bump_nicas.yaml bump_nicas.yaml.tmp
+# Special treatment due to missing phis variable from ens_prep interpolated restart file
+if [ ! ${RUN_ENSDA} = "YES" ]; then
+  sed -i -e "s/ensemble_data\/mem001/bkg/g" bump_nicas.yaml.tmp
+fi
 sed -e "s|_FV3_CORE_ENS_FILE_|${FV3_CORE_ENS_FILE}|g" \
     -e "s|_FV3_TRCR_ENS_FILE_|${FV3_TRCR_ENS_FILE}|g" \
     -e "s|_FV3_SFCD_ENS_FILE_|${FV3_SFCD_ENS_FILE}|g" \
