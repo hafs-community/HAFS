@@ -1739,8 +1739,10 @@
 
       U21=0.
       V21=0.
-      USC1=USC_1
-      VSC1=VSC_1
+!      USC1=USC_1
+!      VSC1=VSC_1
+      USC1=0.
+      VSC1=0.
 
       NX_1=NX-1
       NY_1=NY-1
