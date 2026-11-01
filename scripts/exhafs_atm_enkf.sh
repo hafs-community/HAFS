@@ -1,10 +1,10 @@
 #!/bin/sh
 ################################################################################
-# Script Name: exhafs_analysis.sh
+# Script Name: exhafs_atm_enkf.sh
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
-#   This script conducts the HAFS atmospheric data assimilation through GSI,
-#   and generate analysis diagnoses (if desired).
+#   This script conducts the HAFS atmospheric enkf update for ensemble members
+#   through JEDI, and generate analysis diagnoses (if desired).
 ################################################################################
 set -x -o pipefail
 
@@ -442,15 +442,6 @@ export err=$?; err_chk
 rm jedi.out.*
 cat ./jedi.out > ${DASOUT}
 
-get_vars() {
-  ncdump -h "$1" | sed -n '/variables:/,/^$/p' | grep "(" | awk '{print $2}' | awk -F'(' '{print $1}' | sort -u
-}
-get_zvars() {
-  ncdump -h "$1" | sed -n '/variables:/,/^$/p' | awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' | sort -u
-}
-dim_len() {
-  ncdump -h "$1" | sed -n '/dimensions:/,/variables:/p' | awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
-}
 process_member() {
   memout="$1"
   echo "[${memout}] Processing"
@@ -459,44 +450,15 @@ process_member() {
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_core.res.nc ${RESTARTens_anl}/${memout}/${FV3_CORE_ENS_FILE} || return 1
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTens_anl}/${memout}/${FV3_TRCR_ENS_FILE} || return 1
   ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTens_anl}/${memout}/${FV3_SFCW_ENS_FILE} || return 1
-  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE} || return 1
-  fileA="${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE}"
-  fileB="${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE}"
-  if [ ! -f "$fileA" ]; then
-    echo "[${memout}] ERROR: fileA does not exist: $fileA"
-    return 1
-  fi
-  if [ ! -f "$fileB" ]; then
-    echo "[${memout}] ERROR: fileB does not exist: $fileB"
-    return 1
-  fi
-  b_z1=$(dim_len "$fileB" zaxis_1)
-  a_z1=$(dim_len "$fileA" zaxis_1)
-  a_z2=$(dim_len "$fileA" zaxis_2)
-  if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
-    echo "[${memout}] Renaming fileB zaxis_1 -> zaxis_2"
-    ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB" || return 1
-  fi
-  missing_zvars=$(comm -23 <(get_zvars "$fileA") <(get_vars "$fileB"))
-  if [ -n "$missing_zvars" ]; then
-    zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
-    echo "[${memout}] Attaching zaxis variables: $zvar_list"
-    ncks -A -v "$zvar_list" "$fileA" "$fileB" || return 1
-  fi
-  missing_vars=$(comm -23 <(get_vars "$fileA") <(get_vars "$fileB"))
-  if [ -z "$missing_vars" ]; then
-    echo "[${memout}] No missing variables"
-  else
-    var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-    echo "[${memout}] Attaching variables: $var_list"
-    ncks -A -C -v "$var_list" "$fileA" "$fileB" || return 1
-  fi
+  ${NCP} $DATA/output/${memout}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTens_anl}/${memout}/analysis.${FV3_SFCD_ENS_FILE} || return 1
+  ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/${memout}/${FV3_SFCD_ENS_FILE} ${RESTARTens_anl}/${memout}/${FV3_SFCD_ENS_FILE} || return 1
   echo "[${memout}] Done"
 }
+
 ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/atmos_static.nc .
 ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/grid_spec.nc .
 ${NCP} ${COMOLD}/${old_out_prefix}.RESTART_ens/mem001/oro_data.nc .
-export -f get_vars get_zvars dim_len process_member
+export -f process_member
 export NCP DATA PDY cyc COMOLD old_out_prefix RESTARTens_anl
 export FV3_CPLR_ENS_FILE FV3_CORE_ENS_FILE FV3_TRCR_ENS_FILE FV3_SFCW_ENS_FILE FV3_SFCD_ENS_FILE
 rm -f cmdfile

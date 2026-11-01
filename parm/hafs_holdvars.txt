@@ -105,6 +105,7 @@ export fwd_wave_number={fwd_wave_number}
 export fwd_vmax_threshold={fwd_vmax_threshold}
 
 export warm_start_opt={warm_start_opt}
+export warm_start_sfc={warm_start_sfc}
 
 export DATMdir={DATMdir}
 export DOCNdir={DOCNdir}

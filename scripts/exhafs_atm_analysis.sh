@@ -1,9 +1,9 @@
 #!/bin/sh
 ################################################################################
-# Script Name: exhafs_analysis.sh
+# Script Name: exhafs_atm_analysis.sh
 # Authors: NECP/EMC Hurricane Project Team and UFS Hurricane Application Team
 # Abstract:
-#   This script conducts the HAFS atmospheric data assimilation through GSI,
+#   This script conducts the HAFS atmospheric data assimilation through JEDI,
 #   and generate analysis diagnoses (if desired).
 ################################################################################
 set -x -o pipefail
@@ -541,7 +541,7 @@ if [ ${nest_grids} -ge 2 ]; then
 else
   ${NCP} ${WORKhafs}/intercom/atm_prep/grid/${CASE}/${CASE}_grid.tile7.halo3.nc .
   ${NCP} ${EXEChafs}/hafs_utils_make_solo_mosaic.x .
-  ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic_bkg --tile_file ${CASE}_grid.tile7.halo3.nc 
+  ${EXEChafs}/hafs_utils_make_solo_mosaic.x --num_tiles 1 --dir ${WORKhafs}/intercom/atm_prep/grid/${CASE} --mosaic ${CASE}_mosaic_bkg --tile_file ${CASE}_grid.tile7.halo3.nc
 fi
 if [ -d ${WORKhafs}/intercom/atm_prep_ens/grid_ens ]; then
   ${NCP} ${WORKhafs}/intercom/atm_prep_ens/grid_ens/${CASE}/${CASE}_grid.tile7.halo3.nc ${CASE}_grid_ens.tile7.halo3.nc
@@ -720,9 +720,9 @@ done
 ${NLN} ${USHhafs}/offline_update_delp.py .
 python offline_update_delp.py --sfc_inc Inc6.sfc_data.nc --core_inc Inc6.fv_core.res.nc --akbk bkg/${FV3_AKBK_FILE} --rst_file ${PDY}.${cyc}0000.fv_core.res.nc
 
-#Store the output to intercom
+# Store the output to intercom
 ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_tracer.res.nc ${RESTARTanl}/${FV3_TRCR_FILE}
-${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/${FV3_SFCD_FILE}
+${NCP} ${DATA}/${PDY}.${cyc}0000.sfc_data.nc ${RESTARTanl}/analysis_${FV3_SFCD_FILE}
 ${NCP} ${DATA}/${PDY}.${cyc}0000.fv_srf_wnd.res.nc ${RESTARTanl}/${FV3_SFCW_FILE}
 ${NCP} ${DATA}/${PDY}.${cyc}0000.coupler.res ${RESTARTanl}/${FV3_CPLR_FILE}
 ${NCP} ${RESTARTinp}/oro_data${nesttilestr}.nc ${RESTARTanl}/
@@ -730,99 +730,33 @@ ${NCP} ${RESTARTinp}/atmos_static${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/grid_spec${nesttilestr}.nc ${RESTARTanl}/
 ${NCP} ${RESTARTinp}/${FV3_AKBK_FILE} ${RESTARTanl}/
 
-# pass over phy_data as well
-if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
-  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
-fi
-
-#add missing sfc_data variables from the background file
-fileA="${RESTARTinp}/${FV3_SFCD_FILE}"   # bkg/source
-fileB="${RESTARTanl}/${FV3_SFCD_FILE}"   # ana/target
-
-get_vars() {
-  ncdump -h "$1" |
-    sed -n '/variables:/,/^$/p' |
-    grep "(" |
-    awk '{print $2}' |
-    awk -F'(' '{print $1}' |
-    sort -u
-}
-
-get_zvars() {
-  ncdump -h "$1" |
-    sed -n '/variables:/,/^$/p' |
-    awk '$2 ~ /^zaxis_[0-9]+\(/ {v=$2; sub(/\(.*/, "", v); print v}' |
-    sort -u
-}
-
-dim_len() {
-  ncdump -h "$1" |
-    sed -n '/dimensions:/,/variables:/p' |
-    awk -v d="$2" '$1 == d && $2 == "=" {gsub(";", "", $3); print $3}'
-}
-
-# ----------------------------------------------------------------------
-# Fix zaxis naming before appending variables.
-# In bkg: zaxis_1=2, zaxis_2=4
-# In ana: zaxis_1=4, so rename ana zaxis_1 -> zaxis_2
-# ----------------------------------------------------------------------
-b_z1=$(dim_len "$fileB" zaxis_1)
-a_z1=$(dim_len "$fileA" zaxis_1)
-a_z2=$(dim_len "$fileA" zaxis_2)
-
-if [ -n "$b_z1" ] && [ "$b_z1" != "$a_z1" ] && [ "$b_z1" = "$a_z2" ]; then
-  echo "Renaming fileB zaxis_1 -> zaxis_2"
-  ncrename -O -d zaxis_1,zaxis_2 -v .zaxis_1,zaxis_2 "$fileB"
-fi
-
-# ----------------------------------------------------------------------
-# Append only missing zaxis coordinate variables from fileA.
-# Do not overwrite existing coordinate variables with different type.
-# ----------------------------------------------------------------------
-tmpA=$(mktemp)
-tmpB=$(mktemp)
-get_zvars "$fileA" > "$tmpA"
-get_vars  "$fileB" > "$tmpB"
-missing_zvars=$(comm -23 "$tmpA" "$tmpB")
-rm -f "$tmpA" "$tmpB"
-if [ -n "$missing_zvars" ]; then
-  zvar_list=$(echo "$missing_zvars" | tr '\n' ',' | sed 's/,$//')
-  echo "Attaching missing zaxis coordinate variables: $zvar_list"
-  ncks -A -v "$zvar_list" "$fileA" "$fileB"
-fi
-# ----------------------------------------------------------------------
-# Append missing non-coordinate variables.
-# Use -C to avoid overwriting Time/xaxis/yaxis/zaxis coordinate values.
-# ----------------------------------------------------------------------
-tmpA=$(mktemp)
-tmpB=$(mktemp)
-get_vars "$fileA" > "$tmpA"
-get_vars "$fileB" > "$tmpB"
-missing_vars=$(comm -23 "$tmpA" "$tmpB")
-rm -f "$tmpA" "$tmpB"
-if [ -z "$missing_vars" ]; then
-  echo "No missing variables found. File B is already up to date."
-else
-  var_list=$(echo "$missing_vars" | tr '\n' ',' | sed 's/,$//')
-  echo "Attaching variables: $var_list"
-  ncks -A -C -v "$var_list" "$fileA" "$fileB"
-fi
-if [[ ! -z "$neststr" ]] ; then
- if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
-   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
-   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
- fi
-fi
-
-## Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
+# Update u/v based on ua/va since JEDI analysis is on ua/va, but FV3 initializes based on u/v
 IN_FILE=${DATA}/${PDY}.${cyc}0000.fv_core.res.nc
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
 ${APRUNS} ${DATOOL} ua_update_u \
    --in_grid=${RESTARTanl}/grid_spec${nesttilestr}.nc \
    --in_file=${IN_FILE} \
    --out_file=${RESTARTanl}/${FV3_CORE_FILE}
+export err=$?; err_chk
 
-ncks -A -C -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} ${RESTARTanl}/${FV3_TRCR_FILE} #add sgs_tke from the background file
+# Add sgs_tke from the background file
+ncks -A -C -v sgs_tke ${DATA}/bkg/${FV3_TRCR_FILE} ${RESTARTanl}/${FV3_TRCR_FILE}
+
+# Keep using the orginal background sfc_data file since no actual/effective surface/land DA yet
+${NCP} ${RESTARTinp}/${FV3_SFCD_FILE} ${RESTARTanl}/${FV3_SFCD_FILE}
+
+# Pass over phy_data as well
+if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ]; then
+  ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.phy_data${nesttilestr}.nc
+fi
+
+# Pass over the following restart files if needed/desired (currently not necessary though)
+if [[ ! -z "$neststr" ]] ; then
+ if [ -e ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ]; then
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_ne.res${neststr}.nc
+   ${NCP} ${RESTARTinp}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc ${RESTARTanl}/${PDY}.${cyc}0000.fv_BC_sw.res${neststr}.nc
+ fi
+fi
 
 # Pass over the grid_mspec files for moving nest
 if [[ "${is_moving_nest:-".false."}" = *".true."* ]] || [[ "${is_moving_nest:-".false."}" = *".T."* ]] ; then

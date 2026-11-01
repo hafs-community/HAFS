@@ -935,11 +935,6 @@ if [ ${use_orog_gsl:-no} = yes ]; then
 fi
 ${NLN} sfc_data.tile7.nc sfc_data.nc
 ${NLN} gfs_data.tile7.nc gfs_data.nc
-if [ "${ENSDA}" = YES ] && [ "${RUN_ENKF}" = YES ] && [ "${ANALYSIS_MODEL}" = JEDI ]; then #XL link sfc_data since JEDI don't have the output
-  if [ -e ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc ]; then
-    ln -sf ${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}/${CDATE:0:8}.${CDATE:8:2}0000.sfc_data.nc sfc_data.tile7.nc
-  fi
-fi
 
 # regional with nests
 if [ $nest_grids -gt 1 ]; then
@@ -1014,6 +1009,14 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.tile1.nc ./fv_tracer.res.tile1.nc
 # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nc ./phy_data.nc
   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  if [ "${warm_start_sfc:-auto}" = "init" ] && [ ! ${ENSDA} = YES ] && \
+     [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.sfc_data.nc ]; then
+    ${NLN} ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  fi
+  if [ "${warm_start_sfc:-auto}" = "init" ] && [ ${ENSDA} = YES ] && \
+     [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.sfc_data.nc ]; then
+    ${NLN} ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.sfc_data.nc ./sfc_data.nc
+  fi
   for n in $(seq 2 ${nest_grids}); do
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_core.res.nest$(printf %02d ${n}).nc ./fv_core.res.nest$(printf %02d ${n}).nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_srf_wnd.res.nest$(printf %02d ${n}).tile${n}.nc
@@ -1021,6 +1024,14 @@ if [ ! ${FORECAST_RESTART} = YES ] && [ ${warmstart_from_restart} = yes ]; then
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc ./fv_tracer.res.nest$(printf %02d ${n}).tile${n}.nc
   # ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.phy_data.nest$(printf %02d ${n}).tile${n}.nc ./phy_data.nest$(printf %02d ${n}).tile${n}.nc
     ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    if [ "${warm_start_sfc:-auto}" = "init" ] && [ ! ${ENSDA} = YES ] && \
+       [ ${RUN_ATM_INIT} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ]; then
+      ${NLN} ${WORKhafs}/intercom/RESTART_init/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    fi
+    if [ "${warm_start_sfc:-auto}" = "init" ] && [ ${ENSDA} = YES ] && \
+       [ ${RUN_ATM_INIT_ENS} = YES ] && [ -s ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ]; then
+      ${NLN} ${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}/${YMD}.${hh}0000.sfc_data.nest$(printf %02d ${n}).tile${n}.nc ./sfc_data.nest$(printf %02d ${n}).tile${n}.nc
+    fi
   # if [ -e ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ]; then
   #   ${NLN} ${RESTARTinp}/${YMD}.${hh}0000.fv_BC_ne.res.nest$(printf %02d ${n}).nc ./fv_BC_ne.res.nest$(printf %02d ${n}).nc
   # fi
