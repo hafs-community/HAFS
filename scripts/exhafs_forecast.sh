@@ -212,6 +212,17 @@ if [ "${ENSDA}" = YES ]; then
   intercompost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   intercomocnpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/ocn_post
   intercomgempak=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/gempak
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    if [ -d ${WORKhafs}/../00L/intercom/atm_inp_ens/mem${ENSID} ]; then
+      INPdir=${WORKhafs}/../00L/intercom/atm_inp_ens/mem${ENSID}
+      FIXgrid=${WORKhafs}/../00L/intercom/atm_prep_ens/grid_ens
+    fi
+    OUTdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    RESTARTout=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    intercompost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+    intercomocnpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/ocn_post
+    intercomgempak=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/gempak
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   FIXgrid=${FIXgrid:-${WORKhafs}/intercom/atm_prep/grid}
   INPdir=${INPdir:-${WORKhafs}/intercom/atm_inp_fgat${FGAT_HR}}

@@ -34,6 +34,8 @@ pubbasin2=${pubbasin2:-AL}
 FGAT_MODEL=${FGAT_MODEL:-gfs}
 FGAT_HR=${FGAT_HR:-00}
 
+export CDATEprior=$(${NDATE} -6 $YMDH)
+
 vi_force_cold_start=${vi_force_cold_start:-no}
 # WORKAROUND: Force cold start for storms too close to outer boundaries
 if [[ ${vi_force_cold_start,,} != "yes" ]]; then
@@ -68,6 +70,23 @@ if [ "${ENSDA}" = YES ]; then
   export RESTARTinit=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
   export RESTARTout=${WORKhafs}/intercom/RESTART_vi_ens/mem${ENSID}
   export CDATE=${CDATE:-${YMDH}}
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    vi_storm_modification=no
+    vi_warm_start_vmax_threshold=0
+    export nest_grids=${nest_grids_ens:-1}
+    export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART_ens/mem${ENSID}
+    if [ -d ${COMOLD}/../00L/00l.${CDATEprior}.RESTART_ens/mem${ENSID} ]; then
+      export RESTARTinp=${COMOLD}/../00L/00l.${CDATEprior}.RESTART_ens/mem${ENSID}
+    fi
+    export RESTARTmrg=${WORKhafs}/intercom/RESTART_analysis_merge_fgat${FGAT_HR}_ens/mem${ENSID}
+    export INTCOMinit=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    export RESTARTinit=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    if [ -d ${WORKhafs}/../00L/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID} ]; then
+      export RESTARTinit=${WORKhafs}/../00L/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    fi
+    export RESTARTout=${WORKhafs}/intercom/RESTART_vi_fgat${FGAT_HR}_ens/mem${ENSID}
+    export CDATE=$(${NDATE} $(awk "BEGIN {print ${FGAT_HR}-6}") ${YMDH})
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   export RESTARTinp=${COMOLD}/${old_out_prefix}.RESTART
   export RESTARTmrg=${WORKhafs}/intercom/RESTART_merge_fgat${FGAT_HR}
@@ -259,8 +278,12 @@ if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]
   cd ${work_dir}
   # input
   ${NLN} ${tcvital} fort.11
-  if [ -e ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ]; then
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ] && [ -e ${COMOLD}/../00L/product_ens/mem${ENSID}/00l.${CDATEprior}.${RUN}.trak.atcfunix.f006 ] && [ "${ENSDA}" = YES ]; then
+    ${NCP} ${COMOLD}/../00L/product_ens/mem${ENSID}/00l.${CDATEprior}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  elif [ -e ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ]; then
     ${NCP} ${COMOLD}/${old_out_prefix}.${RUN}.trak.atcfunix.all ./trak.atcfunix.all
+  fi
+  if [ -e ./trak.atcfunix.all ]; then
     # rename basin id for Southern Hemisphere or Northern Indian Ocean storms
 	sed -i -e 's/^AA/IO/g' -e 's/^BB/IO/g' -e 's/^SP/SH/g' -e 's/^SI/SH/g' -e 's/^SQ/SL/g' ./trak.atcfunix.all
     # Convert 1800W to 1800E for date line TCs
@@ -552,9 +575,6 @@ else # warm-start from prior cycle or cold start from global/parent model
     gfs_flag=0
   else
     gfs_flag=6
-  fi
-  if [ $ENSDA = YES ]; then
-    gfs_flag=1
   fi
 
   rm -f flag_file

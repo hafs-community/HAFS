@@ -344,9 +344,22 @@ if [ ${RUN_ENVAR} = "YES" ]; then
       if [ -d ${COMOLD00_Ens} ]; then
         RESTARTens=${COMOLD00_Ens}/mem${mem}
       fi
+      if [ ${RUN_ATM_VI_ENS} = "YES" ]; then
+        RESTARTens=${WORKhafs}/intercom/RESTART_vi_ens/mem${mem}
+      elif [ ${RUN_ATM_VI_FGAT_ENS} = "YES" ]; then
+        RESTARTens=${WORKhafs}/intercom/RESTART_vi_fgat03_ens/mem${mem}
+      fi
       for file in `ls ${RESTARTens}/*`; do
         ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
       done
+      if [ ${RUN_ATM_VI_FGAT_ENS} = "YES" ]; then
+        for file in `ls ${WORKhafs}/intercom/RESTART_vi_fgat06_ens/mem${mem}/*`; do
+          ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+        done
+        for file in `ls ${WORKhafs}/intercom/RESTART_vi_fgat09_ens/mem${mem}/*`; do
+          ${NLN} ${file} ${DATA}/ensemble_data/mem${mem}/
+        done
+      fi
     else
       if [[ ${DIRECT_GDASENS} = "NO" ]]; then
         RESTARTens=${WORKhafs}/intercom/ENS_PREP/mem${mem}

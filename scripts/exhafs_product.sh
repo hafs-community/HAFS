@@ -35,6 +35,11 @@ if [ "${ENSDA}" = YES ]; then
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   COMOUTproduct=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   NHRS_ENS=0
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    nest_grids=${nest_grids_ens:-1}
+    INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+    COMOUTproduct=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   INPdir=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}/post
   intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
@@ -405,17 +410,21 @@ if [ ${RUN_INIT:-NO} = YES ] && [ "${ENSDA}" = YES ] && [ "${ANALYSIS_MODEL}" = 
   fi
   RESTARTinp=${WORKhafs}/intercom/RESTART_init
   RESTARTens=${WORKhafs}/intercom/RESTART_init_ens/mem${ENSID}
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    RESTARTinp=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}
+    RESTARTens=${WORKhafs}/intercom/RESTART_init_fgat${FGAT_HR}_ens/mem${ENSID}
+  fi
   in_grid=${RESTARTens}/grid_spec.nc
   out_grid=${RESTARTinp}/grid_spec${nesttilestr}.nc
   for var in fv_core.res fv_tracer.res fv_srf_wnd.res sfc_data ; do
     if [ "${var}" = "sfc_data" ]; then
-      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.nc
+      in_file=${RESTARTens}/${YYYY}${MM}${DD}.${HH}0000.${var}.nc
     else
-      in_file=${RESTARTens}/${PDY}.${HH}0000.${var}.tile1.nc
+      in_file=${RESTARTens}/${YYYY}${MM}${DD}.${HH}0000.${var}.tile1.nc
     fi
-    out_file=${RESTARTens}/${PDY}.${HH}0000.${var}${nesttilestr}.nc
+    out_file=${RESTARTens}/${YYYY}${MM}${DD}.${HH}0000.${var}${nesttilestr}.nc
     if [ ${GRID_RATIO_ENS} -ne 1 ]; then
-      ${NCP} ${RESTARTinp}/${PDY}.${HH}0000.${var}${nesttilestr}.nc ${out_file}
+      ${NCP} ${RESTARTinp}/${YYYY}${MM}${DD}.${HH}0000.${var}${nesttilestr}.nc ${out_file}
     fi
     if [ ! -s ${in_grid} ] || [ ! -s ${in_file} ] || \
        [ ! -s ${out_grid} ] || [ ! -s ${out_file} ]; then

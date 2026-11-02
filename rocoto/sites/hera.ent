@@ -35,8 +35,8 @@
 <!-- AND THEN:
   <!ENTITY OBS_PREP_RESOURCES "<nodes>2:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>40</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
 -->
-  <!ENTITY OBS_PREP_RESOURCES "<nodes>1:ppn=4:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>4</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:30:00</walltime>">
-  <!ENTITY ATM_IC_RESOURCES "<nodes>6:ppn=10:tpp=4</nodes><envar><name>TOTAL_TASKS</name><value>60</value></envar><envar><name>NCTSK</name><value>10</value></envar><envar><name>OMP_THREADS</name><value>4</value></envar><walltime>00:30:00</walltime>">
+  <!ENTITY OBS_PREP_RESOURCES "<nodes>2:ppn=2:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>4</value></envar><envar><name>NCTSK</name><value>2</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>02:30:00</walltime>">
+  <!ENTITY ATM_IC_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_LBC_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">
   <!ENTITY ATM_IC_ENS_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime>">
   <!ENTITY ATM_LBC_ENS_RESOURCES "<nodes>6:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>120</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>01:00:00</walltime>">
@@ -46,7 +46,7 @@
 <!-- Lew.Gramer@noaa.gov 2026-06-16 Legacy multistorm spec
   <!ENTITY ANALYSIS_RESOURCES "<nodes>50:ppn=1:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>50</value></envar><envar><name>NCTSK</name><value>1</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><envar><name>FI_OFI_RXM_SAR_LIMIT</name><value>3145728</value></envar><walltime>02:59:00</walltime>">
 -->
-  <!ENTITY ANALYSIS_RESOURCES "<nodes>40:ppn=15:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>15</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>05:30:00</walltime>">
+  <!ENTITY ANALYSIS_RESOURCES "<nodes>40:ppn=15:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>15</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>03:30:00</walltime>">
   <!-- WAS: <nodes>16:ppn=30:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>30</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>00:30:00</walltime> -->
   <!-- THEN: "<nodes>16:ppn=20:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
   <!-- AND THEN: <!ENTITY ENS_PREP_RESOURCES "<nodes>20:ppn=16:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>320</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>00:30:00</walltime> -->
@@ -65,6 +65,7 @@
   <!ENTITY ATM_INIT_ATLANTIC_4_RESOURCES "<nodes>69:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1380</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_5_RESOURCES "<nodes>82:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1620</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
   <!ENTITY ATM_INIT_ATLANTIC_6_RESOURCES "<nodes>93:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>1860</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
+  <!ENTITY ATM_INIT_ENS_RESOURCES "<nodes>21:ppn=20:tpp=1</nodes><envar><name>TOTAL_TASKS</name><value>420</value></envar><envar><name>NCTSK</name><value>20</value></envar><envar><name>OMP_THREADS</name><value>1</value></envar><walltime>02:00:00</walltime>">
 
   <!-- HAFS-M 2024/2025 -->
   <!ENTITY ATM_INIT_LARGE_0_RESOURCES "<nodes>24:ppn=12:tpp=2</nodes><envar><name>TOTAL_TASKS</name><value>288</value></envar><envar><name>NCTSK</name><value>12</value></envar><envar><name>OMP_THREADS</name><value>2</value></envar><walltime>01:30:00</walltime>">
@@ -115,6 +116,7 @@
   <!ENTITY FORECAST_RESOURCES_240PE "<nodes>20:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>240</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_300PE "<nodes>25:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>300</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_360PE "<nodes>30:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>360</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
+  <!ENTITY FORECAST_RESOURCES_480PE "<nodes>40:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>480</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_540PE "<nodes>45:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>540</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_600PE "<nodes>50:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>600</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">
   <!ENTITY FORECAST_RESOURCES_660PE "<nodes>55:ppn=12:tpp=3</nodes><envar><name>TOTAL_TASKS</name><value>660</value></envar><envar><name>NCTSK</name><value>12</value></envar>&FORECAST_EXTRA;">

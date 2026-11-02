@@ -43,6 +43,12 @@ if [ "${ENSDA}" = YES ]; then
   COMOUTpost=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}
   intercom=${WORKhafs}/intercom/atm_init_ens/mem${ENSID}/post
   NHRS_ENS=0
+  if [ ${RUN_ATM_VI_FGAT_ENS} = YES ]; then
+    nest_grids=${nest_grids_ens:-1}
+    INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}
+    intercom=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}_ens/mem${ENSID}/post
+  fi
 elif [ ${FGAT_MODEL} = gdas ]; then
   INPdir=${WORKhafs}/intercom/forecast_init_fgat${FGAT_HR}
   COMOUTpost=${WORKhafs}/intercom/atm_init_fgat${FGAT_HR}
