@@ -13,6 +13,10 @@
 !                : the code
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 ! Revised by: JungHoon Shin Jul 2025 NCEP/EMC: Add a HMON type smoothing option
+! Revised by: JungHoon Shin Oct 2026 NOAA/OMD: Important bug fix for RMN_HWRF. RMN_HWRF must be treated as 8-byte 
+!             variable because it is come from split.90 as 8-byte variable
+!             RMN_HWRF and PRMAX/deg2km are compared only up to two decimal points
+!             reference (https://github.com/hafs-community/HAFS/issues/330)
 !
 !     DECLARE VARIABLES
 !
@@ -149,6 +153,7 @@
 !zhang      REAL(8) CLON_NEW1,CLAT_NEW1
       REAL(8) :: CLON_NHC,CLAT_NHC
       REAL(8) :: CLON_NEW,CLAT_NEW
+      REAL(8) :: RMN8
 
       REAL(4) TWM(101),RWM(101),TH1(200),RP(200)   ! shin
 
@@ -1440,8 +1445,10 @@
       roc2_0=roc2
 
        REWIND(65)
-       READ(65)RMN_HWRF
-       IF(RMN_HWRF.lt.(PRMAX/deg2km))THEN
+       READ(65) RMN8
+       RMN_HWRF=real(RMN8)
+       write(*,*) 'check RMN_HWRF ',RMN_HWRF
+       IF(int(RMN_HWRF*100.0).lt.int(100.0*PRMAX/deg2km))THEN !Compare up to two decimal point
          if(roc1.gt.roc2)roc2=roc1
          if(rmw1.gt.rmw2)rmw2=rmw1
        END IF
