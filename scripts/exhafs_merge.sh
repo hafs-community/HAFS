@@ -14,6 +14,9 @@
 #   04/20/2024: Improve error handling and stdout/stderr redirection for HAFSv2
 #   07/12/2024: Add 3DIAU related capabilities for HAFS regional configuration
 #   12/16/2024: Add Fourier wave-number filtering capabilities for DA increments
+#   11/04/2026: vortexreplace with the Python hafs_datool package
+#               (sorc/hafs_tools.fd/sorc/hafs_datool_py, MPI): one call per merge
+#               step for all files; use_datool_py=no runs hafs_tools_datool.x
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -25,6 +28,10 @@ FGAT_HR=${FGAT_HR:-00}
 
 MPISERIAL=${MPISERIAL:-${EXEChafs}/hafs_tools_mpiserial.x}
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+# Python hafs_datool package for vortexreplace (domainmerge and fftw_iau use DATOOL)
+use_datool_py=${use_datool_py:-yes}
+DATOOL_PY_DIR=${DATOOL_PY_DIR:-${HOMEhafs}/sorc/hafs_tools.fd/sorc}
+DATOOL_PY=${DATOOL_PY:-"python -u -m hafs_datool_py"}
 SENDCOM=${SENDCOM:-YES}
 
 CDATE=${CDATE:-$YMDH}
@@ -154,6 +161,23 @@ else
   exit 1
 fi
 
+# Python vortexreplace: the loops below check the files of each step, then
+# merge_py merges the storm in tile in_tile of in_dir into tile out_tile of
+# out_dir for all their files in one MPI call (same steps as hafs_datool.x)
+if [ ${merge_method} = vortexreplace ] && [ ${use_datool_py} = yes ]; then
+  merge_py=yes
+  export PYTHONPATH=${DATOOL_PY_DIR}${PYTHONPATH:+:${PYTHONPATH}}
+else
+  merge_py=no
+fi
+merge_files="fv_core.res fv_tracer.res fv_srf_wnd.res"
+merge_py() {  # log_name in_dir in_tile out_dir out_tile
+  ${APRUNC} ${DATOOL_PY} vortexreplace --tcvital ${tcvital} --in_date ${ymd}${hh} \
+    --vortexradius 650:700 --in_dir $2 --in_tile $3 --out_dir $4 --out_tile $5 \
+    --in_file ${merge_files} 2>&1 | tee ./$1.log
+  export err=$?; err_chk
+}
+
 # Regional single domain configuration
 if [[ $nest_grids -eq 1 ]]; then
 
@@ -173,13 +197,18 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
     exit 1
   fi
+  if [ ${merge_py} = no ]; then
   ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_regional_${var}.log
   export err=$?; err_chk
+  fi
 done
+if [ ${merge_py} = yes ]; then
+  merge_py merge_regional_py ${RESTARTsrc} 1 ${RESTARTmrg} 1
+fi
 
 # Regional with one nest configuration
 # The following steps are needed
@@ -226,13 +255,18 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res; do
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
     exit 1
   fi
+  if [ ${merge_py} = no ]; then
   ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_analysis_step1_${var}.log
   export err=$?; err_chk
+  fi
 done
+if [ ${merge_py} = yes ]; then
+  merge_py merge_analysis_step1_py ${RESTARTtmp} 2 ${RESTARTtmp} 1
+fi
 
 elif [ ${MERGE_TYPE} = init ]; then
 
@@ -252,13 +286,18 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
     exit 1
   fi
+  if [ ${merge_py} = no ]; then
   ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_init_step1_${var}.log
   export err=$?; err_chk
+  fi
 done
+if [ ${merge_py} = yes ]; then
+  merge_py merge_init_step1_py ${RESTARTtmp} 1 ${RESTARTmrg} 2
+fi
 
 else
   echo "FATAL ERROR: unsupported MERGE_TYPE: ${MERGE_TYPE}"
@@ -281,13 +320,18 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
     exit 1
   fi
+  if [ ${merge_py} = no ]; then
   ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_init_step2_${var}.log
   export err=$?; err_chk
+  fi
 done
+if [ ${merge_py} = yes ]; then
+  merge_py merge_init_step2_py ${RESTARTtmp} 1 ${RESTARTmrg} 1
+fi
 
 # Step 3: merge srcd02 into dstd02
 for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
@@ -300,13 +344,18 @@ for var in fv_core.res fv_tracer.res fv_srf_wnd.res ; do
     echo "FATAL ERROR: Missing in/out_grid or in/out_file"
     exit 1
   fi
+  if [ ${merge_py} = no ]; then
   ${MERGE_CMD} \
     --in_grid=${in_grid} \
     --out_grid=${out_grid} \
     --in_file=${in_file} \
     --out_file=${out_file} 2>&1 | tee ./merge_init_step3_${var}.log
   export err=$?; err_chk
+  fi
 done
+if [ ${merge_py} = yes ]; then
+  merge_py merge_init_step3_py ${RESTARTtmp} 2 ${RESTARTmrg} 2
+fi
 
 if [ ${RUN_ANALYSIS} = "YES" ] && [ ${ANALYSIS_D02} = "YES" ]; then
 

@@ -12,6 +12,17 @@
 #   03/02/2022: Enable handling the regional moving nesting configuration
 #   06/12/2023: Improvements for HAFSv1 operational implementation
 #      10/2026: Expand to support vortex initialization for multiple storms
+#      11/2026: Merge all storms' VI analyses into the restart files with one
+#               call of the Python/MPI hafsvi_postproc after the storm loop
+#      11/2026: Prepare the VI input of all storms with hafsvi_preproc
+#               (one call per VI box, restart and resolution) before the loop
+#      11/2026: Hybrid merge in Stage 4 (VI analysis in each storm's core, VI
+#               increment storm_anl - vi_inp outside), so storms whose VI
+#               domains overlap no longer erase each other's vortex
+#      11/2026: Stage 4 uses the VI input the VI started from for every
+#               domain, also the parent of a nested run (not _grid01)
+#   11/04/2026: hafsvi_preproc and hafsvi_postproc from the Python hafs_datool
+#               package (sorc/hafs_tools.fd/sorc/hafs_datool_py)
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -63,6 +74,10 @@ fi
 
 CDATEprior=$(${NDATE} -6 $YMDH)
 DATOOL=${DATOOL:-${EXEChafs}/hafs_tools_datool.x}
+# Python hafs_datool package: hafsvi_preproc (Stage 0) and hafsvi_postproc (Stage 4)
+DATOOL_PY_DIR=${DATOOL_PY_DIR:-${HOMEhafs}/sorc/hafs_tools.fd/sorc}
+DATOOL_PY=${DATOOL_PY:-"python -u -m hafs_datool_py"}
+export PYTHONPATH=${DATOOL_PY_DIR}${PYTHONPATH:+:${PYTHONPATH}}
 
 DATA=${DATA:-${WORKhafs}/atm_vi}
 mkdir -p ${DATA}
@@ -169,9 +184,12 @@ fi #if [ ${vi_nstorms} -lt 1 ]; then
 
 fi #if [ $vi_multi_storm = yes ]; then
 
-vi_storm_num=1
 #===============================================================================
-# Loop over VI storms
+# Storm setup, all storms first: tcvitals, VI domain size and VI box of each
+# storm. The settings are saved in ${DATAstorm}/vi_setup.env for the storm loop,
+# and the storms that go through VI are listed by VI box for Stage 0.
+vi_storm_num=1
+rm -f ${DATA}/prep_vit_*
 while [ ${vi_storm_num} -le ${vi_nstorms} ]; do
 
 DATAstorm=${DATA}/storm${vi_storm_num}
@@ -267,6 +285,117 @@ if [ -e ${old_tcvital} ]; then
   fi
 fi
 
+
+cat > ${DATAstorm}/vi_setup.env <<EOF
+vi_stormid=${vi_stormid}
+old_vi_stormid=${old_vi_stormid}
+vi_domain_size_storm=${vi_domain_size_storm}
+deg_box1=${deg_box1}
+deg_box2=${deg_box2}
+gesfhr=${gesfhr}
+tcvital=${tcvital}
+vmax_vit=${vmax_vit}
+int_mode=${int_mode}
+EOF
+if [[ ${vmax_vit} -gt ${vi_min_wind_for_init} ]]; then
+  cat ${tcvital} >> ${DATA}/prep_vit_${deg_box1}_${deg_box2}
+fi
+
+vi_storm_num=$((vi_storm_num + 1))
+done
+
+#===============================================================================
+# Stage 0: Run hafsvi_preproc once for all storms (per VI box, restart and
+# resolution) to prepare the VI input on rotated lat-lon grids. The parts of a
+# VI domain outside the restart domain are filled from a GFS/GDAS netCDF
+# background valid at CDATE (read only when needed).
+
+VI_PREPROC_APRUN=${VI_PREPROC_APRUN:-${APRUNO}}
+VI_PREPROC_NPROC=${VI_PREPROC_NPROC:-${PURE_OMP_THREADS:-${OMP_NUM_THREADS:-1}}}
+# Restarts to prepare from: prior cycle (guess) and/or current cycle (init)
+vi_prep_sources=""
+if [[ ${vi_force_cold_start,,} != "yes" ]] && [ -d ${RESTARTinp} ]; then
+  vi_prep_sources="guess:${RESTARTinp}"
+fi
+if [ $vi_storm_env = init ]; then
+  vi_prep_sources="${vi_prep_sources} init:${RESTARTinit}"
+fi
+# Background files (atm and sfc), chosen as in exhafs_atm_ic.sh
+if [ -z "${vi_preproc_background:-}" ]; then
+  PDYp=${CDATEprior:0:8}
+  cycp=${CDATEprior:8:2}
+  if [ "${GFSVER}" = "PROD2021" ]; then
+    if [ "${ENSDA}" = YES ]; then
+      bgdir=${COMINgdas}/enkfgdas.${PDYp}/${cycp}/atmos/mem${ENSID}
+      vi_preproc_background="${bgdir}/gdas.t${cycp}z.atmf006.nc ${bgdir}/gdas.t${cycp}z.sfcf006.nc"
+    elif [ ${FGAT_MODEL} = gdas ]; then
+      bgdir=${COMINgdas}/gdas.${PDYp}/${cycp}/atmos
+      vi_preproc_background="${bgdir}/gdas.t${cycp}z.atmf0${FGAT_HR}.nc ${bgdir}/gdas.t${cycp}z.sfcf0${FGAT_HR}.nc"
+    else
+      bgdir=${COMINgfs}/gfs.${CDATE:0:8}/${CDATE:8:2}/atmos
+      vi_preproc_background="${bgdir}/gfs.t${CDATE:8:2}z.atmanl.nc ${bgdir}/gfs.t${CDATE:8:2}z.sfcanl.nc"
+    fi
+  else
+    if [ "${ENSDA}" = YES ]; then
+      bgdir=${COMINgdas}/enkfgdas.${PDYp}/${cycp}/mem${ENSID}/model/atmos/history
+      vi_preproc_background="${bgdir}/enkfgdas.t${cycp}z.atm.f006.nc ${bgdir}/enkfgdas.t${cycp}z.sfc.f006.nc"
+    elif [ ${FGAT_MODEL} = gdas ]; then
+      bgdir=${COMINgdas}/gdas.${PDYp}/${cycp}/model/atmos/history
+      vi_preproc_background="${bgdir}/gdas.t${cycp}z.atm.f0${FGAT_HR}.nc ${bgdir}/gdas.t${cycp}z.sfc.f0${FGAT_HR}.nc"
+    else
+      bgdir=${COMINgfs}/gfs.${CDATE:0:8}/${CDATE:8:2}/analysis/atmos
+      vi_preproc_background="${bgdir}/gfs.t${CDATE:8:2}z.analysis.atm.a006.nc ${bgdir}/gfs.t${CDATE:8:2}z.analysis.sfc.a006.nc"
+    fi
+  fi
+fi
+vi_bg_args="--bg_files ${vi_preproc_background}"
+for file in ${vi_preproc_background}; do
+  if [ ! -s ${file} ]; then
+    echo "WARNING: VI background ${file} not found: VI domain parts outside the restart get missing values."
+    vi_bg_args=""
+  fi
+done
+
+for vit in $(/bin/ls ${DATA}/prep_vit_* 2>/dev/null); do
+  box=${vit##*/prep_vit_}   # deg_box1_deg_box2
+  for src in ${vi_prep_sources}; do
+    work_dir=${DATA}/prep_${src%%:*}_box${box}
+    mkdir -p ${work_dir}
+    cd ${work_dir}
+    for res in 0.02 0.20; do
+      if [[ ${res} == 0.02 ]]; then
+        vortexradius=${box%_*}
+      else
+        vortexradius=${box#*_}
+      fi
+      ${VI_PREPROC_APRUN} ${DATOOL_PY} hafsvi_preproc \
+          --in_dir ${src#*:} \
+          --in_date ${CDATE} \
+          --tc_vitals ${vit} --vi_threshold ${vi_min_wind_for_init} \
+          --vortexradius ${vortexradius} --res ${res} \
+          --nestdoms $((${nest_grids:-1}-1)) --vi_cloud ${vi_cloud} \
+          --interpolation_points 5 ${vi_bg_args} \
+          --nproc ${VI_PREPROC_NPROC} --out_dir ${work_dir} 2>&1 | tee ./vi_inp_${res/\./p}.log
+      export err=$?; err_chk
+    done
+  done
+done
+
+vi_storm_num=1
+# VI analyses (storm_anl) of all storms, merged into the restart files in this
+# order by one hafsvi_postproc call after the storm loop (Stage 4)
+vi_anl_files=""
+vi_inp_files=""   # the VI input of each storm: Stage 4 adds storm_anl - vi_inp
+vi_anl_txt=""
+RESTARTdst_vi=""
+#===============================================================================
+# Loop over VI storms
+while [ ${vi_storm_num} -le ${vi_nstorms} ]; do
+
+DATAstorm=${DATA}/storm${vi_storm_num}
+cd $DATAstorm
+. ${DATAstorm}/vi_setup.env
+
 cd $DATAstorm
 
 #===============================================================================
@@ -274,125 +403,31 @@ cd $DATAstorm
 if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
 
 echo "INFO: vmax_vit of ${vmax_vit} <= ${vi_min_wind_for_init} m/s"
-echo "INFO: skip vortex initialization for weak storms."
-
-mkdir -p ${RESTARTout}
-if [ -d ${RESTARTinit} ]; then
-  RESTARTdst=${RESTARTinit}
-elif [ -d ${RESTARTmrg} ]; then
-  RESTARTdst=${RESTARTmrg}
-else
-  RESTARTdst=${RESTARTinp}
-fi
-# Currently, force RESTARTdst=${RESTARTinp} if vi_multi_storm=yes
-if [ ${vi_multi_storm} = yes ]; then
-  RESTARTdst=${RESTARTinp}
-fi
-rm -f cmdfile
-for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
-                         ${RESTARTdst}/atmos_static*.nc \
-                         ${RESTARTdst}/grid_*spec*.nc \
-                         ${RESTARTdst}/oro_data*.nc) ; do
-  fname=$(basename ${file})
-  echo ${NCP} -rp ${RESTARTdst}/${fname} ${RESTARTout}/${fname} >> cmdfile
-done
-chmod +x cmdfile
-if [ $USE_CFP = "YES" ] ; then
-  ncmd=$(cat ./cmdfile | wc -l)
-  ncmd_max=$((ncmd < TOTAL_TASKS ? ncmd : TOTAL_TASKS))
-  $APRUNCFP -n $ncmd_max cfp ./cmdfile
-else
-  ${APRUNC} ${MPISERIAL} -m cmdfile
-fi
-export err=$?; err_chk
-# rm -f cmdfile
-
-echo "INFO: copy over the restart files from ${RESTARTdst} to ${RESTARTout} directly."
-echo "INFO: skipping vortex initialization ..."
+echo "INFO: skip vortex initialization for weak storm ${vi_stormid}."
+# The restart files are copied to ${RESTARTout} once, after the storm loop (Stage 4).
 
 else
 
 #===============================================================================
-# Stage 0: Run hafs_datool's hafsvi_preproc to prepare VI input data
+# Stage 0: Link this storm's VI input, made for all storms before the loop
 
-cd $DATAstorm
-
-# Force to cold start storm vortex if desired
-if [[ ${vi_force_cold_start,,} != "yes" ]]; then
-
-# Stage 0.1: Process prior cycle's vortex if exists and if storm intensity is
-# stronger than vi_warm_start_vmax_threshold (e.g., 20 m/s)
-if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]]; then
-  echo "INFO: vmax_vit of ${vmax_vit} >= ${vi_warm_start_vmax_threshold} m/s"
-  echo "INFO: expecting warm-start from prior cycle's storm vortex if exists."
-  if [ -d ${RESTARTinp} ]; then
-    echo "INFO: ${RESTARTinp} exists, will warm-start from prior cycle's storm vortex."
-  else
-    echo "WARNING: ${RESTARTinp} does not exists, will cold-start storm vortex."
-  fi
-fi
-if [[ ${vmax_vit} -ge ${vi_warm_start_vmax_threshold} ]] && [ -d ${RESTARTinp} ]; then
-  for res in 0.02 0.20; do
-    if [[ ${res} == 0.02 ]]; then
-      vortexradius=${deg_box1}
-    elif [[ ${res} == 0.20 ]]; then
-      vortexradius=${deg_box2}
-    fi
-    # prep
-    work_dir=${DATAstorm}/prep_guess
-    mkdir -p ${work_dir}
-    cd ${work_dir}
-    ${APRUNC} ${DATOOL} hafsvi_preproc \
-        --in_dir=${RESTARTinp} \
-        --debug_level=1 --interpolation_points=5 \
-        --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-        --tcvital=${tcvital} \
-        --vortexradius=${vortexradius} --res=${res} \
-        --nestdoms=$((${nest_grids:-1}-1)) \
-        --vi_cloud=${vi_cloud} \
-        --out_file=vi_inp_${res/\./p}.bin 2>&1 | tee ./vi_inp_${res/\./p}.log
-    export err=$?; err_chk
-    if [[ ${nest_grids} -gt 1 ]]; then
-      ${NMV} vi_inp_${res/\./p}.bin vi_inp_${res/\./p}.bin_grid01
-      ${NMV} vi_inp_${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${res/\./p}.bin
-    fi
-  done
-fi
-
-fi # end if [[ ${vi_force_cold_start,,} != "yes" ]]; then
-
-cd $DATAstorm
-# Stage 0.2: Process current cycle's vortex from the global/parent model
-
-if [ $vi_storm_env = init ]; then
-
-for res in 0.02 0.20; do
-  if [[ ${res} == 0.02 ]]; then
-    vortexradius=${deg_box1}
-  elif [[ ${res} == 0.20 ]]; then
-    vortexradius=${deg_box2}
-  fi
-  # prep
-  work_dir=${DATAstorm}/prep_init
+for src in ${vi_prep_sources}; do
+  work_dir=${DATAstorm}/prep_${src%%:*}
   mkdir -p ${work_dir}
-  cd ${work_dir}
-  ${APRUNC} ${DATOOL} hafsvi_preproc \
-      --in_dir=${RESTARTinit} \
-      --debug_level=1 --interpolation_points=5 \
-      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-      --tcvital=${tcvital} \
-      --vortexradius=${vortexradius} --res=${res} \
-      --nestdoms=$((${nest_grids:-1}-1)) \
-      --vi_cloud=${vi_cloud} \
-      --out_file=vi_inp_${res/\./p}.bin 2>&1 | tee ./vi_inp_${res/\./p}.log
-  export err=$?; err_chk
-  if [[ ${nest_grids} -gt 1 ]]; then
-    ${NMV} vi_inp_${res/\./p}.bin vi_inp_${res/\./p}.bin_grid01
-    ${NMV} vi_inp_${res/\./p}.bin_nest$(printf "%02d" ${nest_grids}) vi_inp_${res/\./p}.bin
-  fi
+  for res in 0.02 0.20; do
+    prep_file=${DATA}/prep_${src%%:*}_box${deg_box1}_${deg_box2}/vi_inp_${res/\./p}_${vi_stormid}.bin
+    if [[ ${nest_grids:-1} -gt 1 ]]; then
+      # parent-only VI input, for diagnostics (Stage 4 uses the merged file)
+      ${NLN} ${prep_file} ${work_dir}/vi_inp_${res/\./p}.bin_grid01
+      prep_file=${prep_file}_nest$(printf "%02d" ${nest_grids})
+    fi
+    if [ ! -s ${prep_file} ]; then
+      echo "FATAL ERROR: hafsvi_preproc did not produce ${prep_file}"
+      exit 1
+    fi
+    ${NLN} ${prep_file} ${work_dir}/vi_inp_${res/\./p}.bin
+  done
 done
-
-fi
 
 #===============================================================================
 # Stage 1: Process prior cycle's vortex if exists and if storm intensity is
@@ -772,17 +807,59 @@ if [ ! -s storm_anl ]; then
 fi
 
 #===============================================================================
-# Stage 4: Run hafs_datool's hafsvi_postproc to interpolate VI analysis back to
-# HAFS restart files
+# Record this storm's VI analysis and the restart files it is merged into. All
+# storms are merged with one hafsvi_postproc call after the loop (Stage 4).
+# Every storm's VI starts from the same restart, so Stage 4 uses the hybrid
+# merge of hafsvi_postproc: the VI analysis in each storm's core, the VI
+# increment (storm_anl minus the vi_inp file its environment came from)
+# outside. Where VI domains overlap, the storms' changes add up instead of a
+# later storm's analysis restoring an earlier storm's old vortex.
 
-cd $DATAstorm
-mkdir -p ${RESTARTout}
 if [ $senv = init ]; then
-  RESTARTdst=${RESTARTinit}
+  RESTARTdst_storm=${RESTARTinit}
 elif [ -d ${RESTARTmrg} ]; then
-  RESTARTdst=${RESTARTmrg}
+  RESTARTdst_storm=${RESTARTmrg}
 else
-  RESTARTdst=${RESTARTinp}
+  RESTARTdst_storm=${RESTARTinp}
+fi
+if [ -n "${RESTARTdst_vi}" ] && [ "${RESTARTdst_storm}" != "${RESTARTdst_vi}" ]; then
+  echo "WARNING: storm ${vi_stormid} merges into ${RESTARTdst_storm}, an earlier storm into ${RESTARTdst_vi}."
+  echo "WARNING: using ${RESTARTdst_storm} (last VI storm) as the base restart for all storms."
+fi
+RESTARTdst_vi=${RESTARTdst_storm}
+vi_anl_files="${vi_anl_files} ${DATAstorm}/anl_storm/storm_anl"
+vi_inp_files="${vi_inp_files} ${DATAstorm}/prep_${senv}/vi_inp_0p02.bin"
+if [ -s ${DATAstorm}/anl_storm/storm_txt ]; then
+  vi_anl_txt=${DATAstorm}/anl_storm/storm_txt
+fi
+
+fi #if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
+
+vi_storm_num=$((vi_storm_num + 1))
+
+done
+
+#===============================================================================
+# Stage 4: Copy the restart files to RESTARTout and merge all storms' VI
+# analyses into them with one call of the Python/MPI hafsvi_postproc
+
+cd $DATA
+mkdir -p ${RESTARTout}
+if [ -n "${vi_anl_files}" ]; then
+  RESTARTdst=${RESTARTdst_vi}
+else
+  # No storm went through VI (all too weak): copy the restart files over
+  if [ -d ${RESTARTinit} ]; then
+    RESTARTdst=${RESTARTinit}
+  elif [ -d ${RESTARTmrg} ]; then
+    RESTARTdst=${RESTARTmrg}
+  else
+    RESTARTdst=${RESTARTinp}
+  fi
+  # Currently, force RESTARTdst=${RESTARTinp} if vi_multi_storm=yes
+  if [ ${vi_multi_storm} = yes ]; then
+    RESTARTdst=${RESTARTinp}
+  fi
 fi
 rm -f cmdfile
 for file in $(/bin/ls -1 ${RESTARTdst}/${CDATE:0:8}.${CDATE:8:2}0000* \
@@ -801,40 +878,36 @@ else
   ${APRUNC} ${MPISERIAL} -m cmdfile
 fi
 export err=$?; err_chk
+# Flush the copy before the in-place update: unflushed copy data made the
+# update's netCDF writes about 10x slower in testing
+sync
 # rm -f cmdfile
 
-if [ -s ${DATAstorm}/anl_storm/storm_txt ]; then
- ${NCP} -rp ${DATAstorm}/anl_storm/storm_txt ${RESTARTout}/
+if [ -z "${vi_anl_files}" ]; then
+  echo "INFO: no storm went through vortex initialization."
+  echo "INFO: copied the restart files from ${RESTARTdst} to ${RESTARTout} directly."
+else
+  if [ -s "${vi_anl_txt}" ]; then
+    ${NCP} -rp ${vi_anl_txt} ${RESTARTout}/
+  fi
+  echo "INFO: merging VI analyses into ${RESTARTout}:${vi_anl_files}"
+  # VI input of every domain: the file the VI started from (with nests, the
+  # merge of all domains). The VI increment is then the VI's own change in
+  # each domain, and the parent keeps its terrain outside the storm cores; the
+  # parent-only file (_grid01) would add the nest - parent difference there.
+  vi_inp_args="--vi_inp ${vi_inp_files}"
+  for nd in $(seq 1 ${nest_grids}); do
+    ${APRUNC} ${DATOOL_PY} hafsvi_postproc \
+        --in_file ${vi_anl_files} ${vi_inp_args} \
+        --debug_level 1 --interpolation_points 5 \
+        --relaxzone 30 \
+        --in_date ${CDATE} \
+        --nestdoms $((${nd}-1)) \
+        --vi_cloud ${vi_cloud} \
+        --out_dir ${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
+    export err=$?; err_chk
+  done
 fi
-
-for nd in $(seq 1 ${nest_grids}); do
-  ${APRUNS} ${DATOOL} hafsvi_postproc \
-      --in_file=${DATAstorm}/anl_storm/storm_anl \
-      --debug_level=1 --interpolation_points=5 \
-      --relaxzone=30 \
-      --infile_date=${CDATE:0:8}.${CDATE:8:2}0000 \
-      --nestdoms=$((${nd}-1)) \
-      --vi_cloud=${vi_cloud} \
-      --out_dir=${RESTARTout} 2>&1 | tee ./vi_postproc_grid${nd}.log
-  export err=$?; err_chk
-done
-
-fi #if [[ ${vmax_vit} -le ${vi_min_wind_for_init} ]]; then
-
-#===============================================================================
-# Save RESTARTout results for intermediate steps if necessary
-
-cd $DATAstorm
-if [ $vi_storm_num -lt $vi_nstorms ]; then
-  mkdir -p ${RESTARTout}_storm${vi_storm_num}
-  ${NMV} ${RESTARTout}/* ${RESTARTout}_storm${vi_storm_num}/
-  # Reset RESTARTinp to process next storm if needed.
-  RESTARTinp=${RESTARTout}_storm${vi_storm_num}
-fi
-
-vi_storm_num=$((vi_storm_num + 1))
-
-done
 
 #===============================================================================
 
