@@ -1,0 +1,135 @@
+bufr:        
+  subsets:
+    - NC001120
+
+  variables:
+    # MetaData
+    timestamp:
+      datetime:
+        year: "*/YEAR"
+        month: "*/MNTH"
+        day: "*/DAYS"
+        hour: "*/HOUR"
+        minute: "*/MINU"
+
+    receipttime:        
+      datetime:
+        year: "*/RCYR"
+        month: "*/RCMO"
+        day: "*/RCDY"
+        hour: "*/RCHR"
+        minute: "*/RCMI"        
+    
+    latitude:
+      query: "*/CLATH"
+      type: float
+          
+    longitude:
+      query: "*/CLONH"
+      type: float
+          
+    sealevelpressure:
+      query: "*/PMSL"
+      type: float
+
+    altitude:   #(barometer or sensor height) 
+      query: "*/HBMSL"
+      type: float
+
+    rstationID:
+      query: "*/RPID"
+      type: string
+
+   #ObsValue
+    airTemperature:
+      query: "*/TMDB"
+    relativeHumidity:
+      query: "*/REHU"
+      type: float
+      transforms:
+        - scale: .01
+    windSpeed:
+      query: "*/WSPD"
+      type: float
+    windDirection:
+      query: "*/WDIR"
+
+encoder:    
+  type: netcdf
+
+  # dimensions:
+  globals:
+    - name: "platformCommonName"
+      type: string
+      value: "Saildrone"
+
+    - name: "platformLongDescription"
+      type: string
+      value: "Surface Marine Saildrone Observation"
+
+    - name: "converter"
+      type: string
+      value: "BUFR"
+
+  variables:
+        
+    # MetaData
+    - name: "MetaData/dateTime"
+      source: variables/timestamp
+      longName: "Datetime"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/dataReceiptTime"
+      source: variables/receipttime
+      longName: "Data Receipt Time"
+      units: "seconds since 1970-01-01T00:00:00Z"
+
+    - name: "MetaData/latitude"
+      source: variables/latitude
+      longName: "Latitude"
+      units: "degree_north"
+      range: [-90, 90]
+
+    - name: "MetaData/longitude"
+      source: variables/longitude
+      longName: "Longitude"
+      units: "degree_east"
+      range: [-180, 180]
+
+    - name: "MetaData/stationIdentification"
+      source: variables/rstationID
+      longName: "Long station or site name"
+      units: ""
+
+    - name: "MetaData/BarometerElevation"
+      source: variables/altitude
+      longName: "height of Barometer above mean sea level"
+      units: "m"
+
+    - name: "MetaData/pressure"
+      source: variables/sealevelpressure
+      longName: "sea level pressure"
+      units: "Pa"
+
+    # ObsValue
+    - name: "ObsValue/airTemperature"
+      source: variables/airTemperature
+      longName: "Air Temperature"
+      units: "K"
+
+    - name: "ObsValue/relativeHumidity"
+      source: variables/relativeHumidity
+      longName: "Relative Humidity"
+      units: "1"
+
+    - name: "ObsValue/windDirection"
+      source: variables/windDirection
+      longName: "Wind Direction"
+      units: "degree"
+
+    - name: "ObsValue/windSpeed"
+      source: variables/windSpeed
+      longName: "Wind Speed"
+      units: "m s-1"
+
+
