@@ -15,5 +15,8 @@ else
 fi
 
 cd hafs_tracker.fd/src
+
+export compiler=${compiler:-"intelllvm"}
+
 ./build_all_cmake.sh
 

@@ -25,6 +25,8 @@ else
   __ms_shell=sh
 fi
 
+export compiler=${compiler:-"intel"}
+
 target=""
 USERNAME=$(echo $LOGNAME | awk '{ print tolower($0)'})
 
@@ -50,13 +52,17 @@ if [[ -d /scratch3/NCEPDEV && -d /scratch4/NCEPDEV ]] ; then
 elif [[ "$(hostname)" =~ "wcoss3" ]] ; then
    echo "We are on NOAA NIMBUS"
   # We are on NOAA NIMBUS
-   
-    export OCL_ICD_FILENAMES=""
-    . /opt/intel/oneapi/compiler/2023.2.1/env/vars.sh
-    . /opt/intel/oneapi/mpi/2021.18/env/vars.sh
-    . /opt/intel/oneapi/mkl/latest/env/vars.sh
-    target=nimbus
-    source $MODULESHOME/init/sh
+  export TCM_ROOT=""
+  .  /opt/intel/oneapi/setvars.sh
+  export SETVARS_CALL=""
+  export OCL_ICD_FILENAMES=""
+  . /opt/intel/oneapi/compiler/2026.1/env/vars.sh
+  . /opt/intel/oneapi/mpi/2021.18/env/vars.sh
+  . /opt/intel/oneapi/mkl/2026.1/env/vars.sh
+  target=nimbus
+  source $MODULESHOME/init/sh
+  export compiler="intelllvm"
+  module purge
 elif [[ -d /work/noaa ]] ; then
   # We are on MSU Orion/Hercules
   if [[ "$(hostname)" =~ "hercules" ]] ; then
@@ -147,8 +153,9 @@ if [[ Q"${HOMEhafs:-}" != "Q" ]] ; then
      module load rocoto/1.3.7_fix
   fi
   if [[ "${WHERE_AM_I}" != "gaeac6dtn" ]]; then
+    echo "The executables are built with "$compiler""
     module use ${HOMEhafs}/modulefiles
-    module load hafs.${WHERE_AM_I}
+    module load hafs.${WHERE_AM_I}.${compiler}
   fi
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOMEhafs}/sorc/hafs_jedi.fd/build/lib
 fi

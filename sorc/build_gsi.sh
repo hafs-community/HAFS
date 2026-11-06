@@ -13,6 +13,8 @@ cd hafs_gsi.fd/ush/
 export GSI_MODE=Regional
 export ENKF_MODE=FV3REG
 
+export COMPILER=${compiler:-"intelllvm"}
+
 export BUILD_TYPE=${BUILD_MODE}
 ./build.sh
 

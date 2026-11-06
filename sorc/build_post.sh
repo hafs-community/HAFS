@@ -10,7 +10,7 @@ cwd=$(pwd)
 
 cd hafs_post.fd/tests
 if [ "${BUILD_MODE}" = Release ]; then
-  ./compile_upp.sh
+  ./compile_upp.sh -c intelllvm
 else
-  ./compile_upp.sh -d 
+  ./compile_upp.sh -c intelllvm -d 
 fi

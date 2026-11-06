@@ -11,7 +11,7 @@ cwd=$(pwd)
 script_dir=${cwd}
 cd ${script_dir}
 
-export RT_COMPILER="intel"
+export RT_COMPILER=${compiler:-"intelllvm"}
 source "${script_dir}/hafs_forecast.fd/tests/detect_machine.sh"
 source "${script_dir}/hafs_forecast.fd/tests/module-setup.sh"
 
@@ -28,6 +28,7 @@ fi
 
 #Determine machine and load modules
 module use "${script_dir}/hafs_forecast.fd/modulefiles"
+echo "Loading ufs_${MACHINE_ID}.${RT_COMPILER}"
 module load "ufs_${MACHINE_ID}.${RT_COMPILER}"
 
 #Set WW3 directory, switch, prep and post exes 

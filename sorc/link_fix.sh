@@ -1,6 +1,5 @@
 #!/bin/sh
 set -xeu
-
 source ./machine-setup.sh.inc > /dev/null 2>&1
 
 # INSTALL_ENVIR of nco or dev
