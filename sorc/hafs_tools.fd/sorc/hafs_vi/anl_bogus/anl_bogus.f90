@@ -22,6 +22,8 @@
 !                  Now input arguement is like this:
 !  ./hafs_vi_anl_bogus.x 6 ${pubbasin2} ${vi_cloud}
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
+! Revised by: JungHoon Shin Oct 2026 NOAA/OMD: Important bug fix for RMN. RMN must be treated as 8-byte
+!             variable because it is come from split.90 as 8-byte variable
 !______________________________________________________________________________
 !
 !     DECLARE VARIABLES
@@ -139,6 +141,7 @@
       integer(4) IH1(4),JH1(4),IV1(4),JV1(4)
 
       REAL(8) CLON_NEW,CLAT_NEW,CLON_NHC,CLAT_NHC
+      REAL(8) RMN8
 
       REAL(4) th1(IR1),rp(IR1)               ! ,RMN
 
@@ -633,7 +636,9 @@
        print*,'psfc_obs,psfc_env=',psfc_obs,psfc_env
 
       REWIND(85)
-      READ(85)RMN
+      READ(85) RMN8
+      RMN=real(RMN8)
+      write(*,*) 'check RMN ',RMN
 
 ! READ Hurricane Pert.
 
