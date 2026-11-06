@@ -1,305 +1,163 @@
 #!/usr/bin/env python3
-import os
-import sys
-import bufr
-import argparse
-import copy
-import math
 import calendar
-import time
-from datetime import datetime
-from bufr.bufr_python.encoders import *
-from bufr.encoders.netcdf import Encoder as netcdfEncoder
-from wxflow import Logger
+import os
 import numpy as np
 import numpy.ma as ma
 
-# Initialize Logger
-# Get log level from the environment variable, default to 'INFO it not set
-log_level = os.getenv('LOG_LEVEL', 'INFO')
-logger = Logger('bufr_adpsfc_prepbufr.py', level=log_level, colored_log=False)
+import bufr
+from bufr.obs_builder import add_main_functions
+from prepbufr_obs_builder import PrepbufrObsBuilder, map_path, check_include_tv
 
 
-def logging(comm, level, message):
-    """
-    Logs a message to the console or log file, based on the specified logging level.
+MAPPING_PATH = map_path('bufr_land_synop_mapping.yaml')
+# Fixed number of temperature event levels handled by this builder.
+NUM_T_EVENTS = 5
+REF_TIME = os.environ.get("CYC_TIME")
 
-    This function ensures that logging is only performed by the root process (`rank 0`)
-    in a distributed computing environment. The function maps the logging level to
-    appropriate logger methods and defaults to the 'INFO' level if an invalid level is provided.
-
-    Parameters:
-        comm: object
-            The communicator object, typically from a distributed computing framework
-            (e.g., MPI). It must have a `rank()` method to determine the process rank.
-        level: str
-            The logging level as a string. Supported levels are:
-                - 'DEBUG'
-                - 'INFO'
-                - 'WARNING'
-                - 'ERROR'
-                - 'CRITICAL'
-            If an invalid level is provided, a warning will be logged, and the level
-            will default to 'INFO'.
-        message: str
-            The message to be logged.
-
-    Behavior:
-        - Logs messages only on the root process (`comm.rank() == 0`).
-        - Maps the provided logging level to a method of the logger object.
-        - Defaults to 'INFO' and logs a warning if an invalid logging level is given.
-        - Supports standard logging levels for granular control over log verbosity.
-
-    Example:
-        >>> logging(comm, 'DEBUG', 'This is a debug message.')
-        >>> logging(comm, 'ERROR', 'An error occurred!')
-
-    Notes:
-        - Ensure that a global `logger` object is configured before using this function.
-        - The `comm` object should conform to MPI-like conventions (e.g., `rank()` method).
-    """
-
-    if comm.rank() == 0:
-        # Define a dictionary to map levels to logger methods
-        log_methods = {
-            'DEBUG': logger.debug,
-            'INFO': logger.info,
-            'WARNING': logger.warning,
-            'ERROR': logger.error,
-            'CRITICAL': logger.critical,
-        }
-
-        # Get the appropriate logging method, default to 'INFO'
-        log_method = log_methods.get(level.upper(), logger.info)
-
-        if log_method == logger.info and level.upper() not in log_methods:
-            # Log a warning if the level is invalid
-            logger.warning(f'log level = {level}: not a valid level --> set to INFO')
-
-        # Call the logging method
-        log_method(message)
+# - If ObsType/virtualTemperature is in the encoder variables, use Tv if available otherwise Tdry.
+#   This option mimics the GSI's TSENSIBLE=False default
+# - If ObsType/virtualTemperature not in encoder variables, always use Tdry
+#   This is what we want to do long-term
 
 
-def _compute_datetime(cycleTimeSinceEpoch, dhr):
-    """
-    Compute dateTime using the cycleTimeSinceEpoch and Cycle Time
-        minus Cycle Time
+class AdpsfcPrepbufrObsBuilder(PrepbufrObsBuilder):
+    def __init__(self):
+        super().__init__(MAPPING_PATH, log_name=os.path.basename(__file__))
 
-    Parameters:
-        cycleTimeSinceEpoch: Time of cycle in Epoch Time
-        dhr: Observation Time Minus Cycle Time
+    def _make_description(self):
+        description = super()._make_description()
 
-    Returns:
-        Masked array of dateTime values
-    """
-
-    int64_fill_value = np.int64(0)
-
-    dateTime = np.zeros(dhr.shape, dtype=np.int64)
-    for i in range(len(dateTime)):
-        if ma.is_masked(dhr[i]):
-            continue
-        else:
-            dateTime[i] = np.int64(dhr[i]*3600) + cycleTimeSinceEpoch
-
-    dateTime = ma.array(dateTime)
-    dateTime = ma.masked_values(dateTime, int64_fill_value)
-
-    return dateTime
-
-
-def _make_description(mapping_path, cycle_time, update=False):
-    description = bufr.encoders.Description(mapping_path)
-
-    ReferenceTime = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
-
-    if update:
-        # Define the variables to be added in a list of dictionaries
         variables = [
             {
                 'name': 'MetaData/sequenceNumber',
-                'source': 'variables/sequenceNumber',
-                'units': '1',
+                'source': 'sequenceNumber',
                 'longName': 'Sequence Number (Obs Subtype)',
+            },
+            {
+                 'name': 'MetaData/timeOffset',
+                 'source': 'timeOffset',
+                 'units': 's',
+                 'longName': 'Observation Time Minus Reference Time',
+            },
+            {
+                'name': 'ObsSubType/stationPressure',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/airTemperature',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/specificHumidity',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/windEastward',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
+            },
+            {
+                'name': 'ObsSubType/windNorthward',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
             }
         ]
 
-        # Loop through each variable and add it to the description
-        for var in variables:
-            description.add_variable(
-                name=var['name'],
-                source=var['source'],
-                units=var['units'],
-                longName=var['longName']
-            )
+        if check_include_tv(MAPPING_PATH):
+            variables.append({
+                'name': 'ObsSubType/virtualTemperatureM',
+                'source': 'obsSubType',
+                'longName': 'Observation SubType',
+            })
 
-        # description.add_global(name='datetimeReference', value=str(ReferenceTime))
+        description.add_variables(variables)
 
-    return description
+        return description
 
+    def make_obs(self, comm, input_path):
+        """
+        Create the ioda adpsfc prepbufr observations:
+        - reads values
+        - adds sequenceNum
+        - adds ObsSubType
+        - extracts Tdry from event stack (peels back through events if top is Tv)
 
-def _make_obs(comm, input_path, mapping_path, cycle_time):
-    """
-    Create the ioda adpsfc prepbufr observations:
-    - reads values
-    - adds sequenceNum
+        Parameters
+        ----------
+        comm: object
+                The communicator object (e.g., MPI)
+        input_path: str
+                The input bufr file
+        """
 
-    Parameters
-    ----------
-    comm: object
-            The communicator object (e.g., MPI)
-    input_path: str
-            The input bufr file
-    mapping_path: str
-            The input bufr2ioda mapping file
-    cycle_time: str
-            The cycle in YYYYMMDDHH format
-    """
+        container = super().make_obs(comm, input_path)
 
-    # Get container from mapping file first
-    logging(comm, 'INFO', 'Get container from bufr')
-    container = bufr.Parser(input_path, mapping_path).parse(comm)
+        # Get container from mapping file first
+        self.log.info('Get container from bufr')
+        container = bufr.Parser(input_path, MAPPING_PATH).parse(comm)
 
-    logging(comm, 'DEBUG', f'container list (original): {container.list()}')
-    logging(comm, 'DEBUG', f'prepbufrDataLevelCategory')
-    cat = container.get('variables/prepbufrDataLevelCategory')
+        self.log.debug(f'container list (original): {container.list()}')
 
-    logging(comm, 'DEBUG', f'Change longitude range from [0,360] to [-180,180]')
-    lon = container.get('variables/longitude')
-    lon_paths = container.get_paths('variables/longitude')
-    lon[lon > 180] -= 360
-    lon = ma.round(lon, decimals=2)
-    logging(comm, 'DEBUG', f'longitude max and min are {lon.max()}, {lon.min()}')
+        self.log.debug(f'Do DateTime calculation')
+        dhr = container.get('obsTimeMinusCycleTime')
+        dhr_paths = container.get_paths('obsTimeMinusCycleTime')
+        dhr2 = np.array(dhr)
+        #self._replace_timestamp(container, self._get_reference_time(input_path))
+        self._replace_timestamp(container, self._get_reference_time(REF_TIME))
 
-    logging(comm, 'DEBUG', f'Do DateTime calculation')
-    otmct = container.get('variables/obsTimeMinusCycleTime')
-    otmct_paths = container.get_paths('variables/obsTimeMinusCycleTime')
-    otmct2 = np.array(otmct)
-    cycleTimeSinceEpoch = np.int64(calendar.timegm(time.strptime(str(int(cycle_time)), '%Y%m%d%H')))
-    dateTime = _compute_datetime(cycleTimeSinceEpoch, otmct2)
-    min_dateTime_ge_zero = min(x for x in dateTime if x > -1)
-    logging(comm, 'DEBUG', f'dateTime min/max = {min_dateTime_ge_zero} {dateTime.max()}')
+        self.log.debug('add timeOffset, in units of seconds')
+        timeoffset = np.ma.array((dhr.filled(-9999) * 3600).astype(np.int64),
+            mask=np.ma.getmask(dhr), fill_value=-9999)
+        self.log.debug(f'timeOffset min/max = {timeoffset.min()} {timeoffset.max()}')
 
-    logging(comm, 'DEBUG', f'Make an array of 0s for MetaData/sequenceNumber')
-    sequenceNum = np.zeros(lon.shape, dtype=np.int32)
-    logging(comm, 'DEBUG', f' sequenceNummin/max =  {sequenceNum.min()} {sequenceNum.max()}')
+        self.log.debug(f'Make an array of 0s for MetaData/sequenceNumber and ObsSubType')
+        sequenceNum = np.zeros(dhr.shape, dtype=np.int32)
+        self.log.debug(f' sequenceNum min/max =  {sequenceNum.min()} {sequenceNum.max()}')
 
-    logging(comm, 'DEBUG', f'Do ps calculation')
-    pob = container.get('variables/pressure')
-    ps = np.full(pob.shape[0], pob.fill_value)
-    ps = np.where(cat == 0, pob, ps)
+        include_tv = check_include_tv(MAPPING_PATH)
+        self.log.debug(f'Extract temperature from event stack (include_tv={include_tv})')
 
-    logging(comm, 'DEBUG', f'Do tsen and tv calculation')
-    tpc = container.get('variables/temperatureEventProgramCode')
-    tob = container.get('variables/airTemperatureObsValue')
-    tsen = np.full(tob.shape[0], tob.fill_value)
-    tsen = np.where(((tpc >=1) & (tpc < 8)), tob, tsen)
-    tvo = np.full(tob.shape[0], tob.fill_value)
-    tvo = np.where((tpc == 8), tob, tvo)
+        # get record-specific data
+        toboe = container.get('airTemperatureObsError')
 
-    logging(comm, 'DEBUG', f'Do ps QM calculations')
-    pqm = container.get('variables/stationPressureQualityMarker')
-    psqm = np.full(pqm.shape[0], pqm.fill_value)
-    psqm = np.where(cat == 0, pqm, psqm)
+        # get event-specific data
+        tpc_events = []
+        tob_events = []
+        tqm_events = []
+        for i in range(1, NUM_T_EVENTS + 1):
+            tpc_events.append(container.get(f'temperatureEventCode{i}'))
+            tob_events.append(container.get(f'temperatureOb{i}'))
+            tqm_events.append(container.get(f'temperatureQM{i}'))
 
-    logging(comm, 'DEBUG', f'Do tsen and tv QM calculations')
-    tobqm = container.get('variables/airTemperatureQualityMarker')
-    tsenqm = np.full(tobqm.shape[0], tobqm.fill_value)
-    tsenqm = np.where(((tpc >= 1) & (tpc < 8)), tobqm, tsenqm)
-    tvoqm = np.full(tobqm.shape[0], tobqm.fill_value)
-    tvoqm = np.where((tpc == 8), tobqm, tvoqm)
+        # Attach the computed temperatures at the report level (dhr_paths,
+        # */DHR) - one value per report, matching stationPressure and the
+        # other surface variables. Anchoring them to the temperature-event
+        # sub-sequence path instead lets their missing pattern reshape the
+        # shared Location dimension and drop obs from other variables.
+        tsen, tsenqm, tsenoe, tvo, tvoqm, tvooe = self._select_temperature_events(
+            tpc_events, tob_events, tqm_events, toboe, include_tv, NUM_T_EVENTS)
 
-    logging(comm, 'DEBUG', f'Do ps ObsError calculations')
-    poe = container.get('variables/stationPressureObsError')
-    psoe = np.full(poe.shape[0], poe.fill_value)
-    psoe = np.where(cat == 0, poe, psoe)
+        self.log.debug(f'Update variables in container')
+        container.add('airTemperatureObsValue', tsen, dhr_paths)
+        container.add('airTemperatureQualityMarker', tsenqm, dhr_paths)
+        container.replace('airTemperatureObsError', tsenoe)
 
-    logging(comm, 'DEBUG', f'Do tsen and tv ObsError calculations')
-    toboe = container.get('variables/airTemperatureObsError')
-    tsenoe = np.full(toboe.shape[0], toboe.fill_value)
-    tsenoe = np.where(((tpc >= 1) & (tpc < 8)), toboe, tsenoe)
-    tvooe = np.full(toboe.shape[0], toboe.fill_value)
-    tvooe = np.where((tpc == 8), toboe, tvooe)
+        if include_tv:
+            container.add('virtualTemperatureObsValue', tvo, dhr_paths)
+            container.add('virtualTemperatureQualityMarker', tvoqm, dhr_paths)
+            container.add('virtualTemperatureObsError', tvooe, dhr_paths)
 
-    logging(comm, 'DEBUG', f'Update variables in container')
-    container.replace('variables/longitude', lon)
-    container.replace('variables/timestamp', dateTime)
-    container.replace('variables/airTemperatureObsValue', tsen)
-    container.replace('variables/airTemperatureQualityMarker', tsenqm)
-    container.replace('variables/airTemperatureObsError', tsenoe)
-    container.replace('variables/virtualTemperatureObsValue', tvo)
-    container.replace('variables/virtualTemperatureQualityMarker', tvoqm)
-    container.replace('variables/virtualTemperatureObsError', tvooe)
-    container.replace('variables/stationPressureObsValue', ps)
-    container.replace('variables/stationPressureQualityMarker', psqm)
-    container.replace('variables/stationPressureObsError', psoe)
+        self.log.debug(f'Add variables to container')
+        container.add('sequenceNumber', sequenceNum, dhr_paths)
+        container.add('obsSubType', sequenceNum, dhr_paths)
+        container.add('timeOffset', timeoffset, dhr_paths)
 
-    logging(comm, 'DEBUG', f'Add variables to container')
-    container.add('variables/sequenceNumber', sequenceNum, lon_paths)
+        self.log.debug(f'container list (updated): {container.list()}')
 
-    # Check
-    logging(comm, 'DEBUG', f'container list (updated): {container.list()}')
-
-    return container
+        return container
 
 
-def create_obs_group(input_path, mapping_path, cycle_time, env):
-
-    comm = bufr.mpi.Comm(env["comm_name"])
-
-    logging(comm, 'INFO', f'Make description and make obs')
-
-    container = _make_obs(comm, input_path, mapping_path, cycle_time)
-    description = _make_description(mapping_path, cycle_time, update=True)
-
-    # Gather data from all tasks into all tasks. Each task will have the complete record
-    logging(comm, 'INFO', f'Gather data from all tasks into all tasks')
-    container.all_gather(comm)
-
-    logging(comm, 'INFO', f'Encode the data')
-    data = next(iter(iodaEncoder(description).encode(container).values()))
-
-    logging(comm, 'INFO', f'Return the encoded data.')
-
-    return data
-
-
-def create_obs_file(input_path, mapping_path, output_path, cycle_time):
-
-    comm = bufr.mpi.Comm("world")
-    container = _make_obs(comm, input_path, mapping_path, cycle_time)
-    container.gather(comm)
-
-    description = _make_description(mapping_path, cycle_time, update=True)
-
-    # Encode the data
-    if comm.rank() == 0:
-        netcdfEncoder(description).encode(container, output_path)
-
-    logging(comm, 'INFO', f'Return the encoded data')
-
-
-if __name__ == '__main__':
-    start_time = time.time()
-
-    bufr.mpi.App(sys.argv)
-    comm = bufr.mpi.Comm("world")
-
-    # Required input arguments as positional arguments
-    parser = argparse.ArgumentParser(description="Convert BUFR to NetCDF using a mapping file.")
-    parser.add_argument('input', type=str, help='Input BUFR file')
-    parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
-    parser.add_argument('output', type=str, help='Output NetCDF file')
-    parser.add_argument('cycle_time', type=str, help='cycle time in YYYYMMDDHH format')
-
-    args = parser.parse_args()
-    infile = args.input
-    mapping = args.mapping
-    output = args.output
-    cycle_time = args.cycle_time
-
-    create_obs_file(infile, mapping, output, cycle_time)
-
-    end_time = time.time()
-    running_time = end_time - start_time
-    logging(comm, 'INFO', f'Total running time: {running_time}')
+add_main_functions(AdpsfcPrepbufrObsBuilder)
