@@ -28,7 +28,6 @@
 !                  Made further upgrades regarding SLP improvement (especially for WPAC) and better short range forecast
 ! Revised by: JungHoon Shin Oct 2026 OMD: Not important for this code.
 !             Bug fix for RMN. RMN must be treated as 8-byte variable because it is come from split.90 as 8-byte variable
-!             reference (https://github.com/hafs-community/HAFS/issues/330)
 !
 !     DECLARE VARIABLES
 !

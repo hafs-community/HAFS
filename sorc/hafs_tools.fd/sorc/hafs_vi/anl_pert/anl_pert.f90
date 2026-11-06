@@ -16,7 +16,6 @@
 ! Revised by: JungHoon Shin Oct 2026 NOAA/OMD: Important bug fix for RMN_HWRF. RMN_HWRF must be treated as 8-byte 
 !             variable because it is come from split.90 as 8-byte variable
 !             RMN_HWRF and PRMAX/deg2km are compared only up to two decimal points
-!             reference (https://github.com/hafs-community/HAFS/issues/330)
 !
 !     DECLARE VARIABLES
 !
@@ -1448,7 +1447,7 @@
        READ(65) RMN8
        RMN_HWRF=real(RMN8)
        write(*,*) 'check RMN_HWRF ',RMN_HWRF
-       IF(int(RMN_HWRF*100.0).lt.int(100.0*PRMAX/deg2km))THEN !Compare up to two decimal point
+       IF(int(RMN_HWRF*100.0).lt.int(100.0*PRMAX/deg2km))THEN !Compare up to two decimal points
          if(roc1.gt.roc2)roc2=roc1
          if(rmw1.gt.rmw2)rmw2=rmw1
        END IF

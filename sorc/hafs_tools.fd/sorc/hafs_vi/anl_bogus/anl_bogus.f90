@@ -24,7 +24,6 @@
 ! Revised by: Chuan-Kai Wang (NCEP/EMC) 2024: fixes for storm near dateline
 ! Revised by: JungHoon Shin Oct 2026 NOAA/OMD: Important bug fix for RMN. RMN must be treated as 8-byte
 !             variable because it is come from split.90 as 8-byte variable
-!             reference (https://github.com/hafs-community/HAFS/issues/330)
 !______________________________________________________________________________
 !
 !     DECLARE VARIABLES
