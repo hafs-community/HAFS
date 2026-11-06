@@ -1,9 +1,9 @@
 #! /bin/sh
 
-export hafs_ver=v2.2.4
+export hafs_ver=v2.2.10
 export gfs_ver=v16.3
 export rtofs_ver=v2.5
-export obsproc_ver=v1.2
+export obsproc_ver=v1.3
 
 export envvar_ver=1.0
 export PrgEnv_intel_ver=8.5.0
