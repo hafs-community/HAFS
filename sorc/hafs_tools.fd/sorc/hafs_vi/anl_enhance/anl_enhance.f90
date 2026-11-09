@@ -26,6 +26,8 @@
 !  ./hafs_vi_anl_enhance.x 6 ${pubbasin2} ${iflag_cold} ${vi_cloud} ${vi_slp_adjust} | ${APRUNO} ./hafs_vi_anl_enhance.x
 ! Revised by: JungHoon Shin Sep 2024 NCEP/EMC
 !                  Made further upgrades regarding SLP improvement (especially for WPAC) and better short range forecast
+! Revised by: JungHoon Shin Oct 2026 OMD: Not important for this code.
+!             Bug fix for RMN. RMN must be treated as 8-byte variable because it is come from split.90 as 8-byte variable
 !
 !     DECLARE VARIABLES
 !
@@ -149,6 +151,7 @@
       integer(4) IH1(4),JH1(4),IV1(4),JV1(4)
 
       REAL(8) CLON_NEW,CLAT_NEW,CLON_NHC,CLAT_NHC
+      REAL(8) RMN8  !shin
       REAL(4) CLON_NEW1,CLAT_NEW1
 
       REAL(4) th1(IR1),rp(IR1)   ! ,RMN
@@ -769,7 +772,9 @@
       ALLOCATE ( R_2SB(IR1,KMX),temp_e(KMX),RADIUS2(IR1) )
 
       REWIND(85)
-      READ(85)RMN
+      READ(85) RMN8
+      RMN=real(RMN8)
+      write(*,*) 'check RMN ',RMN
 
       CALL axisym_xy_new(NX,NY,NZ,KMX,HLON,HLAT,VLON,VLAT,            &
                  CLON_NHC,CLAT_NHC,SLP_1,T_1,Q_1,U_1,V_1,             &
