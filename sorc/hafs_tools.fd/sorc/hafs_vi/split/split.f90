@@ -130,7 +130,7 @@
        IX=11
        JX=11
        IR=50
-       radi=5.0
+       radi=4.3
        write(*,*) 'Using 10 by 10 domain, suggested by KGao, GFDL'
       endif
 
