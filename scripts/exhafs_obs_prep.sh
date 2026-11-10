@@ -488,6 +488,7 @@ fi
   done
 ############### RUN bufrquery #######################
   ${NCP} -rL ${FIXhafs}/bufraux aux
+  ${NLN} aux/atms_beamwidth.txt .
   for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
    ${NCP} -rp ${file} .
   done
