@@ -411,8 +411,8 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
   mkdir -p jedi_ioda
   cd jedi_ioda
 ########## Prepare executables & bufr files #######################
-  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp nexrad"
-  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital nexrad"
+  convtypes="amv_abi amv_seviri hiamv_abi vadwnd air_amdar land_synop sea_ship air_raob osw_ascat drpsnd tdr hdob gnssro tcp nexrad saldrn"
+  convbufrs="satwnd satwnd satwhr prepbufr prepbufr prepbufr prepbufr prepbufr prepbufr drpsnd tldplr hdobbufr gnssro tcvital nexrad saldrn"
   sattypes="atms amsua iasi abi cris-fsr mhs" #ssmis 
   satbufrs="atms 1bamua mtiasi gsrcsr crisf4 1bmhs" #ssmisu 
   radtypes="atms_n20 atms_n21 atms_npp amsua_n18 amsua_n19 amsua_metop-b amsua_metop-c iasi_metop-b iasi_metop-c abi_g16 abi_g18 cris-fsr_npp cris-fsr_n20 cris-fsr_n21 mhs_n18 mhs_n19 mhs_metop-b mhs_metop-c" #ssmis_f17 
@@ -488,6 +488,7 @@ fi
   done
 ############### RUN bufrquery #######################
   ${NCP} -rL ${FIXhafs}/bufraux aux
+  ${NLN} aux/atms_beamwidth.txt .
   for file in ${PARMjedi}/yaml_templates/bufrquery/*; do
    ${NCP} -rp ${file} .
   done
@@ -611,6 +612,8 @@ fi
         python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_air_${file}.nc ${CDATE} >& log_${file}
       elif [[ "${bufr}" = "satwnd" ]]; then
         ${APRUNC} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.retrieval_${file}_{splits/satId}.nc">& log_${file}
+      elif [[ "${bufr}" = "saldrn" ]]; then
+        ${APRUNC} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_saldrn_${file}.nc ${CDATE} >& log_${file}
       fi
     elif [ -s gfs.t${cyc}z.${bufr} ]; then
       if [[ "${bufr}" = "tcvital" ]]; then
