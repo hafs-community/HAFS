@@ -68,7 +68,7 @@ class AdpsfcPrepbufrObsBuilder(PrepbufrObsBuilder):
 
         if check_include_tv(MAPPING_PATH):
             variables.append({
-                'name': 'ObsSubType/virtualTemperatureM',
+                'name': 'ObsSubType/virtualTemperature',
                 'source': 'obsSubType',
                 'longName': 'Observation SubType',
             })
@@ -109,7 +109,7 @@ class AdpsfcPrepbufrObsBuilder(PrepbufrObsBuilder):
         self._replace_timestamp(container, self._get_reference_time(REF_TIME))
 
         self.log.debug('add timeOffset, in units of seconds')
-        timeoffset = np.ma.array((dhr.filled(-9999) * 3600).astype(np.int64),
+        timeoffset = np.ma.array((dhr.filled(-9999) * 3600).astype(np.int32),
             mask=np.ma.getmask(dhr), fill_value=-9999)
         self.log.debug(f'timeOffset min/max = {timeoffset.min()} {timeoffset.max()}')
 

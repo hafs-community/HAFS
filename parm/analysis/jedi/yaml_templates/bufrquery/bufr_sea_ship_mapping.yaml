@@ -35,7 +35,7 @@ bufr:
       query: "*/YOB"
     stationIdentification:
       query: "*/SID"
-    observationSubTypeNum: 
+    observationSubType: 
       query: "*/T29"
     pressureMetaData:
       query: "*/P___INFO/P__EVENT{1}/POB"
@@ -186,9 +186,9 @@ encoder:
       source: variables/observationType
       longName: "airTemperature ObsType"
 
-#    - name: "ObsType/virtualTemperature"
-#      source: variables/observationType
-#      longName: "Virtual Temperature ObsType"
+    - name: "ObsType/virtualTemperature"
+      source: variables/observationType
+      longName: "Virtual Temperature ObsType"
 
     - name: "ObsType/specificHumidity"
       source: variables/observationType
@@ -272,10 +272,10 @@ encoder:
       longName: "Air Temperature"
       units: "K"
 
-#    - name: "ObsValue/virtualTemperature"
-#      source: variables/virtualTemperatureObsValue
-#      longName: "Virtual Temperature"
-#      units: "K"
+    - name: "ObsValue/virtualTemperature"
+      source: variables/virtualTemperatureObsValue
+      longName: "Virtual Temperature"
+      units: "K"
 
     - name: "ObsValue/specificHumidity"
       source: variables/specificHumidityObsValue
@@ -309,9 +309,9 @@ encoder:
       source: variables/airTemperatureQualityMarker
       longName: "Air Temperature Quality Marker"
 
-#    - name: "QualityMarker/virtualTemperature"
-#      source: variables/virtualTemperatureQualityMarker
-#      longName: "Virtual Temperature Quality Marker"
+    - name: "QualityMarker/virtualTemperature"
+      source: variables/virtualTemperatureQualityMarker
+      longName: "Virtual Temperature Quality Marker"
 
     - name: "QualityMarker/specificHumidity"
       source: variables/specificHumidityQualityMarker
@@ -336,10 +336,10 @@ encoder:
       longName: "Temperature Error"
       units: "K"
 
-#    - name: "ObsError/virtualTemperature"
-#      source: variables/virtualTemperatureObsError
-#      longName: "Temperature Error"
-#      units: "K"
+    - name: "ObsError/virtualTemperature"
+      source: variables/virtualTemperatureObsError
+      longName: "Temperature Error"
+      units: "K"
 
     - name: "ObsError/specificHumidity"
       source: variables/relativeHumidityObsError

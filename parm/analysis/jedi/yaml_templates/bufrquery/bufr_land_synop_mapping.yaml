@@ -180,9 +180,9 @@ encoder:
       source: variables/observationType
       longName: "Air Temperature at 2m ObsType"
 
-#    - name: "ObsType/virtualTemperature"
-#      source: variables/observationType
-#      longName: "Virtual Temperature at 2m ObsType"
+    - name: "ObsType/virtualTemperature"
+      source: variables/observationType
+      longName: "Virtual Temperature at 2m ObsType"
 
     - name: "ObsType/specificHumidity"
       source: variables/observationType
@@ -262,10 +262,10 @@ encoder:
       longName: "Air Temperature at 2m"
       units: "K"
 
-#    - name: "ObsValue/virtualTemperature"
-#      source: variables/virtualTemperatureObsValue
-#      longName: "Virtual Temperature at 2m"
-#      units: "K"
+    - name: "ObsValue/virtualTemperature"
+      source: variables/virtualTemperatureObsValue
+      longName: "Virtual Temperature at 2m"
+      units: "K"
 
     - name: "ObsValue/specificHumidity"
       source: variables/specificHumidityObsValue
@@ -295,10 +295,10 @@ encoder:
       source: variables/airTemperatureQualityMarker
       longName: "Air Temperature at 2m Quality Marker"
 
-#    - name: "QualityMarker/virtualTemperature"
-#      source: variables/virtualTemperatureQualityMarker
-#      longName: "Virtual Temperature at 2m Quality Marker"
-#
+    - name: "QualityMarker/virtualTemperature"
+      source: variables/virtualTemperatureQualityMarker
+      longName: "Virtual Temperature at 2m Quality Marker"
+
     - name: "QualityMarker/specificHumidity"
       source: variables/specificHumidityQualityMarker
       longName: "Specific Humidity at 2m Quality Marker"
@@ -322,10 +322,10 @@ encoder:
       longName: "Air Temperature at 2m Error"
       units: "K"
 
-#    - name: "ObsError/virtualTemperature"
-#      source: variables/virtualTemperatureObsError
-#      longName: "Virtual Temperature at 2m Error"
-#      units: "K"
+    - name: "ObsError/virtualTemperature"
+      source: variables/virtualTemperatureObsError
+      longName: "Virtual Temperature at 2m Error"
+      units: "K"
 
     # note: in the PREPBUFR, this is specified in RH units
     # will need to be cleaned up.

@@ -104,15 +104,15 @@ class SfcshpPrepbufrObsBuilder(PrepbufrObsBuilder):
         self._replace_timestamp(container, self._get_reference_time(REF_TIME))
 
         self.log.debug('add timeOffset, in units of seconds')
-        timeoffset = np.ma.array((dhr.filled(-9999) * 3600).astype(np.int64),
+        timeoffset = np.ma.array((dhr.filled(-9999) * 3600).astype(np.int32),
             mask=np.ma.getmask(dhr), fill_value=-9999)
         self.log.debug(f'timeOffset min/max = {timeoffset.min()} {timeoffset.max()}')
 
         self.log.debug(f'Do ObsSubType and sequenceNumber calculations')
         typ = container.get('observationType')
         typ_paths = container.get_paths('observationType')
-        t29 = container.get('observationSubTypeNum')
-        t29_paths = container.get_paths('observationSubTypeNum')
+        t29 = container.get('observationSubType')
+        t29_paths = container.get_paths('observationSubType')
         obsSubType = self._compute_obssubtype(typ, t29)
         self.log.debug(f' obsSubType min/max =  {obsSubType.min()} {obsSubType.max()}')
 
