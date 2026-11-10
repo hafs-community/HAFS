@@ -34,6 +34,8 @@ COMrtofs=/scratch3/HFIP/{disk_project}/noscrub/hafs-input/COMRTOFSv2.5
 COMINrtofs={COMrtofs}
 COMINmsg={COMINgfs}
 COMINhafs={COMINgfs}
+## AIGFS directory
+COMAIGFS=/scratch3/HFIP/hwrfv3/noscrub/hafs-input/COMAIGFS
 DATMdir=/scratch3/HFIP/{disk_project}/noscrub/input/{disk_project}/noscrub/{ENV[USER]}/DATM
 DOCNdir=/scratch3/HFIP/{disk_project}/noscrub/{ENV[USER]}/DOCN
 ## A-Deck directory for graphics
