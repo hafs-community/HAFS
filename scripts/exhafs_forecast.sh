@@ -1218,7 +1218,7 @@ if [ "${RUN_AI_NUDGING}" = "YES" ] && [ "${RUN_INIT:-NO}" = "NO" ]; then
     filename="aigfs.t${hh}z.pres.f${fhr}.grib2"
     src_file="${AIGFS_DIR}/aigfs.${YMD}/${hh}/model/atmos/grib2/${graphcast}/${filename}"
     [ -e "$src_file" ] || continue
-    ${RLN} "${src_file}" INPUT/nudging/
+    ${RLN} "${src_file}" ${DATA}/INPUT/nudging/${filename}
     echo "INPUT/nudging/${filename}" >> "$list_file"
     n_filenum=$((n_filenum + 1))
   done
