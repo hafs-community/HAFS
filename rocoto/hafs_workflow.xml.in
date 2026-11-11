@@ -265,6 +265,7 @@
         <!-- Second dependency: the GFS output must be available -->
         <timedep><cyclestr offset="3:25:00">@Y@m@d@H@M@S</cyclestr></timedep>
         <!-- Or use COMgfs file dependency. Don't start until GFS analysis is available.-->
+@** if GFS_DATADEP==YES
         <and>
 @** if GFSVER==PROD2021
           <datadep age="02:00" minsize="12000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.atmanl.nc</cyclestr></datadep>
@@ -275,6 +276,7 @@
           <datadep age="02:00" minsize="200000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/analysis/atmos/gfs.t@Hz.analysis.sfc.a006.nc</cyclestr></datadep>
 @** endif
         </and>
+@** endif
       </and>
     </dependency>
   </task>
@@ -527,6 +529,7 @@
           <!-- Second dependency: the GFS output must be available -->
           <timedep><cyclestr offset="4:10:00">@Y@m@d@H@M@S</cyclestr></timedep>
           <!-- Or use COMgfs file dependency. Don't start until GFS 126h forecast is available.-->
+@** if GFS_DATADEP==YES
           <or>
 @** if GFSVER==PROD2021
             <datadep age="02:00" minsize="300000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/atmos/gfs.t@Hz.pgrb2.0p25.f126</cyclestr></datadep>
@@ -537,6 +540,7 @@
             <datadep age="02:00" minsize="6000000000"><cyclestr>&COMgfs;/gfs.@Y@m@d/@H/model/atmos/history/gfs.t@Hz.atmf0126.nc</cyclestr></datadep>
 @** endif
           </or>
+@** endif
         </and>
       </dependency>
     </task>
