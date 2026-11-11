@@ -453,7 +453,7 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
     ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.satwhr.tm00.bufr_d gfs.t${cyc}z.satwhr.bufr_d
   fi
   if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.saldrn.tm00.bufr_d ]]; then
-    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.saldrn.tm00.bufr_d gfs.t${cyc}z.saildrn.bufr_d
+    ${NCP} -p ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.saldrn.tm00.bufr_d gfs.t${cyc}z.saldrn.bufr_d
   fi
   if [[ ${use_bufr_nr:-no} = "yes" ]]; then
     if [[ -s ${COMINobs}/gfs.$PDY/$cyc/${atmos}/gfs.t${cyc}z.gpsro.tm00.bufr_d.nr ]]; then
