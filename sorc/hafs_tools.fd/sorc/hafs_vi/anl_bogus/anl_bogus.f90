@@ -1357,8 +1357,8 @@
       write(*,*) 'START reverting from pressure to hybrid level!'
 !$omp parallel do &
 !$omp& private(i,j,k,N,W1,W)
-      DO J=jctr-450,jctr+450
-        DO I=ictr-450,ictr+450
+      DO J=max(1,jctr-450),min(NY,jctr+450)
+        DO I=max(1,ictr-450),min(NX,ictr+450)
         nloop1: DO N=1,NZ
             IF(PMID1(I,J,N).GE.PCST(1))THEN            ! Below PMID1(I,J,1)
              if(itag_c(i,j).eq.1)then
@@ -1416,8 +1416,8 @@
       print*,'Interpolation for two additional Thompson variables: GFS'
 !$omp parallel do &
 !$omp& private(i,j,k,N,W1,W)
-       DO J=jctr-450,jctr+450
-        DO I=ictr-450,ictr+450
+       DO J=max(1,jctr-450),min(NY,jctr+450)
+        DO I=max(1,ictr-450),min(NX,ictr+450)
         nloop2: DO N=1,NZ
             IF(PMID1(I,J,N).GE.PCST(1))THEN            ! Below PMID1(I,J,1)
              if(itag_c(i,j).eq.1)then

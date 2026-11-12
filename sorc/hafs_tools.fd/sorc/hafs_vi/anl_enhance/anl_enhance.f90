@@ -1568,8 +1568,8 @@
 
 !$omp parallel do &
 !$omp& private(i,j,k,N,W1,W)
-      DO J=jctr-450,jctr+450     !Do loop for 900x900 with respect to TC center is fine
-        DO I=ictr-450,ictr+450
+      DO J=max(1,jctr-450),min(NY,jctr+450)     !Do loop for 900x900 with respect to TC center is fine
+        DO I=max(1,ictr-450),min(NX,ictr+450)
         nloop1: DO N=1,NZ
             IF(PMID1(I,J,N).GE.PMID2(I,J,1))THEN            ! Below PMV1(I,J,1)
              if(itag_c(i,j).eq.1)then
@@ -1630,8 +1630,8 @@
 
 !$omp parallel do &
 !$omp& private(i,j,k,N,W1,W)
-       DO J=jctr-450,jctr+450     !Do loop for 900x900 with respect to TC center is fine
-        DO I=ictr-450,ictr+450
+       DO J=max(1,jctr-450),min(NY,jctr+450)     !Do loop for 900x900 with respect to TC center is fine
+        DO I=max(1,ictr-450),min(NX,ictr+450)
         nloop2: DO N=1,NZ
             IF(PMID1(I,J,N).GE.PMID2(I,J,1))THEN            ! Below PMV1(I,J,1)
              if(itag_c(i,j).eq.1)then
