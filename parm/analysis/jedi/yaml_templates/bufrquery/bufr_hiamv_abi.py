@@ -103,7 +103,7 @@ def compute_wind_components(wdir, wspd):
     return u.astype(np.float32), v.astype(np.float32)
 
 
-def _get_obs_type(swcm, chanfreq):
+def _get_obs_type(swcm):
     if swcm.size == 0:
         return np.array([], dtype=swcm.dtype)
 
@@ -174,18 +174,18 @@ def _make_obs(comm, input_path, mapping_path):
             continue
 
         swcm = container.get('variables/windComputationMethod', cat)
-        chanfreq = container.get('variables/sensorCentralFrequency', cat)
+        #chanfreq = container.get('variables/sensorCentralFrequency', cat)
 
-        if _is_invalid_array(swcm) or _is_invalid_array(chanfreq):
-            logging(comm, 'WARNING', f'Skipping category {cat[0]}: missing or unassigned wind computation/frequency data.')
+        if _is_invalid_array(swcm):
+            logging(comm, 'WARNING', f'Skipping category {cat[0]}: missing or unassigned wind computation data.')
             _populate_dummies(container, cat)
             continue
 
         logging(comm, 'DEBUG', f'swcm min/max = {swcm.min()} {swcm.max()}')
-        logging(comm, 'DEBUG', f'chanfreq min/max = {chanfreq.min()} {chanfreq.max()}')
+        #logging(comm, 'DEBUG', f'chanfreq min/max = {chanfreq.min()} {chanfreq.max()}')
 
         try:
-            obstype = _get_obs_type(swcm, chanfreq)
+            obstype = _get_obs_type(swcm)
         except ValueError as e:
             logging(comm, 'WARNING', f'Skipping category {cat[0]}: {e}')
             _populate_dummies(container, cat)
