@@ -18,17 +18,25 @@ bufr:
         timeOffset: "*/DHR"
         transforms:
           - scale: 3600
-        referenceTime: #ANADATE#
+        referenceTime: "1970-01-01T00:00:00Z"
     prepbufrDataLevelCategory:
       query: "*/CAT"
     obsTimeMinusCycleTime:
       query: "*/DHR"
+    restrictionFlag:
+      query: "*/RSRD_SEQ/RSRD"
+    restrictionExpiration:
+      query: "*/RSRD_SEQ/EXPRSRD"
     longitude:
       query: "*/XOB"
+      transforms:
+        - wrap: [ -180.0, 180.0 ]
     latitude:
       query: "*/YOB"
     stationIdentification:
       query: "*/SID"
+    observationSubTypeNum:
+      query: "*/T29"
     pressure:
       query: "*/P___INFO/P__EVENT{1}/POB"
       transforms:
@@ -40,62 +48,77 @@ bufr:
       query: "*/ELV"
       type: float
 
-    temperatureEventProgramCode:
+    # Temperature event codes for each event level (to find Tdry vs Tv)
+    temperatureEventCode1:
       query: "*/T___INFO/T__EVENT{1}/TPC"
-    t29:
-      query: "*/T29"
+    temperatureEventCode2:
+      query: "*/T___INFO/T__EVENT{2}/TPC"
+    temperatureEventCode3:
+      query: "*/T___INFO/T__EVENT{3}/TPC"
+    temperatureEventCode4:
+      query: "*/T___INFO/T__EVENT{4}/TPC"
+    temperatureEventCode5:
+      query: "*/T___INFO/T__EVENT{5}/TPC"
+
+    # Temperature observations for each event level
+    temperatureOb1:
+      query: "*/T___INFO/T__EVENT{1}/TOB"
+      transforms:
+        - offset: 273.15
+    temperatureOb2:
+      query: "*/T___INFO/T__EVENT{2}/TOB"
+      transforms:
+        - offset: 273.15
+    temperatureOb3:
+      query: "*/T___INFO/T__EVENT{3}/TOB"
+      transforms:
+        - offset: 273.15
+    temperatureOb4:
+      query: "*/T___INFO/T__EVENT{4}/TOB"
+      transforms:
+        - offset: 273.15
+    temperatureOb5:
+      query: "*/T___INFO/T__EVENT{5}/TOB"
+      transforms:
+        - offset: 273.15
+
+    # Temperature quality markers for each event level
+    temperatureQM1:
+      query: "*/T___INFO/T__EVENT{1}/TQM"
+    temperatureQM2:
+      query: "*/T___INFO/T__EVENT{2}/TQM"
+    temperatureQM3:
+      query: "*/T___INFO/T__EVENT{3}/TQM"
+    temperatureQM4:
+      query: "*/T___INFO/T__EVENT{4}/TQM"
+    temperatureQM5:
+      query: "*/T___INFO/T__EVENT{5}/TQM"
 
     # ObsValue
     stationPressureObsValue:
       query: "*/P___INFO/P__EVENT{1}/POB"
       transforms:
         - scale: 100
-    heightObsValue:
-      query: "*/Z___INFO/Z__EVENT{1}/ZOB"
-      type: float
-    stationElevationObsValue:
-      query: "*/ELV"
-      type: float
-    airTemperatureObsValue:
-      query: "*/T___INFO/T__EVENT{1}/TOB"
-      transforms:
-        - offset: 273.15
-    virtualTemperatureObsValue:
-      query: "*/T___INFO/T__EVENT{1}/TOB"
-      transforms:
-        - offset: 273.15
     specificHumidityObsValue:
-      query: "*/Q___INFO/Q__EVENT{1}/QOB"
       type: float
+      query: "*/Q___INFO/Q__EVENT{1}/QOB"
       transforms:
         - scale: 0.000001
-    dewpointTemperatureObsValue:
-      query: "*/Q___INFO/TDO"
-      transforms:
-        - offset: 273.15
     windEastwardObsValue:
       query: "*/W___INFO/W__EVENT{1}/UOB"
     windNorthwardObsValue:
       query: "*/W___INFO/W__EVENT{1}/VOB"
-
-    # ObsType
-    observationType:
-      query: "*/TYP"
 
     # QualityMarker
     stationPressureQualityMarker:
       query: "*/P___INFO/P__EVENT{1}/PQM"
     heightQualityMarker:
       query: "*/Z___INFO/Z__EVENT{1}/ZQM"
-    stationElevationQualityMarker:
-      query: "*/Z___INFO/Z__EVENT{1}/ZQM"
-    airTemperatureQualityMarker:
-      query: "*/T___INFO/T__EVENT{1}/TQM"
-    virtualTemperatureQualityMarker:
-      query: "*/T___INFO/T__EVENT{1}/TQM"
     specificHumidityQualityMarker:
       query: "*/Q___INFO/Q__EVENT{1}/QQM"
-    windQualityMarker:
+    windEastwardQualityMarker:
+      query: "*/W___INFO/W__EVENT{1}/WQM"
+    windNorthwardQualityMarker:
       query: "*/W___INFO/W__EVENT{1}/WQM"
 
     # ObsError
@@ -104,39 +127,47 @@ bufr:
       transforms:
         - scale: 100
     airTemperatureObsError:
-      query: "*/T___INFO/T__BACKG{1}/TOE"
-    virtualTemperatureObsError:
-      query: "*/T___INFO/T__BACKG{1}/TOE"
-    specificHumidityObsError:
+      query: "*/T___INFO/T__BACKG/TOE"
+    relativeHumidityObsError:
       query: "*/Q___INFO/Q__BACKG/QOE"
       transforms:
         - scale: 0.1
-    windObsError:
+    windEastwardObsError:
       query: "*/W___INFO/W__BACKG/WOE"
-
+    windNorthwardObsError:
+      query: "*/W___INFO/W__BACKG/WOE"
 
 encoder:
 
   globals:
-    - name: "dataOriginalFormatSpec"
-      type: string
-      value: "prepbufr"
-
-    - name: "platforms"
+    - name: "platformCommonName"
       type: string
       value: "ADPSFC"
 
-    - name: "source"
-      type: string
-      value: "prepBUFR"
-
     - name: "description"
       type: string
-      value: "ADPSFC_prepbufr"
+      value: "Surface Land (Synoptic, METAR) reports"
 
-    - name: "dataProviderOrigin"
+    - name: "platformLongDescription"
       type: string
-      value: "U.S. NOAA"
+      value: "Surface Land (Synoptic, METAR) reports in prepBUFR format"
+
+    - name: "sensor"
+      type: string
+      value: "ADPSFC data"
+
+    - name: "source"
+      type: string
+      value: "U.S. National Weather Service, National Centers for Environmental Prediction (NCEP))"
+
+    - name: "sourceFiles"
+      type: string
+      value: "NCEP prepBUFR - ADPSFC"
+
+    - name: "converter"
+      type: string
+      value: "bufr-query"
+
 
   variables:
 
@@ -145,29 +176,26 @@ encoder:
       source: variables/observationType
       longName: "Station Pressure ObsType"
 
-    - name: "ObsType/stationElevation"
-      source: variables/observationType
-      longName: "Station Elevation ObsType"
-
     - name: "ObsType/airTemperature"
       source: variables/observationType
-      longName: "Air Temperature ObsType"
+      longName: "Air Temperature at 2m ObsType"
 
     - name: "ObsType/virtualTemperature"
       source: variables/observationType
-      longName: "Virtual Temperature ObsType"
+      longName: "Virtual Temperature at 2m ObsType"
 
     - name: "ObsType/specificHumidity"
       source: variables/observationType
-      longName: "specificHumidity Report Type"
+      longName: "Specific Humidity at 2m ObsType"
 
     - name: "ObsType/windEastward"
       source: variables/observationType
-      longName: "windEastward Report Type"
+      longName: "Eastward Wind ObsType"
 
     - name: "ObsType/windNorthward"
       source: variables/observationType
-      longName: "windNorthward Report Type"
+      longName: "Northward Wind ObsType"
+
 
     # MetaData
     - name: "MetaData/prepbufrDataLevelCategory"
@@ -175,16 +203,22 @@ encoder:
       units: '1'
       longName: "Prepbufr Data Level Category"
 
+    - name: "MetaData/observationSubType"
+      source: variables/observationSubTypeNum
+      longName: "Observation SubType Number"
+
     - name: "MetaData/dateTime"
       source: variables/timestamp
       units: 'seconds since 1970-01-01T00:00:00Z'
       longName: 'dateTime'
 
-    - name: "MetaData/timeOffset"
-      coordinates: "longitude latitude"
-      source: variables/obsTimeMinusCycleTime
-      longName: "Observation Time Minus Reference Time"
-      units: "s"
+    - name: "MetaData/restrictionFlag"
+      source: variables/restrictionFlag
+      longName: "Restriction on Redistribution"
+      
+    - name: "MetaData/restrictionExpiration"
+      source: variables/restrictionExpiration
+      longName: "Expiration of Restriction on Redistribution"
 
     - name: "MetaData/latitude"
       source: variables/latitude
@@ -196,11 +230,7 @@ encoder:
       source: variables/longitude
       longName: "Longitude"
       units: "degree_east"
-      #range: [-180, 180]
-
-      #    - name: "MetaData/sequenceNumber"
-      #source: variables/sequenceNumber
-      #longName: "Sequence Number (Obs Subtype)"
+      range: [-180, 180]
 
     - name: "MetaData/stationIdentification"
       source: variables/stationIdentification
@@ -209,6 +239,7 @@ encoder:
     - name: "MetaData/pressure"
       source: variables/pressure
       longName: "Pressure"
+      units: "Pa"
 
     - name: "MetaData/height"
       source: variables/height
@@ -226,35 +257,27 @@ encoder:
       longName: "Station Pressure"
       units: "Pa"
 
-    - name: "ObsValue/stationElevation"
-      source: variables/stationElevationObsValue
-      longName: "Station Pressure"
-      units: "m"
-
     - name: "ObsValue/airTemperature"
       source: variables/airTemperatureObsValue
-      longName: "Air Temperature"
+      longName: "Air Temperature at 2m"
       units: "K"
 
     - name: "ObsValue/virtualTemperature"
-      source: variables/airTemperatureObsValue
-      longName: "Virtual Air Temperature"
+      source: variables/virtualTemperatureObsValue
+      longName: "Virtual Temperature at 2m"
       units: "K"
 
     - name: "ObsValue/specificHumidity"
-      coordinates: "longitude latitude"
       source: variables/specificHumidityObsValue
-      longName: "Specific Humidity"
-      units: "Kilogram Kilogram-1"
+      longName: "Specific Humidity at 2m"
+      units: "kg kg-1"
 
     - name: "ObsValue/windEastward"
-      coordinates: "longitude latitude"
       source: variables/windEastwardObsValue
       longName: "Eastward Wind"
       units: "m s-1"
 
     - name: "ObsValue/windNorthward"
-      coordinates: "longitude latitude"
       source: variables/windNorthwardObsValue
       longName: "Northward Wind"
       units: "m s-1"
@@ -264,32 +287,29 @@ encoder:
       source: variables/stationPressureQualityMarker
       longName: "Station Pressure Quality Marker"
 
-    - name: "QualityMarker/stationElevation"
+    - name: "QualityMarker/height"
       source: variables/heightQualityMarker
-      longName: "StationElevation Quality Marker"
+      longName: "Height Quality Marker"
 
     - name: "QualityMarker/airTemperature"
       source: variables/airTemperatureQualityMarker
-      longName: "Air Temperature Quality Marker"
+      longName: "Air Temperature at 2m Quality Marker"
 
     - name: "QualityMarker/virtualTemperature"
       source: variables/virtualTemperatureQualityMarker
-      longName: "Virtual Temperature Quality Marker"
+      longName: "Virtual Temperature at 2m Quality Marker"
 
     - name: "QualityMarker/specificHumidity"
-      coordinates: "longitude latitude"
       source: variables/specificHumidityQualityMarker
-      longName: "Specific Humidity Quality Marker"
+      longName: "Specific Humidity at 2m Quality Marker"
 
     - name: "QualityMarker/windEastward"
-      coordinates: "longitude latitude"
-      source: variables/windQualityMarker
-      longName: "windEastward Quality Marker"
+      source: variables/windEastwardQualityMarker
+      longName: "Eastward Wind Quality Marker"
 
     - name: "QualityMarker/windNorthward"
-      coordinates: "longitude latitude"
-      source: variables/windQualityMarker
-      longName: "windNorthward Quality Marker"
+      source: variables/windNorthwardQualityMarker
+      longName: "Northward Wind Quality Marker"
 
     # ObsError
     - name: "ObsError/stationPressure"
@@ -299,28 +319,27 @@ encoder:
 
     - name: "ObsError/airTemperature"
       source: variables/airTemperatureObsError
-      longName: "Air Temprature Error"
+      longName: "Air Temperature at 2m Error"
       units: "K"
 
-    - name: "ObsError/virtualTemerature"
+    - name: "ObsError/virtualTemperature"
       source: variables/virtualTemperatureObsError
-      longName: "Virtual Temperature Error"
+      longName: "Virtual Temperature at 2m Error"
       units: "K"
 
+    # note: in the PREPBUFR, this is specified in RH units
+    # will need to be cleaned up.
     - name: "ObsError/specificHumidity"
-      coordinates: "longitude latitude"
-      source: variables/specificHumidityObsError
-      longName: "Relative Humidity Error"
+      source: variables/relativeHumidityObsError
+      longName: "Specific Humidity at 2m Error"
       units: "1"
 
     - name: "ObsError/windEastward"
-      coordinates: "longitude latitude"
-      source: variables/windObsError
+      source: variables/windEastwardObsError
       longName: "Eastward wind error"
       units: "m s-1"
 
     - name: "ObsError/windNorthward"
-      coordinates: "longitude latitude"
-      source: variables/windObsError
+      source: variables/windNorthwardObsError
       longName: "Northward wind error"
       units: "m s-1"

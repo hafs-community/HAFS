@@ -184,9 +184,9 @@ encoder:
       longName: "airTemperature Observation Type"
 
     # Observation Type: virtualTemperature
-#    - name: "ObsType/virtualTemperature"
-#      source: variables/observationType
-#      longName: "virtualTemperature Observation Type"
+    - name: "ObsType/virtualTemperature"
+      source: variables/observationType
+      longName: "virtualTemperature Observation Type"
 
     # Observation Type: windEastward
     - name: "ObsType/windEastward"
@@ -274,10 +274,10 @@ encoder:
       units: "K"
 
     # ObsValue: virtualTemperature
-#    - name: "ObsValue/virtualTemperature"
-#      source: variables/virtualTemperature
-#      longName: "Virtual Temperature Non-Q Controlled"
-#      units: "K"
+    - name: "ObsValue/virtualTemperature"
+      source: variables/virtualTemperature
+      longName: "Virtual Temperature Non-Q Controlled"
+      units: "K"
 
     # ObsValue: windEastward
     - name: "ObsValue/windEastward"
@@ -313,9 +313,9 @@ encoder:
       longName: "airTemperature Quality Marker"
 
     # QualityMarker: virtualTemperature
-#    - name: "QualityMarker/virtualTemperature"
-#      source: variables/virtualTemperatureQualityMarker
-#      longName: "virtualTemperature Quality Marker"
+    - name: "QualityMarker/virtualTemperature"
+      source: variables/virtualTemperatureQualityMarker
+      longName: "virtualTemperature Quality Marker"
 
     # QualityMarker: windEastward
     - name: "QualityMarker/windEastward"
@@ -345,10 +345,10 @@ encoder:
       units: "K"
 
     # ObsError: virtualTemperature
-#    - name: "ObsError/virtualTemperature"
-#      source: variables/virtualTemperatureError
-#      longName: "virtualTemperature Error"
-#      units: "K"
+    - name: "ObsError/virtualTemperature"
+      source: variables/virtualTemperatureError
+      longName: "virtualTemperature Error"
+      units: "K"
 
     # ObsError: windEastward
     - name: "ObsError/windEastward"

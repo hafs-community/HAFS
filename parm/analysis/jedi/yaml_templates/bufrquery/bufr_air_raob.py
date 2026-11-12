@@ -63,7 +63,7 @@ class AdpupaPrepbufrObsBuilder(PrepbufrObsBuilder):
         self._replace_timestamp(container, self._get_reference_time(REF_TIME))
       
         self.log.debug('add timeOffset, in units of seconds')
-        timeoffset = np.ma.array((hrdr.filled(-9999) * 3600).astype(np.int64), 
+        timeoffset = np.ma.array((hrdr.filled(-9999) * 3600).astype(np.int32), 
             mask=np.ma.getmask(hrdr), fill_value=-9999)
         self.log.debug(f'timeOffset min/max = {timeoffset.min()} {timeoffset.max()}')
  

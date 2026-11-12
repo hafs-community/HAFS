@@ -533,9 +533,11 @@ if [ ${ANALYSIS_MODEL^^} = JEDI ]; then
       if [[ "${bufr}" = "prepbufr" ]]; then
         if [[ "${file}" = "osw_ascat" ]]; then
           ${APRUNTMP} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file}
-        elif [[ "${file}" = "air_raob" ]]; then
+        elif [[ "${file}" =~ ^(air_raob|sea_ship|land_synop)$ ]] ; then
           export CYC_TIME=$CDATE
-          ${APRUNTMP} python bufr_${file}.py --input="gfs.t${cyc}z.${bufr}.bufr_d" --output="output/hafs.t${cyc}z.conventional_${file}.nc">& log_${file} 
+          ${APRUNTMP} python bufr_${file}.py \
+            --input="gfs.t${cyc}z.${bufr}.bufr_d" \
+            --output="output/hafs.t${cyc}z.conventional_${file}.nc" > log_${file} 2>&1
         elif [[ "${file}" = "vadwnd" ]]; then
           ${APRUNTMP} python bufr_${file}.py gfs.t${cyc}z.${bufr}.bufr_d bufr_${file}_mapping.yaml output/hafs.t${cyc}z.conventional_radar_${file}.nc >& log_${file}
           f="output/hafs.t${cyc}z.conventional_radar_${file}.nc"
