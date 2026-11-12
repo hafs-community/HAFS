@@ -737,6 +737,11 @@ if [ ${do_rrtmgp:-.false.} = .true. ]; then
   ${NLN} $FIXam/rrtmgp-cloud-optics-coeffs-sw.nc .
 fi
 
+# Historical CO2 data: use the files under fix_co2_proj where available, and the
+# observed ones under FIXam for the earlier years not covered by fix_co2_proj.
+for file in $(ls ${FIXam}/global_co2historicaldata_[0-9][0-9][0-9][0-9].txt); do
+  ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
+done
 for file in $(ls ${FIXam}/fix_co2_proj/global_co2historicaldata*); do
   ${NLN} $file $(echo $(basename $file) | sed -e "s/global_//g")
 done
