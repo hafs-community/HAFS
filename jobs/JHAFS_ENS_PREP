@@ -55,7 +55,7 @@ fi
 ulimit -s unlimited
 ulimit -a
 module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-module load HDAS/${machine}.intel
+module load HDAS/${machine}.${compiler}
 if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
   module load intel-oneapi-mkl/2024.2.1
 fi

@@ -32,19 +32,19 @@ if [ "${RUN_ENVIR^^}" != "NCO" ]; then
   # Detect platform and load modules if not run by NCO
   source ${USHhafs}/hafs_pre_job.sh.inc
   export machine=${WHERE_AM_I:-wcoss2}
-  if [[ ${machine} != "nimbus" ]]; then
-    if [[ ${machine}  = "gaeac6" ]]; then
+#  if [[ ${machine} != "nimbus" ]]; then
+    if [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "nimbus" ]]; then
       module reset
     else
       module purge
     fi  
     module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-    module load HDAS/${machine}.intel
-  fi
-  if [[ ${machine}  != "wcoss2" ]] ; then
-    module use ${HOMEhafs}/modulefiles
+    module load HDAS/${machine}.${compiler}
+#  fi
+#  if [[ ${machine}  != "wcoss2" ]] ; then
+#    module use ${HOMEhafs}/modulefiles
     #module load hafs_obs_prep_${machine}
-  fi
+#  fi
   if [ -e $HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10 ]; then
     export PYTHONPATH=$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10:${PYTHONPATH}
     export PYTHONPATH=${PYTHONPATH}:$HOMEhafs/sorc/hafs_jedi.fd/build/lib/python3.10/site-packages

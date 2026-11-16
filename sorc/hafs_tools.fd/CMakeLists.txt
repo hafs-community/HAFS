@@ -12,11 +12,11 @@ project(
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 set (HAFS_TOOLS_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU)$")
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|IntelLLVM)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_Fortran_COMPILER_ID}")
 endif()
 
-if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU)$")
+if(NOT CMAKE_C_COMPILER_ID MATCHES "^(Intel|GNU|IntelLLVM)$")
   message(WARNING "Compiler not officially supported: ${CMAKE_C_COMPILER_ID}")
 endif()
 

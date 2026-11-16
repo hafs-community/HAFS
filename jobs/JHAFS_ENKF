@@ -36,7 +36,7 @@ if [[ "${ANALYSIS_MODEL}" = "GSI" ]] || [[ ${ldo_enscalc_option} -eq 2 ]]; then
     if [[ ${machine}  = "orion" ]] || [[ ${machine}  = "hercules" ]] || [[ ${machine}  = "hera" ]] || [[ ${machine}  = "gaeac6" ]] || [[ ${machine}  = "ursa" ]]; then
       module purge
       module use $HOMEhafs/sorc/hafs_gsi.fd/modulefiles
-      module load gsi_${machine}.intel
+      module load gsi_${machine}.${compiler}
     fi
     module list
   else
@@ -77,7 +77,7 @@ else
   ulimit -s unlimited
   ulimit -a
   module use $HOMEhafs/sorc/hafs_jedi.fd/modulefiles
-  module load HDAS/${machine}.intel
+  module load HDAS/${machine}.${compiler}
   if [[ ${machine}  = "ursa" ]] || [[ ${machine}  = "jet" ]]; then
     module load intel-oneapi-mkl/2024.2.1
   fi
