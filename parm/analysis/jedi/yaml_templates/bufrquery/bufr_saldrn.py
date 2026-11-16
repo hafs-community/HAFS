@@ -371,9 +371,9 @@ if __name__ == '__main__':
     comm = bufr.mpi.Comm("world")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('output', type=str, help='Output NetCDF file')
+    parser.add_argument('iutput', type=str, help='Input bufr file')
     parser.add_argument('mapping', type=str, help='BUFR2IODA Mapping File')
-    parser.add_argument('input', type=str, help='Input bufr file')
+    parser.add_argument('onput', type=str, help='Output NetCDF file')
     parser.add_argument('cycle_time', type=str, help='cycle time in YYYYMMDDHH format')
 #   parser.add_argument('infiles', nargs='+', help='A list of strings')
 
