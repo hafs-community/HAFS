@@ -13,8 +13,10 @@
 # History:
 #   11/10/2026: Initial version for the HAFS reanalysis subproject
 # Usage:
-#   ./hafs_era5_ic_download.py [-o outdir] [--hour-step 3] day [day [...]]
-#   where a day is YYYYMMDD or a range YYYYMMDD-YYYYMMDD
+#   ./hafs_era5_ic_download.py [-o outdir] [--hour-step 3] [-j jobs] day [...]
+#   where a day is YYYYMMDD or a range YYYYMMDD-YYYYMMDD. Use -j (e.g., -j 4)
+#   to submit several requests at once: each one waits in the CDS queue, so
+#   this is much faster than one request at a time.
 # Condition codes:
 #   == 0 : success
 #   != 0 : fatal error encounted
@@ -27,6 +29,8 @@ import sys
 import argparse
 import logging
 import datetime
+import threading
+import concurrent.futures
 
 UTILITY_NAME = 'hafs_era5_ic_download'
 logger = logging.getLogger(UTILITY_NAME)
@@ -100,18 +104,25 @@ def main(argv=None):
                         choices=[1, 2, 3, 6],
                         help='interval in hours of the analyses, which '
                         'should divide NBDYHRS (default: %(default)s)')
+    parser.add_argument('-j', '--jobs', type=int, default=1,
+                        help='number of requests to submit to the CDS at the '
+                        'same time, so that they wait in its queue together '
+                        '(default: %(default)s; the CDS limits the requests '
+                        'per user, so more than about 4 gains little)')
     parser.add_argument('-n', '--dry-run', action='store_true',
                         help='print the requests without downloading')
     parser.add_argument('-v', '--verbose', action='store_true')
     args = parser.parse_args(argv)
+    if args.jobs < 1:
+        parser.error('--jobs must be at least 1')
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
         format='%(asctime)s %(name)s %(levelname)s: %(message)s')
 
     days = parse_days(args.days)
-    client = None
     os.makedirs(args.outdir, exist_ok=True)
+    tasks = []
     for day in days:
         for kind in ('pl', 'sfc'):
             filename = os.path.join(args.outdir,
@@ -119,30 +130,58 @@ def main(argv=None):
             dataset, request = build_request(kind, day, args.hour_step)
             if args.dry_run:
                 print(f'{filename}: {dataset} {request}')
-                continue
-            if os.path.exists(filename):
+            elif os.path.exists(filename):
                 logger.info(f'{filename}: already exists. Skipping.')
-                continue
-            if client is None:
-                try:
-                    import cdsapi
-                except ImportError:
-                    logger.error(
-                        'You are missing the cdsapi module! Install it with '
-                        '"pip install cdsapi --user", register on the CDS '
-                        'website, accept the ERA5 license, and put your key '
-                        'in ~/.cdsapirc.')
-                    return 2
-                client = cdsapi.Client()
-            partial = filename + '.partial'
-            logger.info(f'{filename}: retrieving from {dataset}...')
+            else:
+                tasks.append((filename, dataset, request))
+    if not tasks:
+        return 0
+
+    try:
+        import cdsapi
+    except ImportError:
+        logger.error(
+            'You are missing the cdsapi module! Install it with '
+            '"pip install cdsapi --user", register on the CDS '
+            'website, accept the ERA5 license, and put your key '
+            'in ~/.cdsapirc.')
+        return 2
+
+    # One CDS client per thread, since the clients are not known to be
+    # thread safe.
+    local = threading.local()
+    def retrieve(task):
+        filename, dataset, request = task
+        if not hasattr(local, 'client'):
+            local.client = cdsapi.Client()
+        partial = filename + '.partial'
+        logger.info(f'{filename}: retrieving from {dataset}...')
+        try:
+            local.client.retrieve(dataset, request, partial)
+            os.replace(partial, filename)
+        finally:
+            if os.path.exists(partial):
+                os.remove(partial)
+        logger.info(f'{filename}: done.')
+
+    # The requests wait in the CDS queue at the same time with --jobs > 1. A
+    # failed request does not stop the other ones; rerun to retry it.
+    failed = []
+    jobs = min(args.jobs, len(tasks))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        futures = {pool.submit(retrieve, task): task for task in tasks}
+        for future in concurrent.futures.as_completed(futures):
+            filename = futures[future][0]
             try:
-                client.retrieve(dataset, request, partial)
-                os.replace(partial, filename)
-            finally:
-                if os.path.exists(partial):
-                    os.remove(partial)
-            logger.info(f'{filename}: done.')
+                future.result()
+            except Exception as e:
+                logger.error(f'{filename}: download failed: {e}')
+                failed.append(filename)
+    if failed:
+        logger.error(f'FATAL ERROR: {len(failed)} of {len(tasks)} downloads '
+                     'failed. Rerun to retry them: '
+                     + ' '.join(sorted(failed)))
+        return 1
     return 0
 
 if __name__ == '__main__':
