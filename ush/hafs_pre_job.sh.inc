@@ -53,6 +53,7 @@ elif [[ "$(hostname)" =~ "wcoss3" ]] ; then
    echo "We are on NOAA NIMBUS"
   # We are on NOAA NIMBUS
   export TCM_ROOT=""
+  export OCL_ICD_FILENAMES=""
   .  /opt/intel/oneapi/setvars.sh
   export SETVARS_CALL=""
   export OCL_ICD_FILENAMES=""

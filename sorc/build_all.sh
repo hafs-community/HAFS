@@ -9,6 +9,8 @@ set -xeu
 
 export USE_PREINST_LIBS="true"
 
+compiler=${compiler:-"intelllvm"}
+
 #Supports Debug or Release modes for the build
 export BUILD_MODE=${BUILD_MODE:-Release}   #|Release|Debug|
 

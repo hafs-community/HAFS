@@ -3,6 +3,8 @@ set -xeu
 source ./machine-setup.sh.inc > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
+export compiler=${compiler:-"intelllvm"}
+
 #Supports Debug or Release modes for the build
 BUILD_MODE=${BUILD_MODE:-Release}
 
@@ -15,8 +17,6 @@ else
 fi
 
 cd hafs_tracker.fd/src
-
-export compiler=${compiler:-"intelllvm"}
 
 ./build_all_cmake.sh
 

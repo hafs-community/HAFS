@@ -3,6 +3,8 @@ set -xeu
 source ./machine-setup.sh.inc > /dev/null 2>&1
 if [ $target = wcoss2 ]; then source ../versions/build.ver; fi
 
+export compiler=${compiler:-"intelllvm"}
+
 #Supports Debug or Release modes for the build
 BUILD_MODE=${BUILD_MODE:-Release}
 
@@ -11,7 +13,6 @@ cwd=$(pwd)
 script_dir=${cwd}
 cd ${script_dir}
 
-export RT_COMPILER=${compiler:-"intelllvm"}
 source "${script_dir}/hafs_forecast.fd/tests/detect_machine.sh"
 source "${script_dir}/hafs_forecast.fd/tests/module-setup.sh"
 
@@ -28,6 +29,7 @@ fi
 
 #Determine machine and load modules
 module use "${script_dir}/hafs_forecast.fd/modulefiles"
+RT_COMPILER=${compiler}
 echo "Loading ufs_${MACHINE_ID}.${RT_COMPILER}"
 module load "ufs_${MACHINE_ID}.${RT_COMPILER}"
 
