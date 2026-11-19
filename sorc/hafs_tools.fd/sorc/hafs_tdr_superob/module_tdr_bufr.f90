@@ -177,7 +177,7 @@ if(iret .eq. 0) then
         !endif
       endif ! if (irec .eq 1)
 
-      write(lnascii,'(A2,1X,F15.0,1X,2(F6.2,1X),(F7.1,1X),2(F6.2,1X),100(F7.2,1X))',iostat=iost) trim(this_tailno),&
+      write(lnascii,'(A2,1X,F15.0,1X,2(F8.2,1X),(F7.1,1X),2(F8.2,1X),100(F7.2,1X))',iostat=iost) trim(this_tailno),&
         obdate,this_stalat,this_stalon,this_stahgt,this_azimuth,this_tilt,(tdr_obs(3,k),k=1,levs)
       call check_iostat_write('bufr_decode_tdr', ascii_filename, iost)
 
