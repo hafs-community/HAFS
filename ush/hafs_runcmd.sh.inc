@@ -89,6 +89,8 @@ elif [ "$machine" = nimbus ]; then
   export FI_UNIVERSE_SIZE=${TOTAL_TASKS}
   export I_MPI_PMI=pmi2
   export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi2.so
+  export I_MPI_EXTRA_FILESYSTEM=1
+  export I_MPI_EXTRA_FILESYSTEM_FORCE=lustre
   ulimit -l unlimited || true
   ulimit -n 65535 || true
 else
