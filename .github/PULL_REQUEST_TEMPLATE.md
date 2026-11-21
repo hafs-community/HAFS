@@ -21,7 +21,9 @@ What testing has been conducted on the PR thus far? Describe the nature of any s
 ## Application-level regression test status
 Running the HAFS application-level regression tests is currently performed by code reviewers after the developer creates the initial PR. As regression tests are conducted, the testers should use the checklist below to indicate **successful** regression tests. You may add other tests as needed. If a test fails, do not check the box. Instead, describe the failure in the PR comments, noting the platform where the test failed.
 
-- [ ] Jet
-- [ ] Hera
-- [ ] Orion
 - [ ] WCOSS2
+- [ ] Ursa
+- [ ] Hera
+- [ ] Gaeac6
+- [ ] Orion
+- [ ] Hercules
