@@ -1,6 +1,6 @@
 #!/bin/sh
 set -xeu
-source ./detect_machine.sh > /dev/null 2>&1
+source ../ush/detect_machine.sh > /dev/null 2>&1
 
 # INSTALL_ENVIR of nco or dev
 INSTALL_ENVIR=${INSTALL_ENVIR:-${1:-dev}}
