@@ -57,7 +57,7 @@ real, allocatable, dimension(:)                :: radius
 ! Assign file units and writeout format for sweep file
 bfrascii_unit = 13
 swp_unit = 14
-writeout_fmt = '(A2,1X,F15.0,1X,2(F6.2,1X),F7.1,1X,2(F6.2,1X),100(F7.2,1X))'
+writeout_fmt = '(A2,1X,F15.0,1X,2(F8.2,1X),F7.1,1X,2(F8.2,1X),100(F7.2,1X))'
 
 ! Set maximum number of radials allowed per sweep
 max_radials_swp = 720
